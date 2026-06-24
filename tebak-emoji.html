@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tebak Emoji — Razan & Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+    --green: #7aab8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .container { width: 100%; max-width: 520px; position: relative; z-index: 1; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO ── */
+  #screen-intro { text-align: center; }
+
+  .intro-emoji { font-size: 4rem; margin-bottom: 1.5rem; display: block; }
+
+  .intro-label {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem;
+  }
+
+  .intro-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 600; color: var(--ink);
+    line-height: 1.2; margin-bottom: 0.75rem;
+  }
+
+  .intro-title span { color: var(--rose); }
+
+  .intro-sub {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.7; max-width: 380px;
+    margin: 0 auto 2rem;
+  }
+
+  .intro-rules {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem; text-align: left;
+  }
+
+  .rules-title {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem;
+  }
+
+  .rules-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .rules-list li {
+    font-size: 13px; color: var(--muted);
+    display: flex; gap: 0.5rem; align-items: flex-start;
+  }
+  .rules-list li::before { content: '·'; color: var(--rose); font-weight: 700; flex-shrink: 0; }
+
+  /* ── GAME ── */
+  #screen-game { }
+
+  .game-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .game-progress {
+    font-size: 12px; color: var(--muted); letter-spacing: 0.05em;
+  }
+  .game-progress span { color: var(--rose); font-weight: 600; }
+
+  .game-score {
+    font-size: 12px; color: var(--muted);
+  }
+  .game-score span { color: var(--rose); font-weight: 600; }
+
+  .progress-bar {
+    width: 100%; height: 3px;
+    background: var(--blush); border-radius: 2px;
+    margin-bottom: 1.5rem; overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--blush), var(--rose));
+    border-radius: 2px; transition: width 0.4s ease;
+  }
+
+  /* Emoji display */
+  .emoji-card {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 16px rgba(45,31,26,0.06);
+    position: relative; overflow: hidden;
+  }
+
+  .emoji-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top, rgba(232,196,176,0.15), transparent 60%);
+    pointer-events: none;
+  }
+
+  .emoji-num {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem; display: block;
+  }
+
+  .emoji-display {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    letter-spacing: 0.3rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .emoji-hint {
+    font-size: 12px; color: var(--muted);
+    font-style: italic;
+  }
+
+  /* Input area */
+  .input-area {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .input-label {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem; display: block;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--blush);
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; color: var(--ink);
+    background: var(--cream);
+    outline: none; transition: border-color 0.2s;
+    margin-bottom: 0.75rem;
+  }
+
+  .input-field:focus { border-color: var(--rose); }
+  .input-field::placeholder { color: var(--blush); }
+
+  /* Feedback */
+  .feedback {
+    display: none; padding: 0.85rem 1rem;
+    border-radius: 8px; font-size: 13px; line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .feedback.correct {
+    display: block;
+    background: rgba(122,171,138,0.12); color: #4a7a5a;
+    border: 1px solid rgba(122,171,138,0.3);
+  }
+
+  .feedback.wrong {
+    display: block;
+    background: rgba(193,122,122,0.1); color: #8a4a4a;
+    border: 1px solid rgba(193,122,122,0.25);
+  }
+
+  .feedback.reveal {
+    display: block;
+    background: var(--warm); color: var(--ink);
+    border: 1px solid var(--blush);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; font-weight: 500;
+    letter-spacing: 0.04em; transition: all 0.2s;
+    width: 100%; text-align: center;
+  }
+
+  .btn-primary {
+    background: var(--rose); color: #fff;
+    box-shadow: 0 4px 16px rgba(193,122,111,0.3);
+  }
+  .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent; color: var(--muted);
+    border: 1.5px solid var(--blush);
+  }
+  .btn-outline:hover { border-color: var(--rose); color: var(--rose); }
+
+  .btn-row { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .btn-row .btn { flex: 1; }
+
+  /* ── RESULT ── */
+  #screen-result { text-align: center; }
+
+  .result-emoji { font-size: 4rem; display: block; margin-bottom: 1rem; }
+  .result-title { font-size: 1.6rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
+  .result-score {
+    font-size: 3rem; font-weight: 700;
+    color: var(--rose); line-height: 1; margin: 1rem 0;
+  }
+  .result-score span { font-size: 1.2rem; font-weight: 400; color: var(--muted); }
+  .result-msg { font-size: 14px; color: var(--muted); line-height: 1.8; max-width: 380px; margin: 0 auto 2rem; }
+
+  .recap {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 2rem; text-align: left;
+  }
+
+  .recap-title {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+
+  .recap-item {
+    display: flex; align-items: flex-start;
+    gap: 0.75rem; padding: 0.6rem 0;
+    border-bottom: 1px solid var(--warm);
+    font-size: 13px;
+  }
+  .recap-item:last-child { border-bottom: none; }
+  .recap-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+  .recap-emoji-shown { font-size: 1.1rem; }
+  .recap-answer { color: var(--ink); flex: 1; line-height: 1.5; }
+  .recap-answer small { color: var(--muted); font-size: 11px; display: block; margin-top: 2px; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed; border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none; z-index: 9999;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .emoji-display { font-size: 2.2rem; letter-spacing: 0.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <span class="intro-emoji">🎮</span>
+    <p class="intro-label">Mini Game Khusus Kita</p>
+    <h1 class="intro-title">Tebak <span>Emoji</span> Momen Kita</h1>
+    <p class="intro-sub">Aku gambar momennya pakai emoji — kamu yang nebak kejadiannya. Seberapa kamu inget momen kita? 👀</p>
+    <div class="intro-rules">
+      <p class="rules-title">Cara Main</p>
+      <ul class="rules-list">
+        <li>Lihat deretan emoji yang muncul</li>
+        <li>Tebak momen apa yang digambarkan</li>
+        <li>Tulis jawaban kamu, lalu cek</li>
+        <li>Kalau ga tau boleh minta hint — tapi poin berkurang</li>
+        <li>Ada 10 momen yang harus kamu tebak 😏</li>
+      </ul>
+    </div>
+    <button class="btn btn-primary" onclick="startGame()">Mulai Tebak →</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <p class="game-progress">Momen <span id="cur-num">1</span> dari <span id="total-num">10</span></p>
+      <p class="game-score">Skor: <span id="live-score">0</span></p>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="emoji-card">
+      <span class="emoji-num" id="emoji-num">Momen 01</span>
+      <span class="emoji-display" id="emoji-display">🌸</span>
+      <p class="emoji-hint" id="emoji-hint">힌트 힌트...</p>
+    </div>
+
+    <div class="input-area">
+      <span class="input-label">Jawaban kamu</span>
+      <input
+        type="text"
+        class="input-field"
+        id="answer-input"
+        placeholder="Tulis momen yang kamu tebak..."
+        onkeydown="if(event.key==='Enter') checkAnswer()"
+      >
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Cek Jawaban ✓</button>
+      <button class="btn btn-outline" id="hint-btn" onclick="showHint()">Hint (-1 poin)</button>
+    </div>
+    <button class="btn btn-outline" id="next-btn" style="display:none" onclick="nextMoment()">
+      Momen Berikutnya →
+    </button>
+    <button class="btn btn-outline" id="reveal-btn" onclick="revealAnswer()" style="display:none; margin-top: 0.75rem;">
+      Kasih Tau Jawabannya
+    </button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <span class="result-emoji" id="result-emoji">🎉</span>
+    <h2 class="result-title" id="result-title">Hasilnya...</h2>
+    <div class="result-score">
+      <span id="final-score">0</span>
+      <span> / <span id="final-max">0</span></span>
+    </div>
+    <p class="result-msg" id="result-msg">...</p>
+    <div class="recap">
+      <p class="recap-title">Rekap Semua Momen</p>
+      <div id="recap-list"></div>
+    </div>
+    <button class="btn btn-primary" onclick="restartGame()">Main Lagi 🔄</button>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   DATA MOMEN — Edit bagian ini sesuai momen kita!
+
+   Format:
+   {
+     emoji: "rangkaian emoji",
+     hint: "clue kalau minta hint",
+     answer: ["jawaban 1", "jawaban 2"],  ← bisa lebih dari satu variasi jawaban
+     reveal: "jawaban lengkap yang ditampilkan",
+     note: "cerita/komentar yang muncul setelah jawaban benar"
+   }
+══════════════════════════════════════════════════ */
+
+const moments = [
+  {
+    emoji: "🗺️ 📍 🦁 🦒 ☀️ 😊",
+    hint: "Salah satu tempat wisata di Jakarta Selatan...",
+    answer: ["ragunan", "kebun binatang ragunan", "zoo", "ragunan zoo"],
+    reveal: "Jalan-jalan ke Ragunan Zoo",
+    note: "Momen jalan bareng ngeliat hewan-hewan, di bawah terik matahari wkwk 🦒"
+  },
+  {
+    emoji: "🏛️ 🗿 📚 🇮🇩 🚶‍♂️🚶‍♀️",
+    hint: "Ada patung gajah di depannya...",
+    answer: ["museum nasional", "museum gajah", "museum nasional indonesia"],
+    reveal: "Mengunjungi Museum Nasional Indonesia",
+    note: "Jalan bareng, belajar sejarah, tapi yang paling berasa cuma kebersamaannya 🤍"
+  },
+  {
+    emoji: "🏙️ 🏚️ 🚢 ☕ 📸",
+    hint: "Kawasan tua di Jakarta Barat...",
+    answer: ["kota tua", "old town", "batavia", "jakarta old town"],
+    reveal: "Eksplorasi Kota Tua Jakarta",
+    note: "Foto-foto di jalanan tua, minum kopi, dan kita berdua jadi bagian dari sejarah hari itu 📸"
+  },
+  {
+    emoji: "🎭 🎪 🌳 🎨 🌆",
+    hint: "Pusat kesenian di Cikini...",
+    answer: ["tim", "taman ismail marzuki", "taman ismail", "cikini"],
+    reveal: "Jalan ke Taman Ismail Marzuki",
+    note: "Tempat yang punya vibe artistik — cocok banget buat kita berdua 🎨"
+  },
+  {
+    emoji: "🇮🇩 🏘️ 🎡 🌏 🚶",
+    hint: "Miniatur Indonesia ada di sini...",
+    answer: ["tmii", "taman mini", "taman mini indonesia indah"],
+    reveal: "Ke Taman Mini Indonesia Indah",
+    note: "Keliling Indonesia dalam satu hari — tapi yang penting keliling bareng kamu 🤍"
+  },
+  {
+    emoji: "🎬 🍿 🎥 😂 🤍",
+    hint: "Sesuatu yang sering kita lakuin bareng buat hiburan...",
+    answer: ["nonton", "bioskop", "nonton bioskop", "nonton film", "cinema"],
+    reveal: "Nonton Bareng di Bioskop",
+    note: "Entah filmnya bagus atau ga, yang penting nontonnya bareng kamu 🎬🤍"
+  },
+  {
+    emoji: "💬 📱 🌙 ❤️ 😴",
+    hint: "Sesuatu yang sering kita lakuin sebelum tidur...",
+    answer: ["chat malam", "telponan malam", "ngobrol malam", "chat sebelum tidur", "telpon malam"],
+    reveal: "Ngobrol / Chat Sampai Malam",
+    note: "Ga ada yang mau duluan matiin hp — itu salah satu hal kecil yang selalu bikin hari berasa lengkap 🌙"
+  },
+  {
+    emoji: "😤 🤐 💔 🕊️ 🤍",
+    hint: "Setelah bertengkar, selalu ada ini...",
+    answer: ["baikan", "make up", "minta maaf", "baikan setelah berantem", "maafkan"],
+    reveal: "Baikan Setelah Berantem",
+    note: "Bertengkar itu biasa — tapi selalu balik lagi itu yang bikin hubungan kita beda 🤍"
+  },
+  {
+    emoji: "🏃 🌳 🏸 💪 ☀️",
+    hint: "Aktivitas fisik yang sering kita lakuin bareng, kadang di Cijantung...",
+    answer: ["olahraga", "lari", "badminton", "olahraga bareng", "jogging", "tenis", "main badminton"],
+    reveal: "Olahraga Bareng — Lari / Badminton di Cijantung",
+    note: "Di taman, di lapangan, yang penting gerak bareng. Itu udah menyenangkan sendiri 💪🌳"
+  },
+  {
+    emoji: "💍 🤍 🏡 👫 ✨",
+    hint: "Ini bukan momen yang sudah terjadi — tapi momen yang paling ditunggu...",
+    answer: ["nikah", "menikah", "married", "lamaran", "tunangan", "nikah sama dara"],
+    reveal: "Menikah Sama Dara",
+    note: "Ini impian terbesar Razan. Dan semoga suatu hari jadi kenyataan 🤍✨"
+  }
+];
+
+const resultTiers = [
+  { min: 0, max: 3, emoji: "😅", title: "Hmm, agak lupa nih~", msg: "Kayaknya perlu lebih sering ngobrol sama Razan biar inget momen-momen kita wkwk 💪" },
+  { min: 4, max: 6, emoji: "🌸", title: "Lumayan inget!", msg: "Kamu masih inget banyak hal tentang kita. Tapi ada beberapa yang kayaknya udah mulai kabur nih 👀" },
+  { min: 7, max: 9, emoji: "💖", title: "Wah, inget banget!", msg: "Kamu ternyata nyimpen banyak momen kita di kepala. Makasih udah inget semua itu 🤍" },
+  { min: 10, max: 99, emoji: "🎉", title: "SEMPURNA!", msg: "Nilai sempurna! Kamu inget semua momen kita. Razan seneng banget kamu inget semuanya 🤍✨" }
+];
+
+/* ══ STATE ══ */
+let currentIdx = 0;
+let score = 0;
+let hintUsed = false;
+let answered = false;
+let recap = [];
+let maxScore = 0;
+
+function startGame() {
+  currentIdx = 0; score = 0; recap = []; maxScore = 0;
+  showScreen('screen-game');
+  renderMoment();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderMoment() {
+  const m = moments[currentIdx];
+  hintUsed = false;
+  answered = false;
+
+  document.getElementById('cur-num').textContent = currentIdx + 1;
+  document.getElementById('total-num').textContent = moments.length;
+  document.getElementById('live-score').textContent = score;
+  document.getElementById('emoji-num').textContent = `Momen ${String(currentIdx + 1).padStart(2, '0')}`;
+  document.getElementById('emoji-display').textContent = m.emoji;
+  document.getElementById('emoji-hint').textContent = '❓ Momen apa ini?';
+  document.getElementById('progress-fill').style.width = `${(currentIdx / moments.length) * 100}%`;
+
+  document.getElementById('answer-input').value = '';
+  document.getElementById('answer-input').disabled = false;
+  document.getElementById('answer-input').focus();
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+
+  document.getElementById('check-btn').style.display = 'block';
+  document.getElementById('hint-btn').style.display = 'block';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('reveal-btn').style.display = 'none';
+}
+
+function checkAnswer() {
+  if (answered) return;
+  const m = moments[currentIdx];
+  const input = document.getElementById('answer-input').value.trim().toLowerCase();
+  if (!input) return;
+
+  const isCorrect = m.answer.some(a => input.includes(a) || a.includes(input));
+  const points = hintUsed ? 0 : 1;
+
+  answered = true;
+  maxScore++;
+  document.getElementById('answer-input').disabled = true;
+
+  const fb = document.getElementById('feedback');
+
+  if (isCorrect) {
+    score += points;
+    fb.className = 'feedback correct';
+    fb.textContent = `✓ Bener! ${m.note}${hintUsed ? ' (poin ga dapet karena pakai hint)' : ` (+${points} poin)`}`;
+    recap.push({ emoji: m.emoji, reveal: m.reveal, correct: true });
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = `✗ Belum tepat. Mau lihat jawabannya?`;
+    document.getElementById('reveal-btn').style.display = 'block';
+    recap.push({ emoji: m.emoji, reveal: m.reveal, correct: false });
+  }
+
+  document.getElementById('live-score').textContent = score;
+  document.getElementById('check-btn').style.display = 'none';
+  document.getElementById('hint-btn').style.display = 'none';
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'block';
+  nextBtn.textContent = currentIdx < moments.length - 1 ? 'Momen Berikutnya →' : 'Lihat Hasil →';
+}
+
+function showHint() {
+  if (hintUsed || answered) return;
+  hintUsed = true;
+  const m = moments[currentIdx];
+  document.getElementById('emoji-hint').textContent = `💡 Hint: ${m.hint}`;
+  document.getElementById('hint-btn').style.display = 'none';
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback reveal';
+  fb.textContent = 'Hint dipakai — kalau bener, poin tetap 0 ya!';
+}
+
+function revealAnswer() {
+  const m = moments[currentIdx];
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback reveal';
+  fb.textContent = `Jawabannya: "${m.reveal}" — ${m.note}`;
+  document.getElementById('reveal-btn').style.display = 'none';
+}
+
+function nextMoment() {
+  currentIdx++;
+  if (currentIdx < moments.length) {
+    renderMoment();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  showScreen('screen-result');
+  const tier = resultTiers.find(t => score >= t.min && score <= t.max) || resultTiers[0];
+
+  document.getElementById('result-emoji').textContent = tier.emoji;
+  document.getElementById('result-title').textContent = tier.title;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-max').textContent = moments.length;
+  document.getElementById('result-msg').textContent = tier.msg;
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const list = document.getElementById('recap-list');
+  list.innerHTML = '';
+  recap.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'recap-item';
+    item.innerHTML = `
+      <span class="recap-icon">${r.correct ? '✅' : '❌'}</span>
+      <div>
+        <p class="recap-emoji-shown">${r.emoji}</p>
+        <p class="recap-answer">${r.reveal}</p>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+
+  if (score === moments.length) launchConfetti();
+}
+
+function restartGame() { startGame(); }
+
+function launchConfetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#7aab8a','#faf6f0'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left:${Math.random()*100}vw; top:-10px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${1.5+Math.random()*2}s;
+        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 40);
+  }
+}
+</script>
+</body>
+</html>
