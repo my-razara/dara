@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Search — Razan & Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 2rem 1rem 5rem;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 15%, rgba(232,196,176,0.3) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 60% at 80% 85%, rgba(193,122,111,0.15) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; padding: 2rem 0 1.5rem; }
+
+  .header-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+
+  .header-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.5rem; display: block;
+  }
+
+  .header-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 600; color: var(--ink); margin-bottom: 0.5rem;
+  }
+
+  .header-title span { color: var(--rose); }
+
+  .header-sub {
+    font-size: 13px; color: var(--muted); line-height: 1.7;
+    max-width: 380px; margin: 0 auto 1.5rem;
+  }
+
+  /* ── STATS ── */
+  .stats {
+    display: flex; justify-content: center; gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.5rem; font-weight: 600; color: var(--rose); display: block; }
+  .stat-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── GRID ── */
+  .grid-wrap {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 16px rgba(45,31,26,0.06);
+    overflow-x: auto;
+  }
+
+  #word-grid {
+    display: grid;
+    gap: 2px;
+    width: fit-content;
+    margin: 0 auto;
+    user-select: none;
+  }
+
+  .cell {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500;
+    color: var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+  }
+
+  .cell:hover { background: var(--warm); }
+  .cell.selecting { background: rgba(193,122,111,0.25); color: var(--deep); }
+  .cell.found { background: var(--rose); color: #fff; border-color: var(--deep); }
+
+  /* Different colors for found words */
+  .cell.found-0 { background: #c17a6f; }
+  .cell.found-1 { background: #b5a090; }
+  .cell.found-2 { background: #c9a96e; }
+  .cell.found-3 { background: #b5c4b1; }
+  .cell.found-4 { background: #c4a0a8; }
+  .cell.found-5 { background: #9ab0c4; }
+  .cell.found-6 { background: #c4b0a0; }
+  .cell.found-7 { background: #a0b4c4; }
+  .cell.found-8 { background: #c4a0b4; }
+  .cell.found-9 { background: #b4c4a0; }
+  .cell.found-10 { background: #c4b4a0; }
+  .cell.found-11 { background: #a0c4b4; }
+  .cell.found-12 { background: #c4a8a0; }
+  .cell.found-13 { background: #a8b0c4; }
+  .cell.found-14 { background: #c4b0b8; }
+  .cell.found-15 { background: #b0c4a8; }
+  .cell.found-16 { background: #c4a0a0; }
+  .cell.found-17 { background: #a0a8c4; }
+  .cell.found-18 { background: #c4b8a0; }
+  .cell.found-19 { background: #a8c4a0; }
+  .cell.found-20 { background: #c4a0c4; }
+  .cell.found-21 { background: #a0c4c4; }
+  .cell.found-22 { background: #c4c4a0; }
+  .cell.found-23 { background: #a0b8a8; }
+  .cell.found-24 { background: #c4a8b8; }
+
+  /* ── WORD LIST ── */
+  .word-list-wrap {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 16px; padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(45,31,26,0.05);
+  }
+
+  .word-list-title {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem; display: block;
+  }
+
+  .word-list {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+
+  .word-chip {
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-size: 12px; font-weight: 400;
+    background: var(--warm);
+    color: var(--muted);
+    border: 1px solid var(--blush);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .word-chip.found {
+    color: #fff;
+    border-color: transparent;
+    text-decoration: line-through;
+    opacity: 0.8;
+  }
+
+  /* ── WIN SCREEN ── */
+  #win-screen {
+    display: none; text-align: center;
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.2);
+    border-radius: 16px; padding: 2.5rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 24px rgba(193,122,111,0.12);
+  }
+
+  #win-screen.show { display: block; animation: pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+  @keyframes pop-in {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .win-emoji { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+  .win-title { font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
+  .win-msg { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 1.5rem; }
+  .win-time { font-size: 2rem; font-weight: 700; color: var(--rose); margin: 0.5rem 0; }
+  .win-time-label { font-size: 11px; color: var(--muted); }
+
+  /* ── TIMER ── */
+  .timer {
+    font-size: 13px; color: var(--muted);
+    text-align: center; margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .timer span { color: var(--rose); font-weight: 600; font-size: 1.1rem; }
+
+  /* ── BUTTON ── */
+  .btn {
+    display: block; width: 100%;
+    padding: 0.85rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
+    transition: all 0.2s; text-align: center;
+  }
+
+  .btn-primary { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(193,122,111,0.3); }
+  .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--muted); border: 1.5px solid var(--blush); }
+  .btn-outline:hover { border-color: var(--rose); color: var(--rose); }
+
+  .btn-row { display: flex; gap: 0.75rem; }
+  .btn-row .btn { flex: 1; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed; border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none; z-index: 9999;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .cell { width: 22px; height: 22px; font-size: 10px; }
+  }
+
+  /* ── INTRO SCREEN ── */
+  #intro-screen {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+    position: relative; z-index: 1;
+  }
+
+  #game-screen { display: none; }
+
+  .intro-wrap { max-width: 420px; width: 100%; text-align: center; }
+
+  .intro-icon {
+    font-size: 4rem; display: block; margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .intro-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem; display: block;
+  }
+
+  .intro-title {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    font-weight: 600; color: var(--ink); line-height: 1.15;
+    margin-bottom: 0.75rem;
+  }
+
+  .intro-title span { color: var(--rose); }
+
+  .intro-sub {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.8; margin-bottom: 2rem;
+  }
+
+  .intro-info {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem; text-align: left;
+  }
+
+  .intro-info-title {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem; display: block;
+  }
+
+  .intro-info-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .intro-info-list li {
+    font-size: 13px; color: var(--muted);
+    display: flex; gap: 0.5rem; align-items: flex-start;
+  }
+
+  .intro-info-list li::before { content: '·'; color: var(--rose); font-weight: 700; flex-shrink: 0; }
+
+  .intro-meta {
+    display: flex; justify-content: center; gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .intro-meta-item { text-align: center; }
+  .intro-meta-num { font-size: 1.5rem; font-weight: 600; color: var(--rose); display: block; }
+  .intro-meta-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  .btn-start {
+    width: 100%; padding: 1rem;
+    border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px; font-weight: 600;
+    background: var(--rose); color: #fff;
+    box-shadow: 0 6px 24px rgba(193,122,111,0.4);
+    transition: all 0.2s; letter-spacing: 0.04em;
+  }
+
+  .btn-start:hover { background: var(--deep); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- INTRO SCREEN -->
+<div id="intro-screen">
+  <div class="intro-wrap">
+    <span class="intro-icon">🔍</span>
+    <span class="intro-label">Mini Game</span>
+    <h1 class="intro-title">Word Search<br><span>Razan & Dara</span></h1>
+    <p class="intro-sub">Temukan semua kata tersembunyi tentang kita berdua sebelum waktu habis! 🤍</p>
+
+    <div class="intro-meta">
+      <div class="intro-meta-item">
+        <span class="intro-meta-num">12</span>
+        <span class="intro-meta-label">Kata</span>
+      </div>
+      <div class="intro-meta-item">
+        <span class="intro-meta-num">5</span>
+        <span class="intro-meta-label">Menit</span>
+      </div>
+      <div class="intro-meta-item">
+        <span class="intro-meta-num">12x12</span>
+        <span class="intro-meta-label">Grid</span>
+      </div>
+    </div>
+
+    <div class="intro-info">
+      <span class="intro-info-title">Cara Main</span>
+      <ul class="intro-info-list">
+        <li>Drag atau swipe untuk pilih huruf</li>
+        <li>Kata bisa horizontal, vertikal, atau diagonal</li>
+        <li>Kata tersusun dari kiri ke kanan atau atas ke bawah</li>
+        <li>Temukan semua 12 kata sebelum 5 menit habis</li>
+      </ul>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">Mulai Main! →</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+<div class="page">
+
+  <div class="header">
+    <span class="header-icon">🔍</span>
+    <span class="header-label">Mini Game</span>
+    <h1 class="header-title">Word Search <span>Razan & Dara</span></h1>
+    <p class="header-sub">Temukan semua kata yang tersembunyi di grid. Kata-katanya semua tentang kita! 🤍</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-num" id="found-count">0</span>
+      <span class="stat-label">Ditemukan</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="total-count">25</span>
+      <span class="stat-label">Total Kata</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="timer-display">00:00</span>
+      <span class="stat-label">Sisa Waktu</span>
+    </div>
+  </div>
+
+  <div class="grid-wrap">
+    <div id="word-grid"></div>
+  </div>
+
+  <div class="word-list-wrap">
+    <span class="word-list-title">Kata yang harus ditemukan</span>
+    <div class="word-list" id="word-list"></div>
+  </div>
+
+  <div id="win-screen">
+    <span class="win-emoji" id="win-emoji">🎉</span>
+    <h2 class="win-title" id="win-title">Semua kata ditemukan!</h2>
+    <p class="win-msg" id="win-msg">Kamu berhasil nemuin semua kata tentang kita berdua 🤍</p>
+    <div style="margin: 1rem 0 0.5rem;">
+      <p class="win-time-label">Kata ditemukan</p>
+      <p class="win-time" id="win-score">0 / 12</p>
+    </div>
+    <div style="margin-bottom: 1.5rem;">
+      <p class="win-time-label">Waktu terpakai</p>
+      <p style="font-size: 1.2rem; font-weight: 600; color: var(--muted);" id="win-time">00:00</p>
+    </div>
+    <div class="btn-row" style="max-width: 360px; margin: 0 auto;">
+      <button class="btn btn-primary" onclick="playAgain()">Main Lagi 🔄</button>
+      <button class="btn btn-outline" onclick="backToIntro()">Kembali</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="playAgain()">Reset</button>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════
+   KATA-KATA — Edit sesuka kamu!
+   Maksimal 15 karakter per kata.
+   Gunakan huruf kapital semua.
+══════════════════════════════ */
+const WORDS = [
+  "RAZAN",
+  "DARA",
+  "SAYANG",
+  "NONA",
+  "MAAF",
+  "CANTIK",
+  "IMUT",
+  "PELUK",
+  "RINDU",
+  "SETIA",
+  "BAHAGIA",
+  "NIKAH"
+];
+
+const GRID_SIZE = 12;
+let grid = [];
+let placed = [];
+let selecting = false;
+let startCell = null;
+let currentSelection = [];
+let foundWords = [];
+let timerInterval = null;
+let seconds = 0;
+let gameStarted = false;
+const TIME_LIMIT = 5 * 60;
+
+/* ══ GRID GENERATION ══ */
+const directions = [
+  [0, 1],   // right
+  [1, 0],   // down
+  [1, 1],   // diagonal down-right
+  [0, -1],  // left
+  [-1, 0],  // up
+  [-1, -1], // diagonal up-left
+  [1, -1],  // diagonal down-left
+  [-1, 1],  // diagonal up-right
+];
+
+function initGrid() {
+  grid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(''));
+  placed = [];
+
+  const sorted = [...WORDS].sort((a, b) => b.length - a.length);
+
+  for (const word of sorted) {
+    let placed_ok = false;
+    let attempts = 0;
+    while (!placed_ok && attempts < 200) {
+      attempts++;
+      const dir = directions[Math.floor(Math.random() * directions.length)];
+      const row = Math.floor(Math.random() * GRID_SIZE);
+      const col = Math.floor(Math.random() * GRID_SIZE);
+
+      if (canPlace(word, row, col, dir)) {
+        placeWord(word, row, col, dir);
+        placed_ok = true;
+      }
+    }
+    if (!placed_ok) {
+      // Force place horizontally
+      for (let r = 0; r < GRID_SIZE && !placed_ok; r++) {
+        for (let c = 0; c <= GRID_SIZE - word.length && !placed_ok; c++) {
+          if (canPlace(word, r, c, [0, 1])) {
+            placeWord(word, r, c, [0, 1]);
+            placed_ok = true;
+          }
+        }
+      }
+    }
+  }
+
+  // Fill empty cells with random letters
+  const letters = 'ABCDEFGHIJKLMNOPRSTUVWYZ';
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      if (!grid[r][c]) {
+        grid[r][c] = letters[Math.floor(Math.random() * letters.length)];
+      }
+    }
+  }
+}
+
+function canPlace(word, row, col, dir) {
+  for (let i = 0; i < word.length; i++) {
+    const r = row + dir[0] * i;
+    const c = col + dir[1] * i;
+    if (r < 0 || r >= GRID_SIZE || c < 0 || c >= GRID_SIZE) return false;
+    if (grid[r][c] && grid[r][c] !== word[i]) return false;
+  }
+  return true;
+}
+
+function placeWord(word, row, col, dir) {
+  const cells = [];
+  for (let i = 0; i < word.length; i++) {
+    const r = row + dir[0] * i;
+    const c = col + dir[1] * i;
+    grid[r][c] = word[i];
+    cells.push([r, c]);
+  }
+  placed.push({ word, cells });
+}
+
+/* ══ RENDER ══ */
+function renderGrid() {
+  const container = document.getElementById('word-grid');
+  container.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 28px)`;
+  container.innerHTML = '';
+
+  for (let r = 0; r < GRID_SIZE; r++) {
+    for (let c = 0; c < GRID_SIZE; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.textContent = grid[r][c];
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
+      cell.addEventListener('mousedown', onStart);
+      cell.addEventListener('mouseover', onMove);
+      cell.addEventListener('mouseup', onEnd);
+      cell.addEventListener('touchstart', onTouchStart, { passive: false });
+      cell.addEventListener('touchmove', onTouchMove, { passive: false });
+      cell.addEventListener('touchend', onTouchEnd);
+
+      container.appendChild(cell);
+    }
+  }
+}
+
+function renderWordList() {
+  const list = document.getElementById('word-list');
+  list.innerHTML = '';
+  WORDS.forEach((w, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'word-chip';
+    chip.id = `chip-${w}`;
+    chip.textContent = w;
+    list.appendChild(chip);
+  });
+  document.getElementById('total-count').textContent = WORDS.length;
+}
+
+/* ══ SELECTION ══ */
+function getCell(row, col) {
+  return document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+}
+
+function onStart(e) {
+  selecting = true;
+  startCell = { row: +e.target.dataset.row, col: +e.target.dataset.col };
+  currentSelection = [startCell];
+  highlightSelection();
+}
+
+function onMove(e) {
+  if (!selecting) return;
+  const row = +e.target.dataset.row;
+  const col = +e.target.dataset.col;
+  const endCell = { row, col };
+  currentSelection = getCellsBetween(startCell, endCell);
+  highlightSelection();
+}
+
+function onEnd() {
+  if (!selecting) return;
+  selecting = false;
+  checkSelection();
+  clearHighlight();
+  currentSelection = [];
+}
+
+function onTouchStart(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (el && el.classList.contains('cell')) onStart({ target: el });
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (el && el.classList.contains('cell')) onMove({ target: el });
+}
+
+function onTouchEnd(e) { onEnd(); }
+
+function getCellsBetween(start, end) {
+  const cells = [];
+  const dr = end.row - start.row;
+  const dc = end.col - start.col;
+
+  // Only allow straight lines and diagonals
+  const len = Math.max(Math.abs(dr), Math.abs(dc));
+  if (len === 0) return [start];
+
+  // Check if it's a valid direction
+  const isValid =
+    dr === 0 || dc === 0 ||
+    Math.abs(dr) === Math.abs(dc);
+
+  if (!isValid) return [start];
+
+  const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+  const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+  for (let i = 0; i <= len; i++) {
+    cells.push({ row: start.row + stepR * i, col: start.col + stepC * i });
+  }
+  return cells;
+}
+
+function highlightSelection() {
+  // Clear previous selection
+  document.querySelectorAll('.cell.selecting').forEach(c => c.classList.remove('selecting'));
+  currentSelection.forEach(({ row, col }) => {
+    const cell = getCell(row, col);
+    if (cell && !cell.classList.contains('found')) {
+      cell.classList.add('selecting');
+    }
+  });
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.cell.selecting').forEach(c => c.classList.remove('selecting'));
+}
+
+function checkSelection() {
+  const selected = currentSelection.map(({ row, col }) => grid[row][col]).join('');
+
+  for (const { word, cells } of placed) {
+    if (foundWords.includes(word)) continue;
+    if (selected === word) {
+      const idx = WORDS.indexOf(word);
+      markFound(word, cells, idx);
+      return;
+    }
+  }
+}
+
+function markFound(word, cells, idx) {
+  foundWords.push(word);
+
+  cells.forEach(([r, c]) => {
+    const cell = getCell(r, c);
+    if (cell) {
+      cell.classList.remove('selecting');
+      cell.classList.add('found', `found-${idx % 25}`);
+    }
+  });
+
+  const chip = document.getElementById(`chip-${word}`);
+  if (chip) {
+    chip.classList.add('found');
+    chip.style.background = getColor(idx % 25);
+  }
+
+  document.getElementById('found-count').textContent = foundWords.length;
+
+  if (foundWords.length === WORDS.length) {
+    setTimeout(showWin, 500);
+  }
+}
+
+function getColor(idx) {
+  const colors = [
+    '#c17a6f','#b5a090','#c9a96e','#b5c4b1','#c4a0a8',
+    '#9ab0c4','#c4b0a0','#a0b4c4','#c4a0b4','#b4c4a0',
+    '#c4b4a0','#a0c4b4','#c4a8a0','#a8b0c4','#c4b0b8',
+    '#b0c4a8','#c4a0a0','#a0a8c4','#c4b8a0','#a8c4a0',
+    '#c4a0c4','#a0c4c4','#c4c4a0','#a0b8a8','#c4a8b8'
+  ];
+  return colors[idx] || '#c17a6f';
+}
+
+/* ══ TIMER ══ */
+function startTimer() {
+  gameStarted = true;
+  timerInterval = setInterval(() => {
+    seconds++;
+    const remaining = TIME_LIMIT - seconds;
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById('timer-display').textContent = '00:00';
+      showResult(false);
+      return;
+    }
+    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+    const s = String(remaining % 60).padStart(2, '0');
+    document.getElementById('timer-display').textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+/* ══ WIN ══ */
+function showWin() {
+  showResult(true);
+}
+
+function showResult(completed) {
+  stopTimer();
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  const found = foundWords.length;
+  const total = WORDS.length;
+
+  document.getElementById('win-score').textContent = found + ' / ' + total;
+  document.getElementById('win-time').textContent = m + ':' + s;
+
+  if (completed) {
+    document.getElementById('win-emoji').textContent = '🎉';
+    document.getElementById('win-title').textContent = 'Semua kata ditemukan!';
+    document.getElementById('win-msg').textContent = 'Kamu berhasil nemuin semua kata tentang kita berdua. Mantap banget! 🤍';
+    launchConfetti();
+  } else {
+    if (found === 0) {
+      document.getElementById('win-emoji').textContent = '😅';
+      document.getElementById('win-title').textContent = 'Waktu habis!';
+      document.getElementById('win-msg').textContent = 'Belum ada kata yang ketemu nih. Coba lagi ya! 💪';
+    } else if (found < total / 2) {
+      document.getElementById('win-emoji').textContent = '😬';
+      document.getElementById('win-title').textContent = 'Waktu habis!';
+      document.getElementById('win-msg').textContent = 'Lumayan, tapi masih kurang nih. Mau coba lagi? 👀';
+    } else if (found < total) {
+      document.getElementById('win-emoji').textContent = '🌸';
+      document.getElementById('win-title').textContent = 'Waktu habis!';
+      document.getElementById('win-msg').textContent = 'Hampir semua! Tinggal ' + (total - found) + ' kata lagi. Coba lagi? 🤍';
+    }
+  }
+
+  document.getElementById('win-screen').classList.add('show');
+  document.getElementById('win-screen').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ══ REVEAL ══ */
+function revealAll() {
+  placed.forEach(({ word, cells }) => {
+    if (!foundWords.includes(word)) {
+      const idx = WORDS.indexOf(word);
+      markFound(word, cells, idx);
+    }
+  });
+  stopTimer();
+}
+
+/* ══ RESET ══ */
+function startGame() {
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  resetGame();
+  startTimer();
+}
+
+function resetGame() {
+  stopTimer();
+  seconds = 0;
+  gameStarted = false;
+  foundWords = [];
+  document.getElementById('timer-display').textContent = '05:00';
+  document.getElementById('found-count').textContent = '0';
+  document.getElementById('win-screen').classList.remove('show');
+  initGrid();
+  renderGrid();
+  renderWordList();
+}
+
+function playAgain() {
+  resetGame();
+  startTimer();
+}
+
+function backToIntro() {
+  resetGame();
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('intro-screen').style.display = 'flex';
+}
+
+/* ══ CONFETTI ══ */
+function launchConfetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left:${Math.random()*100}vw; top:-10px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${1.5+Math.random()*2.5}s;
+        animation-delay:${Math.random()*0.5}s;
+        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }, i * 30);
+  }
+}
+
+</script>
+</div>
+</div>
+
+</body>
+</html>
