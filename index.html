@@ -239,15 +239,14 @@
       <span class="card-arrow">→</span>
     </a>
 
-    <a href="birthday-scrapbook.html" class="card">
-      <!-- === EDIT: Ganti href === -->
-      <div class="card-icon pink">📖</div>
+    <div class="card" id="card-birthday" onclick="checkBirthday()" style="cursor:pointer; opacity: 0.6;">
+      <div class="card-icon pink" id="bday-icon">🔒</div>
       <div class="card-body">
-        <p class="card-title">Memory Scrapbook & Peta Kenangan</p>
-        <p class="card-desc">Semua tempat dan momen yang pernah kita lalui bareng.</p>
+        <p class="card-title" id="bday-title">Sesuatu yang Spesial</p>
+        <p class="card-desc" id="bday-desc">Akan terbuka otomatis pada hari yang tepat. Tunggu ya 🤍</p>
       </div>
-      <span class="card-arrow">→</span>
-    </a>
+      <span class="card-arrow" id="bday-arrow">—</span>
+    </div>
 
   </div>
 
@@ -264,6 +263,41 @@
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // === EDIT: Ganti tanggal ultah Dara (bulan 0-11, Agustus = 7) ===
+  const BDAY_MONTH = 7;  // Agustus
+  const BDAY_DAY   = 18; // Tanggal 18
+
+  function isBirthday() {
+    const now = new Date();
+    return now.getMonth() === BDAY_MONTH && now.getDate() >= BDAY_DAY;
+  }
+
+  function checkBirthday() {
+    if (isBirthday()) {
+      window.location.href = 'birthday-scrapbook.html';
+    } else {
+      const now = new Date();
+      const bday = new Date(now.getFullYear(), BDAY_MONTH, BDAY_DAY);
+      if (bday < now) bday.setFullYear(now.getFullYear() + 1);
+      const diff = Math.ceil((bday - now) / (1000 * 60 * 60 * 24));
+      alert('Masih ' + diff + ' hari lagi ya 🤍 Sabar dulu~');
+    }
+  }
+
+  // Auto unlock kalau udah hari ultah
+  if (isBirthday()) {
+    const card = document.getElementById('card-birthday');
+    const icon = document.getElementById('bday-icon');
+    const title = document.getElementById('bday-title');
+    const desc = document.getElementById('bday-desc');
+    const arrow = document.getElementById('bday-arrow');
+    card.style.opacity = '1';
+    icon.textContent = '📖';
+    title.textContent = 'Memory Scrapbook & Peta Kenangan';
+    desc.textContent = 'Semua tempat dan momen yang pernah kita lalui bareng. Happy birthday! 🎉';
+    arrow.textContent = '→';
+  }
 </script>
 </body>
 </html>
