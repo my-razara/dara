@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Seberapa Kenal Kamu Sama Razan? 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+    --green: #7aab8a;
+    --red: #c17a7a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO ── */
+  #screen-intro { text-align: center; }
+
+  .intro-avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--warm);
+    border: 3px solid var(--blush);
+    margin: 0 auto 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+  }
+
+  .intro-label {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem;
+  }
+
+  .intro-title {
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    font-weight: 600; color: var(--ink);
+    line-height: 1.25; margin-bottom: 0.75rem;
+  }
+
+  .intro-title span { color: var(--rose); }
+
+  .intro-sub {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.7; margin-bottom: 2rem;
+    max-width: 400px; margin-left: auto; margin-right: auto;
+  }
+
+  .intro-meta {
+    display: flex; justify-content: center; gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .meta-item { text-align: center; }
+  .meta-num {
+    font-size: 1.5rem; font-weight: 600;
+    color: var(--rose); display: block;
+  }
+  .meta-label {
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-block;
+    padding: 0.85rem 2.5rem;
+    border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; font-weight: 500;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--rose); color: #fff;
+    box-shadow: 0 4px 16px rgba(193,122,111,0.3);
+  }
+  .btn-primary:hover {
+    background: var(--deep);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    background: transparent; color: var(--rose);
+    border: 1.5px solid var(--blush);
+  }
+  .btn-outline:hover { border-color: var(--rose); }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-progress-text {
+    font-size: 12px; color: var(--muted); letter-spacing: 0.05em;
+  }
+  .quiz-progress-text span { color: var(--rose); font-weight: 600; }
+
+  .progress-bar {
+    width: 100%; height: 3px;
+    background: var(--blush); border-radius: 2px;
+    margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--blush), var(--rose));
+    border-radius: 2px; transition: width 0.4s ease;
+  }
+
+  .question-card {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 16px rgba(45,31,26,0.06);
+  }
+
+  .question-num {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.5rem;
+  }
+
+  .question-text {
+    font-size: 1.05rem; font-weight: 500;
+    color: var(--ink); line-height: 1.5;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin-top: 1.5rem;
+  }
+
+  .option-btn {
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--blush);
+    background: var(--cream); color: var(--ink);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; cursor: pointer;
+    transition: all 0.2s; text-align: left; line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--rose); background: var(--warm);
+  }
+  .option-btn.correct {
+    background: rgba(122,171,138,0.15);
+    border-color: var(--green); color: #4a7a5a;
+  }
+  .option-btn.wrong {
+    background: rgba(193,122,122,0.1);
+    border-color: var(--red); color: #8a4a4a;
+  }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    display: none; margin-top: 1rem;
+    padding: 0.85rem 1rem; border-radius: 8px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .feedback.correct {
+    display: block;
+    background: rgba(122,171,138,0.12); color: #4a7a5a;
+    border: 1px solid rgba(122,171,138,0.3);
+  }
+  .feedback.wrong {
+    display: block;
+    background: rgba(193,122,122,0.1); color: #8a4a4a;
+    border: 1px solid rgba(193,122,122,0.25);
+  }
+
+  .next-btn-wrap { text-align: right; margin-top: 1.5rem; }
+
+  /* ── RESULT ── */
+  #screen-result { text-align: center; }
+
+  .result-emoji { font-size: 4rem; margin-bottom: 1rem; display: block; }
+
+  .result-title {
+    font-size: 1.6rem; font-weight: 600;
+    color: var(--ink); margin-bottom: 0.5rem;
+  }
+
+  .result-score {
+    font-size: 3rem; font-weight: 700;
+    color: var(--rose); line-height: 1; margin: 1rem 0;
+  }
+  .result-score span { font-size: 1.2rem; font-weight: 400; color: var(--muted); }
+
+  .result-message {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.8; max-width: 400px;
+    margin: 0 auto 2rem;
+  }
+
+  .result-detail {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.5rem;
+    margin-bottom: 2rem; text-align: left;
+  }
+
+  .result-detail-title {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+
+  .detail-item {
+    display: flex; align-items: flex-start;
+    gap: 0.75rem; padding: 0.6rem 0;
+    border-bottom: 1px solid var(--warm);
+    font-size: 13px;
+  }
+  .detail-item:last-child { border-bottom: none; }
+  .detail-icon { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+  .detail-q { color: var(--ink); flex: 1; line-height: 1.5; }
+  .detail-a { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  .result-btns {
+    display: flex; gap: 1rem;
+    justify-content: center; flex-wrap: wrap;
+  }
+
+  .confetti-piece {
+    position: fixed; border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none; z-index: 999;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 480px) {
+    .options-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro-avatar">🧑</div>
+    <p class="intro-label">Khusus Buat Dara 🤍</p>
+    <h1 class="intro-title">Seberapa kenal kamu<br>sama <span>Razan</span>?</h1>
+    <p class="intro-sub">
+      Kamu udah kenal dia cukup lama — tapi seberapa beneran kamu tau hal-hal tentang dia? Buktiin di sini! 👀
+    </p>
+    <div class="intro-meta">
+      <div class="meta-item">
+        <span class="meta-num">8</span>
+        <span class="meta-label">Pertanyaan</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-num">~2</span>
+        <span class="meta-label">Menit</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-num">1x</span>
+        <span class="meta-label">Kesempatan</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">Yuk Mulai →</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <p class="quiz-progress-text">Soal <span id="current-q">1</span> dari <span id="total-q">8</span></p>
+      <p class="quiz-progress-text">Skor: <span id="live-score">0</span></p>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-card">
+      <p class="question-num" id="q-num">Pertanyaan 01</p>
+      <p class="question-text" id="q-text"></p>
+      <div class="options-grid" id="options-grid"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div class="next-btn-wrap">
+      <button class="btn btn-primary" id="next-btn" style="display:none" onclick="nextQuestion()">
+        Soal Berikutnya →
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <span class="result-emoji" id="result-emoji">🎉</span>
+    <h2 class="result-title" id="result-title"></h2>
+    <div class="result-score">
+      <span id="final-score">0</span>
+      <span> / <span id="final-total">8</span></span>
+    </div>
+    <p class="result-message" id="result-message"></p>
+    <div class="result-detail">
+      <p class="result-detail-title">Rekap Jawaban</p>
+      <div id="detail-list"></div>
+    </div>
+    <div class="result-btns">
+      <button class="btn btn-primary" onclick="restartQuiz()">Ulangi Quiz</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Makanan favorit Razan yang hampir selalu dia pesen kalau ada pilihan?",
+    options: ["Soto ayam", "Gulai", "Nasi padang", "Mie goreng"],
+    answer: 1,
+    feedback_correct: "Betul! Gulai emang ga ada lawannya buat dia. Kalau ada gulai di menu, yang lain ga keliatan wkwk 😂",
+    feedback_wrong: "Bukan itu~ Jawabannya Gulai! Entah gulai apa aja, pokoknya kalau ada gulai dia bakal pesen itu."
+  },
+  {
+    q: "Kebiasaan Razan yang paling sering kamu perhatiin dan mungkin sedikit bikin kamu geli?",
+    options: ["Gigit kuku", "Garuk-garuk hidung", "Goyang kaki terus", "Ketok-ketok meja"],
+    answer: 1,
+    feedback_correct: "Haha kamu tau! Iya, hidungnya sering gatal sendiri entah kenapa. Udah notice dari kapan? 😂",
+    feedback_wrong: "Salah~ Jawabannya garuk-garuk hidung! Kebiasaan yang dia sendiri kayaknya ga sadar wkwk."
+  },
+  {
+    q: "Hal yang paling bikin Razan langsung bad mood kalau terjadi?",
+    options: ["Kena macet panjang", "Diboongin", "Lupa makan siang", "HP lowbat ga ada charger"],
+    answer: 1,
+    feedback_correct: "Tepat! Diboongin itu hal yang paling ga bisa dia terima. Makanya jangan coba-coba yaa 🙂",
+    feedback_wrong: "Bukan itu. Jawabannya diboongin — itu hal yang paling bikin dia ga nyaman sama orang."
+  },
+  {
+    q: "Impian terbesar Razan yang udah dia ceritain ke kamu?",
+    options: ["Punya bisnis sendiri", "Keliling dunia", "Nikah sama Dara", "Pensiun dini di usia 30"],
+    answer: 2,
+    feedback_correct: "Awww kamu tau dong~ Iya, impian terbesarnya itu nikah sama kamu, Dara 🤍",
+    feedback_wrong: "Jawabannya... nikah sama Dara 🤍 Semoga kamu juga mau ya wkwk."
+  },
+  {
+    q: "Kalau Razan lagi jalan sama kamu, apa yang hampir pasti selalu terjadi?",
+    options: ["Dia nyasar terus", "Dia foto semua yang lewat", "Dia komen semuanya", "Dia ngeluh capek"],
+    answer: 2,
+    feedback_correct: "Haha betul! Dia emang ga bisa diem, ngeliat apapun pasti ada aja komentarnya wkwk.",
+    feedback_wrong: "Jawabannya: dia komenin semuanya! Dari orang lewat, toko aneh, apapun — pasti ada komentarnya."
+  },
+  {
+    q: "Kalau Razan lagi scrolling HP dan tiba-tiba ketawa sendiri, kemungkinan besar dia lagi nonton apa?",
+    options: ["Video kucing lucu", "Meme random", "Konten gaming / streamer", "Video fails orang"],
+    answer: 1,
+    feedback_correct: "Bener! Meme random emang udah jadi sumber hiburan utamanya wkwk, entah meme dari mana aja.",
+    feedback_wrong: "Salah~ Jawabannya meme random! Dia bisa ketawa sendiri lama banget gara-gara meme wkwk."
+  },
+  {
+    q: "Satu kata yang paling menggambarkan cara Razan sayang sama kamu?",
+    options: ["Protektif", "Perhatian kecil-kecilan", "Bawel tapi sayang", "Semua di atas"],
+    answer: 3,
+    feedback_correct: "Semua di atas — karena emang itu semua dia 🤍 Protektif, perhatian sama hal kecil, dan bawel karena sayang.",
+    feedback_wrong: "Jawabannya semua di atas! Dia itu protektif, perhatiin hal kecil, dan bawel — tapi semuanya karena sayang 🤍"
+  },
+  {
+    q: "Menurut kamu, hal apa yang paling Razan syukuri sampai sekarang?",
+    options: ["Kerjaan yang dia jalani", "Keluarganya", "Punya kamu di sisinya", "Semua yang dia punya"],
+    answer: 2,
+    feedback_correct: "🤍 Iya. Dari semua yang dia punya, kamu yang paling dia syukuri. Serius.",
+    feedback_wrong: "Jawabannya: punya kamu di sisinya 🤍 Beneran, itu yang paling dia syukuri."
+  }
+];
+
+const resultTiers = [
+  {
+    min: 0, max: 3,
+    emoji: "😅",
+    title: "Kayaknya masih perlu belajar nih~",
+    msg: "Hmm, ternyata masih banyak yang belum kamu tau soal Razan. Tapi tenang — masih banyak waktu buat lebih kenal dia 🤍"
+  },
+  {
+    min: 4, max: 5,
+    emoji: "🌸",
+    title: "Lumayan kenal!",
+    msg: "Kamu tau beberapa hal penting tentang Razan. Tapi ada beberapa hal yang kayaknya perlu kamu perhatiin lebih lagi wkwk 👀"
+  },
+  {
+    min: 6, max: 7,
+    emoji: "💖",
+    title: "Wah, kenal banget!",
+    msg: "Kamu beneran dengerin dan inget hal-hal tentang Razan. Dia beruntung punya kamu yang seperhatian ini 🤍"
+  },
+  {
+    min: 8, max: 8,
+    emoji: "🎉",
+    title: "SEMPURNA! Kamu emang the one~",
+    msg: "Nilai sempurna! Kamu tau Razan luar dalam. Udah ga ada alasan dia ga mau nikah sama kamu wkwk 🤍🌸"
+  }
+];
+
+let currentIndex = 0, score = 0, userAnswers = [];
+
+function startQuiz() {
+  currentIndex = 0; score = 0; userAnswers = [];
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[currentIndex];
+  const total = questions.length;
+
+  document.getElementById('current-q').textContent = currentIndex + 1;
+  document.getElementById('total-q').textContent = total;
+  document.getElementById('live-score').textContent = score;
+  document.getElementById('q-num').textContent = `Pertanyaan ${String(currentIndex + 1).padStart(2, '0')}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`;
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('next-btn').style.display = 'none';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+}
+
+function selectAnswer(selectedIndex) {
+  const q = questions[currentIndex];
+  const buttons = document.querySelectorAll('.option-btn');
+  const feedback = document.getElementById('feedback');
+  const isCorrect = selectedIndex === q.answer;
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === selectedIndex && !isCorrect) btn.classList.add('wrong');
+  });
+
+  if (isCorrect) {
+    score++;
+    feedback.className = 'feedback correct';
+    feedback.textContent = '✓ ' + q.feedback_correct;
+  } else {
+    feedback.className = 'feedback wrong';
+    feedback.textContent = '✗ ' + q.feedback_wrong;
+  }
+
+  document.getElementById('live-score').textContent = score;
+  userAnswers.push({
+    q: q.q,
+    selected: q.options[selectedIndex],
+    correct: q.options[q.answer],
+    isCorrect
+  });
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.textContent = currentIndex < questions.length - 1 ? 'Soal Berikutnya →' : 'Lihat Hasil →';
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex < questions.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  showScreen('screen-result');
+  const total = questions.length;
+  const tier = resultTiers.find(t => score >= t.min && score <= t.max) || resultTiers[0];
+
+  document.getElementById('result-emoji').textContent = tier.emoji;
+  document.getElementById('result-title').textContent = tier.title;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-total').textContent = total;
+  document.getElementById('result-message').textContent = tier.msg;
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const list = document.getElementById('detail-list');
+  list.innerHTML = '';
+  userAnswers.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'detail-item';
+    item.innerHTML = `
+      <span class="detail-icon">${a.isCorrect ? '✅' : '❌'}</span>
+      <div>
+        <p class="detail-q">${a.q}</p>
+        <p class="detail-a">${a.isCorrect ? 'Jawaban kamu benar' : `Kamu jawab: ${a.selected} · Benar: ${a.correct}`}</p>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+
+  if (score === total) launchConfetti();
+}
+
+function restartQuiz() { startQuiz(); }
+
+function launchConfetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#7aab8a','#faf6f0'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left:${Math.random()*100}vw; top:-10px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${1.5+Math.random()*2}s;
+        animation-delay:${Math.random()*0.5}s;
+        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 40);
+  }
+}
+</script>
+</body>
+</html>
