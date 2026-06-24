@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday,Dara Syifa Aulia ♡</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+    --font-display: 'Poppins', sans-serif;
+    --font-body: 'Poppins', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    display: flex; justify-content: center; gap: 2rem;
+    padding: 1rem 2rem;
+    background: rgba(250,246,240,0.88);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(193,122,111,0.15);
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  nav a {
+    color: var(--muted); text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--rose); }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  #hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 30%, rgba(232,196,176,0.35) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 70%, rgba(193,122,111,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-date {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1.5rem;
+  }
+  /* === EDIT: Ganti "[Nama Pacar]" di tag title dan di semua teks === */
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--rose);
+    display: block;
+  }
+  .hero-sub {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    color: var(--muted);
+    margin-top: 1.5rem;
+    max-width: 480px;
+  }
+  .hero-scroll {
+    margin-top: 4rem;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blush);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .hero-scroll::after {
+    content: '';
+    display: block;
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--blush), transparent);
+  }
+
+  /* ─── SECTIONS ─── */
+  section { padding: 6rem 2rem; }
+  .section-inner { max-width: 900px; margin: 0 auto; }
+  .section-label {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 3rem;
+  }
+  .divider {
+    width: 48px; height: 1px;
+    background: var(--blush);
+    margin: 1.5rem 0 3rem;
+  }
+
+  /* ─── MAP ─── */
+  #map-section { background: var(--warm); }
+  #map {
+    width: 100%; height: 420px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(193,122,111,0.2);
+  }
+  .map-legend {
+    margin-top: 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 0.75rem;
+  }
+  .map-legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+  }
+  .map-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--rose);
+    border: 2px solid var(--cream);
+    box-shadow: 0 0 0 1px var(--rose);
+  }
+  /* Leaflet popup style */
+  .leaflet-popup-content-wrapper {
+    border-radius: 4px !important;
+    background: var(--cream) !important;
+    box-shadow: 0 4px 24px rgba(45,31,26,0.15) !important;
+    border: 1px solid rgba(193,122,111,0.2) !important;
+    font-family: var(--font-body) !important;
+  }
+  .leaflet-popup-tip { background: var(--cream) !important; }
+  .popup-title {
+    font-family: var(--font-display);
+    font-size: 14px; font-weight: 600;
+    color: var(--deep); margin-bottom: 4px;
+  }
+  .popup-date {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px;
+  }
+  .popup-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .popup-img {
+    width: 100%; height: 120px;
+    object-fit: cover; border-radius: 2px;
+    margin-bottom: 8px;
+    /* === EDIT: Ganti src="" dengan URL foto === */
+    background: var(--warm);
+    display: block;
+  }
+
+  /* ─── TIMELINE ─── */
+  #timeline-section { background: var(--cream); }
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 0; top: 8px; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--blush), transparent);
+  }
+  .tl-item {
+    position: relative; margin-bottom: 3rem; padding-left: 1.5rem;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute; left: -2rem; top: 6px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--rose);
+    border: 2px solid var(--cream);
+    box-shadow: 0 0 0 1px var(--blush);
+  }
+  .tl-date {
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 4px;
+  }
+  .tl-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem; font-weight: 600;
+    color: var(--deep); margin-bottom: 6px;
+  }
+  .tl-body { font-size: 14px; color: var(--muted); max-width: 560px; }
+  /* === EDIT: Tambah/hapus .tl-item sesuai kebutuhan === */
+
+  /* ─── GALLERY ─── */
+  #gallery-section { background: var(--warm); }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .gallery-item {
+    position: relative; overflow: hidden;
+    border-radius: 2px;
+    aspect-ratio: 1;
+    background: var(--blush);
+    cursor: pointer;
+  }
+  .gallery-item img, .gallery-item video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+    /* === EDIT: Ganti src="" dengan path/URL foto atau video === */
+  }
+  .gallery-item:hover img,
+  .gallery-item:hover video { transform: scale(1.04); }
+  .gallery-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 1rem 0.75rem 0.75rem;
+    background: linear-gradient(transparent, rgba(45,31,26,0.6));
+    color: #fff;
+    font-size: 12px; opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .gallery-item:hover .gallery-caption { opacity: 1; }
+  /* Placeholder kotak kosong untuk foto */
+  .gallery-placeholder {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px; text-align: center;
+    padding: 1rem;
+    background: var(--warm);
+    border: 1.5px dashed var(--blush);
+  }
+  .gallery-placeholder svg { opacity: 0.4; }
+
+  /* ─── LETTER ─── */
+  #letter-section { background: var(--cream); }
+  .letter-card {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.18);
+    border-radius: 2px;
+    padding: 3rem 3.5rem;
+    max-width: 640px;
+    position: relative;
+  }
+  .letter-card::before {
+    content: '\201C';
+    font-family: var(--font-display);
+    font-size: 6rem; line-height: 1;
+    color: var(--blush);
+    position: absolute; top: 1rem; left: 2rem;
+    pointer-events: none;
+  }
+  .letter-body {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ink);
+    line-height: 1.9;
+    /* === EDIT: Ganti teks di bawah dengan pesan personalmu === */
+  }
+  .letter-sign {
+    margin-top: 2rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--rose);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 3rem 2rem;
+    font-size: 12px; letter-spacing: 0.05em;
+  }
+  footer .footer-main {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 0.75rem;
+  }
+  #countdown {
+    font-size: 2rem; font-weight: 300;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin: 1.5rem 0 0.5rem;
+  }
+  .countdown-label {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ─── LIGHTBOX ─── */
+  #lightbox {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(45,31,26,0.92);
+    align-items: center; justify-content: center;
+  }
+  #lightbox.active { display: flex; }
+  #lightbox img, #lightbox video {
+    max-width: 90vw; max-height: 85vh;
+    border-radius: 2px;
+  }
+  #lightbox-close {
+    position: fixed; top: 1.5rem; right: 1.5rem;
+    background: none; border: none;
+    color: rgba(255,255,255,0.6); font-size: 2rem;
+    cursor: pointer; line-height: 1;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    nav { gap: 1rem; font-size: 10px; }
+    .letter-card { padding: 2rem 1.5rem; }
+    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ─── FADE IN ─── */
+  .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in.visible { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#map-section">Peta Kenangan</a>
+  <a href="#timeline-section">Timeline</a>
+  <a href="#gallery-section">Galeri</a>
+  <a href="#letter-section">Surat</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <!-- === EDIT: Ganti tanggal dan nama === -->
+  <p class="hero-date">18 Agustus 2006</p>
+  <h1 class="hero-title">
+    Happy Birthday,
+    <em>Dara Syifa Aulia ♡</em>
+  </h1>
+  <p class="hero-sub">Setiap kenangan bersamamu adalah hadiah yang tidak akan pernah kadaluarsa</p>
+  <div class="hero-scroll">scroll</div>
+</section>
+
+<!-- MAP -->
+<section id="map-section">
+  <div class="section-inner fade-in">
+    <p class="section-label">Peta Kenangan</p>
+    <h2 class="section-title">Tempat-tempat<br>yang pernah kita datangi</h2>
+    <div id="map"></div>
+    <div class="map-legend" id="map-legend"></div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline-section">
+  <div class="section-inner fade-in">
+    <p class="section-label">Timeline</p>
+    <h2 class="section-title">Perjalanan kita<br>bersama</h2>
+    <div class="divider"></div>
+    <div class="timeline" id="timeline">
+
+      <!-- === EDIT: Duplikasi atau hapus .tl-item sesuai kebutuhan === -->
+
+      <div class="tl-item">
+        <p class="tl-date">Juli 2023</p>
+        <p class="tl-title">Pertemuan Pertama</p>
+        <p class="tl-body">Hari pertama MPLS, mata aku langsung kagum sama satu orang.
+kamu diem, ga banyak ngomong, tapi pas pak hardi nanya kamu yang pertama angkat tangan dan maju ke depan tanpa ragu. Disitu aku tahu, kamu beda.</p>
+      </div>
+
+      <div class="tl-item">
+        <p class="tl-date">Juli 2023</p>
+        <p class="tl-title">Pertemuan Kedua</p>
+        <p class="tl-body">Ternyata kamu juga ikut rohis.
+Dan pertemuan kedua itu datang tanpa rencana saat kegiatan bersih-bersih masjid. Di tengah kesibukan yang sederhana itu, kamu tetap sama seperti waktu MPLS. Tenang, fokus, ga banyak bicara.
+Tapi entah kenapa, justru di momen sesederhana itu aku makin penasaran.
+Pulang dari sana, aku langsung cari tau tentang kamu.</p>
+      </div>
+
+      <div class="tl-item">
+        <p class="tl-date">September 2023</p>
+        <p class="tl-title">Chat Pertama Kali</p>
+        <p class="tl-body">Chat pertama bukan soal hal yang besar.
+Kamu cuma izin bilang ga bisa ikut rapat. Singkat, sopan, selesai.
+Tapi aku bales lebih dari sekadar "oke".
+Entah apa yang aku pikirin waktu itu, tapi percakapan itu ga langsung berakhir. Pelan-pelan, dari satu pesan ke pesan lain dan aku sadar, aku ga mau duluan yang berhenti balas.
+Dari izin rapat yang sederhana itu, semuanya mulai.</p>
+      </div>
+
+      <div class="tl-item">
+        <p class="tl-date">Desember 2023</p>
+        <p class="tl-title"> Pergi Bareng Pertama Kali</p>
+        <p class="tl-body">Aku ga nyangka kamu bakal bilang iya.
+Sehari sebelumnya kamu izin dulu ke mamamu dan aku? aku udah siap-siap mental buat kemungkinan ditolak. Udah biasa-biasin diri buat ga terlalu berharap.
+Tapi ternyata...
+Boleh.
+Aku syok. Beneran syok. Kaget campur seneng yang ga tau harus dikeluarin dari mana.
+Kita pergi ke Timezone. Sederhana, tapi buat aku itu bukan sekadar jalan-jalan biasa. Itu pertama kalinya kita beneran ada di tempat yang sama, di luar sekolah, di luar kegiatan rohis.
+Dan di sela suara mesin game dan keramaian itu, aku cuma bisa mikir satu hal "aku merasa seneng dan bahagia sama kamu".</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery-section">
+  <div class="section-inner fade-in">
+    <p class="section-label">Galeri</p>
+    <h2 class="section-title">Foto & Video<br>terbaik kita</h2>
+    <div class="gallery-grid" id="gallery-grid">
+
+      <!-- === EDIT: Ganti src dan data-caption. Untuk foto: gunakan <img>. Untuk video: gunakan <video>. ===
+           Cara pakai foto lokal: taruh file foto di folder yang sama, lalu src="nama-foto.jpg"
+           Cara pakai foto online: src="https://link-foto-kamu.com/foto.jpg" -->
+
+      <div class="gallery-item" onclick="openLightbox(this)">
+        <!-- Hapus div.gallery-placeholder di atas dan uncomment baris di bawah kalau foto sudah siap: -->
+        <img src="momen1.jpg" alt="Momen 1">
+        <p class="gallery-caption">momen aku pertama kali foto kamu</p>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox(this)">
+        <img src="momen2.jpg" alt="Momen 2"> 
+        <p class="gallery-caption">momen aku ngajarin kamu belajar motor</p>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox(this)">
+        <img src="momen3.jpg" alt="Momen 3"> 
+        <p class="gallery-caption">momen aku temenin kamu pas seleksi bina</p>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox(this)">
+        <!-- Untuk video: -->
+        <video src="vidio1.mp4" muted playsinline></video>
+        <p class="gallery-caption">momen aku kasih cincin ke kamu</p>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox(this)">
+        <img src="momen4.jpg" alt="Momen 4">
+        <p class="gallery-caption">momen aku fotoin kamu di sekolah</p>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox(this)">
+        <img src="momen5.jpg" alt="Momen 5"> 
+        <p class="gallery-caption">momen kita ngedate</p>
+      </div>
+
+    </div>
+    <p style="margin-top: 1rem; font-size: 12px; color: var(--muted);">Klik foto/video untuk memperbesar.</p>
+  </div>
+</section>
+
+<!-- LETTER -->
+<section id="letter-section">
+  <div class="section-inner fade-in">
+    <p class="section-label">Surat Untukmu</p>
+    <h2 class="section-title">Hal yang ingin<br>selalu kukatakan</h2>
+    <div class="letter-card">
+      <br> 
+      <!-- === EDIT: Ganti semua teks di bawah dengan pesanmu === -->
+      <p class="letter-body">
+        Sayang,<br><br>
+
+        Kalau diminta nyebut satu alasan kenapa aku sayang kamu, aku ga bisa. Karena alasannya bukan satu alasan, tapi semuanya.<br><br>
+
+        Cara kamu yang tenang di tengah keramaian. Keberanian kamu maju ke depan waktu orang lain diem. Kesederhanaan kamu yang bahkan pas bersih-bersih masjid pun tetap bikin aku penasaran. Sampai chat pertama yang cuma izin ga ikut rapat yang entah kenapa jadi awal dari segalanya.<br><br>
+
+        Aku masih inget betapa syoknya aku waktu kamu bilang boleh pergi ke Timezone. Aku udah siap-siap buat kecewa, tapi kamu datang dan dari situ aku sadar, aku ga mau kehilangan momen-momen sederhana bareng kamu.<br><br>
+
+        Ada banyak hal yang belum pernah aku ucapin langsung. Tapi yang paling penting adalah ini setiap hari bersamamu, aku bersyukur. Bukan karena semuanya sempurna, tapi karena semuanya terasa berarti kalau ada kamu.<br><br>
+
+        Di hari ulang tahunmu ini, aku cuma punya satu harapan yaitu semoga kamu selalu bahagia, selalu dijaga, dan tau bahwa ada orang yang menyayangimu dengan sepenuh hati.<br><br>
+
+        Selamat ulang tahun, sayang.
+      </p>
+      <p class="letter-sign">— Razan Ahmad Zharfan, 11 Juni 2026</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER / COUNTDOWN -->
+<footer>
+  <!-- === EDIT: Ganti nama dan tanggal anniversary di bawah === -->
+  <p class="footer-main">Razan & Dara </p>
+  <p class="countdown-label">Hari yang telah kita lewati bersama</p>
+  <p id="countdown">—</p>
+  <p class="countdown-label">hari penuh cinta</p>
+  <p style="margin-top: 2rem;">Made with love 🤍</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">×</button>
+  <div id="lightbox-content"></div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+/* ============================================================
+   EDIT BAGIAN INI — LOKASI KENANGAN DI PETA
+   Format: { lat, lng, title, date, desc, img (opsional) }
+   Cara cari koordinat: buka Google Maps → klik kanan di lokasi → salin koordinat
+   ============================================================ */
+const locations = [
+  {
+    lat: -6.1763,
+    lng: 106.8227,
+    title: "Museum Nasional Indonesia",
+    date: "11 Oktober 2025",
+    desc: "ini tempat pertama kita ngedate, yang dimana aku pikir cuman sebentar minta tolong kamu nemenin, eh ternyata malah lama dan keterusan sampai sore hahaha",
+    img: "" // opsional: "foto1.jpg" atau URL foto
+  },
+  {
+    lat: -6.30167,
+    lng: 106.89667,
+    title: "Taman Mini Indonesia Indah",
+    date: "25 Desember 2025",
+    desc: "sebenarnya aku pengen ngajak kamu berdua aja kesini eh tapi kita dulu belum cukup berani jadinya rame rame deh hahaha, mungkin next lagi yaa",
+    img: ""
+  },
+  {
+    lat: -6.189053,
+    lng: 106.840019,
+    title: "Taman Ismail Marzuki",
+    date: "01 Mei 2026",
+    desc: "menarik sih tempat ini, karena yang awalnya kita mau ke planetarium eh tapi malah tutup jadinya kita main piknik piknik kan deh hahahaha",
+    img: ""
+  },
+  {
+    lat: -6.3124,
+    lng: 106.8205,
+    title: "Kebun Binatang Ragunan",
+    date: "16 Mei 2026",
+    desc: "ini seru sih karena kita ngerencanain nya dari jauh jauh hari dan sangat fun menurutku, terus aku ga sabar menunggu hari h nya hahahaha",
+    img: ""
+  },
+  {
+    lat: -6.1352,
+    lng: 106.8133,
+    title: "Kota Tua Jakarta",
+    date: "31 Mei 2026",
+    desc: "kita kesini mendadak ga sih ga direncanain dulu hahaha mana cape banget abis kondangan tapii seruu bangett kita jelajahin banyak museum hehehe",
+    img: ""
+  }
+];
+
+/* ============================================================
+   EDIT BAGIAN INI — TANGGAL ANNIVERSARY / MULAI PACARAN
+   Format: 'YYYY-MM-DD'
+   ============================================================ */
+const anniversaryDate = '2025-05-10'; // ganti dengan tanggal anniversary kalian
+
+
+/* ──────────────────────────────────────────────────────────
+   JANGAN EDIT DI BAWAH SINI (kecuali kamu mau custom lebih)
+   ────────────────────────────────────────────────────────── */
+
+// Init Map
+const map = L.map('map', {
+  zoomControl: true,
+  scrollWheelZoom: false
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap, © Carto',
+  maxZoom: 18
+}).addTo(map);
+
+const customIcon = L.divIcon({
+  className: '',
+  html: `<div style="
+    width:14px;height:14px;
+    border-radius:50%;
+    background:#c17a6f;
+    border:3px solid #faf6f0;
+    box-shadow:0 0 0 1.5px #c17a6f, 0 2px 8px rgba(193,122,111,0.4);
+  "></div>`,
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
+});
+
+const legend = document.getElementById('map-legend');
+const bounds = [];
+
+locations.forEach(loc => {
+  bounds.push([loc.lat, loc.lng]);
+  const imgHtml = loc.img
+    ? `<img class="popup-img" src="${loc.img}" alt="${loc.title}">`
+    : '';
+  const marker = L.marker([loc.lat, loc.lng], { icon: customIcon }).addTo(map);
+  marker.bindPopup(`
+    ${imgHtml}
+    <p class="popup-title">${loc.title}</p>
+    <p class="popup-date">${loc.date}</p>
+    <p class="popup-desc">${loc.desc}</p>
+  `, { maxWidth: 220 });
+
+  // Legend
+  const item = document.createElement('div');
+  item.className = 'map-legend-item';
+  item.innerHTML = `<div class="map-dot"></div><span>${loc.title}</span>`;
+  item.style.cursor = 'pointer';
+  item.onclick = () => { map.setView([loc.lat, loc.lng], 15); marker.openPopup(); };
+  legend.appendChild(item);
+});
+
+if (bounds.length) map.fitBounds(bounds, { padding: [48, 48] });
+
+// Countdown dari anniversary
+function updateCountdown() {
+  const start = new Date(anniversaryDate);
+  const now = new Date();
+  const diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  document.getElementById('countdown').textContent = diff > 0 ? diff.toLocaleString() : '—';
+}
+updateCountdown();
+
+// Fade-in on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Lightbox
+function openLightbox(item) {
+  const img = item.querySelector('img');
+  const vid = item.querySelector('video');
+  const lb = document.getElementById('lightbox');
+  const lbc = document.getElementById('lightbox-content');
+  lbc.innerHTML = '';
+  if (img) {
+    const clone = img.cloneNode();
+    lbc.appendChild(clone);
+    lb.classList.add('active');
+  } else if (vid) {
+    const clone = vid.cloneNode();
+    clone.controls = true; clone.autoplay = true;
+    lbc.appendChild(clone);
+    lb.classList.add('active');
+  }
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.getElementById('lightbox-content').innerHTML = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+</script>
+</body>
+</html>
