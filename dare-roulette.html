@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dare Roulette — Razan & Dara 🎯</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .container {
+    width: 100%; max-width: 480px;
+    position: relative; z-index: 1;
+    text-align: center;
+  }
+
+  /* ── HEADER ── */
+  .header-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.5rem; display: block;
+  }
+
+  .header-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 600; color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .header-title span { color: var(--rose); }
+
+  .header-sub {
+    font-size: 13px; color: var(--muted);
+    line-height: 1.7; margin-bottom: 2rem;
+  }
+
+  /* ── WHEEL WRAP ── */
+  .wheel-wrap {
+    position: relative;
+    width: 300px; height: 300px;
+    margin: 0 auto 1.5rem;
+  }
+
+  /* Pointer / arrow */
+  .wheel-pointer {
+    position: absolute;
+    top: -18px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 28px solid var(--deep);
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(45,31,26,0.3));
+  }
+
+  canvas#wheel {
+    border-radius: 50%;
+    box-shadow: 0 8px 40px rgba(45,31,26,0.18), 0 2px 8px rgba(45,31,26,0.1);
+    display: block;
+  }
+
+  /* Center button */
+  .wheel-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--cream);
+    box-shadow: 0 2px 12px rgba(45,31,26,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* ── SPIN BUTTON ── */
+  .spin-btn {
+    padding: 1rem 3rem;
+    border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px; font-weight: 600;
+    background: var(--rose); color: #fff;
+    box-shadow: 0 6px 24px rgba(193,122,111,0.4);
+    transition: all 0.2s;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .spin-btn:hover:not(:disabled) {
+    background: var(--deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(193,122,111,0.45);
+  }
+
+  .spin-btn:disabled {
+    opacity: 0.6; cursor: not-allowed; transform: none;
+  }
+
+  /* ── RESULT CARD ── */
+  .result-card {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.2);
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 20px rgba(193,122,111,0.1);
+    display: none;
+    animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .result-card.show { display: block; }
+
+  @keyframes pop-in {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .result-label {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.5rem; display: block;
+  }
+
+  .result-dare {
+    font-size: 1.1rem; font-weight: 500;
+    color: var(--ink); line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .result-note {
+    font-size: 12px; color: var(--muted);
+    font-style: italic; line-height: 1.6;
+  }
+
+  /* Counter */
+  .spin-counter {
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.05em; margin-bottom: 1rem;
+  }
+
+  .spin-counter span { color: var(--rose); font-weight: 600; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed; border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none; z-index: 9999;
+  }
+
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <span class="header-label">Game Seru Buat Kita</span>
+  <h1 class="header-title">Dare <span>Roulette</span> 🎯</h1>
+  <p class="header-sub">Putar rodanya, terima tantangannya. Ga ada yang boleh nolak! 😏</p>
+
+  <div class="wheel-wrap">
+    <div class="wheel-pointer"></div>
+    <canvas id="wheel" width="300" height="300"></canvas>
+    <div class="wheel-center">🎯</div>
+  </div>
+
+  <p class="spin-counter">Udah putar: <span id="spin-count">0</span> kali</p>
+
+  <button class="spin-btn" id="spin-btn" onclick="spinWheel()">Putar Roda!</button>
+
+  <div class="result-card" id="result-card">
+    <span class="result-label" id="result-label">Dare kamu</span>
+    <p class="result-dare" id="result-dare">...</p>
+    <p class="result-note" id="result-note"></p>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   DARE LIST — Edit sesuka kamu!
+   Format: { text, note, color, special }
+   special: true → confetti muncul (khusus dare peluk)
+══════════════════════════════════════ */
+const dares = [
+  {
+    text: "Peluk aku sekarang — minimal 10 detik, ga boleh dilepas duluan. 🫂",
+    note: "Ini dare paling penting. Jangan curang ya!",
+    color: "#c17a6f",
+    special: true
+  },
+  {
+    text: "Tutup mata kamu, tebak aku lagi pakai parfum apa hari ini — cium dulu sebelum jawab.",
+    note: "Poin bonus kalau bener wkwk.",
+    color: "#b5a090"
+  },
+  {
+    text: "Bilang satu hal yang belum pernah kamu bilang ke aku — serius, jujur, dari hati.",
+    note: "Ini yang paling berharga.",
+    color: "#a09080"
+  },
+  {
+    text: "Pegang tanganku selama 1 menit penuh tanpa boleh dilepas — apapun yang terjadi.",
+    note: "Simpel tapi manis.",
+    color: "#c4a0a8"
+  },
+  {
+    text: "Gambar mukaku di kertas dalam waktu 1 menit. Kasih ke aku hasilnya!",
+    note: "Ga harus bagus, yang penting usaha wkwk.",
+    color: "#b5c4b1"
+  },
+  {
+    text: "Ceritain ke aku momen pertama kamu sadar kamu suka sama aku — detail, jangan disingkat.",
+    note: "Aku mau dengar versi kamu.",
+    color: "#c9a96e"
+  },
+  {
+    text: "Ucapkan satu doa atau harapan yang kamu punya buat kita berdua — dengan suara keras.",
+    note: "Jangan malu-malu.",
+    color: "#9a8070"
+  },
+  {
+    text: "Kasih aku pijatan tangan selama 2 menit — serius, jangan setengah-setengah.",
+    note: "Ini dare yang paling aku tunggu wkwk.",
+    color: "#c17a6f"
+  },
+  {
+    text: "Tatap mataku selama 30 detik tanpa ketawa, tanpa ngomong apapun.",
+    note: "Kalau ketawa harus ulang dari awal.",
+    color: "#b5a090"
+  },
+  {
+    text: "Ceritain hal yang paling kamu khawatirkan soal masa depan kita — jujur, serius.",
+    note: "Ini bukan buat nakut-nakutin, tapi buat kita lebih terbuka.",
+    color: "#a09080"
+  },
+  {
+    text: "Buat status WA sekarang — isinya satu kata yang menggambarin aku. Tunjukin ke aku!",
+    note: "Harus beneran dipasang minimal 10 menit.",
+    color: "#c4a0a8"
+  },
+  {
+    text: "Ceritain kenangan paling lucu kita berdua — dengan ekspresi dan suara yang dramatis.",
+    note: "Aku mau dengar versi kamu.",
+    color: "#b5c4b1"
+  },
+  {
+    text: "Kasih aku julukan baru sekarang — dan jelaskan kenapa kamu pilih julukan itu.",
+    note: "Aku resmi pakai julukan itu mulai sekarang.",
+    color: "#c9a96e"
+  },
+  {
+    text: "Tulis namaku di telapak tanganmu sekarang. Tunjukin ke aku!",
+    note: "Pakai spidol biar awet wkwk.",
+    color: "#9a8070"
+  },
+  {
+    text: "Ceritain ke aku apa yang pertama kamu pikirin waktu bangun tidur tadi — jujur!",
+    note: "Ga boleh bohong ya.",
+    color: "#c17a6f"
+  },
+  {
+    text: "Duduk berhadapan sama aku, pegang kedua tanganku, dan bilang satu hal yang kamu syukuri hari ini.",
+    note: "Sesimpel itu, tapi aku suka.",
+    color: "#b5a090"
+  },
+  {
+    text: "Tebak apa makanan yang paling aku pengen makan sekarang — kamu punya 3 kesempatan.",
+    note: "Kalau bener, aku yang bayar!",
+    color: "#a09080"
+  },
+  {
+    text: "Peluk aku dari belakang selama 10 detik tanpa bilang apa-apa. 🫂",
+    note: "Ini dare favorit aku. Serius.",
+    color: "#c17a6f",
+    special: true
+  },
+  {
+    text: "Ceritain satu hal kecil dari aku yang diam-diam kamu suka tapi belum pernah bilang.",
+    note: "Harus jujur, ga boleh ngasal.",
+    color: "#c4a0a8"
+  },
+  {
+    text: "Kasih aku high five — tapi pelan-pelan, terus jangan dilepas. Tahan 10 detik.",
+    note: "Ini teknik pdkt level dewa wkwk.",
+    color: "#c9a96e"
+  }
+];
+
+/* ══ WHEEL SETUP ══ */
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const size = 300;
+const cx = size / 2, cy = size / 2, r = size / 2 - 4;
+const total = dares.length;
+const arc = (2 * Math.PI) / total;
+
+let currentAngle = 0;
+let isSpinning = false;
+let spinCount = 0;
+let lastResult = -1;
+
+// Draw wheel
+function drawWheel(angle) {
+  ctx.clearRect(0, 0, size, size);
+
+  dares.forEach((d, i) => {
+    const start = angle + i * arc;
+    const end = start + arc;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = d.color || '#c17a6f';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Label number
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = `600 13px Poppins, sans-serif`;
+    ctx.fillText(`#${i + 1}`, r - 14, 5);
+    ctx.restore();
+  });
+
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = 'rgba(45,31,26,0.15)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Inner circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 26, 0, 2 * Math.PI);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(193,122,111,0.2)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+drawWheel(currentAngle);
+
+/* ══ SPIN ══ */
+function spinWheel() {
+  if (isSpinning) return;
+  isSpinning = true;
+
+  document.getElementById('spin-btn').disabled = true;
+  document.getElementById('result-card').classList.remove('show');
+
+  // Random spin: 5-10 full rotations + random
+  const extraSpins = (5 + Math.random() * 5) * 2 * Math.PI;
+  const targetOffset = Math.random() * 2 * Math.PI;
+  const totalSpin = extraSpins + targetOffset;
+
+  const duration = 3500 + Math.random() * 1000;
+  const start = performance.now();
+  const startAngle = currentAngle;
+
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  function animate(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOut(progress);
+
+    currentAngle = startAngle + totalSpin * eased;
+    drawWheel(currentAngle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentAngle = currentAngle % (2 * Math.PI);
+      isSpinning = false;
+      spinCount++;
+      document.getElementById('spin-count').textContent = spinCount;
+      document.getElementById('spin-btn').disabled = false;
+      document.getElementById('spin-btn').textContent = 'Putar Lagi!';
+      showResult();
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function showResult() {
+  // Pointer is at top (angle = -π/2 from canvas perspective)
+  // Calculate which slice is under the pointer
+  const pointerAngle = (3 * Math.PI / 2); // top = 270deg
+  const normalizedAngle = ((pointerAngle - currentAngle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+  const idx = Math.floor(normalizedAngle / arc) % total;
+
+  const dare = dares[idx];
+
+  document.getElementById('result-label').textContent = `Dare #${idx + 1}`;
+  document.getElementById('result-dare').textContent = dare.text;
+  document.getElementById('result-note').textContent = dare.note || '';
+
+  const card = document.getElementById('result-card');
+  card.classList.add('show');
+  card.style.borderColor = dare.color + '50';
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  if (dare.special) launchConfetti();
+}
+
+function launchConfetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for (let i = 0; i < 70; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left:${Math.random()*100}vw; top:-10px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${1.5+Math.random()*2.5}s;
+        animation-delay:${Math.random()*0.5}s;
+        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }, i * 35);
+  }
+}
+</script>
+</body>
+</html>
