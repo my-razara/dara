@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playlist Buat Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+    --sage: #b5c4b1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 0 0 6rem;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 15%, rgba(232,196,176,0.35) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 60% at 85% 85%, rgba(193,122,111,0.18) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { max-width: 680px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center; padding: 5rem 0 3rem;
+  }
+
+  .hero-icon {
+    font-size: 3rem; display: block; margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .hero-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.75rem; display: block;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 400; color: var(--ink); line-height: 1.15;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-title em { font-style: italic; color: var(--rose); }
+
+  .hero-sub {
+    font-size: 13px; color: var(--muted);
+    line-height: 1.8; max-width: 380px; margin: 0 auto;
+  }
+
+  .hero-divider {
+    width: 48px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--blush), transparent);
+    margin: 2rem auto 0;
+  }
+
+  /* ── TRACK COUNT ── */
+  .track-count {
+    text-align: center; margin: 2rem 0 1.5rem;
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .track-count span { color: var(--rose); font-weight: 500; }
+
+  /* ── TRACK CARDS ── */
+  .tracks { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .track {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,0.12);
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .track.visible { opacity: 1; transform: none; }
+
+  .track:hover {
+    border-color: rgba(193,122,111,0.3);
+    box-shadow: 0 4px 24px rgba(193,122,111,0.1);
+  }
+
+  .track::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--rose);
+    transform: scaleY(0); transition: transform 0.25s;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .track:hover::before { transform: scaleY(1); }
+
+  /* Track number */
+  .track-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--warm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500;
+    color: var(--muted); flex-shrink: 0;
+    margin-top: 2px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .track:hover .track-num {
+    background: rgba(193,122,111,0.12);
+    color: var(--rose);
+  }
+
+  /* Track content */
+  .track-content { min-width: 0; }
+
+  .track-meta {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 4px;
+  }
+
+  .track-title {
+    font-size: 16px; font-weight: 500;
+    color: var(--ink); line-height: 1.3; margin-bottom: 2px;
+  }
+
+  .track-artist {
+    font-size: 12px; color: var(--muted); margin-bottom: 1rem;
+  }
+
+  .track-reason {
+    font-size: 13px; color: var(--ink);
+    line-height: 1.75;
+    padding: 1rem 1.25rem;
+    background: var(--warm);
+    border-radius: 8px;
+    border-left: 2px solid var(--blush);
+    font-style: italic;
+  }
+
+  /* Special track - Pengingat */
+  .track.special {
+    border-color: rgba(201,169,110,0.3);
+    background: linear-gradient(135deg, #fff 80%, rgba(201,169,110,0.05));
+  }
+
+  .track.special::before { background: var(--gold); }
+
+  .track.special .track-num {
+    background: rgba(201,169,110,0.15);
+    color: var(--gold);
+  }
+
+  .track.special:hover .track-num {
+    background: rgba(201,169,110,0.25);
+    color: var(--gold);
+  }
+
+  .track.special .track-reason {
+    border-left-color: var(--gold);
+    background: rgba(201,169,110,0.08);
+  }
+
+  .track.special .track-meta { color: var(--gold); }
+
+  .special-badge {
+    display: inline-block;
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 50px;
+    background: rgba(201,169,110,0.15);
+    color: var(--gold); font-weight: 500;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center; margin-top: 4rem;
+    font-size: 12px; color: var(--muted);
+    line-height: 2; letter-spacing: 0.05em;
+  }
+
+  .footer span { color: var(--rose); }
+
+  @media (max-width: 480px) {
+    .track { padding: 1.25rem; gap: 1rem; }
+    .track-title { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-icon">🎵</span>
+    <span class="hero-label">Playlist khusus buat</span>
+    <h1 class="hero-title">Dara <em>Syifa Aulia</em></h1>
+    <p class="hero-sub">Lagu-lagu ini bukan random. Masing-masing punya alasan kenapa aku pilih buat kamu.</p>
+    <div class="hero-divider"></div>
+  </div>
+
+  <p class="track-count"><span>10</span> lagu yang ingetin aku sama kamu</p>
+
+  <!-- TRACKS -->
+  <div class="tracks">
+
+    <!-- 1 -->
+    <div class="track">
+      <div class="track-num">01</div>
+      <div class="track-content">
+        <p class="track-meta">Track 01</p>
+        <p class="track-title">Monolog</p>
+        <p class="track-artist">Pamungkas</p>
+        <p class="track-reason">
+          Ada satu baris di lagu ini yang selalu bikin aku diam — <em>"alasan masih bersama, bukan karena terlanjur lama, tapi rasanya yang masih sama."</em> Itu bukan sekadar lirik. Itu yang aku rasain setiap kali aku kepikiran kamu.
+        </p>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="track">
+      <div class="track-num">02</div>
+      <div class="track-content">
+        <p class="track-meta">Track 02</p>
+        <p class="track-title">Sedia Aku Sebelum Hujan</p>
+        <p class="track-artist">Idgitaf</p>
+        <p class="track-reason">
+          Lagu ini ngejelasin hal yang susah banget aku ucapin langsung — bahwa aku pengen selalu siap buat kamu. Sebelum kamu butuh, sebelum kamu minta. Bukan karena aku harus, tapi karena aku emang mau.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="track">
+      <div class="track-num">03</div>
+      <div class="track-content">
+        <p class="track-meta">Track 03</p>
+        <p class="track-title">Jantung Aman Kan?</p>
+        <p class="track-artist">Fani Rahmansyah</p>
+        <p class="track-reason">
+          Ini persis yang aku rasain di awal — waktu kamu tiba-tiba ngelakuin sesuatu yang manis dan aku langsung ngerasa <em>"ini orang ngapain bikin aku kayak gini."</em> Jantung aku masih suka ga aman setiap kali kamu muncul, jujur.
+        </p>
+      </div>
+    </div>
+
+    <!-- 4 - SPECIAL -->
+    <div class="track special">
+      <div class="track-num">04</div>
+      <div class="track-content">
+        <p class="track-meta">Track 04 <span class="special-badge">✦ untuk kita</span></p>
+        <p class="track-title">Pengingat</p>
+        <p class="track-artist">Good Morning Everyone</p>
+        <p class="track-reason">
+          Lagu ini tentang kita. Tentang semua yang udah kita lewatin, semua yang aku bikin salah, dan kamu yang tetap ada. Liriknya <em>"betapapun hebatnya pertengkaran kita, satu hal yang harus kau sadari — kau dan aku saling mencintai"</em> — itu pengingat yang aku butuhkan juga, ga cuma kamu.
+        </p>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="track">
+      <div class="track-num">05</div>
+      <div class="track-content">
+        <p class="track-meta">Track 05</p>
+        <p class="track-title">Berapa Kali Kita Akan Saling Memaafkan</p>
+        <p class="track-artist">Pamungkas</p>
+        <p class="track-reason">
+          Pertanyaan di judul lagu ini kadang bikin aku kepikiran. Dan jawabannya selalu sama — sebanyak yang perlu. Karena aku ga mau berhitung soal itu sama kamu.
+        </p>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="track">
+      <div class="track-num">06</div>
+      <div class="track-content">
+        <p class="track-meta">Track 06</p>
+        <p class="track-title">Bahagia Lagi</p>
+        <p class="track-artist">Piche Kota</p>
+        <p class="track-reason">
+          Dengerin lagu ini, aku selalu ngebayangin kamu. Aku pengen kamu bahagia — bukan karena aku, tapi beneran bahagia. Dan kalau aku bisa jadi bagian dari itu, itu lebih dari cukup buat aku.
+        </p>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="track">
+      <div class="track-num">07</div>
+      <div class="track-content">
+        <p class="track-meta">Track 07</p>
+        <p class="track-title">1000x</p>
+        <p class="track-artist">Ghea Indrawari</p>
+        <p class="track-reason">
+          Ada rasa di lagu ini yang susah dijelasin tapi aku ngerasain tiap kali sama kamu. Kayak mau ngelakuin hal yang sama — bareng kamu — ribuan kali lagi dan ga bakal bosen.
+        </p>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="track">
+      <div class="track-num">08</div>
+      <div class="track-content">
+        <p class="track-meta">Track 08</p>
+        <p class="track-title">Meski Takkan Selalu Indah</p>
+        <p class="track-artist">Adiw</p>
+        <p class="track-reason">
+          Judulnya udah bilang semuanya. Aku tau hubungan ga selalu mulus, ga selalu gampang. Tapi justru itu yang bikin aku yakin — aku mau tetap di sini, bahkan di bagian yang ga indahnya sekalipun.
+        </p>
+      </div>
+    </div>
+
+    <!-- 9 -->
+    <div class="track">
+      <div class="track-num">09</div>
+      <div class="track-content">
+        <p class="track-meta">Track 09</p>
+        <p class="track-title">What Makes You Beautiful</p>
+        <p class="track-artist">One Direction</p>
+        <p class="track-reason">
+          Aku tau ini lagu lama dan mungkin ga se-deep yang lain. Tapi dengerin baik-baik liriknya. <em>"You don't know you're beautiful."</em> Itu kamu banget. Kamu cantik tapi kayak ga sadar, dan itu yang bikin kamu makin cantik di mata aku.
+        </p>
+      </div>
+    </div>
+
+    <!-- 10 -->
+    <div class="track">
+      <div class="track-num">10</div>
+      <div class="track-content">
+        <p class="track-meta">Track 10</p>
+        <p class="track-title">Malapetaka</p>
+        <p class="track-artist">Juicy Luicy</p>
+        <p class="track-reason">
+          Lagu ini cocok banget sama kondisi aku setiap kali kamu bikin jantung aku berdegup ga karuan. Kamu beneran malapetaka — tapi malapetaka yang paling aku suka.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Dibuat dengan <span>🤍</span> untuk Dara Syifa Aulia</p>
+    <p style="font-size: 11px; margin-top: 4px;">dari Razan — yang selalu ada di balik playlist ini.</p>
+  </div>
+
+</div>
+
+<script>
+  // Love Grows - Edison Lighthouse intentionally not in list per request (10 songs listed)
+  // Fade in on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.track').forEach((el, i) => {
+    el.style.transitionDelay = `${i * 60}ms`;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
