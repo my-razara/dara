@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Open When — Untuk Dara 🤍</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream: #faf6f0;
@@ -15,9 +15,6 @@
     --ink: #2d1f1a;
     --gold: #c9a96e;
     --muted: #9a8070;
-    --sage: #b5c4b1;
-    --navy: #2d3f5f;
-    --mauve: #c4a0a8;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,7 +25,6 @@
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    padding: 0 0 6rem;
     overflow-x: hidden;
   }
 
@@ -41,235 +37,139 @@
     pointer-events: none; z-index: 0;
   }
 
-  .page { max-width: 640px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+  .screen.active { display: flex; }
+  #screen-main { flex-direction: column; padding: 0 1.5rem 6rem; }
 
-  /* ── HERO ── */
-  .hero { text-align: center; padding: 5rem 0 3rem; }
+  /* ── INTRO ── */
+  .intro-wrap { max-width: 420px; width: 100%; text-align: center; }
+  .intro-icon { font-size: 4rem; display: block; margin-bottom: 1.5rem; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .intro-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; display: block; }
+  .intro-title { font-size: clamp(2rem,6vw,2.8rem); font-weight: 600; color: var(--ink); line-height: 1.15; margin-bottom: 0.75rem; }
+  .intro-title span { color: var(--rose); }
+  .intro-sub { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 2rem; }
+  .intro-divider { width: 48px; height: 1px; background: linear-gradient(to right, transparent, var(--blush), transparent); margin: 0 auto 2rem; }
 
-  .hero-icon {
-    font-size: 3rem; display: block; margin-bottom: 1.5rem;
-    animation: float 3s ease-in-out infinite;
-  }
+  /* ── MAIN ── */
+  .page { max-width: 640px; margin: 0 auto; width: 100%; }
+  .hero { text-align: center; padding: 3rem 0 2rem; }
+  .hero-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; display: block; }
+  .hero-title { font-size: clamp(1.6rem,5vw,2.2rem); font-weight: 600; color: var(--ink); line-height: 1.2; margin-bottom: 0.75rem; }
+  .hero-title span { color: var(--rose); }
+  .hero-sub { font-size: 13px; color: var(--muted); line-height: 1.8; max-width: 400px; margin: 0 auto; }
+  .hero-divider { width: 48px; height: 1px; background: linear-gradient(to right, transparent, var(--blush), transparent); margin: 2rem auto 0; }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  .hero-label {
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem; display: block;
-  }
-
-  .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 400; color: var(--ink); line-height: 1.15;
-    margin-bottom: 0.75rem;
-  }
-
-  .hero-title em { font-style: italic; color: var(--rose); }
-
-  .hero-sub {
-    font-size: 13px; color: var(--muted);
-    line-height: 1.8; max-width: 400px; margin: 0 auto;
-  }
-
-  .hero-divider {
-    width: 48px; height: 1px;
-    background: linear-gradient(to right, transparent, var(--blush), transparent);
-    margin: 2rem auto 0;
-  }
-
-  /* ── ENVELOPE GRID ── */
+  /* ── ENVELOPES ── */
   .envelopes {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.25rem;
-    margin-top: 2.5rem;
+    gap: 1.25rem; margin-top: 2.5rem;
   }
-
-  .envelope-wrap { perspective: 1000px; }
 
   .envelope {
-    position: relative;
-    border-radius: 16px;
-    padding: 2rem 1.75rem;
-    cursor: pointer;
+    position: relative; border-radius: 16px;
+    padding: 2rem 1.75rem; cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid rgba(0,0,0,0.06);
-    min-height: 180px;
-    display: flex; flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
+    min-height: 180px; display: flex; flex-direction: column;
+    justify-content: space-between; overflow: hidden;
   }
 
-  .envelope:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(45,31,26,0.12);
-  }
-
+  .envelope:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(45,31,26,0.12); }
   .envelope::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: radial-gradient(ellipse at top right, rgba(255,255,255,0.3), transparent 60%);
     pointer-events: none;
   }
 
-  /* Color themes per envelope */
-  .env-sad { background: linear-gradient(135deg, #e8d5e8, #d4b8d4); }
-  .env-angry { background: linear-gradient(135deg, #f5e0d0, #e8c4a8); }
-  .env-miss { background: linear-gradient(135deg, #d4e0f0, #b8cce0); }
-  .env-stress { background: linear-gradient(135deg, #d4e8d4, #b8d4b8); }
+  .env-sad      { background: linear-gradient(135deg, #e8d5e8, #d4b8d4); }
+  .env-angry    { background: linear-gradient(135deg, #f5e0d0, #e8c4a8); }
+  .env-miss     { background: linear-gradient(135deg, #d4e0f0, #b8cce0); }
+  .env-stress   { background: linear-gradient(135deg, #d4e8d4, #b8d4b8); }
   .env-insecure { background: linear-gradient(135deg, #f0e4d0, #e4d0b8); }
-  .env-happy { background: linear-gradient(135deg, #fce8d0, #f8d4b0); }
-  .env-lonely { background: linear-gradient(135deg, #e0d4f0, #c8b8e0); }
-  .env-overthink { background: linear-gradient(135deg, #e8e0d4, #d4c8b8); }
+  .env-happy    { background: linear-gradient(135deg, #fce8d0, #f8d4b0); }
+  .env-lonely   { background: linear-gradient(135deg, #e0d4f0, #c8b8e0); }
+  .env-overthink{ background: linear-gradient(135deg, #e8e0d4, #d4c8b8); }
 
-  .env-top {
-    display: flex; justify-content: space-between; align-items: flex-start;
-  }
-
+  .env-top { display: flex; justify-content: space-between; align-items: flex-start; }
   .env-icon { font-size: 2rem; }
+  .env-status { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(45,31,26,0.4); font-weight: 500; }
+  .env-condition { font-size: 1.1rem; font-weight: 600; color: var(--ink); line-height: 1.3; margin: 1rem 0 0.5rem; }
+  .env-preview { font-size: 12px; color: rgba(45,31,26,0.5); line-height: 1.5; font-style: italic; }
+  .env-open-hint { font-size: 11px; color: rgba(45,31,26,0.4); margin-top: 1rem; letter-spacing: 0.05em; }
 
-  .env-status {
-    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: rgba(45,31,26,0.4); font-weight: 500;
-  }
-
-  .env-condition {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem; font-weight: 600;
-    color: var(--ink); line-height: 1.3;
-    margin: 1rem 0 0.5rem;
-  }
-
-  .env-preview {
-    font-size: 12px; color: rgba(45,31,26,0.5);
-    line-height: 1.5; font-style: italic;
-  }
-
-  .env-open-hint {
-    font-size: 11px; color: rgba(45,31,26,0.4);
-    margin-top: 1rem; letter-spacing: 0.05em;
-    display: flex; align-items: center; gap: 4px;
-  }
-
-  /* ── MODAL / LETTER ── */
+  /* ── MODAL ── */
   #letter-overlay {
-    display: none;
-    position: fixed; inset: 0; z-index: 999;
-    background: rgba(45,31,26,0.5);
-    backdrop-filter: blur(6px);
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(45,31,26,0.5); backdrop-filter: blur(6px);
     align-items: center; justify-content: center;
-    padding: 1.5rem;
-    overflow-y: auto;
+    padding: 1.5rem; overflow-y: auto;
   }
-
   #letter-overlay.active { display: flex; }
 
   .letter-modal {
-    background: var(--cream);
-    border-radius: 20px;
+    background: var(--cream); border-radius: 20px;
     max-width: 500px; width: 100%;
     box-shadow: 0 20px 60px rgba(45,31,26,0.2);
-    animation: letter-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    overflow: hidden;
-    margin: auto;
+    animation: letter-in 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative; overflow: hidden; margin: auto;
   }
-
   @keyframes letter-in {
-    from { transform: scale(0.85) translateY(20px); opacity: 0; }
-    to { transform: scale(1) translateY(0); opacity: 1; }
+    from{transform:scale(0.85) translateY(20px);opacity:0}
+    to{transform:scale(1) translateY(0);opacity:1}
   }
 
   .letter-header {
     padding: 2rem 2rem 1.5rem;
-    border-bottom: 1px solid rgba(193,122,111,0.12);
-    position: relative;
+    border-bottom: 1px solid rgba(193,122,111,0.12); position: relative;
   }
-
   .letter-header-icon { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
-
-  .letter-label {
-    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.5rem; display: block;
-  }
-
-  .letter-condition {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem; font-weight: 400;
-    color: var(--ink); line-height: 1.2;
-  }
-
-  .letter-condition em { font-style: italic; color: var(--rose); }
-
+  .letter-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; display: block; }
+  .letter-condition { font-size: 1.3rem; font-weight: 600; color: var(--ink); line-height: 1.2; }
+  .letter-condition em { font-style: normal; color: var(--rose); }
   .letter-close {
     position: absolute; top: 1.5rem; right: 1.5rem;
     background: none; border: none; cursor: pointer;
     font-size: 1.3rem; color: var(--muted);
-    width: 32px; height: 32px;
-    border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     transition: background 0.2s;
   }
   .letter-close:hover { background: var(--warm); }
 
-  .letter-body {
-    padding: 2rem;
-  }
-
-  .letter-salutation {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 1rem; color: var(--rose);
-    margin-bottom: 1.25rem; display: block;
-  }
-
-  .letter-text {
-    font-size: 14px; color: var(--ink);
-    line-height: 2; margin-bottom: 1.25rem;
-  }
-
+  .letter-body { padding: 2rem; }
+  .letter-salutation { font-size: 14px; font-weight: 500; color: var(--rose); margin-bottom: 1.25rem; display: block; }
+  .letter-text { font-size: 14px; color: var(--ink); line-height: 2; }
   .letter-text p { margin-bottom: 1rem; }
   .letter-text p:last-child { margin-bottom: 0; }
-
   .letter-sign {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 1rem; color: var(--rose);
+    font-size: 14px; font-weight: 500; color: var(--rose);
     margin-top: 1.5rem; display: block;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(193,122,111,0.15);
+    padding-top: 1rem; border-top: 1px solid rgba(193,122,111,0.15);
   }
 
-  .letter-footer {
-    padding: 1.25rem 2rem 2rem;
-    text-align: center;
-  }
-
+  .letter-footer { padding: 1.25rem 2rem 2rem; text-align: center; }
   .btn-close-letter {
-    padding: 0.85rem 2.5rem;
-    border-radius: 50px; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px; font-weight: 500;
+    padding: 0.85rem 2.5rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
     background: var(--rose); color: #fff;
-    box-shadow: 0 4px 16px rgba(193,122,111,0.3);
-    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(193,122,111,0.3); transition: all 0.2s;
   }
   .btn-close-letter:hover { background: var(--deep); transform: translateY(-1px); }
 
   /* ── FOOTER ── */
-  .footer {
-    text-align: center; margin-top: 4rem;
-    font-size: 12px; color: var(--muted); line-height: 2;
-  }
+  .footer { text-align: center; margin-top: 4rem; font-size: 12px; color: var(--muted); line-height: 2; }
   .footer span { color: var(--rose); }
 
-  /* Fade in */
   .fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
   .fade-in.visible { opacity: 1; transform: none; }
+
+  /* ── BUTTON ── */
+  .btn { display: block; width: 100%; padding: 0.9rem; border-radius: 50px; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500; transition: all 0.2s; text-align: center; }
+  .btn-primary { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(193,122,111,0.3); }
+  .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
 
   @media (max-width: 480px) {
     .envelopes { grid-template-columns: 1fr; }
@@ -279,128 +179,115 @@
 </style>
 </head>
 <body>
-<div class="page">
 
-  <!-- HERO -->
-  <div class="hero fade-in">
-    <span class="hero-icon">💌</span>
-    <span class="hero-label">Surat Khusus Untuk Dara</span>
-    <h1 class="hero-title">Open <em>When...</em></h1>
-    <p class="hero-sub">Pilih amplop sesuai perasaan kamu sekarang. Setiap surat ditulis khusus untuk momen itu.</p>
-    <div class="hero-divider"></div>
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">💌</span>
+    <span class="intro-label">Surat Khusus Untuk Dara</span>
+    <h1 class="intro-title">Open <span>When...</span></h1>
+    <p class="intro-sub">Di sini ada 8 surat yang ditulis khusus buat kamu. Buka sesuai perasaan kamu sekarang.</p>
+    <div class="intro-divider"></div>
+    <button class="btn btn-primary" onclick="startOpenWhen()">Buka Suratnya →</button>
   </div>
+</div>
 
-  <!-- ENVELOPES -->
-  <div class="envelopes fade-in">
-
-    <div class="envelope env-sad" onclick="openLetter('sad')">
-      <div class="env-top">
-        <span class="env-icon">🌧️</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi sedih</p>
-        <p class="env-preview">"Ada sesuatu yang mau aku bilang waktu kamu lagi di titik terendah..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
+<!-- MAIN -->
+<div id="screen-main" class="screen">
+  <div class="page">
+    <div class="hero fade-in">
+      <span class="hero-label">Surat Khusus Untuk Dara</span>
+      <h1 class="hero-title">Open <span>When...</span></h1>
+      <p class="hero-sub">Pilih amplop sesuai perasaan kamu sekarang. Setiap surat ditulis khusus untuk momen itu.</p>
+      <div class="hero-divider"></div>
     </div>
 
-    <div class="envelope env-angry" onclick="openLetter('angry')">
-      <div class="env-top">
-        <span class="env-icon">🔥</span>
-        <span class="env-status">Buka sekarang</span>
+    <div class="envelopes fade-in">
+
+      <div class="envelope env-sad" onclick="openLetter('sad')">
+        <div class="env-top"><span class="env-icon">🌧️</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi sedih</p>
+          <p class="env-preview">"Ada sesuatu yang mau aku bilang waktu kamu lagi di titik terendah..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
       </div>
-      <div>
-        <p class="env-condition">...kamu lagi marah sama aku</p>
-        <p class="env-preview">"Kalau kamu lagi marah sama aku, ini yang pengen aku sampaikan..."</p>
+
+      <div class="envelope env-angry" onclick="openLetter('angry')">
+        <div class="env-top"><span class="env-icon">🔥</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi marah sama aku</p>
+          <p class="env-preview">"Kalau kamu lagi marah sama aku, ini yang pengen aku sampaikan..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
       </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
+
+      <div class="envelope env-miss" onclick="openLetter('miss')">
+        <div class="env-top"><span class="env-icon">🌙</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi kangen aku</p>
+          <p class="env-preview">"Waktu jarak terasa berat dan kamu kangen, baca ini dulu..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
+      </div>
+
+      <div class="envelope env-stress" onclick="openLetter('stress')">
+        <div class="env-top"><span class="env-icon">😮‍💨</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi stress</p>
+          <p class="env-preview">"Tarik napas dulu. Aku udah siapkan sesuatu buat kamu..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
+      </div>
+
+      <div class="envelope env-insecure" onclick="openLetter('insecure')">
+        <div class="env-top"><span class="env-icon">🪞</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi ngerasa kurang</p>
+          <p class="env-preview">"Waktu kamu mulai ngerasa tidak cukup baik, baca ini..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
+      </div>
+
+      <div class="envelope env-happy" onclick="openLetter('happy')">
+        <div class="env-top"><span class="env-icon">🌸</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi bahagia</p>
+          <p class="env-preview">"Waktu semuanya terasa baik — ini yang aku rasain juga..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
+      </div>
+
+      <div class="envelope env-lonely" onclick="openLetter('lonely')">
+        <div class="env-top"><span class="env-icon">🌃</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi ngerasa sendirian</p>
+          <p class="env-preview">"Kamu tidak pernah benar-benar sendirian. Ini buktinya..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
+      </div>
+
+      <div class="envelope env-overthink" onclick="openLetter('overthink')">
+        <div class="env-top"><span class="env-icon">💭</span><span class="env-status">Buka sekarang</span></div>
+        <div>
+          <p class="env-condition">...kamu lagi overthinking</p>
+          <p class="env-preview">"Stop sebentar. Aku tau pikiranmu lagi kemana-mana..."</p>
+        </div>
+        <p class="env-open-hint">✉ Klik untuk buka</p>
+      </div>
+
     </div>
 
-    <div class="envelope env-miss" onclick="openLetter('miss')">
-      <div class="env-top">
-        <span class="env-icon">🌙</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi kangen aku</p>
-        <p class="env-preview">"Waktu jarak terasa berat dan kamu kangen, baca ini dulu..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
+    <div class="footer fade-in">
+      <p>Dibuat dengan <span>🤍</span> untuk Dara Syifa Aulia</p>
+      <p style="font-size:11px;margin-top:4px;">dari Razan — yang selalu ada, bahkan di surat ini.</p>
     </div>
-
-    <div class="envelope env-stress" onclick="openLetter('stress')">
-      <div class="env-top">
-        <span class="env-icon">😮‍💨</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi stress</p>
-        <p class="env-preview">"Tarik napas dulu. Aku udah siapkan sesuatu buat kamu..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
-    </div>
-
-    <div class="envelope env-insecure" onclick="openLetter('insecure')">
-      <div class="env-top">
-        <span class="env-icon">🪞</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi ngerasa kurang</p>
-        <p class="env-preview">"Waktu kamu mulai ngerasa tidak cukup baik, baca ini..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
-    </div>
-
-    <div class="envelope env-happy" onclick="openLetter('happy')">
-      <div class="env-top">
-        <span class="env-icon">🌸</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi bahagia</p>
-        <p class="env-preview">"Waktu semuanya terasa baik — ini yang aku rasain juga..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
-    </div>
-
-    <div class="envelope env-lonely" onclick="openLetter('lonely')">
-      <div class="env-top">
-        <span class="env-icon">🌃</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi ngerasa sendirian</p>
-        <p class="env-preview">"Kamu tidak pernah benar-benar sendirian. Ini buktinya..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
-    </div>
-
-    <div class="envelope env-overthink" onclick="openLetter('overthink')">
-      <div class="env-top">
-        <span class="env-icon">💭</span>
-        <span class="env-status">Buka sekarang</span>
-      </div>
-      <div>
-        <p class="env-condition">...kamu lagi overthinking</p>
-        <p class="env-preview">"Stop sebentar. Aku tau pikiranmu lagi kemana-mana..."</p>
-      </div>
-      <p class="env-open-hint">✉ Klik untuk buka</p>
-    </div>
-
   </div>
-
-  <div class="footer fade-in">
-    <p>Dibuat dengan <span>🤍</span> untuk Dara Syifa Aulia</p>
-    <p style="font-size: 11px; margin-top: 4px;">dari Razan — yang selalu ada, bahkan di surat ini.</p>
-  </div>
-
 </div>
 
 <!-- LETTER OVERLAY -->
 <div id="letter-overlay" onclick="handleOverlayClick(event)">
-  <div class="letter-modal" id="letter-modal">
+  <div class="letter-modal">
     <div class="letter-header">
       <span class="letter-header-icon" id="letter-icon">💌</span>
       <span class="letter-label">Open When</span>
@@ -422,103 +309,95 @@
 const letters = {
   sad: {
     icon: '🌧️',
-    condition: '...kamu lagi <em>sedih</em>',
-    text: `
-      <p>Aku tau sekarang mungkin terasa berat. Dan aku ga bisa langsung datang dan bikin semuanya baik-baik aja — aku tau itu.</p>
+    condition: '...kamu lagi <span style="color:var(--rose)">sedih</span>',
+    text: `<p>Aku tau sekarang mungkin terasa berat. Dan aku ga bisa langsung datang dan bikin semuanya baik-baik aja — aku tau itu.</p>
       <p>Tapi aku mau kamu tau satu hal: perasaan ini tidak akan selamanya di sini. Kesedihan itu nyata, tapi dia juga selalu pergi.</p>
       <p>Kamu itu orang yang kuat, Dara — bukan karena kamu tidak pernah sedih, tapi karena kamu selalu bangkit setelahnya. Aku udah lihat itu.</p>
       <p>Kalau sekarang kamu butuh nangis, nangis aja. Kalau butuh diam, diam aja. Kamu tidak harus terlihat baik-baik aja terus.</p>
-      <p>Dan kalau kamu mau cerita — aku di sini. Selalu.</p>
-    `,
+      <p>Dan kalau kamu mau cerita — aku di sini. Selalu.</p>`,
     sign: '— Razan, yang selalu ada 🤍'
   },
   angry: {
     icon: '🔥',
-    condition: '...kamu lagi <em>marah sama aku</em>',
-    text: `
-      <p>Kalau kamu lagi buka surat ini, berarti kamu lagi marah sama aku. Dan itu wajar.</p>
-      <p>Aku ga mau bilang "jangan marah" — karena perasaan kamu valid. Kalau aku salah, aku salah. Dan aku minta maaf.</p>
-      <p>Yang aku mau kamu inget adalah: apapun yang terjadi, aku tidak marah balik. Aku mungkin melakukan hal yang salah, tapi niatku tidak pernah untuk menyakiti kamu.</p>
+    condition: '...kamu lagi <span style="color:var(--rose)">marah sama aku</span>',
+    text: `<p>Kalau kamu lagi buka surat ini, berarti kamu lagi marah sama aku. Dan itu wajar.</p>
+      <p>Aku ga mau bilang "jangan marah" — karena perasaan kamu itu benar. Kalau aku salah, aku salah. Dan aku minta maaf.</p>
+      <p>Yang aku mau kamu ingat adalah: apapun yang terjadi, aku tidak marah balik. Aku mungkin melakukan hal yang salah, tapi niatku tidak pernah untuk menyakiti kamu.</p>
       <p>Kamu boleh marah. Kamu boleh diam. Tapi jangan pergi terlalu jauh, ya — karena aku selalu mau kita selesaikan ini bersama, bukan saling menjauh.</p>
-      <p>Aku sayang kamu. Bahkan di momen ini.</p>
-    `,
+      <p>Aku sayang kamu. Bahkan di momen ini.</p>`,
     sign: '— Razan, yang tetap di sini 🤍'
   },
   miss: {
     icon: '🌙',
-    condition: '...kamu lagi <em>kangen aku</em>',
-    text: `
-      <p>Hei. Aku juga kangen kamu.</p>
+    condition: '...kamu lagi <span style="color:var(--rose)">kangen aku</span>',
+    text: `<p>Hei. Aku juga kangen kamu.</p>
       <p>Kamu tau tidak — setiap kali aku kangen kamu, aku selalu ingat hal-hal kecil. Cara kamu senyum. Cara kamu ngomel. Cara kamu ada, tanpa harus ngomong apapun.</p>
       <p>Jarak itu berat, aku tau. Tapi aku mau kamu tau bahwa rasa kangen itu tanda bahwa kita punya sesuatu yang berharga. Tidak semua orang punya orang yang layak untuk dirindukan.</p>
       <p>Kamu adalah orang yang selalu aku mau kabarin pertama kalau ada sesuatu. Dan itu tidak berubah, seberapa jauh pun jaraknya.</p>
-      <p>Sebentar lagi kita bisa ketemu. Sampai saat itu — surat ini ada buat kamu.</p>
-    `,
+      <p>Sebentar lagi kita bisa ketemu. Sampai saat itu — surat ini ada buat kamu.</p>`,
     sign: '— Razan, yang juga kangen kamu 🌙'
   },
   stress: {
     icon: '😮‍💨',
-    condition: '...kamu lagi <em>stress</em>',
-    text: `
-      <p>Stop dulu.</p>
+    condition: '...kamu lagi <span style="color:var(--rose)">stress</span>',
+    text: `<p>Stop dulu.</p>
       <p>Tarik napas. Pelan-pelan. Satu kali dulu.</p>
       <p>Aku tau kamu lagi ngerasa semua hal menumpuk sekaligus. Aku tau rasanya kepala penuh dan badan lelah tapi pikiran tidak mau berhenti.</p>
       <p>Tapi aku mau kamu ingat — kamu udah melewati banyak hal yang terasa berat sebelumnya. Dan kamu selalu berhasil. Selalu.</p>
       <p>Istirahat itu bukan menyerah. Berhenti sebentar itu bukan kekalahan. Kamu boleh tidak produktif hari ini. Kamu boleh cuma rebahan dan nafas.</p>
-      <p>Dan kalau butuh seseorang untuk diajak bicara — aku ada. Selalu.</p>
-    `,
+      <p>Dan kalau butuh seseorang untuk diajak bicara — aku ada. Selalu.</p>`,
     sign: '— Razan, yang pengen kamu istirahat dulu 🤍'
   },
   insecure: {
     icon: '🪞',
-    condition: '...kamu lagi ngerasa <em>kurang</em>',
-    text: `
-      <p>Aku mau jujur sama kamu tentang sesuatu.</p>
+    condition: '...kamu lagi ngerasa <span style="color:var(--rose)">kurang</span>',
+    text: `<p>Aku mau jujur sama kamu tentang sesuatu.</p>
       <p>Kamu itu cantik. Bukan cantik yang ramai dan mencolok — tapi cantik yang bikin orang diam sejenak dan ngerasa tenang. Kamu punya itu, Dara.</p>
-      <p>Kamu lucu, imut, hangat, dan karismatik. Bukan karena aku harus bilang itu — tapi karena aku lihat itu setiap kali aku sama kamu.</p>
+      <p>Kamu lucu, imut, hangat, dan penuh karisma. Bukan karena aku harus bilang itu — tapi karena aku lihat itu setiap kali aku sama kamu.</p>
       <p>Dunia di luar sana memang keras. Standarnya tidak masuk akal. Tapi kamu tidak harus memenuhi standar siapapun selain standar kamu sendiri.</p>
-      <p>Di mata aku, kamu sudah lebih dari cukup. Sejak pertama, dan sampai sekarang.</p>
-    `,
+      <p>Di mata aku, kamu sudah lebih dari cukup. Sejak pertama, dan sampai sekarang.</p>`,
     sign: '— Razan, yang selalu lihat yang terbaik dari kamu 🤍'
   },
   happy: {
     icon: '🌸',
-    condition: '...kamu lagi <em>bahagia</em>',
-    text: `
-      <p>Hei, kamu lagi bahagia ya. Aku seneng banget dengernya.</p>
+    condition: '...kamu lagi <span style="color:var(--rose)">bahagia</span>',
+    text: `<p>Hei, kamu lagi bahagia ya. Aku seneng banget dengernya.</p>
       <p>Senyuman kamu itu — entah kenapa selalu bisa bikin hari aku jadi lebih baik juga, bahkan dari jauh. Itu salah satu hal yang aku syukuri.</p>
       <p>Nikmatin momen ini sepenuhnya, ya. Jangan buru-buru khawatir tentang besok atau hari lain. Sekarang ini milik kamu, dan kamu berhak bahagia.</p>
       <p>Dan aku mau kamu tau — kebahagiaan kamu itu penting buat aku. Bukan cuma karena aku sayang kamu, tapi karena kamu memang layak untuk itu.</p>
-      <p>Terus senyum, Dara. Wajah kamu paling bagus waktu senyum.</p>
-    `,
+      <p>Terus senyum, Dara. Wajah kamu paling bagus waktu senyum.</p>`,
     sign: '— Razan, yang ikut bahagia 🌸'
   },
   lonely: {
     icon: '🌃',
-    condition: '...kamu lagi ngerasa <em>sendirian</em>',
-    text: `
-      <p>Aku mau kamu baca ini pelan-pelan.</p>
-      <p>Kamu tidak sendirian. Aku tau itu mungkin terasa klise — tapi aku serius.</p>
-      <p>Aku ada. Tidak selalu bisa hadir secara fisik, tidak selalu bisa langsung datang — tapi aku ada. Di sini. Selalu kepikiran kamu, bahkan di momen-momen yang kamu kira aku tidak tau.</p>
+    condition: '...kamu lagi ngerasa <span style="color:var(--rose)">sendirian</span>',
+    text: `<p>Aku mau kamu baca ini pelan-pelan.</p>
+      <p>Kamu tidak sendirian. Aku tau itu mungkin terasa biasa — tapi aku serius.</p>
+      <p>Aku ada. Tidak selalu bisa hadir secara langsung, tidak selalu bisa langsung datang — tapi aku ada. Di sini. Selalu kepikiran kamu, bahkan di momen-momen yang kamu kira aku tidak tau.</p>
       <p>Kamu adalah orang pertama yang aku mau kabarin kalau ada sesuatu. Itu bukan kebetulan. Itu karena kamu memang berarti.</p>
-      <p>Kalau malam ini terasa terlalu sepi — kirim pesan ke aku. Kita ngobrol. Tentang apapun. Aku ga kemana-mana.</p>
-    `,
+      <p>Kalau malam ini terasa terlalu sepi — kirim pesan ke aku. Kita ngobrol. Tentang apapun. Aku ga kemana-mana.</p>`,
     sign: '— Razan, yang tidak pernah pergi jauh 🌃'
   },
   overthink: {
     icon: '💭',
-    condition: '...kamu lagi <em>overthinking</em>',
-    text: `
-      <p>Hei. Aku tau kepala kamu lagi penuh banget sekarang.</p>
-      <p>Kamu lagi mikirin banyak hal sekaligus kan? Skenario-skenario yang belum tentu terjadi. Kemungkinan-kemungkinan yang bikin cemas. Aku tau kamu.</p>
-      <p>Boleh aku minta sesuatu? Coba tanya ke diri sendiri satu pertanyaan ini: <em>"Apakah ini nyata sekarang, atau aku hanya mengkhawatirkan sesuatu yang belum terjadi?"</em></p>
+    condition: '...kamu lagi <span style="color:var(--rose)">overthinking</span>',
+    text: `<p>Hei. Aku tau kepala kamu lagi penuh banget sekarang.</p>
+      <p>Kamu lagi mikirin banyak hal sekaligus kan? Hal-hal yang belum tentu terjadi. Kemungkinan-kemungkinan yang bikin cemas. Aku tau kamu.</p>
+      <p>Boleh aku minta sesuatu? Coba tanya ke diri sendiri satu pertanyaan ini: "Apakah ini nyata sekarang, atau aku hanya mengkhawatirkan sesuatu yang belum terjadi?"</p>
       <p>Kebanyakan hal yang kita khawatirkan tidak pernah benar-benar terjadi. Dan yang terjadi pun — selalu ada jalan keluarnya.</p>
       <p>Kamu tidak harus tau semua jawabannya sekarang. Kamu boleh tidak tau. Dan kamu boleh istirahat dari pikiran kamu sendiri.</p>
-      <p>Aku di sini kalau kamu mau cerita.</p>
-    `,
+      <p>Aku di sini kalau kamu mau cerita.</p>`,
     sign: '— Razan, yang pengen kamu tenang 💭🤍'
   }
 };
+
+function startOpenWhen() {
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-main').classList.add('active');
+  setTimeout(() => {
+    document.querySelectorAll('.fade-in').forEach(el => el.classList.add('visible'));
+  }, 100);
+}
 
 function openLetter(key) {
   const l = letters[key];
@@ -540,12 +419,6 @@ function handleOverlayClick(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLetter(); });
-
-// Fade in
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
