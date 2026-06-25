@@ -10,7 +10,6 @@
     --bg: #fdf8f4;
     --soft1: #f7ede4;
     --soft2: #eeddd0;
-    --soft3: #e8cfc0;
     --rose: #d4908a;
     --rose-deep: #b5706a;
     --blush: #ecc5b5;
@@ -20,399 +19,217 @@
     --sage: #b5c4b1;
     --ink: #2d1f1a;
     --muted: #9a8070;
-    --white: #ffffff;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     background: var(--bg);
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    padding: 3rem 1.5rem 5rem;
+    padding: 2.5rem 1.25rem 5rem;
     overflow-x: hidden;
   }
-
   body::before {
-    content: '';
-    position: fixed; inset: 0;
+    content: ''; position: fixed; inset: 0;
     background:
       radial-gradient(ellipse 70% 50% at 10% 10%, rgba(232,207,192,0.4) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 60% at 90% 90%, rgba(196,160,168,0.25) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(181,196,177,0.15) 0%, transparent 70%);
+      radial-gradient(ellipse 60% 60% at 90% 90%, rgba(196,160,168,0.25) 0%, transparent 60%);
     pointer-events: none; z-index: 0;
   }
+  .page { max-width: 520px; margin: 0 auto; position: relative; z-index: 1; }
 
-  .page { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
-
-  /* ── HEADER ── */
-  .header { text-align: center; margin-bottom: 3.5rem; }
-
-  .header-label {
-    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 1rem; display: block;
-  }
-
-  .header-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(2.5rem, 7vw, 4.5rem);
-    font-weight: 600; color: var(--ink);
-    line-height: 1.1; margin-bottom: 0.5rem;
-  }
-
+  .header { text-align: center; margin-bottom: 2rem; }
+  .header-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; display: block; }
+  .header-title { font-size: clamp(2rem, 8vw, 3rem); font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 0.5rem; }
   .header-title span { color: var(--rose); }
+  .header-sub { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; margin-top: 0.75rem; line-height: 1.6; }
+  .header-line { width: 48px; height: 1px; background: linear-gradient(to right, transparent, var(--blush), transparent); margin: 1.25rem auto 0; }
 
-  .header-sub {
-    font-size: 13px; color: var(--muted);
-    letter-spacing: 0.05em; margin-top: 1rem;
-  }
+  .grid { display: flex; flex-direction: column; gap: 0.85rem; }
+  .row { display: flex; gap: 0.85rem; }
 
-  .header-line {
-    width: 60px; height: 1px;
-    background: linear-gradient(to right, transparent, var(--blush), transparent);
-    margin: 1.5rem auto 0;
-  }
-
-  /* ── GRID ── */
-  .moodboard {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: auto;
-    gap: 1rem;
-  }
-
-  /* Block base */
   .block {
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 18px; overflow: hidden; position: relative;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.25s ease;
   }
+  .block.visible { opacity: 1; transform: none; }
+  .block:hover { box-shadow: 0 8px 32px rgba(45,31,26,0.12); transform: translateY(-2px); }
 
-  .block:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(45,31,26,0.12);
-  }
-
-  /* Grid placements */
-  .b1 { grid-column: 1 / 6; grid-row: 1; min-height: 260px; }
-  .b2 { grid-column: 6 / 9; grid-row: 1; min-height: 260px; }
-  .b3 { grid-column: 9 / 13; grid-row: 1; min-height: 260px; }
-  .b4 { grid-column: 1 / 4; grid-row: 2; min-height: 220px; }
-  .b5 { grid-column: 4 / 8; grid-row: 2; min-height: 220px; }
-  .b6 { grid-column: 8 / 13; grid-row: 2; min-height: 220px; }
-  .b7 { grid-column: 1 / 5; grid-row: 3; min-height: 200px; }
-  .b8 { grid-column: 5 / 9; grid-row: 3; min-height: 200px; }
-  .b9 { grid-column: 9 / 13; grid-row: 3; min-height: 200px; }
-  .b10 { grid-column: 1 / 13; grid-row: 4; min-height: 120px; }
-
-  /* ── BLOCK TYPES ── */
-
-  /* Big word block */
-  .block-word {
+  .block-hero {
+    background: linear-gradient(135deg, var(--soft1), var(--blush));
+    padding: 2.5rem 2rem;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    text-align: center; padding: 2rem;
+    text-align: center; min-height: 160px;
   }
+  .hero-word { font-size: clamp(2.5rem, 10vw, 4rem); font-weight: 700; color: var(--rose-deep); line-height: 1; margin-bottom: 0.4rem; }
+  .hero-word-sub { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.7; }
 
-  .word-main {
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 400; line-height: 1;
-    margin-bottom: 0.5rem;
-  }
-
-
-
-  .word-sub {
-    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    opacity: 0.6;
-  }
-
-  /* Color swatch */
-  .block-swatch {
-    display: flex; flex-direction: column;
-    justify-content: flex-end; padding: 1.25rem;
-  }
-
-  .swatch-label {
-    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-    color: rgba(255,255,255,0.8);
-  }
-
-  .swatch-hex {
-    font-size: 12px; font-weight: 500;
-    color: rgba(255,255,255,0.6); margin-top: 2px;
-  }
-
-  /* Quote block */
-  .block-quote {
-    display: flex; flex-direction: column;
-    justify-content: center; padding: 2rem;
-    position: relative;
-  }
-
-  .quote-mark {
-    font-size: 5rem; line-height: 0.8;
-    opacity: 0.15; position: absolute;
-    top: 1rem; left: 1.5rem;
-  }
-
-  .quote-text {
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(0.85rem, 1.5vw, 1.05rem);
-    line-height: 1.7; position: relative; z-index: 1;
-  }
-
-  .quote-attr {
-    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-    margin-top: 1rem; opacity: 0.5; position: relative; z-index: 1;
-  }
-
-  /* Tag cloud */
   .block-tags {
-    display: flex; flex-wrap: wrap;
+    background: var(--soft2); padding: 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
     align-items: center; justify-content: center;
-    gap: 0.6rem; padding: 1.5rem;
   }
+  .tag { padding: 0.4rem 1rem; border-radius: 50px; font-size: 12px; font-weight: 400; letter-spacing: 0.04em; }
 
-  .tag {
-    padding: 0.4rem 1rem;
-    border-radius: 50px;
-    font-size: 12px; font-weight: 400;
-    letter-spacing: 0.05em;
+  .block-swatch { flex: 1; min-height: 120px; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem 1.25rem; }
+  .swatch-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.8); }
+  .swatch-hex { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+  .block-quote-personal {
+    background: var(--ink); padding: 2rem 1.75rem;
+    position: relative; overflow: hidden; min-height: 160px;
+    display: flex; flex-direction: column; justify-content: space-between;
   }
+  .block-quote-personal::before {
+    content: '"'; position: absolute; top: -0.5rem; left: 1.25rem;
+    font-size: 6rem; line-height: 1; color: rgba(236,197,181,0.15);
+    font-weight: 700; pointer-events: none;
+  }
+  .quote-personal-text { font-size: 14px; color: rgba(255,255,255,0.88); line-height: 1.8; position: relative; z-index: 1; }
+  .quote-personal-attr { font-size: 11px; color: var(--gold); margin-top: 1.25rem; letter-spacing: 0.05em; position: relative; z-index: 1; }
 
-  /* Pattern block */
   .block-pattern {
+    background: var(--soft1); min-height: 140px; flex: 1;
     display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
+    position: relative; overflow: hidden; padding: 1.5rem;
   }
+  .block-pattern svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pattern-text { font-size: clamp(1rem, 3vw, 1.2rem); font-weight: 400; color: var(--ink); text-align: center; position: relative; z-index: 1; line-height: 1.5; }
+  .pattern-text span { color: var(--rose); font-weight: 600; }
 
-  .pattern-circles {
-    position: absolute; inset: 0;
+  .block-quote-armani {
+    background: var(--soft2); padding: 1.75rem;
+    min-height: 140px; flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
   }
+  .armani-text { font-size: 13px; color: var(--ink); line-height: 1.75; font-style: italic; }
+  .armani-attr { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 0.75rem; opacity: 0.6; }
 
-  .pattern-circles circle { opacity: 0.15; }
-
-  .pattern-text {
-    font-family: 'Poppins', sans-serif;
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    font-weight: 400;
-    text-align: center; padding: 1.5rem;
-    position: relative; z-index: 1;
-    line-height: 1.4;
-  }
-
-  /* Pill row */
-  .block-pills {
-    display: flex; align-items: center;
-    justify-content: center; gap: 1rem;
-    padding: 1.5rem 2rem; flex-wrap: wrap;
-  }
-
-  .pill {
-    padding: 0.5rem 1.5rem;
-    border-radius: 50px;
-    font-size: 13px; font-weight: 400;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-  }
-
-  /* Number accent */
-  .block-num {
+  .block-word-small {
+    flex: 1; min-height: 120px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    text-align: center; padding: 1.5rem;
+    text-align: center; padding: 1.25rem;
   }
+  .word-small-main { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 700; line-height: 1; margin-bottom: 0.35rem; }
+  .word-small-sub { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.6; }
 
-  .num-big {
-    font-size: clamp(3rem, 6vw, 5rem);
-    font-weight: 700; line-height: 1;
-    opacity: 0.15;
+  .block-pills {
+    background: var(--soft2); padding: 1.25rem 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+    align-items: center; justify-content: center;
   }
+  .pill { padding: 0.45rem 1.25rem; border-radius: 50px; font-size: 12px; font-weight: 400; letter-spacing: 0.04em; white-space: nowrap; }
+  .pill-divider { color: var(--gold); font-size: 1rem; }
 
-  .num-label {
-    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-    margin-top: 0.5rem; opacity: 0.7;
-  }
-
-  /* ── COLORS ── */
-  .bg-soft1 { background: var(--soft1); }
-  .bg-soft2 { background: var(--soft2); }
-  .bg-soft3 { background: var(--soft3); }
-  .bg-rose { background: var(--rose); }
+  .bg-rose      { background: var(--rose); }
+  .bg-mauve     { background: var(--mauve); }
+  .bg-gold      { background: var(--gold); }
+  .bg-sage      { background: var(--sage); }
   .bg-rose-deep { background: var(--rose-deep); }
-  .bg-blush { background: var(--blush); }
-  .bg-gold { background: var(--gold); }
-  .bg-gold-light { background: var(--gold-light); }
-  .bg-mauve { background: var(--mauve); }
-  .bg-sage { background: var(--sage); }
-  .bg-white { background: var(--white); border: 1px solid var(--soft3); }
-  .bg-ink { background: var(--ink); }
+  .bg-blush     { background: var(--blush); }
 
-  .text-ink { color: var(--ink); }
-  .text-white { color: #fff; }
-  .text-muted { color: var(--muted); }
-  .text-rose { color: var(--rose); }
-  .text-gold { color: var(--gold); }
-
-  /* ── FOOTER ── */
-  .footer {
-    text-align: center; margin-top: 3rem;
-    font-size: 12px; color: var(--muted);
-    letter-spacing: 0.08em;
-  }
-
+  .footer { text-align: center; margin-top: 2rem; font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
   .footer span { color: var(--rose); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 640px) {
-    .moodboard { grid-template-columns: repeat(6, 1fr); gap: 0.75rem; }
-    .b1 { grid-column: 1 / 5; grid-row: 1; min-height: 180px; }
-    .b2 { grid-column: 5 / 7; grid-row: 1; min-height: 180px; }
-    .b3 { grid-column: 1 / 7; grid-row: 2; min-height: 160px; }
-    .b4 { grid-column: 1 / 4; grid-row: 3; min-height: 160px; }
-    .b5 { grid-column: 4 / 7; grid-row: 3; min-height: 160px; }
-    .b6 { grid-column: 1 / 7; grid-row: 4; min-height: 160px; }
-    .b7 { grid-column: 1 / 3; grid-row: 5; min-height: 140px; }
-    .b8 { grid-column: 3 / 5; grid-row: 5; min-height: 140px; }
-    .b9 { grid-column: 5 / 7; grid-row: 5; min-height: 140px; }
-    .b10 { grid-column: 1 / 7; grid-row: 6; min-height: 100px; }
-  }
-
-  /* Fade in */
-  .block { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease; }
-  .block.visible { opacity: 1; transform: translateY(0); }
-  .block:hover { transform: translateY(-4px); }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- HEADER -->
   <div class="header">
     <span class="header-label">A moodboard for</span>
-    <h1 class="header-title">Dara <span style="color:var(--rose)">Syifa</span> Aulia</h1>
+    <h1 class="header-title">Dara <span>Syifa</span> Aulia</h1>
     <p class="header-sub">Soft · Elegant · Karismatik · Selalu jadi yang paling berkesan</p>
     <div class="header-line"></div>
   </div>
 
-  <!-- MOODBOARD GRID -->
-  <div class="moodboard">
+  <div class="grid">
 
-    <!-- B1: Big word — Cantik -->
-    <div class="block b1 block-word bg-soft1 text-ink">
-      <p class="word-main" style="color: var(--rose-deep); font-weight:600;">Cantik</p>
-      <p class="word-sub" style="color: var(--muted)">bukan sekadar wajah</p>
+    <!-- Row 1: Hero word + Swatches -->
+    <div class="row">
+      <div class="block block-hero" style="flex:1.4">
+        <p class="hero-word">Cantik</p>
+        <p class="hero-word-sub">bukan sekadar wajah</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.85rem;flex:1">
+        <div class="block block-swatch bg-rose" style="flex:1"><p class="swatch-label">Rose Blush</p><p class="swatch-hex">#D4908A</p></div>
+        <div class="block block-swatch bg-mauve" style="flex:1"><p class="swatch-label">Soft Mauve</p><p class="swatch-hex">#C4A0A8</p></div>
+      </div>
     </div>
 
-    <!-- B2: Color swatch rose -->
-    <div class="block b2 block-swatch bg-rose">
-      <p class="swatch-label">Rose Blush</p>
-      <p class="swatch-hex">#D4908A</p>
+    <!-- Row 2: Tags -->
+    <div class="block block-tags">
+      <span class="tag" style="background:rgba(255,255,255,0.7);color:var(--ink);border:1px solid var(--blush)">Cantik ✦</span>
+      <span class="tag" style="background:var(--rose);color:#fff">Lucu</span>
+      <span class="tag" style="background:var(--gold-light);color:var(--ink)">Imut ✦</span>
+      <span class="tag" style="background:var(--mauve);color:#fff">Gemoy</span>
+      <span class="tag" style="background:rgba(255,255,255,0.6);color:var(--ink);border:1px solid var(--blush)">Karismatik ✦</span>
+      <span class="tag" style="background:var(--rose-deep);color:#fff">Elegant</span>
+      <span class="tag" style="background:var(--sage);color:var(--ink)">Hangat ✦</span>
+      <span class="tag" style="background:rgba(255,255,255,0.6);color:var(--ink);border:1px solid var(--blush)">Berkesan</span>
     </div>
 
-    <!-- B3: Quote -->
-    <div class="block b3 block-quote bg-white text-ink">
-      <span class="quote-mark" style="color: var(--rose);">"</span>
-      <p class="quote-text" style="color: var(--ink);">
-        Kamu itu cantik — bukan yang ramai, tapi yang bikin orang diam sejenak dan ngerasa tenang.
+    <!-- Row 3: Personal quote from Razan -->
+    <div class="block block-quote-personal">
+      <p class="quote-personal-text">
+        Kamu itu cantik bukan karena kamu berusaha terlihat cantik — tapi karena kamu hadir apa adanya, dan itu justru yang paling susah dilupakan. Di antara banyak orang, mata aku selalu balik ke kamu.
       </p>
-      <p class="quote-attr" style="color: var(--muted);">— untuk Dara</p>
+      <p class="quote-personal-attr">— Razan, untuk Dara 🤍</p>
     </div>
 
-    <!-- B4: Color swatch mauve -->
-    <div class="block b4 block-swatch bg-mauve">
-      <p class="swatch-label">Soft Mauve</p>
-      <p class="swatch-hex">#C4A0A8</p>
+    <!-- Row 4: Pattern + Armani -->
+    <div class="row">
+      <div class="block block-pattern" style="flex:1">
+        <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <circle cx="170" cy="20" r="70" fill="#c17a6f" opacity="0.12"/>
+          <circle cx="30" cy="120" r="55" fill="#c9a96e" opacity="0.12"/>
+          <circle cx="100" cy="70" r="35" fill="#c4a0a8" opacity="0.1"/>
+        </svg>
+        <p class="pattern-text">Satu ruangan,<br>tapi semua mata<br><span>tetap ke kamu.</span></p>
+      </div>
+      <div class="block block-quote-armani" style="flex:1">
+        <p class="armani-text">"Elegance is not about being noticed — it's about being remembered."</p>
+        <p class="armani-attr">— Giorgio Armani</p>
+      </div>
     </div>
 
-    <!-- B5: Tag cloud -->
-    <div class="block b5 block-tags bg-soft2">
-      <span class="tag text-ink" style="background: rgba(255,255,255,0.6);">Cantik ✦</span>
-      <span class="tag text-white" style="background: var(--rose);">Lucu</span>
-      <span class="tag text-ink" style="background: var(--gold-light);">Imut ✦</span>
-      <span class="tag text-white" style="background: var(--mauve);">Gemoy</span>
-      <span class="tag text-ink" style="background: rgba(255,255,255,0.5);">Karismatik ✦</span>
-      <span class="tag text-white" style="background: var(--rose-deep);">Elegant</span>
-      <span class="tag text-ink" style="background: var(--sage);">Hangat ✦</span>
-      <span class="tag text-ink" style="background: rgba(255,255,255,0.6);">Berkesan</span>
+    <!-- Row 5: Word + Swatches -->
+    <div class="row">
+      <div class="block block-word-small bg-blush" style="flex:1">
+        <p class="word-small-main" style="color:var(--rose-deep)">Gemoy</p>
+        <p class="word-small-sub" style="color:var(--muted)">tapi tetap karismatik</p>
+      </div>
+      <div class="block block-swatch bg-gold" style="flex:1"><p class="swatch-label">Warm Gold</p><p class="swatch-hex">#C9A96E</p></div>
+      <div class="block block-swatch bg-sage" style="flex:1"><p class="swatch-label">Soft Sage</p><p class="swatch-hex">#B5C4B1</p></div>
     </div>
 
-    <!-- B6: Pattern + text -->
-    <div class="block b6 block-pattern bg-soft1">
-      <svg class="pattern-circles" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="250" cy="30" r="80" fill="#c17a6f"/>
-        <circle cx="50" cy="200" r="60" fill="#c9a96e"/>
-        <circle cx="150" cy="110" r="40" fill="#c4a0a8"/>
-      </svg>
-      <p class="pattern-text text-ink">
-        Satu ruangan,<br>tapi semua mata<br><span style="color:var(--rose)">tetap ke kamu.</span>
-      </p>
-    </div>
-
-    <!-- B7: Gold swatch -->
-    <div class="block b7 block-swatch bg-gold">
-      <p class="swatch-label">Warm Gold</p>
-      <p class="swatch-hex">#C9A96E</p>
-    </div>
-
-    <!-- B8: Quote 2 -->
-    <div class="block b8 block-quote bg-ink text-white">
-      <span class="quote-mark" style="color: var(--blush);">"</span>
-      <p class="quote-text" style="color: rgba(255,255,255,0.85);">
-        Elegance is not about being noticed — it's about being remembered.
-      </p>
-      <p class="quote-attr" style="color: var(--gold);">— Giorgio Armani</p>
-    </div>
-
-    <!-- B9: Big word — Gemoy -->
-    <div class="block b9 block-word bg-blush text-ink">
-      <p class="word-main" style="color: var(--rose-deep); font-weight:600;">Gemoy</p>
-      <p class="word-sub" style="color: var(--muted)">tapi tetap karismatik</p>
-    </div>
-
-    <!-- B10: Pill row — closing statement -->
-    <div class="block b10 block-pills bg-soft2">
-      <span class="pill text-ink" style="background: rgba(255,255,255,0.7); border: 1px solid var(--blush);">Soft</span>
-      <span style="color: var(--gold); font-size: 1.2rem;">✦</span>
-      <span class="pill text-white" style="background: var(--rose);">Elegant</span>
-      <span style="color: var(--gold); font-size: 1.2rem;">✦</span>
-      <span class="pill text-ink" style="background: var(--gold-light);">Cantik</span>
-      <span style="color: var(--gold); font-size: 1.2rem;">✦</span>
-      <span class="pill text-white" style="background: var(--mauve);">Imut</span>
-      <span style="color: var(--gold); font-size: 1.2rem;">✦</span>
-      <span class="pill text-ink" style="background: rgba(255,255,255,0.7); border: 1px solid var(--blush);">Gemoy</span>
-      <span style="color: var(--gold); font-size: 1.2rem;">✦</span>
-      <span class="pill text-white" style="background: var(--rose-deep);">Karismatik</span>
+    <!-- Row 6: Pills -->
+    <div class="block block-pills">
+      <span class="pill" style="background:rgba(255,255,255,0.8);color:var(--ink);border:1px solid var(--blush)">Soft</span>
+      <span class="pill-divider">✦</span>
+      <span class="pill" style="background:var(--rose);color:#fff">Elegant</span>
+      <span class="pill-divider">✦</span>
+      <span class="pill" style="background:var(--gold-light);color:var(--ink)">Cantik</span>
+      <span class="pill-divider">✦</span>
+      <span class="pill" style="background:var(--mauve);color:#fff">Imut</span>
+      <span class="pill-divider">✦</span>
+      <span class="pill" style="background:var(--rose-deep);color:#fff">Karismatik</span>
     </div>
 
   </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    Made with <span>🤍</span> — untuk Dara Syifa Aulia
-  </div>
+  <div class="footer">Made with <span>🤍</span> — untuk Dara Syifa Aulia</div>
 
 </div>
-
 <script>
-  // Fade in on scroll
-  const blocks = document.querySelectorAll('.block');
   const observer = new IntersectionObserver(entries => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('visible'), e.target.dataset.delay || 0);
-      }
+    entries.forEach(e => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), +e.target.dataset.delay || 0);
     });
   }, { threshold: 0.1 });
-
-  blocks.forEach((b, i) => {
-    b.dataset.delay = i * 80;
-    observer.observe(b);
-  });
+  document.querySelectorAll('.block').forEach((b, i) => { b.dataset.delay = i * 80; observer.observe(b); });
 </script>
 </body>
 </html>
