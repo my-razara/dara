@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Talk — Razan & Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+  .screen.active { display: flex; }
+  #screen-game { flex-direction: column; }
+
+  /* ── INTRO ── */
+  .intro-wrap { max-width: 420px; width: 100%; text-align: center; }
+  .intro-icon { font-size: 4rem; display: block; margin-bottom: 1.5rem; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .intro-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; display: block; }
+  .intro-title { font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 600; color: var(--ink); line-height: 1.15; margin-bottom: 0.75rem; }
+  .intro-title span { color: var(--rose); }
+  .intro-sub { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 2rem; }
+  .intro-meta { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; }
+  .intro-meta-item { text-align: center; }
+  .intro-meta-num { font-size: 1.5rem; font-weight: 600; color: var(--rose); display: block; }
+  .intro-meta-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .intro-rules {
+    background: #fff; border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem; text-align: left;
+  }
+  .intro-rules-title { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; display: block; }
+  .intro-rules-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .intro-rules-list li { font-size: 13px; color: var(--muted); display: flex; gap: 0.5rem; align-items: flex-start; }
+  .intro-rules-list li::before { content: '·'; color: var(--rose); font-weight: 700; flex-shrink: 0; }
+
+  /* ── GAME ── */
+  .game-wrap { max-width: 480px; width: 100%; }
+  .game-header { text-align: center; margin-bottom: 1.5rem; }
+  .game-label { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 0.4rem; }
+  .game-title { font-size: 1.4rem; font-weight: 600; color: var(--ink); }
+  .game-title span { color: var(--rose); }
+
+  /* Progress */
+  .progress-wrap { margin-bottom: 1.5rem; }
+  .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .progress-text { font-size: 12px; color: var(--muted); }
+  .progress-text span { color: var(--rose); font-weight: 600; }
+  .progress-bar { width: 100%; height: 3px; background: var(--blush); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(to right, var(--blush), var(--rose)); border-radius: 2px; transition: width 0.4s ease; }
+
+  /* Card stack */
+  .card-stack { position: relative; margin-bottom: 1.5rem; height: 280px; }
+  .card-behind {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%) rotate(2deg);
+    width: calc(100% - 16px); height: 260px;
+    background: #fff; border-radius: 20px;
+    border: 1px solid rgba(193,122,111,0.1); opacity: 0.5;
+  }
+  .card-behind-2 {
+    position: absolute; top: 4px; left: 50%; transform: translateX(-50%) rotate(-1deg);
+    width: calc(100% - 8px); height: 264px;
+    background: #fff; border-radius: 20px;
+    border: 1px solid rgba(193,122,111,0.12); opacity: 0.7;
+  }
+  .card-main {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: #fff; border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 20px; padding: 2rem 2rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(45,31,26,0.1);
+    height: 260px; display: flex; flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    cursor: pointer; overflow: hidden;
+  }
+  .card-main::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(232,196,176,0.15), transparent 60%);
+    pointer-events: none;
+  }
+  .card-main.swipe-left { transform: translateX(-120%) rotate(-15deg); opacity: 0; }
+  .card-main.swipe-right { transform: translateX(120%) rotate(15deg); opacity: 0; }
+
+  .card-num { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; display: block; }
+  .card-question { font-size: clamp(0.95rem, 2.5vw, 1.1rem); font-weight: 400; color: var(--ink); line-height: 1.75; flex: 1; display: flex; align-items: center; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+  .card-hint { font-size: 11px; color: var(--blush); font-style: italic; }
+  .card-tap { font-size: 11px; color: var(--blush); }
+
+  .card-empty {
+    position: absolute; top: 0; left: 0; right: 0;
+    background: #fff; border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 20px; height: 260px;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+    box-shadow: 0 8px 32px rgba(45,31,26,0.08);
+  }
+  .card-empty.show { display: flex; }
+  .card-empty-emoji { font-size: 3rem; margin-bottom: 1rem; display: block; }
+  .card-empty-title { font-size: 1.3rem; font-weight: 500; color: var(--ink); margin-bottom: 0.5rem; }
+  .card-empty-sub { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  /* Actions */
+  .card-actions { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+  .action-btn {
+    flex: 1; padding: 0.85rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-skip { background: var(--warm); color: var(--muted); border: 1.5px solid var(--blush); }
+  .btn-skip:hover { border-color: var(--muted); }
+  .btn-next { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(193,122,111,0.3); }
+  .btn-next:hover { background: var(--deep); transform: translateY(-1px); }
+
+  .bottom-row { display: flex; gap: 0.75rem; }
+  .btn-sm {
+    flex: 1; padding: 0.65rem; border-radius: 50px; border: 1.5px solid var(--blush); cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 400;
+    background: transparent; color: var(--muted); transition: all 0.2s;
+  }
+  .btn-sm:hover { border-color: var(--rose); color: var(--rose); }
+
+  /* Done screen */
+  .reset-wrap { max-width: 420px; width: 100%; text-align: center; }
+  .reset-emoji { font-size: 4rem; display: block; margin-bottom: 1rem; }
+  .reset-title { font-size: 1.8rem; font-weight: 600; color: var(--ink); margin-bottom: 0.75rem; }
+  .reset-title span { color: var(--rose); }
+  .reset-msg { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 2rem; max-width: 360px; margin-left: auto; margin-right: auto; }
+  .reset-stats {
+    background: #fff; border: 1px solid rgba(193,122,111,0.15);
+    border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem;
+    display: flex; justify-content: center; gap: 3rem;
+  }
+  .reset-stat { text-align: center; }
+  .reset-stat-num { font-size: 1.8rem; font-weight: 700; color: var(--rose); display: block; }
+  .reset-stat-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  .btn {
+    display: block; width: 100%; padding: 0.9rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
+    transition: all 0.2s; text-align: center; letter-spacing: 0.04em; margin-bottom: 0.75rem;
+  }
+  .btn-primary { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(193,122,111,0.3); }
+  .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--muted); border: 1.5px solid var(--blush); }
+  .btn-outline:hover { border-color: var(--rose); color: var(--rose); }
+
+  .confetti-piece {
+    position: fixed; border-radius: 2px;
+    animation: confetti-fall linear forwards;
+    pointer-events: none; z-index: 9999;
+  }
+  @keyframes confetti-fall {
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+    100%{transform:translateY(100vh) rotate(720deg);opacity:0}
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">🃏</span>
+    <span class="intro-label">Khusus Razan & Dara</span>
+    <h1 class="intro-title">Deep <span>Talk</span></h1>
+    <p class="intro-sub">Pertanyaan-pertanyaan dalam yang bikin kita jujur satu sama lain — tentang perasaan, masa depan, dan hal-hal yang jarang dibicarakan.</p>
+    <div class="intro-meta">
+      <div class="intro-meta-item">
+        <span class="intro-meta-num">20</span>
+        <span class="intro-meta-label">Kartu</span>
+      </div>
+      <div class="intro-meta-item">
+        <span class="intro-meta-num">🌊</span>
+        <span class="intro-meta-label">Dalam</span>
+      </div>
+      <div class="intro-meta-item">
+        <span class="intro-meta-num">~30</span>
+        <span class="intro-meta-label">Menit</span>
+      </div>
+    </div>
+    <div class="intro-rules">
+      <span class="intro-rules-title">Cara Main</span>
+      <ul class="intro-rules-list">
+        <li>Salah satu baca pertanyaan di kartu dengan suara keras</li>
+        <li>Dua-duanya jawab — jangan ada yang skip tanpa alasan</li>
+        <li>Kalau mau skip boleh, kartu hilang dan lanjut ke berikutnya</li>
+        <li>Ga ada jawaban yang salah — yang penting jujur</li>
+      </ul>
+    </div>
+    <button class="btn btn-primary" onclick="showScreen('screen-game')">Mulai Deep Talk →</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen">
+  <div class="game-wrap">
+    <div class="game-header">
+      <span class="game-label">Deep Talk</span>
+      <h2 class="game-title">Razan <span>&</span> Dara</h2>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <p class="progress-text">Kartu <span id="card-current">1</span> dari <span id="card-total">20</span></p>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="card-stack">
+      <div class="card-behind"></div>
+      <div class="card-behind-2"></div>
+      <div class="card-main" id="card-main">
+        <span class="card-num" id="card-num">Kartu 01</span>
+        <p class="card-question" id="card-question">...</p>
+        <div class="card-footer">
+          <span class="card-hint" id="card-hint"></span>
+          <span class="card-tap">ketuk untuk lanjut →</span>
+        </div>
+      </div>
+      <div class="card-empty" id="card-empty">
+        <span class="card-empty-emoji">🎉</span>
+        <p class="card-empty-title">Semua kartu selesai!</p>
+        <p class="card-empty-sub">Kita udah nge-deep talk bareng.<br>Semoga makin kenal satu sama lain 🤍</p>
+      </div>
+    </div>
+    <div class="card-actions" id="card-actions">
+      <button class="action-btn btn-skip" onclick="skipCard()">← Skip</button>
+      <button class="action-btn btn-next" onclick="nextCard()">Lanjut →</button>
+    </div>
+    <div class="bottom-row">
+      <button class="btn-sm" onclick="showScreen('screen-intro')">← Menu</button>
+      <button class="btn-sm" onclick="restartGame()">Ulangi 🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div id="screen-done" class="screen">
+  <div class="reset-wrap">
+    <span class="reset-emoji">🤍</span>
+    <h2 class="reset-title">Deep Talk <span>selesai!</span></h2>
+    <p class="reset-msg">Kita udah jawab semua pertanyaan. Semoga makin kenal, makin sayang, dan makin terbuka satu sama lain.</p>
+    <div class="reset-stats">
+      <div class="reset-stat">
+        <span class="reset-stat-num" id="stat-answered">0</span>
+        <span class="reset-stat-label">Dijawab</span>
+      </div>
+      <div class="reset-stat">
+        <span class="reset-stat-num" id="stat-skipped">0</span>
+        <span class="reset-stat-label">Di-skip</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="restartGame()">Main Lagi 🔄</button>
+    <button class="btn btn-outline" onclick="showScreen('screen-intro')">Kembali ke Menu</button>
+  </div>
+</div>
+
+<script>
+const cards = [
+  { q: "Kalau hubungan kita bertahan seumur hidup — 10 tahun dari sekarang, kamu bayangin kita lagi ngapain?", hint: "Ceritain sedetail mungkin — tinggal di mana, ngapain, sama siapa" },
+  { q: "Apa satu hal tentang masa depan kita yang paling kamu takutin — yang belum pernah kamu omongin?", hint: "Jujur lebih berharga dari jawaban yang terdengar baik" },
+  { q: "Kalau kamu bisa jamin satu hal tentang diri kamu untuk hubungan ini jangka panjang, kamu mau jamin apa?", hint: "Bukan janji kosong — yang beneran kamu yakin bisa pegang" },
+  { q: "Menurutmu, hal apa yang paling bisa merusak hubungan kita kalau kita ga aware — dan gimana cara kamu mencegahnya?", hint: "Jujur soal kelemahan diri sendiri juga termasuk" },
+  { q: "Kalau kita punya masalah besar yang ga ketemu jalan keluarnya — apa yang akan kamu lakuin?", hint: "Bukan jawaban ideal, tapi yang beneran akan kamu lakuin" },
+  { q: "Apa satu hal yang kamu harap pasanganmu selalu ingat tentang kamu, bahkan di momen paling susah sekalipun?", hint: "Sesuatu yang kamu mau jadi pegangan waktu hal-hal terasa berat" },
+  { q: "Gimana cara kamu membayangkan kita berdua menghadapi perbedaan pendapat yang besar di masa depan?", hint: "Soal karir, tempat tinggal, keluarga — hal-hal yang nyata" },
+  { q: "Kalau salah satu dari kita harus berkorban besar untuk mimpi yang satunya — seberapa jauh kamu bersedia berkorban?", hint: "Ga ada jawaban yang sempurna, yang penting jujur" },
+  { q: "Apa satu hal yang kamu mau ubah dari cara kamu mencintai orang lain — sesuatu yang kamu sadari butuh diperbaiki?", hint: "Butuh keberanian buat jawab ini dengan jujur" },
+  { q: "Kalau kita kelak punya keluarga, nilai apa yang paling kamu mau kita pegang dan wariskan?", hint: "Boleh dari pengalaman keluarga kamu sendiri" },
+  { q: "Momen apa dalam hubungan kita yang paling bikin kamu sadar — ini orang yang beneran aku mau pertahanin?", hint: "Bisa momen besar atau momen kecil yang mungkin keliatan sepele" },
+  { q: "Hal apa yang paling kamu takutin dari 'berkomitmen selamanya' — dan apa yang bikin kamu tetap mau melakukannya?", hint: "Ketakutan itu valid, tapi apa yang lebih kuat dari ketakutan itu?" },
+  { q: "Kalau besok semua rencana kita berubah total karena sesuatu yang ga terduga — apa yang akan jadi peganganmu?", hint: "Bukan soal rencananya, tapi soal apa yang tidak berubah" },
+  { q: "Apa definisi 'bahagia bersama' menurut kamu — bukan yang terlihat dari luar, tapi yang kamu rasain dari dalam?", hint: "Definisi yang beneran kamu percaya, bukan yang terdengar bagus" },
+  { q: "Ada ga satu hal yang kamu belum pernah ceritain ke aku tapi kamu rasa aku perlu tau — tentang kamu, atau tentang kita?", hint: "Ini momen yang aman buat ngomong" },
+  { q: "Kalau kita berantem hebat sampai saling diam — apa yang biasanya paling susah buat kamu lakuin pertama kali?", hint: "Jujur soal ego sendiri itu perlu keberanian" },
+  { q: "Apa yang paling kamu butuhkan dari pasangan di saat kamu lagi di titik terendah — yang mungkin belum kamu minta?", hint: "Kadang kita tau apa yang kita butuh, tapi ga berani minta" },
+  { q: "Kalau kamu bisa jujur sepenuhnya — apa satu hal yang kamu mau dari hubungan ini yang belum kamu dapatkan?", hint: "Bukan untuk menyalahkan, tapi untuk saling memahami" },
+  { q: "Seberapa jauh kamu bersedia berubah untuk orang yang kamu cintai — dan di titik mana kamu akan berhenti?", hint: "Soal batas yang sehat, bukan kelemahan" },
+  { q: "Kalau kita bisa bikin satu janji yang bukan soal pernikahan atau hal formal — janji apa yang paling berarti buat kamu?", hint: "Sesuatu yang sederhana tapi beneran kamu pegang" }
+];
+
+let currentIdx = 0, answered = 0, skipped = 0;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame() {
+  currentIdx = 0; answered = 0; skipped = 0;
+  renderCard();
+}
+
+function renderCard() {
+  if (currentIdx >= cards.length) { showDone(); return; }
+  const card = cards[currentIdx];
+  document.getElementById('card-num').textContent = `Kartu ${String(currentIdx+1).padStart(2,'0')}`;
+  document.getElementById('card-question').textContent = card.q;
+  document.getElementById('card-hint').textContent = card.hint ? `💡 ${card.hint}` : '';
+  document.getElementById('card-current').textContent = currentIdx + 1;
+  document.getElementById('card-total').textContent = cards.length;
+  document.getElementById('progress-fill').style.width = `${(currentIdx/cards.length)*100}%`;
+  const cardEl = document.getElementById('card-main');
+  cardEl.classList.remove('swipe-left','swipe-right');
+  cardEl.style.display = 'flex';
+  document.getElementById('card-empty').classList.remove('show');
+  document.getElementById('card-actions').style.display = 'flex';
+}
+
+function nextCard() {
+  document.getElementById('card-main').classList.add('swipe-right');
+  answered++;
+  setTimeout(() => { currentIdx++; renderCard(); }, 300);
+}
+
+function skipCard() {
+  document.getElementById('card-main').classList.add('swipe-left');
+  skipped++;
+  setTimeout(() => { currentIdx++; renderCard(); }, 300);
+}
+
+document.getElementById('card-main').addEventListener('click', nextCard);
+
+function showDone() {
+  document.getElementById('card-main').style.display = 'none';
+  document.getElementById('card-empty').classList.add('show');
+  document.getElementById('card-actions').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('card-current').textContent = cards.length;
+  setTimeout(() => {
+    document.getElementById('stat-answered').textContent = answered;
+    document.getElementById('stat-skipped').textContent = skipped;
+    showScreen('screen-done');
+    launchConfetti();
+  }, 1200);
+}
+
+function restartGame() { startGame(); showScreen('screen-game'); }
+
+function launchConfetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*0.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }, i*40);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>
