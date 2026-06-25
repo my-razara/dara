@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Baby Sim — Razan & Dara 🍼</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --blue:#a0b4c4;--purple:#b5a4c4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);pointer-events:none;z-index:0}
+
+  .screen{display:none;min-height:100vh;position:relative;z-index:1}
+  .screen.active{display:flex;flex-direction:column;align-items:center}
+
+  /* INTRO */
+  #screen-intro{justify-content:center;padding:2rem 1.5rem}
+  .intro-wrap{width:100%;text-align:center}
+  .intro-emoji{font-size:5rem;display:block;margin-bottom:1rem;animation:float 2s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:block}
+  .intro-title{font-size:2.2rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1.75rem}
+  .name-form{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1.25rem;margin-bottom:1.5rem;text-align:left}
+  .name-form label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .name-form input{width:100%;padding:.75rem 1rem;border:1.5px solid var(--blush);border-radius:10px;font-family:'Poppins',sans-serif;font-size:15px;color:var(--ink);background:var(--cream);outline:none;transition:border-color .2s}
+  .name-form input:focus{border-color:var(--rose)}
+  .name-form input::placeholder{color:var(--blush)}
+  .btn{display:block;width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;transition:all .15s;text-align:center}
+  .btn-primary{background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35)}
+  .btn-primary:active{transform:scale(.97);background:var(--deep)}
+  .btn-outline{background:transparent;color:var(--muted);border:1.5px solid var(--blush);margin-top:.75rem}
+  .btn-outline:active{background:var(--warm)}
+
+  /* GAME */
+  #screen-game{padding:.85rem .85rem 2rem;gap:.6rem}
+
+  .g-header{width:100%;display:flex;justify-content:space-between;align-items:center}
+  .g-parents{font-size:11px;color:var(--muted)}
+  .g-parents span{color:var(--rose);font-weight:600}
+  .g-timer{font-size:14px;font-weight:700;color:var(--rose)}
+  .timer-bar-wrap{width:100%;height:5px;background:var(--warm);border-radius:3px;overflow:hidden}
+  .timer-bar-fill{height:100%;background:linear-gradient(to right,var(--sage),var(--rose));border-radius:3px;transition:width .5s linear}
+
+  .stats{display:flex;gap:.4rem;width:100%}
+  .stat{flex:1;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:10px;padding:.45rem .3rem;text-align:center}
+  .stat-icon{font-size:.95rem;display:block}
+  .stat-bar{height:4px;background:var(--warm);border-radius:2px;overflow:hidden;margin-top:3px}
+  .stat-fill{height:100%;border-radius:2px;transition:width .4s ease}
+  .fill-hunger{background:var(--rose)}.fill-clean{background:var(--blue)}.fill-sleep{background:var(--purple)}.fill-happy{background:var(--gold)}
+
+  .baby-card{width:100%;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1rem;text-align:center;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(45,31,26,.06)}
+  .baby-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(232,196,176,.1),transparent 60%);pointer-events:none}
+  .baby-emoji{font-size:4.5rem;display:block;line-height:1;margin:.1rem 0;position:relative;z-index:1}
+  .baby-emoji.pop{animation:pop .3s ease}
+  @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+  .baby-name-tag{font-size:13px;font-weight:600;color:var(--ink);position:relative;z-index:1}
+  .speech-bubble{background:var(--warm);border:1.5px solid var(--blush);border-radius:14px;padding:.6rem .9rem;font-size:12px;color:var(--ink);line-height:1.5;position:relative;margin-top:.65rem;text-align:left}
+  .speech-bubble::before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--blush)}
+  .speech-bubble::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--warm)}
+  .speech-bubble.urgent{background:rgba(193,122,111,.08);border-color:var(--rose)}
+  .speech-bubble.urgent::before{border-bottom-color:var(--rose)}
+  .speech-bubble.urgent::after{border-bottom-color:rgba(193,122,111,.08)}
+
+  .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%}
+  .act-btn{background:#fff;border:1.5px solid rgba(193,122,111,.15);border-radius:14px;padding:.65rem .3rem;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s}
+  .act-btn:active{transform:scale(.92);background:var(--warm)}
+  .act-btn.needed{border-color:var(--rose);background:rgba(193,122,111,.06);animation:pulse 1.5s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(193,122,111,.3)}50%{box-shadow:0 0 0 6px rgba(193,122,111,0)}}
+  .act-btn.cooldown{opacity:.35;pointer-events:none}
+  .act-icon{font-size:1.4rem}.act-label{font-size:10px;font-weight:500;color:var(--ink)}.act-cd{font-size:9px;color:var(--muted);min-height:11px}
+
+  .score-pop{position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem;font-weight:700;color:var(--rose);pointer-events:none;animation:sfloat 1s ease forwards;z-index:9999}
+  @keyframes sfloat{0%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-130%)}}
+
+  .log-wrap{width:100%}
+  .log-item{font-size:11px;color:var(--muted);padding:.28rem 0;border-bottom:1px solid rgba(193,122,111,.07);display:flex;gap:5px;align-items:flex-start}
+  .log-item:last-child{border:none}
+
+  /* MINIGAME OVERLAY */
+  #mg-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(45,31,26,.5);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;padding:.85rem}
+  #mg-overlay.active{display:flex}
+  .mg-sheet{background:var(--cream);border-radius:24px 24px 20px 20px;padding:1.25rem;width:100%;max-width:480px;animation:slideup .3s cubic-bezier(.34,1.3,.64,1);text-align:center}
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .mg-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:.3rem}
+  .mg-sub{font-size:12px;color:var(--muted);margin-bottom:1.1rem;line-height:1.5}
+  .mg-cancel{font-size:12px;color:var(--muted);margin-top:.75rem;cursor:pointer;text-decoration:underline;display:block}
+
+  /* Feed */
+  .food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.5rem}
+  .food-btn{padding:1rem .3rem;border-radius:14px;border:2px solid var(--blush);background:#fff;cursor:pointer;font-size:1.8rem;transition:all .15s}
+  .food-btn:active{transform:scale(.9);border-color:var(--rose)}
+
+  /* Bath */
+  .bath-tap{background:linear-gradient(135deg,#d4e8f0,#b8d4e8);border-radius:16px;padding:1.5rem;margin-bottom:.75rem;font-size:3.5rem;cursor:pointer;border:2px dashed rgba(160,180,196,.4);user-select:none}
+  .bath-tap:active{transform:scale(.96)}
+  .mg-progbar{width:100%;height:8px;background:var(--warm);border-radius:4px;overflow:hidden;margin-bottom:.75rem}
+  .mg-progfill{height:100%;border-radius:4px;transition:width .15s}
+
+  /* Sleep */
+  .sleep-btns{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.5rem}
+  .sleep-btn{padding:.85rem;border-radius:14px;border:2px solid var(--blush);background:#fff;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink);transition:all .15s;text-align:left}
+  .sleep-btn:active{transform:scale(.97)}
+
+  /* Play - memory */
+  .play-seq{display:flex;gap:.5rem;justify-content:center;margin-bottom:.75rem}
+  .play-dot{width:14px;height:14px;border-radius:50%;background:var(--blush);transition:background .2s}
+  .play-dot.done{background:var(--sage)}
+  .play-show{font-size:3.5rem;min-height:4rem;display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
+  .play-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .play-btn{padding:1rem;border-radius:14px;border:2px solid var(--blush);background:#fff;cursor:pointer;font-size:1.8rem;transition:all .15s}
+  .play-btn:active{transform:scale(.9)}
+
+  /* Hug */
+  .hug-tap{font-size:5rem;display:block;cursor:pointer;user-select:none;margin:.5rem auto .75rem}
+  .hug-tap:active{animation:pop .2s ease}
+
+  /* Diaper steps */
+  .diaper-tap{font-size:4rem;display:block;cursor:pointer;user-select:none;margin:.5rem auto .75rem}
+  .diaper-tap:active{transform:scale(1.15)}
+
+  /* END */
+  #screen-end{justify-content:center;padding:2rem 1.5rem}
+  .end-wrap{width:100%;text-align:center}
+  .end-emoji-big{font-size:4.5rem;display:block;margin-bottom:.75rem}
+  .end-title{font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .end-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1.25rem;margin:1rem 0}
+  .end-score{font-size:2.8rem;font-weight:700;color:var(--rose)}
+  .end-score-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1.5rem}
+
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-emoji">👶</span>
+    <span class="intro-label">Simulasi Keluarga Kecil</span>
+    <h1 class="intro-title">Baby <span>Sim</span></h1>
+    <p class="intro-sub">Razan jadi bapak, Dara jadi ibu. Bayi kalian akan bilang sendiri kalau lagi butuh sesuatu — rawat dia lewat mini game — cuma 1 menit 30 detik, tapi bakal kerasa panjang banget! 😅🍼</p>
+    <div class="name-form">
+      <label>Nama Bayi Kalian</label>
+      <input type="text" id="baby-name-input" placeholder="Tulis nama bayinya..." maxlength="15">
+    </div>
+    <button class="btn btn-primary" onclick="startGame()">Mulai Jadi Orang Tua! 👶</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen">
+  <div class="g-header">
+    <p class="g-parents">👨 Razan · <span id="g-babyname">...</span> · 👩 Dara</p>
+    <p class="g-timer" id="g-timer">3:00</p>
+  </div>
+  <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timer-fill" style="width:100%"></div></div>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-icon">🍼</span><div class="stat-bar"><div class="stat-fill fill-hunger" id="bar-hunger" style="width:80%"></div></div></div>
+    <div class="stat"><span class="stat-icon">🛁</span><div class="stat-bar"><div class="stat-fill fill-clean"  id="bar-clean"  style="width:80%"></div></div></div>
+    <div class="stat"><span class="stat-icon">😴</span><div class="stat-bar"><div class="stat-fill fill-sleep"  id="bar-sleep"  style="width:80%"></div></div></div>
+    <div class="stat"><span class="stat-icon">😊</span><div class="stat-bar"><div class="stat-fill fill-happy"  id="bar-happy"  style="width:80%"></div></div></div>
+  </div>
+
+  <div class="baby-card">
+    <span class="baby-emoji" id="baby-emoji">👶</span>
+    <p class="baby-name-tag" id="baby-name-tag">...</p>
+    <div class="speech-bubble" id="speech-bubble">Halo Bapak & Ibu! 😊</div>
+  </div>
+
+  <div class="actions">
+    <button class="act-btn" id="btn-feed"   onclick="doAction('feed')">  <span class="act-icon">🍼</span><span class="act-label">Kasih Makan</span><span class="act-cd" id="cd-feed"></span></button>
+    <button class="act-btn" id="btn-bath"   onclick="doAction('bath')">  <span class="act-icon">🛁</span><span class="act-label">Mandiin</span><span class="act-cd" id="cd-bath"></span></button>
+    <button class="act-btn" id="btn-sleep"  onclick="doAction('sleep')"> <span class="act-icon">😴</span><span class="act-label">Tidurin</span><span class="act-cd" id="cd-sleep"></span></button>
+    <button class="act-btn" id="btn-play"   onclick="doAction('play')">  <span class="act-icon">🎮</span><span class="act-label">Ajak Main</span><span class="act-cd" id="cd-play"></span></button>
+    <button class="act-btn" id="btn-hug"    onclick="doAction('hug')">   <span class="act-icon">🫂</span><span class="act-label">Peluk</span><span class="act-cd" id="cd-hug"></span></button>
+    <button class="act-btn" id="btn-diaper" onclick="doAction('diaper')"><span class="act-icon">🧷</span><span class="act-label">Ganti Popok</span><span class="act-cd" id="cd-diaper"></span></button>
+  </div>
+
+  <div class="log-wrap" id="log"></div>
+</div>
+
+<!-- END -->
+<div id="screen-end" class="screen">
+  <div class="end-wrap">
+    <span class="end-emoji-big" id="end-emoji">🎉</span>
+    <h2 class="end-title" id="end-title">Selesai!</h2>
+    <div class="end-card">
+      <p class="end-score-label">Skor Perawatan</p>
+      <p class="end-score" id="end-score">0</p>
+      <p class="end-score-label">dari 100</p>
+    </div>
+    <p class="end-sub" id="end-sub"></p>
+    <button class="btn btn-primary" onclick="window.location.href='index.html'">Kembali ke Menu 🏠</button>
+  </div>
+</div>
+
+<!-- MINIGAME OVERLAY -->
+<div id="mg-overlay">
+  <div class="mg-sheet" id="mg-sheet"></div>
+</div>
+
+<script>
+const TOTAL=90;
+const DECAY={hunger:.55,clean:.42,sleep:.38,happy:.48};
+const CD={feed:8,bath:10,sleep:12,play:7,hug:5,diaper:9};
+const GAIN={
+  feed:{hunger:12,happy:2},bath:{clean:12,happy:2},
+  sleep:{sleep:14,happy:2},play:{happy:10,sleep:-3},
+  hug:{happy:8},diaper:{clean:10,happy:2}
+};
+
+const NEEDS={
+  hunger:["Lapar nih Bapak~ minta susu dong 🍼","Perut aku bunyi! Kasih makan ya 😢","Ibu, Bapak! Mau minum susu~ 🥛"],
+  clean:["Ih kotor! Mandiin aku dong 🛁","Bapak! Aku bau~ tolong ya 😤","Ganti popok aku doong! 🧷"],
+  sleep:["Ngantuk banget~ bobok dong 😪","Ibu ninabobo-in aku yaa~ 😴","Mataku berat... mau tidur 😪"],
+  happy:["Bosen nih! Ajak main dong 🎮","Mau dipeluk Bapak & Ibu~ 🫂","Perhatiin aku doong! 😭"]
+};
+const HAPPY=["Hehe aku senang banget! 😊","Kalian orang tua terbaik! 🥰","Aku mau dipeluk lagi~ 🤍","Seru banget hari ini! ⭐"];
+const POPOK=["Bapak! Popokku penuh nih~ 💩","Ibu ganti popok aku ya~ 🧷"];
+
+let babyName='',stats={},cooldowns={},timeLeft=TOTAL;
+let wrongPenaltyActive={}; // track wrong answer penalty per stat
+let gameInt=null,tickInt=null,logItems=[],needState=null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='screen-intro'){
+    clearInterval(gameInt);clearInterval(tickInt);
+    gameInt=null;tickInt=null;
+    // clear baby name input so it's fresh
+    document.getElementById('baby-name-input').value='';
+  }
+}
+
+function startGame(keepName){
+  if(!keepName) babyName=document.getElementById('baby-name-input').value.trim()||'Si Kecil';
+  stats={hunger:70,clean:65,sleep:68,happy:72};
+  cooldowns={feed:0,bath:0,sleep:0,play:0,hug:0,diaper:0};
+  timeLeft=TOTAL;logItems=[];needState=null;
+  document.getElementById('g-babyname').textContent=babyName;
+  document.getElementById('baby-name-tag').textContent=babyName;
+  document.getElementById('log').innerHTML='';
+  showScreen('screen-game');
+  clearInterval(gameInt);clearInterval(tickInt);
+
+  gameInt=setInterval(()=>{
+    timeLeft--;
+    Object.keys(DECAY).forEach(k=>{
+      // Decay faster when already low (urgent zone)
+      const extra = stats[k] < 40 ? 0.25 : stats[k] < 60 ? 0.1 : 0;
+      stats[k]=Math.max(0,stats[k]-DECAY[k]-extra);
+    });
+    if(Math.random()<.025){stats.clean=Math.max(0,stats.clean-20);setBubble(POPOK[Math.floor(Math.random()*POPOK.length)],true);markNeeded('diaper')}
+    updateUI();
+    if(timeLeft<=0)endGame();
+  },1000);
+
+  tickInt=setInterval(()=>{
+    Object.keys(cooldowns).forEach(k=>{if(cooldowns[k]>0){cooldowns[k]--;updateCdUI(k)}});
+  },1000);
+
+  updateUI();
+  setBubble(`Halo! Aku ${babyName} — anak Razan & Dara 😊`,false);
+  addLog('🍼',`${babyName} lahir! Selamat jadi orang tua! 🎉`);
+}
+
+function updateUI(){
+  const m=Math.floor(timeLeft/60),s=String(timeLeft%60).padStart(2,'0');
+  document.getElementById('g-timer').textContent=`${m}:${s}`;
+  document.getElementById('timer-fill').style.width=(timeLeft/TOTAL*100)+'%';
+  ['hunger','clean','sleep','happy'].forEach(k=>document.getElementById('bar-'+k).style.width=stats[k]+'%');
+
+  const needs=[
+    {key:'hunger',threshold:55,action:'feed'},
+    {key:'clean',threshold:50,action:'bath'},
+    {key:'sleep',threshold:48,action:'sleep'},
+    {key:'happy',threshold:52,action:'play'},
+  ];
+  let urgent=null,low=100;
+  needs.forEach(n=>{if(stats[n.key]<n.threshold&&stats[n.key]<low){low=stats[n.key];urgent=n}});
+
+  if(urgent&&(needState!==urgent.key||Math.random()<0.05)){
+    needState=urgent.key;
+    const msgs=NEEDS[urgent.key];
+    setBubble(msgs[Math.floor(Math.random()*msgs.length)],true);
+    document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('needed'));
+    markNeeded(urgent.action);
+    if(urgent.key==='clean')markNeeded('diaper');
+    setEmoji({hunger:'😢',clean:'😤',sleep:'😪',happy:'😭'}[urgent.key]);
+  }else if(!urgent&&needState){
+    needState=null;
+    document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('needed'));
+    setBubble(HAPPY[Math.floor(Math.random()*HAPPY.length)],false);
+    setEmoji('👶');
+  }
+}
+
+function markNeeded(action){document.getElementById('btn-'+action)?.classList.add('needed')}
+function setBubble(msg,urgent){const b=document.getElementById('speech-bubble');b.textContent=msg;b.className='speech-bubble'+(urgent?' urgent':'')}
+function setEmoji(e){document.getElementById('baby-emoji').textContent=e}
+
+function doAction(action){
+  if(cooldowns[action]>0)return;
+  openMG(action);
+}
+
+function openMG(action){
+  const sheet=document.getElementById('mg-sheet');
+  document.getElementById('mg-overlay').classList.add('active');
+  const builders={feed:mgFeed,bath:mgBath,sleep:mgSleep,play:mgPlay,hug:mgHug,diaper:mgDiaper};
+  builders[action](sheet,()=>completeMG(action));
+}
+
+function closeMG(){document.getElementById('mg-overlay').classList.remove('active')}
+
+function completeMG(action){
+  closeMG();
+  Object.entries(GAIN[action]).forEach(([k,v])=>stats[k]=Math.min(100,Math.max(0,stats[k]+v)));
+  const sceneMap={feed:'😋',bath:'🛁',sleep:'😴',play:'🎮',hug:'🤗',diaper:'✨'};
+  const logMsg={feed:`${babyName} kenyang! 😋`,bath:`${babyName} bersih & wangi! 🛁`,sleep:`${babyName} tidur nyenyak 😴`,play:`${babyName} ketawa senang! 🎮`,hug:`${babyName} aman & nyaman 🤗`,diaper:`Popok baru, ${babyName} lega! ✨`};
+  const gainLabel={feed:'+35 🍼',bath:'+35 🛁',sleep:'+40 😴',play:'+28 😊',hug:'+22 😊',diaper:'+28 🛁'};
+
+  const el=document.getElementById('baby-emoji');
+  el.textContent=sceneMap[action];el.classList.add('pop');
+  setTimeout(()=>{el.classList.remove('pop')},400);
+  setTimeout(()=>{if(!needState)setEmoji('👶')},1500);
+
+  setBubble(logMsg[action],false);
+  addLog('✅',logMsg[action]);
+  showScorePop(gainLabel[action]);
+
+  document.querySelectorAll('.act-btn').forEach(b=>b.classList.remove('needed'));
+  needState=null;
+  cooldowns[action]=CD[action];
+  updateCdUI(action);
+  updateUI();
+}
+
+function updateCdUI(action){
+  const btn=document.getElementById('btn-'+action),cd=document.getElementById('cd-'+action);
+  if(cooldowns[action]>0){btn.classList.add('cooldown');cd.textContent=cooldowns[action]+'d'}
+  else{btn.classList.remove('cooldown');cd.textContent=''}
+}
+
+function addLog(icon,msg){
+  logItems.unshift(icon+' '+msg);if(logItems.length>3)logItems.pop();
+  document.getElementById('log').innerHTML=logItems.map(i=>`<div class="log-item">${i}</div>`).join('');
+}
+
+function showScorePop(label){
+  const el=document.createElement('div');el.className='score-pop';el.textContent=label;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+/* ── MINIGAMES ── */
+function mgFeed(sheet,done){
+  const all=['🍼','🥛','🍌','🥣','🌶️','🍕','🍺','🔧'];
+  const good=['🍼','🥛','🍌','🥣'];
+  const opts=[...good.slice(0,2),...all.slice(4,6),...good.slice(2)].sort(()=>Math.random()-.5).slice(0,6);
+  sheet.innerHTML=`<p class="mg-title">Kasih Makan ${babyName}!</p><p class="mg-sub">Pilih makanan yang cocok buat bayi 👶</p><div class="food-grid">${opts.map(f=>`<button class="food-btn" onclick="handleFeed('${f}',this)">${f}</button>`).join('')}</div><span class="mg-cancel" onclick="closeMG()">Batal</span>`;
+  sheet._done=done;
+}
+function handleFeed(f,btn){
+  const good=['🍼','🥛','🍌','🥣'];
+  if(good.includes(f)){btn.style.borderColor='var(--sage)';btn.style.background='rgba(181,196,177,.2)';setTimeout(()=>document.getElementById('mg-sheet')._done(),400)}
+  else{btn.style.borderColor='var(--rose)';btn.style.background='rgba(193,122,111,.1)';btn.disabled=true;applyPenalty('hunger',10,'Salah kasih makan! Bayi malah makin lapar 😢')}
+}
+
+function mgBath(sheet,done){
+  let taps=0,total=10;
+  const render=()=>{
+    sheet.innerHTML=`<p class="mg-title">Mandiin ${babyName}!</p><p class="mg-sub">Tap ${total}x buat sabuninnya 🛁</p><div class="mg-progbar"><div class="mg-progfill" id="bp" style="width:${taps/total*100}%;background:var(--blue)"></div></div><div class="bath-tap" id="bath-tap">👶<br><span style="font-size:1.1rem">🫧</span></div><span class="mg-cancel" onclick="closeMG()">Batal</span>`;
+    document.getElementById('bath-tap').addEventListener('click',()=>{taps++;document.getElementById('bp').style.width=(taps/total*100)+'%';if(taps>=total)setTimeout(()=>sheet._done(),300)});
+  };
+  render();sheet._done=done;
+}
+
+function mgSleep(sheet,done){
+  const songs=['🎵 Nina Bobo','🎵 Balonku Ada Lima','🎵 Cicak-Cicak di Dinding'];
+  const wrongIdx=Math.floor(Math.random()*3);
+  const allOpts=[...songs,'🎵 Death Metal 🤘'].sort(()=>Math.random()-.5);
+  sheet.innerHTML=`<p class="mg-title">Tidurin ${babyName}!</p><p class="mg-sub">Pilih lagu yang cocok buat nina bobo 🌙</p><div class="sleep-btns">${allOpts.map((s,i)=>`<button class="sleep-btn" onclick="handleSleep(this,'${s}')">${s}</button>`).join('')}</div><span class="mg-cancel" onclick="closeMG()">Batal</span>`;
+  sheet._done=done;
+}
+function handleSleep(btn,song){
+  if(song.includes('Death Metal')){btn.style.borderColor='var(--rose)';btn.style.color='var(--rose)';btn.disabled=true;applyPenalty('sleep',12,'Salah lagu! Bayi malah makin kaget 😱')}
+  else{btn.style.borderColor='var(--purple)';btn.style.background='rgba(181,164,196,.15)';setTimeout(()=>document.getElementById('mg-sheet')._done(),400)}
+}
+
+function mgPlay(sheet,done){
+  const emojis=['🐱','🐶','🐸','🦊'];
+  const seq=[emojis[Math.floor(Math.random()*4)],emojis[Math.floor(Math.random()*4)],emojis[Math.floor(Math.random()*4)]];
+  let step=0;
+  sheet.innerHTML=`<p class="mg-title">Ajak ${babyName} Main!</p><p class="mg-sub">Ingat urutannya & ulangi! 🎮</p><div class="play-seq">${seq.map((_,i)=>`<div class="play-dot" id="pd${i}"></div>`).join('')}</div><div class="play-show" id="pshow">⏳</div><div class="play-btns">${emojis.map(e=>`<button class="play-btn" onclick="handlePlay('${e}')">${e}</button>`).join('')}</div><span class="mg-cancel" onclick="closeMG()">Batal</span>`;
+  sheet._done=done;sheet._seq=seq;sheet._step=0;
+  let si=0;
+  const show=()=>{if(si<seq.length){document.getElementById('pshow').textContent=seq[si];document.getElementById('pd'+si).classList.add('done');si++;setTimeout(show,700)}else{setTimeout(()=>document.getElementById('pshow').textContent='❓',300)}};
+  setTimeout(show,400);
+}
+function handlePlay(e){
+  const s=document.getElementById('mg-sheet');
+  if(e===s._seq[s._step]){document.getElementById('pd'+s._step).style.background='var(--gold)';s._step++;if(s._step>=s._seq.length)setTimeout(()=>s._done(),300)}
+  else{document.getElementById('pshow').textContent='❌';applyPenalty('happy',8,'Urutan salah! Bayi bingung dan nangis 😭');setTimeout(()=>document.getElementById('pshow').textContent='❓',600)}
+}
+
+function mgHug(sheet,done){
+  let h=0,total=7;
+  sheet.innerHTML=`<p class="mg-title">Peluk ${babyName}!</p><p class="mg-sub">Tap bayi ${total}x buat peluk 🫂</p><div class="mg-progbar"><div class="mg-progfill" id="hp" style="width:0%;background:var(--rose)"></div></div><span class="hug-tap" id="hug-tap">👶</span><p style="font-size:12px;color:var(--muted)" id="hc">0/${total}</p><span class="mg-cancel" onclick="closeMG()">Batal</span>`;
+  sheet._done=done;
+  document.getElementById('hug-tap').addEventListener('click',()=>{h++;document.getElementById('hp').style.width=(h/total*100)+'%';document.getElementById('hc').textContent=`${h}/${total}`;document.getElementById('hug-tap').textContent=h%2===0?'👶':'🤗';if(h>=total)setTimeout(()=>sheet._done(),300)});
+}
+
+function mgDiaper(sheet,done){
+  const steps=[{icon:'💩',label:'Buka popok lama',tap:'Tap untuk buka!'},{icon:'🧻',label:'Lap bersih',tap:'Tap untuk lap!'},{icon:'✨',label:'Pasang popok baru',tap:'Tap untuk pasang!'}];
+  let step=0;
+  const render=()=>{
+    const s=steps[step];
+    sheet.innerHTML=`<p class="mg-title">Ganti Popok ${babyName}!</p><p class="mg-sub">${s.label}</p><span class="diaper-tap" id="dt" onclick="handleDiaper()">${s.icon}</span><p style="font-size:11px;color:var(--muted);margin-bottom:.75rem">${s.tap}</p><div class="mg-progbar"><div class="mg-progfill" style="width:${step/3*100}%;background:var(--gold)"></div></div><span class="mg-cancel" onclick="closeMG()">Batal</span>`;
+    sheet._done=done;sheet._step=()=>step;sheet._inc=()=>{step++;};sheet._render=render;
+  };render();
+}
+function handleDiaper(){
+  const s=document.getElementById('mg-sheet');
+  s._inc();if(s._step()>=3)setTimeout(()=>s._done(),300);else s._render();
+}
+
+/* PENALTY */
+function applyPenalty(stat, amount, msg) {
+  // Reduce stat
+  stats[stat] = Math.max(0, stats[stat] - amount * 1.5);
+  // Reduce time by 5 seconds
+  timeLeft = Math.max(0, timeLeft - 8);
+  // Show penalty popup
+  showPenaltyPop('-5⏱ ' + msg);
+  addLog('❌', msg);
+  updateUI();
+}
+
+function showPenaltyPop(msg) {
+  const el = document.createElement('div');
+  el.className = 'score-pop';
+  el.style.color = 'var(--rose)';
+  el.style.fontSize = '11px';
+  el.style.width = '80vw';
+  el.style.textAlign = 'center';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+/* END */
+function endGame(){
+  clearInterval(gameInt);clearInterval(tickInt);
+  const avg=(stats.hunger+stats.clean+stats.sleep+stats.happy)/4;
+  const final=Math.round(avg);
+  document.getElementById('end-score').textContent=final;
+  let emoji,title,sub;
+  if(final>=75){emoji='🏆';title='Orang Tua Terbaik!';sub=`${babyName} tumbuh sehat & bahagia berkat Razan & Dara. Kalian pasangan yang luar biasa! 🤍`;confetti()}
+  else if(final>=50){emoji='🌸';title='Orang Tua yang Baik!';sub=`${babyName} baik-baik aja berkat kalian. Terus belajar ya! 🤍`}
+  else{emoji='💪';title='Terus Semangat!';sub=`Jadi orang tua memang ga gampang. ${babyName} tetap sayang Razan & Dara! 🤍`}
+  document.getElementById('end-emoji').textContent=emoji;
+  document.getElementById('end-title').textContent=title;
+  document.getElementById('end-sub').textContent=sub;
+  showScreen('screen-end');
+}
+
+function confetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<80;i++)setTimeout(()=>{const el=document.createElement('div');el.className='cp';el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;document.body.appendChild(el);setTimeout(()=>el.remove(),5000)},i*30);
+}
+</script>
+</body>
+</html>
