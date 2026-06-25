@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Taman Bunga Dara 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Poppins',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;overflow-x:hidden;background:linear-gradient(180deg,#ddeeff 0%,#c8e6c9 50%,#a5d6a7 100%)}
+
+  /* Sky & ground */
+  .sky{position:fixed;top:0;left:0;right:0;max-width:480px;margin:0 auto;height:55%;background:linear-gradient(180deg,#c8e6f5 0%,#ddf0f8 50%,#e8f5e8 100%);z-index:0}
+  .ground{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;height:42%;background:linear-gradient(180deg,#b9deba 0%,#93cc95 30%,#75bb78 100%);z-index:0;border-radius:55% 55% 0 0/15% 15% 0 0;opacity:.65}
+
+  /* Clouds */
+  .cloud{position:absolute;opacity:.55;animation:drift linear infinite}
+  .cloud-body{background:#fff;border-radius:50px}
+  @keyframes drift{from{transform:translateX(-150px)}to{transform:translateX(530px)}}
+
+  /* Page */
+  .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+  /* Header */
+  .header{text-align:center;padding:1.5rem 1.5rem .6rem;background:rgba(0,0,0,.12);backdrop-filter:blur(4px)}
+  .header-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#fff;display:block;margin-bottom:.3rem;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+  .header-title{font-size:1.5rem;font-weight:700;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+  .header-title span{color:#ffe082}
+  .header-sub{font-size:11px;color:#fff;margin-top:.2rem;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+
+  /* Can selector */
+  .can-wrap{display:flex;justify-content:center;gap:.6rem;padding:.6rem 1rem .3rem;flex-wrap:wrap}
+  .can-btn{
+    display:flex;align-items:center;gap:.35rem;
+    background:rgba(255,255,255,.85);border:2px solid transparent;
+    border-radius:50px;padding:.45rem .9rem;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--deep);
+    box-shadow:0 3px 12px rgba(0,0,0,.1);transition:all .2s;backdrop-filter:blur(4px);
+  }
+  .can-btn:active{transform:scale(.95)}
+  .can-btn.active{background:var(--rose);color:#fff;border-color:var(--deep)}
+  .can-icon{font-size:1.2rem}
+
+  .water-info{font-size:11px;color:#fff;text-align:center;text-shadow:0 2px 5px rgba(0,0,0,.5);margin-bottom:.4rem;font-weight:500}
+
+  /* Garden */
+  .garden{flex:1;display:grid;grid-template-columns:repeat(3,1fr);align-items:end;padding:0 1rem 3rem;gap:.75rem}
+
+  /* Flower slot */
+  .flower-slot{display:flex;flex-direction:column;align-items:center;width:100%;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+  /* Flower visual */
+  .flower-wrap{width:80px;height:130px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;margin:0 auto}
+
+  .stem{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:5px;border-radius:4px;background:linear-gradient(180deg,#81c784,#66bb6a);transform-origin:bottom;transition:height .7s cubic-bezier(.34,1.56,.64,1)}
+
+  .leaf{position:absolute;width:16px;height:9px;border-radius:50%;transition:all .5s cubic-bezier(.34,1.56,.64,1);transform-origin:right center}
+  .leaf-l{background:#81c784;right:calc(50% + 2px);transform:rotate(-35deg) scale(0);opacity:0}
+  .leaf-r{background:#66bb6a;left:calc(50% + 2px);transform:rotate(35deg) scale(0);opacity:0}
+  .leaf.show{opacity:1}
+  .leaf-l.show{transform:rotate(-35deg) scale(1)}
+  .leaf-r.show{transform:rotate(35deg) scale(1)}
+
+  .bud{position:absolute;left:50%;transform:translateX(-50%) scale(0);opacity:0;transition:all .6s cubic-bezier(.34,1.56,.64,1);line-height:1;text-align:center}
+  .bud.show{transform:translateX(-50%) scale(1);opacity:1}
+  .bud.pop{animation:budpop .4s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes budpop{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.35)}}
+
+  /* Pot */
+  .pot{width:52px;height:38px;background:linear-gradient(180deg,#c17a6f,#a06058);border-radius:4px 4px 12px 12px;position:relative;display:flex;align-items:flex-end;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.2);flex-shrink:0;margin:0 auto}
+  .pot::before{content:'';position:absolute;top:-7px;left:-5px;right:-5px;height:11px;background:linear-gradient(180deg,#d4908a,#c17a6f);border-radius:6px}
+  .pot-soil{width:30px;height:9px;background:linear-gradient(180deg,#5d4037,#3e2723);border-radius:50%;margin-bottom:5px}
+
+  .flower-name{font-size:11px;font-weight:600;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6),0 1px 2px rgba(0,0,0,.8);margin-top:.4rem;text-align:center;background:rgba(0,0,0,.3);border-radius:50px;padding:3px 10px;backdrop-filter:blur(2px)}
+  .flower-stage{font-size:10px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.7);margin-top:2px;font-weight:500}
+
+  /* Progress dots */
+  .flower-dots{display:flex;gap:4px;margin-top:4px;justify-content:center}
+  .fdot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.6);transition:background .3s}
+  .fdot.filled{background:#ffe082}
+
+  /* Water drop anim */
+  .waterdrop{position:fixed;pointer-events:none;z-index:999;font-size:1.4rem;animation:wdrop .7s ease forwards}
+  @keyframes wdrop{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(50px) scale(.4)}}
+
+  /* Sparkles */
+  .sparkle{position:fixed;pointer-events:none;z-index:998;animation:sparklefloat 1s ease forwards}
+  @keyframes sparklefloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(.2)}}
+
+  /* Toast */
+  .toast{position:fixed;top:5.5rem;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.93);border-radius:50px;padding:.5rem 1.25rem;font-size:12px;font-weight:600;color:var(--deep);box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:9999;white-space:nowrap;backdrop-filter:blur(4px);animation:toastpop .3s ease,toastfade .4s ease 1.8s forwards}
+  @keyframes toastpop{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  @keyframes toastfade{to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+
+  /* Quote overlay */
+  #quote-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(45,31,26,.45);backdrop-filter:blur(5px);align-items:flex-end;justify-content:center;padding:1rem}
+  #quote-overlay.active{display:flex}
+  .quote-sheet{background:var(--cream);border-radius:24px 24px 20px 20px;padding:1.5rem;width:100%;max-width:480px;animation:slideup .35s cubic-bezier(.34,1.3,.64,1);text-align:center}
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .q-emoji{font-size:3.5rem;display:block;margin-bottom:.6rem}
+  .q-name{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block}
+  .q-stage-label{font-size:12px;color:var(--muted);margin-bottom:.25rem;display:block}
+  .q-dots{display:flex;gap:.4rem;justify-content:center;margin-bottom:1rem}
+  .qdot{width:8px;height:8px;border-radius:50%;background:var(--blush);transition:background .3s}
+  .qdot.on{background:var(--rose)}
+  .q-text{font-size:14px;color:var(--ink);line-height:1.9;margin-bottom:1rem;font-weight:300}
+  .q-sign{font-size:12px;color:var(--rose);font-weight:500;margin-bottom:1rem;display:block}
+  .q-hint{font-size:11px;color:var(--muted);margin-bottom:1rem}
+  .q-close{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35)}
+  .q-close:active{background:var(--deep)}
+</style>
+</head>
+<body>
+
+<div class="sky" id="sky"></div>
+<div class="ground"></div>
+
+<div class="page">
+  <div class="header">
+    <span class="header-label">Taman Khusus untuk</span>
+    <h1 class="header-title">Dara <span>Syifa Aulia</span> 🌸</h1>
+    <p class="header-sub">Siram bunga buat lihat dia tumbuh & dapat pesan spesial</p>
+  </div>
+
+  <div class="can-wrap">
+    <button class="can-btn active" id="can-btn" onclick="toggleWatering()">
+      <span class="can-icon">🪣</span> Mode Siram
+    </button>
+    <button class="can-btn" id="view-btn" onclick="toggleViewing()">
+      <span class="can-icon">👀</span> Lihat Pesan
+    </button>
+  </div>
+  <p class="water-info" id="mode-info">Tap bunga buat nyiram 💧</p>
+
+  <div class="garden" id="garden"></div>
+</div>
+
+<!-- Quote -->
+<div id="quote-overlay" onclick="handleOverlay(event)">
+  <div class="quote-sheet">
+    <span class="q-emoji" id="q-emoji">🌸</span>
+    <span class="q-name" id="q-name">Mawar</span>
+    <span class="q-stage-label" id="q-stage-label">Tahap: Mekar ✨</span>
+    <div class="q-dots" id="q-dots"></div>
+    <p class="q-text" id="q-text">...</p>
+    <span class="q-sign">— Razan 🤍</span>
+    <p class="q-hint" id="q-hint"></p>
+    <button class="q-close" onclick="closeQuote()">Tutup 🌸</button>
+  </div>
+</div>
+
+<script>
+const FLOWERS = [
+  {
+    id:'mawar', name:'Mawar',
+    emojis:['🌱','🌿','🥀','🌹'],
+    stages:['Benih','Tunas','Kuncup','Mekar'],
+    quotes:[
+      'Setiap hal baik selalu dimulai dari hal kecil — kayak benih ini. Makasih udah jadi bagian dari hidupku, Dara.',
+      'Kamu lagi tumbuh, dan aku seneng bisa lihat itu dari dekat.',
+      'Sebentar lagi mekar — kayak semua hal baik yang lagi kita bangun bersama.',
+      'Di antara semua bunga di dunia ini, kamu yang paling aku pilih. Selalu. 🌹'
+    ],
+    waterNeeded:[3,4,5,0]
+  },
+  {
+    id:'melati', name:'Melati',
+    emojis:['🌱','🌿','🌾','🤍'],
+    stages:['Benih','Tunas','Kuncup','Mekar'],
+    quotes:[
+      'Hal-hal yang paling berkesan sering dimulai dari yang kelihatannya kecil.',
+      'Melati kecil tapi baunya kemana-mana — kamu juga gitu di hidup aku.',
+      'Hampir mekar. Kayak kamu — yang makin hari makin bikin aku kagum.',
+      'Wangi melati susah dilupain. Kamu juga — susah banget dilupain, Dara. 🤍'
+    ],
+    waterNeeded:[3,4,5,0]
+  },
+  {
+    id:'matahari', name:'Matahari',
+    emojis:['🌱','🌿','🌻','🌻'],
+    stages:['Benih','Tunas','Kuncup','Mekar'],
+    quotes:[
+      'Setiap perjalanan dimulai dari satu langkah kecil. Ini langkah pertamanya.',
+      'Bunga matahari tumbuh ke arah cahaya. Aku juga — selalu ke arah kamu.',
+      'Bentar lagi mekar! Sama kayak kamu — yang terus berkembang tiap harinya.',
+      'Senyum kamu itu kayak matahari — bikin hari aku jadi lebih terang. Selalu. 🌻'
+    ],
+    waterNeeded:[3,4,5,0]
+  },
+  {
+    id:'lavender', name:'Lavender',
+    emojis:['🌱','🌿','💜','💜'],
+    stages:['Benih','Tunas','Kuncup','Mekar'],
+    quotes:[
+      'Lavender butuh waktu, tapi hasilnya selalu worth it. Sama kayak hal-hal baik lainnya.',
+      'Pelan-pelan tapi pasti — aku suka lihat proses ini.',
+      'Lavender hampir mekar. Kamu juga selalu bikin suasana jadi lebih tenang.',
+      'Di saat aku paling capek, kamu yang paling bikin aku tenang. Makasih, Dara. 💜'
+    ],
+    waterNeeded:[3,4,5,0]
+  },
+  {
+    id:'tulip', name:'Tulip',
+    emojis:['🌱','🌿','🌷','🌷'],
+    stages:['Benih','Tunas','Kuncup','Mekar'],
+    quotes:[
+      'Tulip adalah bunga yang melambangkan cinta yang tulus. Pas banget buat kamu.',
+      'Tumbuh pelan-pelan — tapi setiap tahapnya cantik dengan caranya sendiri.',
+      'Tinggal sedikit lagi — dan aku udah ga sabar lihat versi paling cantiknya.',
+      'Kamu adalah sesuatu yang berharga yang aku jaga dengan hati-hati. Selalu. 🌷'
+    ],
+    waterNeeded:[3,4,5,0]
+  },
+  {
+    id:'sakura', name:'Sakura',
+    emojis:['🌱','🌿','🌸','🌸'],
+    stages:['Benih','Tunas','Kuncup','Mekar'],
+    quotes:[
+      'Sakura itu langka dan spesial. Sama kayak kamu di hidup aku.',
+      'Proses tumbuhnya memang pelan, tapi hasilnya selalu yang paling indah.',
+      'Hampir mekar — dan aku tau ini bakal jadi yang paling cantik.',
+      'Setiap momen sama kamu aku simpan baik-baik. Ga mau ada yang kelewatan. 🌸'
+    ],
+    waterNeeded:[3,4,5,0]
+  },
+];
+
+const STAGE_MAX = 3;
+let mode = 'water'; // 'water' or 'view'
+let flowerStates = FLOWERS.reduce((acc,f) => {
+  acc[f.id] = { stage:0, progress:0 };
+  return acc;
+}, {});
+
+/* ── MODE TOGGLE ── */
+function toggleWatering(){
+  mode='water';
+  document.getElementById('can-btn').classList.add('active');
+  document.getElementById('view-btn').classList.remove('active');
+  document.getElementById('mode-info').textContent='Tap bunga buat nyiram 💧';
+}
+function toggleViewing(){
+  mode='view';
+  document.getElementById('view-btn').classList.add('active');
+  document.getElementById('can-btn').classList.remove('active');
+  document.getElementById('mode-info').textContent='Tap bunga buat baca pesan dari Razan 💌';
+}
+
+/* ── RENDER ── */
+function render(){
+  const garden = document.getElementById('garden');
+  garden.innerHTML='';
+  FLOWERS.forEach(f=>{
+    const fs = flowerStates[f.id];
+    const stage = fs.stage;
+    const prog = fs.progress;
+    const needed = f.waterNeeded[stage] || 1;
+    const stemH = [0,24,44,66][stage];
+    const budTop = Math.max(0, 110-stemH-38);
+    const budSize = [0,1.3,1.8,2.3][stage];
+    const leafBottom = 18+[0,12,28,44][stage]-6;
+
+    const slot = document.createElement('div');
+    slot.className='flower-slot';
+    slot.dataset.id=f.id;
+    slot.onclick=()=>handleTap(f.id);
+
+    slot.innerHTML=`
+      <div class="flower-wrap">
+        ${stage>=1?`<div class="bud show" style="top:${budTop}px;font-size:${budSize}rem">${f.emojis[stage]}</div>`:''}
+        ${stage>=1?`<div class="stem" style="height:${stemH}px"></div>`:''}
+        ${stage>=2?`<div class="leaf leaf-l show" style="bottom:${leafBottom}px"></div><div class="leaf leaf-r show" style="bottom:${leafBottom}px"></div>`:''}
+        ${stage===0?`<div style="position:absolute;bottom:22px;font-size:1rem">🌱</div>`:''}
+      </div>
+      <div class="pot"><div class="pot-soil"></div></div>
+      <p class="flower-name">${f.name}</p>
+      <p class="flower-stage">${f.stages[stage]}</p>
+      <div class="flower-dots">
+        ${[0,1,2,3].map(i=>`<div class="fdot ${i<=stage?'filled':''}"></div>`).join('')}
+      </div>
+    `;
+    garden.appendChild(slot);
+  });
+}
+
+/* ── TAP ── */
+function handleTap(id){
+  if(mode==='view') { openQuote(id); return; }
+  waterFlower(id);
+}
+
+function waterFlower(id){
+  const f = FLOWERS.find(x=>x.id===id);
+  const fs = flowerStates[id];
+
+  if(fs.stage>=STAGE_MAX){ showToast(`${f.name} udah mekar penuh! 🌸`); spawnSparkles(id); return; }
+
+  fs.progress++;
+  const needed = f.waterNeeded[fs.stage];
+
+  // Spawn drops on flower
+  const slot = document.querySelector(`[data-id="${id}"]`);
+  if(slot){
+    const rect = slot.getBoundingClientRect();
+    for(let i=0;i<3;i++) setTimeout(()=>spawnDrop(rect.left+rect.width/2, rect.top),i*80);
+  }
+
+  if(fs.progress >= needed){
+    fs.stage++;
+    fs.progress=0;
+    setTimeout(()=>{
+      render();
+      spawnSparkles(id);
+      const growMsg = [`${f.name} mulai tumbuh! 🌱`,`${f.name} makin tinggi! 🌿`,`${f.name} hampir mekar! 🥀`,`${f.name} udah mekar! ✨ Tap untuk baca pesan!`];
+      showToast(growMsg[fs.stage]);
+      if(fs.stage===STAGE_MAX) setTimeout(()=>openQuote(id),1200);
+    },300);
+  } else {
+    const left = needed-fs.progress;
+    showToast(`${f.name} senang! Masih butuh ${left}x lagi 💧`);
+    render();
+  }
+}
+
+/* ── QUOTE ── */
+function openQuote(id){
+  const f = FLOWERS.find(x=>x.id===id);
+  const fs = flowerStates[id];
+  const stage = fs.stage;
+
+  document.getElementById('q-emoji').textContent=f.emojis[stage];
+  document.getElementById('q-name').textContent=f.name;
+  document.getElementById('q-stage-label').textContent='Tahap: '+f.stages[stage]+' '+(stage===STAGE_MAX?'✨':'🌱');
+  document.getElementById('q-text').textContent=f.quotes[stage];
+  document.getElementById('q-dots').innerHTML=[0,1,2,3].map(i=>`<div class="qdot ${i<=stage?'on':''}"></div>`).join('');
+
+  const hint = stage<STAGE_MAX ? `Siram ${f.waterNeeded[stage]-fs.progress}x lagi buat lihat dia tumbuh` : 'Bunga ini udah mekar penuh! 🎉';
+  document.getElementById('q-hint').textContent=hint;
+
+  document.getElementById('quote-overlay').classList.add('active');
+}
+
+function closeQuote(){ document.getElementById('quote-overlay').classList.remove('active'); }
+function handleOverlay(e){ if(e.target===document.getElementById('quote-overlay')) closeQuote(); }
+
+/* ── FX ── */
+function spawnDrop(x,y){
+  const el=document.createElement('div');
+  el.className='waterdrop';el.textContent='💧';
+  el.style.cssText=`left:${x-12}px;top:${y}px`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),800);
+}
+
+function spawnSparkles(id){
+  const slot=document.querySelector(`[data-id="${id}"]`);
+  if(!slot)return;
+  const rect=slot.getBoundingClientRect();
+  ['✨','⭐','🌟','💫'].forEach((s,i)=>{
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='sparkle';el.textContent=s;
+      el.style.cssText=`left:${rect.left+Math.random()*rect.width}px;top:${rect.top+Math.random()*rect.height}px;font-size:${.9+Math.random()*.8}rem`;
+      document.body.appendChild(el);setTimeout(()=>el.remove(),1100);
+    },i*100);
+  });
+}
+
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const el=document.createElement('div');
+  el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2400);
+}
+
+/* ── CLOUDS ── */
+function addClouds(){
+  const sky=document.getElementById('sky');
+  [{top:8,w:90,h:30,dur:30},{top:22,w:60,h:22,dur:22},{top:6,w:110,h:35,dur:38},{top:32,w:50,h:18,dur:18}].forEach((c,i)=>{
+    const wrap=document.createElement('div');wrap.className='cloud';
+    wrap.style.cssText=`top:${c.top}%;animation-duration:${c.dur}s;animation-delay:${-i*7}s`;
+    const d=document.createElement('div');d.className='cloud-body';
+    d.style.cssText=`width:${c.w}px;height:${c.h}px`;
+    wrap.appendChild(d);sky.appendChild(wrap);
+  });
+}
+
+addClouds();
+render();
+</script>
+</body>
+</html>
