@@ -2,545 +2,450 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jar of Reasons — Untuk Dara 🤍</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Memory Jar — Untuk Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #faf6f0;
-    --warm: #f5ede0;
-    --blush: #e8c4b0;
-    --rose: #c17a6f;
-    --deep: #7a3f35;
-    --ink: #2d1f1a;
-    --gold: #c9a96e;
-    --muted: #9a8070;
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--cream);
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    overflow-x: hidden;
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Poppins',sans-serif;
+    min-height:100vh;overflow-x:hidden;
+    background:var(--cream);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:1.5rem;
+    position:relative;
   }
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
+  body::before{
+    content:'';position:fixed;inset:0;
     background:
-      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.35) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.2) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
+      radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.35) 0%,transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.18) 0%,transparent 70%);
+    pointer-events:none;
   }
+
+  /* ── SCREENS ── */
+  .screen{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:400px;z-index:1}
+  .screen.active{display:flex}
 
   /* ── INTRO ── */
-  #intro {
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center; padding: 3rem 2rem;
-    position: relative; z-index: 1;
+  .intro-jar{font-size:5.5rem;display:block;margin-bottom:1.25rem;animation:jarfloat 3s ease-in-out infinite;filter:drop-shadow(0 8px 28px rgba(193,122,111,.45))}
+  @keyframes jarfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:block;}
+  .intro-title{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:700;color:var(--ink);margin-bottom:.5rem;line-height:1.1}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:.5rem auto 1.75rem}
+  .intro-badge{
+    display:inline-flex;align-items:center;gap:.4rem;
+    background:#fff;border:1px solid rgba(193,122,111,.2);
+    border-radius:50px;padding:.45rem 1.1rem;font-size:12px;
+    color:var(--muted);margin-bottom:1.75rem;
+  }
+  .intro-badge span{color:var(--gold);font-weight:600}
+
+  .btn{
+    padding:.875rem 2rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;
+    transition:all .2s;letter-spacing:.04em;display:inline-block;
+  }
+  .btn-rose{background:var(--rose);color:#fff;box-shadow:0 4px 20px rgba(193,122,111,.4)}
+  .btn-rose:active{transform:scale(.96);background:var(--deep)}
+  .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .btn-ghost:active{background:var(--warm)}
+  .btn-full{width:100%}
+
+  /* ── GAME ── */
+  #screen-game{gap:.85rem}
+
+  .game-top{width:100%;display:flex;justify-content:space-between;align-items:center}
+  .game-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+  .game-count{font-size:12px;color:var(--muted)}
+  .game-count span{color:var(--rose);font-weight:600}
+
+  /* Progress */
+  .prog-wrap{width:100%}
+  .prog-bar{width:100%;height:3px;background:var(--blush);border-radius:2px;overflow:hidden}
+  .prog-fill{height:100%;background:linear-gradient(to right,var(--blush),var(--rose));border-radius:2px;transition:width .5s ease}
+
+  /* THE JAR — tap to shake */
+  .jar-wrap{
+    position:relative;width:220px;height:290px;
+    cursor:pointer;flex-shrink:0;
+    transition:transform .1s;
+  }
+  .jar-wrap:active{transform:scale(.97);}
+  .jar-wrap.shaking{animation:jarshake .5s ease}
+  @keyframes jarshake{
+    0%,100%{transform:rotate(0) translateX(0)}
+    15%{transform:rotate(-8deg) translateX(-6px)}
+    30%{transform:rotate(7deg) translateX(7px)}
+    45%{transform:rotate(-6deg) translateX(-5px)}
+    60%{transform:rotate(5deg) translateX(5px)}
+    75%{transform:rotate(-3deg) translateX(-3px)}
+    90%{transform:rotate(2deg) translateX(2px)}
   }
 
-  .jar-icon {
-    font-size: 5rem; margin-bottom: 1.5rem;
-    animation: float 3s ease-in-out infinite;
+  .jar-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+  /* Notes inside jar */
+  .jar-inside{
+    position:absolute;
+    left:18px;right:18px;top:50px;bottom:24px;
+    overflow:hidden;border-radius:2px 2px 18px 18px;
+    pointer-events:none;
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  .jar-note{
+    position:absolute;border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.9rem;pointer-events:none;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
   }
 
-  .intro-label {
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem;
+  @keyframes notedrift{
+    0%,100%{transform:rotate(var(--r)) translateY(0)}
+    50%{transform:rotate(var(--r)) translateY(var(--d))}
   }
+  .jar-note.drift{animation:notedrift var(--dur) ease-in-out var(--delay) infinite}
 
-  .intro-title {
-    font-size: clamp(1.8rem, 6vw, 2.8rem);
-    font-weight: 600; color: var(--ink);
-    line-height: 1.2; margin-bottom: 0.75rem;
+  /* Tap hint */
+  .tap-hint{
+    font-size:12px;color:var(--muted);letter-spacing:.06em;
+    animation:blink 2s ease-in-out infinite;
   }
+  @keyframes blink{0%,100%{opacity:.4}50%{opacity:.9}}
 
-  .intro-title span { color: var(--rose); }
-
-  .intro-sub {
-    font-size: 14px; color: var(--muted);
-    line-height: 1.8; max-width: 380px;
-    margin: 0 auto 2rem;
+  /* ── RESULT POPUP ── */
+  #result-overlay{
+    display:none;position:fixed;inset:0;z-index:999;
+    background:rgba(0,0,0,.65);backdrop-filter:blur(7px);
+    align-items:flex-end;justify-content:center;padding:.85rem;
   }
+  #result-overlay.active{display:flex}
 
-  .intro-count {
-    display: inline-block;
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.2);
-    border-radius: 50px;
-    padding: 0.5rem 1.5rem;
-    font-size: 13px; color: var(--muted);
-    margin-bottom: 2rem;
+  .result-sheet{
+    background:var(--cream);border-radius:24px 24px 20px 20px;
+    padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:420px;
+    animation:slideup .4s cubic-bezier(.34,1.3,.64,1);
+    text-align:center;position:relative;overflow:hidden;
   }
-
-  .intro-count span { color: var(--rose); font-weight: 600; }
-
-  .btn {
-    display: inline-block;
-    padding: 0.9rem 2.5rem;
-    border-radius: 50px; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px; font-weight: 500;
-    letter-spacing: 0.04em; transition: all 0.2s;
+  .result-sheet::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.18),transparent 60%);
+    pointer-events:none;
   }
-
-  .btn-primary {
-    background: var(--rose); color: #fff;
-    box-shadow: 0 4px 16px rgba(193,122,111,0.35);
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .result-drag{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto 1.25rem}
+  .result-scroll{font-size:3rem;display:block;margin-bottom:.75rem;animation:unroll .4s ease}
+  @keyframes unroll{from{transform:scale(.5) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+  .result-num{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .result-icon{font-size:2rem;display:block;margin-bottom:.5rem}
+  .result-text{font-size:15px;color:var(--ink);line-height:1.85;font-weight:400;margin-bottom:1.25rem;position:relative;z-index:1}
+  .result-sign{font-size:12px;color:var(--rose);font-weight:500;display:block;margin-bottom:1.25rem;position:relative;z-index:1}
+  .result-close{
+    width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);
+    position:relative;z-index:1;
   }
-  .btn-primary:hover {
-    background: var(--deep);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(193,122,111,0.4);
-  }
+  .result-close:active{background:var(--deep);transform:scale(.97)}
 
-  .btn-outline {
-    background: transparent; color: var(--rose);
-    border: 1.5px solid var(--blush);
-  }
-  .btn-outline:hover { border-color: var(--rose); }
-
-  /* ── MAIN JAR ── */
-  #main {
-    display: none;
-    padding: 3rem 1.5rem 5rem;
-    position: relative; z-index: 1;
-  }
-
-  .main-header {
-    text-align: center; margin-bottom: 2.5rem;
-  }
-
-  .main-label {
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.5rem;
-  }
-
-  .main-title {
-    font-size: 1.4rem; font-weight: 600; color: var(--ink);
-  }
-
-  .main-sub {
-    font-size: 13px; color: var(--muted); margin-top: 0.5rem;
-  }
-
-  .progress-wrap {
-    max-width: 400px; margin: 1.5rem auto 0;
-    display: flex; align-items: center; gap: 1rem;
-  }
-
-  .progress-bar {
-    flex: 1; height: 4px;
-    background: var(--blush); border-radius: 2px; overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(to right, var(--blush), var(--rose));
-    border-radius: 2px; transition: width 0.5s ease;
-  }
-
-  .progress-text {
-    font-size: 12px; color: var(--muted); white-space: nowrap;
-  }
-
-  .progress-text span { color: var(--rose); font-weight: 600; }
-
-  /* ── GRID ── */
-  .reasons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
-    max-width: 800px; margin: 0 auto;
-  }
-
-  .reason-slot {
-    aspect-ratio: 1;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .reason-slot.closed {
-    background: #fff;
-    border: 1.5px solid var(--blush);
-    box-shadow: 0 2px 8px rgba(45,31,26,0.05);
-  }
-
-  .reason-slot.closed:hover {
-    border-color: var(--rose);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(193,122,111,0.2);
-  }
-
-  .reason-slot.open {
-    background: linear-gradient(135deg, var(--warm), #fff);
-    border: 1.5px solid rgba(193,122,111,0.3);
-    cursor: default;
-    box-shadow: 0 2px 12px rgba(193,122,111,0.15);
-  }
-
-  .slot-closed-inner {
-    text-align: center;
-  }
-
-  .slot-num {
-    font-size: 1.4rem; font-weight: 600;
-    color: var(--blush); display: block;
-  }
-
-  .slot-hint {
-    font-size: 10px; color: var(--blush);
-    letter-spacing: 0.08em; margin-top: 2px;
-  }
-
-  .slot-open-inner {
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .slot-open-num {
-    font-size: 10px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--gold);
-    margin-bottom: 6px; display: block;
-  }
-
-  .slot-open-text {
-    font-size: 12px; color: var(--ink);
-    line-height: 1.5; font-style: italic;
-  }
-
-  /* Last special slot */
-  .reason-slot.special.open {
-    background: linear-gradient(135deg, rgba(193,122,111,0.12), rgba(201,169,110,0.1));
-    border-color: var(--gold);
-    grid-column: span 2;
-    aspect-ratio: auto;
-    padding: 1.5rem;
-    min-height: 120px;
-  }
-
-  .slot-open-text.special-text {
-    font-size: 13px; font-weight: 400;
-    color: var(--deep);
-  }
-
-  /* ── MODAL ── */
-  #modal {
-    display: none;
-    position: fixed; inset: 0; z-index: 999;
-    background: rgba(45,31,26,0.5);
-    backdrop-filter: blur(4px);
-    align-items: center; justify-content: center;
-    padding: 2rem;
-  }
-
-  #modal.active { display: flex; }
-
-  .modal-box {
-    background: var(--cream);
-    border-radius: 20px;
-    padding: 2.5rem 2rem;
-    max-width: 380px; width: 100%;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(45,31,26,0.2);
-    animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-  }
-
-  @keyframes pop-in {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .modal-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
-
-  .modal-num {
-    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem;
-  }
-
-  .modal-text {
-    font-size: 1.1rem; font-weight: 400;
-    color: var(--ink); line-height: 1.7;
-    font-style: italic; margin-bottom: 2rem;
-  }
-
-  .modal-text.special {
-    font-size: 1rem; color: var(--deep);
-  }
-
-  .modal-close {
-    width: 100%;
+  /* ── EMPTY STATE ── */
+  .empty-msg{
+    font-size:13px;color:var(--muted);
+    margin-top:.25rem;
   }
 
   /* ── FINISH ── */
-  #finish {
-    display: none;
-    min-height: 100vh;
-    align-items: center; justify-content: center;
-    text-align: center; padding: 3rem 2rem;
-    position: relative; z-index: 1;
-    flex-direction: column;
+  #screen-finish{gap:1rem}
+  .finish-emoji{font-size:4.5rem;display:block;animation:jarfloat 3s ease-in-out infinite}
+  .finish-title{font-size:1.6rem;font-weight:700;color:var(--ink);line-height:1.2}
+  .finish-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:.25rem auto}
+  .finish-quote{
+    background:#fff;border:1px solid rgba(193,122,111,.18);
+    border-radius:16px;padding:1.25rem 1.5rem;
+    font-size:13px;color:var(--ink);line-height:1.85;
+    font-style:italic;
+    margin:.25rem 0;
+    box-shadow:0 2px 12px rgba(193,122,111,.08);
   }
 
-  #finish.active { display: flex; }
-
-  .finish-emoji { font-size: 4rem; margin-bottom: 1rem; display: block; }
-
-  .finish-title {
-    font-size: 1.8rem; font-weight: 600;
-    color: var(--ink); margin-bottom: 0.75rem;
-  }
-
-  .finish-sub {
-    font-size: 14px; color: var(--muted);
-    line-height: 1.8; max-width: 380px;
-    margin: 0 auto 2rem;
-  }
-
-  .finish-quote {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.2);
-    border-radius: 12px; padding: 1.5rem 2rem;
-    max-width: 420px; margin: 0 auto 2.5rem;
-    font-family: 'Poppins', sans-serif;
-    font-style: italic; font-size: 14px;
-    color: var(--deep); line-height: 1.8;
-    position: relative;
-  }
-
-  .finish-quote::before {
-    content: '"';
-    font-size: 4rem; color: var(--blush);
-    position: absolute; top: -0.5rem; left: 1rem;
-    line-height: 1; pointer-events: none;
-  }
-
-  /* ── CONFETTI ── */
-  .confetti-piece {
-    position: fixed; border-radius: 2px;
-    animation: confetti-fall linear forwards;
-    pointer-events: none; z-index: 9999;
-  }
-
-  @keyframes confetti-fall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-
-  @media (max-width: 480px) {
-    .reasons-grid { grid-template-columns: repeat(3, 1fr); }
-    .reason-slot.special.open { grid-column: span 3; }
-  }
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
 
 <!-- INTRO -->
-<div id="intro">
-  <div class="jar-icon">🫙</div>
-  <p class="intro-label">Khusus Untuk Dara</p>
-  <h1 class="intro-title">Jar of <span>Reasons</span></h1>
-  <p class="intro-sub">Di dalam toples ini ada alasan-alasan kenapa kamu begitu berarti. Buka satu per satu, pelan-pelan.</p>
-  <div class="intro-count">Ada <span>34</span> alasan yang menunggumu 🤍</div>
-  <br>
-  <button class="btn btn-primary" onclick="startJar()">Buka Toplesnya →</button>
+<div id="screen-intro" class="screen active">
+  <span class="intro-jar">🫙</span>
+  <span class="intro-label">Khusus untuk Dara</span>
+  <h1 class="intro-title">Memory <span>Jar</span></h1>
+  <p class="intro-sub">Kocok toples — dan satu gulungan akan keluar. Kayak arisan, tapi isinya alasan kenapa kamu berarti 🤍</p>
+  <div class="intro-badge">Ada <span>34</span> gulungan yang menunggumu</div>
+  <button class="btn btn-rose btn-full" onclick="startGame()">Kocok Sekarang! 🫙</button>
 </div>
 
-<!-- MAIN -->
-<div id="main">
-  <div class="main-header">
-    <p class="main-label">Jar of Reasons</p>
-    <h2 class="main-title">Klik satu per satu ya 🤍</h2>
-    <p class="main-sub">Setiap gulungan punya alasan yang berbeda.</p>
-    <div class="progress-wrap">
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-      </div>
-      <p class="progress-text"><span id="opened-count">0</span>/34 dibuka</p>
-    </div>
+<!-- GAME -->
+<div id="screen-game" class="screen">
+
+  <div class="game-top">
+    <span class="game-label">Memory Jar</span>
+    <span class="game-count"><span id="g-count">0</span> / 34 keluar</span>
   </div>
 
-  <div class="reasons-grid" id="reasons-grid"></div>
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="jar-wrap" id="jar-wrap" onclick="shakeJar()">
+    <!-- SVG Jar -->
+    <svg class="jar-svg" viewBox="0 0 220 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Lid -->
+      <rect x="55" y="14" width="110" height="26" rx="7" fill="url(#lG)"/>
+      <rect x="64" y="8" width="92" height="14" rx="7" fill="url(#lT)"/>
+      <rect x="74" y="17" width="36" height="3" rx="1.5" fill="rgba(255,255,255,.3)"/>
+      <!-- Jar body -->
+      <path d="M36 48 Q30 68 28 105 L28 235 Q28 262 52 267 L168 267 Q192 262 192 235 L192 105 Q190 68 184 48 Z"
+        fill="url(#jG)" opacity=".85"/>
+      <!-- Shine left -->
+      <path d="M44 60 Q38 85 38 115 L38 230 Q38 255 50 258 L58 258 Q46 255 46 230 L46 115 Q46 85 52 60 Z"
+        fill="rgba(255,255,255,.4)"/>
+      <!-- Shine top right -->
+      <ellipse cx="155" cy="72" rx="14" ry="8" fill="rgba(255,255,255,.1)" transform="rotate(-20 155 72)"/>
+      <!-- Bottom glow -->
+      <ellipse cx="110" cy="260" rx="52" ry="7" fill="rgba(255,255,255,.1)"/>
+      <!-- Outline -->
+      <path d="M36 48 Q30 68 28 105 L28 235 Q28 262 52 267 L168 267 Q192 262 192 235 L192 105 Q190 68 184 48 Z"
+        stroke="rgba(193,122,111,.35)" stroke-width="1.5" fill="none"/>
+      <!-- Shoulder line -->
+      <path d="M36 48 Q110 38 184 48" stroke="rgba(193,122,111,.3)" stroke-width="1.5" fill="none"/>
+      <defs>
+        <linearGradient id="jG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#e8c4b0" stop-opacity=".8"/>
+          <stop offset="35%" stop-color="#fdf8f4" stop-opacity=".7"/>
+          <stop offset="70%" stop-color="#f5ede0" stop-opacity=".65"/>
+          <stop offset="100%" stop-color="#c17a6f" stop-opacity=".6"/>
+        </linearGradient>
+        <linearGradient id="lG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c9a96e"/>
+          <stop offset="100%" stop-color="#a07840"/>
+        </linearGradient>
+        <linearGradient id="lT" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e8cc80"/>
+          <stop offset="100%" stop-color="#c9a96e"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <!-- Notes inside -->
+    <div class="jar-inside" id="jar-inside"></div>
+  </div>
+
+  <p class="tap-hint" id="tap-hint">👆 Tap toples buat kocok!</p>
+  <p class="empty-msg" id="empty-msg" style="display:none">Toples udah kosong! 🎉</p>
+
 </div>
 
-<!-- MODAL -->
-<div id="modal">
-  <div class="modal-box">
-    <span class="modal-icon" id="modal-icon">🤍</span>
-    <p class="modal-num" id="modal-num">Alasan #1</p>
-    <p class="modal-text" id="modal-text">...</p>
-    <button class="btn btn-primary modal-close" onclick="closeModal()">Tutup 🤍</button>
+<!-- RESULT OVERLAY -->
+<div id="result-overlay" onclick="handleOverlay(event)">
+  <div class="result-sheet">
+    <div class="result-drag"></div>
+    <span class="result-scroll">📜</span>
+    <span class="result-num" id="r-num">Alasan #1</span>
+    <span class="result-icon" id="r-icon">🤍</span>
+    <p class="result-text" id="r-text">...</p>
+    <span class="result-sign">— Razan 🤍</span>
+    <button class="result-close" onclick="closeResult()">Simpan di Hati 🤍</button>
   </div>
 </div>
 
 <!-- FINISH -->
-<div id="finish">
-  <span class="finish-emoji">🫙✨</span>
-  <h2 class="finish-title">Toples sudah terbuka semua!</h2>
-  <p class="finish-sub">Kamu udah baca semua alasannya. Dan percayalah — masih ada banyak lagi yang belum sempat dituliskan.</p>
+<div id="screen-finish" class="screen">
+  <span class="finish-emoji">🫙</span>
+  <h2 class="finish-title">Toplesnya<br>udah kosong! ✨</h2>
+  <p class="finish-sub">Kamu udah baca semua 34 alasannya. Masih ada banyak lagi yang belum sempat aku tulis.</p>
   <div class="finish-quote">
-    Karena kalau aku harus menjelaskan satu per satu alasan kenapa aku sayang kamu, mungkin aku bakal kehabisan kata-kata duluan sebelum kehabisan alasan. ❤️
+    Kalau aku harus jelasin satu per satu alasan kenapa aku sayang kamu, mungkin aku bakal kehabisan kata-kata duluan sebelum kehabisan alasan. 🤍
   </div>
-  <button class="btn btn-outline" onclick="restartJar()">Buka Lagi dari Awal</button>
+  <button class="btn btn-rose btn-full" onclick="restartGame()">Isi Ulang Toples 🔄</button>
+  <button class="btn btn-ghost btn-full" onclick="showScreen('screen-intro')" style="margin-top:.5rem">Kembali ke Awal</button>
 </div>
 
 <script>
 const reasons = [
-  { icon: "🌸", text: "Kamu selalu inget hal kecil yang aku ceritain." },
-  { icon: "📱", text: "Kamu yang pertama aku mau kabarin kalau ada sesuatu." },
-  { icon: "🤝", text: "Kamu selalu hadir saat aku butuh teman cerita." },
-  { icon: "😊", text: "Senyuman kamu bisa bikin hari aku yang buruk jadi lebih baik." },
-  { icon: "🫂", text: "Kamu menerima aku apa adanya." },
-  { icon: "✨", text: "Kamu membuat hal sederhana terasa spesial." },
-  { icon: "💭", text: "Kamu selalu berusaha memahami aku." },
-  { icon: "🕊️", text: "Kamu sabar menghadapi sifatku." },
-  { icon: "💎", text: "Kamu membuat aku merasa dihargai." },
-  { icon: "⚡", text: "Kamu selalu memberi semangat saat aku sedang down." },
-  { icon: "🌱", text: "Kamu membuat aku belajar menjadi pribadi yang lebih baik." },
-  { icon: "🏡", text: "Bersama kamu aku bisa menjadi diri sendiri." },
-  { icon: "🎁", text: "Perhatian kecil yang kamu berikan selalu berarti besar buat aku." },
-  { icon: "🔍", text: "Kamu selalu mengingat hal-hal yang sering dilupakan orang lain." },
-  { icon: "😄", text: "Kamu punya cara unik untuk membuat aku tertawa." },
-  { icon: "❤️", text: "Kamu selalu peduli dengan keadaanku." },
-  { icon: "👂", text: "Kamu tidak hanya mendengarkan, tapi juga memahami." },
-  { icon: "🛡️", text: "Kamu membuat aku merasa aman." },
-  { icon: "🚀", text: "Kamu selalu mendukung impian dan tujuanku." },
-  { icon: "🌈", text: "Kamu membuat aku percaya bahwa hubungan yang sehat itu ada." },
-  { icon: "🤍", text: "Kamu mengajarkan arti ketulusan." },
-  { icon: "⭐", text: "Kamu membuat aku merasa penting." },
-  { icon: "🗣️", text: "Kamu selalu menghargai pendapatku." },
-  { icon: "😁", text: "Kamu bisa membuat aku tersenyum tanpa alasan." },
-  { icon: "💪", text: "Kamu tetap bertahan di saat keadaan tidak mudah." },
-  { icon: "🪞", text: "Kamu tidak hanya melihat kelebihanku, tapi juga menerima kekuranganku." },
-  { icon: "🏠", text: "Kamu selalu punya tempat untukku di hidupmu." },
-  { icon: "🔮", text: "Kamu membuat masa depan terasa lebih menarik untuk dibayangkan." },
-  { icon: "☀️", text: "Kamu adalah salah satu alasan aku semangat menjalani hari." },
-  { icon: "📸", text: "Setiap kenangan bersamamu selalu punya arti." },
-  { icon: "🏡", text: "Kamu membuat rumah terasa bukan sekadar tempat, tapi perasaan." },
-  { icon: "🌙", text: "Kehadiranmu membawa ketenangan." },
-  { icon: "🎗️", text: "Kamu mengajarkan aku arti kesetiaan." },
-  { icon: "💘", text: "Dari sekian banyak orang, hatiku tetap memilih kamu." }
+  {icon:"🌸",text:"Kamu selalu inget hal kecil yang aku ceritain — bahkan hal yang aku sendiri kadang udah lupa."},
+  {icon:"📱",text:"Kamu yang pertama aku mau kabarin kalau ada sesuatu, apapun itu."},
+  {icon:"🤝",text:"Kamu selalu hadir saat aku butuh teman cerita — tanpa harus diminta."},
+  {icon:"😊",text:"Senyuman kamu bisa bikin hari aku yang buruk jadi lebih baik, seketika."},
+  {icon:"🫂",text:"Kamu menerima aku apa adanya — kelebihan dan kekurangan sekaligus."},
+  {icon:"✨",text:"Kamu bisa bikin hal yang paling biasa jadi terasa spesial."},
+  {icon:"💭",text:"Kamu selalu berusaha memahami aku, bahkan waktu aku sendiri susah jelasinnya."},
+  {icon:"🕊️",text:"Kamu sabar banget ngadepin sifat aku yang kadang ga gampang."},
+  {icon:"💎",text:"Kamu bikin aku ngerasa dihargai — dan itu bukan hal kecil."},
+  {icon:"⚡",text:"Kamu selalu kasih semangat waktu aku lagi down, tanpa nunggu aku minta."},
+  {icon:"🌱",text:"Kamu bikin aku jadi pribadi yang lebih baik — pelan-pelan tapi pasti."},
+  {icon:"🏡",text:"Bersama kamu, aku bisa jadi diri sendiri sepenuhnya."},
+  {icon:"🎁",text:"Perhatian kecil yang kamu kasih selalu berasa besar buat aku."},
+  {icon:"🔍",text:"Kamu selalu notice hal-hal yang sering dilupakan orang lain."},
+  {icon:"😄",text:"Kamu punya cara unik buat bikin aku ketawa — yang ga bisa ditiru siapapun."},
+  {icon:"❤️",text:"Kamu selalu peduli sama keadaan aku, bahkan waktu aku bilang 'ga apa-apa'."},
+  {icon:"👂",text:"Kamu ga cuma dengerin — kamu beneran memahami."},
+  {icon:"🛡️",text:"Kamu bikin aku ngerasa aman. Itu yang paling aku syukuri."},
+  {icon:"🚀",text:"Kamu selalu dukung impian dan tujuan aku, bahkan yang terdengar jauh sekalipun."},
+  {icon:"🌈",text:"Kamu bikin aku percaya bahwa hubungan yang sehat dan indah itu beneran ada."},
+  {icon:"🤍",text:"Kamu ngajarin aku arti ketulusan — bukan dari kata-kata, tapi dari tindakan."},
+  {icon:"⭐",text:"Kamu bikin aku ngerasa penting dan berarti — tanpa harus ngomong banyak."},
+  {icon:"🗣️",text:"Kamu selalu menghargai pendapat aku, bahkan saat kita ga setuju."},
+  {icon:"😁",text:"Kamu bisa bikin aku senyum tanpa alasan jelas — dan itu ajaib."},
+  {icon:"💪",text:"Kamu tetap bertahan di saat keadaan ga mudah. Itu bukan hal yang semua orang bisa lakuin."},
+  {icon:"🪞",text:"Kamu ga cuma lihat kelebihan aku — kamu juga terima kekurangan aku."},
+  {icon:"🔮",text:"Kamu bikin masa depan terasa lebih menarik buat dibayangkan bareng."},
+  {icon:"☀️",text:"Kamu adalah salah satu alasan aku semangat jalanin hari."},
+  {icon:"📸",text:"Setiap kenangan sama kamu selalu punya tempat tersendiri buat aku."},
+  {icon:"🌙",text:"Kehadiran kamu bawa ketenangan yang susah aku temuin di tempat lain."},
+  {icon:"🎗️",text:"Kamu ngajarin aku arti kesetiaan — dengan cara yang sederhana tapi konsisten."},
+  {icon:"💘",text:"Dari sekian banyak orang, hati aku tetap milih kamu. Selalu."},
+  {icon:"🌺",text:"Ada ketenangan yang kamu bawa waktu kamu hadir — yang bikin semua orang di sekitar kamu ngerasa nyaman."},
+  {icon:"💍",text:"Dari semua yang aku rasain — hal yang paling aku syukuri adalah: kamu jadi dirimu sendiri di depan aku. Dan itu lebih dari cukup. Selalu."},
 ];
 
-let openedSlots = new Set();
-let currentSlot = -1;
+const COLORS=[
+  {bg:'rgba(193,122,111,.28)',b:'rgba(193,122,111,.55)'},
+  {bg:'rgba(201,169,110,.22)',b:'rgba(201,169,110,.55)'},
+  {bg:'rgba(181,196,177,.22)',b:'rgba(181,196,177,.55)'},
+  {bg:'rgba(196,160,168,.22)',b:'rgba(196,160,168,.55)'},
+  {bg:'rgba(160,180,196,.22)',b:'rgba(160,180,196,.55)'},
+];
 
-function startJar() {
-  document.getElementById('intro').style.display = 'none';
-  document.getElementById('main').style.display = 'block';
-  renderGrid();
+let remaining=[];
+let isShaking=false;
+let currentResult=null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function renderGrid() {
-  const grid = document.getElementById('reasons-grid');
-  grid.innerHTML = '';
-
-  reasons.forEach((r, i) => {
-    const slot = document.createElement('div');
-    const isOpen = openedSlots.has(i);
-    const isSpecial = r.special;
-
-    slot.className = `reason-slot ${isOpen ? 'open' : 'closed'} ${isSpecial ? 'special' : ''}`;
-
-    if (isOpen) {
-      slot.innerHTML = `
-        <div class="slot-open-inner">
-          <span class="slot-open-num">#${i + 1}</span>
-          <p class="slot-open-text ${isSpecial ? 'special-text' : ''}">${r.text}</p>
-        </div>
-      `;
-    } else {
-      slot.innerHTML = `
-        <div class="slot-closed-inner">
-          <span class="slot-num">${i + 1}</span>
-          <span class="slot-hint">buka aku</span>
-        </div>
-      `;
-      slot.onclick = () => openSlot(i);
-    }
-
-    grid.appendChild(slot);
-  });
-}
-
-function openSlot(index) {
-  currentSlot = index;
-  const r = reasons[index];
-  openedSlots.add(index);
-
-  document.getElementById('modal-icon').textContent = r.icon;
-  document.getElementById('modal-num').textContent = `Alasan #${index + 1}`;
-  document.getElementById('modal-text').textContent = r.text;
-  document.getElementById('modal-text').className = `modal-text ${r.special ? 'special' : ''}`;
-
-  document.getElementById('modal').classList.add('active');
-
+function startGame(){
+  remaining=[...reasons].sort(()=>Math.random()-.5);
+  renderInsideNotes();
   updateProgress();
-
-  if (r.special) launchConfetti();
+  showScreen('screen-game');
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('active');
-  renderGrid();
+function restartGame(){
+  remaining=[...reasons].sort(()=>Math.random()-.5);
+  document.getElementById('tap-hint').style.display='block';
+  document.getElementById('empty-msg').style.display='none';
+  renderInsideNotes();
+  updateProgress();
+  showScreen('screen-game');
+}
 
-  if (openedSlots.size === 34) {
-    setTimeout(() => {
-      document.getElementById('main').style.display = 'none';
-      document.getElementById('finish').classList.add('active');
-      launchConfetti();
-    }, 400);
+/* Render floating notes inside jar */
+function renderInsideNotes(){
+  const inside=document.getElementById('jar-inside');
+  inside.innerHTML='';
+  // Show up to 20 notes visually (stack effect)
+  const toShow=Math.min(remaining.length,20);
+  const aW=184-36, aH=290-74;
+  for(let i=0;i<toShow;i++){
+    const c=COLORS[i%COLORS.length];
+    const nW=28+Math.random()*14;
+    const nH=22+Math.random()*12;
+    const x=Math.random()*(aW-nW);
+    const y=Math.random()*(aH-nH);
+    const r=(Math.random()-.5)*35;
+    const dur=2.2+Math.random()*2.5;
+    const delay=Math.random()*2;
+    const drift=-(3+Math.random()*7);
+    const note=document.createElement('div');
+    note.className='jar-note drift';
+    note.style.cssText=`
+      left:${x}px;top:${y}px;width:${nW}px;height:${nH}px;
+      background:${c.bg};border:1px solid ${c.b};
+      --r:${r}deg;--dur:${dur}s;--delay:${delay}s;--d:${drift}px;
+      transform:rotate(${r}deg);
+    `;
+    inside.appendChild(note);
   }
 }
 
-function updateProgress() {
-  const pct = (openedSlots.size / 34) * 100;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('opened-count').textContent = openedSlots.size;
+/* SHAKE & DRAW */
+function shakeJar(){
+  if(isShaking) return;
+  if(remaining.length===0) return;
+
+  isShaking=true;
+  const jar=document.getElementById('jar-wrap');
+  jar.classList.add('shaking');
+
+  setTimeout(()=>{
+    jar.classList.remove('shaking');
+    isShaking=false;
+    drawOne();
+  },520);
 }
 
-function restartJar() {
-  openedSlots = new Set();
-  document.getElementById('finish').classList.remove('active');
-  document.getElementById('main').style.display = 'block';
+function drawOne(){
+  if(remaining.length===0) return;
+
+  // Pick random from remaining
+  const idx=Math.floor(Math.random()*remaining.length);
+  currentResult=remaining[idx];
+  remaining.splice(idx,1);
+
+  // Update notes visual
+  renderInsideNotes();
   updateProgress();
-  renderGrid();
+
+  // Show result
+  const total=reasons.length;
+  const opened=total-remaining.length;
+  document.getElementById('r-num').textContent=`Alasan #${opened}`;
+  document.getElementById('r-icon').textContent=currentResult.icon;
+  document.getElementById('r-text').textContent=currentResult.text;
+  document.getElementById('result-overlay').classList.add('active');
+
+  if(opened===total) confetti();
 }
 
-function launchConfetti() {
-  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#7aab8a','#faf6f0','#f5ede0'];
-  for (let i = 0; i < 70; i++) {
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.cssText = `
-        left:${Math.random()*100}vw; top:-10px;
-        background:${colors[Math.floor(Math.random()*colors.length)]};
-        animation-duration:${1.5+Math.random()*2.5}s;
-        animation-delay:${Math.random()*0.8}s;
-        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
-        border-radius:${Math.random()>0.5?'50%':'2px'};
-      `;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
-    }, i * 35);
+function closeResult(){
+  document.getElementById('result-overlay').classList.remove('active');
+  if(remaining.length===0){
+    document.getElementById('tap-hint').style.display='none';
+    document.getElementById('empty-msg').style.display='block';
+    setTimeout(()=>{
+      showScreen('screen-finish');
+      confetti();
+    },600);
   }
+}
+
+function handleOverlay(e){
+  if(e.target===document.getElementById('result-overlay')) closeResult();
+}
+
+function updateProgress(){
+  const opened=reasons.length-remaining.length;
+  document.getElementById('g-count').textContent=opened;
+  document.getElementById('prog-fill').style.width=(opened/reasons.length*100)+'%';
+}
+
+function confetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<80;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*30);
 }
 </script>
 </body>
