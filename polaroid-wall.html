@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Polaroid Wall — Razan & Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: #1a1008;
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Wood wall texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 40px,
+        rgba(255,255,255,.012) 40px,
+        rgba(255,255,255,.012) 41px
+      ),
+      repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 80px,
+        rgba(0,0,0,.08) 80px,
+        rgba(0,0,0,.08) 82px
+      ),
+      linear-gradient(160deg, #221408 0%, #1a1008 40%, #251508 100%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  .wall-header {
+    text-align: center;
+    padding: 2rem 1.5rem 1rem;
+    position: relative; z-index: 1;
+  }
+  .wall-label {
+    font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
+    color: rgba(201,169,110,.7); display: block; margin-bottom: .4rem;
+  }
+  .wall-title {
+    font-size: clamp(1.3rem,5vw,1.8rem);
+    font-weight: 700; color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,.5);
+  }
+  .wall-title span { color: var(--gold); }
+  .wall-sub {
+    font-size: 11px; color: rgba(255,255,255,.4);
+    margin-top: .3rem;
+  }
+
+  /* ── WALL GRID ── */
+  .wall {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(.6rem, 2.5vw, 1.1rem);
+    padding: .5rem clamp(.75rem, 3vw, 1.25rem) 4rem;
+    max-width: 520px; margin: 0 auto;
+  }
+
+  /* ── POLAROID ── */
+  .polaroid-wrap {
+    perspective: 900px;
+    cursor: pointer;
+  }
+
+  .polaroid {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform .7s cubic-bezier(.4,0,.2,1);
+    border-radius: 2px;
+  }
+
+  .polaroid.flipped { transform: rotateY(180deg); }
+
+  /* Shake animation when first loaded */
+  @keyframes shake-print {
+    0%   { transform: rotate(var(--tilt)) translateY(-6px) scale(.95); opacity:.5; }
+    30%  { transform: rotate(calc(var(--tilt) + 3deg)) translateY(2px) scale(1.02); opacity:1; }
+    55%  { transform: rotate(calc(var(--tilt) - 2deg)) translateY(-1px) scale(.99); }
+    75%  { transform: rotate(calc(var(--tilt) + 1deg)) translateY(0px) scale(1.005); }
+    90%  { transform: rotate(calc(var(--tilt) - .5deg)); }
+    100% { transform: rotate(var(--tilt)); }
+  }
+
+  .polaroid.printing {
+    animation: shake-print .9s cubic-bezier(.34,1.3,.64,1) forwards;
+  }
+
+  /* Front & back */
+  .pol-front, .pol-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 2px;
+  }
+
+  /* Make front position relative for sizing */
+  .pol-front { position: relative; }
+
+  .pol-back {
+    transform: rotateY(180deg);
+    background: #faf6f0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: clamp(.5rem,2vw,.85rem);
+    box-shadow: 0 6px 24px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+  }
+
+  /* Polaroid photo frame */
+  .pol-frame {
+    background: #fff;
+    padding: clamp(4px,1.5vw,7px) clamp(4px,1.5vw,7px) clamp(14px,5vw,22px);
+    box-shadow: 0 6px 24px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.3);
+    transform: rotate(var(--tilt));
+    transition: transform .25s ease, box-shadow .25s ease;
+    position: relative;
+  }
+
+  .polaroid-wrap:active .pol-frame {
+    transform: rotate(var(--tilt)) scale(.96);
+  }
+
+  .pol-photo {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(1.8rem,8vw,3rem);
+    position: relative; overflow: hidden;
+    border-radius: 1px;
+  }
+
+  /* Vintage photo overlay */
+  .pol-photo::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,240,200,.12) 0%, transparent 60%, rgba(180,120,80,.08) 100%);
+    pointer-events: none;
+  }
+
+  .pol-caption {
+    font-size: clamp(7px,2vw,9px);
+    color: var(--muted); text-align: center;
+    margin-top: clamp(3px,1vw,5px);
+    font-weight: 500; letter-spacing: .04em;
+    white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* Push pin */
+  .pin {
+    position: absolute;
+    top: clamp(-6px,-2vw,-4px); left: 50%;
+    transform: translateX(-50%);
+    width: clamp(8px,2.5vw,12px); height: clamp(8px,2.5vw,12px);
+    background: radial-gradient(circle at 35% 35%, #e8c4b0, var(--rose));
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,.35);
+    z-index: 2;
+  }
+  .pin::after {
+    content: '';
+    position: absolute; bottom: -3px; left: 50%;
+    transform: translateX(-50%);
+    width: 2px; height: 5px;
+    background: rgba(0,0,0,.3);
+    border-radius: 1px;
+  }
+
+  /* String from pin */
+  .pol-string {
+    position: absolute;
+    top: clamp(-10px,-3vw,-6px); left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: clamp(10px,3.5vw,16px);
+    background: linear-gradient(to bottom, rgba(255,255,255,.12), rgba(255,255,255,.05));
+    z-index: 1;
+  }
+
+  /* Back content */
+  .back-frame {
+    background: #fff;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: clamp(.4rem,2vw,.75rem);
+    box-shadow: 0 6px 24px rgba(0,0,0,.45);
+    position: relative;
+  }
+
+  .back-frame::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px solid rgba(193,122,111,.12);
+    pointer-events: none;
+  }
+
+  .back-num {
+    font-size: clamp(7px,1.8vw,9px); letter-spacing: .15em;
+    text-transform: uppercase; color: var(--gold);
+    display: block; margin-bottom: clamp(3px,1vw,6px);
+  }
+  .back-emoji { font-size: clamp(1rem,4vw,1.5rem); display: block; margin-bottom: clamp(3px,1vw,5px); }
+  .back-story {
+    font-size: clamp(8px,2.2vw,11px); color: var(--ink);
+    line-height: 1.65; text-align: center;
+    font-weight: 300; font-style: italic;
+  }
+  .back-date {
+    font-size: clamp(7px,1.8vw,9px); color: var(--muted);
+    margin-top: clamp(4px,1.2vw,7px); display: block;
+    letter-spacing: .05em;
+  }
+
+  /* ── MODAL (full story) ── */
+  #modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(15,8,2,.75); backdrop-filter: blur(8px);
+    align-items: flex-end; justify-content: center; padding: 1rem;
+  }
+  #modal-overlay.active { display: flex; }
+
+  .modal-sheet {
+    background: var(--cream);
+    border-radius: 24px 24px 20px 20px;
+    padding: 1.75rem 1.5rem 1.5rem;
+    width: 100%; max-width: 440px;
+    animation: slideup .4s cubic-bezier(.34,1.3,.64,1);
+    position: relative; overflow: hidden;
+  }
+  @keyframes slideup { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .modal-sheet::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top, rgba(232,196,176,.18), transparent 60%);
+    pointer-events: none;
+  }
+
+  .modal-drag { width: 36px; height: 4px; background: var(--blush); border-radius: 2px; margin: 0 auto 1.25rem; }
+  .modal-emoji { font-size: 3rem; display: block; text-align: center; margin-bottom: .75rem; }
+  .modal-num { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); display: block; text-align: center; margin-bottom: .35rem; }
+  .modal-title { font-size: 1rem; font-weight: 700; color: var(--ink); text-align: center; margin-bottom: 1rem; }
+  .modal-story {
+    font-size: 14px; color: var(--ink); line-height: 1.85;
+    font-weight: 300; margin-bottom: 1rem;
+    position: relative; z-index: 1;
+  }
+  .modal-story em { color: var(--rose); font-style: normal; font-weight: 500; }
+  .modal-date { font-size: 11px; color: var(--muted); font-style: italic; display: block; text-align: right; margin-bottom: 1.25rem; }
+  .modal-close {
+    width: 100%; padding: .85rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+    background: var(--rose); color: #fff;
+    box-shadow: 0 4px 14px rgba(193,122,111,.35);
+    position: relative; z-index: 1;
+  }
+  .modal-close:active { background: var(--deep); }
+</style>
+</head>
+<body>
+
+<div class="wall-header">
+  <span class="wall-label">Kenangan Kita</span>
+  <h1 class="wall-title">Polaroid <span>Wall</span> 🤍</h1>
+  <p class="wall-sub">Tap polaroid untuk lihat ceritanya</p>
+</div>
+
+<div class="wall" id="wall"></div>
+
+<!-- Modal -->
+<div id="modal-overlay" onclick="handleOverlay(event)">
+  <div class="modal-sheet">
+    <div class="modal-drag"></div>
+    <span class="modal-emoji" id="m-emoji">📸</span>
+    <span class="modal-num" id="m-num">Momen #1</span>
+    <h3 class="modal-title" id="m-title">...</h3>
+    <p class="modal-story" id="m-story">...</p>
+    <span class="modal-date" id="m-date">...</span>
+    <button class="modal-close" onclick="closeModal()">Tutup 🤍</button>
+  </div>
+</div>
+
+<script>
+const MOMENTS = [
+  {
+    emoji: "🌿",
+    bg: "linear-gradient(135deg,#c8d8b0,#a8c090)",
+    caption: "Ragunan",
+    num: 1,
+    title: "Hari di Ragunan",
+    story: "Kita jalan-jalan ke Ragunan dan ngeliat hewan-hewan bareng. Hal yang kelihatannya biasa aja — tapi ada sesuatu di hari itu yang bikin suasananya beda. Mungkin karena kamu ada di sana.",
+    date: "Suatu hari yang bikin kenangan",
+    tilt: "-3deg"
+  },
+  {
+    emoji: "🏛️",
+    bg: "linear-gradient(135deg,#d4c8a8,#bca888)",
+    caption: "Museum",
+    num: 2,
+    title: "Museum Bareng",
+    story: "Jalan ke museum bareng — tempat yang biasanya sepi jadi berasa lebih hidup waktu kamu ada. Banyak hal yang bisa dibahas, banyak yang bisa diliat, tapi yang paling diinget adalah ngobrolnya.",
+    date: "Di antara banyak koleksi",
+    tilt: "2deg"
+  },
+  {
+    emoji: "🌆",
+    bg: "linear-gradient(135deg,#c8b4a0,#a89080)",
+    caption: "Kota Tua",
+    num: 3,
+    title: "Keliling Kota Tua",
+    story: "Jakarta yang ramai terasa beda waktu kita jalan di Kota Tua. Gedung-gedung tua, jalanan yang penuh cerita, dan kamu di sana. Itu kombinasi yang susah dilupain.",
+    date: "Di tengah Jakarta yang tua",
+    tilt: "-2deg"
+  },
+  {
+    emoji: "🏃",
+    bg: "linear-gradient(135deg,#a8c0b0,#88a090)",
+    caption: "Cijantung",
+    num: 4,
+    title: "Olahraga Bareng",
+    story: "Olahraga bareng di Cijantung — hal yang butuh effort buat berdua. Dan kalau kita bisa lakuin itu bareng, itu artinya lebih dari sekedar jalan-jalan biasa.",
+    date: "Pagi yang semangat",
+    tilt: "3deg"
+  },
+  {
+    emoji: "🌳",
+    bg: "linear-gradient(135deg,#a8c898,#78a870)",
+    caption: "Taman",
+    num: 5,
+    title: "Jalan-Jalan ke Taman",
+    story: "Duduk di taman, angin sepoi-sepoi, suara daun, dan kamu di sebelah. Ga ada yang spesial dari tempatnya — tapi ada yang bikin betah lama-lama di sana. Mungkin karena yang nemenin.",
+    date: "Di bawah pohon yang teduh",
+    tilt: "-1deg"
+  },
+  {
+    emoji: "🌙",
+    bg: "linear-gradient(135deg,#2d2040,#1a1228)",
+    caption: "Pesan Malam",
+    num: 6,
+    title: "Chat Tengah Malam",
+    story: "Ada malam-malam dimana kita ngobrol sampai lupa waktu. Ga ada agenda, ga ada yang penting — cuma dua orang yang nyaman sama satu sama lain. Itu yang paling berasa.",
+    date: "Waktu dunia lagi sepi",
+    tilt: "2deg"
+  },
+  {
+    emoji: "☕",
+    bg: "linear-gradient(135deg,#c8a888,#a88868)",
+    caption: "Kafe Bareng",
+    num: 7,
+    title: "Duduk di Kafe",
+    story: "Duduk di kafe, pesan minuman, ngobrol tentang apapun. Kadang hal yang paling sederhana itu yang paling bikin rindu. Ini salah satunya.",
+    date: "Di sudut kafe favorit",
+    tilt: "-3deg"
+  },
+  {
+    emoji: "🍜",
+    bg: "linear-gradient(135deg,#d4a888,#b48868)",
+    caption: "Makan Bareng",
+    num: 8,
+    title: "Makan di Tempat Favorit",
+    story: "Jajan bareng — hal yang kayaknya kecil tapi selalu jadi bagian yang paling dinantiin dari ketemu. Entah itu makanan yang enak atau emang karena yang nemenin.",
+    date: "Perut kenyang, hati tenang",
+    tilt: "1deg"
+  },
+  {
+    emoji: "💬",
+    bg: "linear-gradient(135deg,#b0b8d0,#8898b0)",
+    caption: "Deep Talk",
+    num: 9,
+    title: "Ngobrol yang Dalam",
+    story: "Ada satu percakapan — entah kapan, entah dimana — yang bikin kita berdua jadi lebih terbuka satu sama lain. Habis itu, semuanya berasa beda.",
+    date: "Waktu kata-kata mengalir sendiri",
+    tilt: "-2deg"
+  },
+  {
+    emoji: "🎬",
+    bg: "linear-gradient(135deg,#282028,#181018)",
+    caption: "Nonton Bareng",
+    num: 10,
+    title: "Nonton Bareng",
+    story: "Nonton sesuatu bareng — film, series, apapun. Yang diinget bukan filmnya, tapi reaksi satu sama lain. Tertawa di part yang sama, atau satu orang takut dan yang lain ketawa.",
+    date: "Di depan layar bareng kamu",
+    tilt: "3deg"
+  },
+  {
+    emoji: "🌸",
+    bg: "linear-gradient(135deg,#e8c0c0,#c8a0a0)",
+    caption: "Momen Kecil",
+    num: 11,
+    title: "Hal-Hal Kecil yang Diinget",
+    story: "Bukan momen besar. Bukan hari yang spesial. Tapi ada hal-hal kecil — cara kamu ketawa, cara kamu cerita sesuatu, cara kamu ada — yang nyangkut dan ga pergi-pergi.",
+    date: "Kapanpun, dimanapun",
+    tilt: "-1deg"
+  },
+  {
+    emoji: "🤍",
+    bg: "linear-gradient(135deg,#f0e8e0,#d8c8b8)",
+    caption: "Hari Ini",
+    num: 12,
+    title: "Sekarang",
+    story: "Ga ada kenangan besar yang bisa diceritain. Tapi ada satu hal yang pasti: setiap hari bareng kamu itu layak jadi polaroid. Termasuk hari ini.",
+    date: "Selalu · Selamanya",
+    tilt: "2deg"
+  },
+];
+
+let printedCount = 0;
+
+function buildWall() {
+  const wall = document.getElementById('wall');
+  MOMENTS.forEach((m, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'polaroid-wrap';
+
+    wrap.innerHTML = `
+      <div class="pol-string"></div>
+      <div class="pin"></div>
+      <div class="polaroid" id="pol-${i}" style="--tilt:${m.tilt}">
+        <!-- FRONT -->
+        <div class="pol-front">
+          <div class="pol-frame" style="--tilt:${m.tilt}">
+            <div class="pol-photo" style="background:${m.bg}">
+              ${m.emoji}
+            </div>
+            <p class="pol-caption">${m.caption}</p>
+          </div>
+        </div>
+        <!-- BACK -->
+        <div class="pol-back">
+          <div class="back-frame">
+            <span class="back-num">Momen #${m.num}</span>
+            <span class="back-emoji">${m.emoji}</span>
+            <p class="back-story">${m.story.substring(0, 60)}...</p>
+            <span class="back-date">${m.date}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    wrap.addEventListener('click', () => onTap(i, m));
+    wall.appendChild(wrap);
+
+    // Staggered print animation
+    setTimeout(() => {
+      const pol = document.getElementById(`pol-${i}`);
+      pol.classList.add('printing');
+      pol.addEventListener('animationend', () => pol.classList.remove('printing'), { once: true });
+    }, i * 80);
+  });
+}
+
+function onTap(i, m) {
+  const pol = document.getElementById(`pol-${i}`);
+
+  // If not yet flipped — flip and show shake
+  if (!pol.classList.contains('flipped')) {
+    pol.classList.add('flipped');
+    // Brief shake after flip
+    setTimeout(() => {
+      pol.classList.add('printing');
+      pol.addEventListener('animationend', () => pol.classList.remove('printing'), { once: true });
+    }, 500);
+  }
+
+  // Show modal
+  setTimeout(() => openModal(m), pol.classList.contains('flipped') ? 200 : 700);
+}
+
+function openModal(m) {
+  document.getElementById('m-emoji').textContent = m.emoji;
+  document.getElementById('m-num').textContent = `Momen #${m.num}`;
+  document.getElementById('m-title').textContent = m.title;
+  document.getElementById('m-story').innerHTML = m.story.replace(/\b(kamu|kita|Razan|Dara)\b/g, '<em>$1</em>');
+  document.getElementById('m-date').textContent = m.date;
+  document.getElementById('modal-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleOverlay(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+buildWall();
+</script>
+</body>
+</html>
