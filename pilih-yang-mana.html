@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pilih yang Mana? — Untuk Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+    --sage: #b5c4b1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 1.25rem 4rem; position: relative; z-index: 1; }
+
+  /* ── SCREEN ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO ── */
+  #screen-intro { text-align: center; padding: 3rem 0; }
+  .intro-emoji { font-size: 3.5rem; display: block; margin-bottom: 1.25rem; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .intro-label { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .5rem; }
+  .intro-title { font-size: clamp(1.5rem,6vw,2rem); font-weight: 700; color: var(--ink); margin-bottom: .4rem; }
+  .intro-title span { color: var(--rose); }
+  .intro-sub { font-size: 13px; color: var(--muted); line-height: 1.7; max-width: 320px; margin: .5rem auto 2rem; }
+  .intro-info {
+    display: flex; justify-content: center; gap: 1.5rem;
+    background: #fff; border: 1px solid rgba(193,122,111,.15);
+    border-radius: 14px; padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(193,122,111,.06);
+  }
+  .info-item { text-align: center; }
+  .info-num { font-size: 1.4rem; font-weight: 700; color: var(--rose); display: block; }
+  .info-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .start-btn {
+    width: 100%; padding: .95rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700;
+    background: var(--rose); color: #fff;
+    box-shadow: 0 4px 18px rgba(193,122,111,.4);
+    transition: all .2s;
+  }
+  .start-btn:active { transform: scale(.97); background: var(--deep); }
+
+  /* ── GAME ── */
+  #screen-game { padding-top: 1.5rem; }
+
+  .game-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+  }
+  .q-label { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+  .q-counter { font-size: 12px; color: var(--muted); }
+  .q-counter span { color: var(--rose); font-weight: 700; }
+
+  .prog-bar { width: 100%; height: 4px; background: var(--blush); border-radius: 2px; overflow: hidden; margin-bottom: 1.5rem; }
+  .prog-fill { height: 100%; background: linear-gradient(to right, var(--blush), var(--rose)); border-radius: 2px; transition: width .5s ease; }
+
+  /* Question card */
+  .q-card {
+    background: #fff; border: 1px solid rgba(193,122,111,.15);
+    border-radius: 20px; padding: 1.5rem 1.5rem 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 20px rgba(193,122,111,.08);
+    position: relative; overflow: hidden;
+  }
+  .q-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(232,196,176,.12), transparent 60%);
+    pointer-events: none;
+  }
+  .q-scenario {
+    font-size: clamp(12px,3.2vw,14px); color: var(--muted);
+    line-height: 1.65; margin-bottom: 1.1rem; font-style: italic;
+  }
+  .q-text {
+    font-size: clamp(14px,4vw,17px); font-weight: 600; color: var(--ink);
+    line-height: 1.45;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: .75rem; }
+
+  .option-btn {
+    width: 100%; padding: 1rem 1.25rem;
+    border: 1.5px solid var(--blush);
+    border-radius: 16px; background: #fff;
+    cursor: pointer; font-family: 'Poppins', sans-serif;
+    font-size: clamp(13px,3.5vw,15px); font-weight: 500;
+    color: var(--ink); text-align: left;
+    display: flex; align-items: center; gap: .75rem;
+    transition: all .15s;
+    line-height: 1.45;
+  }
+  .option-btn:active { transform: scale(.97); }
+  .option-btn.selected-a { background: rgba(193,122,111,.1); border-color: var(--rose); color: var(--deep); }
+  .option-btn.selected-b { background: rgba(201,169,110,.1); border-color: var(--gold); color: var(--deep); }
+  .option-emoji { font-size: 1.4rem; flex-shrink: 0; }
+
+  /* ── RESULT ── */
+  #screen-result { padding-top: 1.5rem; }
+
+  .result-header { text-align: center; margin-bottom: 1.5rem; }
+  .result-emoji { font-size: 4rem; display: block; margin-bottom: .75rem; animation: float 3s ease-in-out infinite; }
+  .result-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .35rem; }
+  .result-title { font-size: clamp(1.3rem,5vw,1.8rem); font-weight: 700; color: var(--ink); }
+  .result-title span { color: var(--rose); }
+
+  .result-card {
+    background: #fff; border: 1px solid rgba(193,122,111,.15);
+    border-radius: 20px; padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 20px rgba(193,122,111,.08);
+    position: relative; overflow: hidden;
+  }
+  .result-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top, rgba(232,196,176,.15), transparent 60%);
+    pointer-events: none;
+  }
+  .result-personality {
+    font-size: clamp(1rem,4vw,1.25rem); font-weight: 700;
+    color: var(--rose); margin-bottom: .5rem;
+  }
+  .result-desc {
+    font-size: clamp(13px,3.3vw,14px); color: var(--ink);
+    line-height: 1.8; font-weight: 300;
+    position: relative; z-index: 1;
+  }
+  .result-desc strong { color: var(--rose); font-weight: 600; }
+
+  .result-traits {
+    display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem;
+    position: relative; z-index: 1;
+  }
+  .trait {
+    background: var(--warm); border: 1px solid var(--blush);
+    border-radius: 50px; padding: .3rem .85rem;
+    font-size: 11px; font-weight: 500; color: var(--muted);
+  }
+
+  .result-razan {
+    background: var(--warm); border: 1px solid var(--blush);
+    border-radius: 14px; padding: 1.1rem 1.25rem;
+    margin-bottom: 1rem; font-size: 13px; color: var(--ink);
+    line-height: 1.75;
+  }
+  .result-razan-label {
+    font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--gold); display: block; margin-bottom: .4rem;
+  }
+
+  .result-answers {
+    margin-bottom: 1.25rem;
+  }
+  .result-answers-title {
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: .6rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .result-answers-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--blush), transparent); }
+
+  .answer-row {
+    display: flex; align-items: flex-start; gap: .6rem;
+    padding: .5rem 0; border-bottom: 1px solid rgba(193,122,111,.07);
+    font-size: 12px; color: var(--muted);
+  }
+  .answer-row:last-child { border: none; }
+  .answer-q { flex: 1; line-height: 1.5; }
+  .answer-choice { font-weight: 600; color: var(--rose); flex-shrink: 0; font-size: 11px; }
+
+  .restart-btn {
+    width: 100%; padding: .9rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+    background: var(--rose); color: #fff;
+    box-shadow: 0 4px 16px rgba(193,122,111,.35); transition: all .2s;
+    margin-bottom: .75rem;
+  }
+  .restart-btn:active { background: var(--deep); transform: scale(.97); }
+
+  /* Confetti */
+  .cp { position: fixed; border-radius: 2px; animation: cf linear forwards; pointer-events: none; z-index: 9999; }
+  @keyframes cf { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <span class="intro-emoji">🤔</span>
+    <span class="intro-label">Khusus untuk Dara</span>
+    <h1 class="intro-title">Pilih yang <span>Mana?</span></h1>
+    <p class="intro-sub">15 skenario lucu sehari-hari. Pilih salah satu — ga ada jawaban yang salah, tapi ada kesimpulannya di akhir 😄</p>
+    <div class="intro-info">
+      <div class="info-item"><span class="info-num">15</span><span class="info-label">Skenario</span></div>
+      <div class="info-item"><span class="info-num">~5</span><span class="info-label">Menit</span></div>
+      <div class="info-item"><span class="info-num">1</span><span class="info-label">Kepribadian</span></div>
+    </div>
+    <button class="start-btn" onclick="startGame()">Mulai Pilih! →</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="game-top">
+      <span class="q-label">Pilih yang Mana</span>
+      <span class="q-counter"><span id="q-current">1</span> / 15</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="q-card">
+      <p class="q-scenario" id="q-scenario"></p>
+      <p class="q-text" id="q-text"></p>
+    </div>
+    <div class="options">
+      <button class="option-btn" id="opt-a" onclick="pickOption('A')">
+        <span class="option-emoji" id="emoji-a"></span>
+        <span id="text-a"></span>
+      </button>
+      <button class="option-btn" id="opt-b" onclick="pickOption('B')">
+        <span class="option-emoji" id="emoji-b"></span>
+        <span id="text-b"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="result-header">
+      <span class="result-emoji" id="res-emoji">🌸</span>
+      <span class="result-label">Kepribadian kamu</span>
+      <h2 class="result-title" id="res-title">...</h2>
+    </div>
+
+    <div class="result-card">
+      <p class="result-personality" id="res-personality">...</p>
+      <p class="result-desc" id="res-desc">...</p>
+      <div class="result-traits" id="res-traits"></div>
+    </div>
+
+    <div class="result-razan">
+      <span class="result-razan-label">Kata Razan tentang ini</span>
+      <span id="res-razan">...</span>
+    </div>
+
+    <div class="result-answers">
+      <p class="result-answers-title">Pilihan kamu tadi</p>
+      <div id="answers-list"></div>
+    </div>
+
+    <button class="restart-btn" onclick="restartGame()">Main Lagi 🔄</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    scenario: "Lagi jalan bareng dan perut udah mulai bunyi...",
+    question: "Mending makan dulu atau jalan-jalan dulu baru makan?",
+    a: { emoji: "🍜", text: "Makan dulu! Perut kenyang dulu baru bisa happy" },
+    b: { emoji: "🗺️", text: "Jalan-jalan dulu, nanti kalau udah lapar banget baru makan" },
+    scoreA: "impulsif", scoreB: "tahan"
+  },
+  {
+    scenario: "Razan baru ngomong sesuatu yang ngeselin...",
+    question: "Langsung bilang atau diem dulu sambil nunggu dia sadar sendiri?",
+    a: { emoji: "💬", text: "Langsung bilang, daripada disimpen sendiri" },
+    b: { emoji: "😶", text: "Diem dulu, lihat dulu dia bakal minta maaf ga" },
+    scoreA: "terbuka", scoreB: "tahan"
+  },
+  {
+    scenario: "Hari Minggu, ga ada rencana apapun...",
+    question: "Keluar jalan-jalan atau rebahan di rumah aja?",
+    a: { emoji: "🌳", text: "Keluar! Sayang banget kalau hari libur dibuang buat tidur" },
+    b: { emoji: "🛋️", text: "Rebahan, hari libur = hari istirahat, titik" },
+    scoreA: "aktif", scoreB: "santai"
+  },
+  {
+    scenario: "Lagi di mall, udah capek tapi Razan ngajak lanjut...",
+    question: "Bilang capek atau lanjut terus biar ga bikin dia kecewa?",
+    a: { emoji: "😮‍💨", text: "Bilang capek, harus jujur soal kondisi sendiri" },
+    b: { emoji: "💪", text: "Tahan dulu, bentar lagi juga selesai" },
+    scoreA: "terbuka", scoreB: "tahan"
+  },
+  {
+    scenario: "Mau pesan makanan tapi bingung mau apa...",
+    question: "Pesan yang biasa-biasa aman atau coba menu baru yang belum pernah?",
+    a: { emoji: "⭐", text: "Menu favorit yang udah pasti enak, buat apa coba-coba" },
+    b: { emoji: "🎲", text: "Coba yang baru! Hidup itu petualangan" },
+    scoreA: "konsisten", scoreB: "impulsif"
+  },
+  {
+    scenario: "Lagi overthinking soal sesuatu jam 11 malam...",
+    question: "Langsung cerita ke Razan atau coba selesaiin sendiri dulu?",
+    a: { emoji: "📱", text: "Langsung chat Razan, dia harus tau" },
+    b: { emoji: "🌙", text: "Coba atasin sendiri dulu, kalau ga bisa baru cerita" },
+    scoreA: "terbuka", scoreB: "tahan"
+  },
+  {
+    scenario: "Razan ngajak foto bareng di tempat yang bagus...",
+    question: "Langsung mau atau minta dandan dulu sebentar?",
+    a: { emoji: "📸", text: "Langsung aja, foto candid lebih natural" },
+    b: { emoji: "💄", text: "Bentar, biar foto-nya bagus dan ga nyesel" },
+    scoreA: "santai", scoreB: "konsisten"
+  },
+  {
+    scenario: "Lagi di Ragunan, udah keliling setengah kebun...",
+    question: "Lanjut ke semua zona atau pulang lebih awal karena udah puas?",
+    a: { emoji: "🦁", text: "Lanjut semua zona, udah jauh-jauh masa pulang cepet" },
+    b: { emoji: "🏠", text: "Udah cukup, yang penting udah happy" },
+    scoreA: "aktif", scoreB: "santai"
+  },
+  {
+    scenario: "Razan salah ngomong dan udah minta maaf...",
+    question: "Langsung maafin atau butuh waktu dulu buat cooling down?",
+    a: { emoji: "🤝", text: "Langsung maafin, ga suka nyimpen dendam" },
+    b: { emoji: "⏳", text: "Butuh waktu dulu, biar perasaannya settle dulu" },
+    scoreA: "terbuka", scoreB: "tahan"
+  },
+  {
+    scenario: "Ada film baru yang mau ditonton bareng...",
+    question: "Nonton sekarang spontan atau jadwalin dulu biar kondisinya pas?",
+    a: { emoji: "🎬", text: "Sekarang aja, mood nonton kan ga bisa diprediksi" },
+    b: { emoji: "📅", text: "Jadwalin dulu, biar lebih nyaman dan ga terburu-buru" },
+    scoreA: "impulsif", scoreB: "konsisten"
+  },
+  {
+    scenario: "Lagi jalan dan nemuin kafe yang keliatan menarik...",
+    question: "Langsung masuk coba atau save dulu buat lain kali?",
+    a: { emoji: "☕", text: "Masuk sekarang! Entaran lupa nanti" },
+    b: { emoji: "🔖", text: "Save dulu, biar bisa riset dulu sebelum datang" },
+    scoreA: "impulsif", scoreB: "konsisten"
+  },
+  {
+    scenario: "Habis jalan seharian dan Razan nanya gimana perasaan kamu...",
+    question: "Cerita semua jujur atau bilang 'seru kok' biar ga kepanjangan?",
+    a: { emoji: "💬", text: "Cerita semuanya, termasuk bagian yang kurang enak" },
+    b: { emoji: "😊", text: "Bilang seru aja dulu, detailnya nanti" },
+    scoreA: "terbuka", scoreB: "santai"
+  },
+  {
+    scenario: "Razan tiba-tiba ngajakin olahraga pagi ini...",
+    question: "Langsung oke atau nego jadwalnya dulu?",
+    a: { emoji: "🏃", text: "Oke! Kapan lagi ada yang ajak olahraga" },
+    b: { emoji: "🛌", text: "Boleh tapi besok aja, sekarang belum mood" },
+    scoreA: "aktif", scoreB: "santai"
+  },
+  {
+    scenario: "Ada yang nanya pendapat soal sesuatu dan kamu punya pendapat kuat...",
+    question: "Langsung kasih pendapat jujur atau cari cara yang lebih halus dulu?",
+    a: { emoji: "🗣️", text: "Langsung jujur, daripada kasih jawaban yang ga berguna" },
+    b: { emoji: "🤔", text: "Pilih kata-kata dulu biar ga nyinggung" },
+    scoreA: "terbuka", scoreB: "tahan"
+  },
+  {
+    scenario: "Ini pertanyaan terakhir...",
+    question: "Kalau bisa dapet satu hal dari Razan sekarang, kamu pilih yang mana?",
+    a: { emoji: "🫂", text: "Pelukan panjang tanpa kata-kata" },
+    b: { emoji: "💬", text: "Kata-kata manis yang bikin hati tenang" },
+    scoreA: "fisik", scoreB: "verbal"
+  }
+];
+
+const PERSONALITIES = {
+  terbuka: {
+    emoji: "💬",
+    title: "Si Jujur Apa Adanya",
+    personality: "Tipe yang langsung ngomong kalau ada sesuatu",
+    desc: "Kamu adalah tipe orang yang ga suka nyimpen-nyimpen perasaan. Kalau ada yang mengganjal, langsung dikeluarin — bukan karena ga sabaran, tapi karena kamu percaya <strong>kejujuran lebih baik dari drama panjang</strong>. Kamu ngehargain komunikasi yang terbuka dan ga suka buang waktu untuk hal-hal yang bisa diselesaikan dengan ngobrol.",
+    traits: ["Jujur", "Langsung to the point", "Ga suka drama", "Komunikatif"],
+    razan: "Dan ini yang aku suka dari kamu — aku ga perlu nebak-nebak kalau kamu lagi ada apa. Kamu bilang langsung, dan itu bikin semuanya jauh lebih mudah buat kita. 🤍"
+  },
+  aktif: {
+    emoji: "🌳",
+    title: "Si Suka Jalan-Jalan",
+    personality: "Tipe yang ga bisa diem kalau ada kesempatan keluar",
+    desc: "Hari libur buat kamu bukan berarti tidur seharian — itu berarti ada waktu buat <strong>eksplorasi hal-hal baru</strong>. Kamu suka bergerak, suka ketemu tempat-tempat baru, dan paling semangat waktu ada rencana jalan. Rebahan itu untuk malam hari setelah hari yang seru.",
+    traits: ["Penuh semangat", "Suka eksplorasi", "Ga bisa diem", "Penasaran"],
+    razan: "Makanya jalan bareng kamu selalu seru — kamu yang paling bersemangat nyoba tempat baru dan paling lebih banyak idenya. Aku yang ikutin kamu aja. 😄"
+  },
+  santai: {
+    emoji: "🛋️",
+    title: "Si Santuy Sejati",
+    personality: "Tipe yang tau kapan harus gas dan kapan harus istirahat",
+    desc: "Kamu punya kebijaksanaan yang jarang dimiliki orang — kamu tau kapan harus <strong>istirahat tanpa merasa bersalah</strong>. Rebahan bukan kelemahan, itu strategi. Kamu ga perlu validasi dari produktivitas yang ga ada habisnya. Kalau udah cukup, ya udah cukup.",
+    traits: ["Tenang", "Ga gampang stress", "Bijak", "Efisien"],
+    razan: "Jujur, kamu yang ngajarin aku buat ga selalu nge-push diri sendiri. Kadang aku lupa kalau istirahat itu juga penting, dan kamu yang selalu ingetin itu. 🤍"
+  },
+  tahan: {
+    emoji: "💪",
+    title: "Si Tahan Banting",
+    personality: "Tipe yang nyimpen dulu sebelum ngomong",
+    desc: "Kamu bukan tipe yang langsung meledak — kamu <strong>observe dulu, proses dulu, baru bereaksi</strong>. Ini bukan berarti kamu ga punya perasaan, justru sebaliknya: kamu ngehargain perasaan sendiri terlalu dalam sampai ga mau sembarangan keluarin. Kamu milih battle yang worth it.",
+    traits: ["Sabar", "Deep thinker", "Selektif", "Kuat"],
+    razan: "Kamu jarang ngeluh, jarang langsung meledak — dan itu bikin aku sering salah sangka kamu baik-baik aja. Makanya aku selalu coba peka, karena diamnya kamu bukan berarti ga ada apa-apa. 🤍"
+  },
+  impulsif: {
+    emoji: "⚡",
+    title: "Si Spontan",
+    personality: "Tipe yang hidup di momen ini, bukan besok",
+    desc: "Planning? Overrated. Kamu percaya bahwa <strong>hal-hal terbaik terjadi tanpa rencana</strong>. Kamu spontan, berani coba hal baru, dan ga terlalu takut sama konsekuensi. Hidup terlalu singkat buat selalu dipikirin dulu sebelum dilakuin.",
+    traits: ["Spontan", "Berani", "Fun", "Hidup di momen"],
+    razan: "Ini yang bikin kamu seru diajak kemana-mana — kamu ga perlu di-plan semua dulu. Tiba-tiba bisa langsung jadi dan itu selalu jadi momen yang paling berkesan. 😄"
+  },
+  konsisten: {
+    emoji: "📅",
+    title: "Si Punya Standar",
+    personality: "Tipe yang tau apa yang dia mau dan pegang itu",
+    desc: "Kamu bukan orang yang gampang terpengaruh tren atau pressure dari luar. Kamu punya <strong>standar sendiri dan kamu pegang itu</strong>. Bukan karena kamu kaku — tapi karena kamu tau apa yang works buat kamu dan kamu ga mau buang waktu untuk hal yang belum terbukti.",
+    traits: ["Konsisten", "Berprinsip", "Reliable", "Tau diri"],
+    razan: "Kamu ga gampang berubah-ubah cuma karena orang lain bilang A atau B. Kamu tetap jadi kamu — dan itu salah satu hal yang paling aku respect dari kamu. 🤍"
+  }
+};
+
+let current = 0;
+let answers = [];
+let scores = {};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startGame() {
+  current = 0;
+  answers = [];
+  scores = {};
+  showScreen('screen-game');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  document.getElementById('q-current').textContent = current + 1;
+  document.getElementById('prog-fill').style.width = ((current / QUESTIONS.length) * 100) + '%';
+  document.getElementById('q-scenario').textContent = q.scenario;
+  document.getElementById('q-text').textContent = q.question;
+  document.getElementById('emoji-a').textContent = q.a.emoji;
+  document.getElementById('text-a').textContent = q.a.text;
+  document.getElementById('emoji-b').textContent = q.b.emoji;
+  document.getElementById('text-b').textContent = q.b.text;
+  document.getElementById('opt-a').className = 'option-btn';
+  document.getElementById('opt-b').className = 'option-btn';
+  document.getElementById('opt-a').disabled = false;
+  document.getElementById('opt-b').disabled = false;
+}
+
+function pickOption(choice) {
+  const q = QUESTIONS[current];
+  const score = choice === 'A' ? q.scoreA : q.scoreB;
+  answers.push({ q: q.question, choice, text: choice === 'A' ? q.a.text : q.b.text });
+  scores[score] = (scores[score] || 0) + 1;
+
+  const btn = document.getElementById(`opt-${choice.toLowerCase()}`);
+  btn.className = `option-btn selected-${choice.toLowerCase()}`;
+  document.getElementById(`opt-${choice === 'A' ? 'b' : 'a'}`).disabled = true;
+
+  setTimeout(() => {
+    current++;
+    if (current >= QUESTIONS.length) {
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  }, 350);
+}
+
+function showResult() {
+  // Find dominant personality
+  let top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const p = PERSONALITIES[top];
+
+  document.getElementById('res-emoji').textContent = p.emoji;
+  document.getElementById('res-title').innerHTML = p.title.replace(/(.+)(Si )(.+)/, '$2<span>$3</span>');
+  document.getElementById('res-personality').textContent = p.personality;
+  document.getElementById('res-desc').innerHTML = p.desc;
+  document.getElementById('res-razan').textContent = p.razan;
+
+  const traits = document.getElementById('res-traits');
+  traits.innerHTML = p.traits.map(t => `<span class="trait">${t}</span>`).join('');
+
+  const list = document.getElementById('answers-list');
+  list.innerHTML = answers.map((a, i) =>
+    `<div class="answer-row">
+      <span class="answer-q">${i+1}. ${a.q}</span>
+      <span class="answer-choice">${a.choice === 'A' ? QUESTIONS[i].a.emoji : QUESTIONS[i].b.emoji}</span>
+    </div>`
+  ).join('');
+
+  showScreen('screen-result');
+  confetti();
+}
+
+function restartGame() {
+  showScreen('screen-intro');
+}
+
+function confetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for (let i = 0; i < 60; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 35);
+}
+</script>
+</body>
+</html>
