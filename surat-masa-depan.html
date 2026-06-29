@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Surat dari Masa Depan — Untuk Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm: #f5ede0;
+    --blush: #e8c4b0;
+    --rose: #c17a6f;
+    --deep: #7a3f35;
+    --ink: #2d1f1a;
+    --gold: #c9a96e;
+    --muted: #9a8070;
+    --sage: #b5c4b1;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--cream);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232,196,176,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(193,122,111,0.15) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page { max-width: 480px; margin: 0 auto; padding: 0 1.25rem 5rem; position: relative; z-index: 1; }
+
+  /* ── SCREEN ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO ── */
+  #screen-intro { text-align: center; padding: 3rem 0 2rem; }
+
+  .intro-stamp {
+    display: inline-block;
+    border: 2px solid var(--blush);
+    border-radius: 4px;
+    padding: .4rem 1rem;
+    font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .intro-stamp::before {
+    content: '✉';
+    position: absolute; top: -12px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.4rem;
+  }
+
+  .intro-year {
+    font-size: clamp(3rem,15vw,5rem);
+    font-weight: 700; color: var(--ink);
+    line-height: 1; margin-bottom: .25rem;
+    opacity: .08;
+    position: relative; z-index: 0;
+  }
+
+  .intro-title-wrap {
+    margin-top: -2.5rem;
+    position: relative; z-index: 1;
+    margin-bottom: 1rem;
+  }
+  .intro-label { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: .4rem; }
+  .intro-title { font-size: clamp(1.5rem,6vw,2rem); font-weight: 700; color: var(--ink); }
+  .intro-title span { color: var(--rose); }
+  .intro-sub { font-size: 13px; color: var(--muted); line-height: 1.75; max-width: 320px; margin: .5rem auto 2rem; }
+
+  /* Envelope */
+  .envelope-wrap {
+    width: clamp(180px,55vw,220px);
+    margin: 0 auto 2rem;
+    cursor: pointer;
+    position: relative;
+  }
+  .envelope {
+    background: var(--warm);
+    border: 2px solid var(--blush);
+    border-radius: 4px;
+    padding: 2rem 1.5rem 1.5rem;
+    position: relative;
+    transition: transform .2s;
+    box-shadow: 0 6px 24px rgba(193,122,111,.15);
+  }
+  .envelope:active { transform: scale(.97); }
+  .envelope-flap {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 60%; overflow: hidden;
+    pointer-events: none;
+  }
+  .envelope-flap::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    border-left: 110px solid transparent;
+    border-right: 110px solid transparent;
+    border-top: 75px solid var(--blush);
+    opacity: .5;
+  }
+  .envelope-body { text-align: center; padding-top: 1rem; }
+  .envelope-to { font-size: 11px; color: var(--muted); display: block; margin-bottom: .25rem; }
+  .envelope-name { font-size: 16px; font-weight: 700; color: var(--rose); }
+  .envelope-from { font-size: 10px; color: var(--blush); margin-top: .4rem; display: block; }
+
+  .envelope-hint {
+    font-size: 11px; color: var(--muted);
+    margin-top: .75rem; animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+  .open-btn {
+    width: 100%; padding: .9rem; border-radius: 50px; border: none; cursor: pointer;
+    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+    background: var(--rose); color: #fff;
+    box-shadow: 0 4px 16px rgba(193,122,111,.35); transition: all .2s;
+  }
+  .open-btn:active { background: var(--deep); transform: scale(.97); }
+
+  /* ── LETTER ── */
+  #screen-letter { padding-top: 1.5rem; }
+
+  .letter-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.25rem;
+  }
+  .letter-date {
+    font-size: 11px; color: var(--muted); font-style: italic;
+  }
+  .letter-tag {
+    font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
+    background: var(--warm); border: 1px solid var(--blush);
+    border-radius: 50px; padding: 3px 10px; color: var(--muted);
+  }
+
+  /* Paper */
+  .letter-paper {
+    background: #fff;
+    border: 1px solid rgba(193,122,111,.12);
+    border-radius: 4px;
+    padding: 0;
+    box-shadow: 0 4px 24px rgba(45,31,26,.08), 0 1px 4px rgba(45,31,26,.06);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Red margin line */
+  .letter-paper::before {
+    content: '';
+    position: absolute; top: 0; bottom: 0; left: 52px;
+    width: 1px; background: rgba(193,122,111,.2);
+    pointer-events: none;
+  }
+
+  .letter-inner { padding: 1.5rem 1.5rem 1.5rem 1.75rem; }
+
+  .letter-salutation {
+    font-size: 15px; font-weight: 600; color: var(--rose);
+    margin-bottom: 1.25rem; display: block;
+  }
+
+  .letter-body { }
+
+  .letter-para {
+    font-size: clamp(13px,3.5vw,14px);
+    color: var(--ink); line-height: 2;
+    margin-bottom: 1.25rem;
+    font-weight: 300;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .letter-para.visible { opacity: 1; transform: none; }
+  .letter-para strong { color: var(--rose); font-weight: 500; }
+  .letter-para em { font-style: italic; color: var(--muted); }
+
+  /* Lined paper effect */
+  .letter-para {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(193,122,111,.07);
+  }
+  .letter-para:last-of-type { border: none; }
+
+  .letter-sign {
+    margin-top: 1.5rem; padding-top: 1.25rem;
+    border-top: 1px solid rgba(193,122,111,.12);
+    opacity: 0; transform: translateY(12px);
+    transition: opacity .6s ease .8s, transform .6s ease .8s;
+  }
+  .letter-sign.visible { opacity: 1; transform: none; }
+  .letter-sign-from {
+    font-size: 12px; color: var(--muted); font-style: italic;
+    display: block; margin-bottom: .4rem;
+  }
+  .letter-sign-name {
+    font-size: 18px; font-weight: 700; color: var(--rose);
+    display: block; margin-bottom: .15rem;
+  }
+  .letter-sign-year {
+    font-size: 11px; color: var(--muted);
+    display: block;
+  }
+
+  /* PS */
+  .letter-ps {
+    margin-top: 1.25rem; padding: 1rem;
+    background: var(--warm); border-left: 3px solid var(--blush);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px; color: var(--muted); line-height: 1.7;
+    font-style: italic;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity .6s ease 1s, transform .6s ease 1s;
+  }
+  .letter-ps.visible { opacity: 1; transform: none; }
+  .letter-ps strong { color: var(--rose); font-style: normal; font-weight: 600; }
+
+  /* Footer */
+  .letter-footer {
+    text-align: center; margin-top: 2.5rem;
+    font-size: 11px; color: var(--muted); line-height: 2;
+    opacity: 0; transition: opacity .8s ease 1.2s;
+  }
+  .letter-footer.visible { opacity: 1; }
+  .letter-footer span { color: var(--rose); }
+
+  .back-btn {
+    display: block; width: 100%; padding: .85rem;
+    border-radius: 50px; border: 1.5px solid var(--blush);
+    background: transparent; color: var(--muted);
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; margin-top: 1.5rem; transition: all .2s;
+    text-align: center;
+  }
+  .back-btn:active { background: var(--warm); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+
+    <div class="intro-stamp">Surat Khusus</div>
+    <div class="intro-year">2031</div>
+    <div class="intro-title-wrap">
+      <span class="intro-label">Dari Razan, 5 Tahun ke Depan</span>
+      <h1 class="intro-title">Surat dari <span>Masa Depan</span></h1>
+    </div>
+    <p class="intro-sub">Kalau kamu baca ini di 2026, Razan di 2031 sudah menulis sesuatu khusus buat kamu. Buka amplopnya.</p>
+
+    <div class="envelope-wrap" onclick="openLetter()">
+      <div class="envelope">
+        <div class="envelope-flap"></div>
+        <div class="envelope-body">
+          <span class="envelope-to">Untuk</span>
+          <span class="envelope-name">Dara Syifa Aulia</span>
+          <span class="envelope-from">dari Razan · 2031</span>
+        </div>
+      </div>
+      <p class="envelope-hint">✉ Tap untuk buka</p>
+    </div>
+
+    <button class="open-btn" onclick="openLetter()">Buka Surat Ini →</button>
+
+  </div>
+
+  <!-- LETTER -->
+  <div id="screen-letter" class="screen">
+
+    <div class="letter-meta">
+      <span class="letter-date">Suatu hari di tahun 2031</span>
+      <span class="letter-tag">dari masa depan</span>
+    </div>
+
+    <div class="letter-paper">
+      <div class="letter-inner">
+        <span class="letter-salutation">Dara yang aku sayang,</span>
+
+        <div class="letter-body">
+
+          <p class="letter-para" id="p1">
+            Aku nulis surat ini dari 2031. Kamu lagi baca ini di 2026, dan aku mau bilang sesuatu yang mungkin belum sempat aku bilang waktu itu — atau udah aku bilang, tapi aku mau bilang lagi, karena beberapa hal memang layak diulang.
+          </p>
+
+          <p class="letter-para" id="p2">
+            Lima tahun itu terasa cepat kalau diingat-ingat. Tapi waktu ngejalanin, ada banyak momen yang pelan banget — momen berantem yang rasanya berat, momen diam yang bikin bingung, momen dimana kita berdua ngerasa jauh padahal lagi ada di tempat yang sama. Dan kamu tau apa? Kita lewatin semua itu. <strong>Bareng.</strong>
+          </p>
+
+          <p class="letter-para" id="p3">
+            Aku masih inget kamu — versi kamu di 2026. Yang suka ngomong langsung kalau ada yang mengganjal. Yang diem tapi matanya bilang banyak hal. Yang paling semangat waktu diajak jalan-jalan ke tempat baru, tapi juga yang paling pertama bilang udah capek. Yang tertawa asli — bukan yang dibuat-buat. <strong>Kamu.</strong>
+          </p>
+
+          <p class="letter-para" id="p4">
+            Lima tahun ke depan, kamu akan melewati banyak hal. Ada yang menyenangkan, ada yang berat, ada yang bikin kamu ngerasa kurang, ada yang bikin kamu ngerasa lebih dari cukup. Dan di semua itu — aku ada. Bukan karena aku harus, tapi karena aku <em>mau.</em> Itu yang aku ingin kamu pegang.
+          </p>
+
+          <p class="letter-para" id="p5">
+            Kamu yang baca ini sekarang mungkin lagi overthinking tentang sesuatu. Mungkin lagi ngerasa banyak hal yang belum pasti. Mungkin lagi nanya ke diri sendiri, <em>"ini beneran bisa berhasil?"</em> Dan jawaban dari aku yang udah ngelewatin lima tahun ini adalah — <strong>bisa.</strong> Bukan karena sempurna, tapi karena kita berdua mau terus milih satu sama lain, hari demi hari.
+          </p>
+
+          <p class="letter-para" id="p6">
+            Hal kecil yang aku notice dari kamu — yang dulu aku catat satu per satu — sekarang udah jadi bagian dari keseharian aku. Cara kamu senyum waktu beneran senang. Cara kamu ngetik lebih pelan waktu ada sesuatu di kepala. Cara kamu hadir di suatu tempat dan bikin semuanya ngerasa lebih nyaman. Semua itu ga kemana-mana, Dara. <strong>Kamu masih kamu.</strong>
+          </p>
+
+          <p class="letter-para" id="p7">
+            Kalau aku bisa kasih kamu satu pesan dari 2031, itu adalah ini: <strong>jangan terlalu keras sama diri sendiri.</strong> Kamu selalu punya standar yang tinggi buat dirimu — dan itu bagus — tapi kamu juga perlu inget bahwa kamu udah cukup baik, sudah dari dulu. Aku yang dari masa depan bilang ini dengan penuh yakin.
+          </p>
+
+          <p class="letter-para" id="p8">
+            Aku sayang kamu — yang sekarang, yang nanti, dan semua versi kamu di antaranya. Terima kasih udah ada, Dara.
+          </p>
+
+        </div>
+
+        <div class="letter-sign" id="letter-sign">
+          <span class="letter-sign-from">Dengan sepenuh hati,</span>
+          <span class="letter-sign-name">Razan</span>
+          <span class="letter-sign-year">dari tahun 2031 🤍</span>
+        </div>
+
+        <div class="letter-ps" id="letter-ps">
+          <strong>P.S.</strong> — Hal pertama yang aku lakuin tiap pagi di 2031 masih sama kayak sekarang: ngecek kabar kamu duluan sebelum yang lain. Itu ga pernah berubah.
+        </div>
+
+      </div>
+    </div>
+
+    <div class="letter-footer" id="letter-footer">
+      <p>Ditulis dengan <span>🤍</span> untuk Dara Syifa Aulia</p>
+      <p style="font-size:10px;margin-top:3px;">dari Razan · 2031</p>
+    </div>
+
+    <button class="back-btn" onclick="showScreen('screen-intro')">← Kembali ke amplop</button>
+
+  </div>
+
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function openLetter() {
+  showScreen('screen-letter');
+
+  // Animate paragraphs in sequence
+  const paras = document.querySelectorAll('.letter-para');
+  paras.forEach((p, i) => {
+    setTimeout(() => p.classList.add('visible'), 200 + i * 180);
+  });
+
+  setTimeout(() => document.getElementById('letter-sign').classList.add('visible'), 200 + paras.length * 180);
+  setTimeout(() => document.getElementById('letter-ps').classList.add('visible'), 400 + paras.length * 180);
+  setTimeout(() => document.getElementById('letter-footer').classList.add('visible'), 600 + paras.length * 180);
+}
+</script>
+</body>
+</html>
