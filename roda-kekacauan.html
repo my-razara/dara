@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Roda Kekacauan — Razan & Dara 🌀</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .page{max-width:480px;margin:0 auto;padding:0 1.25rem 4rem;position:relative;z-index:1}
+
+  .screen{display:none}
+  .screen.active{display:block}
+
+  /* ── INTRO ── */
+  #screen-intro{text-align:center;padding:2.5rem 0 2rem}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1.25rem;animation:spin-slow 8s linear infinite}
+  @keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 2rem}
+
+  /* Category preview */
+  .cat-preview{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:2rem}
+  .cat-card{
+    background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:14px;
+    padding:.85rem .75rem;text-align:center;
+    box-shadow:0 2px 8px rgba(193,122,111,.05);
+  }
+  .cat-card-icon{font-size:1.6rem;display:block;margin-bottom:.3rem}
+  .cat-card-name{font-size:12px;font-weight:600;color:var(--ink)}
+  .cat-card-desc{font-size:10px;color:var(--muted);margin-top:.15rem;line-height:1.4}
+
+  .start-btn{
+    width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;
+  }
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+
+  .berdua-badge {
+    display: inline-flex; align-items: center; gap: .35rem;
+    background: rgba(193,122,111,.1); border: 1px solid rgba(193,122,111,.25);
+    border-radius: 50px; padding: .35rem 1rem;
+    font-size: 12px; font-weight: 600; color: var(--rose);
+    margin-bottom: .85rem;
+  }
+  /* ── GAME ── */
+  #screen-game{padding-top:1.5rem}
+
+  .game-header{text-align:center;margin-bottom:1rem}
+  .game-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.2rem}
+  .game-title{font-size:1.2rem;font-weight:700;color:var(--ink)}
+  .game-title span{color:var(--rose)}
+  .spin-count{font-size:11px;color:var(--muted);margin-top:.2rem;display:block}
+
+  /* Wheel */
+  .wheel-wrap{
+    position:relative;
+    width:clamp(260px,78vw,320px);
+    height:clamp(260px,78vw,320px);
+    margin:0 auto 1rem;
+  }
+
+  .wheel-pointer{
+    position:absolute;top:-16px;left:50%;
+    transform:translateX(-50%);
+    width:0;height:0;
+    border-left:13px solid transparent;
+    border-right:13px solid transparent;
+    border-top:28px solid var(--deep);
+    z-index:10;
+    filter:drop-shadow(0 3px 6px rgba(45,31,26,.4));
+  }
+
+  canvas#wheel{
+    border-radius:50%;
+    box-shadow:0 8px 40px rgba(45,31,26,.18),0 2px 8px rgba(45,31,26,.1);
+    display:block;width:100%;height:100%;
+  }
+
+  .wheel-center{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:50px;height:50px;border-radius:50%;
+    background:#fff;border:3px solid var(--cream);
+    box-shadow:0 2px 12px rgba(45,31,26,.2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;z-index:10;pointer-events:none;
+  }
+
+  .spin-btn{
+    display:block;width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 20px rgba(193,122,111,.4);
+    transition:all .2s;margin-bottom:1.25rem;letter-spacing:.04em;
+  }
+  .spin-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .spin-btn:not(:disabled):active{transform:scale(.97);background:var(--deep)}
+
+  /* Result */
+  #result-sheet{
+    display:none;background:#fff;
+    border:1.5px solid rgba(193,122,111,.2);
+    border-radius:20px;padding:1.5rem;
+    margin-bottom:1rem;
+    box-shadow:0 4px 24px rgba(193,122,111,.12);
+    animation:popin .4s cubic-bezier(.34,1.3,.64,1);
+    position:relative;overflow:hidden;
+  }
+  #result-sheet.show{display:block}
+  #result-sheet::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.15),transparent 60%);
+    pointer-events:none;
+  }
+  @keyframes popin{from{transform:scale(.88) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+
+  .res-cat{
+    display:inline-flex;align-items:center;gap:.35rem;
+    border-radius:50px;padding:.3rem .9rem;
+    font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    margin-bottom:.85rem;
+  }
+  .cat-absurd{background:rgba(193,122,111,.12);color:var(--rose);border:1px solid rgba(193,122,111,.25)}
+  .cat-koneksi{background:rgba(181,196,177,.2);color:#3a6040;border:1px solid rgba(181,196,177,.4)}
+  .cat-jujur{background:rgba(201,169,110,.12);color:#8a6a20;border:1px solid rgba(201,169,110,.25)}
+  .cat-misi{background:rgba(100,120,200,.1);color:#3040a0;border:1px solid rgba(100,120,200,.2)}
+  .cat-fisik{background:rgba(160,80,160,.1);color:#6a1a8a;border:1px solid rgba(160,80,160,.2)}
+  .cat-waktu{background:rgba(40,160,140,.1);color:#0a6050;border:1px solid rgba(40,160,140,.2)}
+
+  .res-text{
+    font-size:clamp(13px,3.8vw,15px);font-weight:500;
+    color:var(--ink);line-height:1.7;
+    position:relative;z-index:1;margin-bottom:.6rem;
+  }
+  .res-note{
+    font-size:11px;color:var(--muted);font-style:italic;
+    line-height:1.5;position:relative;z-index:1;
+  }
+
+  .spin-again-btn{
+    display:block;width:100%;padding:.85rem;
+    border-radius:50px;border:1.5px solid var(--blush);
+    background:transparent;color:var(--muted);
+    font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;
+    cursor:pointer;transition:all .2s;
+  }
+  .spin-again-btn:active{background:var(--warm)}
+
+  /* History */
+  .history-section{margin-top:1.25rem}
+  .history-title{
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:.6rem;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .history-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+  .history-list{display:flex;flex-direction:column;gap:.35rem}
+  .history-item{
+    display:flex;gap:.6rem;align-items:flex-start;
+    font-size:11px;color:var(--muted);line-height:1.5;
+    padding:.4rem 0;border-bottom:1px solid rgba(193,122,111,.06);
+  }
+  .history-item:last-child{border:none}
+  .h-cat{flex-shrink:0;font-size:9px;font-weight:700;padding:2px 7px;border-radius:50px}
+  .hc-absurd{background:rgba(193,122,111,.12);color:var(--rose)}
+  .hc-koneksi{background:rgba(181,196,177,.2);color:#3a6040}
+  .hc-jujur{background:rgba(201,169,110,.12);color:#8a6a20}
+  .hc-misi{background:rgba(100,120,200,.1);color:#3040a0}
+  .hc-fisik{background:rgba(160,80,160,.1);color:#6a1a8a}
+  .hc-waktu{background:rgba(40,160,140,.1);color:#0a6050}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <span class="intro-icon">🌀</span>
+    <span class="intro-label">Game Seru Buat Kalian</span>
+    <h1 class="intro-title">Roda <span>Kekacauan</span></h1>
+    <p class="intro-sub">Game berdua — putar roda, dapat tantangan random yang absurd, lucu, dan kadang bikin malu. Harus dimainkan bareng, ga ada yang boleh nolak. 😈</p>
+
+    <div class="cat-preview">
+      <div class="cat-card">
+        <span class="cat-card-icon">🤪</span>
+        <p class="cat-card-name">Absurd</p>
+        <p class="cat-card-desc">Misi aneh yang ga masuk akal tapi wajib dilakuin</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-card-icon">🔗</span>
+        <p class="cat-card-name">Koneksi</p>
+        <p class="cat-card-desc">Tantangan yang bikin kalian makin deket</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-card-icon">🔥</span>
+        <p class="cat-card-name">Jujur Paksa</p>
+        <p class="cat-card-desc">Pertanyaan yang ga bisa dijawab setengah-setengah</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-card-icon">⚡</span>
+        <p class="cat-card-name">Misi Dadakan</p>
+        <p class="cat-card-desc">Harus dilakuin sekarang, tanpa persiapan</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-card-icon">🤸</span>
+        <p class="cat-card-name">Fisik & Ekspresif</p>
+        <p class="cat-card-desc">Gerakan, ekspresi, dan aksi nyata</p>
+      </div>
+      <div class="cat-card">
+        <span class="cat-card-icon">⏳</span>
+        <p class="cat-card-name">Terbatas Waktu</p>
+        <p class="cat-card-desc">Timer jalan, harus selesai sebelum habis</p>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="showScreen('screen-game')">Mainkan Berdua! 🌀</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="berdua-badge">👫 Game Berdua</div>
+    <div class="game-header">
+      <span class="game-label">Roda Kekacauan</span>
+      <h2 class="game-title">Razan <span>&</span> Dara</h2>
+      <span class="spin-count" id="spin-count">Belum ada putaran hari ini</span>
+    </div>
+
+    <div class="wheel-wrap">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheel" width="320" height="320"></canvas>
+      <div class="wheel-center">🌀</div>
+    </div>
+
+    <button class="spin-btn" id="spin-btn" onclick="spinWheel()">Putar Roda! 🌀</button>
+
+    <div id="result-sheet">
+      <div class="res-cat" id="res-cat"></div>
+      <p class="res-text" id="res-text">...</p>
+      <p class="res-note" id="res-note"></p>
+    </div>
+
+    <button class="spin-again-btn" id="spin-again" style="display:none" onclick="spinWheel()">Putar Lagi →</button>
+
+    <div class="history-section" id="history-section" style="display:none">
+      <p class="history-title">Putaran sebelumnya</p>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SEGMENTS = [
+  {label:'Absurd 🤪',    color:'#c17a6f', catClass:'cat-absurd',  hClass:'hc-absurd'},
+  {label:'Koneksi 🔗',   color:'#7aa87a', catClass:'cat-koneksi', hClass:'hc-koneksi'},
+  {label:'Jujur Paksa 🔥',color:'#c9a96e', catClass:'cat-jujur',   hClass:'hc-jujur'},
+  {label:'Misi Dadakan ⚡',color:'#5a70c0', catClass:'cat-misi',    hClass:'hc-misi'},
+  {label:'Fisik 🤸',     color:'#9a50a0', catClass:'cat-fisik',   hClass:'hc-fisik'},
+  {label:'Waktu ⏳',     color:'#20a090', catClass:'cat-waktu',   hClass:'hc-waktu'},
+  {label:'Absurd 🤪',    color:'#b56560', catClass:'cat-absurd',  hClass:'hc-absurd'},
+  {label:'Koneksi 🔗',   color:'#5a9860', catClass:'cat-koneksi', hClass:'hc-koneksi'},
+];
+
+const CARDS = {
+  absurd: [
+    {text:'Satu orang harus ngomong "aku sayang kamu" dengan 5 logat berbeda berturut-turut — Jawa, Sunda, Batak, Lebay Sinetron, dan Robot. Yang satunya nilai mana yang paling absurd.',note:'Semua 5 harus dilakuin. Ga boleh skip satu pun.'},
+    {text:'Kalian harus foto selfie dengan ekspresi paling jelek yang bisa kalian buat — barengan, dalam satu frame. Hasilnya langsung jadi foto kontak satu sama lain selama 24 jam.',note:'Ga boleh edit, ga boleh filter. Foto apa adanya.'},
+    {text:'Satu orang harus jelasin kenapa dia suka sama yang lain — tapi gaya komentator bola. Dramatis, semangat, ada narasi. Minimal 30 detik.',note:'Yang satunya jadi "penonton" yang nge-judge penampilannya.'},
+    {text:'Kalian berdua harus ciptain lagu tentang hari ini — minimal ada judul, 2 baris lirik, dan melodinya. Waktu 2 menit. Harus dinyanyiin.',note:'Ga harus bagus. Yang penting ada usahanya.'},
+    {text:'Satu orang harus akting jadi presenter berita yang lagi liput "kisah cinta Razan dan Dara" — serius, formal, dengan intonasi presenter. Minimal 45 detik.',note:'Yang satunya jadi narasumber yang diwawancara.'},
+    {text:'Kalian harus gantian sebut nama satu sama lain pakai nada lagu yang dipilih yang lain — harus nyanyi, bukan ngomong biasa.',note:'Minimal 3 nada berbeda masing-masing.'},
+    {text:'Satu orang harus minta sesuatu ke yang lain dengan cara yang paling lebay yang bisa dia lakuin — berlutut, puisi, drama, terserah.',note:'Yang diminta harus benar-benar mempertimbangkan permintaannya.'},
+    {text:'Kalian harus coba komunikasi cuma pakai kata "hm", "oh", dan "ya" selama 1 menit — satu orang cerita sesuatu, yang lain cuma boleh pakai tiga kata itu.',note:'Yang cerita harus tetap cerita dengan serius.'},
+  ],
+  koneksi: [
+    {text:'Kalian berdua tutup mata, taruh tangan di tengah, dan cari tangan satu sama lain tanpa ngomong — tahan pegangan itu selama 30 detik setelah ketemu.',note:'Ga boleh ngintip. Ga boleh ngomong. Cuma ngerasa.'},
+    {text:'Satu orang kasih instruksi — "angkat tangan kanan", "tutup mata", "senyum", dll — yang lain nurut sepenuhnya tanpa nanya. 5 instruksi berturut-turut.',note:'Yang dikasih instruksi harus percaya sepenuhnya.'},
+    {text:'Kalian nulis di telapak tangan satu sama lain — satu kata yang paling menggambarin perasaan kalian hari ini. Tunjukin barengan.',note:'Harus jujur. Bukan yang kelihatan bagus, tapi yang beneran.'},
+    {text:'Duduk berhadapan, lutut hampir nyentuh, dan gantian sebutin hal yang kalian syukuri dari satu sama lain hari ini — bergantian, 5 hal masing-masing.',note:'Ga boleh ngulang hal yang sama. Harus spesifik.'},
+    {text:'Satu orang tutup mata. Yang lain harus "gambar" sesuatu di punggung tangannya pakai jari — yang tutup mata harus nebak apa yang digambar.',note:'Gambar 3 hal berbeda. Setelah nebak, gantian.'},
+    {text:'Kalian berdua harus berjalan ke suatu tempat sambil pungung-punggung — nempel, ga boleh putus, harus koordinasi geraknya.',note:'Jarak minimal 10 langkah. Kalau putus, ulang dari awal.'},
+    {text:'Satu orang cerita hal yang paling dia khawatirkan hari ini — yang lain dengerin tanpa potong, tanpa kasih solusi, cuma validasi dan peluk.',note:'Setelah selesai, gantian. Keduanya harus cerita.'},
+    {text:'Kalian harus bikin "ritual" kecil berdua sekarang — bisa tepuk tangan, kode salam, kata-kata, apapun — yang jadi milik kalian berdua mulai dari sekarang.',note:'Harus dipake setiap ketemu setelah ini. Selamanya.'},
+  ],
+  jujur: [
+    {text:'Satu orang harus jawab jujur: hal apa yang paling sulit kamu maafkan dari pasanganmu — dan kenapa kamu tetap memilih dia?',note:'Yang lain hanya dengerin. Ga boleh defensif, ga boleh potong.'},
+    {text:'Jawab jujur: kapan terakhir kali kamu ngerasa pasanganmu ga sepenuhnya ada untuk kamu — dan kamu ga bilang apa-apa?',note:'Harus spesifik waktunya, situasinya. Bukan jawaban umum.'},
+    {text:'Seberapa sering kamu nahan sesuatu yang pengen kamu bilang ke pasanganmu karena takut reaksinya? Bilang satu hal yang lagi kamu tahan sekarang.',note:'Ini momen aman. Ga ada yang boleh marah.'},
+    {text:'Kalau kamu bisa ganti satu hal dari cara kamu bersikap dalam hubungan ini — apa yang paling pertama kamu ganti?',note:'Bukan soal pasanganmu. Soal diri kamu sendiri.'},
+    {text:'Jujur — ada ga hal yang pasanganmu lakuin yang kamu ga suka tapi belum pernah kamu bilang langsung? Sekarang waktunya.',note:'Pasanganmu harus dengerin sampai selesai sebelum merespons.'},
+    {text:'Pegang tangan pasanganmu. Tatap matanya. Dan bilang satu hal yang kamu takut dia dengar — tapi perlu dia dengar.',note:'Ini bukan untuk menyakiti. Ini untuk jujur.'},
+    {text:'Kalau hubungan ini adalah sebuah perjalanan, kamu lagi ada di fase apa sekarang — dan kemana kamu pengen pergi selanjutnya?',note:'Jawab dari perspektif kamu, bukan jawaban yang "aman".'},
+    {text:'Apa yang paling kamu butuhkan dari pasanganmu sekarang — yang belum pernah kamu minta secara langsung?',note:'Harus konkret. Bukan "lebih perhatian" — apa bentuknya?'},
+  ],
+  misi: [
+    {text:'Kalian punya 3 menit untuk ciptain sesuatu bareng — bisa gambar, cerita, lagu, puisi, apapun — dan harus dipresentasikan setelah waktu habis.',note:'Wajib selesai dalam 3 menit. Hasilnya harus ditunjukin.'},
+    {text:'Satu orang harus kirim pesan ke satu orang di kontaknya — dipilih acak oleh pasangannya — dengan isi yang ditentukan pasangannya juga.',note:'Pasanganmu yang pilih siapa dan apa isinya. Kamu yang kirim.'},
+    {text:'Kalian harus foto bareng sekarang dan langsung jadiin itu foto profil masing-masing — minimal 1 jam.',note:'Ga boleh pilih foto lama. Harus foto yang baru diambil sekarang.'},
+    {text:'Satu orang punya 60 detik untuk ceritain apa yang dia paling suka dari hari ini — sekecil apapun. Harus ada minimal 3 hal.',note:'Ga ada yang terlalu kecil untuk disyukuri.'},
+    {text:'Kalian harus buat "perjanjian kecil" sekarang — sesuatu yang kalian berdua commit untuk lakuin bersama dalam seminggu ke depan.',note:'Harus spesifik: kapan, ngapain, dimana. Bukan janji abstrak.'},
+    {text:'Satu orang harus set satu reminder di hp pasangannya — isinya sesuatu yang manis, muncul di waktu yang paling pas menurut dia.',note:'Yang set reminder yang pilih waktunya. Pasangannya ga boleh liat.'},
+    {text:'Kalian punya 5 menit: tulis surat singkat satu sama lain di hp masing-masing — ga boleh dikirim sekarang, dibaca 3 hari lagi.',note:'Simpan di catatan. Ingatin satu sama lain untuk buka 3 hari kemudian.'},
+    {text:'Satu orang harus pilih satu lagu sekarang yang paling menggambarin perasaannya ke pasangannya — putar, dan dengerin bareng dari awal sampai selesai tanpa ngomong.',note:'Yang milih lagu harus jelasin kenapa lagu itu setelah selesai.'},
+  ],
+  fisik: [
+    {text:'Kalian harus staring contest — tatap mata satu sama lain tanpa kedip, tanpa senyum, tanpa ngomong. Yang pertama kalah kena denda: harus bilang sesuatu yang manis.',note:'Denda berlaku seketika.'},
+    {text:'Satu orang harus pijit pundak yang lain selama 2 menit penuh — serius, penuh usaha. Yang dipijit yang nilai kualitasnya.',note:'Kalau nilainya di bawah 7/10, harus ngulang.'},
+    {text:'Kalian harus coba sinkronisasi gerakan: satu orang gerak, yang lain ikutin persis kayak cermin. 30 detik, terus gantian.',note:'Kalau ketawa, harus ulang dari awal ronde itu.'},
+    {text:'Satu orang harus "gambar" wajah pasangannya di punggung tangannya sendiri — pakai jari, mata tertutup, dalam 30 detik.',note:'Setelah selesai, tunjukin "hasilnya" ke pasangan. Pasangan yang nilai.'},
+    {text:'Kalian harus pegangan tangan dan jalan bareng 20 langkah — tapi yang satu tutup mata, yang lain jadi pemandu.',note:'Setelah 20 langkah, gantian. Yang jadi pemandu bertanggung jawab penuh.'},
+    {text:'Satu orang kasih high five ke yang lain — tapi pelan banget, jari-jari nempel, dan tahan selama 30 detik.',note:'Ga boleh dilepas duluan. Siapapun yang lepas duluan, kena denda.'},
+    {text:'Kalian berdua harus coba berdiri dengan satu kaki masing-masing selama 30 detik — sambil pegangan tangan untuk keseimbangan.',note:'Kalau jatuh, harus ngulang. Pegangan tangan ga boleh putus.'},
+    {text:'Satu orang harus "bisik" sesuatu ke telinga yang lain — tapi super pelan, sampai yang lain harus benar-benar deketin telinganya.',note:'Isi bisikannya: satu hal yang paling kamu syukuri dari dia hari ini.'},
+  ],
+  waktu: [
+    {text:'60 detik: sebutin sebanyak mungkin hal yang kalian lakuin bareng sejak pertama kenal — bergantian, ga boleh ngulang.',note:'Timer dimulai sekarang. Yang kehabisan ide duluan kalah.'},
+    {text:'30 detik: satu orang harus sebutin 10 hal yang dia suka dari pasangannya — tanpa berhenti, tanpa ngulang.',note:'Pasanganmu yang hitung. Kurang dari 10? Harus coba lagi.'},
+    {text:'2 menit: kalian harus duduk diam total — ga ngomong, ga gerak berlebihan, ga main hp. Cuma duduk bareng dan rasain kehadiran satu sama lain.',note:'Timer jalan. Siapapun yang ngomong duluan, kena denda: cerita satu hal yang dia suka dari kamu.'},
+    {text:'45 detik: satu orang harus ceritain kenapa dia jatuh hati — dari awal, dengan detail, tanpa jeda.',note:'Yang dengerin ga boleh senyum. Kalau senyum, yang cerita dapet bonus poin imajiner.'},
+    {text:'90 detik: kalian bergantian bilang satu kata yang menggambarin satu sama lain — cepat, tanpa mikir lama. Hitung berapa kata yang terkumpul.',note:'Rekam hasilnya kalau bisa. Ini bisa jadi hal yang lucu untuk diingat.'},
+    {text:'3 menit diam: satu orang megang tangan yang lain, mata tertutup, dan cukup ada. Ga ada kata-kata. Waktu berjalan.',note:'Setelah selesai, ceritain apa yang kalian rasain selama 3 menit itu.'},
+    {text:'30 detik: satu orang harus sebut sebanyak mungkin kata sifat yang menggambarin pasangannya — positif semua, ga boleh negatif.',note:'Pasanganmu yang hitung. Kalau kurang dari 8, harus ngulang.'},
+    {text:'60 detik: kalian berdua harus bikin rencana satu hal yang ingin kalian lakuin bareng bulan ini — harus konkret: kapan, dimana, ngapain.',note:'Setelah timer habis, rencana itu resmi jadi komitmen berdua.'},
+  ],
+};
+
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
+const SIZE=320, CX=SIZE/2, CY=SIZE/2, R=SIZE/2-4;
+let angle=0, isSpinning=false, spinCount=0, history=[];
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='screen-game') drawWheel(angle);
+}
+
+function drawWheel(a){
+  ctx.clearRect(0,0,SIZE,SIZE);
+  const n=SEGMENTS.length;
+  const arc=(2*Math.PI)/n;
+
+  SEGMENTS.forEach((seg,i)=>{
+    const start=a+i*arc, end=start+arc;
+    ctx.beginPath();ctx.moveTo(CX,CY);
+    ctx.arc(CX,CY,R,start,end);ctx.closePath();
+    ctx.fillStyle=seg.color;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1.5;ctx.stroke();
+
+    ctx.save();ctx.translate(CX,CY);ctx.rotate(start+arc/2);
+    ctx.textAlign='right';
+    ctx.fillStyle='rgba(255,255,255,.92)';
+    ctx.font=`600 11px Poppins,sans-serif`;
+    // Split label at space for two-line rendering
+    const parts=seg.label.split(' ');
+    if(parts.length>=2){
+      ctx.fillText(parts.slice(1).join(' '),R-12,2);
+      ctx.font=`500 10px Poppins,sans-serif`;
+      ctx.fillText(parts[0],R-12,-10);
+    } else {
+      ctx.fillText(seg.label,R-12,4);
+    }
+    ctx.restore();
+  });
+
+  ctx.beginPath();ctx.arc(CX,CY,R,0,2*Math.PI);
+  ctx.strokeStyle='rgba(45,31,26,.12)';ctx.lineWidth=3;ctx.stroke();
+
+  ctx.beginPath();ctx.arc(CX,CY,25,0,2*Math.PI);
+  ctx.fillStyle='#fff';ctx.fill();
+  ctx.strokeStyle='rgba(193,122,111,.2)';ctx.lineWidth=2;ctx.stroke();
+}
+
+function spinWheel(){
+  if(isSpinning) return;
+  isSpinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  document.getElementById('spin-again').style.display='none';
+  document.getElementById('result-sheet').classList.remove('show');
+
+  const extra=(6+Math.random()*6)*2*Math.PI;
+  const target=Math.random()*2*Math.PI;
+  const total=extra+target;
+  const duration=3800+Math.random()*1000;
+  const startAngle=angle, startTime=performance.now();
+
+  function ease(t){return 1-Math.pow(1-t,4)}
+  function animate(now){
+    const p=Math.min((now-startTime)/duration,1);
+    angle=startAngle+total*ease(p);
+    drawWheel(angle);
+    if(p<1) requestAnimationFrame(animate);
+    else{
+      angle=angle%(2*Math.PI);
+      isSpinning=false;
+      showResult();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function showResult(){
+  const n=SEGMENTS.length, arc=(2*Math.PI)/n;
+  const ptr=3*Math.PI/2;
+  const norm=((ptr-angle)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const idx=Math.floor(norm/arc)%n;
+  const seg=SEGMENTS[idx];
+
+  const catKey=seg.label.includes('Absurd')?'absurd'
+    :seg.label.includes('Koneksi')?'koneksi'
+    :seg.label.includes('Jujur')?'jujur'
+    :seg.label.includes('Misi')?'misi'
+    :seg.label.includes('Fisik')?'fisik'
+    :'waktu';
+
+  const pool=CARDS[catKey];
+  const item=pool[Math.floor(Math.random()*pool.length)];
+
+  const catEl=document.getElementById('res-cat');
+  catEl.className=`res-cat ${seg.catClass}`;
+  catEl.textContent=seg.label;
+  document.getElementById('res-text').textContent=item.text;
+  document.getElementById('res-note').textContent=item.note||'';
+  document.getElementById('result-sheet').classList.add('show');
+
+  spinCount++;
+  document.getElementById('spin-count').textContent=`Sudah putar ${spinCount} kali hari ini`;
+  document.getElementById('spin-btn').disabled=false;
+  document.getElementById('spin-again').style.display='block';
+
+  history.unshift({cat:seg.label,hClass:seg.hClass,text:item.text});
+  renderHistory();
+
+  if(catKey==='jujur'||catKey==='koneksi') confetti();
+  document.getElementById('result-sheet').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderHistory(){
+  const section=document.getElementById('history-section');
+  const list=document.getElementById('history-list');
+  if(!history.length){section.style.display='none';return}
+  section.style.display='block';
+  list.innerHTML=history.slice(0,6).map(h=>
+    `<div class="history-item">
+      <span class="h-cat ${h.hClass}">${h.cat.split(' ')[0]}</span>
+      <span>${h.text.substring(0,65)}${h.text.length>65?'...':''}</span>
+    </div>`
+  ).join('');
+}
+
+function confetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#7aa87a'];
+  for(let i=0;i<60;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*30);
+}
+
+drawWheel(angle);
+</script>
+</body>
+</html>
