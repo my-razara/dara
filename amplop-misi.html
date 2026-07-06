@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Amplop Misi — Razan & Dara 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+
+  .page{max-width:480px;margin:0 auto;padding:0 1.25rem 5rem;position:relative;z-index:1}
+
+  /* ── SCREENS ── */
+  .screen{display:none}
+  .screen.active{display:block}
+
+  /* ── INTRO ── */
+  #screen-intro{text-align:center;padding:3rem 0 2rem}
+  .intro-envelopes{font-size:3.5rem;display:block;margin-bottom:1.25rem;animation:float 3s ease-in-out infinite;letter-spacing:.2rem}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.7;max-width:300px;margin:.5rem auto 2rem}
+
+  .intro-info{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:16px;padding:1.1rem 1.5rem;
+    margin-bottom:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;
+    gap:.5rem;text-align:center;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);
+  }
+  .info-num{font-size:1.5rem;font-weight:700;color:var(--rose);display:block}
+  .info-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+
+  .start-btn{
+    width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;
+  }
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #screen-game{padding-top:1.75rem}
+
+  .game-header{text-align:center;margin-bottom:1.5rem}
+  .game-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.25rem}
+  .game-count{font-size:12px;color:var(--muted);margin-top:.2rem;display:block}
+  .game-count span{color:var(--rose);font-weight:700}
+
+  /* Progress */
+  .prog-bar{width:100%;height:3px;background:var(--blush);border-radius:2px;overflow:hidden;margin-bottom:2rem}
+  .prog-fill{height:100%;background:linear-gradient(to right,var(--blush),var(--rose));border-radius:2px;transition:width .5s ease}
+
+  /* ── THE ENVELOPE ── */
+  .envelope-scene{
+    display:flex;flex-direction:column;align-items:center;
+    min-height:340px;position:relative;margin-bottom:1.5rem;
+  }
+
+  /* Stack of remaining envelopes (visual) */
+  .env-stack{position:relative;width:260px;height:170px;margin:0 auto}
+  .env-shadow{
+    position:absolute;left:50%;transform:translateX(-50%);
+    width:250px;height:160px;border-radius:6px;
+    background:rgba(45,31,26,.07);top:8px;
+  }
+  .env-back2{
+    position:absolute;left:50%;transform:translateX(-50%) rotate(-2.5deg);
+    width:250px;height:160px;
+    background:var(--warm);border:1px solid var(--blush);border-radius:6px;
+    top:4px;
+  }
+  .env-back1{
+    position:absolute;left:50%;transform:translateX(-50%) rotate(1.5deg);
+    width:250px;height:160px;
+    background:#fff;border:1px solid var(--blush);border-radius:6px;
+    top:2px;
+  }
+
+  /* Main envelope */
+  .envelope{
+    position:absolute;left:50%;transform:translateX(-50%);
+    width:260px;height:170px;
+    cursor:pointer;
+    --open:0;
+  }
+
+  /* SVG envelope body */
+  .env-svg{position:absolute;inset:0;width:100%;height:100%}
+
+  /* Wax seal */
+  .wax-seal{
+    position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+    width:44px;height:44px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#d4537e,#8a1a3a);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+    box-shadow:0 2px 8px rgba(138,26,58,.4);
+    z-index:5;transition:transform .3s,opacity .3s;
+  }
+
+  /* Envelope tap hint */
+  .env-hint{
+    font-size:11px;color:var(--muted);margin-top:1.25rem;
+    animation:blink 2s ease-in-out infinite;text-align:center;
+  }
+  @keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+
+  /* Envelope open animation */
+  .envelope.opening .wax-seal{transform:translateX(-50%) scale(0);opacity:0}
+  .envelope.opening .env-flap{animation:flapopen .5s ease forwards}
+  @keyframes flapopen{
+    0%{transform:rotateX(0deg)}
+    100%{transform:rotateX(-180deg)}
+  }
+
+  /* Paper coming out */
+  .mission-paper{
+    position:absolute;bottom:0;left:50%;
+    transform:translateX(-50%) translateY(100%);
+    width:230px;
+    background:#fff;
+    border:1px solid rgba(193,122,111,.15);
+    border-radius:8px 8px 4px 4px;
+    padding:1.25rem 1.1rem 1.1rem;
+    z-index:10;
+    box-shadow:0 -2px 16px rgba(45,31,26,.12);
+    animation:paperout .6s cubic-bezier(.34,1.3,.64,1) forwards;
+    text-align:center;
+  }
+  @keyframes paperout{
+    0%{transform:translateX(-50%) translateY(40%);opacity:0}
+    100%{transform:translateX(-50%) translateY(-20%);opacity:1}
+  }
+
+  /* Paper lines */
+  .mission-paper::before{
+    content:'';position:absolute;top:0;left:0;right:0;
+    height:3px;background:linear-gradient(to right,var(--blush),var(--rose),var(--blush));
+    border-radius:8px 8px 0 0;
+  }
+
+  .paper-seal{font-size:1.5rem;display:block;margin-bottom:.6rem}
+  .paper-num{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .paper-category{
+    display:inline-flex;align-items:center;gap:.3rem;
+    border-radius:50px;padding:.25rem .75rem;
+    font-size:10px;font-weight:600;letter-spacing:.06em;
+    margin-bottom:.75rem;
+  }
+  .paper-text{font-size:13px;color:var(--ink);line-height:1.75;font-weight:400}
+  .paper-note{font-size:11px;color:var(--muted);font-style:italic;margin-top:.6rem;line-height:1.5}
+
+  /* Empty stack */
+  .empty-stack{text-align:center;padding:2rem 0}
+  .empty-icon{font-size:3rem;display:block;margin-bottom:.75rem}
+
+  /* ── RESULT PANEL ── */
+  .result-panel{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:20px;padding:1.35rem 1.25rem;
+    margin-bottom:.85rem;
+    box-shadow:0 4px 20px rgba(193,122,111,.08);
+    display:none;
+    animation:popin .4s cubic-bezier(.34,1.3,.64,1);
+    position:relative;overflow:hidden;
+  }
+  .result-panel::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 60%);
+    pointer-events:none;
+  }
+  @keyframes popin{from{transform:scale(.9) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+  .result-panel.show{display:block}
+  .rp-top{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.85rem}
+  .rp-emoji{font-size:2rem;flex-shrink:0}
+  .rp-body{flex:1}
+  .rp-cat{
+    display:inline-flex;align-items:center;gap:.25rem;
+    font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    border-radius:50px;padding:.2rem .7rem;margin-bottom:.35rem;
+  }
+  .cat-berdua{background:rgba(193,122,111,.12);color:var(--rose);border:1px solid rgba(193,122,111,.2)}
+  .cat-dara{background:rgba(201,169,110,.12);color:#8a6a20;border:1px solid rgba(201,169,110,.25)}
+  .cat-razan{background:rgba(181,196,177,.2);color:#3a6040;border:1px solid rgba(181,196,177,.4)}
+  .cat-gila{background:rgba(160,100,180,.1);color:#6a2a8a;border:1px solid rgba(160,100,180,.2)}
+
+  .rp-text{font-size:14px;color:var(--ink);line-height:1.7;font-weight:400}
+  .rp-note{font-size:11px;color:var(--muted);font-style:italic;margin-top:.4rem;line-height:1.5}
+
+  /* Timer bar */
+  .timer-wrap{margin-bottom:.85rem;display:none}
+  .timer-wrap.show{display:block}
+  .timer-label{font-size:11px;color:var(--muted);margin-bottom:.35rem;display:flex;justify-content:space-between}
+  .timer-num{color:var(--rose);font-weight:700}
+  .timer-bar{width:100%;height:6px;background:var(--blush);border-radius:3px;overflow:hidden}
+  .timer-fill{height:100%;background:linear-gradient(to right,var(--sage),var(--rose));border-radius:3px;
+    transition:width 1s linear}
+
+  /* Action buttons */
+  .action-row{display:flex;gap:.6rem}
+  .action-btn{
+    flex:1;padding:.75rem .5rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+    transition:all .15s;
+  }
+  .btn-done{background:var(--rose);color:#fff;box-shadow:0 3px 12px rgba(193,122,111,.3)}
+  .btn-done:active{background:var(--deep);transform:scale(.97)}
+  .btn-skip{background:var(--warm);color:var(--muted);border:1.5px solid var(--blush)}
+  .btn-skip:active{background:var(--blush)}
+
+  /* ── END SCREEN ── */
+  #screen-end{padding-top:2rem;text-align:center}
+  .end-emoji{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+
+  .end-score{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:16px;padding:1.25rem;margin-bottom:1.5rem;
+    display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);
+  }
+  .end-score-item{text-align:center}
+  .end-score-num{font-size:2rem;font-weight:700;color:var(--rose);display:block}
+  .end-score-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+  .end-recap{
+    background:var(--warm);border:1px solid var(--blush);
+    border-radius:14px;padding:1.1rem;margin-bottom:1.5rem;
+    font-size:13px;color:var(--ink);line-height:1.75;text-align:left;
+  }
+  .end-recap-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+
+  .end-btn{
+    width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .2s;
+  }
+  .end-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <span class="intro-envelopes">✉️</span>
+    <span class="intro-label">Game Seru Berdua</span>
+    <h1 class="intro-title">Amplop <span>Misi</span></h1>
+    <p class="intro-sub">Buka amplop satu per satu — tiap amplop ada misi yang harus kalian lakuin bareng. Ga ada yang boleh nolak! 😏</p>
+
+    <div class="intro-info">
+      <div>
+        <span class="info-num">30</span>
+        <span class="info-label">Amplop</span>
+      </div>
+      <div>
+        <span class="info-num">4</span>
+        <span class="info-label">Kategori</span>
+      </div>
+      <div>
+        <span class="info-num">🎯</span>
+        <span class="info-label">Misi!</span>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startGame()">Buka Amplop Pertama! ✉️</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <span class="game-label">Amplop Misi</span>
+      <span class="game-count">Amplop <span id="g-current">1</span> dari <span id="g-total">30</span></span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+    <!-- Envelope scene -->
+    <div class="envelope-scene" id="env-scene">
+      <!-- Stack -->
+      <div class="env-stack" id="env-stack">
+        <div class="env-shadow"></div>
+        <div class="env-back2" id="env-back2"></div>
+        <div class="env-back1" id="env-back1"></div>
+
+        <!-- Main envelope -->
+        <div class="envelope" id="envelope" onclick="openEnvelope()">
+          <svg class="env-svg" viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+            <!-- Body -->
+            <rect x="0" y="15" width="260" height="155" rx="6" fill="#fff" stroke="#e8c4b0" stroke-width="1.5"/>
+            <!-- Bottom triangle folds -->
+            <path d="M0 170 L130 100 L260 170 Z" fill="#f5ede0" stroke="#e8c4b0" stroke-width="1"/>
+            <path d="M0 15 L0 170 L130 100 Z" fill="#faf6f0" stroke="#e8c4b0" stroke-width=".5"/>
+            <path d="M260 15 L260 170 L130 100 Z" fill="#f5ede0" stroke="#e8c4b0" stroke-width=".5"/>
+            <!-- Flap (top triangle) - with transform origin at top -->
+            <path class="env-flap" id="env-flap-path" d="M0 15 L130 90 L260 15 Z" fill="#e8c4b0" stroke="#e8c4b0" stroke-width="1"
+              style="transform-origin: 130px 15px; transform: rotateX(0deg)"/>
+          </svg>
+          <!-- Wax seal -->
+          <div class="wax-seal" id="wax-seal">🤍</div>
+        </div>
+      </div>
+
+      <p class="env-hint" id="env-hint">👆 Tap amplop untuk buka</p>
+
+      <!-- Result panel (shown after opening) -->
+      <div class="result-panel" id="result-panel">
+        <div class="rp-top">
+          <span class="rp-emoji" id="rp-emoji">🎯</span>
+          <div class="rp-body">
+            <span class="rp-cat cat-berdua" id="rp-cat">Berdua</span>
+            <p class="rp-text" id="rp-text">...</p>
+            <p class="rp-note" id="rp-note"></p>
+          </div>
+        </div>
+
+        <div class="timer-wrap" id="timer-wrap">
+          <div class="timer-label">
+            <span>Timer misi</span>
+            <span class="timer-num" id="timer-num">60</span>
+          </div>
+          <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+        </div>
+
+        <div class="action-row">
+          <button class="action-btn btn-done" onclick="markDone()">✓ Misi Selesai!</button>
+          <button class="action-btn btn-skip" onclick="markSkip()">Lewati</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END -->
+  <div id="screen-end" class="screen">
+    <span class="end-emoji">🎉</span>
+    <h2 class="end-title">Semua amplop dibuka!</h2>
+    <p class="end-sub">Kalian udah selesaiin semua misi bareng. Ini bukti kalian bisa lakuin apapun bareng 🤍</p>
+
+    <div class="end-score">
+      <div class="end-score-item">
+        <span class="end-score-num" id="end-done">0</span>
+        <span class="end-score-label">Misi selesai</span>
+      </div>
+      <div class="end-score-item">
+        <span class="end-score-num" id="end-skip">0</span>
+        <span class="end-score-label">Dilewati</span>
+      </div>
+    </div>
+
+    <div class="end-recap">
+      <span class="end-recap-title">Catatan</span>
+      <span id="end-recap-text">...</span>
+    </div>
+
+    <button class="end-btn" onclick="restartGame()">Main Lagi dari Awal 🔄</button>
+  </div>
+
+</div>
+
+<script>
+const MISSIONS = [
+  // BERDUA
+  {cat:'berdua',emoji:'🫂',text:'Peluk selama 30 detik tanpa ngomong apapun. Mulai sekarang.',note:'Timer 30 detik. Siapapun yang lepas duluan, kena misi bonus.',timer:30},
+  {cat:'berdua',emoji:'👀',text:'Tatap mata satu sama lain selama 1 menit penuh — tanpa senyum, tanpa kedip, tanpa ngomong. Yang gagal duluan, kena denda.',note:'Timer 60 detik. Kalau dua-duanya gagal, kena misi bareng.',timer:60},
+  {cat:'berdua',emoji:'🤝',text:'Pegang tangan satu sama lain dan jalan bareng 20 langkah ke mana aja — tanpa boleh putus di tengah.',note:'Kalau putus, harus ngulang dari awal.',timer:null},
+  {cat:'berdua',emoji:'📸',text:'Foto selfie bareng sekarang dengan ekspresi yang sama persis — harus bener-bener mirip. Coba sampai berhasil.',note:'Foto terbaik wajib disimpen.',timer:null},
+  {cat:'berdua',emoji:'🎵',text:'Kalian harus nyanyi lagu yang sama bareng — pilih lagunya dalam 10 detik, terus nyanyi dari awal sampai reff.',note:'Harus barengan, bukan gantian.',timer:null},
+  {cat:'berdua',emoji:'🔇',text:'Kalian harus berkomunikasi tanpa ngomong selama 2 menit — pakai gestur, ekspresi, apapun kecuali kata-kata dan tulisan.',note:'Timer 2 menit. Kalau ada yang ngomong, misi gagal.',timer:120},
+  {cat:'berdua',emoji:'🪞',text:'Satu orang gerak, yang lain jadi cermin — harus ikutin semua gerakan persis. 30 detik, terus gantian.',note:'Kalau ketawa, harus ulang dari awal.',timer:60},
+  {cat:'berdua',emoji:'✍️',text:'Masing-masing tulis satu kata yang menggambarin perasaan kalian sekarang di telapak tangan yang lain — tunjukin barengan.',note:'Harus jujur, bukan asal nulis.',timer:null},
+  {cat:'berdua',emoji:'🌀',text:'Kalian harus duduk punggung ke punggung selama 1 menit dan cerita sesuatu yang lucu — tapi ga boleh ketawa.',note:'Kalau ketawa, misi gagal dan harus ulang.',timer:60},
+  {cat:'berdua',emoji:'🎯',text:'Tebak-tebakan: satu orang pikirin satu kata, yang lain punya 10 tebakan yes/no. Gantian 2 ronde.',note:'Kalau gagal 2 ronde berturut-turut, kena misi bonus.',timer:null},
+
+  // DARA
+  {cat:'dara',emoji:'🎤',text:'Dara harus nyanyi lagu yang Razan pilih — dari awal sampai reff, sambil tatap mata Razan.',note:'Razan yang pilih lagunya sekarang.',timer:null},
+  {cat:'dara',emoji:'🗣️',text:'Dara harus jelasin kenapa dia suka sama Razan dalam 30 detik — tapi gaya sinetron, dramatis, sambil pegang dada.',note:'Razan yang nilai hasilnya.',timer:30},
+  {cat:'dara',emoji:'🔮',text:'Dara harus tebak apa yang lagi Razan pikirin sekarang — punya 3 tebakan. Razan ga boleh kasih petunjuk apapun.',note:'Kalau bener, Razan harus bikin sesuatu yang Dara minta.',timer:null},
+  {cat:'dara',emoji:'📱',text:'Dara buka galeri hp-nya dan pilih foto pertama yang muncul — harus ceritain konteksnya ke Razan sekarang.',note:'Ga boleh pilih-pilih dulu.',timer:null},
+  {cat:'dara',emoji:'🫶',text:'Dara pijit tangan Razan selama 2 menit. Serius, bukan setengah-setengah.',note:'Razan yang nilai kualitasnya.',timer:120},
+  {cat:'dara',emoji:'💌',text:'Dara harus bilang satu hal ke Razan yang belum pernah dia bilang sebelumnya — dari hati, bukan bercanda.',note:'Razan ga boleh ketawa atau potong.',timer:null},
+  {cat:'dara',emoji:'🎭',text:'Dara harus akting jadi Razan selama 30 detik — tiruin cara ngomong, gaya, kebiasaannya.',note:'Razan yang nilai seberapa mirip.',timer:30},
+  {cat:'dara',emoji:'🌟',text:'Dara sebutkan 7 hal yang dia suka dari Razan dalam 30 detik — ga boleh ada yang diulang.',note:'Kalau kurang dari 7, misi gagal.',timer:30},
+
+  // RAZAN
+  {cat:'razan',emoji:'🎤',text:'Razan harus nyanyi lagu yang Dara pilih — dari awal sampai reff, sambil tatap mata Dara.',note:'Dara yang pilih lagunya sekarang.',timer:null},
+  {cat:'razan',emoji:'🗣️',text:'Razan harus jelasin kenapa dia suka sama Dara dalam 30 detik — tapi gaya iklan shampo, anggun dan dramatis.',note:'Dara yang nilai hasilnya.',timer:30},
+  {cat:'razan',emoji:'🔮',text:'Razan harus tebak apa yang lagi Dara pikirin sekarang — punya 3 tebakan. Dara ga boleh kasih petunjuk apapun.',note:'Kalau bener, Dara harus bikin sesuatu yang Razan minta.',timer:null},
+  {cat:'razan',emoji:'📱',text:'Razan buka galeri hp-nya dan pilih foto pertama yang muncul — harus ceritain konteksnya ke Dara sekarang.',note:'Ga boleh pilih-pilih dulu.',timer:null},
+  {cat:'razan',emoji:'🫶',text:'Razan pijit bahu Dara selama 2 menit. Serius, jangan buru-buru.',note:'Dara yang nilai kualitasnya.',timer:120},
+  {cat:'razan',emoji:'💌',text:'Razan harus bilang satu hal ke Dara yang belum pernah dia bilang sebelumnya — dari hati, serius.',note:'Dara ga boleh potong atau langsung bales.',timer:null},
+  {cat:'razan',emoji:'🎭',text:'Razan harus akting jadi Dara selama 30 detik — tiruin cara ngomong, ekspresi, kebiasaannya.',note:'Dara yang nilai seberapa mirip.',timer:30},
+  {cat:'razan',emoji:'🌟',text:'Razan sebutkan 7 hal yang dia suka dari Dara dalam 30 detik — ga boleh ada yang diulang.',note:'Kalau kurang dari 7, misi gagal.',timer:30},
+
+  // GILA / KOCAK
+  {cat:'gila',emoji:'🤪',text:'Satu orang harus ngomong "aku sayang kamu" dengan 5 aksen berbeda — Jawa, Sunda, Batak, Betawi, dan satu aksen bebas.',note:'Yang satunya nilai mana yang paling lucu.',timer:null},
+  {cat:'gila',emoji:'😤',text:'Kalian harus staring contest — tatap mata satu sama lain tanpa kedip. Yang kedip atau ketawa pertama kali kalah dan kena denda dari yang menang.',note:'Denda: harus bilang sesuatu yang manis.',timer:null},
+  {cat:'gila',emoji:'🤝',text:'Kalian harus ciptain handshake rahasia khusus kalian dalam 2 menit — minimal 5 gerakan. Harus dipake tiap ketemu setelah ini.',note:'Ini resmi jadi handshake kalian. Selamanya.',timer:120},
+  {cat:'gila',emoji:'🎪',text:'Dua-duanya harus loncat 3 kali sambil bilang nama satu sama lain dengan lantang. Barengan, bukan gantian.',note:'Kalau ga barengan, harus ngulang.',timer:null},
+];
+
+const CAT_META = {
+  berdua: {label:'Berdua',cls:'cat-berdua'},
+  dara:   {label:'Misi Dara',cls:'cat-dara'},
+  razan:  {label:'Misi Razan',cls:'cat-razan'},
+  gila:   {label:'Misi Gila 🤪',cls:'cat-gila'},
+};
+
+let queue=[], current=null, done=0, skipped=0, timerInterval=null, timerLeft=0;
+let isOpen=false;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startGame(){
+  queue=[...MISSIONS].sort(()=>Math.random()-.5);
+  done=0; skipped=0;
+  showScreen('screen-game');
+  document.getElementById('g-total').textContent=queue.length;
+  updateProgress();
+  resetEnvelope();
+}
+
+function updateProgress(){
+  const total=MISSIONS.length;
+  const idx=total-queue.length;
+  document.getElementById('g-current').textContent=Math.min(idx+1,total);
+  document.getElementById('prog-fill').style.width=((idx/total)*100)+'%';
+  // Show/hide stack layers
+  document.getElementById('env-back1').style.display=queue.length>1?'':'none';
+  document.getElementById('env-back2').style.display=queue.length>2?'':'none';
+}
+
+function resetEnvelope(){
+  isOpen=false;
+  clearTimer();
+  document.getElementById('result-panel').classList.remove('show');
+  document.getElementById('result-panel').style.display='none';
+  document.getElementById('env-hint').style.display='block';
+  const env=document.getElementById('envelope');
+  env.style.pointerEvents='auto';
+  env.classList.remove('opening');
+  // Reset flap
+  const flap=document.getElementById('env-flap-path');
+  flap.style.transform='rotateX(0deg)';
+  // Reset wax seal
+  const seal=document.getElementById('wax-seal');
+  seal.style.transform='translateX(-50%) scale(1)';
+  seal.style.opacity='1';
+}
+
+function openEnvelope(){
+  if(isOpen) return;
+  if(!queue.length) return;
+  isOpen=true;
+
+  current=queue.shift();
+
+  const env=document.getElementById('envelope');
+  env.style.pointerEvents='none';
+
+  // Animate flap open
+  const flap=document.getElementById('env-flap-path');
+  flap.style.transition='transform .5s ease';
+  flap.style.transform='rotateX(-180deg)';
+
+  // Shrink wax seal
+  const seal=document.getElementById('wax-seal');
+  seal.style.transition='transform .3s, opacity .3s';
+  seal.style.transform='translateX(-50%) scale(0)';
+  seal.style.opacity='0';
+
+  // Hide hint
+  document.getElementById('env-hint').style.display='none';
+
+  setTimeout(()=>{
+    showMission(current);
+  }, 550);
+}
+
+function showMission(m){
+  const panel=document.getElementById('result-panel');
+  const cat=CAT_META[m.cat]||CAT_META.berdua;
+
+  document.getElementById('rp-emoji').textContent=m.emoji;
+  const catEl=document.getElementById('rp-cat');
+  catEl.textContent=cat.label;
+  catEl.className=`rp-cat ${cat.cls}`;
+  document.getElementById('rp-text').textContent=m.text;
+  document.getElementById('rp-note').textContent=m.note||'';
+
+  panel.style.display='block';
+  panel.classList.add('show');
+
+  if(m.timer){
+    startTimer(m.timer);
+  } else {
+    document.getElementById('timer-wrap').classList.remove('show');
+  }
+}
+
+function startTimer(secs){
+  clearTimer();
+  timerLeft=secs;
+  document.getElementById('timer-wrap').classList.add('show');
+  document.getElementById('timer-num').textContent=timerLeft;
+  document.getElementById('timer-fill').style.width='100%';
+  document.getElementById('timer-fill').style.transition='none';
+
+  setTimeout(()=>{
+    document.getElementById('timer-fill').style.transition='width 1s linear';
+    timerInterval=setInterval(()=>{
+      timerLeft--;
+      document.getElementById('timer-num').textContent=timerLeft;
+      document.getElementById('timer-fill').style.width=(timerLeft/secs*100)+'%';
+      if(timerLeft<=0) clearTimer();
+    },1000);
+  },100);
+}
+
+function clearTimer(){
+  clearInterval(timerInterval);
+  timerInterval=null;
+  document.getElementById('timer-wrap').classList.remove('show');
+}
+
+function markDone(){
+  done++;
+  clearTimer();
+  confetti();
+  nextMission();
+}
+
+function markSkip(){
+  skipped++;
+  clearTimer();
+  nextMission();
+}
+
+function nextMission(){
+  if(!queue.length){
+    showEnd();
+    return;
+  }
+  updateProgress();
+  resetEnvelope();
+  window.scrollTo(0,0);
+}
+
+function showEnd(){
+  document.getElementById('end-done').textContent=done;
+  document.getElementById('end-skip').textContent=skipped;
+
+  const total=done+skipped;
+  let recap='';
+  if(done===total) recap=`Kalian berhasil selesaiin SEMUA ${total} misi! Ini bukti kalian bisa lakuin apapun bareng. Luar biasa 🎉`;
+  else if(done>=total*.7) recap=`${done} dari ${total} misi berhasil! Kalian kompak banget. ${skipped} yang dilewati — mungkin terlalu extreme? 😄`;
+  else recap=`${done} misi selesai, ${skipped} dilewati. Ga apa-apa — yang penting udah main bareng dan ada tawa di sana 🤍`;
+
+  document.getElementById('end-recap-text').textContent=recap;
+  showScreen('screen-end');
+  confetti();
+}
+
+function restartGame(){
+  showScreen('screen-intro');
+}
+
+function confetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<50;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*30);
+}
+</script>
+</body>
+</html>
