@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tebak Gaya — Razan & Dara 🎭</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .page{max-width:480px;margin:0 auto;padding:0 1.25rem 5rem;position:relative;z-index:1}
+
+  .screen{display:none}
+  .screen.active{display:block}
+
+  /* ── INTRO ── */
+  #screen-intro{text-align:center;padding:2.75rem 0 2rem}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1.1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 2rem}
+
+  .intro-rules{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:18px;padding:1.25rem;margin-bottom:2rem;
+    text-align:left;box-shadow:0 2px 10px rgba(193,122,111,.06);
+  }
+  .rules-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.75rem}
+  .rules-list{display:flex;flex-direction:column;gap:.5rem}
+  .rule-item{display:flex;gap:.6rem;align-items:flex-start;font-size:12px;color:var(--muted);line-height:1.5}
+  .rule-num{width:20px;height:20px;border-radius:50%;background:rgba(193,122,111,.1);
+    color:var(--rose);font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem}
+
+  .start-btn{
+    width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;
+  }
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── PLAYER SELECT ── */
+  #screen-select{padding-top:2rem;text-align:center}
+  .select-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .select-title{font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .select-sub{font-size:12px;color:var(--muted);margin-bottom:1.5rem}
+
+  .player-cards{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+  .player-card{
+    background:#fff;border:2px solid var(--blush);border-radius:18px;
+    padding:1.4rem 1rem;cursor:pointer;text-align:center;
+    transition:all .15s;
+    box-shadow:0 2px 8px rgba(193,122,111,.06);
+  }
+  .player-card:active{transform:scale(.95)}
+  .player-card.selected{border-color:var(--rose);background:rgba(193,122,111,.05)}
+  .player-avatar{font-size:2rem;display:block;margin-bottom:.4rem}
+  .player-name{font-size:15px;font-weight:700;color:var(--ink)}
+  .player-hint{font-size:11px;color:var(--muted);margin-top:.2rem}
+
+  .score-mini{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:14px;padding:.75rem 1.25rem;
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:1.25rem;
+  }
+  .sm-item{text-align:center}
+  .sm-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sm-score{font-size:1.4rem;font-weight:700;color:var(--rose);display:block}
+  .sm-divider{color:var(--blush);font-size:1rem}
+
+  .round-info{font-size:12px;color:var(--muted);text-align:center}
+  .round-info span{color:var(--rose);font-weight:700}
+
+  /* ── ACTING ── */
+  #screen-acting{padding-top:1.75rem}
+
+  .acting-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+  .acting-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+  .acting-round{font-size:12px;color:var(--muted)}
+  .acting-round span{color:var(--rose);font-weight:700}
+
+  /* Score bar */
+  .score-bar{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:50px;padding:.45rem 1.1rem;
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:1.25rem;
+  }
+  .sb-item{text-align:center}
+  .sb-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sb-score{font-size:1.1rem;font-weight:700;color:var(--rose);display:block}
+  .sb-vs{color:var(--blush);font-size:.9rem}
+
+  /* Actor info */
+  .actor-banner{
+    background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);
+    border-radius:14px;padding:.65rem 1rem;
+    display:flex;align-items:center;gap:.6rem;
+    font-size:13px;color:var(--ink);margin-bottom:1.25rem;
+  }
+  .actor-banner span{color:var(--rose);font-weight:700}
+
+  /* Role card — shown only to actor */
+  .role-card{
+    background:#fff;border:1.5px solid rgba(193,122,111,.2);
+    border-radius:22px;padding:2rem 1.5rem;
+    text-align:center;margin-bottom:1.25rem;
+    box-shadow:0 6px 24px rgba(193,122,111,.1);
+    position:relative;overflow:hidden;
+    min-height:180px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:.6rem;
+  }
+  .role-card::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.15),transparent 60%);
+    pointer-events:none;
+  }
+
+  /* Flip cover */
+  .role-cover{
+    position:absolute;inset:0;border-radius:22px;
+    background:linear-gradient(135deg,var(--rose),var(--deep));
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;
+    cursor:pointer;transition:opacity .3s,transform .3s;
+  }
+  .role-cover.hidden{opacity:0;pointer-events:none;transform:scale(.97)}
+  .cover-icon{font-size:2.5rem}
+  .cover-text{font-size:13px;color:rgba(255,255,255,.8);font-weight:500}
+
+  .role-emoji{font-size:3rem;display:block}
+  .role-category{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.25rem}
+  .role-text{font-size:clamp(1rem,4.5vw,1.3rem);font-weight:700;color:var(--ink);line-height:1.3}
+  .role-desc{font-size:11px;color:var(--muted);font-style:italic;line-height:1.5;position:relative;z-index:1}
+
+  /* Timer ring */
+  .timer-wrap{text-align:center;margin-bottom:1.25rem}
+  .timer-ring{
+    width:clamp(88px,22vw,108px);height:clamp(88px,22vw,108px);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto .5rem;position:relative;
+    background:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.12);
+  }
+  .timer-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .t-circle{fill:none;stroke:var(--rose);stroke-width:5;stroke-linecap:round;
+    stroke-dasharray:283;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s}
+  .t-bg{fill:none;stroke:var(--blush);stroke-width:5}
+  .timer-num{font-size:clamp(1.5rem,5.5vw,2rem);font-weight:700;color:var(--ink);position:relative;z-index:1}
+  .timer-label{font-size:11px;color:var(--muted)}
+
+  /* Buttons */
+  .btn-row{display:flex;gap:.6rem}
+  .btn{
+    flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+    transition:all .15s;
+  }
+  .btn-start{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .btn-start:active{background:var(--deep);transform:scale(.97)}
+  .btn-correct{background:#4a9a6a;color:#fff;box-shadow:0 4px 14px rgba(74,154,106,.3)}
+  .btn-correct:active{background:#2a7a4a;transform:scale(.97)}
+  .btn-wrong{background:var(--warm);color:var(--muted);border:1.5px solid var(--blush)}
+  .btn-wrong:active{background:var(--blush)}
+  .btn-skip{background:var(--warm);color:var(--muted);border:1.5px solid var(--blush);flex:.6}
+  .btn-skip:active{background:var(--blush)}
+  .btn-next{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;
+    background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);
+    display:none;margin-top:.75rem}
+  .btn-next:active{background:var(--deep);transform:scale(.97)}
+
+  /* Phase labels */
+  .phase-badge{
+    display:inline-flex;align-items:center;gap:.3rem;
+    background:rgba(193,122,111,.1);border:1px solid rgba(193,122,111,.2);
+    border-radius:50px;padding:.3rem .85rem;
+    font-size:11px;font-weight:600;color:var(--rose);
+    margin-bottom:.85rem;
+  }
+
+  /* Result pop */
+  .result-pop{
+    display:none;text-align:center;
+    animation:popin .4s cubic-bezier(.34,1.3,.64,1);
+    margin-bottom:.75rem;
+  }
+  .result-pop.show{display:block}
+  @keyframes popin{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  .result-pop p{font-size:1rem;font-weight:600;color:var(--ink)}
+  .result-pop span{font-size:2rem}
+
+  /* ── END ── */
+  #screen-end{padding-top:2rem;text-align:center}
+  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+
+  .end-score-card{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;
+    display:grid;grid-template-columns:1fr auto 1fr;
+    align-items:center;gap:1rem;text-align:center;
+    box-shadow:0 4px 20px rgba(193,122,111,.08);
+  }
+  .es-avatar{font-size:1.5rem;display:block;margin-bottom:.25rem}
+  .es-name{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .es-score{font-size:2.5rem;font-weight:700;color:var(--rose);display:block}
+  .es-vs{font-size:1rem;color:var(--blush);font-weight:600}
+
+  .end-verdict{
+    background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);
+    border-radius:14px;padding:1.1rem 1.25rem;
+    font-size:13px;color:var(--ink);line-height:1.75;
+    margin-bottom:1.5rem;
+  }
+  .end-verdict strong{color:var(--rose)}
+
+  .end-btn{
+    width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .2s;
+  }
+  .end-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <span class="intro-icon">🎭</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Tebak <span>Gaya</span></h1>
+    <p class="intro-sub">Satu orang akting tanpa ngomong — yang lain nebak. Timer ketat, ada skor. Siapa yang paling kenal pasangannya? 😄</p>
+
+    <div class="intro-rules">
+      <span class="rules-title">Cara Main</span>
+      <div class="rules-list">
+        <div class="rule-item"><span class="rule-num">1</span><span>Pilih siapa yang jadi aktor duluan</span></div>
+        <div class="rule-item"><span class="rule-num">2</span><span>Aktor buka kartu — lihat perannya, <strong>jangan kasih tau</strong> yang lain</span></div>
+        <div class="rule-item"><span class="rule-num">3</span><span>Tap mulai — timer 30 detik jalan. Aktor langsung akting tanpa ngomong sepatah pun</span></div>
+        <div class="rule-item"><span class="rule-num">4</span><span>Yang nebak bilang jawabannya — aktor klik Benar atau Salah</span></div>
+        <div class="rule-item"><span class="rule-num">5</span><span>Gantian setiap ronde. 10 ronde total. Skor terbanyak menang!</span></div>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="showScreen('screen-select')">Siap Akting! 🎭</button>
+  </div>
+
+  <!-- SELECT PLAYER -->
+  <div id="screen-select" class="screen">
+    <span class="acting-label" style="display:block;text-align:center;margin-bottom:.4rem">Ronde <span id="sel-round" style="color:var(--rose);font-weight:700">1</span> dari 10</span>
+    <p class="select-title" style="text-align:center">Giliran siapa akting?</p>
+    <p class="select-sub" style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:1.25rem">Yang dipilih yang jadi aktor — yang lain yang nebak</p>
+
+    <div class="score-mini">
+      <div class="sm-item">
+        <span class="sm-name">Razan</span>
+        <span class="sm-score" id="sel-score-razan">0</span>
+      </div>
+      <span class="sm-divider">VS</span>
+      <div class="sm-item">
+        <span class="sm-name">Dara</span>
+        <span class="sm-score" id="sel-score-dara">0</span>
+      </div>
+    </div>
+
+    <div class="player-cards">
+      <div class="player-card" onclick="selectActor('razan')">
+        <span class="player-avatar">🧑</span>
+        <p class="player-name">Razan</p>
+        <p class="player-hint">Jadi aktor</p>
+      </div>
+      <div class="player-card" onclick="selectActor('dara')">
+        <span class="player-avatar">👧</span>
+        <p class="player-name">Dara</p>
+        <p class="player-hint">Jadi aktor</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTING -->
+  <div id="screen-acting" class="screen">
+    <div class="acting-top">
+      <span class="acting-label">Tebak Gaya</span>
+      <span class="acting-round">Ronde <span id="act-round">1</span>/10</span>
+    </div>
+
+    <div class="score-bar">
+      <div class="sb-item">
+        <span class="sb-name">Razan</span>
+        <span class="sb-score" id="act-score-razan">0</span>
+      </div>
+      <span class="sb-vs">VS</span>
+      <div class="sb-item">
+        <span class="sb-name">Dara</span>
+        <span class="sb-score" id="act-score-dara">0</span>
+      </div>
+    </div>
+
+    <div class="actor-banner">
+      <span>🎭</span>
+      <span>Yang akting: <span id="actor-name">Razan</span> · Yang nebak: <span id="guesser-name">Dara</span></span>
+    </div>
+
+    <!-- Role card -->
+    <div class="role-card" id="role-card">
+      <div class="role-cover" id="role-cover" onclick="revealRole()">
+        <span class="cover-icon">👁️</span>
+        <span class="cover-text">Tap untuk lihat peranmu</span>
+      </div>
+      <span class="role-emoji" id="role-emoji">🎭</span>
+      <span class="role-category" id="role-cat"></span>
+      <p class="role-text" id="role-text">...</p>
+      <p class="role-desc" id="role-desc"></p>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-wrap" id="timer-wrap">
+      <div class="timer-ring">
+        <svg viewBox="0 0 100 100">
+          <circle class="t-bg" cx="50" cy="50" r="45"/>
+          <circle class="t-circle" id="t-circle" cx="50" cy="50" r="45"/>
+        </svg>
+        <span class="timer-num" id="timer-num">30</span>
+      </div>
+      <span class="timer-label" id="timer-label">Tap kartu dulu untuk lihat peranmu</span>
+    </div>
+
+    <!-- Result pop -->
+    <div class="result-pop" id="result-pop">
+      <span id="result-icon">✅</span>
+      <p id="result-msg">Benar! +1 poin untuk Razan</p>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row" id="btn-row-start">
+      <button class="btn btn-start" id="btn-start" onclick="startTimer()" disabled>▶ Mulai Akting!</button>
+    </div>
+
+    <div class="btn-row" id="btn-row-judge" style="display:none">
+      <button class="btn btn-correct" onclick="markResult(true)">✓ Benar!</button>
+      <button class="btn btn-wrong" onclick="markResult(false)">✗ Salah</button>
+    </div>
+
+    <button class="btn-next" id="btn-next" onclick="nextRound()">Ronde Berikutnya →</button>
+  </div>
+
+  <!-- END -->
+  <div id="screen-end" class="screen">
+    <span class="end-icon" id="end-icon">🏆</span>
+    <h2 class="end-title" id="end-title">Selesai!</h2>
+    <p class="end-sub" id="end-sub">Kalian udah selesaiin semua ronde 🤍</p>
+
+    <div class="end-score-card">
+      <div>
+        <span class="es-avatar">🧑</span>
+        <span class="es-name">Razan</span>
+        <span class="es-score" id="end-razan">0</span>
+      </div>
+      <span class="es-vs">VS</span>
+      <div>
+        <span class="es-avatar">👧</span>
+        <span class="es-name">Dara</span>
+        <span class="es-score" id="end-dara">0</span>
+      </div>
+    </div>
+
+    <div class="end-verdict" id="end-verdict">...</div>
+
+    <button class="end-btn" onclick="restartGame()">Main Lagi 🔄</button>
+  </div>
+
+</div>
+
+<script>
+const ROLES = [
+  // Hubungan & Perasaan
+  {emoji:"😤", cat:"Perasaan", text:"Lagi ngambek sama pasangan", desc:"Tunjukin diam tapi ekspresinya jelas banget ngambek"},
+  {emoji:"🥺", cat:"Perasaan", text:"Lagi kangen banget", desc:"Kangen sampai ga tau mau ngapain"},
+  {emoji:"😳", cat:"Perasaan", text:"Ketahuan ngepoin HP pasangan", desc:"Panik tapi pura-pura ga salah"},
+  {emoji:"😍", cat:"Perasaan", text:"Baru jatuh cinta", desc:"Masih malu-malu, senyum-senyum sendiri"},
+  {emoji:"😭", cat:"Perasaan", text:"Lagi nangis tapi ga mau ketahuan", desc:"Pura-pura baik-baik aja padahal mata udah merah"},
+  {emoji:"🙈", cat:"Perasaan", text:"Ketahuan ngomongin pasangan ke teman", desc:"Malu banget karena ketahuan"},
+  {emoji:"😒", cat:"Perasaan", text:"Sebenernya lagi ngambek tapi bilang 'ga apa-apa'", desc:"Pasang muka datar tapi jelas ada yang salah"},
+  {emoji:"🤩", cat:"Perasaan", text:"Baru dapat surprise dari pasangan", desc:"Kaget tapi senang banget"},
+
+  // Situasi Lucu
+  {emoji:"🤦", cat:"Situasi", text:"Lupa nama orang yang baru dikenalkan pasangan", desc:"Sok kenal tapi sebenernya lupa total"},
+  {emoji:"😬", cat:"Situasi", text:"Lagi makan dan ketumpahan makanan ke baju", desc:"Pura-pura ga ada yang lihat"},
+  {emoji:"🤫", cat:"Situasi", text:"Lagi ngendap-ngendap supaya ga ketahuan pulang telat", desc:"Masuk rumah super pelan-pelan"},
+  {emoji:"🙄", cat:"Situasi", text:"Dengerin cerita yang udah diulang untuk ke-5 kalinya", desc:"Pura-pura dengerin tapi udah hafal"},
+  {emoji:"😴", cat:"Situasi", text:"Lagi ngantuk banget tapi dipaksa ngobrol", desc:"Mata udah mau nutup tapi tetap senyum-senyum"},
+  {emoji:"😱", cat:"Situasi", text:"Baru sadar lupa ulang tahun pasangan", desc:"Kepala langsung muter nyari solusi"},
+  {emoji:"🤥", cat:"Situasi", text:"Ketahuan berbohong tapi masih ngeyel", desc:"Ngotot padahal buktinya udah ketahuan"},
+  {emoji:"🫣", cat:"Situasi", text:"Ngintip pasangan lagi tidur terus ketahuan", desc:"Malu dan buru-buru pura-pura ga lihat"},
+
+  // Aksi & Aktivitas
+  {emoji:"💍", cat:"Momen", text:"Lagi ngelamar", desc:"Serius, gemetar, tapi percaya diri"},
+  {emoji:"🎁", cat:"Momen", text:"Kasih hadiah tapi ga yakin dia suka", desc:"Nyerahin dengan senyum tapi deg-degan"},
+  {emoji:"🙏", cat:"Momen", text:"Minta maaf setelah berantem besar", desc:"Tulus, sedikit malu, tapi beneran nyesel"},
+  {emoji:"🥳", cat:"Momen", text:"Surprise ulang tahun", desc:"Nahan excitement tapi mau meledak"},
+  {emoji:"🚗", cat:"Momen", text:"Nyetir sambil nyasar dan ga mau ngaku", desc:"Pura-pura tahu jalan padahal udah 3x muter"},
+  {emoji:"📸", cat:"Momen", text:"Minta foto tapi hasilnya jelek semua", desc:"Senyum palsu setiap kali difoto"},
+  {emoji:"🍳", cat:"Momen", text:"Masak buat pasangan tapi hasilnya gosong", desc:"Nyajiin dengan bangga tapi dalam hati ngeri"},
+  {emoji:"🎤", cat:"Momen", text:"Nyanyi lagu buat pasangan tapi lupa liriknya", desc:"Tetap percaya diri padahal sudah melenceng jauh"},
+
+  // Absurd
+  {emoji:"👻", cat:"Absurd", text:"Pura-pura jadi hantu nakut-nakutin", desc:"Hantu yang niat tapi takut balik"},
+  {emoji:"🦸", cat:"Absurd", text:"Ngerasa jadi superhero", desc:"Pose keren tapi situasinya ga penting"},
+  {emoji:"🕵️", cat:"Absurd", text:"Ngintai pasangan kayak detektif", desc:"Pakai kacamata hitam dan sembunyi-sembunyi"},
+  {emoji:"🤖", cat:"Absurd", text:"Pura-pura jadi robot", desc:"Gerak kaku dan minta dicharge"},
+  {emoji:"👑", cat:"Absurd", text:"Ngerasa jadi raja/ratu yang harus dilayani", desc:"Minta segalanya dengan gaya mewah"},
+  {emoji:"🐾", cat:"Absurd", text:"Lagi ngobrol sama hewan peliharaan imajiner", desc:"Serius banget padahal ga ada apa-apa"},
+];
+
+const TIMER_SECS = 30;
+let scores = { razan: 0, dara: 0 };
+let round = 1;
+let currentActor = '';
+let timerInterval = null;
+let timerLeft = 0;
+let phase = 'waiting'; // waiting, acting, judging, done
+let usedRoles = [];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function updateSelScores() {
+  document.getElementById('sel-score-razan').textContent = scores.razan;
+  document.getElementById('sel-score-dara').textContent = scores.dara;
+  document.getElementById('sel-round').textContent = round;
+}
+
+function selectActor(who) {
+  currentActor = who;
+  const guesser = who === 'razan' ? 'dara' : 'razan';
+  const actorName = who === 'razan' ? 'Razan' : 'Dara';
+  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
+
+  document.getElementById('actor-name').textContent = actorName;
+  document.getElementById('guesser-name').textContent = guesserName;
+  document.getElementById('act-round').textContent = round;
+  document.getElementById('act-score-razan').textContent = scores.razan;
+  document.getElementById('act-score-dara').textContent = scores.dara;
+
+  // Pick random unused role
+  const available = ROLES.filter((_, i) => !usedRoles.includes(i));
+  const pool = available.length ? available : ROLES;
+  const pickIdx = ROLES.indexOf(pool[Math.floor(Math.random() * pool.length)]);
+  usedRoles.push(pickIdx);
+  if (usedRoles.length > ROLES.length - 3) usedRoles = [];
+
+  const role = ROLES[pickIdx];
+  document.getElementById('role-emoji').textContent = role.emoji;
+  document.getElementById('role-cat').textContent = role.cat;
+  document.getElementById('role-text').textContent = role.text;
+  document.getElementById('role-desc').textContent = role.desc;
+
+  // Reset UI
+  document.getElementById('role-cover').classList.remove('hidden');
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('btn-row-start').style.display = 'flex';
+  document.getElementById('btn-row-judge').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+  document.getElementById('result-pop').classList.remove('show');
+  document.getElementById('timer-label').textContent = 'Tap kartu dulu untuk lihat peranmu';
+  setTimerDisplay(TIMER_SECS, TIMER_SECS);
+  clearTimerInterval();
+  phase = 'waiting';
+
+  showScreen('screen-acting');
+}
+
+function revealRole() {
+  document.getElementById('role-cover').classList.add('hidden');
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('timer-label').textContent = 'Tap Mulai kalau udah siap!';
+}
+
+function startTimer() {
+  if (phase !== 'waiting') return;
+  phase = 'acting';
+  document.getElementById('btn-row-start').style.display = 'none';
+  document.getElementById('timer-label').textContent = 'Akting sekarang! Tanpa ngomong!';
+
+  timerLeft = TIMER_SECS;
+  setTimerDisplay(timerLeft, TIMER_SECS);
+
+  timerInterval = setInterval(() => {
+    timerLeft--;
+    setTimerDisplay(timerLeft, TIMER_SECS);
+    if (timerLeft <= 0) {
+      clearTimerInterval();
+      timeUp();
+    }
+  }, 1000);
+}
+
+function timeUp() {
+  phase = 'judging';
+  document.getElementById('timer-label').textContent = 'Waktu habis! Bener atau salah?';
+  document.getElementById('btn-row-judge').style.display = 'flex';
+}
+
+function setTimerDisplay(left, max) {
+  document.getElementById('timer-num').textContent = left;
+  const circ = document.getElementById('t-circle');
+  const offset = 283 - (left / max) * 283;
+  circ.style.strokeDashoffset = offset;
+  circ.style.stroke = left <= 5 ? '#9a3030' : left <= 10 ? '#c9a96e' : 'var(--rose)';
+}
+
+function markResult(correct) {
+  clearTimerInterval();
+  phase = 'done';
+  document.getElementById('btn-row-judge').style.display = 'none';
+
+  const actorName = currentActor === 'razan' ? 'Razan' : 'Dara';
+
+  if (correct) {
+    scores[currentActor]++;
+    document.getElementById('result-icon').textContent = '🎉';
+    document.getElementById('result-msg').textContent = `Benar! +1 poin untuk ${actorName}`;
+    confetti();
+  } else {
+    document.getElementById('result-icon').textContent = '😅';
+    document.getElementById('result-msg').textContent = `Salah — 0 poin. Lebih keras aktingnya! 😄`;
+  }
+
+  document.getElementById('result-pop').classList.add('show');
+  document.getElementById('act-score-razan').textContent = scores.razan;
+  document.getElementById('act-score-dara').textContent = scores.dara;
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function nextRound() {
+  if (round >= 10) {
+    showEnd();
+    return;
+  }
+  round++;
+  updateSelScores();
+  showScreen('screen-select');
+}
+
+function showEnd() {
+  const r = scores.razan, d = scores.dara;
+  document.getElementById('end-razan').textContent = r;
+  document.getElementById('end-dara').textContent = d;
+
+  let icon, title, sub, verdict;
+  if (r === d) {
+    icon = '🤝'; title = 'Seri!';
+    sub = 'Dua-duanya sama bagusnya.';
+    verdict = 'Skornya sama — yang artinya kalian sama-sama kenal satu sama lain dengan baik. Atau sama-sama ga bisa nebak. Wkwk 🤍';
+  } else if (r > d) {
+    icon = '🏆'; title = 'Razan menang!';
+    sub = 'Razan lebih ekspresif hari ini.';
+    verdict = `Razan menang dengan skor <strong>${r} - ${d}</strong>. Razan lebih mudah dibaca — atau Dara lebih jago nebak. Salah satu dari itu. Razan boleh minta satu hal! 😏`;
+  } else {
+    icon = '👑'; title = 'Dara menang!';
+    sub = 'Dara lebih jago hari ini.';
+    verdict = `Dara menang dengan skor <strong>${d} - ${r}</strong>. Dara lebih ekspresif — atau Razan lebih jago nebak. Dara boleh minta satu hal! 😏`;
+  }
+
+  document.getElementById('end-icon').textContent = icon;
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-sub').textContent = sub;
+  document.getElementById('end-verdict').innerHTML = verdict;
+  showScreen('screen-end');
+  confetti();
+}
+
+function restartGame() {
+  scores = { razan: 0, dara: 0 };
+  round = 1;
+  usedRoles = [];
+  updateSelScores();
+  showScreen('screen-intro');
+}
+
+function clearTimerInterval() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function confetti() {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for (let i = 0; i < 50; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }, i * 30);
+}
+
+// Init
+updateSelScores();
+</script>
+</body>
+</html>
