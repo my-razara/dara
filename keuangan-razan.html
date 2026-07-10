@@ -240,7 +240,7 @@
           <label class="form-label">Rekening</label>
           <select class="form-select" id="inp-acc" onchange="updateCats()">
             <option value="SeaBank">SeaBank — Kebutuhan</option>
-            <option value="GoPay">GoPay — Pacaran</option>
+            <option value="bca blu">bca blu — Pacaran</option>
           </select>
         </div>
         <div class="form-group">
@@ -275,7 +275,7 @@
     <div class="filter-tabs">
       <button class="filter-tab active" onclick="setFilter('all',this)">Semua</button>
       <button class="filter-tab" onclick="setFilter('SeaBank',this)">SeaBank</button>
-      <button class="filter-tab" onclick="setFilter('GoPay',this)">GoPay</button>
+      <button class="filter-tab" onclick="setFilter('bca blu',this)">bca blu</button>
       <button class="filter-tab" onclick="setFilter('income',this)">Pemasukan</button>
     </div>
     <div class="card" id="tx-list"></div>
@@ -359,7 +359,7 @@
       <div class="alloc-row"><span class="alloc-name">Cash ortu</span><input type="number" class="save-input" id="set-ortu" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
       <div class="alloc-row"><span class="alloc-name">Cash adek</span><input type="number" class="save-input" id="set-adek" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
       <div class="alloc-row"><span class="alloc-name">SeaBank (kebutuhan)</span><input type="number" class="save-input" id="set-seabank" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
-      <div class="alloc-row"><span class="alloc-name">GoPay (pacaran)</span><input type="number" class="save-input" id="set-gopay" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
+      <div class="alloc-row"><span class="alloc-name">bca blu (pacaran)</span><input type="number" class="save-input" id="set-bca blu" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
       <div class="alloc-row"><span class="alloc-name">BNI Wondr (kuliah)</span><input type="number" class="save-input" id="set-bniwondr" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
       <div class="alloc-row"><span class="alloc-name">Admin BCA</span><input type="number" class="save-input" id="set-adminbca" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
       <div class="alloc-row"><span class="alloc-name">Krom (tabungan) — otomatis</span><span class="alloc-val" id="set-krom-display" style="color:var(--purple)">Rp0</span></div>
@@ -410,11 +410,11 @@
 // ─── CONFIG ───────────────────────────────────────────────────
 const ACCS = {
   SeaBank: { budget: 500000, color: '#1D9E75', bg: '#E1F5EE', emoji: '🏦' },
-  GoPay:   { budget: 500000, color: '#D85A30', bg: '#FAECE7', emoji: '💚' },
+  bca blu:   { budget: 500000, color: '#D85A30', bg: '#FAECE7', emoji: '💚' },
 };
 const CATS = {
   SeaBank: ['Makan','Transport','Pulsa','Jajan','Belanja','Lainnya'],
-  GoPay:   ['Date','Makan Bareng','Nonton','Jajan Bareng','Transport','Lainnya'],
+  bca blu:   ['Date','Makan Bareng','Nonton','Jajan Bareng','Transport','Lainnya'],
 };
 const INCOME_CATS = ['Freelance','Bonus/THR','Hadiah','Lainnya'];
 let currentTxType = 'expense';
@@ -439,7 +439,7 @@ function def() {
     settings: {
       rt: '21:00', re: false, goals: [],
       gaji: 4600000,
-      alloc: { ortu: 1000000, adek: 300000, seabank: 500000, gopay: 500000, bniwondr: 315000, adminbca: 10000 }
+      alloc: { ortu: 1000000, adek: 300000, seabank: 500000, bca blu: 500000, bniwondr: 315000, adminbca: 10000 }
     }
   };
 }
@@ -447,12 +447,12 @@ function ensureSettingsShape(d) {
   if (!d.settings) d.settings = {};
   if (!d.settings.goals) d.settings.goals = [];
   if (typeof d.settings.gaji !== 'number') d.settings.gaji = 4600000;
-  if (!d.settings.alloc) d.settings.alloc = { ortu: 1000000, adek: 300000, seabank: 500000, gopay: 500000, bniwondr: 315000, adminbca: 10000 };
+  if (!d.settings.alloc) d.settings.alloc = { ortu: 1000000, adek: 300000, seabank: 500000, bca blu: 500000, bniwondr: 315000, adminbca: 10000 };
   return d;
 }
 function kromAmount(s) {
   const a = s.alloc;
-  const fixed = a.ortu + a.adek + a.seabank + a.gopay + a.bniwondr + a.adminbca;
+  const fixed = a.ortu + a.adek + a.seabank + a.bca blu + a.bniwondr + a.adminbca;
   return Math.max(0, s.gaji - fixed);
 }
 
@@ -573,10 +573,10 @@ async function renderHome() {
   const expenseTxs = txs.filter(tx => tx.type !== 'income');
   const incomeTxs = txs.filter(tx => tx.type === 'income');
 
-  const spent = { SeaBank: 0, GoPay: 0 };
+  const spent = { SeaBank: 0, bca blu: 0 };
   expenseTxs.forEach(tx => { if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount; });
-  const totalSpent = spent.SeaBank + spent.GoPay;
-  const totalBudget = (s.alloc.seabank || 0) + (s.alloc.gopay || 0);
+  const totalSpent = spent.SeaBank + spent.bca blu;
+  const totalBudget = (s.alloc.seabank || 0) + (s.alloc.bca blu || 0);
   const remaining = totalBudget - totalSpent;
   const totalIncome = incomeTxs.reduce((a, tx) => a + tx.amount, 0);
 
@@ -600,7 +600,7 @@ async function renderHome() {
   // Account list
   const al = document.getElementById('acc-list');
   al.innerHTML = Object.entries(ACCS).map(([name, acc]) => {
-    const budget = s.alloc[name === 'SeaBank' ? 'seabank' : 'gopay'] || 0;
+    const budget = s.alloc[name === 'SeaBank' ? 'seabank' : 'bca blu'] || 0;
     const sp = spent[name] || 0;
     const rem = budget - sp;
     const pct = budget > 0 ? Math.min((sp / budget) * 100, 100) : 0;
@@ -625,8 +625,8 @@ async function renderHome() {
   chartAlloc = new Chart(allocCtx, {
     type: 'doughnut',
     data: {
-      labels: ['Ortu & Adek','SeaBank','GoPay','BNI Wondr','Krom','Admin BCA'],
-      datasets: [{ data: [s.alloc.ortu + s.alloc.adek, s.alloc.seabank, s.alloc.gopay, s.alloc.bniwondr, krom, s.alloc.adminbca],
+      labels: ['Ortu & Adek','SeaBank','bca blu','BNI Wondr','Krom','Admin BCA'],
+      datasets: [{ data: [s.alloc.ortu + s.alloc.adek, s.alloc.seabank, s.alloc.bca blu, s.alloc.bniwondr, krom, s.alloc.adminbca],
         backgroundColor: ['#D85A30','#1D9E75','#EF9F27','#BA7517','#7F77DD','#888780'],
         borderWidth: 0 }]
     },
@@ -951,7 +951,7 @@ async function renderSettings() {
   document.getElementById('set-ortu').value = s.alloc.ortu || 0;
   document.getElementById('set-adek').value = s.alloc.adek || 0;
   document.getElementById('set-seabank').value = s.alloc.seabank || 0;
-  document.getElementById('set-gopay').value = s.alloc.gopay || 0;
+  document.getElementById('set-bca blu').value = s.alloc.bca blu || 0;
   document.getElementById('set-bniwondr').value = s.alloc.bniwondr || 0;
   document.getElementById('set-adminbca').value = s.alloc.adminbca || 0;
   document.getElementById('set-krom-display').textContent = fmt(kromAmount(s));
@@ -964,7 +964,7 @@ async function saveAllocSettings() {
     ortu: parseInt(document.getElementById('set-ortu').value) || 0,
     adek: parseInt(document.getElementById('set-adek').value) || 0,
     seabank: parseInt(document.getElementById('set-seabank').value) || 0,
-    gopay: parseInt(document.getElementById('set-gopay').value) || 0,
+    bca blu: parseInt(document.getElementById('set-bca blu').value) || 0,
     bniwondr: parseInt(document.getElementById('set-bniwondr').value) || 0,
     adminbca: parseInt(document.getElementById('set-adminbca').value) || 0,
   };
