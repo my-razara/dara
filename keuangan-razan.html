@@ -98,7 +98,7 @@
     .goal-card:before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06)}
     .goal-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
     .goal-name{font-size:15px;font-weight:700}
-    .goal-del{background:none;border:none;color:rgba(247,243,232,.55);font-size:18px;cursor:pointer;padding:0 2px}
+    .goal-del{background:rgba(220,50,50,.35);border:none;color:#fff;font-size:11px;font-weight:600;cursor:pointer;padding:5px 10px;border-radius:6px;line-height:1;font-family:'Poppins',sans-serif;letter-spacing:.02em}
     .goal-amounts{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;position:relative}
     .goal-saved{font-size:19px;font-weight:700;color:#E8C55A}
     .goal-target{font-size:11px;opacity:.65}
@@ -199,9 +199,8 @@
       <div id="expense-fields">
         <div class="form-group">
           <label class="form-label">Rekening</label>
-          <select class="form-select" id="inp-acc" onchange="updateCats()">
+          <select class="form-select" id="inp-acc" onchange="updateCats()" style="display:none">
             <option value="SeaBank">SeaBank</option>
-            <option value="bca blu">bca blu</option>
           </select>
         </div>
         <div class="form-group">
@@ -234,7 +233,6 @@
     <div class="filter-tabs">
       <button class="filter-tab active" onclick="setFilter('all',this)">Semua</button>
       <button class="filter-tab" onclick="setFilter('SeaBank',this)">SeaBank</button>
-      <button class="filter-tab" onclick="setFilter('bca blu',this)">bca blu</button>
       <button class="filter-tab" onclick="setFilter('income',this)">Pemasukan</button>
     </div>
     <div class="card" id="tx-list"></div>
@@ -310,14 +308,14 @@
       <div class="card-title">Gaji & Alokasi Bulanan</div>
       <div class="form-group">
         <label class="form-label">Gaji Pokok</label>
-        <input type="number" class="form-input" id="set-gaji" inputmode="numeric" onchange="saveAllocSettings()">
+        <input type="text" class="form-input" id="set-gaji" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()">
       </div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Pos di bawah jumlah tetap tiap bulan. Sisa dari gaji otomatis jadi tabungan (Krom).</div>
-      <div class="alloc-row"><span class="alloc-name">Cash (ortu + adek)</span><input type="number" class="save-input" id="set-cash" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
-      <div class="alloc-row"><span class="alloc-name">SeaBank</span><input type="number" class="save-input" id="set-seabank" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
-      <div class="alloc-row"><span class="alloc-name">bca blu</span><input type="number" class="save-input" id="set-bcablu" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
-      <div class="alloc-row"><span class="alloc-name">BNI Wondr (kuliah)</span><input type="number" class="save-input" id="set-bniwondr" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
-      <div class="alloc-row"><span class="alloc-name">Admin BCA</span><input type="number" class="save-input" id="set-adminbca" style="width:120px" inputmode="numeric" onchange="saveAllocSettings()"></div>
+      <div class="alloc-row"><span class="alloc-name">Cash (ortu + adek)</span><input type="text" class="save-input" id="set-cash" style="width:120px" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()"></div>
+      <div class="alloc-row"><span class="alloc-name">SeaBank</span><input type="text" class="save-input" id="set-seabank" style="width:120px" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()"></div>
+      <div class="alloc-row"><span class="alloc-name">BNI Wondr (kuliah)</span><input type="text" class="save-input" id="set-bniwondr" style="width:120px" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()"></div>
+      <div class="alloc-row"><span class="alloc-name">Admin BCA</span><input type="text" class="save-input" id="set-adminbca" style="width:120px" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()"></div>
+      <div class="alloc-row"><span class="alloc-name">Sedekah</span><input type="text" class="save-input" id="set-sedekah" style="width:120px" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()"></div>
       <div class="alloc-row"><span class="alloc-name">Krom (tabungan) — otomatis</span><span class="alloc-val" id="set-krom-display" style="color:var(--purple)">Rp0</span></div>
     </div>
 
@@ -365,12 +363,10 @@ function getGsUrl()  { return GS_URL; }
 function getGsSkey() { return GS_SKEY; }
 
 const ACCS = {
-  'SeaBank':  { color: '#1D9E75', bg: '#E1F5EE', emoji: '🏦' },
-  'bca blu':  { color: '#D85A30', bg: '#FAECE7', emoji: '💳' },
+  'SeaBank': { color: '#1D9E75', bg: '#E1F5EE', emoji: '🏦' },
 };
 const CATS = {
-  'SeaBank':  ['Makan','Transport','Pulsa','Jajan','Belanja','Lainnya'],
-  'bca blu':  ['Date','Makan Bareng','Nonton','Jajan Bareng','Transport','Lainnya'],
+  'SeaBank': ['Makan','Transport','Pulsa','Jajan','Belanja','Date','Lainnya'],
 };
 const INCOME_CATS = ['Freelance','Bonus/THR','Hadiah','Lainnya'];
 let currentTxType = 'expense';
@@ -388,7 +384,7 @@ function def() {
     settings: {
       rt: '21:00', re: false, goals: [],
       gaji: 3850000,
-      alloc: { cash: 1300000, seabank: 500000, bcablu: 500000, bniwondr: 315000, adminbca: 10000 }
+      alloc: { cash: 1300000, seabank: 1000000, bniwondr: 315000, adminbca: 10000, sedekah: 200000 }
     }
   };
 }
@@ -403,11 +399,25 @@ function ensureShape(d) {
     delete d.settings.alloc.ortu;
     delete d.settings.alloc.adek;
   }
+  // migrate bca blu -> gabung ke seabank
+  if (d.settings.alloc.bcablu !== undefined) {
+    d.settings.alloc.seabank = (d.settings.alloc.seabank || 0) + (d.settings.alloc.bcablu || 0);
+    delete d.settings.alloc.bcablu;
+  }
+  if (d.settings.alloc['bca blu'] !== undefined) {
+    d.settings.alloc.seabank = (d.settings.alloc.seabank || 0) + (d.settings.alloc['bca blu'] || 0);
+    delete d.settings.alloc['bca blu'];
+  }
+  // add sedekah if missing
+  if (d.settings.alloc.sedekah === undefined) d.settings.alloc.sedekah = 200000;
   return d;
 }
 function kromAmt(s) {
-  const a = s.alloc;
-  return Math.max(0, s.gaji - a.cash - a.seabank - a.bcablu - a.bniwondr - a.adminbca);
+  const a = s.alloc || {};
+  const gaji  = Number(s.gaji) || 0;
+  const fixed = (Number(a.cash)||0) + (Number(a.seabank)||0)
+              + (Number(a.bniwondr)||0) + (Number(a.adminbca)||0) + (Number(a.sedekah)||0);
+  return Math.max(0, gaji - fixed);
 }
 
 // ─── STORAGE ──────────────────────────────────────────────────
@@ -444,6 +454,23 @@ async function syncSaving(mo, amt) { await gsPost('saveSaving', { month: mo, amo
 async function syncSettings(s)     { await gsPost('saveSettings', { data: s }); }
 
 // ─── UTILS ────────────────────────────────────────────────────
+// Format input saat mengetik (tambah titik ribuan)
+function fmtInput(el) {
+  const raw = el.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+  const num = parseInt(raw) || 0;
+  el.value = num > 0 ? num.toLocaleString('id-ID') : '';
+}
+// Baca nilai dari input berformat titik -> angka
+function parseInput(id) {
+  const val = (document.getElementById(id).value || '0').replace(/\./g, '').replace(/,/g, '').replace(/[^0-9]/g, '');
+  return parseInt(val) || 0;
+}
+// Set nilai ke input dengan format titik
+function setInput(id, num) {
+  const el = document.getElementById(id);
+  if (el) el.value = num > 0 ? num.toLocaleString('id-ID') : '';
+}
+
 function fmt(n) { return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
 function fmtS(n) {
   if (n >= 1000000) return 'Rp' + (n/1000000).toFixed(2).replace(/\.?0+$/,'') + ' jt';
@@ -500,10 +527,11 @@ async function renderHome() {
   const txs = await monthTxs(cYear, cMonth);
   const expTxs = txs.filter(tx => tx.type !== 'income');
   const incTxs = txs.filter(tx => tx.type === 'income');
-  const spent = { 'SeaBank': 0, 'bca blu': 0 };
-  expTxs.forEach(tx => { if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount; });
-  const totalSpent  = spent['SeaBank'] + spent['bca blu'];
-  const totalBudget = (s.alloc.seabank || 0) + (s.alloc.bcablu || 0);
+  const spent = { 'SeaBank': 0 };
+  expTxs.forEach(tx => { if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount;
+    else if (tx.acc === 'bca blu') spent['SeaBank'] += tx.amount; }); // merge lama
+  const totalSpent  = spent['SeaBank'];
+  const totalBudget = Number(s.alloc.seabank) || 0;
   const remaining   = totalBudget - totalSpent;
   const totalIncome = incTxs.reduce((a, tx) => a + tx.amount, 0);
 
@@ -525,7 +553,7 @@ async function renderHome() {
 
   // Account list
   document.getElementById('acc-list').innerHTML = Object.entries(ACCS).map(([name, acc]) => {
-    const budget = name === 'SeaBank' ? (s.alloc.seabank||0) : (s.alloc.bcablu||0);
+    const budget = Number(s.alloc.seabank) || 0;
     const sp = spent[name] || 0;
     const rem = budget - sp;
     const pct = budget > 0 ? Math.min((sp/budget)*100, 100) : 0;
@@ -550,9 +578,9 @@ async function renderHome() {
   chartAlloc = new Chart(allocCtx, {
     type: 'doughnut',
     data: {
-      labels: ['Cash','SeaBank','bca blu','BNI Wondr','Krom','Admin BCA'],
-      datasets: [{ data: [s.alloc.cash, s.alloc.seabank, s.alloc.bcablu, s.alloc.bniwondr, krom, s.alloc.adminbca],
-        backgroundColor: ['#D85A30','#1D9E75','#EF9F27','#BA7517','#7F77DD','#888780'], borderWidth: 0 }]
+      labels: ['Cash','SeaBank','BNI Wondr','Sedekah','Admin BCA','Krom'],
+      datasets: [{ data: [s.alloc.cash, s.alloc.seabank, s.alloc.bniwondr, s.alloc.sedekah||0, s.alloc.adminbca, krom],
+        backgroundColor: ['#D85A30','#1D9E75','#BA7517','#5DB6E8','#888780','#7F77DD'], borderWidth: 0 }]
     },
     options: { responsive:true, maintainAspectRatio:false, cutout:'62%',
       plugins: { legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:7}},
@@ -663,7 +691,7 @@ async function renderTxList() {
       <div class="tx-icon" style="background:${acc.bg}">${acc.emoji}</div>
       <div class="tx-info">
         <div class="tx-cat">${tx.cat}</div>
-        <div class="tx-meta">${isIncome?'Pemasukan':tx.acc} · ${dd[2]}/${dd[1]}${tx.note?' · '+tx.note:''}</div>
+        <div class="tx-meta">${isIncome?'Pemasukan':(tx.acc==='bca blu'?'SeaBank':tx.acc)} · ${dd[2]}/${dd[1]}${tx.note?' · '+tx.note:''}</div>
       </div>
       <div class="tx-right">
         <div class="tx-amount" style="color:${isIncome?'var(--teal)':'var(--coral)'}">${isIncome?'+':'-'}${fmt(tx.amount)}</div>
@@ -688,14 +716,23 @@ async function renderGoals() {
   if (!goals.length) { el.innerHTML='<div class="empty" style="padding:1rem"><div class="empty-icon">🎯</div>Belum ada target. Bikin di bawah.</div>'; return; }
   el.innerHTML = goals.map(g => {
     const pct = Math.min(100, (g.saved/g.target)*100);
+    const fulfilled = g.saved >= g.target;
     const daysLeft = Math.max(0, Math.ceil((new Date(g.deadline)-new Date())/86400000));
     const monthsLeft = Math.max(1, Math.round(daysLeft/30));
-    const perMonth = Math.max(0, g.target-g.saved)/monthsLeft;
-    return `<div class="goal-card">
-      <div class="goal-top"><div class="goal-name">${g.name}</div><button class="goal-del" onclick="deleteGoal(${g.id})">×</button></div>
+    const perMonth = fulfilled ? 0 : Math.max(0, g.target-g.saved)/monthsLeft;
+    return `<div class="goal-card" style="${fulfilled?'background:linear-gradient(135deg,#1a4a1a,#0d3b0d)':''}">
+      <div class="goal-top">
+        <div class="goal-name">${g.name} ${fulfilled?'🎉':''}</div>
+        <button class="goal-del" onclick="event.stopPropagation();deleteGoal(${g.id})">Hapus</button>
+      </div>
       <div class="goal-amounts"><span class="goal-saved">${fmt(g.saved)}</span><span class="goal-target">/ ${fmt(g.target)}</span></div>
-      <div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
-      <div class="goal-meta"><span>📅 ${daysLeft} hari lagi</span><span>perlu ~${fmt(perMonth)}/bulan</span></div>
+      <div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%;background:${fulfilled?'#5CDB5C':'#E8C55A'}"></div></div>
+      <div class="goal-meta">
+        ${fulfilled
+          ? '<span>✅ Target tercapai!</span><span>Lunas 🎊</span>'
+          : `<span>📅 ${daysLeft} hari lagi</span><span>perlu ~${fmt(perMonth)}/bulan</span>`
+        }
+      </div>
       <div class="goal-edit-row">
         <input type="number" placeholder="Update total tersimpan" id="goal-saved-${g.id}" inputmode="numeric">
         <button onclick="updateGoalSaved(${g.id})">Simpan</button>
@@ -721,16 +758,17 @@ async function updateGoalSaved(id) {
   const val = parseInt(document.getElementById(`goal-saved-${id}`).value);
   if (isNaN(val)||val<0) { toast('Isi nominal dulu'); return; }
   const d = await load();
-  d.settings.goals = (d.settings.goals||[]).map(g=>g.id===id?{...g,saved:val}:g);
+  d.settings.goals = (d.settings.goals||[]).map(g=>String(g.id)===String(id)?{...g,saved:val}:g);
   await save(d); syncSettings(d.settings);
   toast('✓ Progress diupdate'); await renderGoals();
 }
 async function deleteGoal(id) {
-  if (!confirm('Hapus target ini?')) return;
   const d = await load();
-  d.settings.goals = (d.settings.goals||[]).filter(g=>g.id!==id);
-  await save(d); syncSettings(d.settings);
-  toast('Target dihapus'); await renderGoals();
+  d.settings.goals = (d.settings.goals||[]).filter(g=>String(g.id)!==String(id));
+  await save(d);
+  syncSettings(d.settings);
+  toast('✓ Target dihapus');
+  await renderGoals();
 }
 
 // ─── NABUNG ───────────────────────────────────────────────────
@@ -785,26 +823,28 @@ async function renderSettings() {
   if (today.getDate()>=26) ng = new Date(today.getFullYear(), today.getMonth()+1, 26);
   const diff = Math.ceil((ng-today)/86400000);
   document.getElementById('next-gajian').textContent = `${ng.toLocaleDateString('id-ID',{day:'numeric',month:'long'})} — ${diff} hari lagi`;
-  document.getElementById('set-gaji').value    = s.gaji || 3850000;
-  document.getElementById('set-cash').value    = s.alloc.cash || 1300000;
-  document.getElementById('set-seabank').value = s.alloc.seabank || 500000;
-  document.getElementById('set-bcablu').value  = s.alloc.bcablu || 500000;
-  document.getElementById('set-bniwondr').value = s.alloc.bniwondr || 315000;
-  document.getElementById('set-adminbca').value = s.alloc.adminbca || 10000;
+  setInput('set-gaji',    s.gaji || 3850000);
+  setInput('set-cash',    s.alloc.cash || 1300000);
+  setInput('set-seabank', s.alloc.seabank || 1000000);
+  setInput('set-bcablu',  s.alloc.bcablu || 500000);
+  setInput('set-bniwondr',s.alloc.bniwondr || 315000);
+  setInput('set-adminbca',s.alloc.adminbca || 10000);
+  setInput('set-sedekah', s.alloc.sedekah  || 200000);
   document.getElementById('set-krom-display').textContent = fmt(kromAmt(s));
 }
 async function saveAllocSettings() {
   const d = await load();
   if (!d.settings) d.settings = {};
-  d.settings.gaji = parseInt(document.getElementById('set-gaji').value)||0;
+  d.settings.gaji = parseInput('set-gaji');
   d.settings.alloc = {
-    cash:     parseInt(document.getElementById('set-cash').value)||0,
-    seabank:  parseInt(document.getElementById('set-seabank').value)||0,
-    bcablu:   parseInt(document.getElementById('set-bcablu').value)||0,
-    bniwondr: parseInt(document.getElementById('set-bniwondr').value)||0,
-    adminbca: parseInt(document.getElementById('set-adminbca').value)||0,
+    cash:     parseInput('set-cash'),
+    seabank:  parseInput('set-seabank'),
+    bniwondr: parseInput('set-bniwondr'),
+    adminbca: parseInput('set-adminbca'),
+    sedekah:  parseInput('set-sedekah'),
   };
   await save(d); syncSettings(d.settings);
+  document.getElementById('set-krom-display').textContent = fmt(kromAmt(d.settings));
   document.getElementById('set-krom-display').textContent = fmt(kromAmt(d.settings));
   toast('✓ Gaji & alokasi diperbarui'); await renderHome();
 }
