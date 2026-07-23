@@ -19,11 +19,9 @@
     radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.2) 0%,transparent 60%);
     pointer-events:none;z-index:0}
 
-  /* ══ SCREENS ══ */
   .screen{display:none;position:fixed;inset:0;z-index:1;overflow:hidden;flex-direction:column}
   .screen.active{display:flex}
 
-  /* ══════════ HOME ══════════ */
   #home{align-items:center;justify-content:center;gap:0;padding:1.5rem 1.25rem}
 
   .home-top{text-align:center;margin-bottom:1.5rem;flex-shrink:0}
@@ -40,10 +38,8 @@
   .home-name em{font-style:normal;color:var(--rose)}
   .home-sub{font-size:11.5px;color:var(--muted);line-height:1.65;max-width:260px;margin:0 auto}
 
-  /* Card area */
   .card-area{width:100%;max-width:420px;flex-shrink:0}
 
-  /* Arrow row */
   .arrow-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
   .arr-btn{
     width:38px;height:38px;border-radius:50%;
@@ -58,7 +54,6 @@
   .cat-counter{font-size:11px;color:var(--muted)}
   .cat-counter b{color:var(--rose);font-size:14px}
 
-  /* Main card */
   .main-card{
     width:100%;background:#fff;
     border:1px solid rgba(193,122,111,.15);
@@ -98,12 +93,10 @@
   }
   .card-btn:active{background:var(--deep);transform:scale(.97)}
 
-  /* Dots */
   .dots-row{display:flex;justify-content:center;gap:.4rem;margin-top:.7rem}
   .dot{width:6px;height:6px;border-radius:50%;background:var(--blush);transition:all .3s;cursor:pointer}
   .dot.active{background:var(--rose);width:18px;border-radius:3px}
 
-  /* ══════════ CATEGORY SCREEN ══════════ */
   #cat-screen{background:var(--cream)}
 
   .cat-header{
@@ -131,7 +124,6 @@
     padding:.75rem 1.1rem 3rem;
   }
 
-  /* Section */
   .section{margin-top:1.25rem}
   .section:first-child{margin-top:0}
   .section-label{
@@ -141,7 +133,6 @@
   }
   .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
 
-  /* Grid — same as original index.html */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
 
   .grid-item{
@@ -175,7 +166,6 @@
   .item-label{font-size:11px;font-weight:500;color:var(--ink);line-height:1.3;max-width:80px}
   .item-sublabel{font-size:10px;color:var(--muted);line-height:1.3}
 
-  /* Featured */
   .grid-item-featured{border-color:rgba(193,122,111,.4);
     background:linear-gradient(135deg,#fff 60%,rgba(232,196,176,.15))!important}
   .grid-item-featured::after{content:'';position:absolute;inset:0;border-radius:16px;
@@ -189,7 +179,6 @@
     white-space:nowrap;z-index:2;
   }
 
-  /* ══ POPUP ══ */
   #popup-overlay{display:none;position:fixed;inset:0;z-index:999;
     background:rgba(45,31,26,.45);backdrop-filter:blur(5px);
     align-items:flex-end;justify-content:center;padding:1rem}
@@ -214,7 +203,6 @@
   .popup-btn-cancel{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
   .popup-btn-cancel:active{background:var(--warm)}
 
-  /* Responsive */
   @media(max-width:360px){
     .grid{gap:.55rem}
     .grid-item{padding:.8rem .35rem .7rem;border-radius:13px}
@@ -236,7 +224,7 @@
 </head>
 <body>
 
-<!-- ══ HOME ══ -->
+<!-- HOME -->
 <div id="home" class="screen active">
   <div class="home-top">
     <div class="home-pill">🤍 Khusus untuk kamu</div>
@@ -268,7 +256,7 @@
   </div>
 </div>
 
-<!-- ══ CATEGORY SCREEN ══ -->
+<!-- CAT SCREEN -->
 <div id="cat-screen" class="screen">
   <div class="cat-header">
     <div class="back-btn" onclick="showHome()">←</div>
@@ -281,7 +269,24 @@
   <div class="cat-body" id="cat-body"></div>
 </div>
 
-<!-- ══ POPUP ══ -->
+<!-- PASSWORD OVERLAY -->
+<div id="pw-overlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(45,31,26,.55);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--cream);border-radius:24px;padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(45,31,26,.2);animation:slideup .3s cubic-bezier(.34,1.3,.64,1)">
+    <div style="font-size:2.5rem;margin-bottom:.75rem">🔐</div>
+    <h2 style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.35rem">Masukkan Password</h2>
+    <p style="font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem">Area ini terlindungi — masukkan password untuk masuk ke Secret 🤍</p>
+    <input id="pw-input" type="password" inputmode="numeric" maxlength="6"
+      style="width:100%;padding:.9rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:Poppins,sans-serif;font-size:1.6rem;letter-spacing:.5em;text-align:center;color:var(--ink);background:#fff;outline:none;margin-bottom:.6rem;transition:border-color .2s"
+      placeholder="••••"
+      onkeydown="if(event.key==='Enter')submitPw()"
+      oninput="document.getElementById('pw-err').style.display='none'">
+    <p id="pw-err" style="display:none;font-size:11px;color:var(--rose);margin-bottom:.65rem">Password salah, coba lagi 🤍</p>
+    <button onclick="submitPw()" style="width:100%;padding:.875rem;border-radius:50px;border:none;cursor:pointer;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);margin-bottom:.55rem;transition:all .15s">Masuk →</button>
+    <button onclick="closePw()" style="width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-family:Poppins,sans-serif;font-size:13px;cursor:pointer">Batal</button>
+  </div>
+</div>
+
+<!-- POPUP -->
 <div id="popup-overlay" onclick="handleOverlay(event)">
   <div class="popup-sheet">
     <div class="popup-drag"></div>
@@ -294,7 +299,6 @@
 </div>
 
 <script>
-// ── CATEGORY DATA ──
 const CATS = [
   {
     key:'games', emoji:'🎮', name:'Games & Quiz',
@@ -313,6 +317,7 @@ const CATS = [
         {icon:'🔍',wrap:'sage',label:'Word Search',sub:'12 kata',desc:'Temukan 12 kata tentang kita yang tersembunyi di grid. Bisa ga? 👀',link:'word-search.html'},
         {icon:'🍼',wrap:'sage',label:'Baby Sim',sub:'1 menit 30 detik',desc:'Razan jadi bapak, Dara jadi ibu — ngerawat bayi bareng selama 1 menit 30 detik!',link:'baby-sim.html'},
         {icon:'❓',wrap:'gold',label:'Pilih yang Mana',sub:'15 skenario',desc:'15 skenario lucu sehari-hari — pilih salah satu dan lihat kesimpulan kepribadian kamu di akhir!',link:'pilih-yang-mana.html'},
+        {icon:'🤔',wrap:'mauve',label:'Siapa yang Lebih',sub:'20 pertanyaan',desc:'20 pertanyaan jujur-jujuran tentang kalian berdua — siapa yang lebih bawel, drama, dan... cinta? 😏',link:'siapa-yang-lebih.html'},
         {icon:'🔤',wrap:'sage',label:'Scramble Kata',sub:'20 kata',desc:'Huruf diacak — susun ulang jadi kata yang bener secepat mungkin! Semua tentang kita 🤍',link:'scramble-kata.html'},
       ]}
     ]
@@ -361,54 +366,55 @@ const CATS = [
 let idx = 0;
 let busy = false;
 
-// Init
-renderCard(false);
+renderCard();
 document.getElementById('c-btn').addEventListener('click', () => showCat(idx));
 
 function getCatBadge(cat) {
   const total = cat.sections.reduce((a, s) => a + s.items.length, 0);
   const icons = {games:'🎯', hadiah:'💌', keuangan:'💳', secret:'🎂'};
   const units = {games:'game', hadiah:'hadiah', keuangan:'kantong', secret:'kejutan'};
-  return `${icons[cat.key] || '✨'} ${total} ${units[cat.key] || 'item'}`;
+  return `${icons[cat.key]||'✨'} ${total} ${units[cat.key]||'item'}`;
 }
 
-function renderCard(dir) {
+function renderCard() {
   const c = CATS[idx];
   document.getElementById('c-emoji').textContent = c.emoji;
   document.getElementById('c-name').textContent = c.name;
   document.getElementById('c-desc').textContent = c.desc;
   document.getElementById('c-badge').textContent = getCatBadge(c);
   document.getElementById('cat-cur').textContent = idx + 1;
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===idx));
   document.getElementById('btn-prev').disabled = idx === 0;
-  document.getElementById('btn-next').disabled = idx === CATS.length - 1;
+  document.getElementById('btn-next').disabled = idx === CATS.length-1;
 }
 
 function anim(dir, cb) {
   if (busy) return;
   busy = true;
   const card = document.getElementById('main-card');
-  const out = dir === 'left' ? 'card-slide-left' : 'card-slide-right';
-  const inn = dir === 'left' ? 'card-enter-left' : 'card-enter-right';
+  const out = dir==='left' ? 'card-slide-left' : 'card-slide-right';
+  const inn = dir==='left' ? 'card-enter-left' : 'card-enter-right';
   card.classList.add(out);
   setTimeout(() => {
     card.classList.remove(out);
     cb();
-    renderCard(dir);
+    renderCard();
     card.classList.add(inn);
-    setTimeout(() => { card.classList.remove(inn); busy = false; }, 280);
+    setTimeout(() => { card.classList.remove(inn); busy=false; }, 280);
   }, 270);
 }
 
-function prevCat() { if (idx > 0) anim('right', () => idx--); }
-function nextCat() { if (idx < CATS.length-1) anim('left', () => idx++); }
-function goTo(i) {
-  if (i === idx) return;
-  anim(i > idx ? 'left' : 'right', () => idx = i);
+function prevCat() { if (idx>0) anim('right', ()=>idx--); }
+function nextCat() { if (idx<CATS.length-1) anim('left', ()=>idx++); }
+function goTo(i) { if (i!==idx) anim(i>idx?'left':'right', ()=>idx=i); }
+
+// ── SHOW CAT ──
+function showCat(i) {
+  if (CATS[i].key === 'secret') { askPassword(i); return; }
+  renderCatScreen(i);
 }
 
-// ── SHOW CATEGORY ──
-function showCat(i) {
+function renderCatScreen(i) {
   const cat = CATS[i];
   document.getElementById('cat-hicon').textContent = cat.emoji;
   document.getElementById('cat-hname').textContent = cat.name;
@@ -420,7 +426,6 @@ function showCat(i) {
   cat.sections.forEach(sec => {
     const secEl = document.createElement('div');
     secEl.className = 'section';
-
     const lbl = document.createElement('p');
     lbl.className = 'section-label';
     lbl.textContent = sec.label;
@@ -475,6 +480,35 @@ function showHome() {
   document.getElementById('home').classList.add('active');
 }
 
+// ── PASSWORD ──
+const SECRET_PW = '0607';
+let pendingIdx = null;
+
+function askPassword(i) {
+  pendingIdx = i;
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').style.display = 'none';
+  const ov = document.getElementById('pw-overlay');
+  ov.style.display = 'flex';
+  setTimeout(() => document.getElementById('pw-input').focus(), 300);
+}
+
+function submitPw() {
+  if (document.getElementById('pw-input').value === SECRET_PW) {
+    closePw();
+    renderCatScreen(pendingIdx);
+  } else {
+    document.getElementById('pw-err').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+function closePw() {
+  document.getElementById('pw-overlay').style.display = 'none';
+  pendingIdx = null;
+}
+
 // ── POPUP ──
 let curLink = '';
 function openPopup(icon, title, desc, link) {
@@ -490,23 +524,23 @@ function closePopup() {
   curLink = '';
 }
 function openLink() { if (curLink) window.location.href = curLink; }
-function handleOverlay(e) { if (e.target === document.getElementById('popup-overlay')) closePopup(); }
+function handleOverlay(e) { if (e.target===document.getElementById('popup-overlay')) closePopup(); }
 
 // ── BIRTHDAY ──
 const BDAY_MONTH = 7, BDAY_DAY = 18;
-function isBirthday() { const n = new Date(); return n.getMonth() === BDAY_MONTH && n.getDate() >= BDAY_DAY; }
+function isBirthday() { const n=new Date(); return n.getMonth()===BDAY_MONTH && n.getDate()>=BDAY_DAY; }
 function checkBirthday() {
   if (isBirthday()) {
     openPopup('📖','Memory Scrapbook & Peta Kenangan','Semua tempat dan momen yang pernah kita lalui bareng. Happy birthday! 🎉','birthday-scrapbook.html');
   } else {
-    const now = new Date();
-    const bday = new Date(now.getFullYear(), BDAY_MONTH, BDAY_DAY);
-    if (bday < now) bday.setFullYear(now.getFullYear()+1);
-    const diff = Math.ceil((bday-now)/(1000*60*60*24));
-    document.getElementById('popup-icon').textContent = '🔒';
-    document.getElementById('popup-title').textContent = 'Masih Terkunci';
-    document.getElementById('popup-desc').textContent = `Masih ${diff} hari lagi ya 🤍 Sabar dulu — akan terbuka otomatis di hari yang tepat.`;
-    document.getElementById('popup-open-btn').style.display = 'none';
+    const now=new Date();
+    const bday=new Date(now.getFullYear(),BDAY_MONTH,BDAY_DAY);
+    if (bday<now) bday.setFullYear(now.getFullYear()+1);
+    const diff=Math.ceil((bday-now)/(1000*60*60*24));
+    document.getElementById('popup-icon').textContent='🔒';
+    document.getElementById('popup-title').textContent='Masih Terkunci';
+    document.getElementById('popup-desc').textContent=`Masih ${diff} hari lagi ya 🤍 Sabar dulu — akan terbuka otomatis di hari yang tepat.`;
+    document.getElementById('popup-open-btn').style.display='none';
     document.getElementById('popup-overlay').classList.add('active');
   }
 }
