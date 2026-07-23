@@ -299,7 +299,6 @@ const CATS = [
   {
     key:'games', emoji:'🎮', name:'Games & Quiz',
     desc:'Tantangan seru buat kalian berdua — dari yang bikin ketawa sampai yang bikin makin sayang',
-    badge:'🎯 12 game',
     sections:[
       { label:'Games & Quiz', items:[
         {feat:true,badge:'✦ Wajib Dibuka',icon:'🎰',wrap:'mauve',label:'Roda Sayang',sub:'Misi Romantis',desc:'Putar roda, dapat misi romantis yang harus langsung dilakuin — manis, intim, dan bikin makin sayang 🤍',link:'dare-roulette.html'},
@@ -310,17 +309,16 @@ const CATS = [
         {icon:'🃏',wrap:'mauve',label:'Deep Talk',sub:'20 kartu',desc:'20 kartu pertanyaan dalam tentang kita, masa depan, dan hal yang jarang dibicarakan.',link:'deep-talk.html'},
         {icon:'🎲',wrap:'gold',label:'Dadu Nasib',sub:'6 kategori nasib',desc:'Lempar dadu — dapat nasib random yang harus dilakuin hari ini. Romantis, lucu, absurd, atau Wild Card! 🔥',link:'dadu-nasib.html'},
         {icon:'🎭',wrap:'sage',label:'Tebak Gaya',sub:'10 ronde',desc:'Satu orang akting tanpa ngomong — yang lain nebak. Timer 30 detik, 10 ronde, ada skor! 😄',link:'tebak-gaya.html'},
+        {icon:'📦',wrap:'gold',label:'Lucky Dip',sub:'24 kotak',desc:'Klik kotak tersembunyi — tiap kotak isi surprise buat kamu. Pesan, fakta lucu, atau tantangan kecil 🤍',link:'lucky-dip.html'},
         {icon:'🔍',wrap:'sage',label:'Word Search',sub:'12 kata',desc:'Temukan 12 kata tentang kita yang tersembunyi di grid. Bisa ga? 👀',link:'word-search.html'},
         {icon:'🍼',wrap:'sage',label:'Baby Sim',sub:'1 menit 30 detik',desc:'Razan jadi bapak, Dara jadi ibu — ngerawat bayi bareng selama 1 menit 30 detik!',link:'baby-sim.html'},
         {icon:'❓',wrap:'gold',label:'Pilih yang Mana',sub:'15 skenario',desc:'15 skenario lucu sehari-hari — pilih salah satu dan lihat kesimpulan kepribadian kamu di akhir!',link:'pilih-yang-mana.html'},
-        {icon:'🤔',wrap:'mauve',label:'Siapa yang Lebih',sub:'20 pertanyaan',desc:'20 pertanyaan jujur-jujuran tentang kalian berdua — siapa yang lebih bawel, drama, dan... cinta? 😏',link:'siapa-yang-lebih.html'},
       ]}
     ]
   },
   {
     key:'hadiah', emoji:'🎁', name:'Hadiah Digital',
     desc:'Hadiah yang ga bisa dibeli — dibuat khusus dan penuh rasa dari Razan buat kamu',
-    badge:'💌 12 hadiah',
     sections:[
       { label:'Hadiah Digital', items:[
         {feat:true,badge:'✦ Wajib Dibuka',icon:'💌',wrap:'mauve',label:'Open When',sub:'8 surat',desc:'8 surat untuk 8 kondisi berbeda. Buka sesuai perasaan kamu sekarang — kapanpun kamu butuh.',link:'open-when.html'},
@@ -341,7 +339,6 @@ const CATS = [
   {
     key:'keuangan', emoji:'💰', name:'Keuangan',
     desc:'Atur keuangan kalian masing-masing — catat pengeluaran, pantau saldo, dan rencanakan bareng',
-    badge:'💳 2 kantong',
     sections:[
       { label:'Keuangan', items:[
         {icon:'💰',wrap:'warm',label:'Kantong Dara',sub:'Atur uangmu',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil kamu.',link:'keuangan-dara.html'},
@@ -352,7 +349,6 @@ const CATS = [
   {
     key:'secret', emoji:'🔒', name:'Secret',
     desc:'Ada sesuatu yang tersembunyi di sini — terbuka otomatis di hari yang tepat',
-    badge:'🎂 1 kejutan',
     sections:[
       { label:'Secret', items:[
         {icon:'🔒',wrap:'pink',label:'Sesuatu yang Spesial',sub:'Tunggu ya 🤍',desc:'',link:'',locked:true},
@@ -368,12 +364,19 @@ let busy = false;
 renderCard(false);
 document.getElementById('c-btn').addEventListener('click', () => showCat(idx));
 
+function getCatBadge(cat) {
+  const total = cat.sections.reduce((a, s) => a + s.items.length, 0);
+  const icons = {games:'🎯', hadiah:'💌', keuangan:'💳', secret:'🎂'};
+  const units = {games:'game', hadiah:'hadiah', keuangan:'kantong', secret:'kejutan'};
+  return `${icons[cat.key] || '✨'} ${total} ${units[cat.key] || 'item'}`;
+}
+
 function renderCard(dir) {
   const c = CATS[idx];
   document.getElementById('c-emoji').textContent = c.emoji;
   document.getElementById('c-name').textContent = c.name;
   document.getElementById('c-desc').textContent = c.desc;
-  document.getElementById('c-badge').textContent = c.badge;
+  document.getElementById('c-badge').textContent = getCatBadge(c);
   document.getElementById('cat-cur').textContent = idx + 1;
   document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === idx));
   document.getElementById('btn-prev').disabled = idx === 0;
@@ -408,7 +411,7 @@ function showCat(i) {
   const cat = CATS[i];
   document.getElementById('cat-hicon').textContent = cat.emoji;
   document.getElementById('cat-hname').textContent = cat.name;
-  document.getElementById('cat-hcount').textContent = cat.badge;
+  document.getElementById('cat-hcount').textContent = getCatBadge(cat);
 
   const body = document.getElementById('cat-body');
   body.innerHTML = '';
