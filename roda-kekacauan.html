@@ -420,6 +420,9 @@ function spinWheel(){
   requestAnimationFrame(animate);
 }
 
+// Track used cards per category
+const usedCards = {absurd:[],koneksi:[],jujur:[],misi:[],fisik:[],waktu:[]};
+
 function showResult(){
   const n=SEGMENTS.length, arc=(2*Math.PI)/n;
   const ptr=3*Math.PI/2;
@@ -435,8 +438,20 @@ function showResult(){
     :'waktu';
 
   const pool=CARDS[catKey];
-  const item=pool[Math.floor(Math.random()*pool.length)];
+  // Filter out already used cards
+  let available = pool.filter((_,i) => !usedCards[catKey].includes(i));
+  // If all used, reset this category
+  if(available.length === 0){
+    usedCards[catKey] = [];
+    available = pool;
+  }
+  // Pick random from available
+  const availableIdx = Math.floor(Math.random()*available.length);
+  const item = available[availableIdx];
+  const originalIdx = pool.indexOf(item);
+  usedCards[catKey].push(originalIdx);
 
+  const remaining = pool.length - usedCards[catKey].length;
   const catEl=document.getElementById('res-cat');
   catEl.className=`res-cat ${seg.catClass}`;
   catEl.textContent=seg.label;
@@ -445,7 +460,10 @@ function showResult(){
   document.getElementById('result-sheet').classList.add('show');
 
   spinCount++;
-  document.getElementById('spin-count').textContent=`Sudah putar ${spinCount} kali hari ini`;
+  const totalCards = Object.values(CARDS).reduce((a,b)=>a+b.length,0);
+  const totalUsed = Object.values(usedCards).reduce((a,b)=>a+b.length,0);
+  const totalRemaining = totalCards - totalUsed;
+  document.getElementById('spin-count').textContent=`Putaran ke-${spinCount} · Kategori ini: ${pool.length} tantangan, sisa ${remaining}`;
   document.getElementById('spin-btn').disabled=false;
   document.getElementById('spin-again').style.display='block';
 
