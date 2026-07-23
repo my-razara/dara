@@ -356,7 +356,7 @@ const CATS = [
     desc:'Ada sesuatu yang tersembunyi di sini — terbuka otomatis di hari yang tepat',
     sections:[
       { label:'Secret', items:[
-        {icon:'🔒',wrap:'pink',label:'Sesuatu yang Spesial',sub:'Tunggu ya 🤍',desc:'',link:'',locked:true},
+        {icon:'🔒',wrap:'pink',label:'Sesuatu yang Spesial',sub:'Tunggu ya 🤍',desc:'',link:'',dimmed:true},
       ]}
     ]
   },
@@ -438,6 +438,7 @@ function renderCatScreen(i) {
       let cls = 'grid-item';
       if (item.feat) cls += ' grid-item-featured';
       if (item.locked) cls += ' locked';
+      if (item.dimmed) el.style.opacity = '0.55';
       el.className = cls;
 
       if (item.badge) {
@@ -494,8 +495,9 @@ function askPassword(i) {
 
 function submitPw() {
   if (document.getElementById('pw-input').value === SECRET_PW) {
+    const i = pendingIdx;
     closePw();
-    renderCatScreen(pendingIdx);
+    renderCatScreen(i);
   } else {
     document.getElementById('pw-err').style.display = 'block';
     document.getElementById('pw-input').value = '';
