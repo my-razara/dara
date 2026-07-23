@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rating Ketemu — Untuk Dara 🌟</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .page{max-width:480px;margin:0 auto;padding:0 1.25rem 5rem;position:relative;z-index:1}
+
+  /* ── HEADER ── */
+  .header{text-align:center;padding:2.5rem 0 1.75rem}
+  .header-icon{font-size:3rem;display:block;margin-bottom:.85rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .header-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .header-title{font-size:clamp(1.4rem,5vw,1.9rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .header-title span{color:var(--rose)}
+  .header-sub{font-size:12px;color:var(--muted);line-height:1.65;max-width:280px;margin:0 auto}
+
+  /* ── STAR RATING ── */
+  .rating-section{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:20px;padding:1.75rem 1.5rem;
+    margin-bottom:1.1rem;
+    box-shadow:0 4px 20px rgba(193,122,111,.08);
+    text-align:center;
+  }
+  .rating-label{font-size:11px;color:var(--muted);margin-bottom:1.1rem;display:block;letter-spacing:.04em}
+
+  .stars{display:flex;justify-content:center;gap:.5rem;margin-bottom:1rem}
+  .star{
+    font-size:clamp(2.2rem,10vw,2.8rem);
+    cursor:pointer;transition:transform .15s;
+    filter:grayscale(1) opacity(.3);
+    line-height:1;
+  }
+  .star:active{transform:scale(.88)}
+  .star.active{filter:none;animation:starPop .25s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes starPop{0%{transform:scale(.7)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+  /* Rating label text */
+  .rating-desc{
+    font-size:13px;font-weight:600;color:var(--rose);
+    min-height:20px;transition:all .2s;
+    display:block;
+  }
+
+  /* ── RATING PREVIEW CARD ── */
+  .rating-preview{
+    display:none;
+    background:linear-gradient(135deg,rgba(193,122,111,.06),rgba(201,169,110,.04));
+    border:1px solid rgba(193,122,111,.15);
+    border-radius:14px;padding:1rem 1.25rem;
+    margin-bottom:1.1rem;
+    animation:popin .3s cubic-bezier(.34,1.3,.64,1);
+  }
+  .rating-preview.show{display:block}
+  @keyframes popin{from{transform:scale(.95) translateY(5px);opacity:0}to{transform:none;opacity:1}}
+  .preview-stars{font-size:1.1rem;margin-bottom:.3rem;display:block}
+  .preview-title{font-size:12px;font-weight:600;color:var(--rose);margin-bottom:.2rem}
+  .preview-msg{font-size:11px;color:var(--muted);line-height:1.6}
+
+  /* ── TEXTAREA ── */
+  .input-section{margin-bottom:1.1rem}
+  .input-label{
+    font-size:11px;font-weight:600;color:var(--ink);
+    letter-spacing:.04em;display:block;margin-bottom:.6rem;
+  }
+  .input-label span{color:var(--muted);font-weight:300}
+  textarea{
+    width:100%;padding:.9rem 1rem;
+    border:1.5px solid var(--blush);border-radius:14px;
+    background:#fff;font-family:'Poppins',sans-serif;
+    font-size:13px;font-weight:300;color:var(--ink);
+    resize:none;outline:none;transition:border-color .2s;
+    line-height:1.65;min-height:100px;
+  }
+  textarea:focus{border-color:var(--rose)}
+  textarea::placeholder{color:var(--muted)}
+
+  /* ── TANGGAL ── */
+  .date-section{margin-bottom:1.5rem}
+  .date-label{font-size:11px;font-weight:600;color:var(--ink);display:block;margin-bottom:.6rem;letter-spacing:.04em}
+  .date-input{
+    width:100%;padding:.8rem 1rem;
+    border:1.5px solid var(--blush);border-radius:14px;
+    background:#fff;font-family:'Poppins',sans-serif;
+    font-size:13px;color:var(--ink);
+    outline:none;transition:border-color .2s;
+  }
+  .date-input:focus{border-color:var(--rose)}
+
+  /* ── SEND BUTTON ── */
+  .send-btn{
+    width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:linear-gradient(135deg,#25d366,#128c4a);color:#fff;
+    box-shadow:0 4px 18px rgba(37,211,102,.3);
+    transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;
+    margin-bottom:.75rem;
+  }
+  .send-btn:active{transform:scale(.97);opacity:.9}
+  .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+  .send-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+
+  /* ── HISTORY ── */
+  .history-section{margin-top:2rem}
+  .history-title{
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:.75rem;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .history-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+
+  .history-empty{font-size:12px;color:var(--muted);text-align:center;padding:1.25rem 0;font-style:italic}
+
+  .history-list{display:flex;flex-direction:column;gap:.6rem}
+  .history-item{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:14px;padding:.85rem 1rem;
+    box-shadow:0 2px 8px rgba(193,122,111,.05);
+    display:flex;gap:.75rem;align-items:flex-start;
+  }
+  .h-stars{font-size:1rem;flex-shrink:0;line-height:1.4}
+  .h-body{flex:1;min-width:0}
+  .h-date{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:.2rem}
+  .h-rating{font-size:12px;font-weight:600;color:var(--rose);display:block;margin-bottom:.2rem}
+  .h-text{font-size:11px;color:var(--muted);line-height:1.5;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .h-del{
+    width:22px;height:22px;border-radius:50%;
+    border:none;background:rgba(193,122,111,.08);
+    color:var(--muted);font-size:.65rem;cursor:pointer;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;
+  }
+  .h-del:active{background:rgba(193,122,111,.2);color:var(--rose)}
+
+  /* Avg score */
+  .avg-card{
+    background:linear-gradient(135deg,var(--rose),var(--deep));
+    border-radius:16px;padding:1rem 1.25rem;
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:1rem;color:#fff;
+  }
+  .avg-label{font-size:11px;opacity:.8}
+  .avg-score{font-size:1.6rem;font-weight:700}
+  .avg-stars{font-size:.9rem;opacity:.8}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <span class="header-icon">⭐</span>
+    <span class="header-label">Dari Dara, untuk Razan</span>
+    <h1 class="header-title">Rating <span>Ketemu</span></h1>
+    <p class="header-sub">Kasih bintang tiap habis ketemu Razan — dan ceritain alasannya 🤍</p>
+  </div>
+
+  <!-- STAR RATING -->
+  <div class="rating-section">
+    <span class="rating-label">Ketemu kali ini gimana?</span>
+    <div class="stars" id="stars">
+      <span class="star" onclick="setStar(1)">⭐</span>
+      <span class="star" onclick="setStar(2)">⭐</span>
+      <span class="star" onclick="setStar(3)">⭐</span>
+      <span class="star" onclick="setStar(4)">⭐</span>
+      <span class="star" onclick="setStar(5)">⭐</span>
+    </div>
+    <span class="rating-desc" id="rating-desc">Tap bintang untuk kasih rating</span>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="rating-preview" id="rating-preview">
+    <span class="preview-stars" id="preview-stars"></span>
+    <p class="preview-title" id="preview-title"></p>
+    <p class="preview-msg" id="preview-msg"></p>
+  </div>
+
+  <!-- ALASAN -->
+  <div class="input-section">
+    <label class="input-label">Ceritain alasannya <span>— boleh panjang, boleh pendek</span></label>
+    <textarea id="alasan" placeholder="Misal: tadi seru banget, Razan dengerin aku cerita sampai selesai tanpa motong..." rows="4"></textarea>
+  </div>
+
+  <!-- TANGGAL -->
+  <div class="date-section">
+    <label class="date-label">Tanggal ketemu</label>
+    <input type="date" class="date-input" id="tanggal">
+  </div>
+
+  <!-- KIRIM -->
+  <button class="send-btn" id="send-btn" onclick="kirim()" disabled>
+    <span>📤</span> Kirim ke Razan via WhatsApp
+  </button>
+  <p class="send-note">Razan akan langsung tau rating dan alasannya dari kamu 🤍</p>
+
+  <!-- HISTORY -->
+  <div class="history-section">
+    <p class="history-title">Riwayat Rating</p>
+    <div id="avg-wrap" style="display:none">
+      <div class="avg-card">
+        <div>
+          <p class="avg-label">Rata-rata rating kamu</p>
+          <span class="avg-score" id="avg-score">0.0</span>
+        </div>
+        <span class="avg-stars" id="avg-stars"></span>
+      </div>
+    </div>
+    <div class="history-list" id="history-list">
+      <p class="history-empty">Belum ada rating. Yuk kasih rating pertamamu!</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WA = '6285692740607';
+let selectedStar = 0;
+
+const STAR_DATA = {
+  1: {
+    label: '😔 Kurang berkesan',
+    title: 'Bintang 1 — Kurang',
+    msg: 'Kayaknya ada yang kurang hari ini. Razan harus lebih perhatian.',
+    waMsg: (alasan, tgl) =>
+      `Hei sayangku, aku mau kasih rating buat ketemu kita hari ini (${tgl}).\n\n⭐ (1/5) — Kurang berkesan\n\n${alasan ? 'Alasannya: ' + alasan + '\n\n' : ''}Aku harap next time bisa lebih baik ya. 🤍`,
+  },
+  2: {
+    label: '😕 Biasa aja',
+    title: 'Bintang 2 — Biasa',
+    msg: 'Lumayan, tapi masih bisa lebih baik. Masih ada yang kurang.',
+    waMsg: (alasan, tgl) =>
+      `Hei sayangku, ini rating buat ketemu kita tanggal ${tgl}.\n\n⭐⭐ (2/5) — Biasa aja\n\n${alasan ? 'Alasannya: ' + alasan + '\n\n' : ''}Ada yang bisa ditingkatin nih, ya. 🤍`,
+  },
+  3: {
+    label: '🙂 Lumayan',
+    title: 'Bintang 3 — Cukup',
+    msg: 'Cukup menyenangkan. Ada yang seru, ada yang kurang, tapi overall oke.',
+    waMsg: (alasan, tgl) =>
+      `Hei sayangku, rating ketemu kita tanggal ${tgl}:\n\n⭐⭐⭐ (3/5) — Lumayan!\n\n${alasan ? 'Alasannya: ' + alasan + '\n\n' : ''}Lumayan seru kok, tapi bisa lebih bagus lagi. 🤍`,
+  },
+  4: {
+    label: '😊 Seru banget!',
+    title: 'Bintang 4 — Bagus',
+    msg: 'Seru banget! Hampir sempurna. Aku suka ketemu kayak gini.',
+    waMsg: (alasan, tgl) =>
+      `Hei sayangku! Rating ketemu kita tanggal ${tgl}:\n\n⭐⭐⭐⭐ (4/5) — Seru banget!\n\n${alasan ? 'Alasannya: ' + alasan + '\n\n' : ''}Aku suka banget ketemu hari ini. Next time harus lebih seru lagi ya! 🤍`,
+  },
+  5: {
+    label: '🥰 Sempurna!',
+    title: 'Bintang 5 — Sempurna',
+    msg: 'Sempurna. Ga ada yang perlu diubah. Aku mau ketemu kayak gini terus.',
+    waMsg: (alasan, tgl) =>
+      `Hei sayangku! Rating ketemu kita tanggal ${tgl}:\n\n⭐⭐⭐⭐⭐ (5/5) — SEMPURNA!\n\n${alasan ? 'Alasannya: ' + alasan + '\n\n' : ''}Hari ini beneran sempurna. Makasih ya udah ada. Aku sayang kamu. 🤍`,
+  },
+};
+
+// Set default date to today
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth()+1).padStart(2,'0');
+const dd = String(today.getDate()).padStart(2,'0');
+document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+
+function setStar(n) {
+  selectedStar = n;
+  const stars = document.querySelectorAll('.star');
+  stars.forEach((s, i) => {
+    s.classList.toggle('active', i < n);
+  });
+
+  const data = STAR_DATA[n];
+  document.getElementById('rating-desc').textContent = data.label;
+
+  // Show preview
+  const preview = document.getElementById('rating-preview');
+  document.getElementById('preview-stars').textContent = '⭐'.repeat(n) + '☆'.repeat(5-n);
+  document.getElementById('preview-title').textContent = data.title;
+  document.getElementById('preview-msg').textContent = data.msg;
+  preview.classList.add('show');
+
+  document.getElementById('send-btn').disabled = false;
+}
+
+function formatDate(val) {
+  if (!val) return 'tanggal tidak diisi';
+  const [y, m, d] = val.split('-');
+  const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  return `${parseInt(d)} ${bulan[parseInt(m)-1]} ${y}`;
+}
+
+function kirim() {
+  if (!selectedStar) return;
+  const alasan = document.getElementById('alasan').value.trim();
+  const tgl = formatDate(document.getElementById('tanggal').value);
+  const data = STAR_DATA[selectedStar];
+  const msg = data.waMsg(alasan, tgl);
+
+  // Save to history
+  saveHistory({
+    stars: selectedStar,
+    alasan: alasan || '-',
+    tanggal: tgl,
+    label: data.label,
+  });
+
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank');
+
+  // Reset form
+  setTimeout(() => {
+    selectedStar = 0;
+    document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+    document.getElementById('rating-desc').textContent = 'Tap bintang untuk kasih rating';
+    document.getElementById('alasan').value = '';
+    document.getElementById('rating-preview').classList.remove('show');
+    document.getElementById('send-btn').disabled = true;
+    // reset date to today
+    document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+  }, 500);
+}
+
+// ── HISTORY ──
+let history = JSON.parse(localStorage.getItem('dara-rating-history') || '[]');
+
+function saveHistory(item) {
+  history.unshift({ ...item, id: Date.now() });
+  localStorage.setItem('dara-rating-history', JSON.stringify(history));
+  renderHistory();
+}
+
+function deleteHistory(id) {
+  history = history.filter(h => h.id !== id);
+  localStorage.setItem('dara-rating-history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const avgWrap = document.getElementById('avg-wrap');
+
+  if (!history.length) {
+    list.innerHTML = '<p class="history-empty">Belum ada rating. Yuk kasih rating pertamamu!</p>';
+    avgWrap.style.display = 'none';
+    return;
+  }
+
+  // Average
+  const avg = history.reduce((sum, h) => sum + h.stars, 0) / history.length;
+  document.getElementById('avg-score').textContent = avg.toFixed(1);
+  document.getElementById('avg-stars').textContent = '⭐'.repeat(Math.round(avg));
+  avgWrap.style.display = 'block';
+
+  list.innerHTML = history.map(h => `
+    <div class="history-item">
+      <span class="h-stars">${'⭐'.repeat(h.stars)}</span>
+      <div class="h-body">
+        <span class="h-date">${h.tanggal}</span>
+        <span class="h-rating">${h.label}</span>
+        <p class="h-text">${h.alasan}</p>
+      </div>
+      <button class="h-del" onclick="deleteHistory(${h.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+renderHistory();
+</script>
+</body>
+</html>
