@@ -7,488 +7,281 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cream: #faf6f0;
-    --warm: #f5ede0;
-    --blush: #e8c4b0;
-    --rose: #c17a6f;
-    --deep: #7a3f35;
-    --ink: #2d1f1a;
-    --gold: #c9a96e;
-    --muted: #9a8070;
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.4) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.2) 0%,transparent 60%);
+    pointer-events:none;z-index:0}
+
+  /* ══ SCREENS ══ */
+  .screen{display:none;position:fixed;inset:0;z-index:1;overflow:hidden;flex-direction:column}
+  .screen.active{display:flex}
+
+  /* ══════════ HOME ══════════ */
+  #home{align-items:center;justify-content:center;gap:0;padding:1.5rem 1.25rem}
+
+  .home-top{text-align:center;margin-bottom:1.5rem;flex-shrink:0}
+  .home-pill{
+    display:inline-flex;align-items:center;gap:.35rem;
+    background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.2);
+    border-radius:50px;padding:.28rem .85rem;
+    font-size:10.5px;font-weight:500;color:var(--rose);margin-bottom:.75rem;
+  }
+  .home-name{
+    font-size:clamp(1.5rem,6vw,2.2rem);font-weight:700;color:var(--ink);
+    letter-spacing:-.02em;line-height:1.1;margin-bottom:.3rem;
+  }
+  .home-name em{font-style:normal;color:var(--rose)}
+  .home-sub{font-size:11.5px;color:var(--muted);line-height:1.65;max-width:260px;margin:0 auto}
+
+  /* Card area */
+  .card-area{width:100%;max-width:420px;flex-shrink:0}
+
+  /* Arrow row */
+  .arrow-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+  .arr-btn{
+    width:38px;height:38px;border-radius:50%;
+    background:#fff;border:1.5px solid var(--blush);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.95rem;color:var(--muted);cursor:pointer;
+    transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.1);
+    user-select:none;
+  }
+  .arr-btn:active{background:var(--warm);border-color:var(--rose);color:var(--rose);transform:scale(.9)}
+  .arr-btn:disabled{opacity:.25;cursor:not-allowed;transform:none!important}
+  .cat-counter{font-size:11px;color:var(--muted)}
+  .cat-counter b{color:var(--rose);font-size:14px}
+
+  /* Main card */
+  .main-card{
+    width:100%;background:#fff;
+    border:1px solid rgba(193,122,111,.15);
+    border-radius:26px;
+    padding:1.75rem 1.5rem 1.5rem;
+    box-shadow:0 8px 40px rgba(193,122,111,.12);
+    text-align:center;position:relative;overflow:hidden;
+  }
+  .main-card::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.15),transparent 65%);
+    pointer-events:none}
+
+  .card-slide-left{animation:slideL .28s cubic-bezier(.4,0,.2,1) forwards}
+  .card-slide-right{animation:slideR .28s cubic-bezier(.4,0,.2,1) forwards}
+  .card-enter-left{animation:enterL .28s cubic-bezier(.4,0,.2,1) forwards}
+  .card-enter-right{animation:enterR .28s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes slideL{to{transform:translateX(-50px);opacity:0}}
+  @keyframes slideR{to{transform:translateX(50px);opacity:0}}
+  @keyframes enterL{from{transform:translateX(50px);opacity:0}to{transform:none;opacity:1}}
+  @keyframes enterR{from{transform:translateX(-50px);opacity:0}to{transform:none;opacity:1}}
+
+  .card-emoji{font-size:clamp(2.5rem,9vw,3.5rem);display:block;margin-bottom:.85rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .card-name{font-size:clamp(1rem,4vw,1.25rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .card-desc{font-size:11.5px;color:var(--muted);line-height:1.6;max-width:230px;margin:0 auto .9rem}
+  .card-badge{
+    display:inline-flex;align-items:center;gap:.3rem;
+    background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);
+    border-radius:50px;padding:.3rem .9rem;
+    font-size:11px;font-weight:600;color:var(--rose);margin-bottom:1.1rem;
+  }
+  .card-btn{
+    width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13.5px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.38);transition:all .15s;
+  }
+  .card-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* Dots */
+  .dots-row{display:flex;justify-content:center;gap:.4rem;margin-top:.7rem}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--blush);transition:all .3s;cursor:pointer}
+  .dot.active{background:var(--rose);width:18px;border-radius:3px}
+
+  /* ══════════ CATEGORY SCREEN ══════════ */
+  #cat-screen{background:var(--cream)}
+
+  .cat-header{
+    flex-shrink:0;
+    background:rgba(250,246,240,.95);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(193,122,111,.1);
+    padding:.8rem 1.1rem;
+    display:flex;align-items:center;gap:.75rem;
+  }
+  .back-btn{
+    width:34px;height:34px;border-radius:50%;
+    background:#fff;border:1.5px solid var(--blush);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:.85rem;color:var(--muted);
+    transition:all .15s;flex-shrink:0;
+  }
+  .back-btn:active{background:var(--warm);transform:scale(.9)}
+  .cat-hicon{font-size:1.25rem}
+  .cat-hname{font-size:14px;font-weight:700;color:var(--ink)}
+  .cat-hcount{font-size:10px;color:var(--muted);margin-top:.05rem}
+
+  .cat-body{
+    flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:.75rem 1.1rem 3rem;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html { scroll-behavior: smooth; }
+  /* Section */
+  .section{margin-top:1.25rem}
+  .section:first-child{margin-top:0}
+  .section-label{
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:.7rem;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
 
-  body {
-    background: var(--cream);
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    padding-bottom: 3rem;
-    overflow-x: hidden;
+  /* Grid — same as original index.html */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+
+  .grid-item{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:16px;padding:1rem .5rem .85rem;
+    display:flex;flex-direction:column;align-items:center;gap:.5rem;
+    cursor:pointer;transition:all .2s;
+    text-align:center;position:relative;overflow:hidden;user-select:none;
+  }
+  .grid-item:active{transform:scale(.95);background:var(--warm)}
+  @media(hover:hover){
+    .grid-item:hover{border-color:rgba(193,122,111,.35);transform:translateY(-3px);
+      box-shadow:0 6px 20px rgba(193,122,111,.15);background:var(--warm)}
+  }
+  .grid-item::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 70%);pointer-events:none}
+
+  .grid-item.locked{opacity:.55;pointer-events:none}
+
+  .item-icon-wrap{
+    width:48px;height:48px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;margin-bottom:2px;
+  }
+  .item-icon-wrap.pink {background:rgba(193,122,111,.12)}
+  .item-icon-wrap.gold {background:rgba(201,169,110,.12)}
+  .item-icon-wrap.sage {background:rgba(181,196,177,.18)}
+  .item-icon-wrap.mauve{background:rgba(196,160,168,.18)}
+  .item-icon-wrap.warm {background:rgba(245,237,224,.9)}
+
+  .item-label{font-size:11px;font-weight:500;color:var(--ink);line-height:1.3;max-width:80px}
+  .item-sublabel{font-size:10px;color:var(--muted);line-height:1.3}
+
+  /* Featured */
+  .grid-item-featured{border-color:rgba(193,122,111,.4);
+    background:linear-gradient(135deg,#fff 60%,rgba(232,196,176,.15))!important}
+  .grid-item-featured::after{content:'';position:absolute;inset:0;border-radius:16px;
+    border:1.5px solid rgba(193,122,111,.35);pointer-events:none;
+    animation:fpulse 2.5s ease-in-out infinite}
+  @keyframes fpulse{0%,100%{box-shadow:0 0 0 0 rgba(193,122,111,0)}50%{box-shadow:0 0 0 5px rgba(193,122,111,.12)}}
+  .featured-badge{
+    position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+    background:var(--rose);color:#fff;font-size:8px;font-weight:600;
+    letter-spacing:.08em;padding:2px 8px;border-radius:0 0 8px 8px;
+    white-space:nowrap;z-index:2;
   }
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(232,196,176,0.4) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 80% 90%, rgba(193,122,111,0.2) 0%, transparent 60%);
-    pointer-events: none; z-index: 0;
+  /* ══ POPUP ══ */
+  #popup-overlay{display:none;position:fixed;inset:0;z-index:999;
+    background:rgba(45,31,26,.45);backdrop-filter:blur(5px);
+    align-items:flex-end;justify-content:center;padding:1rem}
+  #popup-overlay.active{display:flex}
+  .popup-sheet{
+    background:var(--cream);border-radius:24px 24px 20px 20px;
+    padding:1.5rem 1.5rem 1.75rem;
+    width:100%;max-width:420px;
+    box-shadow:0 -4px 40px rgba(45,31,26,.15);
+    animation:slideup .3s cubic-bezier(.34,1.3,.64,1);
   }
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .popup-drag{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto 1.25rem}
+  .popup-icon{font-size:2.5rem;display:block;text-align:center;margin-bottom:.75rem}
+  .popup-title{font-size:1.1rem;font-weight:600;color:var(--ink);text-align:center;margin-bottom:.4rem}
+  .popup-desc{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:1.5rem}
+  .popup-btn{display:block;width:100%;padding:.9rem;border-radius:50px;border:none;
+    cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:500;
+    transition:all .2s;text-align:center;margin-bottom:.65rem}
+  .popup-btn-primary{background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35)}
+  .popup-btn-primary:active{background:var(--deep);transform:scale(.98)}
+  .popup-btn-cancel{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .popup-btn-cancel:active{background:var(--warm)}
 
-  .page { max-width: 480px; margin: 0 auto; padding: 0 1.25rem; position: relative; z-index: 1; }
-
-  /* ── HERO ── */
-  .hero {
-    text-align: center; padding: 3rem 0 2rem;
+  /* Responsive */
+  @media(max-width:360px){
+    .grid{gap:.55rem}
+    .grid-item{padding:.8rem .35rem .7rem;border-radius:13px}
+    .item-icon-wrap{width:42px;height:42px;font-size:1.3rem}
+    .item-label{font-size:10px;max-width:70px}
+    .item-sublabel{font-size:9px}
   }
-
-  .hero-icon {
-    font-size: 2.5rem; display: block; margin-bottom: 1rem;
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-6px)}
-  }
-
-  .hero-label {
-    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.5rem; display: block;
-  }
-
-  .hero-title {
-    font-size: clamp(1.6rem, 6vw, 2.2rem);
-    font-weight: 600; color: var(--ink); line-height: 1.2;
-  }
-
-  .hero-title span { color: var(--rose); }
-
-  .hero-sub {
-    font-size: 13px; color: var(--muted);
-    line-height: 1.7; margin-top: 0.5rem;
-    max-width: 320px; margin-left: auto; margin-right: auto;
-  }
-
-  .hero-divider {
-    width: 40px; height: 1px;
-    background: linear-gradient(to right, transparent, var(--blush), transparent);
-    margin: 1.5rem auto 0;
-  }
-
-  /* ── SECTION ── */
-  .section { margin-top: 1.75rem; }
-
-  .section-label {
-    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.85rem;
-    display: flex; align-items: center; gap: 0.6rem;
-  }
-
-  .section-label::after {
-    content: ''; flex: 1; height: 1px;
-    background: linear-gradient(to right, var(--blush), transparent);
-  }
-
-  /* ── GRID ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-  }
-
-  .grid-item {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 16px;
-    padding: 1rem 0.5rem 0.85rem;
-    display: flex; flex-direction: column;
-    align-items: center; gap: 0.5rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    user-select: none;
-  }
-
-  .grid-item:active {
-    transform: scale(0.95);
-    background: var(--warm);
-  }
-
-  @media (hover: hover) {
-    .grid-item:hover {
-      border-color: rgba(193,122,111,0.35);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(193,122,111,0.15);
-      background: var(--warm);
-    }
-  }
-
-  .grid-item::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at top, rgba(232,196,176,0.12), transparent 70%);
-    pointer-events: none;
-  }
-
-  /* Birthday locked */
-  .grid-item.locked { opacity: 0.55; }
-  .grid-item.locked .item-icon { filter: grayscale(0.3); }
-
-  .item-icon-wrap {
-    width: 48px; height: 48px;
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 2px;
-  }
-
-  .item-icon-wrap.pink  { background: rgba(193,122,111,0.12); }
-  .item-icon-wrap.gold  { background: rgba(201,169,110,0.12); }
-  .item-icon-wrap.sage  { background: rgba(181,196,177,0.18); }
-  .item-icon-wrap.mauve { background: rgba(196,160,168,0.18); }
-  .item-icon-wrap.warm  { background: rgba(245,237,224,0.9); }
-
-  .item-label {
-    font-size: 11px; font-weight: 500; color: var(--ink);
-    line-height: 1.3; max-width: 80px;
-  }
-
-  .item-sublabel {
-    font-size: 10px; color: var(--muted);
-    line-height: 1.3;
-  }
-
-  /* ── POPUP ── */
-  #popup-overlay {
-    display: none; position: fixed; inset: 0; z-index: 999;
-    background: rgba(45,31,26,0.45);
-    backdrop-filter: blur(5px);
-    align-items: flex-end; justify-content: center;
-    padding: 1rem;
-  }
-
-  #popup-overlay.active { display: flex; }
-
-  .popup-sheet {
-    background: var(--cream);
-    border-radius: 24px 24px 20px 20px;
-    padding: 1.5rem 1.5rem 1.75rem;
-    width: 100%; max-width: 420px;
-    box-shadow: 0 -4px 40px rgba(45,31,26,0.15);
-    animation: slide-up 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
-  }
-
-  @keyframes slide-up {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  .popup-drag { width: 36px; height: 4px; background: var(--blush); border-radius: 2px; margin: 0 auto 1.25rem; }
-
-  .popup-icon {
-    font-size: 2.5rem; display: block; text-align: center;
-    margin-bottom: 0.75rem;
-  }
-
-  .popup-title {
-    font-size: 1.1rem; font-weight: 600; color: var(--ink);
-    text-align: center; margin-bottom: 0.4rem;
-  }
-
-  .popup-desc {
-    font-size: 13px; color: var(--muted);
-    text-align: center; line-height: 1.6;
-    margin-bottom: 1.5rem;
-  }
-
-  .popup-btn {
-    display: block; width: 100%; padding: 0.9rem;
-    border-radius: 50px; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
-    transition: all 0.2s; text-align: center; margin-bottom: 0.65rem;
-  }
-
-  .popup-btn-primary {
-    background: var(--rose); color: #fff;
-    box-shadow: 0 4px 16px rgba(193,122,111,0.35);
-  }
-  .popup-btn-primary:active { background: var(--deep); transform: scale(0.98); }
-
-  .popup-btn-cancel {
-    background: transparent; color: var(--muted);
-    border: 1.5px solid var(--blush);
-  }
-  .popup-btn-cancel:active { background: var(--warm); }
-
-  /* ── FOOTER ── */
-  .footer {
-    text-align: center; margin-top: 2.5rem;
-    font-size: 11px; color: var(--muted); line-height: 2;
-  }
-  .footer span { color: var(--rose); }
-
-  /* ── FEATURED ITEM ── */
-  .grid-item-featured {
-    border-color: rgba(193,122,111,0.4);
-    background: linear-gradient(135deg, #fff 60%, rgba(232,196,176,0.15));
-    position: relative;
-  }
-
-  .grid-item-featured::after {
-    content: '';
-    position: absolute; inset: 0;
-    border-radius: 16px;
-    border: 1.5px solid rgba(193,122,111,0.35);
-    pointer-events: none;
-    animation: featuredpulse 2.5s ease-in-out infinite;
-  }
-
-  @keyframes featuredpulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(193,122,111,0); }
-    50% { box-shadow: 0 0 0 5px rgba(193,122,111,0.12); }
-  }
-
-  .featured-badge {
-    position: absolute;
-    top: -1px; left: 50%; transform: translateX(-50%);
-    background: var(--rose);
-    color: #fff;
-    font-size: 8px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    padding: 2px 8px;
-    border-radius: 0 0 8px 8px;
-    white-space: nowrap;
-    z-index: 2;
+  @media(min-width:600px){
+    .card-area{max-width:460px}
+    .main-card{padding:2.25rem 2rem 2rem}
+    .cat-body{padding:1rem 1.5rem 3rem}
+    .grid{gap:.9rem}
+    .grid-item{padding:1.1rem .65rem 1rem;border-radius:18px}
+    .item-icon-wrap{width:52px;height:52px;font-size:1.6rem;border-radius:16px}
+    .item-label{font-size:12px;max-width:88px}
+    .item-sublabel{font-size:10.5px}
   }
 </style>
 </head>
 <body>
-<div class="page">
 
-  <!-- HERO -->
-  <div class="hero">
-    <span class="hero-icon">🤍</span>
-    <span class="hero-label">Khusus untuk</span>
-    <h1 class="hero-title">Dara <span>Syifa Aulia</span></h1>
-    <p class="hero-sub">Semua yang ada di sini dibuat dengan tangan dan hati — khusus buat kamu.</p>
-    <div class="hero-divider"></div>
+<!-- ══ HOME ══ -->
+<div id="home" class="screen active">
+  <div class="home-top">
+    <div class="home-pill">🤍 Khusus untuk kamu</div>
+    <h1 class="home-name">Dara <em>Syifa Aulia</em></h1>
+    <p class="home-sub">Semua yang ada di sini dibuat dengan tangan dan hati — khusus buat kamu.</p>
   </div>
 
-  <!-- GAMES -->
-  <div class="section">
-    <p class="section-label">Games & Quiz</p>
-    <div class="grid">
+  <div class="card-area">
+    <div class="arrow-row">
+      <button class="arr-btn" id="btn-prev" onclick="prevCat()" disabled>←</button>
+      <div class="cat-counter"><b id="cat-cur">1</b> / 4</div>
+      <button class="arr-btn" id="btn-next" onclick="nextCat()">→</button>
+    </div>
 
-      <div class="grid-item" onclick="openPopup('tod','🎯','Truth or Dare','20 truth + 20 dare khusus buat kita berdua. Siapin mental!','truth-or-dare.html')">
-        <div class="item-icon-wrap mauve">🎯</div>
-        <p class="item-label">Truth or Dare</p>
-        <p class="item-sublabel">Masing Masing 20</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('speed','⏱️','Tantangan Kecepatan','20 tantangan gantian — kata, aksi, ingatan, dan rasa. Yang menang boleh minta satu hal 😏','tantangan-kecepatan.html')">
-        <div class="item-icon-wrap sage">⏱️</div>
-        <p class="item-label">Tantangan Kecepatan</p>
-        <p class="item-sublabel">20 tantangan</p>
-      </div>
+    <div class="main-card" id="main-card">
+      <span class="card-emoji" id="c-emoji">🎮</span>
+      <p class="card-name" id="c-name">Games & Quiz</p>
+      <p class="card-desc" id="c-desc">Tantangan seru buat kalian berdua — dari yang bikin ketawa sampai yang bikin makin sayang</p>
+      <div class="card-badge" id="c-badge">🎯 12 game</div>
+      <button class="card-btn" id="c-btn">Masuk →</button>
+    </div>
 
-      <div class="grid-item grid-item-featured" onclick="openPopup('roulette','🎰','Roda Sayang','Putar roda, dapat misi romantis yang harus langsung dilakuin — manis, intim, dan bikin makin sayang 🤍','dare-roulette.html')">
-        <div class="featured-badge">✦ Wajib Dibuka</div>
-        <div class="item-icon-wrap mauve">🎰</div>
-        <p class="item-label">Roda Sayang</p>
-        <p class="item-sublabel">Misi Romantis</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('amplop','✉️','Amplop Misi','30 amplop berisi misi lucu & seru buat kalian berdua — buka satu per satu!','amplop-misi.html')">
-        <div class="item-icon-wrap pink">✉️</div>
-        <p class="item-label">Amplop Misi</p>
-        <p class="item-sublabel">30 misi</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('roda','🌀','Roda Kekacauan','Putar roda — dapat tantangan random yang absurd, bikin malu, tapi juga bikin makin deket 😈','roda-kekacauan.html')">
-        <div class="item-icon-wrap pink">🌀</div>
-        <p class="item-label">Roda Kekacauan</p>
-        <p class="item-sublabel">6 kategori</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('deeptalk','🃏','Deep Talk','20 kartu pertanyaan dalam tentang kita, masa depan, dan hal yang jarang dibicarakan.','deep-talk.html')">
-        <div class="item-icon-wrap mauve">🃏</div>
-        <p class="item-label">Deep Talk</p>
-        <p class="item-sublabel">20 kartu</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('dadu','🎲','Dadu Nasib','Lempar dadu — dapat nasib random yang harus dilakuin hari ini. Romantis, lucu, absurd, atau Wild Card! 🔥','dadu-nasib.html')">
-        <div class="item-icon-wrap gold">🎲</div>
-        <p class="item-label">Dadu Nasib</p>
-        <p class="item-sublabel">6 kategori nasib</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('tebakgaya','🎭','Tebak Gaya','Satu orang akting tanpa ngomong — yang lain nebak. Timer 30 detik, 10 ronde, ada skor! 😄','tebak-gaya.html')">
-        <div class="item-icon-wrap sage">🎭</div>
-        <p class="item-label">Tebak Gaya</p>
-        <p class="item-sublabel">10 ronde</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('wordsearch','🔍','Word Search','Temukan 12 kata tentang kita yang tersembunyi di grid. Bisa ga? 👀','word-search.html')">
-        <div class="item-icon-wrap sage">🔍</div>
-        <p class="item-label">Word Search</p>
-        <p class="item-sublabel">12 kata</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('baby','🍼','Baby Sim','Razan jadi bapak, Dara jadi ibu — ngerawat bayi bareng selama 5 menit!','baby-sim.html')">
-        <div class="item-icon-wrap sage">🍼</div>
-        <p class="item-label">Baby Sim</p>
-        <p class="item-sublabel">1 menit 30 detik</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('pilih','❓','Pilih yang Mana?','15 skenario lucu sehari-hari — pilih salah satu dan lihat kesimpulan kepribadian kamu di akhir!','pilih-yang-mana.html')">
-        <div class="item-icon-wrap gold">❓</div>
-        <p class="item-label">Pilih yang Mana</p>
-        <p class="item-sublabel">15 skenario</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('siapa','🤔','Siapa yang Lebih...?','20 pertanyaan jujur-jujuran tentang kalian berdua — siapa yang lebih bawel, drama, dan... cinta? 😏','siapa-yang-lebih.html')">
-        <div class="item-icon-wrap mauve">🤔</div>
-        <p class="item-label">Siapa yang Lebih</p>
-        <p class="item-sublabel">20 pertanyaan</p>
-      </div>
-
-    
-    
+    <div class="dots-row">
+      <div class="dot active" onclick="goTo(0)"></div>
+      <div class="dot" onclick="goTo(1)"></div>
+      <div class="dot" onclick="goTo(2)"></div>
+      <div class="dot" onclick="goTo(3)"></div>
     </div>
   </div>
-
-  <!-- HADIAH -->
-  <div class="section">
-    <p class="section-label">Hadiah Digital</p>
-    <div class="grid">
-
-      <div class="grid-item grid-item-featured" onclick="openPopup('openwhen','💌','Open When...','8 surat untuk 8 kondisi berbeda. Buka sesuai perasaan kamu sekarang — kapanpun kamu butuh.','open-when.html')">
-        <div class="featured-badge">✦ Wajib Dibuka</div>
-        <div class="item-icon-wrap mauve">💌</div>
-        <p class="item-label">Open When</p>
-        <p class="item-sublabel">8 surat</p>
-      </div>
-      
-      <div class="grid-item grid-item-featured" onclick="openPopup('rating','⭐','Rating Ketemu','Kasih bintang tiap habis ketemu Razan — dan ceritain alasannya. Langsung ke WA dia! 🤍','rating-ketemu.html')">
-        <div class="featured-badge">✦ Wajib Dibuka</div>
-        <div class="item-icon-wrap mauve">⭐</div>
-        <p class="item-label">Rating Ketemu</p>
-        <p class="item-sublabel">1 - 5 bintang</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('jar','🫙','Memory Jar','Kocok toplesnya — satu gulungan keluar. Kayak arisan, tapi isinya alasan kenapa kamu berarti 🤍','jar-of-reasons.html')">
-        <div class="item-icon-wrap gold">🫙</div>
-        <p class="item-label">Memory Jar</p>
-        <p class="item-sublabel">34 gulungan</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('kupon','🙏','Maaf dari Razan','Kupon & sertifikat maaf khusus buat kamu — pilih yang mau kamu ambil.','kupon-maaf.html')">
-        <div class="item-icon-wrap pink">🙏</div>
-        <p class="item-label">Maaf dari Razan</p>
-        <p class="item-sublabel">kupon & sertifikat</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('taman','🌸','Taman Bunga','Siram bunga & lihat pesan dari Razan di setiap tahap tumbuhnya.','taman-bunga.html')">
-        <div class="item-icon-wrap sage">🌸</div>
-        <p class="item-label">Taman Bunga</p>
-        <p class="item-sublabel">Siram Bunga</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('dna','🧬','DNA Hubungan Kita','Visual interaktif komposisi hubungan Razan & Dara — dari ketawa bareng sampai misteri.','dna-hubungan.html')">
-        <div class="item-icon-wrap warm">🧬</div>
-        <p class="item-label">DNA Hubungan</p>
-        <p class="item-sublabel">10 komponen</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('halkecil','👀','Hal Kecil yang Aku Notice','30 hal kecil tentang kamu yang aku perhatiin — yang mungkin kamu sendiri ga sadar.','hal-kecil.html')">
-        <div class="item-icon-wrap rose">👀</div>
-        <p class="item-label">Hal Kecil</p>
-        <p class="item-sublabel">30 hal</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('polaroid','📸','Polaroid Wall','Dinding foto polaroid digital — tap setiap polaroid untuk lihat cerita di baliknya.','polaroid-wall.html')">
-        <div class="item-icon-wrap warm">📸</div>
-        <p class="item-label">Polaroid Wall</p>
-        <p class="item-sublabel">12 momen</p>
-      </div>
-      
-      <div class="grid-item" onclick="openPopup('moodboard','🎨','Moodboard Kamu','Soft, elegant, karismatik. Semua kata yang menggambarin kamu.','moodboard-dara.html')">
-        <div class="item-icon-wrap warm">🎨</div>
-        <p class="item-label">Moodboard</p>
-        <p class="item-sublabel">untuk kamu</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('playlist','🎵','Playlist Buat Kamu','10 lagu yang selalu ingetin aku sama kamu — lengkap dengan alasannya.','playlist-dara.html')">
-        <div class="item-icon-wrap sage">🎵</div>
-        <p class="item-label">Playlist</p>
-        <p class="item-sublabel">10 lagu</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('bintang','🌠','Bintang Jatuh','Tap langit malam — tiap bintang jatuh bawa pesan dari Razan untuk Dara.','bintang-jatuh.html')">
-        <div class="item-icon-wrap warm">🌠</div>
-        <p class="item-label">Bintang Jatuh</p>
-        <p class="item-sublabel">25 pesan</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('koran','📰','Harian Razan','Koran edisi khusus dengan headline berita tentang Dara — serius tapi bikin senyum.','koran-dara.html')">
-        <div class="item-icon-wrap warm">📰</div>
-        <p class="item-label">Harian Razan</p>
-        <p class="item-sublabel">edisi khusus</p>
-      </div>
-
-      
-    </div>
-  </div>
-
-  <!-- Keuangan Berdua -->
-  <div class="section">
-    <p class="section-label">Keuangan</p>
-    <div class="grid">
-
-      <div class="grid-item" onclick="openPopup('kantong','💰','Kantong Dara','Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil kamu. Isi sendiri ya, biar makin kenal sama kondisi keuanganmu.','keuangan-dara.html')">
-        <div class="item-icon-wrap warm">💰</div>
-        <p class="item-label">Kantong Dara</p>
-        <p class="item-sublabel">Atur uangmu</p>
-      </div>
-
-      <div class="grid-item" onclick="openPopup('kantong','💰','Kantong Razan','Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil kamu. Isi sendiri ya, biar makin kenal sama kondisi keuanganmu.','keuangan-razan.html')">
-        <div class="item-icon-wrap warm">💰</div>
-        <p class="item-label">Kantong Razan</p>
-        <p class="item-sublabel">Atur uangmu</p>
-      </div>
-
-      </div>
-  </div>
-
-  <!-- SECRET -->
-  <div class="section">
-    <p class="section-label">Secret 🔒</p>
-    <div class="grid">
-
-      <div class="grid-item locked" id="bday-item" onclick="checkBirthday()">
-        <div class="item-icon-wrap pink" id="bday-icon-wrap">🔒</div>
-        <p class="item-label" id="bday-label">Sesuatu yang Spesial</p>
-        <p class="item-sublabel" id="bday-sub">Tunggu ya 🤍</p>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="footer">
-    <p>Dibuat dengan <span>🤍</span> untuk Dara Syifa Aulia</p>
-    <p style="font-size:10px;margin-top:3px;">dari Razan, yang selalu ada.</p>
-  </div>
-
 </div>
 
-<!-- POPUP -->
+<!-- ══ CATEGORY SCREEN ══ -->
+<div id="cat-screen" class="screen">
+  <div class="cat-header">
+    <div class="back-btn" onclick="showHome()">←</div>
+    <span class="cat-hicon" id="cat-hicon">🎮</span>
+    <div>
+      <p class="cat-hname" id="cat-hname">Games & Quiz</p>
+      <p class="cat-hcount" id="cat-hcount">12 item</p>
+    </div>
+  </div>
+  <div class="cat-body" id="cat-body"></div>
+</div>
+
+<!-- ══ POPUP ══ -->
 <div id="popup-overlay" onclick="handleOverlay(event)">
   <div class="popup-sheet">
     <div class="popup-drag"></div>
@@ -501,72 +294,218 @@
 </div>
 
 <script>
-  let currentLink = '';
+// ── CATEGORY DATA ──
+const CATS = [
+  {
+    key:'games', emoji:'🎮', name:'Games & Quiz',
+    desc:'Tantangan seru buat kalian berdua — dari yang bikin ketawa sampai yang bikin makin sayang',
+    badge:'🎯 12 game',
+    sections:[
+      { label:'Games & Quiz', items:[
+        {feat:true,badge:'✦ Wajib Dibuka',icon:'🎰',wrap:'mauve',label:'Roda Sayang',sub:'Misi Romantis',desc:'Putar roda, dapat misi romantis yang harus langsung dilakuin — manis, intim, dan bikin makin sayang 🤍',link:'dare-roulette.html'},
+        {icon:'🎯',wrap:'mauve',label:'Truth or Dare',sub:'Masing Masing 20',desc:'20 truth + 20 dare khusus buat kita berdua. Siapin mental!',link:'truth-or-dare.html'},
+        {icon:'⏱️',wrap:'sage',label:'Tantangan Kecepatan',sub:'20 tantangan',desc:'20 tantangan gantian — kata, aksi, ingatan, dan rasa. Yang menang boleh minta satu hal 😏',link:'tantangan-kecepatan.html'},
+        {icon:'✉️',wrap:'pink',label:'Amplop Misi',sub:'30 misi',desc:'30 amplop berisi misi lucu & seru buat kalian berdua — buka satu per satu!',link:'amplop-misi.html'},
+        {icon:'🌀',wrap:'pink',label:'Roda Kekacauan',sub:'6 kategori',desc:'Putar roda — dapat tantangan random yang absurd, bikin malu, tapi juga bikin makin deket 😈',link:'roda-kekacauan.html'},
+        {icon:'🃏',wrap:'mauve',label:'Deep Talk',sub:'20 kartu',desc:'20 kartu pertanyaan dalam tentang kita, masa depan, dan hal yang jarang dibicarakan.',link:'deep-talk.html'},
+        {icon:'🎲',wrap:'gold',label:'Dadu Nasib',sub:'6 kategori nasib',desc:'Lempar dadu — dapat nasib random yang harus dilakuin hari ini. Romantis, lucu, absurd, atau Wild Card! 🔥',link:'dadu-nasib.html'},
+        {icon:'🎭',wrap:'sage',label:'Tebak Gaya',sub:'10 ronde',desc:'Satu orang akting tanpa ngomong — yang lain nebak. Timer 30 detik, 10 ronde, ada skor! 😄',link:'tebak-gaya.html'},
+        {icon:'🔍',wrap:'sage',label:'Word Search',sub:'12 kata',desc:'Temukan 12 kata tentang kita yang tersembunyi di grid. Bisa ga? 👀',link:'word-search.html'},
+        {icon:'🍼',wrap:'sage',label:'Baby Sim',sub:'1 menit 30 detik',desc:'Razan jadi bapak, Dara jadi ibu — ngerawat bayi bareng selama 1 menit 30 detik!',link:'baby-sim.html'},
+        {icon:'❓',wrap:'gold',label:'Pilih yang Mana',sub:'15 skenario',desc:'15 skenario lucu sehari-hari — pilih salah satu dan lihat kesimpulan kepribadian kamu di akhir!',link:'pilih-yang-mana.html'},
+        {icon:'🤔',wrap:'mauve',label:'Siapa yang Lebih',sub:'20 pertanyaan',desc:'20 pertanyaan jujur-jujuran tentang kalian berdua — siapa yang lebih bawel, drama, dan... cinta? 😏',link:'siapa-yang-lebih.html'},
+      ]}
+    ]
+  },
+  {
+    key:'hadiah', emoji:'🎁', name:'Hadiah Digital',
+    desc:'Hadiah yang ga bisa dibeli — dibuat khusus dan penuh rasa dari Razan buat kamu',
+    badge:'💌 12 hadiah',
+    sections:[
+      { label:'Hadiah Digital', items:[
+        {feat:true,badge:'✦ Wajib Dibuka',icon:'💌',wrap:'mauve',label:'Open When',sub:'8 surat',desc:'8 surat untuk 8 kondisi berbeda. Buka sesuai perasaan kamu sekarang — kapanpun kamu butuh.',link:'open-when.html'},
+        {feat:true,badge:'✦ Wajib Dibuka',icon:'⭐',wrap:'mauve',label:'Rating Ketemu',sub:'1 - 5 bintang',desc:'Kasih bintang tiap habis ketemu Razan — dan ceritain alasannya. Langsung ke WA dia! 🤍',link:'rating-ketemu.html'},
+        {icon:'🫙',wrap:'gold',label:'Memory Jar',sub:'34 gulungan',desc:'Kocok toplesnya — satu gulungan keluar. Kayak arisan, tapi isinya alasan kenapa kamu berarti 🤍',link:'jar-of-reasons.html'},
+        {icon:'🙏',wrap:'pink',label:'Maaf dari Razan',sub:'kupon & sertifikat',desc:'Kupon & sertifikat maaf khusus buat kamu — pilih yang mau kamu ambil.',link:'kupon-maaf.html'},
+        {icon:'🌸',wrap:'sage',label:'Taman Bunga',sub:'Siram Bunga',desc:'Siram bunga & lihat pesan dari Razan di setiap tahap tumbuhnya.',link:'taman-bunga.html'},
+        {icon:'🧬',wrap:'warm',label:'DNA Hubungan',sub:'10 komponen',desc:'Visual interaktif komposisi hubungan Razan & Dara — dari ketawa bareng sampai misteri.',link:'dna-hubungan.html'},
+        {icon:'👀',wrap:'pink',label:'Hal Kecil',sub:'30 hal',desc:'30 hal kecil tentang kamu yang aku perhatiin — yang mungkin kamu sendiri ga sadar.',link:'hal-kecil.html'},
+        {icon:'📸',wrap:'warm',label:'Polaroid Wall',sub:'12 momen',desc:'Dinding foto polaroid digital — tap setiap polaroid untuk lihat cerita di baliknya.',link:'polaroid-wall.html'},
+        {icon:'🎨',wrap:'warm',label:'Moodboard',sub:'untuk kamu',desc:'Soft, elegant, karismatik. Semua kata yang menggambarin kamu.',link:'moodboard-dara.html'},
+        {icon:'🎵',wrap:'sage',label:'Playlist',sub:'10 lagu',desc:'10 lagu yang selalu ingetin aku sama kamu — lengkap dengan alasannya.',link:'playlist-dara.html'},
+        {icon:'🌠',wrap:'warm',label:'Bintang Jatuh',sub:'25 pesan',desc:'Tap langit malam — tiap bintang jatuh bawa pesan dari Razan untuk Dara.',link:'bintang-jatuh.html'},
+        {icon:'📰',wrap:'warm',label:'Harian Razan',sub:'edisi khusus',desc:'Koran edisi khusus dengan headline berita tentang Dara — serius tapi bikin senyum.',link:'koran-dara.html'},
+      ]}
+    ]
+  },
+  {
+    key:'keuangan', emoji:'💰', name:'Keuangan',
+    desc:'Atur keuangan kalian masing-masing — catat pengeluaran, pantau saldo, dan rencanakan bareng',
+    badge:'💳 2 kantong',
+    sections:[
+      { label:'Keuangan', items:[
+        {icon:'💰',wrap:'warm',label:'Kantong Dara',sub:'Atur uangmu',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil kamu.',link:'keuangan-dara.html'},
+        {icon:'💰',wrap:'warm',label:'Kantong Razan',sub:'Atur uangku',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil Razan.',link:'keuangan-razan.html'},
+      ]}
+    ]
+  },
+  {
+    key:'secret', emoji:'🔒', name:'Secret',
+    desc:'Ada sesuatu yang tersembunyi di sini — terbuka otomatis di hari yang tepat',
+    badge:'🎂 1 kejutan',
+    sections:[
+      { label:'Secret', items:[
+        {icon:'🔒',wrap:'pink',label:'Sesuatu yang Spesial',sub:'Tunggu ya 🤍',desc:'',link:'',locked:true},
+      ]}
+    ]
+  },
+];
 
-  function openPopup(id, icon, title, desc, link) {
-    currentLink = link;
-    document.getElementById('popup-icon').textContent = icon;
-    document.getElementById('popup-title').textContent = title;
-    document.getElementById('popup-desc').textContent = desc;
-    document.getElementById('popup-overlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
+let idx = 0;
+let busy = false;
 
-  function closePopup() {
-    document.getElementById('popup-overlay').classList.remove('active');
-    document.body.style.overflow = '';
-    currentLink = '';
-  }
+// Init
+renderCard(false);
+document.getElementById('c-btn').addEventListener('click', () => showCat(idx));
 
-  function openLink() {
-    if (currentLink) window.location.href = currentLink;
-  }
+function renderCard(dir) {
+  const c = CATS[idx];
+  document.getElementById('c-emoji').textContent = c.emoji;
+  document.getElementById('c-name').textContent = c.name;
+  document.getElementById('c-desc').textContent = c.desc;
+  document.getElementById('c-badge').textContent = c.badge;
+  document.getElementById('cat-cur').textContent = idx + 1;
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+  document.getElementById('btn-prev').disabled = idx === 0;
+  document.getElementById('btn-next').disabled = idx === CATS.length - 1;
+}
 
-  function handleOverlay(e) {
-    if (e.target === document.getElementById('popup-overlay')) closePopup();
-  }
+function anim(dir, cb) {
+  if (busy) return;
+  busy = true;
+  const card = document.getElementById('main-card');
+  const out = dir === 'left' ? 'card-slide-left' : 'card-slide-right';
+  const inn = dir === 'left' ? 'card-enter-left' : 'card-enter-right';
+  card.classList.add(out);
+  setTimeout(() => {
+    card.classList.remove(out);
+    cb();
+    renderCard(dir);
+    card.classList.add(inn);
+    setTimeout(() => { card.classList.remove(inn); busy = false; }, 280);
+  }, 270);
+}
 
-  // Birthday
-  const BDAY_MONTH = 7, BDAY_DAY = 18;
+function prevCat() { if (idx > 0) anim('right', () => idx--); }
+function nextCat() { if (idx < CATS.length-1) anim('left', () => idx++); }
+function goTo(i) {
+  if (i === idx) return;
+  anim(i > idx ? 'left' : 'right', () => idx = i);
+}
 
-  function isBirthday() {
-    const now = new Date();
-    return now.getMonth() === BDAY_MONTH && now.getDate() >= BDAY_DAY;
-  }
+// ── SHOW CATEGORY ──
+function showCat(i) {
+  const cat = CATS[i];
+  document.getElementById('cat-hicon').textContent = cat.emoji;
+  document.getElementById('cat-hname').textContent = cat.name;
+  document.getElementById('cat-hcount').textContent = cat.badge;
 
-  function checkBirthday() {
-    if (isBirthday()) {
-      openPopup('bday', '📖', 'Memory Scrapbook & Peta Kenangan', 'Semua tempat dan momen yang pernah kita lalui bareng. Happy birthday! 🎉', 'birthday-scrapbook.html');
-    } else {
-      const now = new Date();
-      const bday = new Date(now.getFullYear(), BDAY_MONTH, BDAY_DAY);
-      if (bday < now) bday.setFullYear(now.getFullYear() + 1);
-      const diff = Math.ceil((bday - now) / (1000 * 60 * 60 * 24));
-      openPopup('bday', '🔒', 'Masih Terkunci', `Masih ${diff} hari lagi ya 🤍 Sabar dulu — akan terbuka otomatis di hari yang tepat.`, '');
-      document.getElementById('popup-open-btn').style.display = 'none';
-      return;
-    }
-    document.getElementById('popup-open-btn').style.display = 'block';
-  }
+  const body = document.getElementById('cat-body');
+  body.innerHTML = '';
 
-  // Fix popup open btn visibility on normal popups
-  function openPopup(id, icon, title, desc, link) {
-    currentLink = link;
-    document.getElementById('popup-icon').textContent = icon;
-    document.getElementById('popup-title').textContent = title;
-    document.getElementById('popup-desc').textContent = desc;
-    document.getElementById('popup-open-btn').style.display = 'block';
-    document.getElementById('popup-overlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
+  cat.sections.forEach(sec => {
+    const secEl = document.createElement('div');
+    secEl.className = 'section';
 
+    const lbl = document.createElement('p');
+    lbl.className = 'section-label';
+    lbl.textContent = sec.label;
+    secEl.appendChild(lbl);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+
+    sec.items.forEach(item => {
+      const el = document.createElement('div');
+      let cls = 'grid-item';
+      if (item.feat) cls += ' grid-item-featured';
+      if (item.locked) cls += ' locked';
+      el.className = cls;
+
+      if (item.badge) {
+        const b = document.createElement('div');
+        b.className = 'featured-badge';
+        b.textContent = item.badge;
+        el.appendChild(b);
+      }
+
+      el.innerHTML += `
+        <div class="item-icon-wrap ${item.wrap}">${item.icon}</div>
+        <p class="item-label">${item.label}</p>
+        <p class="item-sublabel">${item.sub}</p>
+      `;
+
+      if (!item.locked) {
+        el.addEventListener('click', () => {
+          if (cat.key === 'secret') { checkBirthday(); return; }
+          openPopup(item.icon, item.label, item.desc, item.link);
+        });
+      } else {
+        el.addEventListener('click', checkBirthday);
+      }
+
+      grid.appendChild(el);
+    });
+
+    secEl.appendChild(grid);
+    body.appendChild(secEl);
+  });
+
+  document.getElementById('home').classList.remove('active');
+  document.getElementById('cat-screen').classList.add('active');
+  body.scrollTop = 0;
+}
+
+function showHome() {
+  document.getElementById('cat-screen').classList.remove('active');
+  document.getElementById('home').classList.add('active');
+}
+
+// ── POPUP ──
+let curLink = '';
+function openPopup(icon, title, desc, link) {
+  curLink = link;
+  document.getElementById('popup-icon').textContent = icon;
+  document.getElementById('popup-title').textContent = title;
+  document.getElementById('popup-desc').textContent = desc;
+  document.getElementById('popup-open-btn').style.display = 'block';
+  document.getElementById('popup-overlay').classList.add('active');
+}
+function closePopup() {
+  document.getElementById('popup-overlay').classList.remove('active');
+  curLink = '';
+}
+function openLink() { if (curLink) window.location.href = curLink; }
+function handleOverlay(e) { if (e.target === document.getElementById('popup-overlay')) closePopup(); }
+
+// ── BIRTHDAY ──
+const BDAY_MONTH = 7, BDAY_DAY = 18;
+function isBirthday() { const n = new Date(); return n.getMonth() === BDAY_MONTH && n.getDate() >= BDAY_DAY; }
+function checkBirthday() {
   if (isBirthday()) {
-    const item = document.getElementById('bday-item');
-    item.classList.remove('locked');
-    document.getElementById('bday-icon-wrap').textContent = '📖';
-    document.getElementById('bday-label').textContent = 'Scrapbook & Peta';
-    document.getElementById('bday-sub').textContent = 'Happy birthday!';
+    openPopup('📖','Memory Scrapbook & Peta Kenangan','Semua tempat dan momen yang pernah kita lalui bareng. Happy birthday! 🎉','birthday-scrapbook.html');
+  } else {
+    const now = new Date();
+    const bday = new Date(now.getFullYear(), BDAY_MONTH, BDAY_DAY);
+    if (bday < now) bday.setFullYear(now.getFullYear()+1);
+    const diff = Math.ceil((bday-now)/(1000*60*60*24));
+    document.getElementById('popup-icon').textContent = '🔒';
+    document.getElementById('popup-title').textContent = 'Masih Terkunci';
+    document.getElementById('popup-desc').textContent = `Masih ${diff} hari lagi ya 🤍 Sabar dulu — akan terbuka otomatis di hari yang tepat.`;
+    document.getElementById('popup-open-btn').style.display = 'none';
+    document.getElementById('popup-overlay').classList.add('active');
   }
+}
 </script>
 </body>
 </html>
