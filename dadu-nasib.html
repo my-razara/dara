@@ -455,12 +455,45 @@ function rollDice(){
   }, 850);
 }
 
+// Track used items per face
+const usedItems = {1:[],2:[],3:[],4:[],5:[],6:[]};
+
+function getTotalItems(){
+  return Object.values(FATES).reduce((a,g)=>a+g.items.length,0);
+}
+function getTotalUsed(){
+  return Object.values(usedItems).reduce((a,b)=>a+b.length,0);
+}
+
 function showResult(face){
   const fateGroup = FATES[face];
   const items = fateGroup.items;
-  const item = items[Math.floor(Math.random() * items.length)];
 
-  document.getElementById('result-face').textContent = fateGroup.label;
+  // Filter unused
+  let available = items.filter((_,i) => !usedItems[face].includes(i));
+
+  // If all used for this face, show all done for this face
+  if(available.length === 0){
+    showToast(`Semua nasib sisi ${face} udah keluar! Coba sisi lain 😄`);
+    document.getElementById('roll-again-row').style.display = 'flex';
+    document.getElementById('result-card').classList.remove('show');
+    // Check if ALL items across all faces done
+    if(getTotalUsed() >= getTotalItems()){
+      showAllDone();
+    }
+    return;
+  }
+
+  const availIdx = Math.floor(Math.random() * available.length);
+  const item = available[availIdx];
+  const origIdx = items.indexOf(item);
+  usedItems[face].push(origIdx);
+
+  const remaining = items.length - usedItems[face].length;
+  const totalUsed = getTotalUsed();
+  const totalAll = getTotalItems();
+
+  document.getElementById('result-face').textContent = fateGroup.label + ` (sisa ${remaining})`;
   document.getElementById('result-face').className = `result-face-num ${fateGroup.cls}`;
   document.getElementById('result-emoji').textContent = item.emoji;
   document.getElementById('result-cat').textContent = item.cat;
@@ -470,13 +503,41 @@ function showResult(face){
 
   document.getElementById('roll-again-row').style.display = 'flex';
 
-  // Add to history
   history.unshift({ face, label: fateGroup.label, text: item.text, emoji: item.emoji });
   renderHistory();
 
   if(face === 6) confetti();
 
   document.getElementById('result-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // Check if all done
+  if(getTotalUsed() >= getTotalItems()){
+    setTimeout(showAllDone, 800);
+  }
+}
+
+function showAllDone(){
+  const el = document.createElement('div');
+  el.id = 'done-overlay'; el.style.cssText = 'position:fixed;inset:0;background:rgba(45,31,26,.5);backdrop-filter:blur(6px);z-index:9998;display:flex;align-items:center;justify-content:center;padding:2rem';
+  el.innerHTML = `<div style="background:#fff;border-radius:24px;padding:2rem 1.5rem;text-align:center;max-width:340px;width:100%;box-shadow:0 8px 40px rgba(45,31,26,.2)">
+    <div style="font-size:3rem;margin-bottom:1rem">🎲</div>
+    <h2 style="font-family:Poppins,sans-serif;font-size:1.3rem;font-weight:700;color:#2d1f1a;margin-bottom:.5rem">Semua nasib udah keluar!</h2>
+    <p style="font-family:Poppins,sans-serif;font-size:13px;color:#9a8070;line-height:1.7;margin-bottom:1.5rem">Kalian udah dapet semua 30 nasib dari dadu ini. Reset untuk mulai lagi dari awal 🤍</p>
+    <button onclick="resetAll()" style="width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;background:#c17a6f;color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35)">🔄 Main Lagi dari Awal</button>
+  </div>`;
+  document.body.appendChild(el);
+  confetti();
+}
+
+function resetAll(){
+  Object.keys(usedItems).forEach(k => usedItems[k] = []);
+  history = [];
+  document.getElementById('done-overlay')?.remove();
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('roll-again-row').style.display = 'none';
+  document.getElementById('history-section').style.display = 'none';
+  document.getElementById('roll-hint').style.display = 'block';
+  showToast('Reset! Semua 30 nasib siap lagi 🎲');
 }
 
 function saveFate(){
