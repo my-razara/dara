@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Lucky Dip — Razan & Dara 🎁</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .page{max-width:480px;margin:0 auto;padding:0 1.1rem 5rem;position:relative;z-index:1}
+
+  /* ── HEADER ── */
+  .header{text-align:center;padding:2.25rem 0 1.5rem}
+  .header-icon{font-size:3rem;display:block;margin-bottom:.85rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .header-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .header-title{font-size:clamp(1.4rem,5vw,1.9rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .header-title span{color:var(--rose)}
+  .header-sub{font-size:12px;color:var(--muted);line-height:1.65;max-width:280px;margin:0 auto}
+
+  /* ── PROGRESS ── */
+  .progress-bar-wrap{margin-bottom:.6rem}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+  .progress-label{font-size:10px;color:var(--muted);letter-spacing:.04em}
+  .progress-count{font-size:11px;font-weight:600;color:var(--rose)}
+  .progress-bar{height:5px;background:var(--blush);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(to right,var(--blush),var(--rose));border-radius:3px;transition:width .5s ease}
+
+  /* ── GRID ── */
+  .box-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:.55rem;
+    margin-bottom:1.25rem;
+  }
+
+  /* ── BOX ── */
+  .box{
+    aspect-ratio:1;
+    border-radius:14px;
+    cursor:pointer;
+    position:relative;
+    user-select:none;
+    transition:transform .15s;
+  }
+  .box:active{transform:scale(.9)}
+
+  /* Front (closed) */
+  .box-front{
+    position:absolute;inset:0;
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;
+    border:1.5px solid rgba(255,255,255,.3);
+    transition:transform .35s cubic-bezier(.4,.2,.2,1), opacity .35s;
+    backface-visibility:hidden;
+  }
+
+  /* Back (revealed) */
+  .box-back{
+    position:absolute;inset:0;
+    border-radius:14px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.2rem;padding:.35rem .25rem;
+    background:#fff;
+    border:1.5px solid rgba(193,122,111,.2);
+    box-shadow:0 2px 10px rgba(193,122,111,.1);
+    transform:scale(0) rotateY(90deg);
+    transition:transform .35s cubic-bezier(.34,1.3,.64,1) .15s, opacity .2s .15s;
+    opacity:0;
+  }
+  .box-back-icon{font-size:1.3rem;line-height:1}
+  .box-back-type{font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.1rem}
+
+  /* Opened state */
+  .box.opened .box-front{transform:scale(0) rotateY(-90deg);opacity:0}
+  .box.opened .box-back{transform:scale(1) rotateY(0);opacity:1}
+  .box.opened{cursor:default}
+  .box.opened:active{transform:none}
+
+  /* Shake hint */
+  .box:not(.opened){animation:none}
+  .box.shake{animation:shake .4s ease}
+  @keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-4deg)}75%{transform:rotate(4deg)}}
+
+  /* ── DETAIL SHEET ── */
+  #detail-overlay{
+    display:none;position:fixed;inset:0;z-index:999;
+    background:rgba(45,31,26,.4);backdrop-filter:blur(6px);
+    align-items:flex-end;justify-content:center;padding:.85rem;
+  }
+  #detail-overlay.active{display:flex}
+
+  .detail-sheet{
+    background:var(--cream);border-radius:26px 26px 22px 22px;
+    padding:1.5rem 1.5rem 1.75rem;
+    width:100%;max-width:420px;
+    box-shadow:0 -6px 50px rgba(45,31,26,.18);
+    animation:su .35s cubic-bezier(.34,1.3,.64,1);
+  }
+  @keyframes su{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  .ds-drag{width:34px;height:3.5px;background:var(--blush);border-radius:2px;margin:0 auto 1.1rem}
+
+  .ds-type-badge{
+    display:inline-flex;align-items:center;gap:.35rem;
+    border-radius:50px;padding:.3rem .9rem;
+    font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    margin-bottom:.85rem;
+  }
+  .type-pesan{background:rgba(193,122,111,.1);color:var(--rose);border:1px solid rgba(193,122,111,.2)}
+  .type-fakta{background:rgba(201,169,110,.1);color:#8a6a20;border:1px solid rgba(201,169,110,.2)}
+  .type-tantangan{background:rgba(181,196,177,.2);color:#3a6040;border:1px solid rgba(181,196,177,.4)}
+
+  .ds-icon{font-size:2.75rem;display:block;text-align:center;margin-bottom:.75rem}
+  .ds-title{font-size:14px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:.6rem}
+  .ds-text{font-size:13px;color:var(--ink);line-height:1.8;text-align:center;margin-bottom:1.25rem}
+
+  .ds-close{
+    width:100%;padding:.875rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.32);transition:all .15s;
+  }
+  .ds-close:active{background:var(--deep);transform:scale(.97)}
+
+  /* ── LEGEND ── */
+  .legend{
+    display:flex;justify-content:center;gap:1rem;
+    margin-bottom:1.1rem;
+  }
+  .legend-item{display:flex;align-items:center;gap:.3rem;font-size:10px;color:var(--muted)}
+  .legend-dot{width:10px;height:10px;border-radius:3px}
+
+  /* ── ALL DONE ── */
+  #done-card{
+    display:none;
+    background:linear-gradient(135deg,var(--rose),var(--deep));
+    border-radius:20px;padding:1.75rem 1.5rem;
+    text-align:center;color:#fff;
+    box-shadow:0 8px 30px rgba(193,122,111,.35);
+    animation:popin .5s cubic-bezier(.34,1.3,.64,1);
+    margin-bottom:1rem;
+  }
+  #done-card.show{display:block}
+  @keyframes popin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .done-icon{font-size:3rem;display:block;margin-bottom:.75rem}
+  .done-title{font-size:1.25rem;font-weight:700;margin-bottom:.4rem}
+  .done-sub{font-size:12px;opacity:.8;line-height:1.7;margin-bottom:1.25rem}
+  .done-reset{
+    padding:.8rem 2rem;border-radius:50px;border:2px solid rgba(255,255,255,.5);
+    background:transparent;color:#fff;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+    transition:all .15s;
+  }
+  .done-reset:active{background:rgba(255,255,255,.15)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <span class="header-icon">📦</span>
+    <span class="header-label">Untuk Dara dari Razan</span>
+    <h1 class="header-title">Lucky <span>Dip</span></h1>
+    <p class="header-sub">Klik kotak-kotak di bawah — tiap kotak isi surprise buat kamu. Pesan, fakta lucu, atau tantangan kecil 🤍</p>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-top">
+      <span class="progress-label">Kotak terbuka</span>
+      <span class="progress-count"><span id="opened-count">0</span> / 24</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Pesan</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Fakta Lucu</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--sage)"></div>Tantangan</div>
+  </div>
+
+  <div class="box-grid" id="box-grid"></div>
+
+  <div id="done-card">
+    <span class="done-icon">🎊</span>
+    <p class="done-title">Semua kotak udah dibuka!</p>
+    <p class="done-sub">Kamu udah dapet semua 24 surprise dari Razan. Makasih udah mau buka satu per satu 🤍</p>
+    <button class="done-reset" onclick="resetGame()">🔄 Reset & Main Lagi</button>
+  </div>
+
+</div>
+
+<!-- DETAIL SHEET -->
+<div id="detail-overlay" onclick="handleOverlay(event)">
+  <div class="detail-sheet">
+    <div class="ds-drag"></div>
+    <div class="ds-type-badge" id="ds-badge"></div>
+    <span class="ds-icon" id="ds-icon">🎁</span>
+    <p class="ds-title" id="ds-title"></p>
+    <p class="ds-text" id="ds-text"></p>
+    <button class="ds-close" onclick="closeDetail()">Tutup ✓</button>
+  </div>
+</div>
+
+<script>
+const SURPRISES = [
+  // PESAN (8)
+  {type:'pesan', icon:'🤍', title:'Pesan dari Razan', text:'Kamu adalah orang yang tanpa sadar selalu bikin hari aku lebih berwarna — bahkan di hari yang paling biasa sekalipun.'},
+  {type:'pesan', icon:'💌', title:'Untuk Dara', text:'Ada banyak hal di dunia ini yang aku ga bisa kontrol. Tapi rasa sayang aku ke kamu, itu aku jaga sepenuhnya.'},
+  {type:'pesan', icon:'🌸', title:'Satu Hal yang Kamu Perlu Tau', text:'Waktu kamu lagi ngerasa ga cukup — inget bahwa di mata aku, kamu selalu lebih dari cukup.'},
+  {type:'pesan', icon:'✨', title:'Dari Razan', text:'Kalau aku harus pilih satu hal yang paling aku syukuri, jawabannya selalu sama — kamu ada di hidup aku.'},
+  {type:'pesan', icon:'🌙', title:'Pesan Malam', text:'Setiap kali aku lagi capek dan ga tau harus ngapain, ngebayangin kamu aja udah cukup buat bikin semuanya terasa lebih ringan.'},
+  {type:'pesan', icon:'💞', title:'Untuk Kamu', text:'Kamu bukan pilihan yang aku buat sekali. Kamu adalah pilihan yang aku buat ulang setiap harinya.'},
+  {type:'pesan', icon:'🫶', title:'Hal yang Jarang Aku Bilang', text:'Aku notice banyak hal kecil dari kamu — cara kamu ketawa, cara kamu cerita, cara kamu ada. Dan semuanya bikin aku makin yakin.'},
+  {type:'pesan', icon:'⭐', title:'Dari Hati', text:'Ga ada versi masa depan yang aku bayangkan tanpa kamu ada di dalamnya. Itu bukan lebay — itu yang aku percaya.'},
+
+  // FAKTA LUCU (8)
+  {type:'fakta', icon:'😂', title:'Fakta Ilmiah tentang Kalian', text:'Penelitian internal Razan (n=1, responden=dirinya sendiri) membuktikan bahwa senyum Dara memiliki efek setara dengan 3 cangkir kopi — bikin semangat dan ga mau berhenti.'},
+  {type:'fakta', icon:'🔬', title:'Penemuan Terbaru', text:'Ilmuwan terkemuka bernama Razan menemukan bahwa waktu yang dihabiskan bareng Dara terasa 3x lebih cepat dari waktu biasa. Penelitian masih berlanjut dan hasilnya konsisten.'},
+  {type:'fakta', icon:'📊', title:'Data Resmi', text:'Menurut survei yang diadakan Razan (peserta: hanya Razan), Dara memenangkan kategori "Orang Paling Enak Diajak Ngobrol" selama beberapa tahun berturut-turut tanpa saingan.'},
+  {type:'fakta', icon:'🧪', title:'Hasil Lab Perasaan', text:'Kadar "kangen" dalam darah Razan terbukti meningkat signifikan setiap kali Dara lama ga kasih kabar. Dokter merekomendasikan dosis Dara minimal sekali sehari.'},
+  {type:'fakta', icon:'🎓', title:'Fakta Terverifikasi', text:'Dara Syifa Aulia secara resmi memegang rekor dunia (versi Razan) sebagai orang yang bisa bikin Razan senyum sendiri hanya dengan satu pesan singkat.'},
+  {type:'fakta', icon:'📰', title:'Breaking News', text:'BREAKING: Razan mengkonfirmasi bahwa alasan utama dia rajin bangun pagi adalah kemungkinan dapat kabar dari Dara. Narasumber menolak dikomentari lebih lanjut.'},
+  {type:'fakta', icon:'🔭', title:'Observasi Jangka Panjang', text:'Setelah observasi bertahun-tahun, Razan menyimpulkan bahwa Dara adalah satu-satunya orang yang bisa bikin dia ngerasa comfortable jadi dirinya sendiri tanpa effort apapun.'},
+  {type:'fakta', icon:'🏆', title:'Rekor Dunia', text:'Dara memegang rekor sebagai satu-satunya orang yang berhasil masuk ke hidup Razan dan bikin semuanya terasa lebih berwarna — tanpa sadar, tanpa usaha keras, dan tanpa bisa digantikan.'},
+
+  // TANTANGAN (8)
+  {type:'tantangan', icon:'🎯', title:'Tantangan Kecil!', text:'Kirim satu pesan ke Razan sekarang — bukan yang biasa, tapi satu hal jujur yang lagi kamu pikirin tentang dia. Ga harus panjang. Yang penting tulus.'},
+  {type:'tantangan', icon:'📸', title:'Tantangan Foto!', text:'Foto dirimu sekarang — apapun ekspresinya, apapun kondisinya — dan simpan. Ini snapshot kamu hari ini saat buka kotak ini. Kirimin ke Razan kalau mau 😄'},
+  {type:'tantangan', icon:'🌟', title:'Tantangan 60 Detik!', text:'Dalam 60 detik, sebutkan sebanyak mungkin hal yang kamu suka dari Razan — dalam hati atau diucapin. Hitung sendiri, jujur ya jumlahnya.'},
+  {type:'tantangan', icon:'✍️', title:'Tantangan Nulis!', text:'Tulis satu kalimat tentang hari ini di notes hp kamu — sesuatu yang kamu rasain, syukuri, atau pikirin. Simpan. Baca lagi sebulan kemudian.'},
+  {type:'tantangan', icon:'💬', title:'Tantangan Chat!', text:'Kirim voice note ke Razan sekarang — bilang apapun yang mau kamu bilang. Ga perlu direncanain, langsung aja. Yang spontan itu yang paling jujur.'},
+  {type:'tantangan', icon:'🎵', title:'Tantangan Lagu!', text:'Putar satu lagu yang paling ingetin kamu ke Razan sekarang. Dengerin dari awal sampai akhir sambil mikirin kenapa lagu itu yang kepilih.'},
+  {type:'tantangan', icon:'🤔', title:'Tantangan Jujur!', text:'Jawab dalam hati: satu hal apa yang paling kamu harapin Razan lakuin tapi belum pernah kamu bilang langsung? Kalau berani — bilang ke dia hari ini.'},
+  {type:'tantangan', icon:'🌸', title:'Tantangan Manis!', text:'Bilang sesuatu yang manis ke Razan hari ini — langsung, bukan lewat chat. Kalau lagi jauh, boleh via call. Yang penting diucapin beneran.'},
+];
+
+// Box colors
+const BOX_COLORS = [
+  '#c17a6f','#b87060','#c9856a',
+  '#c9a96e','#bfa060','#d4b070',
+  '#b5c4b1','#a8baa0','#c0ceb8',
+];
+
+const CLOSED_ICONS = ['📦','📦','📦','📦','📦','📦','📦','📦','📦'];
+
+let boxes = [];
+let openedCount = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildGame() {
+  // Shuffle surprises
+  const shuffled = shuffle(SURPRISES);
+  boxes = shuffled.map((s, i) => ({
+    ...s,
+    id: i,
+    opened: false,
+    color: BOX_COLORS[i % BOX_COLORS.length],
+    closedIcon: CLOSED_ICONS[i % CLOSED_ICONS.length],
+  }));
+}
+
+function renderGrid() {
+  const grid = document.getElementById('box-grid');
+  grid.innerHTML = '';
+  boxes.forEach(box => {
+    const el = document.createElement('div');
+    el.className = 'box' + (box.opened ? ' opened' : '');
+    el.id = `box-${box.id}`;
+
+    const typeColor = box.type === 'pesan' ? 'var(--rose)' : box.type === 'fakta' ? 'var(--gold)' : 'var(--sage)';
+
+    el.innerHTML = `
+      <div class="box-front" style="background:${box.color}">
+        <span style="font-size:1.4rem">${box.closedIcon}</span>
+      </div>
+      <div class="box-back">
+        <span class="box-back-icon">${box.icon}</span>
+        <span class="box-back-type" style="color:${typeColor}">${box.type}</span>
+      </div>
+    `;
+
+    if (!box.opened) {
+      el.addEventListener('click', () => openBox(box.id));
+    } else {
+      el.addEventListener('click', () => showDetail(box.id));
+    }
+
+    grid.appendChild(el);
+  });
+}
+
+function openBox(id) {
+  const box = boxes.find(b => b.id === id);
+  if (!box || box.opened) return;
+
+  box.opened = true;
+  openedCount++;
+
+  // Animate open
+  const el = document.getElementById(`box-${id}`);
+  el.classList.add('opened');
+  el.removeEventListener('click', () => openBox(id));
+  el.addEventListener('click', () => showDetail(id));
+
+  // Update progress
+  document.getElementById('opened-count').textContent = openedCount;
+  document.getElementById('progress-fill').style.width = (openedCount / boxes.length * 100) + '%';
+
+  // Show detail after animation
+  setTimeout(() => showDetail(id), 400);
+
+  // Save state
+  saveState();
+
+  // Check done
+  if (openedCount === boxes.length) {
+    setTimeout(() => {
+      document.getElementById('done-card').classList.add('show');
+      document.getElementById('done-card').scrollIntoView({behavior:'smooth',block:'nearest'});
+      confetti();
+    }, 800);
+  }
+}
+
+function showDetail(id) {
+  const box = boxes.find(b => b.id === id);
+  if (!box) return;
+
+  const typeLabels = {pesan:'💌 Pesan', fakta:'😄 Fakta Lucu', tantangan:'🎯 Tantangan'};
+  const typeCls = {pesan:'type-pesan', fakta:'type-fakta', tantangan:'type-tantangan'};
+
+  const badge = document.getElementById('ds-badge');
+  badge.textContent = typeLabels[box.type];
+  badge.className = `ds-type-badge ${typeCls[box.type]}`;
+
+  document.getElementById('ds-icon').textContent = box.icon;
+  document.getElementById('ds-title').textContent = box.title;
+  document.getElementById('ds-text').textContent = box.text;
+
+  document.getElementById('detail-overlay').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('active');
+}
+
+function handleOverlay(e) {
+  if (e.target === document.getElementById('detail-overlay')) closeDetail();
+}
+
+// Persist state
+function saveState() {
+  const state = boxes.map(b => b.opened);
+  localStorage.setItem('lucky-dip-state', JSON.stringify(state));
+  localStorage.setItem('lucky-dip-order', JSON.stringify(boxes.map(b => b.id)));
+}
+
+function loadState() {
+  try {
+    const state = JSON.parse(localStorage.getItem('lucky-dip-state'));
+    const order = JSON.parse(localStorage.getItem('lucky-dip-order'));
+    if (!state || !order || order.length !== SURPRISES.length) return false;
+
+    // Reorder boxes to match saved order
+    const reordered = order.map(id => ({
+      ...SURPRISES[id % SURPRISES.length],
+      id,
+      opened: state[id] || false,
+      color: BOX_COLORS[id % BOX_COLORS.length],
+      closedIcon: CLOSED_ICONS[id % CLOSED_ICONS.length],
+    }));
+    boxes = reordered;
+    openedCount = state.filter(Boolean).length;
+    return true;
+  } catch { return false; }
+}
+
+function resetGame() {
+  localStorage.removeItem('lucky-dip-state');
+  localStorage.removeItem('lucky-dip-order');
+  openedCount = 0;
+  document.getElementById('done-card').classList.remove('show');
+  document.getElementById('opened-count').textContent = '0';
+  document.getElementById('progress-fill').style.width = '0%';
+  buildGame();
+  renderGrid();
+}
+
+function confetti() {
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<60;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*30);
+}
+
+// Init
+if (!loadState()) buildGame();
+document.getElementById('opened-count').textContent = openedCount;
+document.getElementById('progress-fill').style.width = (openedCount / SURPRISES.length * 100) + '%';
+renderGrid();
+if (openedCount === SURPRISES.length) {
+  document.getElementById('done-card').classList.add('show');
+}
+</script>
+</body>
+</html>
