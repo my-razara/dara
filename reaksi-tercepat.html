@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Reaksi Tercepat — Razan & Dara ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+
+  .rules-card{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);
+    width:100%;max-width:380px;text-align:left;
+  }
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rules-list{display:flex;flex-direction:column;gap:.4rem}
+  .rule{display:flex;align-items:center;gap:.6rem;font-size:12px;color:var(--muted)}
+  .rule-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);flex-shrink:0}
+
+  .start-btn{
+    width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;
+  }
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #screen-game{padding:0;justify-content:stretch}
+
+  /* Score strip */
+  .score-strip{
+    flex-shrink:0;
+    background:#fff;border-bottom:1px solid rgba(193,122,111,.1);
+    padding:.6rem 1.5rem;
+    display:flex;justify-content:space-between;align-items:center;
+    width:100%;
+  }
+  .ss-player{text-align:center;flex:1}
+  .ss-name{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .ss-score{font-size:1.6rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .ss-mid{text-align:center}
+  .ss-round{font-size:10px;color:var(--muted)}
+  .ss-round b{color:var(--rose);font-size:13px}
+
+  /* Play area split */
+  .play-area{flex:1;display:flex;flex-direction:column;width:100%}
+
+  .tap-half{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    position:relative;cursor:pointer;
+    transition:background .15s;
+    user-select:none;-webkit-user-select:none;
+  }
+  .tap-half.razan-side{
+    background:rgba(193,122,111,.04);
+    border-bottom:2px solid rgba(193,122,111,.12);
+    transform:rotate(180deg);
+  }
+  .tap-half.dara-side{background:rgba(201,169,110,.04)}
+
+  .half-name{
+    position:absolute;top:.85rem;
+    font-size:10px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);
+  }
+
+  .tap-content{
+    display:flex;flex-direction:column;align-items:center;gap:.5rem;
+    pointer-events:none;
+  }
+  .tap-emoji{font-size:clamp(3rem,12vw,4.5rem);line-height:1}
+  .tap-hint{font-size:12px;color:var(--muted);font-weight:500}
+
+  /* States */
+  .tap-half.waiting .tap-emoji{opacity:.35}
+  .tap-half.waiting .tap-hint{opacity:.5}
+  .tap-half.go{background:rgba(74,154,106,.12)!important}
+  .tap-half.go .tap-emoji{animation:bounce .3s ease}
+  @keyframes bounce{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .tap-half.tapped{background:rgba(193,122,111,.12)!important}
+  .tap-half.false-start{background:rgba(220,60,60,.1)!important}
+  .tap-half.disabled{pointer-events:none}
+
+  /* VS center */
+  .vs-center{
+    flex-shrink:0;
+    background:#fff;
+    border-top:1px solid rgba(193,122,111,.1);
+    border-bottom:1px solid rgba(193,122,111,.1);
+    padding:.35rem;text-align:center;
+    font-size:11px;font-weight:700;color:var(--muted);
+    letter-spacing:.15em;
+  }
+
+  /* ── RESULT OVERLAY ── */
+  #result-overlay{
+    display:none;position:fixed;inset:0;z-index:50;
+    background:rgba(250,246,240,.97);
+    flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:1.5rem;
+  }
+  #result-overlay.show{display:flex}
+
+  .res-big-emoji{font-size:4rem;margin-bottom:.75rem;display:block;animation:popbig .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes popbig{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+  .res-title{font-size:clamp(1.2rem,5vw,1.6rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .res-time{
+    display:inline-flex;align-items:center;gap:.35rem;
+    background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);
+    border-radius:50px;padding:.3rem .9rem;
+    font-size:13px;font-weight:600;color:var(--rose);
+    margin-bottom:.5rem;
+  }
+  .res-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+
+  .res-next-btn{
+    padding:.875rem 2.5rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s;
+  }
+  .res-next-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* False start overlay */
+  #false-overlay{
+    display:none;position:fixed;inset:0;z-index:50;
+    background:rgba(220,60,60,.85);backdrop-filter:blur(4px);
+    flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:1.5rem;
+  }
+  #false-overlay.show{display:flex}
+  .false-emoji{font-size:4rem;margin-bottom:.75rem}
+  .false-title{font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:.35rem}
+  .false-sub{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:1.5rem;line-height:1.6}
+  .false-btn{
+    padding:.875rem 2.5rem;border-radius:50px;border:2px solid rgba(255,255,255,.5);
+    background:transparent;color:#fff;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+    transition:all .15s;
+  }
+  .false-btn:active{background:rgba(255,255,255,.15)}
+
+  /* ── END ── */
+  #screen-end .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem}
+
+  .end-score-card{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;
+    display:grid;grid-template-columns:1fr auto 1fr;
+    align-items:center;gap:1rem;text-align:center;
+    box-shadow:0 4px 20px rgba(193,122,111,.08);
+    width:100%;max-width:380px;
+  }
+  .es-avatar{font-size:1.5rem;display:block;margin-bottom:.2rem}
+  .es-name{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .es-score{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
+  .es-vs{font-size:1rem;color:var(--blush);font-weight:600}
+
+  .end-verdict{
+    background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);
+    border-radius:14px;padding:1rem 1.25rem;
+    font-size:13px;color:var(--ink);line-height:1.75;
+    margin-bottom:1.5rem;width:100%;max-width:380px;
+  }
+  .end-verdict strong{color:var(--rose)}
+
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:380px}
+  .end-btn{
+    flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13.5px;font-weight:700;transition:all .15s;
+  }
+  .end-btn-primary{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .end-btn-primary:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-outline{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .end-btn-outline:active{background:var(--warm)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <span class="intro-icon">⚡</span>
+  <span class="intro-label">Game Berdua — 1 HP</span>
+  <h1 class="intro-title">Reaksi <span>Tercepat</span></h1>
+  <p class="intro-sub">HP diletakin di tengah — siapa yang paling cepat tap sisi mereka waktu sinyal muncul? Yang menang 5 ronde duluan boleh minta apapun! 😏</p>
+
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rules-list">
+      <div class="rule"><span class="rule-dot"></span>Letakin HP di meja di antara kalian</div>
+      <div class="rule"><span class="rule-dot"></span>Razan pegang sisi atas, Dara sisi bawah</div>
+      <div class="rule"><span class="rule-dot"></span>Tunggu sinyal ⚡ muncul — jangan tap duluan!</div>
+      <div class="rule"><span class="rule-dot"></span>Tap sisi kamu secepat mungkin waktu sinyal muncul</div>
+      <div class="rule"><span class="rule-dot"></span>Tap sebelum sinyal = false start, -1 poin!</div>
+      <div class="rule"><span class="rule-dot"></span>Menang 5 ronde duluan = boleh minta apapun 😏</div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Mulai! ⚡</button>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen">
+  <div class="score-strip">
+    <div class="ss-player">
+      <span class="ss-name">Razan</span>
+      <span class="ss-score" id="score-razan">0</span>
+    </div>
+    <div class="ss-mid">
+      <div class="ss-round">Ronde <b id="round-num">1</b></div>
+    </div>
+    <div class="ss-player">
+      <span class="ss-name">Dara</span>
+      <span class="ss-score" id="score-dara">0</span>
+    </div>
+  </div>
+
+  <div class="play-area">
+    <!-- Razan top (rotated) -->
+    <div class="tap-half razan-side waiting" id="half-razan" ontouchstart="handleTap('razan', event)" onclick="handleTap('razan', event)">
+      <span class="half-name">Razan</span>
+      <div class="tap-content">
+        <span class="tap-emoji" id="emoji-razan">⏳</span>
+        <span class="tap-hint" id="hint-razan">Tunggu sinyal...</span>
+      </div>
+    </div>
+
+    <div class="vs-center">TAP AREA</div>
+
+    <!-- Dara bottom -->
+    <div class="tap-half dara-side waiting" id="half-dara" ontouchstart="handleTap('dara', event)" onclick="handleTap('dara', event)">
+      <span class="half-name">Dara</span>
+      <div class="tap-content">
+        <span class="tap-emoji" id="emoji-dara">⏳</span>
+        <span class="tap-hint" id="hint-dara">Tunggu sinyal...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div id="result-overlay">
+  <span class="res-big-emoji" id="res-emoji">⚡</span>
+  <p class="res-title" id="res-title">Razan lebih cepat!</p>
+  <div class="res-time" id="res-time">⚡ 0ms</div>
+  <p class="res-sub" id="res-sub"></p>
+  <button class="res-next-btn" id="res-next-btn" onclick="nextRound()">Ronde Berikutnya →</button>
+</div>
+
+<!-- FALSE START -->
+<div id="false-overlay">
+  <span class="false-emoji">🚨</span>
+  <p class="false-title" id="false-title">False Start!</p>
+  <p class="false-sub" id="false-sub">Tap sebelum sinyal muncul — -1 poin!</p>
+  <button class="false-btn" onclick="dismissFalse()">Lanjut →</button>
+</div>
+
+<!-- END -->
+<div id="screen-end" class="screen">
+  <span class="end-icon" id="end-icon">🏆</span>
+  <h2 class="end-title" id="end-title">Selesai!</h2>
+  <p class="end-sub" id="end-sub">...</p>
+
+  <div class="end-score-card">
+    <div>
+      <span class="es-avatar">🧑</span>
+      <span class="es-name">Razan</span>
+      <span class="es-score" id="end-razan">0</span>
+    </div>
+    <span class="es-vs">VS</span>
+    <div>
+      <span class="es-avatar">👧</span>
+      <span class="es-name">Dara</span>
+      <span class="es-score" id="end-dara">0</span>
+    </div>
+  </div>
+
+  <div class="end-verdict" id="end-verdict">...</div>
+
+  <div class="end-btns">
+    <button class="end-btn end-btn-primary" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-outline" onclick="showScreen('screen-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const WIN_TARGET = 5;
+const MIN_WAIT = 1800;
+const MAX_WAIT = 5000;
+
+let scores = {razan:0, dara:0};
+let round = 1;
+let phase = 'idle'; // idle | waiting | go | done
+let signalTime = 0;
+let waitTimer = null;
+let tapped = {razan:false, dara:false};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame(){
+  scores = {razan:0, dara:0};
+  round = 1;
+  showScreen('screen-game');
+  startRound();
+}
+
+function startRound(){
+  phase = 'waiting';
+  tapped = {razan:false, dara:false};
+
+  // Reset UI
+  ['razan','dara'].forEach(p=>{
+    const half = document.getElementById(`half-${p}`);
+    half.className = `tap-half ${p==='razan'?'razan-side':'dara-side'} waiting`;
+    document.getElementById(`emoji-${p}`).textContent = '⏳';
+    document.getElementById(`hint-${p}`).textContent = 'Tunggu sinyal...';
+  });
+
+  document.getElementById('round-num').textContent = round;
+  updateScoreUI();
+
+  // Random wait
+  const wait = MIN_WAIT + Math.random() * (MAX_WAIT - MIN_WAIT);
+  waitTimer = setTimeout(()=>{
+    if(phase !== 'waiting') return;
+    phase = 'go';
+    signalTime = Date.now();
+
+    ['razan','dara'].forEach(p=>{
+      const half = document.getElementById(`half-${p}`);
+      half.classList.remove('waiting');
+      half.classList.add('go');
+      document.getElementById(`emoji-${p}`).textContent = '⚡';
+      document.getElementById(`hint-${p}`).textContent = 'TAP SEKARANG!';
+    });
+  }, wait);
+}
+
+function handleTap(player, e){
+  e.preventDefault();
+  e.stopPropagation();
+  if(tapped[player]) return;
+
+  if(phase === 'waiting'){
+    // False start!
+    clearTimeout(waitTimer);
+    phase = 'done';
+    tapped[player] = true;
+    scores[player]--;
+    updateScoreUI();
+
+    const playerName = player==='razan'?'Razan':'Dara';
+    document.getElementById('false-title').textContent = `${playerName} False Start! 🚨`;
+    document.getElementById('false-sub').textContent = `${playerName} tap sebelum sinyal muncul — -1 poin! Hati-hati ya 😅`;
+    document.getElementById('false-overlay').classList.add('show');
+    return;
+  }
+
+  if(phase !== 'go') return;
+  tapped[player] = true;
+
+  const reactionTime = Date.now() - signalTime;
+  phase = 'done';
+
+  const half = document.getElementById(`half-${player}`);
+  half.classList.remove('go');
+  half.classList.add('tapped');
+  document.getElementById(`emoji-${player}`).textContent = '✅';
+  document.getElementById(`hint-${player}`).textContent = `${reactionTime}ms!`;
+
+  // Winner
+  scores[player]++;
+  updateScoreUI();
+
+  const playerName = player==='razan'?'Razan':'Dara';
+  const loserName = player==='razan'?'Dara':'Razan';
+
+  document.getElementById('res-emoji').textContent = '⚡';
+  document.getElementById('res-title').textContent = `${playerName} lebih cepat!`;
+  document.getElementById('res-time').textContent = `⚡ ${reactionTime}ms`;
+  document.getElementById('res-sub').textContent = `${playerName} nge-tap dalam ${reactionTime}ms — lebih cepat dari ${loserName}! Skor: Razan ${scores.razan} - Dara ${scores.dara}`;
+
+  if(scores[player] >= WIN_TARGET || scores[player==='razan'?'dara':'razan'] <= -3){
+    document.getElementById('res-next-btn').textContent = 'Lihat Hasil Akhir 🏆';
+    document.getElementById('res-next-btn').onclick = showEnd;
+  } else {
+    document.getElementById('res-next-btn').textContent = 'Ronde Berikutnya →';
+    document.getElementById('res-next-btn').onclick = nextRound;
+  }
+
+  document.getElementById('result-overlay').classList.add('show');
+  confetti();
+}
+
+function nextRound(){
+  document.getElementById('result-overlay').classList.remove('show');
+  round++;
+
+  if(scores.razan >= WIN_TARGET || scores.dara >= WIN_TARGET){
+    showEnd(); return;
+  }
+  startRound();
+}
+
+function dismissFalse(){
+  document.getElementById('false-overlay').classList.remove('show');
+  // Check if negative score means game over (optional)
+  round++;
+  startRound();
+}
+
+function updateScoreUI(){
+  document.getElementById('score-razan').textContent = Math.max(0, scores.razan);
+  document.getElementById('score-dara').textContent = Math.max(0, scores.dara);
+}
+
+function showEnd(){
+  document.getElementById('result-overlay').classList.remove('show');
+  document.getElementById('false-overlay').classList.remove('show');
+
+  const r = Math.max(0, scores.razan);
+  const d = Math.max(0, scores.dara);
+  const razanWin = scores.razan >= WIN_TARGET;
+
+  document.getElementById('end-icon').textContent = razanWin ? '🏆' : '👑';
+  document.getElementById('end-title').textContent = razanWin ? 'Razan Menang!' : 'Dara Menang!';
+  document.getElementById('end-sub').textContent = razanWin
+    ? 'Razan punya reaksi lebih cepat hari ini!'
+    : 'Dara punya reaksi lebih cepat hari ini!';
+  document.getElementById('end-razan').textContent = r;
+  document.getElementById('end-dara').textContent = d;
+
+  const winner = razanWin ? 'Razan' : 'Dara';
+  const loser = razanWin ? 'Dara' : 'Razan';
+  document.getElementById('end-verdict').innerHTML =
+    `<strong>${winner} menang!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
+
+  showScreen('screen-end');
+  confetti();
+}
+
+function confetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<50;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*25);
+}
+</script>
+</body>
+</html>
