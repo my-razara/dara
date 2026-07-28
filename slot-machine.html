@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Slot Cinta — Razan & Dara 🎰</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .page{max-width:440px;margin:0 auto;padding:0 1.25rem 5rem;position:relative;z-index:1}
+
+  .screen{display:none}.screen.active{display:block}
+
+  /* ── INTRO ── */
+  #screen-intro{text-align:center;padding:2.5rem 0 2rem}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+
+  .combo-card{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);text-align:left;
+  }
+  .combo-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.65rem}
+  .combo-row{display:flex;align-items:center;gap:.75rem;padding:.45rem 0;
+    border-bottom:1px solid rgba(193,122,111,.07);font-size:12.5px;color:var(--muted)}
+  .combo-row:last-child{border:none}
+  .combo-slots{font-size:1.1rem;letter-spacing:.15em;flex-shrink:0;width:80px}
+  .combo-label{color:var(--ink);font-weight:500}
+  .combo-sub{font-size:10px;color:var(--muted);display:block;margin-top:.1rem}
+
+  .start-btn{
+    width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;
+  }
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #screen-game{padding-top:1.5rem}
+
+  .game-header{text-align:center;margin-bottom:1.25rem}
+  .game-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.25rem}
+  .spin-info{font-size:11px;color:var(--muted);margin-top:.2rem;display:block}
+  .spin-info span{color:var(--rose);font-weight:600}
+
+  /* Machine body */
+  .machine{
+    background:#fff;
+    border:1.5px solid rgba(193,122,111,.15);
+    border-radius:28px;
+    padding:1.5rem 1.25rem 1.25rem;
+    margin-bottom:1rem;
+    box-shadow:0 8px 40px rgba(193,122,111,.12);
+    position:relative;overflow:hidden;
+  }
+  .machine::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.18),transparent 60%);
+    pointer-events:none}
+
+  /* Score row */
+  .score-row{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:1.1rem;
+  }
+  .score-item{text-align:center}
+  .score-num{font-size:1.4rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .score-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .score-divider{width:1px;height:30px;background:var(--blush)}
+
+  /* Slot window */
+  .slot-window{
+    background:var(--warm);
+    border:2px solid var(--blush);
+    border-radius:18px;
+    padding:.75rem .5rem;
+    display:flex;gap:.5rem;
+    justify-content:center;
+    margin-bottom:1.1rem;
+    position:relative;overflow:hidden;
+  }
+  .slot-window::before,.slot-window::after{
+    content:'';position:absolute;left:0;right:0;height:35%;
+    pointer-events:none;z-index:2;
+  }
+  .slot-window::before{top:0;background:linear-gradient(to bottom,var(--warm),transparent)}
+  .slot-window::after{bottom:0;background:linear-gradient(to top,var(--warm),transparent)}
+
+  /* Each reel */
+  .reel{
+    width:clamp(72px,20vw,88px);
+    height:clamp(72px,20vw,88px);
+    overflow:hidden;
+    border-radius:12px;
+    background:#fff;
+    border:1.5px solid var(--blush);
+    position:relative;
+    box-shadow:inset 0 2px 8px rgba(193,122,111,.08);
+  }
+  .reel-inner{
+    position:absolute;left:0;right:0;
+    display:flex;flex-direction:column;align-items:center;
+    transition:top .1s linear;
+  }
+  .reel-item{
+    width:100%;
+    height:clamp(72px,20vw,88px);
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(2rem,7vw,2.6rem);
+    flex-shrink:0;
+  }
+
+  /* Center line */
+  .slot-center-line{
+    position:absolute;top:50%;left:.75rem;right:.75rem;
+    height:2px;background:rgba(193,122,111,.25);
+    transform:translateY(-50%);z-index:3;pointer-events:none;
+    border-radius:1px;
+  }
+
+  /* Win flash */
+  .slot-window.jackpot{animation:jackpot-flash .4s ease 3}
+  .slot-window.small-win{animation:smallwin-flash .4s ease 2}
+  @keyframes jackpot-flash{0%,100%{border-color:var(--blush)}50%{border-color:var(--gold);box-shadow:0 0 20px rgba(201,169,110,.4)}}
+  @keyframes smallwin-flash{0%,100%{border-color:var(--blush)}50%{border-color:var(--rose);box-shadow:0 0 16px rgba(193,122,111,.3)}}
+
+  /* Tuas / lever */
+  .lever-wrap{
+    display:flex;justify-content:center;margin-bottom:1rem;
+  }
+  .lever-btn{
+    display:flex;flex-direction:column;align-items:center;gap:.4rem;
+    background:none;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;transition:all .15s;
+  }
+  .lever-btn:disabled{opacity:.4;cursor:not-allowed}
+  .lever-body{
+    width:clamp(52px,14vw,64px);
+    height:clamp(52px,14vw,64px);
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--rose),var(--deep));
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;
+    box-shadow:0 6px 20px rgba(193,122,111,.4),0 2px 6px rgba(193,122,111,.2);
+    transition:all .15s;
+  }
+  .lever-btn:not(:disabled):active .lever-body{
+    transform:scale(.88) translateY(4px);
+    box-shadow:0 2px 8px rgba(193,122,111,.3);
+  }
+  .lever-text{font-size:11px;font-weight:700;color:var(--rose);letter-spacing:.08em;text-transform:uppercase}
+
+  /* Result card */
+  .result-card{
+    display:none;
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:20px;padding:1.4rem 1.4rem 1.5rem;
+    margin-bottom:.75rem;
+    box-shadow:0 4px 20px rgba(193,122,111,.1);
+    text-align:center;position:relative;overflow:hidden;
+    animation:popin .4s cubic-bezier(.34,1.3,.64,1);
+  }
+  .result-card.show{display:block}
+  .result-card::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.15),transparent 60%);pointer-events:none}
+  @keyframes popin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+
+  .res-type{
+    display:inline-flex;align-items:center;gap:.3rem;
+    border-radius:50px;padding:.25rem .85rem;
+    font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    margin-bottom:.75rem;
+  }
+  .res-jackpot{background:rgba(201,169,110,.15);color:#8a6a20;border:1px solid rgba(201,169,110,.3)}
+  .res-small{background:rgba(193,122,111,.1);color:var(--rose);border:1px solid rgba(193,122,111,.2)}
+  .res-zonk{background:rgba(181,196,177,.2);color:#3a6040;border:1px solid rgba(181,196,177,.4)}
+
+  .res-emoji{font-size:2.5rem;display:block;margin-bottom:.6rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  .res-title{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.45rem}
+  .res-text{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:0;position:relative;z-index:1}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen active">
+    <span class="intro-icon">🎰</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Slot <span>Cinta</span></h1>
+    <p class="intro-sub">Tarik tuas — dapat kombinasi yang pas, misi romantis terbuka. Zonk? Ada hukuman kecil dulu baru boleh spin lagi 😄</p>
+
+    <div class="combo-card">
+      <span class="combo-title">Kombinasi Kemenangan</span>
+      <div class="combo-row">
+        <span class="combo-slots">X X X</span>
+        <div>
+          <span class="combo-label">🏆 Jackpot!</span>
+          <span class="combo-sub">3 simbol sama → misi romantis spesial</span>
+        </div>
+      </div>
+      <div class="combo-row">
+        <span class="combo-slots">X X ·</span>
+        <div>
+          <span class="combo-label">✨ Menang Kecil</span>
+          <span class="combo-sub">2 simbol sama → misi ringan</span>
+        </div>
+      </div>
+      <div class="combo-row">
+        <span class="combo-slots">· · ·</span>
+        <div>
+          <span class="combo-label">😅 Zonk</span>
+          <span class="combo-sub">Semua beda → hukuman dulu baru spin lagi</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="showScreen('screen-game');initGame()">Tarik Tuas! 🎰</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <span class="game-label">Slot Cinta</span>
+      <span class="spin-info">Spin ke-<span id="spin-count">0</span> · Jackpot: <span id="jackpot-count">0</span>x · Menang: <span id="win-count">0</span>x</span>
+    </div>
+
+    <div class="machine">
+      <!-- Score -->
+      <div class="score-row">
+        <div class="score-item">
+          <span class="score-num" id="score-jackpot">0</span>
+          <span class="score-label">Jackpot 🏆</span>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-item">
+          <span class="score-num" id="score-win">0</span>
+          <span class="score-label">Menang ✨</span>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-item">
+          <span class="score-num" id="score-zonk">0</span>
+          <span class="score-label">Zonk 😅</span>
+        </div>
+      </div>
+
+      <!-- Slot window -->
+      <div class="slot-window" id="slot-window">
+        <div class="slot-center-line"></div>
+        <div class="reel" id="reel-0"><div class="reel-inner" id="inner-0"></div></div>
+        <div class="reel" id="reel-1"><div class="reel-inner" id="inner-1"></div></div>
+        <div class="reel" id="reel-2"><div class="reel-inner" id="inner-2"></div></div>
+      </div>
+
+      <!-- Lever -->
+      <div class="lever-wrap">
+        <button class="lever-btn" id="lever-btn" onclick="spin()">
+          <div class="lever-body">🎰</div>
+          <span class="lever-text">Tarik!</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-card" id="result-card">
+      <div class="res-type" id="res-type">Jackpot!</div>
+      <span class="res-emoji" id="res-emoji">🌸</span>
+      <p class="res-title" id="res-title">Judul</p>
+      <p class="res-text" id="res-text">...</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SYMBOLS = ['🌸','⭐','💌','🎲','🍀','🔮'];
+
+// Jackpot missions (3 same)
+const JACKPOT = {
+  '🌸':{emoji:'🌸',title:'Jackpot Bunga! 🌸',text:'Razan harus bisikkan satu hal yang paling dia syukuri dari Dara langsung di telinganya — pelan, serius, dari hati. Dara dengerin sambil tutup mata.'},
+  '⭐':{emoji:'⭐',title:'Jackpot Bintang! ⭐',text:'Kalian berdua duduk berhadapan, pegang tangan, dan gantian sebutin 5 hal yang kalian suka dari satu sama lain. Ga boleh ngulang.'},
+  '💌':{emoji:'💌',title:'Jackpot Surat! 💌',text:'Razan punya 2 menit untuk bilang ke Dara kenapa dia masih milih Dara setiap harinya — dengan kata-katanya sendiri, spontan, jujur.'},
+  '🎲':{emoji:'🎲',title:'Jackpot Dadu! 🎲',text:'Dara boleh minta satu hal ke Razan sekarang — apapun yang wajar. Razan harus iya tanpa nego. Dara punya 1 menit untuk memutuskan mau minta apa.'},
+  '🍀':{emoji:'🍀',title:'Jackpot Clover! 🍀',text:'Kalian berdua tutup mata, taruh tangan di tengah, cari tangan satu sama lain tanpa ngomong. Setelah ketemu, tahan genggamannya 1 menit penuh.'},
+  '🔮':{emoji:'🔮',title:'Jackpot Misteri! 🔮',text:'Razan usap rambut Dara pelan-pelan selama 1 menit — tanpa diminta, tanpa ngomong apapun. Dara tutup mata dan nikmatin.'},
+};
+
+// Small win missions (2 same)
+const SMALL_WIN = [
+  {emoji:'✨',title:'Misi Kecil!',text:'Satu orang cerita satu hal yang lagi dia pikirin hari ini — yang lain dengerin tanpa potong. Abis itu gantian.'},
+  {emoji:'🤝',title:'Misi Koneksi!',text:'Genggam tangan satu sama lain dan diem selama 30 detik. Rasain aja — ga perlu ngomong apapun.'},
+  {emoji:'💬',title:'Misi Apresiasi!',text:'Masing-masing bilang satu hal kecil yang mereka notice dari satu sama lain hari ini — yang kecil-kecil itu yang paling berkesan.'},
+  {emoji:'😄',title:'Misi Senyum!',text:'Tatap mata satu sama lain selama 20 detik — boleh senyum, boleh ketawa, asal ga buang muka duluan.'},
+  {emoji:'🌙',title:'Misi Malam!',text:'Satu orang bilang satu hal yang bikin mereka seneng hari ini — sekecil apapun. Yang lain dengerin dan senyum.'},
+  {emoji:'💫',title:'Misi Semangat!',text:'Dara kasih Razan semangat — bilang satu hal yang bikin dia yakin Razan bisa lakuin apapun yang lagi dia perjuangin.'},
+];
+
+// Zonk punishments
+const ZONK = [
+  {emoji:'😅',title:'Zonk! Hukuman Dulu~',text:'Sebelum spin lagi: Razan harus ceritain satu hal memalukan tentang dirinya sendiri ke Dara. Beneran, bukan yang dibuat-buat.'},
+  {emoji:'🙈',title:'Zonk! Ketahuan~',text:'Sebelum spin lagi: masing-masing harus ngaku satu kebiasaan jelek yang biasanya mereka sembunyiin dari satu sama lain.'},
+  {emoji:'😬',title:'Zonk! Giliran Jujur~',text:'Sebelum spin lagi: jawab jujur — hal apa yang terakhir bikin kamu senyum sendiri gara-gara yang satunya?'},
+  {emoji:'🤭',title:'Zonk! Ketahuan Lagi~',text:'Sebelum spin lagi: Dara tebak apa yang lagi Razan pikirin sekarang. Razan konfirmasi jujur. Kalau bener, Dara boleh minta satu hal kecil.'},
+  {emoji:'😆',title:'Zonk! Apes~',text:'Sebelum spin lagi: adu staring contest — tatap mata 30 detik tanpa ketawa. Yang kalah harus bilang satu hal yang dia suka dari yang satunya.'},
+  {emoji:'🫣',title:'Zonk! Nasib~',text:'Sebelum spin lagi: Razan harus sebut 3 hal kecil dari Dara yang sering dia notice tapi jarang dia bilang.'},
+];
+
+let spinCount=0, jackpotCount=0, winCount=0, zonkCount=0;
+let isSpinning=false;
+const REEL_HEIGHT=88; // matches CSS clamp max
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function initGame(){
+  spinCount=0;jackpotCount=0;winCount=0;zonkCount=0;
+  updateStats();
+  initReels();
+  document.getElementById('result-card').classList.remove('show');
+}
+
+function initReels(){
+  for(let r=0;r<3;r++){
+    const inner=document.getElementById(`inner-${r}`);
+    inner.innerHTML='';
+    // 3 items visible area, build a strip of many symbols
+    const strip=[...SYMBOLS,...SYMBOLS,...SYMBOLS];
+    strip.forEach(sym=>{
+      const el=document.createElement('div');
+      el.className='reel-item';
+      el.textContent=sym;
+      inner.appendChild(el);
+    });
+    // Start at middle
+    inner.style.top='0px';
+    inner.style.transition='none';
+  }
+}
+
+function getRH(){
+  const reel=document.getElementById('reel-0');
+  return reel.offsetHeight||88;
+}
+
+async function spin(){
+  if(isSpinning)return;
+  isSpinning=true;
+  document.getElementById('lever-btn').disabled=true;
+  document.getElementById('result-card').classList.remove('show');
+  document.getElementById('slot-window').classList.remove('jackpot','small-win');
+
+  spinCount++;
+  updateStats();
+
+  // Pick final symbols
+  const results=[
+    SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],
+    SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],
+    SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],
+  ];
+
+  // Determine outcome first to weight results slightly
+  // (pure random, no weighting)
+
+  const rh=getRH();
+
+  // Spin each reel with staggered stop
+  const promises=[];
+  for(let r=0;r<3;r++){
+    promises.push(spinReel(r,results[r],r*400,rh));
+  }
+  await Promise.all(promises);
+
+  await sleep(300);
+  showResult(results);
+}
+
+function spinReel(reelIdx,finalSymbol,delay,rh){
+  return new Promise(resolve=>{
+    setTimeout(()=>{
+      const inner=document.getElementById(`inner-${reelIdx}`);
+      const symIdx=SYMBOLS.indexOf(finalSymbol);
+
+      // Build long strip ending at finalSymbol
+      const totalItems=20;
+      inner.innerHTML='';
+      inner.style.transition='none';
+
+      const strip=[];
+      for(let i=0;i<totalItems;i++){
+        strip.push(SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]);
+      }
+      // Last visible = finalSymbol
+      strip[totalItems-1]=finalSymbol;
+
+      strip.forEach(sym=>{
+        const el=document.createElement('div');
+        el.className='reel-item';
+        el.textContent=sym;
+        inner.appendChild(el);
+      });
+
+      // Start from top
+      inner.style.top='0px';
+
+      // Animate to final position
+      const duration=1200+reelIdx*400;
+      const targetTop=-((totalItems-1)*rh);
+
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          inner.style.transition=`top ${duration}ms cubic-bezier(.2,.8,.3,1)`;
+          inner.style.top=targetTop+'px';
+          setTimeout(()=>{
+            inner.style.transition='none';
+            resolve();
+          },duration+50);
+        });
+      });
+    },delay);
+  });
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+function showResult(results){
+  const [a,b,c]=results;
+  let type,data;
+
+  if(a===b&&b===c){
+    // Jackpot
+    type='jackpot';
+    jackpotCount++;
+    data=JACKPOT[a];
+    document.getElementById('slot-window').classList.add('jackpot');
+    confetti(80);
+  } else if(a===b||b===c||a===c){
+    // Small win
+    type='small';
+    winCount++;
+    data=SMALL_WIN[Math.floor(Math.random()*SMALL_WIN.length)];
+    document.getElementById('slot-window').classList.add('small-win');
+    confetti(30);
+  } else {
+    // Zonk
+    type='zonk';
+    zonkCount++;
+    data=ZONK[Math.floor(Math.random()*ZONK.length)];
+  }
+
+  updateStats();
+
+  const typeEl=document.getElementById('res-type');
+  if(type==='jackpot'){typeEl.textContent='🏆 JACKPOT!';typeEl.className='res-type res-jackpot';}
+  else if(type==='small'){typeEl.textContent='✨ Menang!';typeEl.className='res-type res-small';}
+  else{typeEl.textContent='😅 Zonk~';typeEl.className='res-type res-zonk';}
+
+  document.getElementById('res-emoji').textContent=data.emoji;
+  document.getElementById('res-title').textContent=data.title;
+  document.getElementById('res-text').textContent=data.text;
+
+  const card=document.getElementById('result-card');
+  card.classList.remove('show');
+  void card.offsetWidth;
+  card.classList.add('show');
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  isSpinning=false;
+  document.getElementById('lever-btn').disabled=false;
+}
+
+function updateStats(){
+  document.getElementById('spin-count').textContent=spinCount;
+  document.getElementById('jackpot-count').textContent=jackpotCount;
+  document.getElementById('win-count').textContent=winCount;
+  document.getElementById('score-jackpot').textContent=jackpotCount;
+  document.getElementById('score-win').textContent=winCount;
+  document.getElementById('score-zonk').textContent=zonkCount;
+}
+
+function confetti(count=50){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<count;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*25);
+}
+</script>
+</body>
+</html>
