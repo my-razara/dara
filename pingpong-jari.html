@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ping Pong Jari — Razan & Dara 🏓</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none}
+  html,body{height:100%;overflow:hidden;background:#1a0f0a;font-family:'Poppins',sans-serif}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1}
+  .screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--cream);padding:1.5rem;text-align:center;font-family:'Poppins',sans-serif}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1;font-family:'Poppins',sans-serif}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1;font-family:'Poppins',sans-serif}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1;font-family:'Poppins',sans-serif}
+
+  .rules-card{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);
+    width:100%;max-width:380px;text-align:left;position:relative;z-index:1;
+  }
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem;font-family:'Poppins',sans-serif}
+  .rules-list{display:flex;flex-direction:column;gap:.4rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;font-family:'Poppins',sans-serif}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+
+  .start-btn{font-family:'Poppins',sans-serif;
+    width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;
+    position:relative;z-index:1;
+  }
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #s-game{background:#1a0f0a;padding:0;position:relative;font-family:'Poppins',sans-serif}
+
+  canvas#game-canvas{
+    display:block;
+    touch-action:none;
+  }
+
+  /* Score overlay */
+  #score-overlay{
+    position:fixed;top:0;left:0;right:0;z-index:10;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:.5rem 1.25rem;
+    background:rgba(26,15,10,.7);
+    backdrop-filter:blur(4px);
+  }
+  .so-player{text-align:center}
+  .so-name{font-size:9px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;display:block;font-family:'Poppins',sans-serif}
+  .so-score{font-size:1.6rem;font-weight:700;color:#fff;display:block;line-height:1;font-family:'Poppins',sans-serif}
+  .so-mid{text-align:center;font-size:10px;color:rgba(255,255,255,.4);font-family:'Poppins',sans-serif}
+  .so-mid b{color:var(--rose);font-size:12px;display:block}
+
+  /* Countdown overlay */
+  #countdown-overlay{
+    position:fixed;inset:0;z-index:20;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(26,15,10,.75);
+    backdrop-filter:blur(4px);
+  }
+  #countdown-overlay.hidden{display:none}
+  .cd-num{font-size:6rem;font-weight:700;color:#fff;font-family:'Poppins',sans-serif;
+    animation:cdpop .5s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* Point flash */
+  #point-flash{font-family:'Poppins',sans-serif;
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-size:1.5rem;font-weight:700;color:#fff;
+    pointer-events:none;z-index:15;
+    display:none;text-align:center;
+  }
+  #point-flash.show{display:block;animation:pflash .8s ease forwards}
+  @keyframes pflash{0%{opacity:1;transform:translate(-50%,-60%)}100%{opacity:0;transform:translate(-50%,-90%)}}
+
+  /* ── RESULT ── */
+  #s-result{background:rgba(26,15,10,.95);padding:1.5rem;text-align:center;font-family:'Poppins',sans-serif}
+  .res-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .res-title{font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:.35rem;font-family:'Poppins',sans-serif}
+  .res-sub{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:1.25rem;font-family:'Poppins',sans-serif}
+  .res-score-card{
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;
+    display:grid;grid-template-columns:1fr auto 1fr;
+    align-items:center;gap:1rem;text-align:center;
+    width:100%;max-width:360px;
+  }
+  .rsc-avatar{font-size:1.5rem;display:block;margin-bottom:.2rem}
+  .rsc-name{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;font-family:'Poppins',sans-serif}
+  .rsc-score{font-size:2.4rem;font-weight:700;color:var(--rose);display:block;font-family:'Poppins',sans-serif}
+  .rsc-vs{color:rgba(255,255,255,.2);font-size:.9rem}
+  .res-verdict{font-family:'Poppins',sans-serif;
+    background:rgba(193,122,111,.1);border:1px solid rgba(193,122,111,.2);
+    border-radius:14px;padding:1rem 1.25rem;
+    font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;
+    margin-bottom:1.5rem;width:100%;max-width:360px;
+  }
+  .res-verdict strong{color:var(--rose)}
+  .res-btns{display:flex;gap:.6rem;width:100%;max-width:360px}
+  .res-btn{
+    flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:13.5px;font-weight:700;transition:all .15s;
+  }
+  .res-btn-primary{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .res-btn-primary:active{background:var(--deep);transform:scale(.97)}
+  .res-btn-outline{background:transparent;color:rgba(255,255,255,.5);border:1.5px solid rgba(255,255,255,.15)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🏓</span>
+  <span class="intro-label">Game Berdua — 1 HP</span>
+  <h1 class="intro-title">Ping Pong <span>Jari</span></h1>
+  <p class="intro-sub">Pantul bola pakai paddle di sisi kamu — jangan sampai bola lewat! Yang sampai 7 poin duluan menang 😤</p>
+
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rules-list">
+      <div class="rule"><span class="rule-dot"></span>HP diletakin di meja di antara kalian — landscape atau portrait sama aja</div>
+      <div class="rule"><span class="rule-dot"></span>Razan kontrol paddle atas (kebalik), Dara kontrol paddle bawah</div>
+      <div class="rule"><span class="rule-dot"></span>Geser jari ke kiri/kanan untuk gerakin paddle</div>
+      <div class="rule"><span class="rule-dot"></span>Bola makin cepat tiap rally panjang</div>
+      <div class="rule"><span class="rule-dot"></span>Yang sampai 7 poin duluan menang dan boleh minta apapun! 😏</div>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Main! 🏓</button>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div id="score-overlay">
+    <div class="so-player">
+      <span class="so-name">🧑 Razan</span>
+      <span class="so-score" id="score-razan">0</span>
+    </div>
+    <div class="so-mid">
+      <b id="so-target">First to 7</b>
+      <span>Ping Pong</span>
+    </div>
+    <div class="so-player">
+      <span class="so-name">👧 Dara</span>
+      <span class="so-score" id="score-dara">0</span>
+    </div>
+  </div>
+
+  <canvas id="game-canvas"></canvas>
+
+  <div id="countdown-overlay">
+    <span class="cd-num" id="cd-num">3</span>
+  </div>
+
+  <div id="point-flash" class=""></div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="res-icon" id="res-icon">🏆</span>
+  <p class="res-title" id="res-title">Razan Menang!</p>
+  <p class="res-sub" id="res-sub">...</p>
+  <div class="res-score-card">
+    <div><span class="rsc-avatar">🧑</span><span class="rsc-name">Razan</span><span class="rsc-score" id="res-razan">0</span></div>
+    <span class="rsc-vs">VS</span>
+    <div><span class="rsc-avatar">👧</span><span class="rsc-name">Dara</span><span class="rsc-score" id="res-dara">0</span></div>
+  </div>
+  <div class="res-verdict" id="res-verdict">...</div>
+  <div class="res-btns">
+    <button class="res-btn res-btn-primary" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="res-btn res-btn-outline" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const WIN_SCORE = 7;
+const PADDLE_H = 12;
+const BALL_START_SPEED = 4;
+const MAX_SPEED = 10;
+
+let canvas, ctx;
+let W, H;
+let scores = {razan: 0, dara: 0};
+let gameRunning = false;
+let animFrame = null;
+
+// Game objects
+let ball = {x:0,y:0,vx:0,vy:0,r:8};
+let paddles = {
+  razan: {x:0,y:0,w:80,h:PADDLE_H,targetX:0},  // top (rotated 180 for razan)
+  dara:  {x:0,y:0,w:80,h:PADDLE_H,targetX:0},   // bottom
+};
+
+let touches = {razan: null, dara: null};
+let countdownTimer = null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id!=='s-game'){
+    cancelAnimationFrame(animFrame);
+    gameRunning=false;
+  }
+}
+
+function initCanvas(){
+  canvas = document.getElementById('game-canvas');
+  ctx = canvas.getContext('2d');
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.width = W+'px';
+  canvas.style.height = H+'px';
+}
+
+function resetBall(direction){
+  ball.x = W/2;
+  ball.y = H/2;
+  const angle = (Math.random()*40-20) * Math.PI/180;
+  const dir = direction||((Math.random()>0.5)?1:-1);
+  ball.vx = BALL_START_SPEED * Math.sin(angle);
+  ball.vy = BALL_START_SPEED * dir;
+  ball.speed = BALL_START_SPEED;
+}
+
+function resetPaddles(){
+  paddles.razan.w = Math.min(120, W*0.3);
+  paddles.dara.w = Math.min(120, W*0.3);
+  paddles.razan.h = PADDLE_H;
+  paddles.dara.h = PADDLE_H;
+
+  const scoreH = 56;
+  paddles.razan.y = scoreH + 20;
+  paddles.dara.y = H - 20 - PADDLE_H;
+
+  paddles.razan.x = W/2 - paddles.razan.w/2;
+  paddles.dara.x = W/2 - paddles.dara.w/2;
+  paddles.razan.targetX = paddles.razan.x;
+  paddles.dara.targetX = paddles.dara.x;
+}
+
+function startGame(){
+  showScreen('s-game');
+  scores = {razan:0, dara:0};
+  updateScoreDisplay();
+  initCanvas();
+  resetPaddles();
+  resetBall(1);
+  setupInput();
+  startCountdown(()=>{
+    gameRunning = true;
+    gameLoop();
+  });
+}
+
+function startCountdown(cb){
+  document.getElementById('countdown-overlay').classList.remove('hidden');
+  let n = 3;
+  const el = document.getElementById('cd-num');
+  el.textContent = n;
+
+  countdownTimer = setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(countdownTimer);
+      el.textContent = '🏓';
+      setTimeout(()=>{
+        document.getElementById('countdown-overlay').classList.add('hidden');
+        cb();
+      },500);
+    } else {
+      el.textContent = n;
+      el.style.animation='none';
+      void el.offsetWidth;
+      el.style.animation='';
+    }
+  },800);
+}
+
+function setupInput(){
+  canvas.addEventListener('touchstart', onTouch, {passive:false});
+  canvas.addEventListener('touchmove', onTouch, {passive:false});
+  canvas.addEventListener('touchend', onTouchEnd, {passive:false});
+  canvas.addEventListener('mousedown', onMouse);
+  canvas.addEventListener('mousemove', onMouse);
+}
+
+function teardownInput(){
+  canvas.removeEventListener('touchstart', onTouch);
+  canvas.removeEventListener('touchmove', onTouch);
+  canvas.removeEventListener('touchend', onTouchEnd);
+  canvas.removeEventListener('mousedown', onMouse);
+  canvas.removeEventListener('mousemove', onMouse);
+}
+
+function onTouch(e){
+  e.preventDefault();
+  Array.from(e.touches).forEach(t=>{
+    const y = t.clientY;
+    const x = t.clientX;
+    const scoreH = 56;
+    // Top half = razan, bottom half = dara
+    if(y < H/2){
+      paddles.razan.targetX = x - paddles.razan.w/2;
+    } else {
+      paddles.dara.targetX = x - paddles.dara.w/2;
+    }
+  });
+}
+
+function onTouchEnd(e){
+  // Keep last position
+}
+
+function onMouse(e){
+  if(e.buttons===0&&e.type==='mousemove')return;
+  const y = e.clientY;
+  const x = e.clientX;
+  if(y < H/2) paddles.razan.targetX = x - paddles.razan.w/2;
+  else paddles.dara.targetX = x - paddles.dara.w/2;
+}
+
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+
+function gameLoop(){
+  if(!gameRunning)return;
+  update();
+  draw();
+  animFrame = requestAnimationFrame(gameLoop);
+}
+
+function update(){
+  // Smooth paddle movement
+  const lerpSpeed = 0.25;
+  paddles.razan.x += (paddles.razan.targetX - paddles.razan.x)*lerpSpeed;
+  paddles.dara.x += (paddles.dara.targetX - paddles.dara.x)*lerpSpeed;
+  paddles.razan.x = clamp(paddles.razan.x, 0, W-paddles.razan.w);
+  paddles.dara.x = clamp(paddles.dara.x, 0, W-paddles.dara.w);
+
+  // Ball movement
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  // Wall bounce left/right
+  if(ball.x - ball.r <= 0){ball.x = ball.r; ball.vx = Math.abs(ball.vx)}
+  if(ball.x + ball.r >= W){ball.x = W-ball.r; ball.vx = -Math.abs(ball.vx)}
+
+  // Paddle collision — dara (bottom)
+  const dp = paddles.dara;
+  if(ball.vy > 0 &&
+     ball.y + ball.r >= dp.y &&
+     ball.y + ball.r <= dp.y + dp.h + 4 &&
+     ball.x >= dp.x && ball.x <= dp.x + dp.w){
+    ball.y = dp.y - ball.r;
+    const hitPos = (ball.x - dp.x) / dp.w - 0.5; // -0.5 to 0.5
+    ball.vx = hitPos * 8;
+    ball.vy = -Math.abs(ball.vy);
+    speedUp();
+  }
+
+  // Paddle collision — razan (top)
+  const rp = paddles.razan;
+  if(ball.vy < 0 &&
+     ball.y - ball.r <= rp.y + rp.h &&
+     ball.y - ball.r >= rp.y - 4 &&
+     ball.x >= rp.x && ball.x <= rp.x + rp.w){
+    ball.y = rp.y + rp.h + ball.r;
+    const hitPos = (ball.x - rp.x) / rp.w - 0.5;
+    ball.vx = hitPos * 8;
+    ball.vy = Math.abs(ball.vy);
+    speedUp();
+  }
+
+  // Score — ball goes past top (razan missed) → dara scores
+  if(ball.y - ball.r < 0){
+    pointScored('dara');
+    return;
+  }
+  // Ball goes past bottom (dara missed) → razan scores
+  if(ball.y + ball.r > H){
+    pointScored('razan');
+    return;
+  }
+}
+
+function speedUp(){
+  const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+  if(speed < MAX_SPEED){
+    const factor = Math.min(1.07, MAX_SPEED/speed);
+    ball.vx *= factor;
+    ball.vy *= factor;
+  }
+}
+
+function pointScored(scorer){
+  gameRunning = false;
+  scores[scorer]++;
+  updateScoreDisplay();
+
+  const flash = document.getElementById('point-flash');
+  flash.textContent = scorer==='razan' ? '🧑 +1' : '👧 +1';
+  flash.classList.remove('show');
+  void flash.offsetWidth;
+  flash.classList.add('show');
+
+  if(scores[scorer] >= WIN_SCORE){
+    setTimeout(()=>showResult(), 800);
+    return;
+  }
+
+  // Next ball — goes toward the one who scored (they serve)
+  setTimeout(()=>{
+    resetPaddles();
+    resetBall(scorer==='razan' ? 1 : -1);
+    startCountdown(()=>{
+      gameRunning = true;
+      gameLoop();
+    });
+  },900);
+}
+
+function draw(){
+  // Background
+  ctx.fillStyle = '#1a0f0a';
+  ctx.fillRect(0,0,W,H);
+
+  // Center line dashed
+  ctx.setLineDash([8,8]);
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Paddles
+  drawPaddle(paddles.razan, '#c17a6f', '🧑');
+  drawPaddle(paddles.dara, '#c9a96e', '👧');
+
+  // Ball
+  const gradient = ctx.createRadialGradient(ball.x,ball.y,0,ball.x,ball.y,ball.r);
+  gradient.addColorStop(0,'#fff');
+  gradient.addColorStop(1,'rgba(255,220,200,.8)');
+  ctx.beginPath();
+  ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
+  ctx.fillStyle = gradient;
+  ctx.shadowColor='rgba(255,200,150,.6)';
+  ctx.shadowBlur=12;
+  ctx.fill();
+  ctx.shadowBlur=0;
+}
+
+function drawPaddle(p, color, emoji){
+  const r = p.h/2;
+  // Glow
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 16;
+  // Paddle body
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(p.x, p.y, p.w, p.h, r);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Emoji indicator
+  ctx.font = `${Math.max(10, p.h*1.2)}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, p.x + p.w/2, p.y + p.h/2);
+}
+
+function updateScoreDisplay(){
+  document.getElementById('score-razan').textContent = scores.razan;
+  document.getElementById('score-dara').textContent = scores.dara;
+}
+
+function showResult(){
+  teardownInput();
+  cancelAnimationFrame(animFrame);
+
+  const r=scores.razan, d=scores.dara;
+  const razanWin=r>d;
+  const winner=razanWin?'Razan':'Dara';
+  const loser=razanWin?'Dara':'Razan';
+
+  document.getElementById('res-icon').textContent=razanWin?'🏆':'👑';
+  document.getElementById('res-title').textContent=`${winner} Menang!`;
+  document.getElementById('res-sub').textContent=`${winner} lebih jago ping pong jari hari ini!`;
+  document.getElementById('res-razan').textContent=r;
+  document.getElementById('res-dara').textContent=d;
+  document.getElementById('res-verdict').innerHTML=
+    `<strong>${winner} menang ${razanWin?r:d} - ${razanWin?d:r}!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
+
+  showScreen('s-result');
+  confetti(80);
+}
+
+function confetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#fff'];
+  for(let i=0;i<80;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('s-game').classList.contains('active')){
+    initCanvas();resetPaddles();
+  }
+});
+</script>
+</body>
+</html>
