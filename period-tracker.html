@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tracking Period Dara 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --period:#e57373;
+    --folicular:#81c784;
+    --ovulation:#ffb74d;
+    --luteal:#9575cd;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(232,196,176,.35) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 60% at 85% 90%,rgba(193,122,111,.18) 0%,transparent 60%);
+    pointer-events:none;z-index:0}
+  .page{max-width:420px;margin:0 auto;padding:0 1rem 6rem;position:relative;z-index:1}
+
+  /* ── HEADER ── */
+  .app-header{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:space-between}
+  .app-header-left h1{font-size:1.2rem;font-weight:700;color:var(--ink)}
+  .app-header-left h1 span{color:var(--rose)}
+  .app-header-left p{font-size:11px;color:var(--muted);margin-top:.1rem}
+  .app-header-icon{font-size:2rem}
+
+  /* ── RING SECTION ── */
+  .ring-section{
+    display:flex;align-items:center;gap:1.25rem;
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:24px;padding:1.25rem 1.25rem 1.25rem 1rem;
+    margin-bottom:1rem;
+    box-shadow:0 4px 20px rgba(193,122,111,.08);
+    position:relative;overflow:hidden;
+  }
+  .ring-section::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top left,rgba(232,196,176,.15),transparent 60%);
+    pointer-events:none}
+
+  .ring-wrap{position:relative;flex-shrink:0;width:110px;height:110px}
+  .ring-wrap svg{width:110px;height:110px;transform:rotate(-90deg)}
+  .ring-bg{fill:none;stroke:var(--warm);stroke-width:10}
+  .ring-period{fill:none;stroke:var(--period);stroke-width:10;stroke-linecap:round;
+    stroke-dasharray:283;transition:stroke-dashoffset .8s ease}
+  .ring-folicular{fill:none;stroke:var(--folicular);stroke-width:10;stroke-linecap:round;
+    stroke-dasharray:283;transition:stroke-dashoffset .8s ease}
+  .ring-ovulation{fill:none;stroke:var(--ovulation);stroke-width:10;stroke-linecap:round;
+    stroke-dasharray:283;transition:stroke-dashoffset .8s ease}
+  .ring-luteal{fill:none;stroke:var(--luteal);stroke-width:10;stroke-linecap:round;
+    stroke-dasharray:283;transition:stroke-dashoffset .8s ease}
+  .ring-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+  }
+  .ring-day{font-size:1.6rem;font-weight:700;color:var(--ink);line-height:1}
+  .ring-day-label{font-size:9px;color:var(--muted);margin-top:.15rem;text-transform:uppercase;letter-spacing:.08em}
+
+  .ring-info{flex:1}
+  .ring-phase-badge{
+    display:inline-flex;align-items:center;gap:.3rem;
+    border-radius:50px;padding:.25rem .75rem;
+    font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    margin-bottom:.5rem;
+  }
+  .badge-period{background:rgba(229,115,115,.12);color:var(--period);border:1px solid rgba(229,115,115,.2)}
+  .badge-folicular{background:rgba(129,199,132,.15);color:#388e3c;border:1px solid rgba(129,199,132,.3)}
+  .badge-ovulation{background:rgba(255,183,77,.15);color:#e65100;border:1px solid rgba(255,183,77,.3)}
+  .badge-luteal{background:rgba(149,117,205,.12);color:#512da8;border:1px solid rgba(149,117,205,.2)}
+  .badge-unknown{background:var(--warm);color:var(--muted);border:1px solid var(--blush)}
+
+  .ring-phase-name{font-size:1rem;font-weight:700;color:var(--ink);display:block;margin-bottom:.25rem}
+  .ring-phase-desc{font-size:11px;color:var(--muted);line-height:1.55}
+
+  /* ── INFO PILLS ── */
+  .info-pills{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+  .info-pill{
+    flex:1;min-width:0;
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:14px;padding:.7rem .85rem;
+    box-shadow:0 2px 8px rgba(193,122,111,.06);
+    text-align:center;
+  }
+  .ip-num{font-size:1.3rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .ip-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:block;margin-top:.15rem}
+
+  /* ── RAZAN CARD ── */
+  .razan-card{
+    background:linear-gradient(135deg,rgba(193,122,111,.08),rgba(201,169,110,.08));
+    border:1px solid rgba(193,122,111,.15);
+    border-radius:16px;padding:.9rem 1rem;
+    margin-bottom:1rem;
+    display:flex;gap:.75rem;align-items:flex-start;
+  }
+  .razan-card-icon{font-size:1.3rem;flex-shrink:0;margin-top:.05rem}
+  .razan-card-text{font-size:11.5px;color:var(--ink);line-height:1.6}
+  .razan-card-text b{color:var(--rose)}
+
+  /* ── LATE ALERT ── */
+  .late-alert{
+    border-radius:14px;padding:.85rem 1rem;margin-bottom:1rem;
+    font-size:12px;color:var(--ink);line-height:1.6;
+    display:flex;gap:.6rem;align-items:flex-start;
+  }
+  .late-normal{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.25)}
+  .late-warn{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.2)}
+  .late-danger{background:rgba(229,115,115,.15);border:1px solid rgba(229,115,115,.3)}
+
+  /* ── CALENDAR ── */
+  .cal-section{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:20px;padding:1.1rem;
+    margin-bottom:1rem;
+    box-shadow:0 4px 16px rgba(193,122,111,.07);
+  }
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem}
+  .cal-nav-btn{
+    width:32px;height:32px;border-radius:50%;
+    border:1.5px solid var(--blush);background:var(--warm);
+    cursor:pointer;font-size:.85rem;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;transition:all .12s;
+  }
+  .cal-nav-btn:active{background:var(--blush)}
+  .cal-month{font-size:13px;font-weight:700;color:var(--ink)}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .cal-dow{font-size:9px;font-weight:600;color:var(--muted);text-align:center;
+    padding:.3rem 0;text-transform:uppercase;letter-spacing:.04em}
+  .cal-day{
+    aspect-ratio:1;border-radius:8px;border:none;background:transparent;
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(10px,2.5vw,12px);font-weight:400;color:var(--ink);
+    cursor:pointer;transition:all .12s;position:relative;
+    font-family:'Poppins',sans-serif;
+  }
+  .cal-day:active{transform:scale(.85)}
+  .cal-day.empty{pointer-events:none}
+  .cal-day.other-month{color:rgba(45,31,26,.2)}
+  .cal-day.today{font-weight:700}
+  .cal-day.today::after{
+    content:'';position:absolute;bottom:2px;left:50%;
+    transform:translateX(-50%);width:4px;height:4px;
+    border-radius:50%;background:var(--rose);
+  }
+
+  /* Phase colors */
+  .cal-day.p-period{background:rgba(229,115,115,.18);color:var(--period);font-weight:600}
+  .cal-day.p-period-start{
+    background:var(--period)!important;color:#fff!important;
+    border-radius:50%!important;font-weight:700!important;
+  }
+  .cal-day.p-folicular{background:rgba(129,199,132,.15);color:#388e3c}
+  .cal-day.p-ovulation{background:rgba(255,183,77,.2);color:#e65100;font-weight:600}
+  .cal-day.p-luteal{background:rgba(149,117,205,.12);color:#512da8}
+  .cal-day.p-predict{background:rgba(229,115,115,.1);color:rgba(229,115,115,.8)}
+  .cal-day.p-predict-ov{background:rgba(255,183,77,.1);color:rgba(230,81,0,.7)}
+
+  /* Selected */
+  .cal-day.selected-start{background:var(--rose);color:#fff;border-radius:50%}
+  .cal-day.selected-end{background:rgba(193,122,111,.3);color:var(--deep);border-radius:50%}
+
+  /* ── LEGEND ── */
+  .legend{display:flex;flex-wrap:wrap;gap:.35rem .7rem;margin-top:.85rem}
+  .leg-item{display:flex;align-items:center;gap:.3rem;font-size:9.5px;color:var(--muted)}
+  .leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+  /* ── LOG SHEET ── */
+  #log-overlay{
+    display:none;position:fixed;inset:0;z-index:999;
+    background:rgba(45,31,26,.45);backdrop-filter:blur(6px);
+    align-items:flex-end;justify-content:center;padding:.75rem;
+  }
+  #log-overlay.active{display:flex}
+  .log-sheet{
+    background:var(--cream);border-radius:26px 26px 22px 22px;
+    padding:1.5rem 1.4rem 2rem;
+    width:100%;max-width:420px;
+    box-shadow:0 -6px 50px rgba(45,31,26,.18);
+    animation:slideup .3s cubic-bezier(.34,1.3,.64,1);
+    max-height:88vh;overflow-y:auto;
+  }
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .ls-drag{width:34px;height:3.5px;background:var(--blush);border-radius:2px;margin:0 auto 1.1rem}
+  .ls-title{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .ls-date{font-size:11px;color:var(--muted);margin-bottom:1.1rem}
+
+  .ls-section{margin-bottom:1rem}
+  .ls-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--gold);display:block;margin-bottom:.5rem}
+
+  .ls-date-input{
+    width:100%;padding:.7rem .9rem;
+    border:1.5px solid var(--blush);border-radius:12px;
+    font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);
+    background:#fff;outline:none;margin-bottom:.5rem;
+  }
+  .ls-date-input:focus{border-color:var(--rose)}
+
+  .chip-row{display:flex;flex-wrap:wrap;gap:.35rem}
+  .chip{
+    padding:.3rem .7rem;border-radius:50px;
+    border:1.5px solid var(--blush);background:#fff;
+    font-family:'Poppins',sans-serif;font-size:11px;color:var(--muted);
+    cursor:pointer;transition:all .12s;
+  }
+  .chip.on{background:rgba(193,122,111,.1);border-color:var(--rose);color:var(--rose);font-weight:600}
+  .chip:active{transform:scale(.92)}
+
+  .mood-row{display:flex;gap:.4rem}
+  .mood-chip{
+    flex:1;padding:.5rem .25rem;border-radius:10px;
+    border:1.5px solid var(--blush);background:#fff;
+    cursor:pointer;text-align:center;font-size:1.1rem;transition:all .12s;
+  }
+  .mood-chip span{display:block;font-size:9px;color:var(--muted);margin-top:.15rem;font-family:'Poppins',sans-serif}
+  .mood-chip.on{border-color:var(--rose);background:rgba(193,122,111,.08)}
+  .mood-chip:active{transform:scale(.9)}
+
+  .flow-row{display:flex;gap:.4rem}
+  .flow-chip{
+    flex:1;padding:.5rem;border-radius:10px;
+    border:1.5px solid var(--blush);background:#fff;
+    cursor:pointer;text-align:center;
+    font-family:'Poppins',sans-serif;font-size:11px;color:var(--muted);
+    transition:all .12s;
+  }
+  .flow-chip.on{background:rgba(229,115,115,.1);border-color:var(--period);color:var(--period);font-weight:600}
+
+  .ls-save{
+    width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s;margin-top:.5rem;
+  }
+  .ls-save:active{background:var(--deep);transform:scale(.97)}
+  .ls-cancel{
+    width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);
+    background:transparent;color:var(--muted);
+    font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;margin-top:.5rem;
+  }
+
+  /* ── HISTORY ── */
+  .hist-section{background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:20px;padding:1.1rem;margin-bottom:1rem;
+    box-shadow:0 4px 16px rgba(193,122,111,.07)}
+  .hist-title{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:.85rem;
+    display:flex;align-items:center;gap:.5rem}
+  .hist-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+
+  .hist-item{
+    display:flex;align-items:center;gap:.75rem;
+    padding:.6rem 0;border-bottom:1px solid rgba(193,122,111,.07);
+  }
+  .hist-item:last-child{border:none;padding-bottom:0}
+  .hi-dot{width:10px;height:10px;border-radius:50%;background:var(--period);flex-shrink:0}
+  .hi-info{flex:1}
+  .hi-main{font-size:12px;font-weight:600;color:var(--ink)}
+  .hi-sub{font-size:10px;color:var(--muted);margin-top:.05rem}
+  .hi-del{width:26px;height:26px;border-radius:50%;border:1px solid var(--blush);
+    background:#fff;cursor:pointer;font-size:.75rem;color:var(--muted);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .hi-del:active{border-color:var(--period);color:var(--period)}
+
+  .stats-row{display:flex;gap:.5rem;margin-bottom:1rem}
+  .stat-box{flex:1;background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:14px;padding:.75rem .6rem;text-align:center;
+    box-shadow:0 2px 8px rgba(193,122,111,.05)}
+  .sb-num{font-size:1.4rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .sb-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-top:.15rem}
+
+  .reg-badge{border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;
+    font-size:11.5px;color:var(--ink);line-height:1.6;
+    display:flex;align-items:flex-start;gap:.6rem}
+  .reg-ok{background:rgba(129,199,132,.12);border:1px solid rgba(129,199,132,.25)}
+  .reg-bad{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.2)}
+  .reg-unk{background:var(--warm);border:1px solid var(--blush)}
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;
+    background:rgba(250,246,240,.95);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-top:1px solid rgba(193,122,111,.1);
+    display:flex;padding:.5rem .75rem calc(.5rem + env(safe-area-inset-bottom));
+    z-index:50;
+  }
+  .nav-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;
+    background:none;border:none;cursor:pointer;padding:.4rem;transition:all .15s;
+  }
+  .nav-icon{font-size:1.3rem}
+  .nav-label{font-size:9px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .nav-btn.active .nav-label{color:var(--rose);font-weight:700}
+  .nav-btn.active .nav-icon{transform:scale(1.1)}
+
+  /* Toast */
+  .toast{position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;
+    font-size:12px;font-weight:500;z-index:9999;white-space:nowrap;pointer-events:none;
+    animation:toastin .25s ease}
+  @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="app-header">
+    <div class="app-header-left">
+      <h1>Period <span>Dara</span></h1>
+      <p id="header-date">Loading...</p>
+    </div>
+    <span class="app-header-icon">🌸</span>
+  </div>
+
+  <!-- HOME -->
+  <div id="screen-home">
+    <div class="ring-section">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 110 110">
+          <circle class="ring-bg" cx="55" cy="55" r="45"/>
+          <circle class="ring-luteal"    id="r-luteal"    cx="55" cy="55" r="45" stroke-dashoffset="283"/>
+          <circle class="ring-ovulation" id="r-ovulation" cx="55" cy="55" r="45" stroke-dashoffset="283"/>
+          <circle class="ring-folicular" id="r-folicular" cx="55" cy="55" r="45" stroke-dashoffset="283"/>
+          <circle class="ring-period"    id="r-period"    cx="55" cy="55" r="45" stroke-dashoffset="283"/>
+        </svg>
+        <div class="ring-center">
+          <span class="ring-day" id="ring-day">—</span>
+          <span class="ring-day-label">hari ke-</span>
+        </div>
+      </div>
+      <div class="ring-info">
+        <div class="ring-phase-badge badge-unknown" id="phase-badge">Mulai catat</div>
+        <span class="ring-phase-name" id="phase-name">Belum ada data</span>
+        <span class="ring-phase-desc" id="phase-desc">Memuat data dari server... 🌸</span>
+      </div>
+    </div>
+
+    <div class="info-pills" id="info-pills">
+      <div class="info-pill">
+        <span class="ip-num" id="ip-next">—</span>
+        <span class="ip-label">Hari → haid</span>
+      </div>
+      <div class="info-pill">
+        <span class="ip-num" id="ip-ovul">—</span>
+        <span class="ip-label">Hari → ovulasi</span>
+      </div>
+      <div class="info-pill">
+        <span class="ip-num" id="ip-cycle">—</span>
+        <span class="ip-label">Rata siklus</span>
+      </div>
+    </div>
+
+    <div id="late-wrap"></div>
+    <div id="razan-wrap"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="screen-calendar" style="display:none">
+    <div class="cal-section">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">←</button>
+        <span class="cal-month" id="cal-label"></span>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">→</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--period)"></div>Haid</div>
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(229,115,115,.35)"></div>Prediksi</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--folicular)"></div>Folikuler</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--ovulation)"></div>Ovulasi</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--luteal)"></div>Luteal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="screen-history" style="display:none">
+    <div class="stats-row">
+      <div class="stat-box"><span class="sb-num" id="s-avg">—</span><span class="sb-lbl">Avg siklus</span></div>
+      <div class="stat-box"><span class="sb-num" id="s-dur">—</span><span class="sb-lbl">Avg durasi</span></div>
+      <div class="stat-box"><span class="sb-num" id="s-tot">—</span><span class="sb-lbl">Total</span></div>
+      <div class="stat-box"><span class="sb-num" id="s-var">—</span><span class="sb-lbl">Variansi</span></div>
+    </div>
+    <div id="reg-wrap"></div>
+    <div class="hist-section">
+      <p class="hist-title">Riwayat Haid</p>
+      <div id="hist-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="showScreen('home',this)">
+    <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+  </button>
+  <button class="nav-btn" onclick="showScreen('calendar',this)">
+    <span class="nav-icon">📅</span><span class="nav-label">Kalender</span>
+  </button>
+  <button class="nav-btn" onclick="showScreen('history',this)">
+    <span class="nav-icon">📊</span><span class="nav-label">Riwayat</span>
+  </button>
+</div>
+
+<!-- LOG SHEET -->
+<div id="log-overlay" onclick="handleOverlay(event)">
+  <div class="log-sheet">
+    <div class="ls-drag"></div>
+    <p class="ls-title">Tandai Haid</p>
+    <p class="ls-date" id="ls-date-label">Tanggal dipilih</p>
+
+    <div class="ls-section">
+      <span class="ls-label">Tanggal mulai</span>
+      <input type="date" class="ls-date-input" id="ls-start">
+    </div>
+    <div class="ls-section">
+      <span class="ls-label">Tanggal selesai (opsional)</span>
+      <input type="date" class="ls-date-input" id="ls-end">
+    </div>
+    <div class="ls-section">
+      <span class="ls-label">Mood</span>
+      <div class="mood-row">
+        <button class="mood-chip" data-v="happy" onclick="pickMood(this)">😊<span>Seneng</span></button>
+        <button class="mood-chip" data-v="ok" onclick="pickMood(this)">😐<span>Biasa</span></button>
+        <button class="mood-chip" data-v="sad" onclick="pickMood(this)">😢<span>Sensitif</span></button>
+        <button class="mood-chip" data-v="tired" onclick="pickMood(this)">😔<span>Lelah</span></button>
+      </div>
+    </div>
+    <div class="ls-section">
+      <span class="ls-label">Aliran</span>
+      <div class="flow-row">
+        <button class="flow-chip" data-v="ringan" onclick="pickFlow(this)">Ringan</button>
+        <button class="flow-chip" data-v="sedang" onclick="pickFlow(this)">Sedang</button>
+        <button class="flow-chip" data-v="deras" onclick="pickFlow(this)">Deras</button>
+      </div>
+    </div>
+    <div class="ls-section">
+      <span class="ls-label">Gejala</span>
+      <div class="chip-row" id="sym-chips">
+        <button class="chip" data-v="kram" onclick="toggleChip(this)">🤕 Kram</button>
+        <button class="chip" data-v="pusing" onclick="toggleChip(this)">💫 Pusing</button>
+        <button class="chip" data-v="ngidam" onclick="toggleChip(this)">🍫 Ngidam</button>
+        <button class="chip" data-v="capek" onclick="toggleChip(this)">😴 Capek</button>
+        <button class="chip" data-v="jerawat" onclick="toggleChip(this)">😣 Jerawat</button>
+        <button class="chip" data-v="kembung" onclick="toggleChip(this)">🫃 Kembung</button>
+        <button class="chip" data-v="nyeri" onclick="toggleChip(this)">💊 Nyeri</button>
+        <button class="chip" data-v="moodswing" onclick="toggleChip(this)">🌊 Mood swing</button>
+      </div>
+    </div>
+    <button class="ls-save" onclick="saveLog()">Simpan 🌸</button>
+    <button class="ls-cancel" onclick="closeLog()">Batal</button>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+const GS_URL='https://script.google.com/macros/s/AKfycbwxqc1oPn30mM-EG8cHfX-cEIJbr8-MZMZLur_TW-6XjBGWuS1_2l1UsS-6EUZX9tDB/exec';
+let cycles=[];
+let isSaving=false;
+
+async function loadFromSheets(){
+  try{
+    showToast('Memuat data...');
+    const res=await fetch(GS_URL+'?action=getAll');
+    const rows=await res.json();
+    cycles=rows.filter(r=>r[0]&&r[0]!=='').map(r=>({
+      start:r[0],
+      end:r[1]||null,
+      mood:r[2]||'',
+      flow:r[3]||'',
+      syms:r[4]?r[4].split(',').filter(Boolean):[],
+    }));
+    cycles.sort((a,b)=>a.start.localeCompare(b.start));
+    renderHome();renderCalendar();
+    document.querySelectorAll('.toast').forEach(e=>e.remove());
+  }catch(err){
+    showToast('Gagal muat data — cek koneksi internet');
+    console.error(err);
+  }
+}
+
+async function saveToSheets(){
+  if(isSaving)return;
+  isSaving=true;
+  try{
+    await fetch(GS_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'save',cycles}),
+    });
+  }catch(err){
+    showToast('Gagal simpan — cek koneksi internet');
+    console.error(err);
+  }
+  isSaving=false;
+}
+
+async function deleteFromSheets(start){
+  try{
+    await fetch(GS_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'delete',start}),
+    });
+  }catch(err){
+    showToast('Gagal hapus — cek koneksi internet');
+    console.error(err);
+  }
+}
+
+const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const DOW=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+let calYear=new Date().getFullYear();
+let calMonth=new Date().getMonth();
+let logMood='',logFlow='',logSyms=[];
+
+// ── UTILS ──
+const toStr=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const fromStr=s=>{const[y,m,d]=s.split('-');return new Date(+y,+m-1,+d)};
+const diffD=(a,b)=>Math.round((b-a)/864e5);
+const addD=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r};
+const todayStr=()=>toStr(new Date());
+
+function avgCycle(){
+  if(cycles.length<2)return 28;
+  const ls=[];
+  for(let i=1;i<cycles.length;i++){
+    const l=diffD(fromStr(cycles[i-1].start),fromStr(cycles[i].start));
+    if(l>10&&l<60)ls.push(l);
+  }
+  return ls.length?Math.round(ls.reduce((a,b)=>a+b)/ls.length):28;
+}
+function avgDur(){
+  const ds=cycles.filter(c=>c.end).map(c=>diffD(fromStr(c.start),fromStr(c.end))+1);
+  return ds.length?Math.round(ds.reduce((a,b)=>a+b)/ds.length):5;
+}
+function variance(){
+  if(cycles.length<3)return null;
+  const ls=[];
+  for(let i=1;i<cycles.length;i++){
+    const l=diffD(fromStr(cycles[i-1].start),fromStr(cycles[i].start));
+    if(l>10&&l<60)ls.push(l);
+  }
+  if(ls.length<2)return null;
+  const avg=ls.reduce((a,b)=>a+b)/ls.length;
+  return Math.round(Math.max(...ls.map(l=>Math.abs(l-avg))));
+}
+
+function getPhase(){
+  if(!cycles.length)return null;
+  const last=cycles[cycles.length-1];
+  const avg=avgCycle(),pdur=avgDur();
+  const now=new Date();
+  const dayInCycle=diffD(fromStr(last.start),now)+1;
+  if(dayInCycle<1)return null;
+
+  const periodEnd=last.end?diffD(fromStr(last.start),fromStr(last.end))+1:pdur;
+  if(dayInCycle<=periodEnd)return{phase:'period',day:dayInCycle,avg,pdur};
+
+  const ovDay=Math.round(avg/2);
+  if(dayInCycle<ovDay-1)return{phase:'folicular',day:dayInCycle,avg,pdur};
+  if(dayInCycle<=ovDay+1)return{phase:'ovulation',day:dayInCycle,avg,pdur};
+  if(dayInCycle<avg)return{phase:'luteal',day:dayInCycle,avg,pdur};
+  return{phase:'late',day:dayInCycle,avg,pdur};
+}
+
+// ── SCREENS ──
+function showScreen(id,btn){
+  ['home','calendar','history'].forEach(s=>{
+    document.getElementById('screen-'+s).style.display=s===id?'block':'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(id==='home')renderHome();
+  if(id==='calendar')renderCalendar();
+  if(id==='history')renderHistory();
+}
+
+// ── HOME ──
+const PHASE_DATA={
+  period:{badge:'badge-period',label:'🔴 Menstruasi',name:'Fase Menstruasi',
+    desc:'Dara lagi haid. Wajar kalau lebih lelah atau sensitif dari biasanya.',
+    razan:'Dara lagi haid sekarang. Perhatiin kondisinya — tanya gimana rasanya, siapkan minum hangat, atau sekadar ada. Kram itu nyata dan menyakitkan 🤍'},
+  folicular:{badge:'badge-folicular',label:'🌱 Folikuler',name:'Fase Folikuler',
+    desc:'Setelah haid, energi mulai naik dan mood biasanya ikut membaik.',
+    razan:'Dara di fase folikuler — energinya mulai naik dan moodnya biasanya lagi bagus. Waktu yang enak buat ngobrol atau jalan bareng 🤍'},
+  ovulation:{badge:'badge-ovulation',label:'⚡ Ovulasi',name:'Fase Ovulasi',
+    desc:'Puncak siklus — energi tinggi, mood positif dan aktif.',
+    razan:'Dara lagi di fase ovulasi — ini fase paling aktif dan energik. Moodnya biasanya lagi di puncaknya 🌟'},
+  luteal:{badge:'badge-luteal',label:'🌙 Luteal',name:'Fase Luteal',
+    desc:'Fase sebelum haid — bisa lebih sensitif, lelah, atau mood swing. Ini wajar.',
+    razan:'Dara lagi di fase luteal (PMS). Mungkin lebih sensitif atau gampang lelah dari biasanya. Sabar dan perhatiin lebih ya 🤍'},
+  late:{badge:'badge-luteal',label:'⚠️ Telat',name:'Siklus Melebihi Prediksi',
+    desc:'Haid diprediksi sudah seharusnya datang. Pantau terus.',
+    razan:'Haid Dara sudah melebihi prediksi. Perhatiin kondisinya ya 🤍'},
+};
+
+function renderHome(){
+  const now=new Date();
+  document.getElementById('header-date').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'});
+
+  const p=getPhase();
+  const avg=avgCycle();
+  const last=cycles.length?cycles[cycles.length-1]:null;
+
+  if(!p){
+    document.getElementById('ring-day').textContent='—';
+    document.getElementById('phase-badge').className='ring-phase-badge badge-unknown';
+    document.getElementById('phase-badge').textContent='Mulai catat';
+    document.getElementById('phase-name').textContent='Belum ada data';
+    document.getElementById('phase-desc').textContent='Tap kalender dan tandai hari pertama haid Dara untuk mulai tracking 🌸';
+    ['r-period','r-folicular','r-ovulation','r-luteal'].forEach(id=>{
+      document.getElementById(id).style.strokeDashoffset=283;
+    });
+    document.getElementById('ip-next').textContent='—';
+    document.getElementById('ip-ovul').textContent='—';
+    document.getElementById('ip-cycle').textContent='—';
+    document.getElementById('late-wrap').innerHTML='';
+    document.getElementById('razan-wrap').innerHTML='';
+    return;
+  }
+
+  const info=PHASE_DATA[p.phase]||PHASE_DATA.luteal;
+  document.getElementById('ring-day').textContent=p.day;
+  document.getElementById('phase-badge').className='ring-phase-badge '+info.badge;
+  document.getElementById('phase-badge').textContent=info.label;
+  document.getElementById('phase-name').textContent=info.name;
+  document.getElementById('phase-desc').textContent=info.desc;
+
+  // Ring segments (stacked)
+  const circ=283;
+  const pdur=p.pdur;
+  const ovDay=Math.round(avg/2);
+  const folLen=ovDay-pdur-2;
+  const ovLen=3;
+  const lutLen=avg-ovDay-1;
+
+  const pPct=pdur/avg,fPct=folLen/avg,oPct=ovLen/avg,lPct=lutLen/avg;
+
+  // Draw arcs: period (front), then folicular, ovulation, luteal (back)
+  // Use stroke-dashoffset to show partial arc
+  // Each arc starts where previous ends
+  const setArc=(id,pct,offset)=>{
+    const el=document.getElementById(id);
+    const len=circ*pct;
+    el.style.strokeDasharray=`${len} ${circ-len}`;
+    el.style.strokeDashoffset=-circ*offset;
+  };
+
+  setArc('r-luteal',lPct,0);
+  setArc('r-ovulation',oPct,lPct);
+  setArc('r-folicular',fPct,lPct+oPct);
+  setArc('r-period',pPct,lPct+oPct+fPct);
+
+  // Pills
+  const nextP=addD(fromStr(last.start),avg);
+  const nextO=addD(fromStr(last.start),Math.round(avg/2));
+  const dToP=diffD(now,nextP);
+  const dToO=diffD(now,nextO);
+
+  document.getElementById('ip-next').textContent=dToP>=0?dToP+'h':'Telat';
+  document.getElementById('ip-ovul').textContent=dToO>=0?dToO+'h':'Lewat';
+  document.getElementById('ip-cycle').textContent=cycles.length>=2?avg+'h':'28h*';
+
+  // Late alert
+  const lateWrap=document.getElementById('late-wrap');
+  if(dToP<0){
+    const late=Math.abs(dToP);
+    let cls,msg;
+    if(late<=7){cls='late-normal';msg=`Haid Dara telat ${late} hari dari prediksi. Masih normal (batas: 7 hari) — pantau terus ya 🤍`}
+    else if(late<=14){cls='late-warn';msg=`Haid Dara telat ${late} hari. Sudah melewati batas normal. Perhatiin kondisinya lebih ya.`}
+    else{cls='late-danger';msg=`Haid Dara telat ${late} hari. Sebaiknya konsultasi ke dokter untuk memastikan semuanya baik-baik aja 🏥`}
+    lateWrap.innerHTML=`<div class="late-alert ${cls}"><span>⚠️</span><span>${msg}</span></div>`;
+  } else lateWrap.innerHTML='';
+
+  // Razan alert
+  document.getElementById('razan-wrap').innerHTML=`<div class="razan-card">
+    <span class="razan-card-icon">👨</span>
+    <p class="razan-card-text"><b>Untuk Razan:</b> ${info.razan}</p>
+  </div>`;
+}
+
+// ── CALENDAR ──
+function changeMonth(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++}
+  if(calMonth<0){calMonth=11;calYear--}
+  renderCalendar();
+}
+
+function getDayPhase(dateStr){
+  if(!cycles.length)return'';
+  const d=fromStr(dateStr);
+  const avg=avgCycle(),pdur=avgDur();
+
+  for(const c of cycles){
+    const s=fromStr(c.start);
+    const e=c.end?fromStr(c.end):addD(s,pdur-1);
+    if(d.getTime()===s.getTime())return'p-period-start';
+    if(d>=s&&d<=e)return'p-period';
+  }
+
+  const last=cycles[cycles.length-1];
+  const lastStart=fromStr(last.start);
+
+  for(let i=1;i<=6;i++){
+    const ps=addD(lastStart,avg*i);
+    const pe=addD(ps,pdur-1);
+    if(d>=ps&&d<=pe)return'p-predict';
+  }
+
+  const dayIn=diffD(lastStart,d)+1;
+  const normDay=((dayIn-1)%avg)+1;
+  const ovDay=Math.round(avg/2);
+
+  if(normDay>pdur&&normDay<ovDay-1)return'p-folicular';
+  if(normDay>=ovDay-1&&normDay<=ovDay+1)return d>new Date()?'p-predict-ov':'p-ovulation';
+  if(normDay>ovDay+1&&normDay<avg)return'p-luteal';
+  return'';
+}
+
+function renderCalendar(){
+  document.getElementById('cal-label').textContent=`${MONTHS[calMonth]} ${calYear}`;
+  const grid=document.getElementById('cal-grid');
+  grid.innerHTML='';
+
+  DOW.forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el)});
+
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const todayS=todayStr();
+
+  for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el)}
+
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el=document.createElement('button');
+    el.className='cal-day';
+    el.textContent=d;
+    if(ds===todayS)el.classList.add('today');
+    const ph=getDayPhase(ds);
+    if(ph)el.classList.add(ph);
+    el.addEventListener('click',()=>openLog(ds));
+    grid.appendChild(el);
+  }
+}
+
+// ── LOG ──
+function openLog(dateStr){
+  document.getElementById('ls-start').value=dateStr;
+  document.getElementById('ls-end').value='';
+  document.getElementById('ls-date-label').textContent=`Tanggal: ${dateStr}`;
+  logMood='';logFlow='';logSyms=[];
+  document.querySelectorAll('.mood-chip,.flow-chip,.chip').forEach(b=>b.classList.remove('on'));
+  document.getElementById('log-overlay').classList.add('active');
+}
+function closeLog(){document.getElementById('log-overlay').classList.remove('active')}
+function handleOverlay(e){if(e.target===document.getElementById('log-overlay'))closeLog()}
+
+function pickMood(btn){document.querySelectorAll('.mood-chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');logMood=btn.dataset.v}
+function pickFlow(btn){document.querySelectorAll('.flow-chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');logFlow=btn.dataset.v}
+function toggleChip(btn){btn.classList.toggle('on');const v=btn.dataset.v;logSyms.includes(v)?logSyms=logSyms.filter(s=>s!==v):logSyms.push(v)}
+
+async function saveLog(){
+  const start=document.getElementById('ls-start').value;
+  const end=document.getElementById('ls-end').value;
+  if(!start){showToast('Pilih tanggal dulu ya!');return}
+
+  const idx=cycles.findIndex(c=>c.start===start);
+  const entry={start,end:end||null,mood:logMood,flow:logFlow,syms:[...logSyms]};
+  if(idx>=0)cycles[idx]=entry;
+  else{cycles.push(entry);cycles.sort((a,b)=>a.start.localeCompare(b.start))}
+  await saveToSheets();
+
+  closeLog();
+  showToast('Tersimpan! 🌸');
+  renderCalendar();
+  renderHome();
+}
+
+// ── HISTORY ──
+function renderHistory(){
+  const avg=avgCycle(),dur=avgDur(),vari=variance(),tot=cycles.length;
+
+  document.getElementById('s-avg').textContent=cycles.length>=2?avg+'h':'—';
+  document.getElementById('s-dur').textContent=cycles.filter(c=>c.end).length?dur+'h':'—';
+  document.getElementById('s-tot').textContent=tot;
+  document.getElementById('s-var').textContent=vari!==null?vari+'h':'—';
+
+  const rw=document.getElementById('reg-wrap');
+  if(cycles.length<3){
+    rw.innerHTML=`<div class="reg-badge reg-unk">🔍 <span>Butuh minimal 3 siklus untuk cek keteraturan. Sekarang baru ada <b>${tot}</b> siklus.</span></div>`;
+  } else if(vari!==null&&vari<=7){
+    rw.innerHTML=`<div class="reg-badge reg-ok">✅ <span>Siklus Dara <b>teratur</b> — variansi ${vari} hari (normal ≤7 hari) 🌸</span></div>`;
+  } else {
+    rw.innerHTML=`<div class="reg-badge reg-bad">⚠️ <span>Siklus Dara <b>tidak teratur</b> — variansi ${vari} hari. Disarankan konsultasi ke dokter.</span></div>`;
+  }
+
+  const list=document.getElementById('hist-list');
+  if(!cycles.length){list.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:1rem 0">Belum ada data</p>';return}
+
+  list.innerHTML=[...cycles].reverse().map((c,i,arr)=>{
+    const dur2=c.end?diffD(fromStr(c.start),fromStr(c.end))+1+'h':'?';
+    const prev=arr[i+1];
+    const cycleLen=prev?diffD(fromStr(c.start),fromStr(prev.start))+'h':'—';
+    return `<div class="hist-item">
+      <div class="hi-dot"></div>
+      <div class="hi-info">
+        <span class="hi-main">${c.start}${c.end?' → '+c.end:''}</span>
+        <span class="hi-sub">Durasi: ${dur2} · Siklus: ${cycleLen}${c.mood?' · '+c.mood:''}</span>
+      </div>
+      <button class="hi-del" onclick="delCycle('${c.start}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function delCycle(s){
+  cycles=cycles.filter(c=>c.start!==s);
+  await deleteFromSheets(s);
+  renderHistory();renderHome();
+  showToast('Dihapus');
+}
+
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2200);
+}
+
+// Init
+loadFromSheets();
+</script>
+</body>
+</html>
