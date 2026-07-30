@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Panas Dingin — Razan & Dara 🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rules-list{display:flex;flex-direction:column;gap:.4rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── SUIT ── */
+  #s-suit{padding:0}
+  .suit-split{width:100%;height:100%;display:flex;flex-direction:column}
+  .suit-half{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;user-select:none}
+  .sh-top{background:rgba(193,122,111,.05);border-bottom:2px solid rgba(193,122,111,.12);transform:rotate(180deg)}
+  .sh-bot{background:rgba(201,169,110,.05)}
+  .suit-name{position:absolute;top:.75rem;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .suit-choices{display:flex;gap:.75rem}
+  .suit-btn{width:clamp(64px,16vw,76px);height:clamp(64px,16vw,76px);border-radius:50%;border:2.5px solid var(--blush);background:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(1.6rem,6vw,2rem);cursor:pointer;transition:all .12s;box-shadow:0 3px 10px rgba(193,122,111,.1)}
+  .suit-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.08);transform:scale(1.08)}
+  .suit-btn.locked{pointer-events:none;opacity:.5}
+  .suit-chosen{font-size:clamp(2.5rem,10vw,3rem);display:none;animation:popin .3s cubic-bezier(.34,1.5,.64,1)}
+  .suit-chosen.show{display:block}
+  .suit-ready{font-size:11px;font-weight:600;color:var(--rose);margin-top:.5rem;display:none}
+  .suit-ready.show{display:block}
+  .suit-vs{flex-shrink:0;background:#fff;border-top:1px solid rgba(193,122,111,.1);border-bottom:1px solid rgba(193,122,111,.1);padding:.4rem;text-align:center;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.15em}
+  @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* ── SUIT RESULT ── */
+  .sr-icon{font-size:3rem;display:block;margin-bottom:.75rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  .sr-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .sr-desc{font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem}
+  .sr-picks{display:flex;align-items:center;justify-content:center;gap:1.25rem;margin-bottom:1.25rem}
+  .srp-side{text-align:center}
+  .srp-emoji{font-size:2.5rem;display:block}
+  .srp-name{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:.25rem;display:block}
+  .srp-vs{font-size:1.2rem;color:var(--blush);align-self:center}
+  .g-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s;margin-top:.5rem}
+  .g-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* ── HIDE PHASE ── */
+  #s-hide{text-align:center}
+  .hide-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 4px 16px rgba(193,122,111,.08);width:100%;max-width:380px}
+  .hide-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .hide-name{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.3rem}
+  .hide-sub{font-size:12px;color:var(--muted);line-height:1.6}
+  .hide-area{
+    width:100%;max-width:380px;
+    height:220px;
+    background:#fff;border:2px dashed var(--blush);
+    border-radius:16px;margin-bottom:1.25rem;
+    position:relative;overflow:hidden;cursor:pointer;
+    transition:border-color .2s;
+  }
+  .hide-area:active{border-color:var(--rose)}
+  .hide-area-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;pointer-events:none}
+  .hide-area-label span{font-size:2rem}
+  .hide-area-label p{font-size:12px;color:var(--muted)}
+  .hide-dot{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--rose);transform:translate(-50%,-50%);display:none;box-shadow:0 0 0 4px rgba(193,122,111,.2)}
+  .hide-confirm{display:none}
+
+  /* ── SEEK PHASE ── */
+  #s-seek{padding:0}
+  #seek-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  /* HUD seek */
+  #seek-hud{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(250,246,240,.93);backdrop-filter:blur(8px);border-bottom:1px solid rgba(193,122,111,.1);padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center}
+  .sh-info{text-align:center;flex:1}
+  .sh-name{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sh-val{font-size:1.3rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .sh-mid{text-align:center}
+  .sh-mid b{font-size:13px;color:var(--rose);display:block}
+  .sh-mid span{font-size:10px;color:var(--muted)}
+
+  /* Feedback bubble */
+  #feedback{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    z-index:30;pointer-events:none;text-align:center;
+    display:none;
+  }
+  #feedback.show{display:block;animation:fbpop .6s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes fbpop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}60%{transform:translate(-50%,-55%) scale(1.1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+  .fb-emoji{font-size:4rem;display:block;line-height:1}
+  .fb-text{font-size:1rem;font-weight:700;color:var(--ink);margin-top:.25rem;background:rgba(250,246,240,.9);border-radius:50px;padding:.2rem .85rem;display:inline-block}
+
+  /* Ripple */
+  .ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:25;animation:ripple-anim .8s ease forwards}
+  @keyframes ripple-anim{0%{transform:translate(-50%,-50%) scale(0);opacity:.7}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+  /* Found overlay */
+  #found-overlay{
+    display:none;position:fixed;inset:0;z-index:40;
+    background:rgba(250,246,240,.96);
+    flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:1.5rem;
+  }
+  #found-overlay.show{display:flex}
+  .fo-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  .fo-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .fo-desc{font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:.75rem;max-width:280px}
+  .fo-score{
+    background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);
+    border-radius:50px;padding:.3rem 1.2rem;
+    font-size:13px;font-weight:700;color:var(--rose);
+    margin-bottom:1.25rem;display:inline-block;
+  }
+
+  /* ── RESULT ── */
+  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem}
+  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%;max-width:360px}
+  .es-avatar{font-size:1.5rem;display:block;margin-bottom:.2rem}
+  .es-name{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .es-score{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
+  .es-vs{color:var(--blush);font-size:.9rem}
+  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.5rem;width:100%;max-width:360px}
+  .end-verdict strong{color:var(--rose)}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;transition:all .15s}
+  .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* Toast */
+  .toast{position:fixed;top:5rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;font-size:12px;font-weight:500;z-index:999;white-space:nowrap;pointer-events:none;animation:tin .25s ease}
+  @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🔥</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Panas <span>Dingin</span></h1>
+  <p class="intro-sub">Satu orang sembunyiin titik di layar, yang lain cari — dikasih petunjuk panas/dingin tiap tap! 🧊🔥</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rules-list">
+      <div class="rule"><span class="rule-dot"></span>Suit dulu — yang menang pilih sembunyiin atau cari duluan</div>
+      <div class="rule"><span class="rule-dot"></span>Yang sembunyiin: tap titik di area layar, kasih HP ke lawan</div>
+      <div class="rule"><span class="rule-dot"></span>Yang cari: tap layar untuk cari — muncul petunjuk 🔥 panas / 🧊 dingin</div>
+      <div class="rule"><span class="rule-dot"></span>Makin sedikit percobaan nemu = makin banyak poin</div>
+      <div class="rule"><span class="rule-dot"></span>Max 10 percobaan · 3 ronde · Yang menang boleh minta apapun 😏</div>
+    </div>
+  </div>
+  <button class="start-btn" onclick="showScreen('s-suit');initSuit()">Suit Dulu! ✊</button>
+</div>
+
+<!-- SUIT -->
+<div id="s-suit" class="screen">
+  <div class="suit-split">
+    <div class="suit-half sh-top">
+      <span class="suit-name">Razan</span>
+      <div class="suit-choices" id="sc-razan">
+        <div class="suit-btn" onclick="suitPick('razan','batu')">✊</div>
+        <div class="suit-btn" onclick="suitPick('razan','gunting')">✌️</div>
+        <div class="suit-btn" onclick="suitPick('razan','kertas')">🖐️</div>
+      </div>
+      <div class="suit-chosen" id="suit-chosen-razan">❓</div>
+      <span class="suit-ready" id="suit-ready-razan">Siap ✓</span>
+    </div>
+    <div class="suit-vs">SUIT — Yang menang pilih duluan</div>
+    <div class="suit-half sh-bot">
+      <span class="suit-name">Dara</span>
+      <div class="suit-choices" id="sc-dara">
+        <div class="suit-btn" onclick="suitPick('dara','batu')">✊</div>
+        <div class="suit-btn" onclick="suitPick('dara','gunting')">✌️</div>
+        <div class="suit-btn" onclick="suitPick('dara','kertas')">🖐️</div>
+      </div>
+      <div class="suit-chosen" id="suit-chosen-dara">❓</div>
+      <span class="suit-ready" id="suit-ready-dara">Siap ✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- SUIT RESULT -->
+<div id="s-suit-result" class="screen">
+  <span class="sr-icon" id="sr-icon">🏆</span>
+  <p class="sr-title" id="sr-title">...</p>
+  <p class="sr-desc" id="sr-desc">...</p>
+  <div class="sr-picks">
+    <div class="srp-side"><span class="srp-emoji" id="srp-r">✊</span><span class="srp-name">Razan</span></div>
+    <span class="srp-vs">VS</span>
+    <div class="srp-side"><span class="srp-emoji" id="srp-d">✌️</span><span class="srp-name">Dara</span></div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem"><b id="suit-winner-name" style="color:var(--rose)">Razan</b> menang suit — pilih peran dulu:</p>
+  <button class="g-btn" id="btn-hide" onclick="chooseSembunyiin()">Gua yang sembunyiin dulu 🙈</button>
+  <button class="g-btn" style="background:var(--warm);color:var(--muted);box-shadow:none;border:1.5px solid var(--blush)" id="btn-seek" onclick="chooseCari()">Gua yang cari dulu 🔍</button>
+</div>
+
+<!-- HIDE -->
+<div id="s-hide" class="screen">
+  <div class="hide-card">
+    <span class="hide-label">Fase Sembunyiin</span>
+    <p class="hide-name" id="hide-hider-name">Razan sembunyiin</p>
+    <p class="hide-sub">Tap titik manapun di area bawah — yang lain ga boleh liat! Abis itu kasih HP ke <span id="hide-seeker-name">Dara</span></p>
+  </div>
+
+  <div class="hide-area" id="hide-area" onclick="tapHide(event)">
+    <div class="hide-area-label" id="hide-label-wrap">
+      <span>👆</span>
+      <p>Tap di sini untuk sembunyiin titik</p>
+    </div>
+    <div class="hide-dot" id="hide-dot"></div>
+  </div>
+
+  <div class="hide-confirm" id="hide-confirm">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Titik udah disembunyiin! Kasih HP ke <b id="hc-seeker" style="color:var(--rose)">Dara</b> sekarang</p>
+    <button class="g-btn" onclick="startSeek()">Udah siap, mulai cari! 🔍</button>
+  </div>
+</div>
+
+<!-- SEEK -->
+<div id="s-seek" class="screen">
+  <div id="seek-hud">
+    <div class="sh-info">
+      <span class="sh-name">🧑 Razan</span>
+      <span class="sh-val" id="sh-razan">0</span>
+    </div>
+    <div class="sh-mid">
+      <b id="sh-round">Ronde 1/3</b>
+      <span id="sh-tries">Percobaan: 0/10</span>
+    </div>
+    <div class="sh-info">
+      <span class="sh-name">👧 Dara</span>
+      <span class="sh-val" id="sh-dara">0</span>
+    </div>
+  </div>
+
+  <canvas id="seek-canvas"></canvas>
+
+  <div id="feedback">
+    <span class="fb-emoji" id="fb-emoji">🔥</span>
+    <p class="fb-text" id="fb-text">Panas banget!</p>
+  </div>
+</div>
+
+<!-- FOUND OVERLAY -->
+<div id="found-overlay">
+  <span class="fo-icon" id="fo-icon">🎯</span>
+  <p class="fo-title" id="fo-title">Ketemu!</p>
+  <p class="fo-desc" id="fo-desc">...</p>
+  <div class="fo-score" id="fo-score">+5 poin!</div>
+  <button class="g-btn" id="fo-btn" onclick="nextTurn()">Lanjut →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon" id="end-icon">🏆</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <div class="end-score-card">
+    <div><span class="es-avatar">🧑</span><span class="es-name">Razan</span><span class="es-score" id="end-r">0</span></div>
+    <span class="es-vs">VS</span>
+    <div><span class="es-avatar">👧</span><span class="es-name">Dara</span><span class="es-score" id="end-d">0</span></div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="showScreen('s-intro')">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const MAX_TRIES = 10;
+const TOTAL_ROUNDS = 3;
+
+// Feedback levels based on distance percentage
+const FEEDBACK = [
+  {max:0.05, emoji:'🎯', text:'Tepat!',       color:'#e74c3c', rippleColor:'rgba(231,76,60,.25)'},
+  {max:0.10, emoji:'🔥', text:'Panas banget!', color:'#e74c3c', rippleColor:'rgba(231,76,60,.2)'},
+  {max:0.20, emoji:'♨️', text:'Panas!',        color:'#e67e22', rippleColor:'rgba(230,126,34,.18)'},
+  {max:0.35, emoji:'🌡️', text:'Hangat...',     color:'#f39c12', rippleColor:'rgba(243,156,18,.15)'},
+  {max:0.55, emoji:'🌬️', text:'Dingin',        color:'#3498db', rippleColor:'rgba(52,152,219,.15)'},
+  {max:1.00, emoji:'🧊', text:'Beku!!',        color:'#2980b9', rippleColor:'rgba(41,128,185,.2)'},
+];
+
+// State
+let suitPicks={razan:null,dara:null};
+const SE={batu:'✊',gunting:'✌️',kertas:'🖐️'};
+let suitWinner='razan';
+let hider='razan', seeker='dara';
+let hiddenX=0, hiddenY=0; // normalized 0-1
+let tries=0, roundNum=1;
+let turnPhase=0; // 0=first player hides, 1=second player hides
+let scores={razan:0,dara:0};
+let firstHider='razan';
+let canvas,ctx,W,H;
+let tapHistory=[];
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── SUIT ──
+function initSuit(){
+  suitPicks={razan:null,dara:null};
+  ['razan','dara'].forEach(p=>{
+    document.getElementById(`sc-${p}`).style.display='flex';
+    document.getElementById(`suit-chosen-${p}`).classList.remove('show');
+    document.getElementById(`suit-ready-${p}`).classList.remove('show');
+    document.querySelectorAll(`#sc-${p} .suit-btn`).forEach(b=>b.classList.remove('selected','locked'));
+  });
+}
+
+function suitPick(p,c){
+  if(suitPicks[p])return;
+  suitPicks[p]=c;
+  document.querySelectorAll(`#sc-${p} .suit-btn`).forEach((b,i)=>{
+    b.classList.add(['batu','gunting','kertas'][i]===c?'selected':'locked');
+  });
+  document.getElementById(`sc-${p}`).style.display='none';
+  document.getElementById(`suit-chosen-${p}`).textContent='❓';
+  document.getElementById(`suit-chosen-${p}`).classList.add('show');
+  document.getElementById(`suit-ready-${p}`).classList.add('show');
+  if(suitPicks.razan&&suitPicks.dara)setTimeout(resolveSuit,400);
+}
+
+function resolveSuit(){
+  const r=suitPicks.razan,d=suitPicks.dara;
+  document.getElementById('suit-chosen-razan').textContent=SE[r];
+  document.getElementById('suit-chosen-dara').textContent=SE[d];
+  document.getElementById('srp-r').textContent=SE[r];
+  document.getElementById('srp-d').textContent=SE[d];
+  let winner=null;
+  if(r!==d){
+    if((r==='batu'&&d==='gunting')||(r==='gunting'&&d==='kertas')||(r==='kertas'&&d==='batu'))winner='razan';
+    else winner='dara';
+  }
+  setTimeout(()=>{
+    if(!winner){
+      document.getElementById('sr-icon').textContent='🤝';
+      document.getElementById('sr-title').textContent='Seri! Suit Lagi~';
+      document.getElementById('sr-desc').textContent='Dua-duanya sama!';
+      document.getElementById('btn-hide').style.display='none';
+      document.getElementById('btn-seek').style.display='none';
+      const nb=document.createElement('button');
+      nb.className='g-btn';nb.textContent='Suit Lagi ✊';
+      nb.onclick=()=>{showScreen('s-suit');initSuit()};
+      document.getElementById('s-suit-result').appendChild(nb);
+    } else {
+      suitWinner=winner;
+      const wn=winner==='razan'?'Razan':'Dara';
+      document.getElementById('sr-icon').textContent='🏆';
+      document.getElementById('sr-title').textContent=`${wn} Menang Suit!`;
+      document.getElementById('sr-desc').textContent=`${wn} pilih mau sembunyiin atau cari duluan`;
+      document.getElementById('suit-winner-name').textContent=wn;
+      document.getElementById('btn-hide').textContent=`${wn} sembunyiin duluan 🙈`;
+      document.getElementById('btn-seek').textContent=`${wn} cari duluan 🔍`;
+    }
+    showScreen('s-suit-result');
+  },600);
+}
+
+function chooseSembunyiin(){
+  hider=suitWinner;
+  seeker=suitWinner==='razan'?'dara':'razan';
+  firstHider=hider;
+  scores={razan:0,dara:0};roundNum=1;turnPhase=0;
+  startHide();
+}
+
+function chooseCari(){
+  seeker=suitWinner;
+  hider=suitWinner==='razan'?'dara':'razan';
+  firstHider=hider;
+  scores={razan:0,dara:0};roundNum=1;turnPhase=0;
+  startHide();
+}
+
+// ── HIDE ──
+function startHide(){
+  hiddenX=0;hiddenY=0;
+  const hiderName=hider==='razan'?'Razan':'Dara';
+  const seekerName=seeker==='razan'?'Razan':'Dara';
+  document.getElementById('hide-hider-name').textContent=`${hiderName} sembunyiin`;
+  document.getElementById('hide-seeker-name').textContent=seekerName;
+  document.getElementById('hc-seeker').textContent=seekerName;
+  document.getElementById('hide-label-wrap').style.display='flex';
+  document.getElementById('hide-dot').style.display='none';
+  document.getElementById('hide-confirm').style.display='none';
+  showScreen('s-hide');
+}
+
+function tapHide(e){
+  const area=document.getElementById('hide-area');
+  const rect=area.getBoundingClientRect();
+  const x=e.clientX-rect.left;
+  const y=e.clientY-rect.top;
+  hiddenX=x/rect.width;
+  hiddenY=y/rect.height;
+
+  const dot=document.getElementById('hide-dot');
+  dot.style.left=(x)+'px';
+  dot.style.top=(y)+'px';
+  dot.style.display='block';
+  document.getElementById('hide-label-wrap').style.display='none';
+  document.getElementById('hide-confirm').style.display='block';
+}
+
+// ── SEEK ──
+function startSeek(){
+  tries=0;tapHistory=[];
+  initSeekCanvas();
+  updateSeekHUD();
+  showScreen('s-seek');
+  const seekCanvas=document.getElementById('seek-canvas');
+  seekCanvas.onclick=onSeekTap;
+  seekCanvas.addEventListener('touchend',(e)=>{
+    e.preventDefault();
+    const t=e.changedTouches[0];
+    const rect=seekCanvas.getBoundingClientRect();
+    onSeekTap({clientX:t.clientX,clientY:t.clientY,rect});
+  },{passive:false});
+}
+
+function initSeekCanvas(){
+  canvas=document.getElementById('seek-canvas');
+  ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+  drawSeekBg();
+}
+
+function drawSeekBg(){
+  ctx.clearRect(0,0,W,H);
+  // Draw tap history as fading dots
+  tapHistory.forEach((t,i)=>{
+    const alpha=Math.max(0.05,(i+1)/tapHistory.length*0.35);
+    ctx.beginPath();ctx.arc(t.x,t.y,20,0,Math.PI*2);
+    ctx.fillStyle=`rgba(193,122,111,${alpha})`;ctx.fill();
+    // Label
+    ctx.fillStyle=`rgba(45,31,26,${alpha*2})`;
+    ctx.font='bold 10px Poppins,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(i+1,t.x,t.y);
+  });
+}
+
+function onSeekTap(e){
+  if(tries>=MAX_TRIES)return;
+  const canvas=document.getElementById('seek-canvas');
+  const rect=canvas.getBoundingClientRect();
+  const cx=e.clientX-rect.left;
+  const cy=e.clientY-rect.top;
+
+  // Convert hidden position to canvas coords
+  const hudH=56;
+  const gameH=H-hudH;
+  const hx=hiddenX*W;
+  const hy=hudH+hiddenY*(gameH);
+
+  const dist=Math.sqrt((cx-hx)**2+(cy-hy)**2);
+  const maxDist=Math.sqrt(W*W+gameH*gameH);
+  const pct=dist/maxDist;
+
+  tries++;
+  tapHistory.push({x:cx,y:cy,pct});
+  drawSeekBg();
+  updateSeekHUD();
+
+  // Find feedback level
+  const fb=FEEDBACK.find(f=>pct<=f.max)||FEEDBACK[FEEDBACK.length-1];
+
+  // Show ripple
+  showRipple(cx,cy,fb.rippleColor,pct);
+
+  // Show feedback
+  const fbEl=document.getElementById('feedback');
+  document.getElementById('fb-emoji').textContent=fb.emoji;
+  document.getElementById('fb-text').textContent=fb.text;
+  fbEl.style.color=fb.color;
+  fbEl.classList.remove('show');void fbEl.offsetWidth;fbEl.classList.add('show');
+
+  // Check if found (within 5% of screen diagonal)
+  if(pct<=0.05){
+    setTimeout(()=>onFound(tries),400);
+    return;
+  }
+
+  // Out of tries
+  if(tries>=MAX_TRIES){
+    setTimeout(()=>onFailed(),800);
+  }
+}
+
+function showRipple(x,y,color,pct){
+  const r=document.createElement('div');
+  r.className='ripple';
+  const size=Math.max(60,200*(1-pct));
+  r.style.cssText=`left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${color};animation-duration:.8s`;
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(),850);
+}
+
+function updateSeekHUD(){
+  document.getElementById('sh-razan').textContent=scores.razan;
+  document.getElementById('sh-dara').textContent=scores.dara;
+  document.getElementById('sh-round').textContent=`Ronde ${roundNum}/${TOTAL_ROUNDS}`;
+  document.getElementById('sh-tries').textContent=`Percobaan: ${tries}/${MAX_TRIES}`;
+}
+
+function onFound(triesUsed){
+  document.getElementById('feedback').classList.remove('show');
+  // Score = max 10, lose 1 per try
+  const pts=Math.max(1,10-triesUsed+1);
+  scores[seeker]+=pts;
+  updateSeekHUD();
+
+  document.getElementById('fo-icon').textContent='🎯';
+  document.getElementById('fo-title').textContent=`${seeker==='razan'?'Razan':'Dara'} Nemu!`;
+  document.getElementById('fo-desc').textContent=`Ketemu dalam ${triesUsed} percobaan! Makin sedikit makin pinter 😄`;
+  document.getElementById('fo-score').textContent=`+${pts} poin!`;
+
+  const isLastTurn=turnPhase===1&&roundNum===TOTAL_ROUNDS;
+  const isLastInRound=turnPhase===1;
+  document.getElementById('fo-btn').textContent=isLastTurn?'Lihat Hasil 🏆':'Lanjut →';
+  document.getElementById('found-overlay').classList.add('show');
+  confetti(40);
+}
+
+function onFailed(){
+  document.getElementById('feedback').classList.remove('show');
+  // Show where it was
+  const hudH=56;
+  const hx=hiddenX*W;
+  const hy=hudH+hiddenY*(H-hudH);
+  ctx.save();
+  ctx.beginPath();ctx.arc(hx,hy,22,0,Math.PI*2);
+  ctx.fillStyle='rgba(193,122,111,.3)';ctx.fill();
+  ctx.strokeStyle='var(--rose)';ctx.lineWidth=3;ctx.stroke();
+  ctx.font='bold 12px Poppins,sans-serif';ctx.fillStyle='var(--rose)';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Di sini!',hx,hy);
+  ctx.restore();
+
+  document.getElementById('fo-icon').textContent='😅';
+  document.getElementById('fo-title').textContent='Ga ketemu!';
+  document.getElementById('fo-desc').textContent=`${tries} percobaan habis! ${hider==='razan'?'Razan':'Dara'} sembunyi terlalu pinter 🙈`;
+  document.getElementById('fo-score').textContent='+0 poin';
+  const isLastTurn=turnPhase===1&&roundNum===TOTAL_ROUNDS;
+  document.getElementById('fo-btn').textContent=isLastTurn?'Lihat Hasil 🏆':'Lanjut →';
+  document.getElementById('found-overlay').classList.add('show');
+}
+
+function nextTurn(){
+  document.getElementById('found-overlay').classList.remove('show');
+
+  if(turnPhase===0){
+    // Switch hider/seeker
+    turnPhase=1;
+    [hider,seeker]=[seeker,hider];
+    startHide();
+  } else {
+    // Next round
+    roundNum++;
+    if(roundNum>TOTAL_ROUNDS){
+      showResult();return;
+    }
+    turnPhase=0;
+    hider=firstHider;
+    seeker=firstHider==='razan'?'dara':'razan';
+    startHide();
+  }
+}
+
+// ── RESULT ──
+function showResult(){
+  const r=scores.razan,d=scores.dara;
+  const tie=r===d,rw=r>d;
+  const winner=rw?'Razan':'Dara',loser=rw?'Dara':'Razan';
+  document.getElementById('end-icon').textContent=tie?'🤝':rw?'🏆':'👑';
+  document.getElementById('end-title').textContent=tie?'Seri!':`${winner} Menang!`;
+  document.getElementById('end-sub').textContent=tie?'Dua-duanya sama jago sembunyi!':
+    `${winner} lebih jago cari hari ini!`;
+  document.getElementById('end-r').textContent=r;
+  document.getElementById('end-d').textContent=d;
+  document.getElementById('end-verdict').innerHTML=tie
+    ?'Skor sama — main lagi untuk tentukan pemenangnya!'
+    :`<strong>${winner} menang ${rw?r:d} - ${rw?d:r}!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
+  showScreen('s-result');
+  if(!tie)confetti(70);
+}
+
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
+}
+
+function confetti(n=50){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
