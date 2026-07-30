@@ -175,49 +175,22 @@
       <div class="rule"><span class="rule-dot"></span>Max 10 percobaan · 3 ronde · Yang menang boleh minta apapun 😏</div>
     </div>
   </div>
-  <button class="start-btn" onclick="showScreen('s-suit');initSuit()">Suit Dulu! ✊</button>
+  <button class="start-btn" onclick="showScreen('s-who')">Suit Dulu! ✊</button>
 </div>
 
-<!-- SUIT -->
-<div id="s-suit" class="screen">
-  <div class="suit-split">
-    <div class="suit-half sh-top">
-      <span class="suit-name">Razan</span>
-      <div class="suit-choices" id="sc-razan">
-        <div class="suit-btn" onclick="suitPick('razan','batu')">✊</div>
-        <div class="suit-btn" onclick="suitPick('razan','gunting')">✌️</div>
-        <div class="suit-btn" onclick="suitPick('razan','kertas')">🖐️</div>
-      </div>
-      <div class="suit-chosen" id="suit-chosen-razan">❓</div>
-      <span class="suit-ready" id="suit-ready-razan">Siap ✓</span>
-    </div>
-    <div class="suit-vs">SUIT — Yang menang pilih duluan</div>
-    <div class="suit-half sh-bot">
-      <span class="suit-name">Dara</span>
-      <div class="suit-choices" id="sc-dara">
-        <div class="suit-btn" onclick="suitPick('dara','batu')">✊</div>
-        <div class="suit-btn" onclick="suitPick('dara','gunting')">✌️</div>
-        <div class="suit-btn" onclick="suitPick('dara','kertas')">🖐️</div>
-      </div>
-      <div class="suit-chosen" id="suit-chosen-dara">❓</div>
-      <span class="suit-ready" id="suit-ready-dara">Siap ✓</span>
-    </div>
+<!-- WHO FIRST -->
+<div id="s-who" class="screen">
+  <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite">🙈</span>
+  <span style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem">Pilih duluan</span>
+  <h2 style="font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.35rem">Siapa yang sembunyiin duluan?</h2>
+  <p style="font-size:12.5px;color:var(--muted);line-height:1.75;max-width:280px;margin:.5rem auto 1.5rem">Bisa suit dulu di dunia nyata, atau langsung pilih aja!</p>
+  <div style="display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:380px">
+    <button class="g-btn" style="margin-top:0" onclick="chooseFirst('razan','hide')">🧑 Razan yang sembunyiin duluan</button>
+    <button class="g-btn" style="margin-top:0;background:var(--gold)" onclick="chooseFirst('dara','hide')">👧 Dara yang sembunyiin duluan</button>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin:.25rem 0">atau</div>
+    <button class="g-btn" style="margin-top:0;background:var(--warm);color:var(--muted);box-shadow:none;border:1.5px solid var(--blush)" onclick="chooseFirst('razan','seek')">🧑 Razan yang cari duluan</button>
+    <button class="g-btn" style="margin-top:0;background:var(--warm);color:var(--muted);box-shadow:none;border:1.5px solid var(--blush)" onclick="chooseFirst('dara','seek')">👧 Dara yang cari duluan</button>
   </div>
-</div>
-
-<!-- SUIT RESULT -->
-<div id="s-suit-result" class="screen">
-  <span class="sr-icon" id="sr-icon">🏆</span>
-  <p class="sr-title" id="sr-title">...</p>
-  <p class="sr-desc" id="sr-desc">...</p>
-  <div class="sr-picks">
-    <div class="srp-side"><span class="srp-emoji" id="srp-r">✊</span><span class="srp-name">Razan</span></div>
-    <span class="srp-vs">VS</span>
-    <div class="srp-side"><span class="srp-emoji" id="srp-d">✌️</span><span class="srp-name">Dara</span></div>
-  </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem"><b id="suit-winner-name" style="color:var(--rose)">Razan</b> menang suit — pilih peran dulu:</p>
-  <button class="g-btn" id="btn-hide" onclick="chooseSembunyiin()">Gua yang sembunyiin dulu 🙈</button>
-  <button class="g-btn" style="background:var(--warm);color:var(--muted);box-shadow:none;border:1.5px solid var(--blush)" id="btn-seek" onclick="chooseCari()">Gua yang cari dulu 🔍</button>
 </div>
 
 <!-- HIDE -->
@@ -228,7 +201,7 @@
     <p class="hide-sub">Tap titik manapun di area bawah — yang lain ga boleh liat! Abis itu kasih HP ke <span id="hide-seeker-name">Dara</span></p>
   </div>
 
-  <div class="hide-area" id="hide-area" onclick="tapHide(event)">
+  <div class="hide-area" id="hide-area">
     <div class="hide-area-label" id="hide-label-wrap">
       <span>👆</span>
       <p>Tap di sini untuk sembunyiin titik</p>
@@ -309,8 +282,7 @@ const FEEDBACK = [
 
 // State
 let suitPicks={razan:null,dara:null};
-const SE={batu:'✊',gunting:'✌️',kertas:'🖐️'};
-let suitWinner='razan';
+
 let hider='razan', seeker='dara';
 let hiddenX=0, hiddenY=0; // normalized 0-1
 let tries=0, roundNum=1;
@@ -325,77 +297,15 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
 }
 
-// ── SUIT ──
-function initSuit(){
-  suitPicks={razan:null,dara:null};
-  ['razan','dara'].forEach(p=>{
-    document.getElementById(`sc-${p}`).style.display='flex';
-    document.getElementById(`suit-chosen-${p}`).classList.remove('show');
-    document.getElementById(`suit-ready-${p}`).classList.remove('show');
-    document.querySelectorAll(`#sc-${p} .suit-btn`).forEach(b=>b.classList.remove('selected','locked'));
-  });
-}
-
-function suitPick(p,c){
-  if(suitPicks[p])return;
-  suitPicks[p]=c;
-  document.querySelectorAll(`#sc-${p} .suit-btn`).forEach((b,i)=>{
-    b.classList.add(['batu','gunting','kertas'][i]===c?'selected':'locked');
-  });
-  document.getElementById(`sc-${p}`).style.display='none';
-  document.getElementById(`suit-chosen-${p}`).textContent='❓';
-  document.getElementById(`suit-chosen-${p}`).classList.add('show');
-  document.getElementById(`suit-ready-${p}`).classList.add('show');
-  if(suitPicks.razan&&suitPicks.dara)setTimeout(resolveSuit,400);
-}
-
-function resolveSuit(){
-  const r=suitPicks.razan,d=suitPicks.dara;
-  document.getElementById('suit-chosen-razan').textContent=SE[r];
-  document.getElementById('suit-chosen-dara').textContent=SE[d];
-  document.getElementById('srp-r').textContent=SE[r];
-  document.getElementById('srp-d').textContent=SE[d];
-  let winner=null;
-  if(r!==d){
-    if((r==='batu'&&d==='gunting')||(r==='gunting'&&d==='kertas')||(r==='kertas'&&d==='batu'))winner='razan';
-    else winner='dara';
+function chooseFirst(player, role){
+  // role: 'hide' = player sembunyiin duluan, 'seek' = player cari duluan
+  if(role==='hide'){
+    hider=player;
+    seeker=player==='razan'?'dara':'razan';
+  } else {
+    seeker=player;
+    hider=player==='razan'?'dara':'razan';
   }
-  setTimeout(()=>{
-    if(!winner){
-      document.getElementById('sr-icon').textContent='🤝';
-      document.getElementById('sr-title').textContent='Seri! Suit Lagi~';
-      document.getElementById('sr-desc').textContent='Dua-duanya sama!';
-      document.getElementById('btn-hide').style.display='none';
-      document.getElementById('btn-seek').style.display='none';
-      const nb=document.createElement('button');
-      nb.className='g-btn';nb.textContent='Suit Lagi ✊';
-      nb.onclick=()=>{showScreen('s-suit');initSuit()};
-      document.getElementById('s-suit-result').appendChild(nb);
-    } else {
-      suitWinner=winner;
-      const wn=winner==='razan'?'Razan':'Dara';
-      document.getElementById('sr-icon').textContent='🏆';
-      document.getElementById('sr-title').textContent=`${wn} Menang Suit!`;
-      document.getElementById('sr-desc').textContent=`${wn} pilih mau sembunyiin atau cari duluan`;
-      document.getElementById('suit-winner-name').textContent=wn;
-      document.getElementById('btn-hide').textContent=`${wn} sembunyiin duluan 🙈`;
-      document.getElementById('btn-seek').textContent=`${wn} cari duluan 🔍`;
-    }
-    showScreen('s-suit-result');
-  },600);
-}
-
-function chooseSembunyiin(){
-  hider=suitWinner;
-  seeker=suitWinner==='razan'?'dara':'razan';
-  firstHider=hider;
-  scores={razan:0,dara:0};roundNum=1;turnPhase=0;
-  startHide();
-}
-
-function chooseCari(){
-  seeker=suitWinner;
-  hider=suitWinner==='razan'?'dara':'razan';
   firstHider=hider;
   scores={razan:0,dara:0};roundNum=1;turnPhase=0;
   startHide();
@@ -413,6 +323,21 @@ function startHide(){
   document.getElementById('hide-dot').style.display='none';
   document.getElementById('hide-confirm').style.display='none';
   showScreen('s-hide');
+
+  // Setup hide area input — prevent double firing
+  const area=document.getElementById('hide-area');
+  const newArea=area.cloneNode(true); // remove old listeners
+  area.parentNode.replaceChild(newArea,area);
+  let lastHideTouch=0;
+  newArea.addEventListener('touchend',(e)=>{
+    e.preventDefault();
+    lastHideTouch=Date.now();
+    tapHide(e.changedTouches[0]);
+  },{passive:false});
+  newArea.addEventListener('click',(e)=>{
+    if(Date.now()-lastHideTouch<300)return;
+    tapHide(e);
+  });
 }
 
 function tapHide(e){
@@ -432,19 +357,33 @@ function tapHide(e){
 }
 
 // ── SEEK ──
+let seekTouchHandler=null, seekClickHandler=null, lastSeekTouch=0;
+
 function startSeek(){
   tries=0;tapHistory=[];
   initSeekCanvas();
   updateSeekHUD();
   showScreen('s-seek');
-  const seekCanvas=document.getElementById('seek-canvas');
-  seekCanvas.onclick=onSeekTap;
-  seekCanvas.addEventListener('touchend',(e)=>{
+
+  const sc=document.getElementById('seek-canvas');
+
+  // Remove old listeners first
+  if(seekTouchHandler) sc.removeEventListener('touchend',seekTouchHandler);
+  if(seekClickHandler) sc.removeEventListener('click',seekClickHandler);
+
+  seekTouchHandler=(e)=>{
     e.preventDefault();
+    lastSeekTouch=Date.now();
     const t=e.changedTouches[0];
-    const rect=seekCanvas.getBoundingClientRect();
-    onSeekTap({clientX:t.clientX,clientY:t.clientY,rect});
-  },{passive:false});
+    onSeekTap({clientX:t.clientX,clientY:t.clientY});
+  };
+  seekClickHandler=(e)=>{
+    if(Date.now()-lastSeekTouch<500)return;
+    onSeekTap(e);
+  };
+
+  sc.addEventListener('touchend',seekTouchHandler,{passive:false});
+  sc.addEventListener('click',seekClickHandler);
 }
 
 function initSeekCanvas(){
