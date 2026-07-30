@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tarik Tambang — Razan & Dara 🪢</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* INTRO */
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rules-list{display:flex;flex-direction:column;gap:.4rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* GAME — LANDSCAPE SPLIT */
+  #s-game{padding:0;flex-direction:row!important}
+
+  /* Player sides */
+  .player-side{
+    flex:1;height:100%;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:clamp(.5rem,2vh,1rem);
+    position:relative;overflow:hidden;
+    cursor:pointer;user-select:none;
+    transition:background .1s;
+  }
+  .razan-side{background:rgba(193,122,111,.06);border-right:none}
+  .dara-side{background:rgba(201,169,110,.06);border-left:none}
+  .razan-side.pumped{background:rgba(193,122,111,.18)!important}
+  .dara-side.pumped{background:rgba(201,169,110,.18)!important}
+
+  /* Rotated for Razan */
+  .razan-side{transform:rotate(180deg)}
+
+  .side-name{font-size:clamp(9px,1.8vw,11px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);position:absolute;top:clamp(.5rem,1.5vh,.75rem)}
+  .side-score{font-size:clamp(2.5rem,8vw,3.5rem);font-weight:700;color:var(--rose);line-height:1}
+  .side-taps{font-size:clamp(9px,1.8vw,11px);color:var(--muted)}
+  .tap-hint{font-size:clamp(9px,1.8vw,11px);color:var(--muted);opacity:.6}
+
+  /* Big tap button */
+  .tap-btn{
+    width:clamp(80px,20vw,110px);height:clamp(80px,20vw,110px);
+    border-radius:50%;border:none;cursor:pointer;
+    background:var(--rose);
+    box-shadow:0 6px 24px rgba(193,122,111,.4),0 2px 8px rgba(193,122,111,.2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:clamp(1.8rem,6vw,2.5rem);
+    transition:transform .05s,box-shadow .05s;
+    user-select:none;
+  }
+  .tap-btn:active,.tap-btn.pressed{
+    transform:scale(.88)!important;
+    box-shadow:0 2px 8px rgba(193,122,111,.3)!important;
+  }
+
+  /* Center rope area */
+  .center-col{
+    width:clamp(120px,30vw,180px);flex-shrink:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:clamp(.4rem,1.5vh,.75rem);
+    background:#fff;
+    border-left:1px solid rgba(193,122,111,.1);
+    border-right:1px solid rgba(193,122,111,.1);
+    box-shadow:0 0 30px rgba(193,122,111,.08);
+    z-index:2;padding:.5rem;
+    position:relative;
+  }
+
+  .round-badge{background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:.2rem .7rem;font-size:clamp(8px,1.5vw,10px);font-weight:600;color:var(--rose)}
+
+  /* Rope canvas */
+  #rope-canvas{display:block;border-radius:8px}
+
+  /* Progress bar */
+  .rope-track{
+    width:100%;height:clamp(16px,4vw,22px);
+    background:var(--warm);border-radius:50px;
+    border:1px solid var(--blush);
+    overflow:hidden;position:relative;
+  }
+  .rope-fill{
+    position:absolute;top:0;bottom:0;left:0;
+    border-radius:50px;
+    background:linear-gradient(to right,var(--rose),var(--deep));
+    transition:width .1s ease;
+  }
+  .rope-center-mark{
+    position:absolute;top:0;bottom:0;left:50%;
+    width:2px;background:var(--ink);transform:translateX(-50%);
+    z-index:2;
+  }
+  .rope-flag{
+    position:absolute;top:50%;transform:translate(-50%,-50%);
+    font-size:clamp(10px,2.5vw,14px);z-index:3;
+    transition:left .1s ease;
+  }
+
+  .timer-display{
+    font-size:clamp(1.4rem,5vw,2rem);font-weight:700;color:var(--ink);line-height:1;
+  }
+  .timer-display.danger{color:var(--rose);animation:dangerpulse .4s ease-in-out infinite alternate}
+  @keyframes dangerpulse{from{transform:scale(1)}to{transform:scale(1.1)}}
+
+  .status-text{font-size:clamp(9px,1.8vw,11px);color:var(--muted);text-align:center;line-height:1.4}
+
+  /* WIN FLASH */
+  #win-flash{
+    position:fixed;inset:0;z-index:50;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+    background:rgba(250,246,240,.96);
+    animation:flashin .3s ease;
+  }
+  #win-flash.show{display:flex}
+  @keyframes flashin{from{opacity:0}to{opacity:1}}
+  .wf-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+  .wf-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .wf-desc{font-size:12px;color:var(--muted);margin-bottom:1rem;line-height:1.6;max-width:260px}
+  .wf-scores{display:flex;align-items:center;justify-content:center;gap:1.25rem;margin-bottom:1.25rem}
+  .wfs-item{text-align:center}
+  .wfs-num{font-size:2rem;font-weight:700;color:var(--rose);display:block}
+  .wfs-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .wfs-vs{color:var(--blush);font-size:.9rem;align-self:center}
+  .wf-btn{padding:.875rem 2.5rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .wf-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* RESULT */
+  #s-result{background:var(--cream)}
+  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem}
+  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%;max-width:360px}
+  .es-av{font-size:1.5rem;display:block;margin-bottom:.2rem}
+  .es-nm{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .es-sc{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
+  .es-vs{color:var(--blush);font-size:.9rem}
+  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.5rem;width:100%;max-width:360px}
+  .end-verdict strong{color:var(--rose)}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;transition:all .15s}
+  .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* Tap ripple */
+  .tap-ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:25;animation:tripanim .5s ease forwards}
+  @keyframes tripanim{0%{transform:translate(-50%,-50%) scale(0);opacity:.6}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🪢</span>
+  <span class="intro-label">Game Berdua — Landscape</span>
+  <h1 class="intro-title">Tarik <span>Tambang</span></h1>
+  <p class="intro-sub">Tap tombol di sisi kamu secepat mungkin — tarik tambang ke arah kamu! Menang 3 ronde duluan yang jago 💪</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rules-list">
+      <div class="rule"><span class="rule-dot"></span>Putar HP landscape — Razan kiri, Dara kanan</div>
+      <div class="rule"><span class="rule-dot"></span>Tap tombol besar di sisi kamu secepat mungkin</div>
+      <div class="rule"><span class="rule-dot"></span>Tambang bergerak ke arah yang lebih banyak tap</div>
+      <div class="rule"><span class="rule-dot"></span>Tarik tambang ke ujung sisi kamu dalam 10 detik = menang ronde</div>
+      <div class="rule"><span class="rule-dot"></span>Best of 5 ronde · Yang menang boleh minta apapun! 😏</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:.4rem;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.2);border-radius:50px;padding:.4rem 1rem;margin-bottom:1.25rem;font-size:11.5px;color:#8a6a20;font-weight:500;width:100%;max-width:380px">
+    📱 Putar HP ke landscape dulu ya!
+  </div>
+  <button class="start-btn" onclick="startGame()">Mulai! 🪢</button>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+
+  <!-- Razan kiri (rotated 180°) -->
+  <div class="player-side razan-side" id="side-razan"
+    ontouchstart="onTap('razan',event)" onclick="onTap('razan',event)">
+    <span class="side-name">Razan</span>
+    <span class="side-score" id="wins-razan">0</span>
+    <div class="tap-btn" id="tapbtn-razan">💪</div>
+    <span class="side-taps">Tap: <b id="taps-razan">0</b></span>
+    <span class="tap-hint">TAP CEPAT!</span>
+  </div>
+
+  <!-- Center -->
+  <div class="center-col">
+    <span class="round-badge">Ronde <span id="c-round">1</span>/5</span>
+
+    <!-- Rope progress bar -->
+    <div class="rope-track">
+      <div class="rope-fill" id="rope-fill" style="width:50%"></div>
+      <div class="rope-center-mark"></div>
+      <span class="rope-flag" id="rope-flag" style="left:50%">🪢</span>
+    </div>
+
+    <div class="timer-display" id="timer-display">10</div>
+    <div class="status-text" id="status-text">Siap?</div>
+
+    <!-- Mini scores -->
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <div style="text-align:center">
+        <span style="font-size:1rem;font-weight:700;color:var(--rose)" id="score-razan-c">0</span>
+        <span style="font-size:9px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:.06em">Razan</span>
+      </div>
+      <span style="color:var(--blush);font-size:.8rem">:</span>
+      <div style="text-align:center">
+        <span style="font-size:1rem;font-weight:700;color:var(--rose)" id="score-dara-c">0</span>
+        <span style="font-size:9px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:.06em">Dara</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dara kanan -->
+  <div class="player-side dara-side" id="side-dara"
+    ontouchstart="onTap('dara',event)" onclick="onTap('dara',event)">
+    <span class="side-name">Dara</span>
+    <span class="side-score" id="wins-dara">0</span>
+    <div class="tap-btn" id="tapbtn-dara" style="background:var(--gold)">💪</div>
+    <span class="side-taps">Tap: <b id="taps-dara">0</b></span>
+    <span class="tap-hint">TAP CEPAT!</span>
+  </div>
+
+</div>
+
+<!-- WIN FLASH -->
+<div id="win-flash">
+  <span class="wf-icon" id="wf-icon">🏆</span>
+  <p class="wf-title" id="wf-title">Razan menang ronde!</p>
+  <p class="wf-desc" id="wf-desc">...</p>
+  <div class="wf-scores">
+    <div class="wfs-item"><span class="wfs-num" id="wf-r">0</span><span class="wfs-name">Razan</span></div>
+    <span class="wfs-vs">:</span>
+    <div class="wfs-item"><span class="wfs-num" id="wf-d">0</span><span class="wfs-name">Dara</span></div>
+  </div>
+  <button class="wf-btn" id="wf-btn" onclick="nextRound()">Ronde Berikutnya →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon" id="end-icon">🏆</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <div class="end-score-card">
+    <div><span class="es-av">🧑</span><span class="es-nm">Razan</span><span class="es-sc" id="end-r">0</span></div>
+    <span class="es-vs">VS</span>
+    <div><span class="es-av">👧</span><span class="es-nm">Dara</span><span class="es-sc" id="end-d">0</span></div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const WIN_ROUNDS = 3; // first to 3 wins
+const ROUND_TIME = 10; // seconds
+const WIN_THRESHOLD = 85; // % to win a round
+const DECAY = 0.3; // rope drift back to center per frame when not tapping
+
+let taps = {razan:0, dara:0};
+let wins = {razan:0, dara:0};
+let ropePos = 50; // 0=razan wins, 100=dara wins, 50=center
+let roundNum = 1;
+let timeLeft = ROUND_TIME;
+let gameRunning = false;
+let countdown = 3;
+let phase = 'countdown'; // countdown | playing | roundend
+let timerInterval = null;
+let lastTap = {razan:0, dara:0};
+let raf = null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame(){
+  wins={razan:0,dara:0};
+  roundNum=1;
+  document.getElementById('win-flash').classList.remove('show');
+  showScreen('s-game');
+  startRound();
+}
+
+function startRound(){
+  taps={razan:0,dara:0};
+  ropePos=50;
+  timeLeft=ROUND_TIME;
+  phase='countdown';
+  countdown=3;
+  gameRunning=false;
+  updateUI();
+  document.getElementById('status-text').textContent='Bersiap...';
+  document.getElementById('timer-display').textContent='';
+  document.getElementById('timer-display').classList.remove('danger');
+  clearInterval(timerInterval);
+
+  let cd=3;
+  document.getElementById('status-text').textContent=cd;
+  timerInterval=setInterval(()=>{
+    cd--;
+    if(cd>0){
+      document.getElementById('status-text').textContent=cd;
+    } else {
+      clearInterval(timerInterval);
+      document.getElementById('status-text').textContent='TARIK! 💪';
+      phase='playing';
+      gameRunning=true;
+      timeLeft=ROUND_TIME;
+      startTimer();
+      startGameLoop();
+    }
+  },1000);
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    if(phase!=='playing')return;
+    timeLeft--;
+    document.getElementById('timer-display').textContent=timeLeft;
+    if(timeLeft<=3) document.getElementById('timer-display').classList.add('danger');
+    else document.getElementById('timer-display').classList.remove('danger');
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      endRound();
+    }
+  },1000);
+}
+
+function startGameLoop(){
+  cancelAnimationFrame(raf);
+  let lastTime=0;
+  function loop(t){
+    if(phase!=='playing'){return;}
+    const dt=Math.min((t-lastTime)/1000,0.05);
+    lastTime=t;
+
+    // Rope physics: moves based on tap difference
+    const diff=taps.razan-taps.dara; // positive = razan pulling
+    // Rope moves left (lower %) for razan, right (higher %) for dara
+    ropePos -= diff * dt * 2.5;
+    ropePos = Math.max(10, Math.min(90, ropePos));
+
+    // Slight decay back to center if both not tapping recently
+    const now=Date.now();
+    const razanActive=now-lastTap.razan<500;
+    const daraActive=now-lastTap.dara<500;
+    if(!razanActive&&!daraActive){
+      ropePos+=(50-ropePos)*DECAY*dt;
+    }
+
+    // Taps decay over time
+    taps.razan*=Math.pow(0.85,dt*10);
+    taps.dara*=Math.pow(0.85,dt*10);
+
+    updateRope();
+
+    // Check win condition
+    if(ropePos<=15){endRound('razan');return;}
+    if(ropePos>=85){endRound('dara');return;}
+
+    raf=requestAnimationFrame(loop);
+  }
+  lastTime=performance.now();
+  raf=requestAnimationFrame(loop);
+}
+
+function onTap(player, e){
+  if(e) e.preventDefault();
+  if(phase!=='playing')return;
+
+  taps[player]+=1.5;
+  lastTap[player]=Date.now();
+
+  // Visual feedback
+  const side=document.getElementById(`side-${player}`);
+  side.classList.add('pumped');
+  setTimeout(()=>side.classList.remove('pumped'),80);
+
+  const btn=document.getElementById(`tapbtn-${player}`);
+  btn.classList.add('pressed');
+  setTimeout(()=>btn.classList.remove('pressed'),80);
+
+  // Ripple
+  if(e&&e.clientX){
+    const r=document.createElement('div');
+    r.className='tap-ripple';
+    r.style.cssText=`left:${e.clientX}px;top:${e.clientY}px;width:60px;height:60px;background:rgba(193,122,111,.2)`;
+    document.body.appendChild(r);
+    setTimeout(()=>r.remove(),500);
+  }
+
+  // Update tap counter display
+  document.getElementById(`taps-${player}`).textContent=Math.round(taps[player]);
+}
+
+function updateRope(){
+  document.getElementById('rope-fill').style.width=`${100-ropePos}%`;
+  document.getElementById('rope-flag').style.left=`${ropePos}%`;
+}
+
+function updateUI(){
+  document.getElementById('wins-razan').textContent=wins.razan;
+  document.getElementById('wins-dara').textContent=wins.dara;
+  document.getElementById('score-razan-c').textContent=wins.razan;
+  document.getElementById('score-dara-c').textContent=wins.dara;
+  document.getElementById('c-round').textContent=roundNum;
+  document.getElementById('timer-display').textContent=timeLeft;
+  updateRope();
+}
+
+function endRound(forceWinner){
+  clearInterval(timerInterval);
+  cancelAnimationFrame(raf);
+  phase='roundend';
+  gameRunning=false;
+
+  let winner;
+  if(forceWinner){
+    winner=forceWinner;
+  } else {
+    // Time's up — whoever has rope closer to their side wins
+    if(ropePos<50) winner='razan';
+    else if(ropePos>50) winner='dara';
+    else winner=null; // tie
+  }
+
+  if(winner){
+    wins[winner]++;
+    const wn=winner==='razan'?'Razan':'Dara';
+    const ln=winner==='razan'?'Dara':'Razan';
+    document.getElementById('wf-icon').textContent=wins[winner]>=WIN_ROUNDS?'🏆':'💪';
+    document.getElementById('wf-title').textContent=`${wn} menang ronde ${roundNum}!`;
+    document.getElementById('wf-desc').textContent=forceWinner
+      ?`${wn} berhasil tarik tambang ke sisinya!`
+      :`Waktu habis — tambang lebih ke sisi ${wn}!`;
+    confetti(30);
+  } else {
+    document.getElementById('wf-icon').textContent='🤝';
+    document.getElementById('wf-title').textContent='Seri! Ronde ini draw';
+    document.getElementById('wf-desc').textContent='Tambang persis di tengah — ronde ini tidak ada pemenang!';
+  }
+
+  document.getElementById('wf-r').textContent=wins.razan;
+  document.getElementById('wf-d').textContent=wins.dara;
+  updateUI();
+
+  const gameOver=wins.razan>=WIN_ROUNDS||wins.dara>=WIN_ROUNDS;
+  document.getElementById('wf-btn').textContent=gameOver?'Lihat Hasil 🏆':'Ronde Berikutnya →';
+  document.getElementById('wf-btn').onclick=gameOver?showResult:nextRound;
+  document.getElementById('win-flash').classList.add('show');
+}
+
+function nextRound(){
+  document.getElementById('win-flash').classList.remove('show');
+  roundNum++;
+  startRound();
+}
+
+function showResult(){
+  document.getElementById('win-flash').classList.remove('show');
+  const r=wins.razan,d=wins.dara;
+  const tie=r===d,rw=r>d;
+  const winner=rw?'Razan':'Dara',loser=rw?'Dara':'Razan';
+  document.getElementById('end-icon').textContent=tie?'🤝':rw?'🏆':'👑';
+  document.getElementById('end-title').textContent=tie?'Seri!':`${winner} Menang!`;
+  document.getElementById('end-sub').textContent=tie?'Dua-duanya sama kuat!':`${winner} lebih kuat hari ini!`;
+  document.getElementById('end-r').textContent=r;
+  document.getElementById('end-d').textContent=d;
+  document.getElementById('end-verdict').innerHTML=tie
+    ?'Kekuatan kalian imbang — main lagi untuk tentukan yang lebih kuat!'
+    :`<strong>${winner} menang ${rw?r:d} - ${rw?d:r}!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
+  showScreen('s-result');
+  if(!tie)confetti(80);
+}
+
+function confetti(n=50){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
