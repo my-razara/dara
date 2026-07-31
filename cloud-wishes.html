@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cloud Wishes — Dari Razan ☁️</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{height:100%;overflow:hidden}
+  body{background:linear-gradient(180deg,#b8d4f0 0%,#daeafa 40%,#f0f7ff 100%)}
+
+  /* Sky layers */
+  #sky{position:fixed;inset:0;z-0;overflow:hidden}
+  .sky-sun{
+    position:absolute;top:10%;left:50%;transform:translateX(-50%);
+    width:80px;height:80px;border-radius:50%;
+    background:radial-gradient(circle,#fff9c4,#ffe082);
+    box-shadow:0 0 60px rgba(255,224,130,.6),0 0 120px rgba(255,224,130,.3);
+    animation:sunpulse 4s ease-in-out infinite;
+  }
+  @keyframes sunpulse{0%,100%{box-shadow:0 0 60px rgba(255,224,130,.6),0 0 120px rgba(255,224,130,.3)}50%{box-shadow:0 0 80px rgba(255,224,130,.8),0 0 160px rgba(255,224,130,.4)}}
+
+  .sky-ray{position:absolute;top:10%;left:50%;transform-origin:0 40px;width:200px;height:2px;background:linear-gradient(to right,rgba(255,235,150,.4),transparent);border-radius:1px}
+
+  /* Ground */
+  .ground{position:fixed;bottom:0;left:0;right:0;height:22%;background:linear-gradient(to bottom,#a8d5a2,#7ab87a);z-index:1}
+  .ground::before{content:'';position:absolute;top:-20px;left:0;right:0;height:40px;background:radial-gradient(ellipse 55% 100% at 50% 100%,#a8d5a2,transparent)}
+
+  /* Canvas for clouds */
+  #canvas{position:fixed;inset:0;z-index:2;cursor:pointer}
+
+  /* Wish popup */
+  #wish-popup{
+    position:fixed;inset:0;z-index:20;
+    display:none;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+  #wish-popup.show{display:flex}
+  .wish-bubble{
+    background:rgba(255,255,255,.95);
+    border-radius:24px;
+    padding:1.5rem 1.75rem;
+    max-width:300px;
+    text-align:center;
+    box-shadow:0 8px 40px rgba(100,150,200,.25);
+    animation:bubblepop .4s cubic-bezier(.34,1.5,.64,1);
+    pointer-events:all;
+    position:relative;
+  }
+  @keyframes bubblepop{from{transform:scale(.4) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .wish-icon{font-size:2.5rem;display:block;margin-bottom:.6rem}
+  .wish-num{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#90aec0;display:block;margin-bottom:.35rem}
+  .wish-text{font-size:15px;font-weight:600;color:#2d4a6b;line-height:1.55;margin-bottom:1rem}
+  .wish-close{
+    padding:.6rem 1.75rem;border-radius:50px;border:none;cursor:pointer;
+    font-size:13px;font-weight:600;
+    background:linear-gradient(135deg,#7bb8e8,#5a9fd4);color:#fff;
+    box-shadow:0 3px 12px rgba(90,159,212,.35);transition:all .15s;
+  }
+  .wish-close:active{transform:scale(.95)}
+
+  /* Counter */
+  #counter{
+    position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);
+    z-index:10;
+    background:rgba(255,255,255,.7);backdrop-filter:blur(8px);
+    border-radius:50px;padding:.35rem 1.1rem;
+    font-size:12px;font-weight:600;color:#4a7a9b;
+    box-shadow:0 2px 12px rgba(100,150,200,.15);
+    white-space:nowrap;
+  }
+
+  /* Intro hint */
+  #hint{
+    position:fixed;bottom:28%;left:50%;transform:translateX(-50%);
+    z-index:10;text-align:center;
+    animation:hintfloat 3s ease-in-out infinite;
+  }
+  @keyframes hintfloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+  .hint-icon{font-size:1.6rem;display:block;margin-bottom:.25rem}
+  .hint-text{font-size:12px;color:#5a8aaa;font-weight:500;background:rgba(255,255,255,.6);border-radius:50px;padding:.25rem .85rem}
+
+  /* All done overlay */
+  #done-overlay{
+    position:fixed;inset:0;z-index:30;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(184,212,240,.92);backdrop-filter:blur(12px);
+    padding:1.5rem;text-align:center;
+  }
+  #done-overlay.show{display:flex}
+  .done-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .done-title{font-size:1.4rem;font-weight:700;color:#2d4a6b;margin-bottom:.35rem}
+  .done-sub{font-size:13px;color:#5a7a9b;line-height:1.75;max-width:280px;margin:.35rem auto 1.5rem}
+  .done-wishes{
+    display:flex;flex-direction:column;gap:.4rem;
+    width:100%;max-width:360px;
+    max-height:300px;overflow-y:auto;
+    margin-bottom:1.25rem;
+  }
+  .dw-item{
+    background:rgba(255,255,255,.8);border-radius:12px;
+    padding:.6rem .9rem;font-size:12px;color:#2d4a6b;
+    text-align:left;display:flex;align-items:center;gap:.5rem;
+  }
+  .dw-icon{flex-shrink:0;font-size:1rem}
+  .done-btn{
+    padding:.9rem 2.5rem;border-radius:50px;border:none;cursor:pointer;
+    font-size:14px;font-weight:700;
+    background:linear-gradient(135deg,#7bb8e8,#5a9fd4);color:#fff;
+    box-shadow:0 4px 18px rgba(90,159,212,.4);transition:all .2s;
+  }
+  .done-btn:active{transform:scale(.97)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="sky">
+  <div class="sky-sun"></div>
+  <!-- Sun rays -->
+  <div class="sky-ray" style="transform:rotate(0deg)"></div>
+  <div class="sky-ray" style="transform:rotate(30deg)"></div>
+  <div class="sky-ray" style="transform:rotate(60deg)"></div>
+  <div class="sky-ray" style="transform:rotate(90deg)"></div>
+  <div class="sky-ray" style="transform:rotate(120deg)"></div>
+  <div class="sky-ray" style="transform:rotate(150deg)"></div>
+  <div class="sky-ray" style="transform:rotate(180deg)"></div>
+  <div class="sky-ray" style="transform:rotate(210deg)"></div>
+  <div class="sky-ray" style="transform:rotate(240deg)"></div>
+  <div class="sky-ray" style="transform:rotate(270deg)"></div>
+  <div class="sky-ray" style="transform:rotate(300deg)"></div>
+  <div class="sky-ray" style="transform:rotate(330deg)"></div>
+</div>
+
+<div class="ground"></div>
+
+<canvas id="canvas"></canvas>
+
+<div id="counter">☁️ <span id="counter-text">Tap awan untuk buka harapan</span></div>
+
+<div id="hint">
+  <span class="hint-icon">👆</span>
+  <span class="hint-text">Tap awan!</span>
+</div>
+
+<!-- Wish popup -->
+<div id="wish-popup">
+  <div class="wish-bubble">
+    <span class="wish-icon" id="wish-icon">✨</span>
+    <span class="wish-num" id="wish-num">Harapan #1</span>
+    <p class="wish-text" id="wish-text">...</p>
+    <button class="wish-close" onclick="closeWish()">Makasih Razan 🤍</button>
+  </div>
+</div>
+
+<!-- All done -->
+<div id="done-overlay">
+  <span class="done-icon">☁️</span>
+  <p class="done-title">Semua harapan terbuka! 🤍</p>
+  <p class="done-sub">Ini semua yang Razan harapkan buat kalian berdua — dari yang paling sederhana sampai yang paling dalam.</p>
+  <div class="done-wishes" id="done-wishes"></div>
+  <button class="done-btn" onclick="resetGame()">Tutup & Main Lagi ☁️</button>
+</div>
+
+<script>
+const WISHES = [
+  {icon:'🌟', text:'Aku pengen lihat kamu sukses'},
+  {icon:'👴👵', text:'Aku pengen tua bareng kamu'},
+  {icon:'📸', text:'Aku pengen bikin banyak kenangan'},
+  {icon:'😂', text:'Aku pengen ketawa bareng kamu selamanya'},
+  {icon:'🏠', text:'Aku pengen punya rumah yang penuh sama kamu'},
+  {icon:'✈️', text:'Aku pengen jalan-jalan ke mana aja sama kamu'},
+  {icon:'🌅', text:'Aku pengen bangun pagi dan kamu ada di sana'},
+  {icon:'💪', text:'Aku pengen jadi orang yang kamu banggain'},
+  {icon:'🎂', text:'Aku pengen rayain ulang tahun kamu selamanya'},
+  {icon:'🤝', text:'Aku pengen kita tumbuh bareng'},
+  {icon:'🍜', text:'Aku pengen makan bareng kamu tiap hari'},
+  {icon:'💌', text:'Aku pengen kamu selalu ngerasa disayangi'},
+  {icon:'🌸', text:'Aku pengen lihat kamu bahagia'},
+  {icon:'🔒', text:'Aku pengen kamu selalu ngerasa aman sama aku'},
+  {icon:'🌙', text:'Aku pengen ada di sisi kamu di malam yang berat'},
+  {icon:'🎓', text:'Aku pengen support semua mimpi kamu'},
+  {icon:'💑', text:'Aku pengen kita masih kayak gini bertahun-tahun lagi'},
+  {icon:'🫶', text:'Aku pengen kamu tau betapa berharganya kamu'},
+  {icon:'🌈', text:'Aku pengen hari-hari kamu selalu lebih baik'},
+  {icon:'💍', text:'Aku pengen masa depan yang sama kamu'},
+];
+
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+let clouds=[];
+let opened=new Set();
+let wishQueue=[];
+let currentWish=null;
+let raf=null;
+let frame=0;
+let hintHidden=false;
+
+function init(){
+  dpr=window.devicePixelRatio||1;
+  W=window.innerWidth;H=window.innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+  buildClouds();
+}
+
+function buildClouds(){
+  clouds=[];
+  // Shuffle wishes
+  wishQueue=[...WISHES].sort(()=>Math.random()-.5);
+
+  const rows=5;
+  const cols=4;
+  const skyH=H*0.70;
+  const startY=H*0.10;
+
+  wishQueue.forEach((w,i)=>{
+    const col=i%cols;
+    const row=Math.floor(i/cols);
+    const x=(col+.5)*(W/cols)+(Math.random()-.5)*W*0.06;
+    const y=startY+row*(skyH/rows)+(Math.random()-.5)*(skyH/rows)*0.25;
+    const size=Math.random()*15+42;
+    clouds.push({
+      id:i,x,y,size,
+      vx:(Math.random()-.5)*0.25,
+      floatOffset:Math.random()*Math.PI*2,
+      floatSpd:0.008+Math.random()*0.006,
+      wish:w,
+      opened:false,
+      scale:1,
+      scaleDir:0,
+      opacity:1,
+    });
+  });
+}
+
+function drawCloud(c){
+  const x=c.x;
+  const y=c.y+Math.sin(frame*c.floatSpd+c.floatOffset)*4;
+  const s=c.size*c.scale;
+
+  ctx.save();
+  ctx.globalAlpha=c.opacity;
+
+  if(c.opened){
+    // Faded opened cloud
+    ctx.globalAlpha=c.opacity*0.3;
+    drawCloudShape(x,y,s,'rgba(200,220,240,.5)');
+    ctx.globalAlpha=c.opacity;
+    // Checkmark
+    ctx.font=`${s*0.45}px serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('✓',x,y);
+  } else {
+    // Full cloud with shadow
+    ctx.shadowColor='rgba(100,150,200,.2)';ctx.shadowBlur=12;
+    drawCloudShape(x,y,s,'rgba(255,255,255,.92)');
+    ctx.shadowBlur=0;
+
+    // Cloud face / shimmer
+    const grad=ctx.createRadialGradient(x-s*.2,y-s*.2,0,x,y,s);
+    grad.addColorStop(0,'rgba(255,255,255,.4)');
+    grad.addColorStop(1,'rgba(200,230,255,.0)');
+    ctx.fillStyle=grad;
+    drawCloudShapePath(x,y,s);
+    ctx.fill();
+
+    // Sparkle indicator
+    ctx.fillStyle='rgba(90,159,212,.6)';
+    ctx.font=`${s*0.28}px serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('✨',x,y);
+  }
+
+  ctx.restore();
+}
+
+function drawCloudShape(x,y,s,color){
+  ctx.fillStyle=color;
+  drawCloudShapePath(x,y,s);
+  ctx.fill();
+}
+
+function drawCloudShapePath(x,y,s){
+  ctx.beginPath();
+  // Main body
+  ctx.arc(x,y,s*.5,0,Math.PI*2);
+  // Left bump
+  ctx.arc(x-s*.38,y+s*.1,s*.35,0,Math.PI*2);
+  // Right bump
+  ctx.arc(x+s*.38,y+s*.1,s*.35,0,Math.PI*2);
+  // Top left bump
+  ctx.arc(x-s*.18,y-s*.22,s*.3,0,Math.PI*2);
+  // Top right bump
+  ctx.arc(x+s*.2,y-s*.18,s*.28,0,Math.PI*2);
+}
+
+function loop(){
+  ctx.clearRect(0,0,W,H);
+  frame++;
+
+  clouds.forEach(c=>{
+    // Float drift
+    c.x+=c.vx;
+    if(c.x<c.size) c.vx=Math.abs(c.vx);
+    if(c.x>W-c.size) c.vx=-Math.abs(c.vx);
+
+    // Scale animation on tap
+    if(c.scaleDir!==0){
+      c.scale+=c.scaleDir*0.06;
+      if(c.scale>=1.18){c.scaleDir=-1}
+      if(c.scale<=1){c.scale=1;c.scaleDir=0}
+    }
+
+    drawCloud(c);
+  });
+
+  raf=requestAnimationFrame(loop);
+}
+
+function getTapCloud(tx,ty){
+  // Check in reverse order (top = drawn last = visually on top)
+  for(let i=clouds.length-1;i>=0;i--){
+    const c=clouds[i];
+    if(c.opened)continue;
+    const cy=c.y+Math.sin(frame*c.floatSpd+c.floatOffset)*4;
+    const dist=Math.sqrt((tx-c.x)**2+(ty-cy)**2);
+    if(dist<c.size*.75)return c;
+  }
+  return null;
+}
+
+let lastTap=0;
+function onTap(e){
+  e.preventDefault();
+  const now=Date.now();
+  if(now-lastTap<300)return;
+  lastTap=now;
+
+  const rect=canvas.getBoundingClientRect();
+  const src=e.touches?e.changedTouches[0]:e;
+  const tx=src.clientX-rect.left;
+  const ty=src.clientY-rect.top;
+
+  const c=getTapCloud(tx,ty);
+  if(!c)return;
+
+  // Hide hint
+  if(!hintHidden){
+    hintHidden=true;
+    document.getElementById('hint').style.display='none';
+  }
+
+  // Bounce animation
+  c.scaleDir=1;
+
+  // Open wish
+  c.opened=true;
+  opened.add(c.id);
+  currentWish=c;
+
+  // Show popup
+  document.getElementById('wish-icon').textContent=c.wish.icon;
+  document.getElementById('wish-num').textContent=`Harapan #${opened.size} dari ${WISHES.length}`;
+  document.getElementById('wish-text').textContent=c.wish.text;
+  document.getElementById('wish-popup').classList.add('show');
+
+  // Update counter
+  updateCounter();
+
+  // Particle burst
+  spawnParticles(tx,ty);
+}
+
+function closeWish(){
+  document.getElementById('wish-popup').classList.remove('show');
+  currentWish=null;
+
+  // Check if all opened
+  if(opened.size>=WISHES.length){
+    setTimeout(showDone,400);
+  }
+}
+
+function updateCounter(){
+  const left=WISHES.length-opened.size;
+  if(left===0) document.getElementById('counter-text').textContent='Semua terbuka! 🎉';
+  else if(opened.size===0) document.getElementById('counter-text').textContent='Tap awan untuk buka harapan';
+  else document.getElementById('counter-text').textContent=`${opened.size}/${WISHES.length} harapan terbuka`;
+}
+
+function showDone(){
+  const list=document.getElementById('done-wishes');
+  list.innerHTML='';
+  [...opened].forEach(id=>{
+    const w=clouds.find(c=>c.id===id).wish;
+    const el=document.createElement('div');
+    el.className='dw-item';
+    el.innerHTML=`<span class="dw-icon">${w.icon}</span><span>${w.text}</span>`;
+    list.appendChild(el);
+  });
+  document.getElementById('done-overlay').classList.add('show');
+  confetti(80);
+}
+
+function resetGame(){
+  document.getElementById('done-overlay').classList.remove('show');
+  opened.clear();currentWish=null;hintHidden=false;
+  document.getElementById('hint').style.display='block';
+  buildClouds();updateCounter();
+}
+
+function spawnParticles(x,y){
+  const colors=['#fff','#b8d4f0','#7bb8e8','#ffe082','#ffb3c6'];
+  for(let i=0;i<12;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${x}px;top:${y}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${.8+Math.random()*1.2}s;width:${4+Math.random()*6}px;height:${4+Math.random()*6}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),2500);
+  },i*25);
+}
+
+function confetti(n=50){
+  const colors=['#7bb8e8','#b8d4f0','#ffe082','#ffb3c6','#fff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+
+// Input
+canvas.addEventListener('touchend',onTap,{passive:false});
+canvas.addEventListener('click',e=>{
+  if(Date.now()-lastTap<300)return;
+  onTap(e);
+});
+
+// Init
+init();
+loop();
+window.addEventListener('resize',()=>{init();});
+</script>
+</body>
+</html>
