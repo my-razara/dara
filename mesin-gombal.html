@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mesin Gombal AI — Dari Razan 🤖</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{min-height:100%;background:var(--cream);overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
+    pointer-events:none;z-index:0}
+
+  .page{max-width:420px;margin:0 auto;padding:1.5rem 1.25rem 4rem;
+    display:flex;flex-direction:column;align-items:center;
+    min-height:100vh;position:relative;z-index:1}
+
+  /* ── HEADER ── */
+  .header{text-align:center;margin-bottom:1.5rem;width:100%}
+  .header-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.3rem}
+  .header-title{font-size:clamp(1.4rem,5vw,1.8rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .header-title span{color:var(--rose)}
+  .header-sub{font-size:12px;color:var(--muted);line-height:1.65}
+
+  /* ── ROBOT ── */
+  .robot-wrap{
+    position:relative;margin-bottom:1.5rem;
+    width:160px;height:190px;
+    animation:robotbob 3s ease-in-out infinite;
+  }
+  @keyframes robotbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .robot-wrap.thinking{animation:robotthink .3s ease-in-out infinite alternate}
+  @keyframes robotthink{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-4px) rotate(3deg)}}
+
+  /* Head */
+  .robot-head{
+    width:110px;height:90px;
+    background:linear-gradient(135deg,#fff,#f0e8e0);
+    border:2.5px solid var(--blush);border-radius:20px;
+    margin:0 auto;position:relative;
+    box-shadow:0 4px 20px rgba(193,122,111,.12);
+  }
+  /* Antenna */
+  .robot-head::before{
+    content:'';position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+    width:3px;height:18px;background:var(--blush);border-radius:2px;
+  }
+  .robot-head::after{
+    content:'';position:absolute;top:-24px;left:50%;transform:translateX(-50%);
+    width:10px;height:10px;border-radius:50%;
+    background:var(--rose);
+    box-shadow:0 0 8px rgba(193,122,111,.5);
+    animation:antennapulse 1.5s ease-in-out infinite;
+  }
+  @keyframes antennapulse{0%,100%{box-shadow:0 0 8px rgba(193,122,111,.4)}50%{box-shadow:0 0 16px rgba(193,122,111,.8)}}
+
+  /* Eyes */
+  .robot-eyes{display:flex;justify-content:center;gap:18px;padding-top:22px;margin-bottom:8px}
+  .robot-eye{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--rose);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
+    box-shadow:0 0 8px rgba(193,122,111,.3);
+    transition:all .2s;
+  }
+  .robot-eye::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);top:3px;left:3px}
+  .robot-wrap.blinking .robot-eye{height:3px;margin-top:9.5px;border-radius:2px}
+
+  /* Mouth */
+  .robot-mouth{
+    width:44px;height:14px;border-radius:0 0 22px 22px;
+    border:2.5px solid var(--blush);border-top:none;
+    margin:0 auto;transition:all .3s;
+    background:rgba(193,122,111,.05);
+  }
+  .robot-wrap.happy .robot-mouth{border-radius:0 0 30px 30px;height:18px;border-color:var(--rose)}
+  .robot-wrap.thinking .robot-mouth{border-radius:0;height:8px;width:30px;border-color:var(--muted)}
+
+  /* Body */
+  .robot-body{
+    width:120px;height:80px;
+    background:linear-gradient(135deg,#fff,#f5ede0);
+    border:2.5px solid var(--blush);border-radius:14px;
+    margin:6px auto 0;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    box-shadow:0 4px 16px rgba(193,122,111,.1);
+    position:relative;
+  }
+  .robot-btn-light{
+    width:18px;height:18px;border-radius:50%;
+    animation:lightblink 2s ease-in-out infinite;
+  }
+  .robot-btn-light:nth-child(1){background:#ff8fab;animation-delay:0s}
+  .robot-btn-light:nth-child(2){background:var(--gold);animation-delay:.4s}
+  .robot-btn-light:nth-child(3){background:var(--sage);animation-delay:.8s}
+  @keyframes lightblink{0%,100%{opacity:.4}50%{opacity:1;box-shadow:0 0 8px currentColor}}
+
+  /* Legs */
+  .robot-legs{display:flex;justify-content:center;gap:24px;margin-top:4px}
+  .robot-leg{width:14px;height:22px;background:var(--blush);border-radius:0 0 6px 6px;border:2px solid rgba(193,122,111,.2)}
+
+  /* Sparks */
+  .spark{position:absolute;pointer-events:none;font-size:1rem;animation:sparkfly .8s ease forwards}
+  @keyframes sparkfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(0);opacity:0}}
+
+  /* ── COUNTER ── */
+  .counter-badge{
+    background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);
+    border-radius:50px;padding:.25rem .85rem;
+    font-size:11px;font-weight:600;color:var(--rose);
+    margin-bottom:1.25rem;
+  }
+
+  /* ── GOMBAL CARD ── */
+  .gombal-card{
+    background:#fff;border:1.5px solid rgba(193,122,111,.15);
+    border-radius:20px;padding:1.4rem 1.5rem;
+    margin-bottom:1rem;width:100%;
+    box-shadow:0 4px 20px rgba(193,122,111,.1);
+    min-height:100px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    position:relative;overflow:hidden;
+    transition:all .3s;
+  }
+  .gombal-card::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 60%);
+    pointer-events:none}
+
+  .gombal-cat{
+    font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+    display:block;margin-bottom:.5rem;font-weight:600;
+  }
+  .cat-cheesy{color:var(--gold)}
+  .cat-manis{color:var(--rose)}
+  .cat-serius{color:var(--purple,#7c5cbf)}
+
+  .gombal-text{
+    font-size:clamp(13px,3.5vw,15px);font-weight:500;
+    color:var(--ink);line-height:1.65;
+    position:relative;z-index:1;
+  }
+  .gombal-cursor{display:inline-block;width:2px;height:1em;background:var(--rose);margin-left:2px;vertical-align:text-bottom;animation:blink .7s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  .gombal-placeholder{font-size:13px;color:var(--muted);font-style:italic}
+
+  /* Loading dots */
+  .loading-dots{display:flex;gap:.35rem;justify-content:center;margin:.5rem 0}
+  .ld{width:8px;height:8px;border-radius:50%;background:var(--blush);animation:ldanim .8s ease-in-out infinite}
+  .ld:nth-child(2){animation-delay:.15s}
+  .ld:nth-child(3){animation-delay:.3s}
+  @keyframes ldanim{0%,100%{transform:scale(.6);opacity:.4}50%{transform:scale(1.2);opacity:1;background:var(--rose)}}
+
+  /* ── RATING ── */
+  .rating-row{
+    display:flex;gap:.5rem;margin-bottom:1rem;width:100%;
+    display:none;
+  }
+  .rating-row.show{display:flex}
+  .rating-btn{
+    flex:1;padding:.6rem;border-radius:12px;border:1.5px solid var(--blush);
+    background:#fff;cursor:pointer;font-size:12px;font-weight:600;
+    color:var(--muted);transition:all .15s;text-align:center;
+  }
+  .rating-btn:active{transform:scale(.95)}
+  .rating-btn.rated-lucu{background:rgba(255,107,107,.1);border-color:#ff6b6b;color:#c0392b}
+  .rating-btn.rated-kurang{background:rgba(201,169,110,.1);border-color:var(--gold);color:#8a6a20}
+
+  /* Copy btn */
+  .copy-btn{
+    width:100%;padding:.65rem;border-radius:12px;
+    border:1.5px solid var(--blush);background:#fff;
+    color:var(--muted);font-size:12px;cursor:pointer;
+    margin-bottom:1rem;transition:all .15s;display:none;
+  }
+  .copy-btn.show{display:block}
+  .copy-btn:active{background:var(--warm)}
+
+  /* ── MAIN BTN ── */
+  .main-btn{
+    width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;
+    font-size:15px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 20px rgba(193,122,111,.4);
+    transition:all .2s;
+  }
+  .main-btn:active{transform:scale(.97);background:var(--deep)}
+  .main-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+  /* Stats */
+  .stats-mini{
+    display:flex;gap:1rem;margin-top:1.5rem;
+    font-size:11px;color:var(--muted);
+  }
+  .stats-mini span b{color:var(--rose)}
+
+  /* Toast */
+  .toast{position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;
+    font-size:12px;font-weight:500;z-index:999;white-space:nowrap;pointer-events:none;
+    animation:tin .25s ease}
+  @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <span class="header-label">Teknologi Tercanggih di Dunia</span>
+    <h1 class="header-title">Mesin <span>Gombal AI</span></h1>
+    <p class="header-sub">Ditenagai oleh perasaan Razan yang ga ada habisnya 🤖</p>
+  </div>
+
+  <!-- Robot -->
+  <div class="robot-wrap" id="robot">
+    <div class="robot-head">
+      <div class="robot-eyes">
+        <div class="robot-eye"></div>
+        <div class="robot-eye"></div>
+      </div>
+      <div class="robot-mouth" id="robot-mouth"></div>
+    </div>
+    <div class="robot-body">
+      <div class="robot-btn-light"></div>
+      <div class="robot-btn-light"></div>
+      <div class="robot-btn-light"></div>
+    </div>
+    <div class="robot-legs">
+      <div class="robot-leg"></div>
+      <div class="robot-leg"></div>
+    </div>
+  </div>
+
+  <div class="counter-badge" id="counter-badge">Gombalan ke-0</div>
+
+  <!-- Gombal card -->
+  <div class="gombal-card" id="gombal-card">
+    <span class="gombal-placeholder" id="gombal-placeholder">Tekan tombol di bawah untuk mulai... 🤖</span>
+    <div class="loading-dots" id="loading-dots" style="display:none">
+      <div class="ld"></div><div class="ld"></div><div class="ld"></div>
+    </div>
+    <span class="gombal-cat" id="gombal-cat" style="display:none"></span>
+    <p class="gombal-text" id="gombal-text" style="display:none"></p>
+  </div>
+
+  <!-- Rating -->
+  <div class="rating-row" id="rating-row">
+    <button class="rating-btn" id="btn-lucu" onclick="rate('lucu')">😍 Lucu banget!</button>
+    <button class="rating-btn" id="btn-kurang" onclick="rate('kurang')">😒 Kurang ahh</button>
+  </div>
+
+  <!-- Copy -->
+  <button class="copy-btn" id="copy-btn" onclick="copyGombal()">📋 Copy gombalan ini</button>
+
+  <!-- Main button -->
+  <button class="main-btn" id="main-btn" onclick="generateGombal()">Gombalin Aku! 🤖</button>
+
+  <div class="stats-mini">
+    <span>😍 Lucu: <b id="stat-lucu">0</b></span>
+    <span>😅 Cheesy: <b id="stat-kurang">0</b></span>
+    <span>📊 Total: <b id="stat-total">0</b></span>
+  </div>
+
+</div>
+
+<script>
+const GOMBALS = [
+  // 😂 CHEESY
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Google aja butuh internet, aku butuh kamu.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kamu tuh kayak WiFi — aku gabisa connect kalau kamu ga ada.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kalau kamu bintang, aku mau jadi langit biar bisa peluk kamu selamanya.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'HP aku lowbat, tapi ngeliat kamu langsung full charge.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kamu kayak charger — aku gabisa kemana-mana tanpa kamu.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kalau cinta itu matematika, kamu adalah jawaban dari semua soal aku.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Aku bisa hidup tanpa oksigen... eh ga bisa. Sama kayak tanpa kamu.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kamu tuh kayak password WiFi — aku butuh kamu buat konek ke dunia.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kalau kamu lagu, aku mau putar kamu repeat selamanya.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kamu bikin jantung aku detak lebih cepet — tolong jangan di-uninstall.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Maps ga bisa nemuin jalan ke hati aku, tapi kamu udah di sana dari awal.'},
+  {cat:'cheesy', catLabel:'😂 Cheesy Mode', text:'Kalau kamu makanan, aku mau alergi tapi tetep makan tiap hari.'},
+
+  // 🥰 MANIS
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Hal terbaik yang terjadi ke aku adalah waktu kamu ada.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Aku ga butuh Google Maps — aku udah tau arahnya, ke kamu.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Senyum kamu tuh obat yang paling manjur buat hari yang berat.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Kamu bikin aku ngerasa rumah di mana aja selama kamu ada.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Aku ga tau gimana cara jelasin betapa berartinya kamu buat aku.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Tiap pagi aku bangun, hal pertama yang aku pikirin adalah kamu.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Kamu tuh hal yang paling aku syukuri — beneran.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Ngeliat kamu seneng tuh bikin aku seneng dua kali lipat.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Kamu orang yang paling nyaman buat aku cerita apapun.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Di antara semua tempat di dunia, tempat favorit aku adalah di sebelah kamu.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Kamu cantik — bukan cuma dari luar, tapi dari cara kamu ngeliat dunia.'},
+  {cat:'manis', catLabel:'🥰 Manis Mode', text:'Setiap hari sama kamu tuh hadiah yang aku ga minta tapi aku syukuri.'},
+
+  // 💗 SERIUS TAPI KENA
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Di antara semua hal yang aku suka di dunia, kamu yang paling susah dijelasin.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Aku ga tau apa yang bakal terjadi besok — tapi aku tau aku pengen kamu ada di sana.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Kamu bukan kebetulan. Kamu pilihan aku — setiap hari.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Aku milih kamu bukan karena ga ada pilihan lain. Aku milih kamu karena kamu.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Kamu bikin hidup aku lebih berwarna — literally.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Aku ga butuh dunia yang sempurna. Aku cuma butuh kamu ada.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Kalau aku boleh minta satu hal — itu adalah kamu tetap ada.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Kamu tuh rare, sayang. Dan aku bersyukur banget bisa nemuin kamu.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Aku sayang kamu — bukan karena sempurna, tapi karena kamu.'},
+  {cat:'serius', catLabel:'💗 Dari Hati', text:'Waktu sama kamu selalu berasa sebentar — dan itu yang bikin aku kangen terus.'},
+];
+
+let queue=[];
+let count=0;
+let stats={fire:0,cheese:0};
+let currentGombal=null;
+let isAnimating=false;
+let typeInterval=null;
+
+// Load stats
+function loadStats(){
+  const s=JSON.parse(localStorage.getItem('mg-stats')||'{"lucu":0,"kurang":0,"count":0}');
+  stats.lucu=s.fire||0;stats.kurang=s.cheese||0;count=s.count||0;
+  updateStats();
+}
+function saveStats(){localStorage.setItem('mg-stats',JSON.stringify({...stats,count}))}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function generateGombal(){
+  if(isAnimating)return;
+  isAnimating=true;
+
+  // Refill queue if empty
+  if(!queue.length) queue=shuffle(GOMBALS);
+  currentGombal=queue.shift();
+  count++;
+  saveStats();
+
+  // Hide elements
+  document.getElementById('gombal-placeholder').style.display='none';
+  document.getElementById('gombal-text').style.display='none';
+  document.getElementById('gombal-cat').style.display='none';
+  document.getElementById('rating-row').classList.remove('show');
+  document.getElementById('copy-btn').classList.remove('show');
+  document.getElementById('btn-lucu').classList.remove('rated-lucu');
+  document.getElementById('btn-kurang').classList.remove('rated-kurang');
+
+  // Reset rating buttons
+  document.getElementById('btn-lucu').textContent='😍 Lucu banget!';
+  document.getElementById('btn-kurang').textContent='😒 Kurang ahh';
+
+  // Robot thinks
+  const robot=document.getElementById('robot');
+  robot.classList.add('thinking');
+  robot.classList.remove('happy','blinking');
+
+  // Show loading
+  document.getElementById('loading-dots').style.display='flex';
+  document.getElementById('main-btn').disabled=true;
+  document.getElementById('counter-badge').textContent=`Gombalan ke-${count}`;
+
+  // Spawn sparks
+  spawnSparks();
+
+  setTimeout(()=>{
+    document.getElementById('loading-dots').style.display='none';
+    robot.classList.remove('thinking');
+    robot.classList.add('happy');
+
+    // Blink
+    setTimeout(()=>{
+      robot.classList.add('blinking');
+      setTimeout(()=>robot.classList.remove('blinking'),300);
+    },200);
+
+    // Show category
+    const catEl=document.getElementById('gombal-cat');
+    catEl.textContent=currentGombal.catLabel;
+    catEl.className=`gombal-cat cat-${currentGombal.cat}`;
+    catEl.style.display='block';
+
+    // Typewriter
+    const textEl=document.getElementById('gombal-text');
+    textEl.style.display='block';
+    textEl.innerHTML='';
+
+    const cursor=document.createElement('span');
+    cursor.className='gombal-cursor';
+    textEl.appendChild(cursor);
+
+    let i=0;
+    const txt=currentGombal.text;
+    clearInterval(typeInterval);
+    typeInterval=setInterval(()=>{
+      if(i<txt.length){
+        textEl.insertBefore(document.createTextNode(txt[i]),cursor);
+        i++;
+      } else {
+        clearInterval(typeInterval);
+        cursor.remove();
+        // Show actions
+        document.getElementById('rating-row').classList.add('show');
+        document.getElementById('copy-btn').classList.add('show');
+        document.getElementById('main-btn').disabled=false;
+        document.getElementById('main-btn').textContent='Gombalin Lagi! 🤖';
+        isAnimating=false;
+        confetti(20);
+      }
+    },35);
+
+  },1200);
+}
+
+function rate(type){
+  if(type==='lucu'){
+    stats.lucu++;
+    document.getElementById('btn-lucu').classList.add('rated-lucu');
+    document.getElementById('btn-lucu').textContent='😍 Makasih!';
+    showToast('😍 Seneng deh!');
+  } else {
+    stats.kurang++;
+    document.getElementById('btn-kurang').classList.add('rated-kurang');
+    document.getElementById('btn-kurang').textContent='😒 Noted!';
+    showToast('😒 Oke oke aku usaha lagi!');
+  }
+  saveStats();updateStats();
+}
+
+function copyGombal(){
+  if(!currentGombal)return;
+  navigator.clipboard.writeText(currentGombal.text).then(()=>{
+    showToast('✓ Tersalin!');
+  }).catch(()=>{
+    // Fallback
+    const el=document.createElement('textarea');
+    el.value=currentGombal.text;
+    document.body.appendChild(el);el.select();
+    document.execCommand('copy');document.body.removeChild(el);
+    showToast('✓ Tersalin!');
+  });
+}
+
+function updateStats(){
+  document.getElementById('stat-lucu').textContent=stats.lucu;
+  document.getElementById('stat-kurang').textContent=stats.kurang;
+  document.getElementById('stat-total').textContent=count;
+}
+
+function spawnSparks(){
+  const robot=document.getElementById('robot');
+  const rect=robot.getBoundingClientRect();
+  const sparks=['✨','💕','⭐','💫','🌟'];
+  for(let i=0;i<6;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='spark';
+    const sx=(Math.random()-0.5)*120;
+    const sy=-(Math.random()*80+20);
+    el.style.cssText=`--sx:${sx}px;--sy:${sy}px;left:${rect.left+Math.random()*rect.width}px;top:${rect.top+Math.random()*rect.height*.5}px;position:fixed;z-index:99`;
+    el.textContent=sparks[Math.floor(Math.random()*sparks.length)];
+    document.body.appendChild(el);setTimeout(()=>el.remove(),900);
+  },i*100);
+}
+
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(e=>e.remove());
+  const el=document.createElement('div');el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
+}
+
+function confetti(n=20){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.3}s;width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
+  },i*20);
+}
+
+loadStats();
+</script>
+</body>
+</html>
