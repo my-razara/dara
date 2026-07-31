@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Toko Razan Official 💝</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{background:#f4f4f4;min-height:100%;overflow-x:hidden}
+
+  /* ── TOPBAR ── */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:var(--rose);
+    padding:.6rem 1rem;
+    display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar-logo{font-size:14px;font-weight:700;color:#fff;letter-spacing:.02em}
+  .topbar-logo span{font-weight:300;opacity:.8}
+  .cart-btn{
+    position:relative;background:rgba(255,255,255,.2);border:none;
+    border-radius:50%;width:36px;height:36px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+    color:#fff;transition:all .15s;
+  }
+  .cart-btn:active{background:rgba(255,255,255,.35)}
+  .cart-badge{
+    position:absolute;top:-4px;right:-4px;
+    background:#ffeb3b;color:#c17a6f;
+    border-radius:50%;width:16px;height:16px;
+    font-size:9px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    display:none;
+  }
+  .cart-badge.show{display:flex}
+
+  /* ── SHOP HEADER ── */
+  .shop-header{
+    margin-top:52px;
+    background:linear-gradient(135deg,var(--rose),#e08a80);
+    padding:1rem;color:#fff;
+  }
+  .shop-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+  .shop-avatar{
+    width:52px;height:52px;border-radius:14px;
+    background:rgba(255,255,255,.2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.6rem;flex-shrink:0;
+  }
+  .shop-name{font-size:14px;font-weight:700}
+  .shop-sub{font-size:10px;opacity:.8;margin-top:.1rem}
+  .shop-badges{display:flex;gap:.35rem;flex-wrap:wrap}
+  .badge{
+    font-size:9px;font-weight:600;
+    border-radius:4px;padding:.15rem .5rem;
+    background:rgba(255,255,255,.2);color:#fff;
+  }
+  .badge-gold{background:#c9a96e;color:#fff}
+
+  .shop-stats{
+    display:flex;gap:.5rem;
+    background:rgba(255,255,255,.15);border-radius:10px;padding:.6rem;
+  }
+  .shop-stat{flex:1;text-align:center}
+  .ss-num{font-size:13px;font-weight:700;display:block}
+  .ss-label{font-size:9px;opacity:.7;display:block}
+
+  /* ── FREE SHIPPING BANNER ── */
+  .fs-banner{
+    background:#fff9c4;border-bottom:1px solid #f0e060;
+    padding:.45rem 1rem;
+    font-size:11px;font-weight:600;color:#8a6a00;
+    display:flex;align-items:center;gap:.4rem;
+  }
+
+  /* ── PRODUCT GRID ── */
+  .section-title{
+    font-size:11px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.1em;
+    padding:.75rem 1rem .4rem;
+  }
+  .products{
+    display:grid;grid-template-columns:1fr 1fr;gap:.5rem;
+    padding:0 .5rem .5rem;
+  }
+  .product-card{
+    background:#fff;border-radius:12px;overflow:hidden;
+    box-shadow:0 1px 4px rgba(0,0,0,.08);
+    cursor:pointer;transition:all .15s;
+  }
+  .product-card:active{transform:scale(.97)}
+  .product-img{
+    height:110px;display:flex;align-items:center;justify-content:center;
+    font-size:3rem;background:var(--warm);
+    position:relative;
+  }
+  .product-badge-img{
+    position:absolute;top:6px;left:6px;
+    background:var(--rose);color:#fff;
+    font-size:8px;font-weight:700;border-radius:4px;padding:.15rem .4rem;
+  }
+  .product-info{padding:.6rem}
+  .product-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:.2rem;line-height:1.3}
+  .product-rating{display:flex;align-items:center;gap:.25rem;margin-bottom:.35rem}
+  .stars{font-size:9px;color:#f59e0b}
+  .rating-count{font-size:9px;color:var(--muted)}
+  .product-price-row{display:flex;align-items:center;gap:.4rem}
+  .price-free{font-size:14px;font-weight:700;color:var(--rose)}
+  .price-orig{font-size:10px;color:var(--muted);text-decoration:line-through}
+  .product-stock{font-size:9px;color:var(--muted);margin-top:.2rem}
+
+  /* ── DETAIL SCREEN ── */
+  #s-detail{
+    display:none;position:fixed;inset:0;z-index:200;
+    background:#f4f4f4;overflow-y:auto;
+  }
+  #s-detail.show{display:block}
+  .detail-topbar{
+    position:sticky;top:0;z-index:10;
+    background:var(--rose);padding:.6rem 1rem;
+    display:flex;align-items:center;gap:.75rem;
+  }
+  .back-btn{background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;padding:.1rem .3rem}
+  .detail-topbar-title{font-size:13px;font-weight:600;color:#fff}
+  .detail-img{
+    height:200px;background:var(--warm);
+    display:flex;align-items:center;justify-content:center;
+    font-size:6rem;
+  }
+  .detail-body{background:#fff;padding:1rem;margin-bottom:.5rem}
+  .detail-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .detail-price-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem}
+  .detail-price-free{font-size:1.5rem;font-weight:700;color:var(--rose)}
+  .detail-price-orig{font-size:13px;color:var(--muted);text-decoration:line-through}
+  .detail-discount{background:rgba(193,122,111,.1);color:var(--rose);font-size:11px;font-weight:700;border-radius:4px;padding:.1rem .4rem}
+  .detail-rating{display:flex;align-items:center;gap:.5rem;padding:.75rem 0;border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0;margin-bottom:.75rem}
+  .detail-stars{font-size:12px;color:#f59e0b}
+  .detail-rating-num{font-size:13px;font-weight:600;color:var(--ink)}
+  .detail-rating-count{font-size:11px;color:var(--muted)}
+  .detail-badges{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.75rem}
+  .detail-badge{font-size:10px;background:var(--warm);color:var(--muted);border-radius:6px;padding:.2rem .6rem;font-weight:500}
+  .detail-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1rem}
+  .detail-section-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:.6rem}
+
+  /* Reviews */
+  .review-card{background:#f9f9f9;border-radius:10px;padding:.75rem;margin-bottom:.5rem}
+  .review-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem}
+  .reviewer-avatar{width:28px;height:28px;border-radius:50%;background:var(--blush);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+  .reviewer-name{font-size:11px;font-weight:600;color:var(--ink)}
+  .review-stars{font-size:9px;color:#f59e0b;display:block}
+  .review-text{font-size:11.5px;color:var(--muted);line-height:1.6}
+  .review-date{font-size:9px;color:#ccc;margin-top:.25rem}
+
+  /* Bottom bar detail */
+  .detail-bottom{
+    position:sticky;bottom:0;
+    background:#fff;border-top:1px solid #f0f0f0;
+    padding:.75rem 1rem;
+    display:flex;gap:.5rem;
+  }
+  .btn-cart{
+    flex:1;padding:.75rem;border-radius:10px;border:2px solid var(--rose);
+    background:#fff;color:var(--rose);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;
+  }
+  .btn-cart:active{background:var(--warm)}
+  .btn-buy{
+    flex:2;padding:.75rem;border-radius:10px;border:none;
+    background:var(--rose);color:#fff;font-size:13px;font-weight:700;cursor:pointer;
+    box-shadow:0 3px 10px rgba(193,122,111,.35);transition:all .15s;
+  }
+  .btn-buy:active{background:var(--deep);transform:scale(.97)}
+
+  /* ── CART SCREEN ── */
+  #s-cart{
+    display:none;position:fixed;inset:0;z-index:200;
+    background:#f4f4f4;overflow-y:auto;
+  }
+  #s-cart.show{display:block}
+  .cart-topbar{
+    position:sticky;top:0;z-index:10;
+    background:var(--rose);padding:.6rem 1rem;
+    display:flex;align-items:center;gap:.75rem;
+  }
+  .cart-topbar-title{font-size:13px;font-weight:600;color:#fff}
+  .cart-items{padding:.75rem}
+  .cart-item{
+    background:#fff;border-radius:12px;padding:.75rem;margin-bottom:.5rem;
+    display:flex;align-items:center;gap:.75rem;
+    box-shadow:0 1px 4px rgba(0,0,0,.06);
+  }
+  .ci-icon{font-size:1.8rem;width:44px;height:44px;background:var(--warm);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .ci-info{flex:1}
+  .ci-name{font-size:13px;font-weight:600;color:var(--ink)}
+  .ci-price{font-size:12px;color:var(--rose);font-weight:700}
+  .ci-remove{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:.25rem}
+
+  .cart-empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+  .cart-empty-icon{font-size:3rem;display:block;margin-bottom:.75rem}
+
+  /* Order summary */
+  .order-summary{background:#fff;border-radius:12px;margin:.5rem .75rem;padding:1rem}
+  .os-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid #f5f5f5;font-size:12px;color:var(--muted)}
+  .os-row:last-child{border-bottom:none;font-weight:700;color:var(--ink);font-size:13px;padding-top:.65rem}
+  .os-free{color:var(--rose);font-weight:700}
+
+  .checkout-btn{
+    width:calc(100% - 1.5rem);margin:.5rem .75rem 1rem;
+    padding:.9rem;border-radius:50px;border:none;cursor:pointer;
+    font-size:14px;font-weight:700;
+    background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s;
+    display:block;
+  }
+  .checkout-btn:active{background:var(--deep);transform:scale(.97)}
+  .checkout-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+  /* ── ORDER SUCCESS ── */
+  #s-order{
+    display:none;position:fixed;inset:0;z-index:300;
+    background:rgba(250,246,240,.97);backdrop-filter:blur(8px);
+    flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:1.5rem;
+  }
+  #s-order.show{display:flex}
+  .order-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .order-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .order-sub{font-size:12.5px;color:var(--muted);line-height:1.7;max-width:280px;margin:.35rem auto 1rem}
+  .order-items{
+    background:#fff;border-radius:14px;padding:.75rem 1rem;
+    margin-bottom:1.25rem;width:100%;max-width:340px;
+    box-shadow:0 2px 10px rgba(193,122,111,.08);
+    text-align:left;
+  }
+  .oi-row{display:flex;align-items:center;gap:.6rem;padding:.3rem 0;font-size:12px;color:var(--ink)}
+  .oi-icon{font-size:1.1rem;width:28px;text-align:center}
+  .order-note{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:1.5rem;max-width:280px}
+  .order-btn{
+    padding:.9rem 2.5rem;border-radius:50px;border:none;cursor:pointer;
+    font-size:14px;font-weight:700;background:var(--rose);color:#fff;
+    box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .2s;
+  }
+  .order-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  /* Toast */
+  .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;
+    font-size:12px;font-weight:500;z-index:9999;white-space:nowrap;pointer-events:none;
+    animation:tin .25s ease}
+  @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:0}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">Toko Razan <span>Official</span></div>
+  <button class="cart-btn" onclick="openCart()">
+    🛒
+    <div class="cart-badge" id="cart-badge">0</div>
+  </button>
+</div>
+
+<!-- SHOP HEADER -->
+<div class="shop-header">
+  <div class="shop-top">
+    <div class="shop-avatar">💝</div>
+    <div>
+      <div class="shop-name">Toko Razan Official</div>
+      <div class="shop-sub">Aktif sekarang · Respon cepat</div>
+      <div class="shop-badges" style="margin-top:.35rem">
+        <span class="badge badge-gold">⭐ Top Seller</span>
+        <span class="badge">✓ Terpercaya</span>
+        <span class="badge">💝 Recommended</span>
+      </div>
+    </div>
+  </div>
+  <div class="shop-stats">
+    <div class="shop-stat"><span class="ss-num">5.0</span><span class="ss-label">Rating</span></div>
+    <div class="shop-stat"><span class="ss-num">Unlimited</span><span class="ss-label">Stok</span></div>
+    <div class="shop-stat"><span class="ss-num">100%</span><span class="ss-label">Gratis</span></div>
+    <div class="shop-stat"><span class="ss-num">1 thn+</span><span class="ss-label">Berdiri</span></div>
+  </div>
+</div>
+
+<!-- FREE SHIPPING BANNER -->
+<div class="fs-banner">
+  🚚 Gratis Ongkir ke Hati Kamu · Promo berlaku selamanya
+</div>
+
+<!-- PRODUCTS -->
+<div class="section-title">Semua Produk</div>
+<div class="products" id="products-grid"></div>
+
+<!-- ── DETAIL ── -->
+<div id="s-detail">
+  <div class="detail-topbar">
+    <button class="back-btn" onclick="closeDetail()">&#8592;</button>
+    <span class="detail-topbar-title">Detail Produk</span>
+  </div>
+  <div class="detail-img" id="d-img">🤗</div>
+  <div class="detail-body">
+    <div class="detail-name" id="d-name">Peluk</div>
+    <div class="detail-price-row">
+      <span class="detail-price-free">GRATIS</span>
+      <span class="detail-price-orig" id="d-orig">Rp 999.000</span>
+      <span class="detail-discount">100% OFF</span>
+    </div>
+    <div class="detail-rating">
+      <span class="detail-stars">★★★★★</span>
+      <span class="detail-rating-num">5.0</span>
+      <span class="detail-rating-count" id="d-rcount">(999+ ulasan)</span>
+    </div>
+    <div class="detail-badges">
+      <span class="detail-badge">✓ Stok Unlimited</span>
+      <span class="detail-badge">🚚 Gratis Ongkir</span>
+      <span class="detail-badge">💝 Garansi Ketulusan</span>
+    </div>
+    <div class="detail-section-title">Deskripsi Produk</div>
+    <div class="detail-desc" id="d-desc">-</div>
+    <div class="detail-section-title">Ulasan Pembeli</div>
+    <div id="d-reviews"></div>
+  </div>
+  <div class="detail-bottom">
+    <button class="btn-cart" onclick="addToCart()">+ Keranjang</button>
+    <button class="btn-buy" onclick="buyNow()">Beli Sekarang</button>
+  </div>
+</div>
+
+<!-- ── CART ── -->
+<div id="s-cart">
+  <div class="cart-topbar">
+    <button class="back-btn" onclick="closeCart()">&#8592;</button>
+    <span class="cart-topbar-title">Keranjang Belanja</span>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="order-summary" id="order-summary" style="display:none">
+    <div class="os-row"><span>Subtotal</span><span class="os-free">GRATIS</span></div>
+    <div class="os-row"><span>Ongkir</span><span class="os-free">GRATIS</span></div>
+    <div class="os-row"><span>Diskon</span><span class="os-free">100%</span></div>
+    <div class="os-row"><span>Total</span><span class="os-free">GRATIS 💝</span></div>
+  </div>
+  <button class="checkout-btn" id="checkout-btn" onclick="checkout()" disabled>Checkout (0 item)</button>
+</div>
+
+<!-- ── ORDER SUCCESS ── -->
+<div id="s-order">
+  <span class="order-icon">🎉</span>
+  <p class="order-title">Pesanan Dikonfirmasi!</p>
+  <p class="order-sub">Razan akan segera memproses pesananmu. Estimasi pengiriman: sekarang juga 😏</p>
+  <div class="order-items" id="order-items-list"></div>
+  <p class="order-note">"Semua ini gratis karena kamu udah kasih hal yang lebih berharga buat Razan — kehadiranmu 🤍"</p>
+  <button class="order-btn" onclick="closeOrder()">Belanja Lagi! 🛒</button>
+</div>
+
+<script>
+const PRODUCTS = [
+  {
+    id:1, icon:"\uD83E\uDD17", name:"Peluk Premium",
+    orig:"Rp 999.000", rcount:"1.2rb+ ulasan",
+    desc:"Peluk berkualitas tinggi dari Razan — hangat, tulus, dan tahan selama yang kamu mau. Tersedia 24 jam, 7 hari seminggu. Tidak ada batasan waktu. Garansi kepuasan dijamin.",
+    reviews:[
+      {name:"pembeli setia", avatar:"\uD83D\uDC67", stars:5, text:"Peluknya hangat banget, bikin ngerasa aman. Udah order berkali-kali dan selalu puas!", date:"2 hari lalu"},
+      {name:"dara s.", avatar:"\uD83D\uDE0A", stars:5, text:"Recommended banget! Ga perlu bayar apa-apa, langsung dapat peluk. Stok beneran unlimited.", date:"1 minggu lalu"},
+      {name:"anonymous", avatar:"\uD83D\uDC9B", stars:5, text:"5 bintang ga cukup buat ini. 10/10!", date:"2 minggu lalu"},
+    ]
+  },
+  {
+    id:2, icon:"\uD83C\uDF66", name:"Traktir Es Krim",
+    orig:"Rp 150.000", rcount:"800+ ulasan",
+    desc:"Razan traktir es krim pilihan kamu — rasa apapun, brand apapun. Bisa ditagih kapanpun kamu ngidam. Tidak ada expired date. Berlaku selama kalian bersama.",
+    reviews:[
+      {name:"si manis", avatar:"\uD83C\uDF66", stars:5, text:"Es krimnya beneran enak, apalagi yang traktir Razan hehe. Pake voucher ini berkali-kali!", date:"3 hari lalu"},
+      {name:"pecinta es krim", avatar:"\uD83D\uDE0B", stars:5, text:"Ga pernah kecewa! Tiap mau es krim tinggal bilang.", date:"5 hari lalu"},
+    ]
+  },
+  {
+    id:3, icon:"\uD83C\uDFAC", name:"Movie Night Exclusive",
+    orig:"Rp 200.000", rcount:"650+ ulasan",
+    desc:"Kamu yang pilih filmnya — genre apapun, durasi berapapun. Razan nonton tanpa protes dan tanpa maen HP. Snack sudah termasuk dalam paket. Dijamin nonton sampai habis.",
+    reviews:[
+      {name:"film lover", avatar:"\uD83C\uDFAC", stars:5, text:"Udah request film yang Razan ga suka pun tetep ditemenin sampe habis. Recommended!", date:"1 minggu lalu"},
+      {name:"malam minggu fans", avatar:"\uD83C\uDF7F", stars:5, text:"Snacknya lengkap, filmnya seru, temennya tambah seru. 5 bintang!", date:"2 minggu lalu"},
+    ]
+  },
+  {
+    id:4, icon:"\uD83C\uDF5C", name:"Makan Bareng Spesial",
+    orig:"Rp 300.000", rcount:"920+ ulasan",
+    desc:"Makan bareng di tempat pilihan kamu — warung, cafe, restoran, semua oke. Razan yang bayar dan ga bakal buru-buru pulang. Bebas ngobrol sepuasnya.",
+    reviews:[
+      {name:"foodie dara", avatar:"\uD83D\uDE0D", stars:5, text:"Udah diajak ke resto yang lumayan mahal, tetep dibayarin tanpa muka keberatan. 10/10!", date:"4 hari lalu"},
+      {name:"pelanggan tetap", avatar:"\uD83C\uDF7D\uFE0F", stars:5, text:"Selalu enak makannya karena ada temennya yang baik hati!", date:"1 minggu lalu"},
+    ]
+  },
+  {
+    id:5, icon:"\uD83D\uDCAC", name:"Sesi Dengerin Curhatan",
+    orig:"Rp 500.000", rcount:"430+ ulasan",
+    desc:"Razan siap dengerin apapun yang kamu mau ceritain — senang, sedih, galau, random, atau ga jelas sekalipun. Full attention, no judgement. Gratis konsultasi follow-up.",
+    reviews:[
+      {name:"curhat queen", avatar:"\uD83D\uDCAC", stars:5, text:"Curhat sepanjang apapun tetep didengerinnya dengan sabar. Makasih Razan!", date:"2 hari lalu"},
+      {name:"hati lega", avatar:"\uD83E\uDD70", stars:5, text:"Abis curhat ngerasa lebih ringan. Razan pendengar yang baik!", date:"6 hari lalu"},
+    ]
+  },
+  {
+    id:6, icon:"\uD83C\uDF05", name:"Jalan Sore Premium",
+    orig:"Rp 100.000", rcount:"780+ ulasan",
+    desc:"Jalan sore bareng ke mana aja kamu mau. Razan yang anter, ga buru-buru, dan siap dengerin cerita sepanjang jalan. Bonus: pemandangan sore yang gratis juga.",
+    reviews:[
+      {name:"suka jalan sore", avatar:"\uD83C\uDF07", stars:5, text:"Jalan sorenya selalu jadi highlight hari itu. Razan temen jalan yang asyik!", date:"3 hari lalu"},
+      {name:"angin sore", avatar:"\uD83C\uDF43", stars:5, text:"Ga pernah bosen jalan sore karena orangnya seru!", date:"1 minggu lalu"},
+    ]
+  },
+  {
+    id:7, icon:"\uD83E\uDEC2", name:"Support Mode: ON",
+    orig:"Rp 999.999", rcount:"1.5rb+ ulasan",
+    desc:"Razan aktifkan mode support penuh — apapun yang kamu kejar, Razan ada di belakang kamu. Akademis, karir, mimpi, apapun. No toxic, pure support.",
+    reviews:[
+      {name:"bisa diandalkan", avatar:"\uD83D\uDCAA", stars:5, text:"Selalu ada waktu kamu butuh support. Ga pernah nge-judge, selalu encourage.", date:"1 hari lalu"},
+      {name:"semangat terus", avatar:"\uD83C\uDF1F", stars:5, text:"Razan jadi alasan aku terus maju! Beneran the best support system.", date:"4 hari lalu"},
+    ]
+  },
+  {
+    id:8, icon:"\u2764\uFE0F", name:"Jadi Prioritas",
+    orig:"Tak Ternilai", rcount:"999+ ulasan",
+    desc:"Kamu selalu jadi prioritas utama Razan. Bukan produk yang dijual — ini janji. Tersedia setiap hari, tanpa syarat, tanpa batas waktu.",
+    reviews:[
+      {name:"dara s.", avatar:"\uD83D\uDC96", stars:5, text:"Ini produk paling berharga di toko ini. Dan beneran terasa setiap hari.", date:"Setiap hari"},
+      {name:"yang percaya", avatar:"\uD83E\uDD0D", stars:5, text:"Ga pernah ngerasa dikesampingkan. Makasih selalu ada.", date:"Selalu"},
+    ]
+  },
+];
+
+let cart = [];
+let currentProduct = null;
+
+// ── BUILD GRID ──
+function buildGrid(){
+  const grid = document.getElementById('products-grid');
+  grid.innerHTML = '';
+  PRODUCTS.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML =
+      '<div class="product-img"><span style="font-size:2.5rem">'+p.icon+'</span>'+
+      '<span class="product-badge-img">GRATIS</span></div>'+
+      '<div class="product-info">'+
+      '<div class="product-name">'+p.name+'</div>'+
+      '<div class="product-rating"><span class="stars">★★★★★</span><span class="rating-count">'+p.rcount+'</span></div>'+
+      '<div class="product-price-row"><span class="price-free">GRATIS</span><span class="price-orig">'+p.orig+'</span></div>'+
+      '<div class="product-stock">Stok: Unlimited</div>'+
+      '</div>';
+    card.onclick = () => openDetail(p);
+    grid.appendChild(card);
+  });
+}
+
+// ── DETAIL ──
+function openDetail(p){
+  currentProduct = p;
+  document.getElementById('d-img').textContent = p.icon;
+  document.getElementById('d-name').textContent = p.name;
+  document.getElementById('d-orig').textContent = p.orig;
+  document.getElementById('d-rcount').textContent = '('+p.rcount+')';
+  document.getElementById('d-desc').textContent = p.desc;
+  // Reviews
+  const rv = document.getElementById('d-reviews');
+  rv.innerHTML = '';
+  p.reviews.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'review-card';
+    el.innerHTML =
+      '<div class="review-top">'+
+      '<div class="reviewer-avatar">'+r.avatar+'</div>'+
+      '<div><div class="reviewer-name">'+r.name+'</div>'+
+      '<span class="review-stars">'+'★'.repeat(r.stars)+'</span></div></div>'+
+      '<div class="review-text">'+r.text+'</div>'+
+      '<div class="review-date">'+r.date+'</div>';
+    rv.appendChild(el);
+  });
+  document.getElementById('s-detail').classList.add('show');
+  document.getElementById('s-detail').scrollTop = 0;
+}
+
+function closeDetail(){
+  document.getElementById('s-detail').classList.remove('show');
+  currentProduct = null;
+}
+
+function addToCart(p){
+  const prod = p || currentProduct;
+  if(!prod) return;
+  // Check if already in cart
+  if(cart.find(c => c.id === prod.id)){
+    showToast(prod.icon + ' Sudah ada di keranjang!');
+    return;
+  }
+  cart.push(prod);
+  updateCartBadge();
+  showToast(prod.icon + ' Ditambahkan ke keranjang!');
+}
+
+function buyNow(){
+  if(!currentProduct) return;
+  addToCart(currentProduct);
+  closeDetail();
+  openCart();
+}
+
+// ── CART ──
+function openCart(){
+  renderCart();
+  document.getElementById('s-cart').classList.add('show');
+  document.getElementById('s-cart').scrollTop = 0;
+}
+
+function closeCart(){
+  document.getElementById('s-cart').classList.remove('show');
+}
+
+function renderCart(){
+  const list = document.getElementById('cart-items-list');
+  const summary = document.getElementById('order-summary');
+  const btn = document.getElementById('checkout-btn');
+  list.innerHTML = '';
+  if(cart.length === 0){
+    list.innerHTML = '<div class="cart-empty"><span class="cart-empty-icon">🛒</span><p style="font-size:13px;font-weight:500">Keranjang masih kosong</p><p style="font-size:11px;margin-top:.3rem;color:var(--muted)">Tambahkan produk dulu ya!</p></div>';
+    summary.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Keranjang Kosong';
+    return;
+  }
+  cart.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'cart-item';
+    el.innerHTML =
+      '<div class="ci-icon">'+p.icon+'</div>'+
+      '<div class="ci-info"><div class="ci-name">'+p.name+'</div><div class="ci-price">GRATIS</div></div>'+
+      '<button class="ci-remove" onclick="removeFromCart('+p.id+')">✕</button>';
+    list.appendChild(el);
+  });
+  summary.style.display = 'block';
+  btn.disabled = false;
+  btn.textContent = 'Checkout ('+cart.length+' item) — GRATIS';
+}
+
+function removeFromCart(id){
+  cart = cart.filter(c => c.id !== id);
+  updateCartBadge();
+  renderCart();
+}
+
+function updateCartBadge(){
+  const badge = document.getElementById('cart-badge');
+  if(cart.length > 0){
+    badge.textContent = cart.length;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+// ── CHECKOUT ──
+function checkout(){
+  if(cart.length === 0) return;
+  const list = document.getElementById('order-items-list');
+  list.innerHTML = '';
+  cart.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'oi-row';
+    el.innerHTML = '<span class="oi-icon">'+p.icon+'</span><span>'+p.name+'</span><span style="margin-left:auto;font-weight:700;color:var(--rose)">GRATIS</span>';
+    list.appendChild(el);
+  });
+  closeCart();
+  document.getElementById('s-order').classList.add('show');
+  confetti(80);
+  cart = [];
+  updateCartBadge();
+}
+
+function closeOrder(){
+  document.getElementById('s-order').classList.remove('show');
+}
+
+function showToast(msg){
+  document.querySelectorAll('.toast').forEach(e => e.remove());
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+
+function confetti(n){
+  const c = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = 'left:'+Math.random()*100+'vw;top:-10px;background:'+c[Math.floor(Math.random()*c.length)]+';animation-duration:'+(1.5+Math.random()*2.5)+'s;width:'+(6+Math.random()*8)+'px;height:'+(6+Math.random()*8)+'px;border-radius:'+(Math.random()>.5?'50%':'2px');
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 5000);
+  }, i*20);
+}
+
+buildGrid();
+</script>
+</body>
+</html>
