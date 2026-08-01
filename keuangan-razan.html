@@ -420,34 +420,67 @@ function kromAmt(s) {
   return Math.max(0, gaji - fixed);
 }
 
-// ─── STORAGE ──────────────────────────────────────────────────
+// ─── STORAGE (FIXED) ─────────────────────────────────────────
+// Ganti fungsi load(), save(), gsPost() yang lama dengan ini
+
+function xhrGet(url, cb) {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onload = function() {
+    try { cb(null, JSON.parse(xhr.responseText)); }
+    catch(e) { cb(e); }
+  };
+  xhr.onerror = function() { cb(new Error('Network error')); };
+  xhr.send();
+}
+
+function xhrPost(url, body, cb) {
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('Content-Type', 'text/plain');
+  xhr.onload = function() {
+    try { cb(null, JSON.parse(xhr.responseText)); }
+    catch(e) { cb(e); }
+  };
+  xhr.onerror = function() { cb(new Error('Network error')); };
+  xhr.send(JSON.stringify(body));
+}
+
 async function load() {
   const url = getGsUrl(), skey = getGsSkey();
   if (!url || !skey) return fromLocal();
-  try {
-    const res = await fetch(`${url}?key=${encodeURIComponent(skey)}`);
-    if (!res.ok) throw new Error();
-    const d = await res.json();
-    if (d.error) throw new Error();
-    ensureShape(d);
-    if (!d.txs) d.txs = [];
-    if (!d.savings) d.savings = {};
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
-    return d;
-  } catch { return fromLocal(); }
-}
-function fromLocal() {
-  try { return ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def()); } catch { return def(); }
-}
-async function save(d) { localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); }
-async function gsPost(action, extra = {}) {
-  try {
-    await fetch(getGsUrl(), {
-      method: 'POST',
-      body: JSON.stringify({ key: getGsSkey(), action, ...extra }),
+  return new Promise((resolve) => {
+    xhrGet(`${url}?key=${encodeURIComponent(skey)}`, (err, d) => {
+      if (err || !d || d.error) {
+        resolve(fromLocal());
+        return;
+      }
+      ensureShape(d);
+      if (!d.txs) d.txs = [];
+      if (!d.savings) d.savings = {};
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
+      resolve(d);
     });
-  } catch {}
+  });
 }
+
+function fromLocal() {
+  try { return ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def()); }
+  catch { return def(); }
+}
+
+async function save(d) {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
+}
+
+async function gsPost(action, extra = {}) {
+  return new Promise((resolve) => {
+    xhrPost(getGsUrl(), { key: getGsSkey(), action, ...extra }, (err, res) => {
+      resolve(res);
+    });
+  });
+}
+
 async function syncTx(tx)          { await gsPost('saveTx', { data: tx }); }
 async function syncDelTx(id)       { await gsPost('deleteTx', { id }); }
 async function syncSaving(mo, amt) { await gsPost('saveSaving', { month: mo, amount: amt }); }
