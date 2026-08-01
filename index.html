@@ -269,7 +269,7 @@
   <div class="cat-body" id="cat-body"></div>
 </div>
 
-<!-- PASSWORD OVERLAY -->
+<!-- SECRET PASSWORD OVERLAY -->
 <div id="pw-overlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(45,31,26,.55);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1.5rem">
   <div style="background:var(--cream);border-radius:24px;padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(45,31,26,.2);animation:slideup .3s cubic-bezier(.34,1.3,.64,1)">
     <div style="font-size:2.5rem;margin-bottom:.75rem">🔐</div>
@@ -283,6 +283,44 @@
     <p id="pw-err" style="display:none;font-size:11px;color:var(--rose);margin-bottom:.65rem">Password salah, coba lagi 🤍</p>
     <button onclick="submitPw()" style="width:100%;padding:.875rem;border-radius:50px;border:none;cursor:pointer;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);margin-bottom:.55rem;transition:all .15s">Masuk →</button>
     <button onclick="closePw()" style="width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-family:Poppins,sans-serif;font-size:13px;cursor:pointer">Batal</button>
+  </div>
+</div>
+
+<!-- KEUANGAN PASSWORD OVERLAY -->
+<div id="keu-overlay" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(45,31,26,.55);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--cream);border-radius:24px;padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(45,31,26,.2);animation:slideup .3s cubic-bezier(.34,1.3,.64,1)">
+    <div style="font-size:2.5rem;margin-bottom:.75rem" id="keu-icon">💰</div>
+    <h2 style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.2rem" id="keu-title">Kantong Dara</h2>
+    <p style="font-size:11.5px;color:var(--muted);margin-bottom:1.1rem;line-height:1.55" id="keu-subtitle">Sebentar...</p>
+
+    <!-- Loading -->
+    <div id="keu-loading" style="padding:.5rem 0 1rem;font-size:13px;color:var(--muted)">Memeriksa... 🔐</div>
+
+    <!-- Setup: buat password baru -->
+    <div id="keu-setup" style="display:none">
+      <p style="font-size:11.5px;color:var(--muted);line-height:1.65;margin-bottom:.75rem">Buat password kamu sendiri — ga perlu kasih tau siapapun ya 🔒</p>
+      <input id="keu-pw-new" type="password" maxlength="20"
+        style="width:100%;padding:.85rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:Poppins,sans-serif;font-size:1rem;text-align:center;color:var(--ink);background:#fff;outline:none;margin-bottom:.5rem;transition:border-color .2s"
+        placeholder="Password baru">
+      <input id="keu-pw-confirm" type="password" maxlength="20"
+        style="width:100%;padding:.85rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:Poppins,sans-serif;font-size:1rem;text-align:center;color:var(--ink);background:#fff;outline:none;margin-bottom:.6rem;transition:border-color .2s"
+        placeholder="Konfirmasi password"
+        onkeydown="if(event.key==='Enter')keuSetupSubmit()">
+      <p id="keu-setup-err" style="display:none;font-size:11px;color:var(--rose);margin-bottom:.5rem">Password tidak sama, coba lagi!</p>
+      <button onclick="keuSetupSubmit()" style="width:100%;padding:.875rem;border-radius:50px;border:none;cursor:pointer;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);margin-bottom:.55rem;transition:all .15s">Simpan & Masuk →</button>
+    </div>
+
+    <!-- Login: masukkan password -->
+    <div id="keu-login" style="display:none">
+      <input id="keu-pw-input" type="password" maxlength="20"
+        style="width:100%;padding:.85rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:Poppins,sans-serif;font-size:1rem;text-align:center;color:var(--ink);background:#fff;outline:none;margin-bottom:.6rem;transition:border-color .2s"
+        placeholder="Masukkan password"
+        onkeydown="if(event.key==='Enter')keuLoginSubmit()">
+      <p id="keu-login-err" style="display:none;font-size:11px;color:var(--rose);margin-bottom:.5rem">Password salah, coba lagi 🤍</p>
+      <button onclick="keuLoginSubmit()" style="width:100%;padding:.875rem;border-radius:50px;border:none;cursor:pointer;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);margin-bottom:.55rem;transition:all .15s">Masuk →</button>
+    </div>
+
+    <button onclick="keuClose()" style="width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-family:Poppins,sans-serif;font-size:13px;cursor:pointer">Batal</button>
   </div>
 </div>
 
@@ -366,8 +404,8 @@ const CATS = [
     desc:'Atur keuangan kalian masing-masing — catat pengeluaran, pantau saldo, dan rencanakan bareng',
     sections:[
       { label:'Keuangan', items:[
-        {icon:'💰',wrap:'warm',label:'Kantong Dara',sub:'Atur uangmu',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil kamu.',link:'keuangan-dara.html'},
-        {icon:'💰',wrap:'warm',label:'Kantong Razan',sub:'Atur uangku',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil Razan.',link:'keuangan-razan.html'},
+        {icon:'💰',wrap:'warm',label:'Kantong Dara',sub:'Atur uangmu',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil kamu.',link:'keuangan-dara.html',keuUser:'dara'},
+        {icon:'💰',wrap:'warm',label:'Kantong Razan',sub:'Atur uangku',desc:'Tempat kecil buat catat uang jajan, nabung, sampai wujudin mimpi-mimpi kecil Razan.',link:'keuangan-razan.html',keuUser:'razan'},
       ]}
     ]
   },
@@ -381,6 +419,13 @@ const CATS = [
     ]
   },
 ];
+
+// ── KEUANGAN CONFIG ──
+const KEU_CONFIG = {
+  dara:  { url:'https://script.google.com/macros/s/AKfycbyBm0vHLCkH4u56FlHJfwdFw0L-8JicoOMWY7ka2A2Tlauw7DIQQZ2RZNV8csHBrtQ/exec', key:'dara_rahasia_123', label:'Kantong Dara', link:'keuangan-dara.html' },
+  razan: { url:'https://script.google.com/macros/s/AKfycbzLjVJHq_wIAXnTrJ07h1ET_-_RAw_gFte8TyhpNdc3ftmQh0_jMbfAtkPZArqhES3S/exec', key:'razan123', label:'Kantong Razan', link:'keuangan-razan.html' },
+};
+let keuUser = null;
 
 let idx = 0;
 let busy = false;
@@ -477,6 +522,7 @@ function renderCatScreen(i) {
       if (!item.locked) {
         el.addEventListener('click', () => {
           if (cat.key === 'secret') { checkBirthday(); return; }
+          if (item.keuUser) { openKeuangan(item.keuUser); return; }
           openPopup(item.icon, item.label, item.desc, item.link);
         });
       } else {
@@ -500,7 +546,7 @@ function showHome() {
   document.getElementById('home').classList.add('active');
 }
 
-// ── PASSWORD ──
+// ── SECRET PASSWORD ──
 const SECRET_PW = '0607';
 let pendingIdx = null;
 
@@ -528,6 +574,102 @@ function submitPw() {
 function closePw() {
   document.getElementById('pw-overlay').style.display = 'none';
   pendingIdx = null;
+}
+
+// ── KEUANGAN PASSWORD ──
+function keuXhr(method, url, body, cb) {
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, url, true);
+  if (method === 'POST') xhr.setRequestHeader('Content-Type', 'text/plain');
+  xhr.onload = function() {
+    try { cb(null, JSON.parse(xhr.responseText)); }
+    catch(e) { cb(e); }
+  };
+  xhr.onerror = function() { cb(new Error('Network error')); };
+  xhr.send(body || null);
+}
+
+function openKeuangan(user) {
+  keuUser = user;
+  const cfg = KEU_CONFIG[user];
+  document.getElementById('keu-icon').textContent = '💰';
+  document.getElementById('keu-title').textContent = cfg.label;
+  document.getElementById('keu-subtitle').textContent = 'Sebentar, lagi cek dulu...';
+  document.getElementById('keu-loading').style.display = 'block';
+  document.getElementById('keu-setup').style.display = 'none';
+  document.getElementById('keu-login').style.display = 'none';
+  document.getElementById('keu-setup-err').style.display = 'none';
+  document.getElementById('keu-login-err').style.display = 'none';
+  document.getElementById('keu-overlay').style.display = 'flex';
+
+  keuXhr('GET', cfg.url + '?key=' + cfg.key + '&action=hasPassword', null, function(err, data) {
+    document.getElementById('keu-loading').style.display = 'none';
+    if (err || !data) {
+      document.getElementById('keu-subtitle').textContent = 'Gagal koneksi, coba lagi';
+      return;
+    }
+    if (data.hasPassword) {
+      document.getElementById('keu-subtitle').textContent = 'Masukkan password untuk masuk';
+      document.getElementById('keu-login').style.display = 'block';
+      setTimeout(() => document.getElementById('keu-pw-input').focus(), 100);
+    } else {
+      document.getElementById('keu-subtitle').textContent = 'Pertama kali masuk — buat password dulu!';
+      document.getElementById('keu-setup').style.display = 'block';
+      setTimeout(() => document.getElementById('keu-pw-new').focus(), 100);
+    }
+  });
+}
+
+function keuSetupSubmit() {
+  const pw = document.getElementById('keu-pw-new').value.trim();
+  const cf = document.getElementById('keu-pw-confirm').value.trim();
+  if (!pw) return;
+  if (pw !== cf) { document.getElementById('keu-setup-err').style.display = 'block'; return; }
+  document.getElementById('keu-setup-err').style.display = 'none';
+  document.getElementById('keu-setup').style.display = 'none';
+  document.getElementById('keu-loading').style.display = 'block';
+  document.getElementById('keu-subtitle').textContent = 'Menyimpan password...';
+
+  const cfg = KEU_CONFIG[keuUser];
+  keuXhr('POST', cfg.url, JSON.stringify({ key: cfg.key, action: 'setPassword', password: pw }), function(err, data) {
+    document.getElementById('keu-loading').style.display = 'none';
+    if (!err && data && data.status === 'ok') {
+      keuClose();
+      window.location.href = cfg.link;
+    } else {
+      document.getElementById('keu-setup').style.display = 'block';
+      document.getElementById('keu-subtitle').textContent = 'Gagal simpan, coba lagi';
+    }
+  });
+}
+
+function keuLoginSubmit() {
+  const pw = document.getElementById('keu-pw-input').value.trim();
+  if (!pw) return;
+  document.getElementById('keu-login-err').style.display = 'none';
+  document.getElementById('keu-login').style.display = 'none';
+  document.getElementById('keu-loading').style.display = 'block';
+  document.getElementById('keu-subtitle').textContent = 'Memeriksa password...';
+
+  const cfg = KEU_CONFIG[keuUser];
+  keuXhr('GET', cfg.url + '?key=' + cfg.key + '&action=checkPassword&password=' + encodeURIComponent(pw), null, function(err, data) {
+    document.getElementById('keu-loading').style.display = 'none';
+    if (!err && data && data.valid) {
+      keuClose();
+      window.location.href = cfg.link;
+    } else {
+      document.getElementById('keu-login').style.display = 'block';
+      document.getElementById('keu-login-err').style.display = 'block';
+      document.getElementById('keu-pw-input').value = '';
+      document.getElementById('keu-subtitle').textContent = 'Masukkan password untuk masuk';
+      setTimeout(() => document.getElementById('keu-pw-input').focus(), 100);
+    }
+  });
+}
+
+function keuClose() {
+  document.getElementById('keu-overlay').style.display = 'none';
+  keuUser = null;
 }
 
 // ── POPUP ──
