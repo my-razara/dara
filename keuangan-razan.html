@@ -445,6 +445,15 @@ async function load() {
       ensureShape(d);
       if (!d.txs) d.txs = [];
       if (!d.savings) d.savings = {};
+      // Normalize dates from Sheets (may come as ISO strings due to Date objects)
+      d.txs = d.txs.map(tx => {
+        if (tx.date && tx.date.length > 10) {
+          // Parse ISO string and convert to local date YYYY-MM-DD
+          const dt = new Date(tx.date);
+          tx.date = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+        }
+        return tx;
+      });
       localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
       resolve(d);
     });
