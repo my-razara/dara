@@ -344,13 +344,10 @@
         <input type="text" class="form-input" id="set-gaji" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()">
       </div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Pos di bawah jumlah tetap tiap bulan. Sisa otomatis jadi tabungan.</div>
-      <div class="alloc-row">
-        <span class="alloc-name">Pos Pengeluaran (Cash/GoPay/dll)</span>
-        <input type="text" class="save-input" id="set-spend" style="width:120px" inputmode="numeric" placeholder="0" oninput="fmtInput(this)" onchange="saveAllocSettings()">
-      </div>
-      <div class="alloc-row">
-        <span class="alloc-name">Tabungan — otomatis</span>
-        <span class="alloc-val" id="set-nabung-display" style="color:var(--purple)">Rp0</span>
+      <div id="alloc-rows"></div>
+      <div class="alloc-row" style="border-top:1.5px solid var(--blush);margin-top:6px">
+        <span class="alloc-name" style="font-weight:700">Tabungan — otomatis</span>
+        <span class="alloc-val" id="set-nabung-display" style="color:var(--purple);font-weight:700">Rp0</span>
       </div>
     </div>
 
@@ -446,14 +443,15 @@ function ensureShape(d) {
   if (!d.settings.goals) d.settings.goals = [];
   if (typeof d.settings.gaji !== 'number') d.settings.gaji = 0;
   if (typeof d.settings.payday !== 'number') d.settings.payday = 1;
-  if (!d.settings.alloc) d.settings.alloc = { spend: 0 };
-  if (typeof d.settings.alloc.spend !== 'number') d.settings.alloc.spend = 0;
+  if (!d.settings.alloc) d.settings.alloc = { rows: Array(10).fill(null).map(()=>({name:'',amount:0})) };
+  if (!d.settings.alloc.rows) d.settings.alloc.rows = Array(10).fill(null).map(()=>({name:'',amount:0}));
+  while (d.settings.alloc.rows.length < 10) d.settings.alloc.rows.push({name:'',amount:0});
   return d;
 }
 function nabungAmt(s) {
   const gaji = Number(s.gaji) || 0;
-  const spend = Number(s.alloc.spend) || 0;
-  return Math.max(0, gaji - spend);
+  const totalAlloc = (s.alloc.rows||[]).reduce((a,r)=>a+(Number(r.amount)||0),0);
+  return Math.max(0, gaji - totalAlloc);
 }
 
 // ─── STORAGE (XHR) ────────────────────────────────────────────
@@ -479,6 +477,14 @@ async function load() {
       ensureShape(d);
       if (!d.txs) d.txs = [];
       if (!d.savings) d.savings = {};
+      // Normalize dates (Sheets may return ISO strings due to Date objects)
+      d.txs = d.txs.map(tx => {
+        if (tx.date && String(tx.date).length > 10) {
+          const dt = new Date(tx.date);
+          tx.date = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+        }
+        return tx;
+      });
       localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
       resolve(d);
     });
@@ -616,15 +622,21 @@ async function renderHome() {
     </div>`;
   }).join('');
 
-  // Donut
+  // Donut - alloc rows
+  const allocRows2 = (s.alloc.rows||[]).filter(r=>r.name&&r.amount>0);
+  const allocColors = ['#c17a6f','#c9a96e','#7a9e8a','#9b7ec8','#f48fb1','#ffb74d','#7986cb','#4db6ac','#e57373','#81c784'];
   const allocCtx = document.getElementById('chart-alloc').getContext('2d');
   if (chartAlloc) chartAlloc.destroy();
+  const donutLabels = allocRows2.length ? allocRows2.map(r=>r.name) : ['Pengeluaran'];
+  const donutData   = allocRows2.length ? allocRows2.map(r=>r.amount) : [s.gaji||0];
+  donutLabels.push('Tabungan');
+  donutData.push(nabung);
   chartAlloc = new Chart(allocCtx, {
     type: 'doughnut',
     data: {
-      labels: ['Pengeluaran','Tabungan'],
-      datasets: [{ data: [s.alloc.spend, nabung],
-        backgroundColor: ['#c17a6f','#9b7ec8'], borderWidth: 0 }]
+      labels: donutLabels,
+      datasets: [{ data: donutData,
+        backgroundColor: [...allocColors.slice(0,donutLabels.length-1),'#9b7ec8'], borderWidth: 0 }]
     },
     options: { responsive:true, maintainAspectRatio:false, cutout:'62%',
       plugins: { legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:8}},
@@ -865,7 +877,20 @@ async function renderSettings() {
   const diff = Math.ceil((ng-today)/86400000);
   document.getElementById('next-gajian').textContent = `${ng.toLocaleDateString('id-ID',{day:'numeric',month:'long'})} — ${diff} hari lagi`;
   setInput('set-gaji', s.gaji || 0);
-  setInput('set-spend', s.alloc.spend || 0);
+  // Render alloc rows
+  const allocRows = s.alloc.rows || Array(10).fill(null).map(()=>({name:'',amount:0}));
+  const allocEl = document.getElementById('alloc-rows');
+  if (allocEl) {
+    allocEl.innerHTML = allocRows.map((r,i)=>`
+      <div class="alloc-row">
+        <input type="text" id="alloc-name-${i}" value="${r.name||''}" placeholder="Nama pos ${i+1}, mis. Transport"
+          style="flex:1;padding:7px 10px;border:1.5px solid var(--blush);border-radius:8px;font-size:12px;color:var(--ink);background:#fff;outline:none;font-family:'Poppins',sans-serif;min-width:0;margin-right:8px"
+          onchange="saveAllocSettings()">
+        <input type="text" id="alloc-amt-${i}" value="${r.amount>0?r.amount.toLocaleString('id-ID'):''}" placeholder="0"
+          style="width:110px;padding:7px 10px;border:1.5px solid var(--blush);border-radius:8px;font-size:12px;text-align:right;color:var(--ink);background:#fff;outline:none;font-family:'Poppins',sans-serif"
+          inputmode="numeric" oninput="fmtInput(this)" onchange="saveAllocSettings()">
+      </div>`).join('');
+  }
   document.getElementById('set-nabung-display').textContent = fmt(nabungAmt(s));
   renderAccManage();
   renderCatManage();
@@ -881,7 +906,16 @@ async function saveAllocSettings() {
   const d = await load();
   if (!d.settings) d.settings = {};
   d.settings.gaji = parseInput('set-gaji');
-  d.settings.alloc = { spend: parseInput('set-spend') };
+  // Read alloc rows
+  const rows = [];
+  for (let i=0;i<10;i++) {
+    const nameEl = document.getElementById('alloc-name-'+i);
+    const amtEl  = document.getElementById('alloc-amt-'+i);
+    if (!nameEl||!amtEl) continue;
+    rows.push({ name: nameEl.value.trim(), amount: parseFloat((amtEl.value||'0').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9]/g,''))||0 });
+  }
+  if (!d.settings.alloc) d.settings.alloc = {};
+  d.settings.alloc.rows = rows;
   await save(d); syncSettings(d.settings);
   document.getElementById('set-nabung-display').textContent = fmt(nabungAmt(d.settings));
   toast('✓ Pengaturan disimpan'); await renderHome();
