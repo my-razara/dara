@@ -420,41 +420,28 @@ function kromAmt(s) {
   return Math.max(0, gaji - fixed);
 }
 
-// ─── STORAGE (FIXED) ─────────────────────────────────────────
-// Ganti fungsi load(), save(), gsPost() yang lama dengan ini
-
+// ─── STORAGE ──────────────────────────────────────────────────
 function xhrGet(url, cb) {
   const xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
-  xhr.onload = function() {
-    try { cb(null, JSON.parse(xhr.responseText)); }
-    catch(e) { cb(e); }
-  };
-  xhr.onerror = function() { cb(new Error('Network error')); };
+  xhr.onload = function() { try { cb(null, JSON.parse(xhr.responseText)); } catch(e) { cb(e); } };
+  xhr.onerror = function() { cb(new Error('err')); };
   xhr.send();
 }
-
 function xhrPost(url, body, cb) {
   const xhr = new XMLHttpRequest();
   xhr.open('POST', url, true);
   xhr.setRequestHeader('Content-Type', 'text/plain');
-  xhr.onload = function() {
-    try { cb(null, JSON.parse(xhr.responseText)); }
-    catch(e) { cb(e); }
-  };
-  xhr.onerror = function() { cb(new Error('Network error')); };
+  xhr.onload = function() { try { cb(null, JSON.parse(xhr.responseText)); } catch(e) { cb(e); } };
+  xhr.onerror = function() { cb(new Error('err')); };
   xhr.send(JSON.stringify(body));
 }
-
 async function load() {
   const url = getGsUrl(), skey = getGsSkey();
   if (!url || !skey) return fromLocal();
   return new Promise((resolve) => {
-    xhrGet(`${url}?key=${encodeURIComponent(skey)}`, (err, d) => {
-      if (err || !d || d.error) {
-        resolve(fromLocal());
-        return;
-      }
+    xhrGet(url + '?key=' + encodeURIComponent(skey), (err, d) => {
+      if (err || !d || d.error) { resolve(fromLocal()); return; }
       ensureShape(d);
       if (!d.txs) d.txs = [];
       if (!d.savings) d.savings = {};
@@ -463,24 +450,16 @@ async function load() {
     });
   });
 }
-
 function fromLocal() {
-  try { return ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def()); }
-  catch { return def(); }
+  try { return ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def()); } catch { return def(); }
 }
-
-async function save(d) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
-}
-
-async function gsPost(action, extra = {}) {
+async function save(d) { localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); }
+async function gsPost(action, extra) {
+  extra = extra || {};
   return new Promise((resolve) => {
-    xhrPost(getGsUrl(), { key: getGsSkey(), action, ...extra }, (err, res) => {
-      resolve(res);
-    });
+    xhrPost(getGsUrl(), Object.assign({ key: getGsSkey(), action }, extra), (err, res) => resolve(res));
   });
 }
-
 async function syncTx(tx)          { await gsPost('saveTx', { data: tx }); }
 async function syncDelTx(id)       { await gsPost('deleteTx', { id }); }
 async function syncSaving(mo, amt) { await gsPost('saveSaving', { month: mo, amount: amt }); }
@@ -544,7 +523,7 @@ async function init() {
   const now = new Date();
   document.getElementById('hdr-date').textContent = now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('month-label').textContent = mLabel(cYear, cMonth);
-  document.getElementById('inp-date').value = now.toISOString().split('T')[0];
+  document.getElementById('inp-date').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   updateCats();
   await renderHome();
   await renderNabung();
