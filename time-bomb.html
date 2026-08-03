@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Time Bomb 💣 Razan & Dara</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden}
+  body{background:var(--cream);transition:background .3s}
+  body.danger{background:#3a0a0a}
+  body.explode{background:#1a0000}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--cream)}
+  #s-intro::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3),transparent 70%),radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15),transparent 70%);pointer-events:none}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 2s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #s-game{padding:0;background:#1a0a05}
+
+  /* Player indicator */
+  #player-bar{
+    position:fixed;top:0;left:0;right:0;z-index:20;
+    padding:.6rem 1rem;
+    display:flex;justify-content:space-between;align-items:center;
+    transition:background .3s;
+    background:rgba(45,31,26,.75);
+    backdrop-filter:blur(8px);
+  }
+  .pb-player{font-size:12px;font-weight:700;padding:.3rem .85rem;border-radius:50px;transition:all .3s}
+  .pb-player.active-p{background:#fff;color:var(--rose);box-shadow:0 2px 10px rgba(0,0,0,.1)}
+  .pb-player.inactive-p{background:rgba(255,255,255,.1);color:rgba(255,255,255,.4)}
+  .pb-score{font-size:11px;color:rgba(255,255,255,.7);text-align:center}
+  .pb-score b{color:#fff;font-size:13px;font-weight:700}
+
+  /* Bomb area */
+  #bomb-area{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:100%;height:100%;padding:5rem 1.5rem 8rem;
+    gap:1.5rem;
+  }
+
+  /* Bomb */
+  .bomb-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+  .bomb-glow{
+    position:absolute;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,100,50,.3),transparent 70%);
+    animation:glowpulse 1s ease-in-out infinite;
+    transition:background .3s;
+  }
+  @keyframes glowpulse{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.1);opacity:1}}
+  .bomb-emoji{font-size:clamp(5rem,20vw,7rem);display:block;position:relative;z-index:1;animation:bombshake .1s ease-in-out infinite;user-select:none}
+  @keyframes bombshake{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+  .bomb-emoji.fast{animation:bombshake .05s ease-in-out infinite}
+
+  /* Timer ring */
+  .timer-ring-wrap{position:relative;width:140px;height:140px}
+  .timer-ring{transform:rotate(-90deg)}
+  .timer-ring-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:8}
+  .timer-ring-fill{fill:none;stroke:#ff6b35;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .1s linear,stroke .3s}
+  .timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .timer-num{font-size:2.5rem;font-weight:700;color:#fff;line-height:1;transition:color .3s}
+  .timer-label{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+
+  /* Challenge card */
+  .challenge-card{
+    background:rgba(45,31,26,.88);
+    border:1px solid rgba(193,122,111,.3);
+    border-radius:20px;padding:1.25rem 1.5rem;
+    width:100%;max-width:380px;
+    text-align:center;
+    box-shadow:0 4px 20px rgba(0,0,0,.15);
+  }
+  .challenge-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);display:block;margin-bottom:.5rem}
+  .challenge-text{font-size:clamp(14px,4vw,16px);font-weight:600;color:#fff;line-height:1.5}
+
+  /* Throw btn */
+  .throw-btn{
+    width:100%;max-width:380px;
+    padding:1.1rem;border-radius:50px;border:none;cursor:pointer;
+    font-size:16px;font-weight:700;
+    background:#fff;color:var(--rose);
+    box-shadow:0 6px 24px rgba(0,0,0,.2);
+    transition:all .15s;
+    animation:throwpulse 1s ease-in-out infinite;
+  }
+  @keyframes throwpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+  .throw-btn:active{transform:scale(.95)!important}
+
+  /* Danger overlay tint */
+  .danger-tint{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:rgba(200,0,0,0);transition:background .3s;
+  }
+  .danger-tint.red{background:rgba(200,0,0,.15)}
+  .danger-tint.redder{background:rgba(200,0,0,.3)}
+
+  /* ── EXPLODE ── */
+  #s-explode{background:#1a0000;padding:1.5rem}
+  .explode-icon{font-size:5rem;display:block;margin-bottom:1rem;animation:explodespin .5s ease-out}
+  @keyframes explodespin{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0)}}
+  .explode-title{font-size:1.5rem;font-weight:700;color:#ff6b35;margin-bottom:.35rem}
+  .explode-player{font-size:1rem;color:rgba(255,255,255,.7);margin-bottom:1.25rem}
+  .punishment-card{
+    background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.3);
+    border-radius:20px;padding:1.25rem 1.5rem;
+    margin-bottom:1.25rem;width:100%;max-width:360px;
+  }
+  .punishment-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,107,53,.7);display:block;margin-bottom:.5rem}
+  .punishment-text{font-size:15px;font-weight:600;color:#fff;line-height:1.55}
+  .score-row{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1.25rem}
+  .score-item{text-align:center}
+  .score-num{font-size:2rem;font-weight:700;color:#ff6b35;display:block}
+  .score-name{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em}
+  .score-vs{color:rgba(255,255,255,.3);font-size:1rem}
+  .next-btn{width:100%;max-width:360px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:#ff6b35;color:#fff;box-shadow:0 4px 18px rgba(255,107,53,.4);transition:all .2s}
+  .next-btn:active{transform:scale(.97)}
+
+  /* ── RESULT ── */
+  #s-result{background:var(--cream)}
+  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3),transparent 70%);pointer-events:none}
+  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem;position:relative;z-index:1}
+  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%;max-width:360px;position:relative;z-index:1}
+  .es-av{font-size:1.5rem;display:block;margin-bottom:.2rem}
+  .es-nm{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .es-sc{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
+  .es-vs{color:var(--blush);font-size:.9rem}
+  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.5rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-verdict strong{color:var(--rose)}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;transition:all .15s}
+  .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">💣</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Time <span>Bomb</span></h1>
+  <p class="intro-sub">Jawab tantangan sebelum bom meledak — lempar ke lawan, makin lama makin tegang! 💥</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot"></span>Yang pegang bom harus selesaikan tantangan</div>
+    <div class="rule"><span class="rule-dot"></span>Berhasil? Tap <b>Lempar!</b> — bom pindah ke lawan, timer makin pendek</div>
+    <div class="rule"><span class="rule-dot"></span>Gagal / waktu habis = 💥 BOM MELEDAK — kena hukuman!</div>
+    <div class="rule"><span class="rule-dot"></span>Main 10 ronde — yang paling jarang kena bom menang 😏</div>
+  </div>
+  <button class="start-btn" onclick="startGame()">Mulai! 💣</button>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="danger-tint" id="danger-tint"></div>
+  <div id="player-bar">
+    <div class="pb-player active-p" id="pb-razan">🧑 Razan</div>
+    <div class="pb-score">Bom meledak<br><b id="pb-explode-count">R:0 · D:0</b></div>
+    <div class="pb-player inactive-p" id="pb-dara">Dara 👧</div>
+  </div>
+
+  <div id="bomb-area">
+    <div class="bomb-wrap">
+      <div class="bomb-glow" id="bomb-glow"></div>
+      <span class="bomb-emoji" id="bomb-emoji">💣</span>
+    </div>
+
+    <div class="timer-ring-wrap">
+      <svg class="timer-ring" width="140" height="140">
+        <circle class="timer-ring-bg" cx="70" cy="70" r="58"/>
+        <circle class="timer-ring-fill" id="ring-fill" cx="70" cy="70" r="58"
+          stroke-dasharray="364.4" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-center">
+        <span class="timer-num" id="timer-num">8</span>
+        <span class="timer-label">detik</span>
+      </div>
+    </div>
+
+    <div class="challenge-card">
+      <span class="challenge-label">Tantangan untuk kamu</span>
+      <p class="challenge-text" id="challenge-text">...</p>
+    </div>
+
+    <button class="throw-btn" id="throw-btn" onclick="throwBomb()">
+      Lempar ke Lawan! 💣
+    </button>
+  </div>
+</div>
+
+<!-- EXPLODE -->
+<div id="s-explode" class="screen">
+  <span class="explode-icon">💥</span>
+  <p class="explode-title">BOM MELEDAK!</p>
+  <p class="explode-player" id="explode-player">Razan kena!</p>
+  <div class="punishment-card">
+    <span class="punishment-label">Hukuman</span>
+    <p class="punishment-text" id="punishment-text">...</p>
+  </div>
+  <div class="score-row">
+    <div class="score-item"><span class="score-num" id="exp-r">0</span><span class="score-name">Razan</span></div>
+    <span class="score-vs">💥</span>
+    <div class="score-item"><span class="score-num" id="exp-d">0</span><span class="score-name">Dara</span></div>
+  </div>
+  <button class="next-btn" id="next-btn" onclick="nextRound()">Ronde Berikutnya →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon" id="end-icon">🏆</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <div class="end-score-card">
+    <div><span class="es-av">🧑</span><span class="es-nm">Razan</span><span class="es-sc" id="end-r">0</span></div>
+    <span class="es-vs">💥</span>
+    <div><span class="es-av">👧</span><span class="es-nm">Dara</span><span class="es-sc" id="end-d">0</span></div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const TOTAL_ROUNDS = 10;
+const INIT_TIME = 20;
+const MIN_TIME = 5;
+
+const CHALLENGES = [
+  // Romantis
+  "Bilang 3 hal yang kamu suka dari lawan sekarang!",
+  "Kasih pujian paling manis yang bisa kamu pikirin!",
+  "Ceritain momen paling lucu bareng lawan dalam 5 detik!",
+  "Bilang 'aku sayang kamu' dengan 3 bahasa berbeda!",
+  "Sebutkan 5 makanan favorit lawan — cepet!",
+  "Tebak lagu favorit lawan, nyanyiin 5 detik!",
+  "Bilang hal yang paling kamu kangenin dari lawan!",
+  "Sebutkan 3 kebiasaan lucu lawan!",
+  "Ceritain mimpi terbesar kalian berdua dalam 5 detik!",
+  "Bilang satu rahasia kecil tentang dirimu!",
+  // Aksi
+  "Tunjukin ekspresi paling malu yang pernah kamu rasain!",
+  "Tiru cara lawan ketawa — persis!",
+  "Peragakan gimana lawan kalau lagi ngantuk!",
+  "Tiru suara kucing serak!",
+  "Lakukan gerakan dance paling aneh selama 3 detik!",
+  "Bikin muka paling serius yang bisa kamu lakuin!",
+  "Tiru cara lawan bilang 'hah?' kalau ga denger!",
+  "Peragakan lawan kalau lagi marah — tapi lucu!",
+  // Tebak
+  "Tebak bulan lahir lawan — langsung jawab!",
+  "Sebutkan warna favorit lawan — tanpa mikir!",
+  "Tebak lagu yang lagi diputar di kepala lawan sekarang!",
+  "Sebutkan nama teman dekat lawan — 3 orang!",
+  "Tebak makanan yang lawan mau makan sekarang!",
+  // Tantangan cepat
+  "Sebutkan 5 nama hewan dalam 3 detik!",
+  "Hitung mundur dari 20 ke 1 secepat mungkin!",
+  "Sebutkan 5 negara dalam 3 detik!",
+  "Bilang kata 'semangka' 5 kali tanpa salah!",
+  "Sebutkan 3 hal yang ada di dalam kamar lawan!",
+  "Sebutkan hari dalam seminggu terbalik — dari Minggu!",
+];
+
+const PUNISHMENTS = [
+  "Kasih pelukan ke lawan sekarang — minimal 10 detik! 🤗",
+  "Lawan boleh minta SATU hal apapun sekarang — dan ga boleh ditolak! 😏",
+  "Bilang 5 pujian ke lawan tanpa berhenti! 💬",
+  "Lawan pilih foto selfie paling aneh — harus dijadiin wallpaper sampai besok! 📸",
+  "Traktir lawan jajan — kapanpun dia mau tagih! 🍦",
+  "Nyanyiin lagu sayang-sayang buat lawan minimal 10 detik! 🎤",
+  "Kasih pijatan bahu ke lawan selama 1 menit! 💆",
+  "Tulis pesan paling manis di chat lawan sekarang! 💌",
+  "Lawan bebas pilih film buat ditonton bareng — ga boleh protes! 🎬",
+  "Bilang hal yang paling bikin kamu jatuh cinta sama lawan! 🥺",
+];
+
+// STATE
+let currentPlayer = 'razan'; // who has the bomb
+let timeLeft = INIT_TIME;
+let baseTime = INIT_TIME;
+let round = 1;
+let throws = 0; // how many times bomb thrown this round
+let explodeCounts = { razan: 0, dara: 0 };
+let timerInterval = null;
+let currentChallenge = '';
+let usedChallenges = [];
+let usedPunishments = [];
+let canThrow = true;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function getRandomItem(arr, used) {
+  const available = arr.filter((_, i) => !used.includes(i));
+  if (!available.length) { used.length = 0; return getRandomItem(arr, used); }
+  const origIdx = arr.indexOf(available[Math.floor(Math.random() * available.length)]);
+  used.push(origIdx);
+  return arr[origIdx];
+}
+
+function startGame() {
+  explodeCounts = { razan: 0, dara: 0 };
+  round = 1;
+  currentPlayer = Math.random() > 0.5 ? 'razan' : 'dara';
+  usedChallenges = [];
+  usedPunishments = [];
+  showScreen('s-game');
+  startRound();
+}
+
+function startRound() {
+  throws = 0;
+  baseTime = Math.max(MIN_TIME + 2, INIT_TIME - Math.floor(round / 3));
+  timeLeft = baseTime;
+  canThrow = true;
+  currentChallenge = getRandomItem(CHALLENGES, usedChallenges);
+  document.getElementById('challenge-text').textContent = currentChallenge;
+  updatePlayerBar();
+  updateRoundUI();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  const circumference = 2 * Math.PI * 58;
+  updateRing(timeLeft, baseTime, circumference);
+
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    timeLeft = Math.round(timeLeft * 10) / 10;
+    updateRing(timeLeft, baseTime, circumference);
+    document.getElementById('timer-num').textContent = Math.ceil(timeLeft);
+
+    // Danger effects
+    const pct = timeLeft / baseTime;
+    const tint = document.getElementById('danger-tint');
+    const glow = document.getElementById('bomb-glow');
+    const bomb = document.getElementById('bomb-emoji');
+
+    if (pct < 0.25) {
+      tint.className = 'danger-tint redder';
+      glow.style.background = 'radial-gradient(circle,rgba(255,50,0,.5),transparent 70%)';
+      bomb.className = 'bomb-emoji fast';
+      document.getElementById('ring-fill').style.stroke = '#ff2200';
+    } else if (pct < 0.5) {
+      tint.className = 'danger-tint red';
+      glow.style.background = 'radial-gradient(circle,rgba(255,80,20,.4),transparent 70%)';
+      bomb.className = 'bomb-emoji';
+      document.getElementById('ring-fill').style.stroke = '#ff5500';
+    } else {
+      tint.className = 'danger-tint';
+      glow.style.background = 'radial-gradient(circle,rgba(255,100,50,.3),transparent 70%)';
+      bomb.className = 'bomb-emoji';
+      document.getElementById('ring-fill').style.stroke = '#ff6b35';
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      explode();
+    }
+  }, 100);
+}
+
+function updateRing(t, base, circ) {
+  const pct = Math.max(0, t / base);
+  const offset = circ * (1 - pct);
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+}
+
+function throwBomb() {
+  if (!canThrow) return;
+  canThrow = false;
+  clearInterval(timerInterval);
+
+  throws++;
+  // Reduce time each throw
+  const reduction = Math.min(5, 1.5 + throws * 0.8);
+  timeLeft = Math.max(MIN_TIME, timeLeft - reduction);
+  baseTime = timeLeft;
+
+  // Switch player
+  currentPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
+
+  // New challenge
+  currentChallenge = getRandomItem(CHALLENGES, usedChallenges);
+  document.getElementById('challenge-text').textContent = currentChallenge;
+
+  updatePlayerBar();
+  resetDangerUI();
+
+  setTimeout(() => {
+    canThrow = true;
+    startTimer();
+  }, 300);
+}
+
+function explode() {
+  clearInterval(timerInterval);
+  explodeCounts[currentPlayer]++;
+
+  const pname = currentPlayer === 'razan' ? 'Razan' : 'Dara';
+  const punishment = getRandomItem(PUNISHMENTS, usedPunishments);
+
+  document.getElementById('explode-player').textContent = `${pname} kena! 💥`;
+  document.getElementById('punishment-text').textContent = punishment;
+  document.getElementById('exp-r').textContent = explodeCounts.razan;
+  document.getElementById('exp-d').textContent = explodeCounts.dara;
+
+  const isLast = round >= TOTAL_ROUNDS;
+  document.getElementById('next-btn').textContent = isLast ? 'Lihat Hasil 🏆' : `Ronde ${round + 1} →`;
+  document.getElementById('next-btn').onclick = isLast ? showResult : nextRound;
+
+  resetDangerUI();
+  showScreen('s-explode');
+  vibrateExplode();
+}
+
+function nextRound() {
+  round++;
+  // Switch who starts next round
+  currentPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
+  showScreen('s-game');
+  startRound();
+}
+
+function updatePlayerBar() {
+  const isRazan = currentPlayer === 'razan';
+  document.getElementById('pb-razan').className = 'pb-player ' + (isRazan ? 'active-p' : 'inactive-p');
+  document.getElementById('pb-dara').className = 'pb-player ' + (!isRazan ? 'active-p' : 'inactive-p');
+  document.getElementById('pb-explode-count').textContent = `R:${explodeCounts.razan} · D:${explodeCounts.dara}`;
+  const name = isRazan ? 'Razan' : 'Dara';
+  document.getElementById('throw-btn').textContent = `Lempar ke ${isRazan ? 'Dara' : 'Razan'}! 💣`;
+}
+
+function updateRoundUI() {
+  document.getElementById('timer-num').textContent = Math.ceil(timeLeft);
+}
+
+function resetDangerUI() {
+  document.getElementById('danger-tint').className = 'danger-tint';
+  document.getElementById('bomb-glow').style.background = 'radial-gradient(circle,rgba(255,100,50,.3),transparent 70%)';
+  document.getElementById('bomb-emoji').className = 'bomb-emoji';
+  document.getElementById('ring-fill').style.stroke = '#ff6b35';
+}
+
+function showResult() {
+  const r = explodeCounts.razan, d = explodeCounts.dara;
+  const razanWin = r < d; // fewer explosions = better
+  const tie = r === d;
+  const winner = razanWin ? 'Razan' : 'Dara';
+  const loser = razanWin ? 'Dara' : 'Razan';
+
+  document.getElementById('end-icon').textContent = tie ? '🤝' : razanWin ? '🏆' : '👑';
+  document.getElementById('end-title').textContent = tie ? 'Seri!' : `${winner} Menang!`;
+  document.getElementById('end-sub').textContent = tie
+    ? 'Sama-sama kena bom — jiwa yang setara!'
+    : `${winner} paling jago lempar bom hari ini!`;
+  document.getElementById('end-r').textContent = r;
+  document.getElementById('end-d').textContent = d;
+  document.getElementById('end-verdict').innerHTML = tie
+    ? 'Seri! Dua-duanya sama berani — main lagi untuk tentukan juaranya!'
+    : `<strong>${winner} menang!</strong> Kena bom lebih sedikit — ${loser} harus jalani <strong>satu hukuman terakhir</strong> pilihan ${winner}! 😏🤍`;
+
+  showScreen('s-result');
+  if (!tie) confetti(70);
+}
+
+function vibrateExplode() {
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+}
+
+function confetti(n) {
+  const colors = ['#ff6b35', '#c17a6f', '#c9a96e', '#fff', '#ff8fab'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
+}
+</script>
+</body>
+</html>
