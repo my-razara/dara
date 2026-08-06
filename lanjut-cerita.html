@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lanjut Cerita 📖</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.12),transparent 60%);
+    pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--cream)}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #s-game{padding:0;background:var(--cream);justify-content:flex-start}
+
+  /* Header */
+  .story-header{
+    position:sticky;top:0;z-index:20;
+    background:rgba(250,246,240,.95);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(193,122,111,.1);
+    padding:.65rem 1rem;
+    display:flex;align-items:center;justify-content:space-between;
+    flex-shrink:0;width:100%;
+  }
+  .sh-left{display:flex;flex-direction:column}
+  .sh-title{font-size:13px;font-weight:700;color:var(--ink)}
+  .sh-progress{font-size:10px;color:var(--muted);margin-top:1px}
+  .sh-turn{
+    font-size:11px;font-weight:700;padding:.3rem .85rem;border-radius:50px;
+    transition:all .3s;
+  }
+  .sh-turn.razan{background:rgba(90,120,200,.12);color:#3a5cb5}
+  .sh-turn.dara{background:rgba(193,122,111,.12);color:var(--rose)}
+
+  /* Progress bar */
+  .story-progress{height:3px;background:var(--blush);flex-shrink:0;width:100%}
+  .story-progress-fill{height:100%;background:var(--rose);transition:width .4s ease}
+
+  /* Story scroll area */
+  .story-scroll{
+    flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:.75rem 1rem;width:100%;
+  }
+
+  /* Opening card */
+  .opening-card{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);
+    position:relative;overflow:hidden;
+  }
+  .opening-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--gold),var(--rose))}
+  .opening-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .opening-text{font-size:13px;color:var(--ink);line-height:1.65;font-style:italic}
+
+  /* Chat bubbles */
+  .bubble-wrap{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem}
+  .bubble-row{display:flex;align-items:flex-end;gap:.5rem}
+  .bubble-row.razan{flex-direction:row}
+  .bubble-row.dara{flex-direction:row-reverse}
+  .bubble-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;border:2px solid var(--blush)}
+  .bubble{
+    max-width:78%;padding:.65rem .9rem;border-radius:16px;
+    font-size:13px;line-height:1.55;position:relative;
+    animation:bubblein .3s cubic-bezier(.34,1.2,.64,1);
+  }
+  @keyframes bubblein{from{transform:scale(.85) translateY(5px);opacity:0}to{transform:none;opacity:1}}
+  .bubble.razan{
+    background:rgba(90,120,200,.1);color:var(--ink);
+    border-radius:4px 16px 16px 16px;
+  }
+  .bubble.dara{
+    background:rgba(193,122,111,.1);color:var(--ink);
+    border-radius:16px 4px 16px 16px;
+  }
+  .bubble-name{font-size:9px;font-weight:700;margin-bottom:.2rem;display:block}
+  .bubble.razan .bubble-name{color:#3a5cb5}
+  .bubble.dara .bubble-name{color:var(--rose)}
+
+  /* Input area */
+  .input-area{
+    flex-shrink:0;width:100%;
+    background:rgba(250,246,240,.97);
+    border-top:1px solid rgba(193,122,111,.1);
+    padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom));
+  }
+  .turn-indicator{
+    font-size:11px;font-weight:600;text-align:center;
+    margin-bottom:.5rem;padding:.3rem;border-radius:8px;
+    transition:all .3s;
+  }
+  .turn-indicator.razan{background:rgba(90,120,200,.1);color:#3a5cb5}
+  .turn-indicator.dara{background:rgba(193,122,111,.1);color:var(--rose)}
+  .input-row{display:flex;gap:.5rem;align-items:flex-end}
+  .story-input{
+    flex:1;padding:.75rem 1rem;
+    border:1.5px solid var(--blush);border-radius:16px;
+    font-family:'Poppins',sans-serif;font-size:13.5px;
+    color:var(--ink);background:#fff;outline:none;
+    resize:none;max-height:100px;
+    transition:border-color .2s;line-height:1.5;
+  }
+  .story-input:focus{border-color:var(--rose)}
+  .send-btn{
+    width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--rose);color:#fff;font-size:1.1rem;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:all .15s;
+    box-shadow:0 3px 10px rgba(193,122,111,.35);
+  }
+  .send-btn:active{transform:scale(.9);background:var(--deep)}
+  .send-btn:disabled{background:var(--blush);box-shadow:none;cursor:not-allowed}
+
+  /* ── RESULT ── */
+  #s-result{padding:0;background:var(--cream);justify-content:flex-start}
+  .result-header{
+    width:100%;background:rgba(250,246,240,.97);
+    border-bottom:1px solid rgba(193,122,111,.1);
+    padding:.75rem 1rem;text-align:center;flex-shrink:0;
+  }
+  .result-header h2{font-size:1.1rem;font-weight:700;color:var(--ink)}
+  .result-header p{font-size:11px;color:var(--muted);margin-top:.2rem}
+  .result-scroll{flex:1;overflow-y:auto;padding:.75rem 1rem;width:100%}
+  .rating-card{
+    background:#fff;border:1px solid rgba(193,122,111,.15);
+    border-radius:16px;padding:1.25rem;margin-bottom:1rem;
+    text-align:center;box-shadow:0 2px 10px rgba(193,122,111,.06);
+  }
+  .rating-icon{font-size:2.5rem;display:block;margin-bottom:.5rem;animation:float 3s ease-in-out infinite}
+  .rating-text{font-size:13px;font-weight:600;color:var(--ink);line-height:1.6}
+  .full-story{
+    background:#fff;border:1px solid rgba(193,122,111,.12);
+    border-radius:16px;padding:1.25rem;margin-bottom:1rem;
+    box-shadow:0 2px 8px rgba(193,122,111,.06);
+  }
+  .full-story-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.75rem}
+  .full-story-text{font-size:13px;color:var(--ink);line-height:1.8}
+  .full-story-text .razan-part{color:#3a5cb5;font-weight:500}
+  .full-story-text .dara-part{color:var(--rose);font-weight:500}
+  .result-btns{display:flex;gap:.6rem;width:100%;margin-top:.25rem;margin-bottom:1.5rem}
+  .result-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .result-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .result-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .result-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">📖</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Lanjut <span>Cerita</span></h1>
+  <p class="intro-sub">Bikin cerita bareng — satu kalimat gantian, makin lama makin absurd dan lucu! 😂</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot"></span>Kalimat pembuka muncul random — cerita dimulai dari situ</div>
+    <div class="rule"><span class="rule-dot"></span>Razan lanjut <b>1 kalimat</b> → tap Kirim → kasih ke Dara</div>
+    <div class="rule"><span class="rule-dot"></span>Dara lanjut <b>1 kalimat</b> → tap Kirim → kasih ke Razan</div>
+    <div class="rule"><span class="rule-dot"></span>10 giliran total — cerita makin gila makin bagus! 😂</div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Siapa yang mulai duluan?</p>
+  <div style="display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:380px">
+    <button class="start-btn" onclick="startGame('razan')" style="background:linear-gradient(135deg,#3a5cb5,#5a7cd5)">🧑 Razan duluan</button>
+    <button class="start-btn" onclick="startGame('dara')">👧 Dara duluan</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="story-header">
+    <div class="sh-left">
+      <span class="sh-title">📖 Lanjut Cerita</span>
+      <span class="sh-progress" id="sh-progress">Giliran 1 dari 10</span>
+    </div>
+    <span class="sh-turn" id="sh-turn">Giliran Razan</span>
+  </div>
+  <div class="story-progress"><div class="story-progress-fill" id="story-progress-fill" style="width:0%"></div></div>
+
+  <div class="story-scroll" id="story-scroll">
+    <div class="opening-card">
+      <span class="opening-label">✨ Awal cerita</span>
+      <p class="opening-text" id="opening-text">...</p>
+    </div>
+    <div class="bubble-wrap" id="bubble-wrap"></div>
+  </div>
+
+  <div class="input-area">
+    <div class="turn-indicator razan" id="turn-indicator">✍️ Giliran Razan — lanjutin ceritanya!</div>
+    <div class="input-row">
+      <textarea class="story-input" id="story-input" placeholder="Tulis 1 kalimat lanjutan..." rows="1"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendLine()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="result-header">
+    <h2>Cerita Selesai! 📖</h2>
+    <p>Inilah mahakarya kalian berdua 😂</p>
+  </div>
+  <div class="result-scroll">
+    <div class="rating-card">
+      <span class="rating-icon" id="rating-icon">🎭</span>
+      <p class="rating-text" id="rating-text">...</p>
+    </div>
+    <div class="full-story">
+      <span class="full-story-title">Cerita Lengkap</span>
+      <p class="full-story-text" id="full-story-text"></p>
+    </div>
+    <div class="result-btns">
+      <button class="result-btn result-btn-p" onclick="startGame()">Cerita Baru 🔄</button>
+      <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const OPENINGS = [
+  "Suatu hari Razan dan Dara menemukan pintu ajaib di dalam lemari baju...",
+  "Tiba-tiba HP Razan bunyi — ada telepon dari dirinya sendiri 10 tahun ke depan...",
+  "Dara nemuin amplop misterius di bawah kasur, isinya peta menuju sesuatu yang aneh...",
+  "Mereka iseng masuk ke toko yang tadi ada tapi sekarang udah ga ada...",
+  "Seekor kucing tiba-tiba bisa ngomong dan langsung minta tolong ke Razan dan Dara...",
+  "Pagi itu mereka bangun dan sadar semua orang di dunia tiba-tiba bisa baca pikiran...",
+  "Ada paket misterius datang — pengirimnya nama Razan tapi dari 50 tahun yang lalu...",
+  "Mereka nemuin remote control yang bisa pause, rewind, dan fast forward kehidupan nyata...",
+  "Tiba-tiba semua makanan di dunia bertukar rasa — es krim rasa bawang, bakso rasa coklat...",
+  "Razan dan Dara iseng masuk goa di gunung — di dalamnya ada kota yang belum pernah ada di peta...",
+  "Cermin di kamar tiba-tiba nunjukin dimensi paralel di mana Razan dan Dara jadi superhero...",
+  "Mereka nemuin buku harian yang ditulis sendiri — tapi kejadiannya belum pernah terjadi...",
+  "Suatu malam bintang jatuh mendarat tepat di halaman rumah — dan bintang itu bisa ngomong...",
+  "Mereka iseng beli tiket lotere — tapi hadiahnya bukan uang, melainkan satu permintaan ajaib...",
+  "GPS tiba-tiba berhenti dan malah kasih petunjuk menuju tempat yang mustahil ada...",
+];
+
+const RATINGS = [
+  {icon:'🎬', text:'"Cerita kalian lebih gila dari sinetron Indonesia. Netflix butuh kalian segera!"'},
+  {icon:'📚', text:'"Penulis Nobel aja bakal angkat topi sama masterpiece ini. Terharu."'},
+  {icon:'🤯', text:'"Alurnya ga masuk akal dari awal sampai akhir. Justru itu yang bikin bagus."'},
+  {icon:'😂', text:'"Gua ga ngerti ceritanya tapi gua nangis ketawa baca ini."'},
+  {icon:'🎭', text:'"Ini bukan cerita biasa. Ini karya seni abstrak yang hanya bisa dipahami oleh penulisnya."'},
+  {icon:'🌟', text:'"Plot twist-nya bikin kepala pusing. Masterpiece!"'},
+  {icon:'🎪', text:'"Lebih absurd dari mimpi setelah makan mie goreng jam 2 pagi."'},
+  {icon:'🏆', text:'"Cerita terbaik yang pernah ada — setidaknya menurut standar kalian berdua."'},
+];
+
+const TOTAL_TURNS = 10;
+let currentTurn = 0; // 0-9
+let currentPlayer = 'razan'; // razan or dara
+let opening = '';
+let lines = []; // {player, text}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame(firstPlayer) {
+  currentTurn = 0;
+  currentPlayer = firstPlayer || 'razan';
+  lines = [];
+  opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
+  document.getElementById('opening-text').textContent = opening;
+  document.getElementById('bubble-wrap').innerHTML = '';
+  document.getElementById('story-input').value = '';
+  document.getElementById('story-input').style.height = 'auto';
+  showScreen('s-game');
+  updateGameUI();
+  scrollToBottom();
+}
+
+function updateGameUI() {
+  const pct = (currentTurn / TOTAL_TURNS) * 100;
+  document.getElementById('story-progress-fill').style.width = pct + '%';
+  document.getElementById('sh-progress').textContent = `Giliran ${currentTurn + 1} dari ${TOTAL_TURNS}`;
+
+  const name = currentPlayer === 'razan' ? 'Razan' : 'Dara';
+  const turnEl = document.getElementById('sh-turn');
+  turnEl.textContent = `✍️ ${name}`;
+  turnEl.className = 'sh-turn ' + currentPlayer;
+
+  const indicator = document.getElementById('turn-indicator');
+  indicator.textContent = `✍️ Giliran ${name} — lanjutin ceritanya!`;
+  indicator.className = 'turn-indicator ' + currentPlayer;
+
+  const input = document.getElementById('story-input');
+  input.placeholder = `${name}, tulis 1 kalimat lanjutan...`;
+  input.focus();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function sendLine() {
+  const input = document.getElementById('story-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Add line
+  lines.push({ player: currentPlayer, text });
+
+  // Add bubble
+  addBubble(currentPlayer, text);
+
+  // Clear input
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Next turn
+  currentTurn++;
+  if (currentTurn >= TOTAL_TURNS) {
+    setTimeout(showResult, 400);
+    return;
+  }
+
+  currentPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
+  updateGameUI();
+  scrollToBottom();
+}
+
+function addBubble(player, text) {
+  const wrap = document.getElementById('bubble-wrap');
+  const name = player === 'razan' ? 'Razan' : 'Dara';
+  const avatar = player === 'razan' ? '🧑' : '👧';
+  const row = document.createElement('div');
+  row.className = 'bubble-row ' + player;
+  row.innerHTML = `
+    <div class="bubble-avatar">${avatar}</div>
+    <div class="bubble ${player}">
+      <span class="bubble-name">${name}</span>
+      ${text}
+    </div>`;
+  wrap.appendChild(row);
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  setTimeout(() => {
+    const scroll = document.getElementById('story-scroll');
+    scroll.scrollTop = scroll.scrollHeight;
+  }, 100);
+}
+
+function showResult() {
+  showScreen('s-result');
+
+  // Rating
+  const r = RATINGS[Math.floor(Math.random() * RATINGS.length)];
+  document.getElementById('rating-icon').textContent = r.icon;
+  document.getElementById('rating-text').textContent = r.text;
+
+  // Full story
+  const storyEl = document.getElementById('full-story-text');
+  let html = `<span style="color:var(--gold);font-style:italic">${opening}</span><br><br>`;
+  lines.forEach(l => {
+    const cls = l.player === 'razan' ? 'razan-part' : 'dara-part';
+    const name = l.player === 'razan' ? 'Razan' : 'Dara';
+    html += `<span class="${cls}">[${name}]</span> ${l.text}<br>`;
+  });
+  storyEl.innerHTML = html;
+
+  confetti(50);
+
+  // Scroll result to top
+  setTimeout(() => {
+    document.getElementById('s-result').querySelector('.result-scroll').scrollTop = 0;
+  }, 100);
+}
+
+// Enter to send
+document.getElementById('story-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendLine(); }
+});
+
+function confetti(n) {
+  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
+}
+</script>
+</body>
+</html>
