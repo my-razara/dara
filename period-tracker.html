@@ -408,6 +408,22 @@
   </button>
 </div>
 
+<!-- CHOICE OVERLAY -->
+<div id="choice-overlay" onclick="handleChoiceOverlay(event)" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(45,31,26,.45);backdrop-filter:blur(5px);align-items:flex-end;justify-content:center;padding:1rem">
+  <div style="background:var(--cream);border-radius:24px 24px 20px 20px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 -4px 40px rgba(45,31,26,.15)">
+    <div style="width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto .75rem"></div>
+    <p style="font-size:14px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:.25rem">Tandai Hari Ini</p>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:1.1rem" id="choice-date-label">2 Agustus</p>
+    <button onclick="choiceContinue()" style="width:100%;padding:.9rem;border-radius:14px;border:none;cursor:pointer;background:rgba(229,115,115,.12);color:#c62828;font-size:14px;font-weight:700;margin-bottom:.5rem;font-family:'Poppins',sans-serif;text-align:left;padding-left:1rem">
+      🩸 Masih haid <span style="font-size:11px;font-weight:400;color:#e57373;display:block">Lanjutkan haid dari siklus sebelumnya</span>
+    </button>
+    <button onclick="choiceNew()" style="width:100%;padding:.9rem;border-radius:14px;border:none;cursor:pointer;background:rgba(193,122,111,.08);color:var(--rose);font-size:14px;font-weight:700;margin-bottom:.5rem;font-family:'Poppins',sans-serif;text-align:left;padding-left:1rem">
+      🌸 Mulai siklus baru <span style="font-size:11px;font-weight:400;color:var(--muted);display:block">Catat sebagai haid baru</span>
+    </button>
+    <button onclick="closeChoice()" style="width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Poppins',sans-serif">Batal</button>
+  </div>
+</div>
+
 <!-- LOG SHEET -->
 <div id="log-overlay" onclick="handleOverlay(event)">
   <div class="log-sheet">
@@ -773,7 +789,58 @@ function renderCalendar(){
 }
 
 // ── LOG ──
+let _pendingDateStr = '';
+
 function openLog(dateStr){
+  _pendingDateStr = dateStr;
+  const last = cycles.length ? cycles[cycles.length-1] : null;
+
+  // Check if there's an active cycle (no end date or end date >= dateStr)
+  const hasActiveCycle = last && (!last.end || last.end >= dateStr);
+  // Check if dateStr is after or equal to last start
+  const isAfterLastStart = last && dateStr > last.start;
+  // Check if dateStr is within reasonable range of last cycle (within 14 days)
+  const daysSinceLastStart = last ? diffD(fromStr(last.start), fromStr(dateStr)) : 999;
+
+  if(last && isAfterLastStart && daysSinceLastStart <= 14 && (!last.end || last.end >= dateStr || daysSinceLastStart <= 10)){
+    // Show choice: continue or new
+    const d = fromStr(dateStr);
+    document.getElementById('choice-date-label').textContent =
+      d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('choice-overlay').style.display = 'flex';
+  } else {
+    // Directly open as new cycle
+    openLogForm(dateStr, false);
+  }
+}
+
+function choiceContinue(){
+  closeChoice();
+  // Update end date of last cycle
+  const last = cycles[cycles.length-1];
+  if(last){
+    last.end = _pendingDateStr;
+    saveToSheets();
+    renderCalendar();
+    renderHome();
+    showToast('Hari haid diperbarui 🌸');
+  }
+}
+
+function choiceNew(){
+  closeChoice();
+  openLogForm(_pendingDateStr, false);
+}
+
+function closeChoice(){
+  document.getElementById('choice-overlay').style.display = 'none';
+}
+
+function handleChoiceOverlay(e){
+  if(e.target===document.getElementById('choice-overlay'))closeChoice();
+}
+
+function openLogForm(dateStr, isEdit){
   document.getElementById('ls-start').value=dateStr;
   document.getElementById('ls-end').value='';
   document.getElementById('ls-date-label').textContent=`Tanggal: ${dateStr}`;
