@@ -464,40 +464,62 @@ const GS_URL='https://script.google.com/macros/s/AKfycbwxqc1oPn30mM-EG8cHfX-cEIJ
 let cycles=[];
 let isSaving=false;
 
-async function loadFromSheets(){
-  try{
-    showToast('Memuat data...');
-    const res=await fetch(GS_URL+'?action=getAll');
-    const rows=await res.json();
-    cycles=rows.filter(r=>r[0]&&r[0]!=='').map(r=>({
-      start:r[0],
-      end:r[1]||null,
-      mood:r[2]||'',
-      flow:r[3]||'',
-      syms:r[4]?r[4].split(',').filter(Boolean):[],
-    }));
-    cycles.sort((a,b)=>a.start.localeCompare(b.start));
-    renderHome();renderCalendar();
-    document.querySelectorAll('.toast').forEach(e=>e.remove());
-  }catch(err){
-    showToast('Gagal muat data — cek koneksi internet');
-    console.error(err);
+function xhrGet(url,cb){
+  const xhr=new XMLHttpRequest();
+  xhr.open('GET',url,true);
+  xhr.onload=function(){try{cb(null,JSON.parse(xhr.responseText));}catch(e){cb(e);}};
+  xhr.onerror=function(){cb(new Error('err'));};
+  xhr.send();
+}
+function xhrPost(url,body,cb){
+  const xhr=new XMLHttpRequest();
+  xhr.open('POST',url,true);
+  xhr.setRequestHeader('Content-Type','text/plain');
+  xhr.onload=function(){try{cb(null,JSON.parse(xhr.responseText));}catch(e){cb(e);}};
+  xhr.onerror=function(){cb(new Error('err'));};
+  xhr.send(JSON.stringify(body));
+}
+function normalizeDate(val){
+  if(!val)return null;
+  const s=String(val);
+  // If it's a full ISO string like 2026-08-02T00:00:00.000Z, extract date in local time
+  if(s.length>10&&s.includes('T')){
+    const d=new Date(s);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
+  // Already YYYY-MM-DD
+  return s.substring(0,10);
+}
+async function loadFromSheets(){
+  return new Promise((resolve)=>{
+    showToast('Memuat data...');
+    xhrGet(GS_URL+'?action=getAll',(err,rows)=>{
+      if(err||!rows){showToast('Gagal muat data — cek koneksi internet');resolve();return;}
+      cycles=rows.filter(r=>r[0]&&r[0]!=='').map(r=>({
+        start:normalizeDate(r[0]),
+        end:normalizeDate(r[1])||null,
+        mood:r[2]||'',
+        flow:r[3]||'',
+        syms:r[4]?String(r[4]).split(',').filter(Boolean):[],
+      }));
+      cycles.sort((a,b)=>a.start.localeCompare(b.start));
+      renderHome();renderCalendar();
+      document.querySelectorAll('.toast').forEach(e=>e.remove());
+      resolve();
+    });
+  });
 }
 
 async function saveToSheets(){
   if(isSaving)return;
   isSaving=true;
-  try{
-    await fetch(GS_URL,{
-      method:'POST',
-      body:JSON.stringify({action:'save',cycles}),
+  return new Promise((resolve)=>{
+    xhrPost(GS_URL,{action:'save',cycles},(err,res)=>{
+      if(err)showToast('Gagal simpan — cek koneksi internet');
+      isSaving=false;
+      resolve();
     });
-  }catch(err){
-    showToast('Gagal simpan — cek koneksi internet');
-    console.error(err);
-  }
-  isSaving=false;
+  });
 }
 
 async function deleteFromSheets(start){
