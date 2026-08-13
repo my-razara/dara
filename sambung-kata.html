@@ -102,6 +102,17 @@
   .submit-word-btn:active{transform:scale(.95)}
   .submit-word-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
 
+  .protest-btn{
+    padding:.5rem 1rem;border-radius:50px;
+    border:1.5px solid rgba(229,115,115,.3);
+    background:rgba(229,115,115,.08);
+    color:rgba(229,115,115,.7);font-size:11px;font-weight:700;
+    cursor:pointer;font-family:'Poppins',sans-serif;
+    transition:all .15s;margin-top:.3rem;display:none;
+  }
+  .protest-btn:active{background:rgba(229,115,115,.2);transform:scale(.95)}
+  .protest-btn.show{display:block}
+
   /* Mirror line */
   .mirror-line{height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.1),transparent);flex-shrink:0}
 
@@ -226,6 +237,7 @@
           placeholder="Kata kamu..." autocomplete="off" autocorrect="off"
           autocapitalize="characters" spellcheck="false" disabled>
         <button class="submit-word-btn" id="btn-dara" onclick="submitWord('dara')" disabled>Kirim →</button>
+        <button class="protest-btn" id="protest-dara" onclick="protest('dara')">🙅 Protes!</button>
       </div>
     </div>
 
@@ -240,6 +252,7 @@
           placeholder="Kata kamu..." autocomplete="off" autocorrect="off"
           autocapitalize="characters" spellcheck="false" disabled>
         <button class="submit-word-btn" id="btn-razan" onclick="submitWord('razan')" disabled>Kirim →</button>
+        <button class="protest-btn" id="protest-razan" onclick="protest('razan')">🙅 Protes!</button>
       </div>
     </div>
   </div>
@@ -271,6 +284,20 @@
 </div>
 
 <script>
+const KBBI = new Set(["abad", "abadi", "abah", "abai", "abang", "abar", "abdi", "abdomen", "absen", "abstrak", "abu", "abuabu", "acar", "acara", "acuan", "acuh", "ada", "adab", "adapun", "adegan", "adik", "adil", "adinda", "adobe", "adopsi", "adrenalin", "adu", "aduk", "afeksi", "agak", "agaknya", "agama", "agar", "agen", "agraria", "agresi", "agresif", "agribisnis", "agung", "agustus", "ahli", "air", "ajak", "ajal", "ajar", "akademi", "akal", "akan", "akar", "akhir", "akhirnya", "akrab", "aksara", "aksi", "aktif", "aktual", "aku", "akurasi", "alam", "alat", "album", "albumin", "alfabet", "algi", "algoritma", "aliansi", "alih", "alir", "alokasi", "altar", "alternatif", "alumni", "alun", "aman", "amanah", "amarah", "amat", "ambang", "ambigu", "ambil", "ambisi", "ambruk", "amin", "amoeba", "amplop", "ampun", "anak", "analisis", "analogi", "anatomi", "ancaman", "anda", "aneh", "aneka", "aneksasi", "anggrek", "anggur", "angin", "angka", "angkat", "angkot", "angkuh", "animasi", "anjing", "ankasa", "anomali", "antar", "antara", "antartika", "antrean", "anyam", "apa", "apabila", "aparat", "apartemen", "apel", "api", "apresiasi", "april", "apung", "arah", "arahan", "arak", "arang", "arca", "argumen", "arif", "aristokrat", "aroma", "arsitek", "artifisial", "asa", "asah", "asal", "asam", "asap", "aset", "asik", "asin", "asing", "asisten", "asli", "asosiasi", "aspirasi", "asuh", "asuransi", "atap", "atas", "atau", "ateisme", "atribut", "atur", "aturan", "audit", "auditif", "autentik", "automotif", "avokad", "awak", "awal", "awam", "awan", "awas", "ayam", "ayat", "ayo", "ayok", "ayun", "azimut", "babak", "babi", "babu", "baca", "badai", "bagai", "bagaimana", "bagang", "bagi", "bagus", "bahagia", "bahan", "bahana", "bahari", "bahasa", "bahaya", "bahkan", "bahu", "baik", "baju", "bakar", "bakau", "baked", "baki", "bakmi", "bakso", "bakteri", "bakti", "baku", "bala", "balada", "balast", "balik", "balkon", "balon", "bambu", "banana", "banci", "bandara", "bangga", "bangkit", "bangsa", "bangun", "banir", "banjir", "bank", "bantal", "banteng", "bantu", "banyak", "bapak", "barangkali", "barat", "baring", "baris", "barisan", "barista", "baru", "basah", "basi", "batang", "batas", "batasan", "baterai", "batik", "batu", "bau", "bawa", "bawah", "bawahan", "bawang", "bayam", "bayar", "bayi", "beban", "bebas", "bebek", "becak", "beda", "bedak", "begal", "begini", "begitu", "beige", "bekal", "bekerja", "beku", "belajar", "belantara", "belas", "belati", "belenggu", "beli", "belok", "belum", "benang", "benar", "benci", "benda", "bendera", "benih", "bensin", "berang", "beras", "berat", "berbaring", "berbelanja", "berbicara", "berdiri", "berhasil", "beristirahat", "berita", "berjalan", "berlibur", "bermain", "bersama", "bersih", "bertemu", "besar", "besok", "biar", "biasa", "bibir", "bicara", "bijak", "biji", "bilang", "bilik", "bimbang", "bingung", "bioteknologi", "biru", "bisa", "bocah", "bocor", "bodoh", "bohemian", "bohong", "boikot", "boleh", "bolong", "boros", "bosan", "bosanpada", "botani", "botol", "branding", "brigadir", "buah", "buang", "buat", "bubur", "budak", "budaya", "bujuk", "bukan", "bukit", "bukti", "buku", "bulan", "bulat", "bulu", "bumbu", "buncis", "bunda", "bunga", "bungkus", "buruk", "burung", "bus", "busuk", "butuh", "cabai", "cabang", "cacar", "cacat", "cafe", "cahaya", "cair", "cairan", "cakap", "cakupan", "calon", "camar", "campak", "campur", "canda", "canggung", "cangkul", "cantik", "capai", "capek", "cara", "cari", "catur", "cebol", "cedera", "cegah", "celana", "cemas", "cemburu", "cendana", "cendawan", "cepat", "cerah", "cerai", "ceri", "cerita", "cerutu", "cetakan", "chat", "cicak", "cincang", "cincin", "cinta", "cipta", "ciptaan", "cita", "citizen", "civitas", "coba", "cocok", "coklat", "congkak", "contoh", "corak", "coret", "cuaca", "cuci", "cucian", "cukup", "cukur", "curi", "dada", "daftar", "daging", "dahan", "dahi", "dahlia", "dalam", "damai", "dan", "danau", "dapur", "darah", "darat", "dari", "darimana", "daring", "darurat", "dasar", "data", "datang", "datar", "dataran", "daun", "daur", "daya", "debu", "dedaunan", "dedikasi", "degradasi", "dekat", "deklarasi", "delapan", "demam", "demi", "demolisi", "dendam", "dengan", "dengar", "dental", "depan", "depo", "derita", "desa", "desainer", "desak", "desember", "desentralisasi", "detik", "dewan", "di", "dia", "dialog", "diaspora", "digital", "dikotomi", "dilema", "dimana", "dimensi", "dinamis", "dinding", "dingin", "diplomasi", "direktur", "diri", "disiplin", "diskriminasi", "distribusi", "doa", "dodol", "dokter", "doktrin", "domba", "domestik", "dominan", "dompet", "dongeng", "dorong", "dosen", "drastis", "dua", "duduk", "duka", "duku", "dukun", "dunia", "durian", "dusun", "edukasi", "efektif", "efisien", "ekologi", "ekor", "eksekutif", "eksistensi", "ekspansi", "ekspedisi", "ekspresi", "ekstensi", "elaborasi", "elang", "elastis", "elegan", "email", "emas", "embargo", "emosi", "empat", "empati", "empiris", "enak", "enam", "encok", "endemi", "energi", "enjoy", "enkripsi", "epidemi", "episodik", "erosi", "eskalator", "estetika", "etika", "evaluasi", "evaporasi", "evolusi", "faham", "fajar", "fakir", "fakta", "faktor", "faktur", "fana", "fantasi", "fasih", "fatwa", "februari", "fenomena", "fermentasi", "figur", "fiksi", "filosofi", "fisika", "fiskal", "flat", "fleksibel", "fluktuasi", "fondasi", "formal", "formasi", "foto", "fragmentasi", "frasa", "frekuensi", "fried", "fundamental", "fungsi", "gabung", "gadis", "gado", "gagah", "gagal", "gagasan", "gairah", "gajah", "galak", "galaksi", "galau", "gambar", "ganteng", "garasi", "garuda", "gelang", "gelap", "gelisah", "gembira", "gempa", "gemuk", "generasi", "generik", "geologi", "geometri", "gerak", "gerakan", "gerimis", "getaran", "getir", "giat", "gigi", "gigih", "gigit", "glasir", "global", "goblin", "gojek", "gold", "goreng", "gorila", "gosip", "gosok", "grab", "gradasi", "gravitasi", "grilled", "grogi", "gulai", "guling", "guna", "gunung", "gurih", "guru", "guruh", "hadap", "hadiah", "hak", "hakikat", "hal", "halal", "halo", "haluskan", "hambar", "hambatan", "hamster", "handphone", "hangat", "harap", "harga", "hari", "harimau", "harmoni", "harmonika", "harum", "harus", "hasil", "hasrat", "hati", "hebat", "hemat", "hembusan", "heran", "hibah", "hidrasi", "hidung", "hidup", "hierarki", "hijau", "hilang", "hipnosis", "hipotesis", "histori", "hitam", "holistik", "hormat", "horor", "hotel", "hujan", "humanis", "humus", "huni", "hunian", "hutan", "hutang", "hybrid", "ibu", "idealis", "identitas", "ideologi", "iguana", "ihwal", "ikan", "ikhlas", "ikhtiar", "ikut", "ilmu", "ilustrasi", "imajinatif", "iman", "imbal", "imigrasi", "implementasi", "impor", "indah", "info", "informasi", "ini", "inisiatif", "inkubasi", "inovasi", "inovatif", "insentif", "inspektur", "inspirasi", "instalasi", "integrasi", "integritas", "interaksi", "intim", "investasi", "irama", "iri", "iris", "isolasi", "istimewa", "isyarat", "iterasi", "itu", "ivory", "iya", "jadi", "jadwal", "jaga", "jagat", "jagung", "jalan", "jam", "jambu", "janji", "jantung", "januari", "jarang", "jasa", "jauh", "jawab", "jeda", "jejak", "jelas", "jelek", "jendela", "jengkel", "jenis", "jerapah", "jeruk", "jika", "jilid", "jingga", "jiwa", "jual", "juara", "juga", "jujur", "juli", "jumat", "juni", "jurang", "jurnal", "justru", "kabar", "kabinet", "kabupaten", "kacamata", "kafein", "kaget", "kagum", "kaki", "kala", "kalah", "kalan", "kalau", "kalibrasi", "kalimat", "kalung", "kamar", "kambing", "kamboja", "kamera", "kamis", "kampung", "kamu", "kanan", "kancil", "kangen", "kangkung", "kantor", "kapal", "kapan", "kapasitas", "karakter", "karang", "karena", "karir", "kartu", "karya", "kasih", "kata", "kategori", "kawan", "kawasan", "ke", "keberanian", "keberhasilan", "keberlanjutan", "kebijakan", "kebun", "kecambah", "kecap", "kecenderungan", "kecewa", "kecil", "kecuali", "kedua", "keempat", "kehidupan", "kejujuran", "kelelawar", "kelima", "kelinci", "kemampuan", "kemana", "kemanusiaan", "kemarin", "kemasan", "kemudian", "kenapa", "kentang", "kepala", "kepatuhan", "kepercayaan", "kepribadian", "keputusan", "kera", "kerang", "kerangka", "keras", "kereta", "kering", "kerja", "kerjasama", "kerupuk", "kesadaran", "kesal", "kesehatan", "keterlibatan", "ketiga", "ketika", "ketimpangan", "ketuhanan", "keuangan", "keunikan", "kewenangan", "kewirausahaan", "khawatir", "kikir", "kikuk", "kilat", "kirakira", "kiranya", "kiri", "kirim", "kisah", "kita", "klaim", "klausul", "klien", "kluster", "kodifikasi", "koherensi", "kolaborasi", "kolam", "komitmen", "kompensasi", "kompetisi", "kompleks", "komputer", "komunikasi", "kondisi", "konflik", "konsekuensi", "konsep", "konsisten", "konsolidasi", "konstitusi", "konteks", "kontrak", "kontrol", "konveksi", "koordinasi", "korelasi", "koridor", "korupsi", "kosong", "kota", "kotor", "kreasi", "kreatif", "kreativitas", "krem", "krisis", "kritis", "kuat", "kucing", "kuda", "kukus", "kuliah", "kultur", "kunci", "kuning", "kurakura", "kursi", "laboratorium", "labu", "lacak", "ladang", "lagi", "lagu", "lahir", "lalu", "lama", "lambat", "langit", "langkah", "lantai", "lapar", "laporan", "laptop", "lara", "lari", "latih", "latihan", "lauk", "laut", "lavender", "layanan", "leci", "lega", "legenda", "legislasi", "leher", "lelang", "lemahnya", "lembab", "lembah", "lembut", "lepas", "leverage", "lewat", "lezat", "liberalisasi", "lidah", "lift", "lihat", "lima", "lincah", "lingkar", "lisensi", "literasi", "lobak", "logika", "logistik", "lompat", "loncat", "lorong", "loyalitas", "luar", "luas", "lucu", "lumpur", "lupa", "maaf", "maafkan", "macan", "magenta", "makan", "makna", "maksimal", "malah", "malam", "malas", "mall", "malu", "mampu", "mana", "manajemen", "mandi", "manfaat", "mangga", "manifesto", "manis", "manja", "mantap", "marah", "maret", "margin", "mari", "marmot", "maroon", "masa", "masak", "masalah", "masing", "masuk", "matahari", "materi", "mati", "mau", "mawar", "mei", "meja", "mekanisme", "melati", "melihat", "melon", "melukis", "melupakan", "memahami", "membosankan", "memikirkan", "menang", "menari", "menarik", "mencium", "mendengar", "mendung", "mengajar", "mengenai", "mengerti", "mengingat", "menit", "mentor", "menyanyi", "menyerah", "menyesal", "meraba", "merah", "merasakan", "mereka", "meskipun", "mesra", "metode", "metodologi", "mewah", "mewarnai", "mie", "migran", "minggu", "minta", "minum", "misi", "mitigasi", "mobil", "model", "moderasi", "mohon", "monopoli", "monoton", "monyet", "motivasi", "motor", "muda", "mudah", "mulai", "mulut", "mungkin", "murah", "muram", "murung", "musik", "musuh", "nada", "naik", "nama", "namun", "nanas", "nangka", "nanti", "narasi", "nasi", "naskah", "navigasi", "navy", "negara", "negosiasi", "neoliberal", "nervous", "nestapa", "netral", "ngarai", "nih", "nikmat", "nil", "nilai", "norma", "normal", "notasi", "november", "nuklear", "nyaman", "objektif", "observasi", "ojek", "oke", "oktober", "okultisme", "oleh", "ombak", "omnibus", "operasional", "opini", "opor", "optimasi", "optimis", "orang", "oranye", "orientasi", "oseng", "otonomi", "pada", "padahal", "padi", "pagi", "pahit", "pakai", "panas", "pandai", "pangan", "panggang", "panggil", "panggung", "panjang", "pantai", "pantang", "papan", "paradigma", "pare", "pariwisata", "partai", "partisipasi", "paru", "pasang", "pasar", "pasif", "pasir", "pasti", "patriot", "patron", "paus", "pedagang", "pedas", "peduli", "pegang", "pelabuhan", "pelan", "pelatihan", "pemuda", "pencegahan", "pendek", "pengadaan", "pengalaman", "pengaturan", "pengetahuan", "penuh", "pepaya", "perak", "peraturan", "percaya", "perdagangan", "perencanaan", "performa", "pergi", "perihal", "perizinan", "perlu", "permintaan", "pernah", "perpajakan", "persaingan", "persatuan", "pertama", "pertumbuhan", "perubahan", "perut", "pesan", "pesawat", "peserta", "petir", "petunjuk", "pikir", "pilih", "pindang", "pinggang", "pinjam", "pinjaman", "pink", "pintar", "pintu", "pipi", "pisang", "pitam", "platform", "plaza", "pohon", "poin", "populasi", "posisi", "potensi", "potong", "praktis", "prinsip", "printer", "prioritas", "privatisasi", "produktif", "produktivitas", "profesi", "profesional", "program", "progres", "proses", "protokol", "provinsi", "provisioner", "proyek", "puas", "publik", "pulang", "puluh", "punggung", "punya", "pusing", "putih", "putus", "rabu", "radio", "ragu", "rajin", "ramai", "rambut", "rambutan", "ranting", "rapat", "rasa", "rasio", "rasional", "rawa", "raya", "realisasi", "rebus", "refleksi", "reformasi", "regulasi", "rehabilitasi", "reinvestasi", "rejimen", "rekrutmen", "relasi", "relevan", "rendah", "rendang", "reputasi", "resiliensi", "respon", "restoran", "restrukturisasi", "rezim", "riang", "rileks", "rindu", "ringan", "riset", "risiko", "ritme", "ritual", "romantis", "ruang", "rujak", "rumah", "rupanya", "rusak", "saat", "sabar", "sabtu", "sakit", "sakura", "salah", "salak", "sama", "samasama", "sambil", "sampai", "sana", "sandal", "sangat", "sanggup", "santai", "santunan", "sapi", "sasaran", "sate", "satu", "sawah", "sawo", "saya", "sayang", "sayur", "scanner", "sebab", "sebaliknya", "sebelas", "sebelum", "sedangkan", "sedap", "sedih", "sedikit", "segar", "segera", "segregasi", "sehat", "seiring", "sejarah", "sejuta", "sekali", "sekarang", "sekolah", "sektoral", "selada", "selagi", "selain", "selalu", "selasa", "seledri", "seluruh", "semangat", "semangka", "sembari", "sembilan", "sementara", "semesta", "semiliar", "sempat", "sempit", "semua", "semut", "senang", "sendiri", "senin", "sentralisasi", "sepat", "sepatu", "sepeda", "seperti", "sepi", "september", "sepuluh", "seratus", "seraya", "seribu", "serius", "serta", "seru", "servis", "sesal", "seseorang", "sesuatu", "setelah", "setia", "setiap", "sewaktu", "siap", "siapa", "sibuk", "signifikan", "sikap", "sikat", "siku", "silakan", "silver", "simpan", "simpanse", "simulasi", "sinar", "sinergi", "singa", "singkong", "sini", "sip", "sisir", "sistem", "situ", "situasi", "skema", "skenario", "skor", "soal", "solusi", "sombong", "sorry", "sosialisasi", "soto", "speaker", "spekulasi", "spesial", "spontan", "stabilitas", "standar", "standarisasi", "stasiun", "steam", "stimulus", "strategi", "stress", "stroberi", "struktur", "suara", "subsidi", "sudah", "suka", "sukses", "sulit", "sumber", "sungai", "sungkan", "supaya", "supremasi", "surat", "survei", "susah", "sustainabilitas", "tablet", "tahu", "tahun", "tajam", "takjub", "taktik", "takut", "talas", "taman", "tampan", "tanah", "tangan", "tangga", "tanggung", "tanya", "tapi", "target", "tarik", "taruh", "tas", "tata", "tawar", "taxi", "tebal", "tebing", "teknik", "teknologi", "tekun", "telekomunikasi", "telentang", "televisi", "telinga", "teman", "tempat", "tempe", "tempo", "tenang", "tender", "tengkurap", "tengok", "tentang", "tentram", "tentu", "tepat", "terakhir", "terang", "teras", "tercengang", "terik", "terima", "teritori", "terkejut", "terlalu", "ternyata", "terong", "terumbu", "tetapi", "tiap", "tidak", "tidur", "tiga", "timun", "tindakan", "tinggal", "tinggi", "tipis", "tobat", "toko", "tol", "toleransi", "tolong", "tomat", "tosca", "tradisi", "traktat", "transformasi", "transisi", "transmisi", "transparan", "transparansi", "trauma", "tua", "tugas", "tuh", "tuju", "tujuan", "tujuh", "tulip", "tulis", "tulus", "tumbuh", "tumis", "tunas", "tunggu", "tupai", "turquoise", "turun", "ubah", "ubi", "udang", "udara", "ujaran", "ujian", "ukur", "ulang", "ular", "umum", "ungu", "unik", "universal", "untuk", "untung", "urus", "usaha", "utama", "utan", "utuh", "validasi", "variabel", "verifikasi", "video", "violet", "visi", "volatilitas", "vulnerabilitas", "wajar", "wajib", "wakili", "waktu", "walaupun", "wangi", "warna", "warung", "wawasan", "wortel", "ya", "yakin", "yuk", "zakat", "zaman", "zebra"]);
+
+function isValidWord(word) {
+  word = word.toLowerCase().trim();
+  // Check in KBBI set
+  if (KBBI.has(word)) return true;
+  // Also accept words that look Indonesian (min 2 chars, only letters)
+  if (/^[a-z]{2,}$/.test(word) && word.length >= 3) {
+    // Soft validation - warn but allow if not in list
+    return null; // means "not found but could be valid"
+  }
+  return false;
+}
+
 const PUNISHMENTS = [
   'Kasih ciuman di pipi lawan sekarang! 😘',
   'Peluk lawan 30 detik tanpa boleh lepas! 🤗',
@@ -409,6 +436,20 @@ function submitWord(player) {
     }
   }
 
+  // Validate against KBBI
+  const valid = isValidWord(word);
+  if (valid === false) {
+    flashError(player);
+    showToast('Bukan kata Indonesia! Coba lagi 🇮🇩');
+    input.value = '';
+    input.focus();
+    return;
+  }
+  if (valid === null) {
+    // Not in database, show warning but allow
+    showToast('⚠️ Kata ini mungkin tidak baku — lawan bisa protes!');
+  }
+
   // Check duplicate
   if (usedWords.has(word)) {
     flashError(player);
@@ -429,6 +470,15 @@ function submitWord(player) {
   // Update scores
   document.getElementById('score-r').textContent = scores.razan;
   document.getElementById('score-d').textContent = scores.dara;
+
+  // Show protest button for opponent
+  const opponent = player === 'razan' ? 'dara' : 'razan';
+  document.getElementById('protest-razan').classList.remove('show');
+  document.getElementById('protest-dara').classList.remove('show');
+  if (valid === null) {
+    // Word might not be baku - show protest btn for opponent
+    document.getElementById('protest-' + opponent).classList.add('show');
+  }
 
   // Switch player
   currentPlayer = player === 'razan' ? 'dara' : 'razan';
@@ -459,6 +509,7 @@ function endGame(loser, reason) {
 
   let sub;
   if (reason === 'timeout') sub = `Waktu habis — ${loserName} ga bisa nemuin kata! Kena hukuman 😈`;
+  else if (reason === 'protest') sub = `${loserName} pakai kata yang diprotes lawan — kena hukuman! 😈`;
   else sub = `${loserName} salah kata — kena hukuman! 😈`;
 
   document.getElementById('res-icon').textContent = '💀';
@@ -482,6 +533,16 @@ function endGame(loser, reason) {
     if (e.key === 'Enter') submitWord(p);
   });
 });
+
+function protest(protestor) {
+  // Protestor says last word is invalid
+  // The OTHER player loses (the one who submitted the word)
+  const loser = protestor === 'razan' ? 'dara' : 'razan';
+  // Hide protest buttons
+  document.getElementById('protest-razan').classList.remove('show');
+  document.getElementById('protest-dara').classList.remove('show');
+  endGame(loser, 'protest');
+}
 
 let toastTimeout;
 function showToast(msg) {
