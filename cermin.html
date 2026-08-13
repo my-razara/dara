@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cermin 🪞</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#0a0a14}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:linear-gradient(160deg,#0a0a14,#0d1220)}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 40% 30%,rgba(193,122,111,.15),transparent 55%),
+    radial-gradient(ellipse at 70% 70%,rgba(201,169,110,.1),transparent 55%);
+    pointer-events:none}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:var(--gold)}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
+  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#c9a96e,#c17a6f);color:#fff;box-shadow:0 4px 18px rgba(201,169,110,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97)}
+
+  /* ── PICK LEADER ── */
+  #s-pick{background:linear-gradient(160deg,#0a0a14,#0d1220);padding:1.5rem}
+  #s-pick::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 50% 40%,rgba(201,169,110,.12),transparent 60%);
+    pointer-events:none}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);line-height:1.65;max-width:280px;margin:.35rem auto 1.5rem;position:relative;z-index:1}
+  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;text-align:left;display:flex;align-items:center;gap:.85rem}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.1)}
+  .pick-btn-icon{font-size:2rem;flex-shrink:0}
+  .pick-btn-info{}
+  .pick-btn-name{font-size:14px;font-weight:700;color:#fff;display:block}
+  .pick-btn-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:.15rem;display:block}
+
+  /* ── GAME ── */
+  #s-game{padding:0;background:#050510}
+
+  /* Split — Dara atas (terbalik), Razan bawah */
+  .game-wrap{position:fixed;inset:0;display:flex;flex-direction:column}
+
+  /* Mirror line */
+  .mirror-line{height:3px;background:linear-gradient(to right,transparent,rgba(201,169,110,.6),transparent);flex-shrink:0;position:relative;z-index:20}
+  .mirror-icon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.2rem;background:#050510;padding:0 .4rem}
+
+  /* Player half */
+  .half{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .half.top{transform:scaleY(-1)} /* mirrored */
+  .half.top .half-inner{transform:scaleY(-1)} /* flip content back */
+
+  .half-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1rem;width:100%}
+  .half-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.3)}
+  .half-role{font-size:11px;font-weight:600;padding:.25rem .75rem;border-radius:50px;display:inline-block}
+  .half-role.leader{background:rgba(201,169,110,.2);color:var(--gold);border:1px solid rgba(201,169,110,.3)}
+  .half-role.mirror{background:rgba(193,122,111,.15);color:var(--rose);border:1px solid rgba(193,122,111,.3)}
+
+  /* Instruction card */
+  .instr-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:1rem 1.25rem;text-align:center;max-width:280px;width:90%}
+  .instr-emoji{font-size:2rem;display:block;margin-bottom:.4rem}
+  .instr-text{font-size:clamp(13px,4vw,15px);font-weight:600;color:#fff;line-height:1.45}
+  .instr-text.animate{animation:instrin .35s cubic-bezier(.34,1.2,.64,1)}
+  @keyframes instrin{from{transform:scale(.85) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+  /* Timer bar */
+  .timer-bar-wrap{width:80%;max-width:240px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+  .timer-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .1s linear}
+  .timer-bar-fill.danger{background:#e57373}
+
+  /* Score & round */
+  .round-badge{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em}
+
+  /* Laugh btn */
+  .laugh-btn{
+    padding:.75rem 1.5rem;border-radius:50px;border:1.5px solid rgba(229,115,115,.4);
+    background:rgba(229,115,115,.1);color:#e57373;
+    font-size:13px;font-weight:700;cursor:pointer;
+    font-family:'Poppins',sans-serif;transition:all .15s;
+  }
+  .laugh-btn:active{background:rgba(229,115,115,.25);transform:scale(.95)}
+
+  /* Score bar top */
+  .score-bar{position:fixed;top:0;left:0;right:0;z-index:30;padding:.4rem 1rem;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,16,.8);backdrop-filter:blur(6px)}
+  .sb-player{font-size:11px;font-weight:700;color:rgba(255,255,255,.6)}
+  .sb-score{font-size:1.2rem;font-weight:700;color:#fff}
+  .sb-round{font-size:10px;color:rgba(255,255,255,.35)}
+
+  /* Next btn overlay */
+  #next-overlay{display:none;position:fixed;inset:0;z-index:40;background:rgba(5,5,16,.85);backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center}
+  .next-icon{font-size:3rem;display:block;margin-bottom:.75rem;animation:popIn .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes popIn{from{transform:scale(.3) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  .next-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .next-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.25rem}
+  .next-btn{width:100%;max-width:320px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#c9a96e,#c17a6f);color:#fff;font-family:'Poppins',sans-serif;transition:all .15s}
+  .next-btn:active{transform:scale(.97)}
+
+  /* ── RESULT ── */
+  #s-result{background:linear-gradient(160deg,#0a0a14,#0d1220)}
+  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(201,169,110,.15),transparent 60%);pointer-events:none}
+  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .end-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .end-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.35rem auto 1.25rem;position:relative;z-index:1}
+  .end-score-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.25rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;width:100%;max-width:360px;position:relative;z-index:1}
+  .es-av{font-size:1.5rem;display:block;margin-bottom:.2rem}
+  .es-nm{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .es-sc{font-size:2.4rem;font-weight:700;color:var(--gold);display:block}
+  .es-vs{color:rgba(255,255,255,.2)}
+  .end-verdict{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.2);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.5rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-verdict strong{color:var(--gold)}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btn-p{background:linear-gradient(135deg,#c9a96e,#c17a6f);color:#fff}
+  .end-btn-p:active{transform:scale(.97)}
+  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🪞</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Game <span>Cermin</span></h1>
+  <p class="intro-sub">Tiru gerakan lawan persis seperti cermin — yang pertama ketawa atau salah, kalah! 😄</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot"></span>Pemimpin dapat instruksi gerakan — lakukan!</div>
+    <div class="rule"><span class="rule-dot"></span>Cermin harus tiru persis — sambil saling tatap</div>
+    <div class="rule"><span class="rule-dot"></span>Yang pertama ketawa atau salah tiru — tap "Dia Ketawa!" di sisimu</div>
+    <div class="rule"><span class="rule-dot"></span>10 ronde — siapa yang paling banyak menahan diri menang 😏</div>
+  </div>
+  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 🪞</button>
+</div>
+
+<!-- PICK LEADER -->
+<div id="s-pick" class="screen">
+  <span style="font-size:2rem;display:block;margin-bottom:1rem;position:relative;z-index:1">🪞</span>
+  <p class="pick-title">Siapa Pemimpin Ronde Pertama?</p>
+  <p class="pick-sub">Pemimpin yang dapat instruksi — Cermin yang harus tiru. Gantian tiap ronde!</p>
+  <div class="pick-btns">
+    <div class="pick-btn" onclick="startGame('razan')">
+      <span class="pick-btn-icon">🧑</span>
+      <div class="pick-btn-info">
+        <span class="pick-btn-name">Razan duluan</span>
+        <span class="pick-btn-sub">Razan jadi Pemimpin, Dara jadi Cermin</span>
+      </div>
+    </div>
+    <div class="pick-btn" onclick="startGame('dara')">
+      <span class="pick-btn-icon">👧</span>
+      <div class="pick-btn-info">
+        <span class="pick-btn-name">Dara duluan</span>
+        <span class="pick-btn-sub">Dara jadi Pemimpin, Razan jadi Cermin</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <!-- Score bar -->
+  <div class="score-bar">
+    <div>
+      <div class="sb-player">🧑 Razan</div>
+      <div class="sb-score" id="score-r">0</div>
+    </div>
+    <div class="sb-round" id="round-label">Ronde 1/10</div>
+    <div style="text-align:right">
+      <div class="sb-player">Dara 👧</div>
+      <div class="sb-score" id="score-d">0</div>
+    </div>
+  </div>
+
+  <div class="game-wrap" style="padding-top:48px">
+    <!-- Top half (Dara) — mirrored -->
+    <div class="half top" id="half-top">
+      <div class="half-inner">
+        <span class="half-label" id="top-label">Dara</span>
+        <span class="half-role mirror" id="top-role">🪞 Cermin</span>
+        <div class="instr-card">
+          <span class="instr-emoji" id="top-emoji">🪞</span>
+          <p class="instr-text" id="top-text">Tiru pemimpin!</p>
+        </div>
+        <div class="timer-bar-wrap"><div class="timer-bar-fill" id="top-timer-bar" style="width:100%"></div></div>
+        <button class="laugh-btn" id="top-laugh-btn" onclick="reportLaugh('top')">😂 Dia Ketawa!</button>
+      </div>
+    </div>
+
+    <!-- Mirror line -->
+    <div class="mirror-line"><span class="mirror-icon">🪞</span></div>
+
+    <!-- Bottom half (Razan) -->
+    <div class="half bottom" id="half-bottom">
+      <div class="half-inner">
+        <span class="half-label" id="bot-label">Razan</span>
+        <span class="half-role leader" id="bot-role">👑 Pemimpin</span>
+        <div class="instr-card">
+          <span class="instr-emoji" id="bot-emoji">🎭</span>
+          <p class="instr-text" id="bot-text">Ikuti instruksi!</p>
+        </div>
+        <div class="timer-bar-wrap"><div class="timer-bar-fill" id="bot-timer-bar" style="width:100%"></div></div>
+        <button class="laugh-btn" id="bot-laugh-btn" onclick="reportLaugh('bot')">😂 Dia Ketawa!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEXT ROUND OVERLAY -->
+<div id="next-overlay">
+  <span class="next-icon" id="next-icon">😂</span>
+  <p class="next-title" id="next-title">Ketahuan!</p>
+  <p class="next-sub" id="next-sub">...</p>
+  <button class="next-btn" id="next-btn" onclick="nextRound()">Ronde Berikutnya →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon" id="end-icon">🏆</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <div class="end-score-card">
+    <div><span class="es-av">🧑</span><span class="es-nm">Razan</span><span class="es-sc" id="end-r">0</span></div>
+    <span class="es-vs">🪞</span>
+    <div><span class="es-av">👧</span><span class="es-nm">Dara</span><span class="es-sc" id="end-d">0</span></div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const INSTRUCTIONS = [
+  {emoji:'😐', text:'Muka datar — jangan senyum sama sekali!'},
+  {emoji:'🫣', text:'Tutup satu mata, tatap lawan dengan yang satunya!'},
+  {emoji:'😤', text:'Kembungkan pipi sepuasnya!'},
+  {emoji:'🤨', text:'Angkat satu alis — tahan selama mungkin!'},
+  {emoji:'😬', text:'Senyum selebar-lebarnya tanpa ketawa!'},
+  {emoji:'👁️', text:'Buka mata selebar mungkin — jangan kedip!'},
+  {emoji:'😑', text:'Bibir mencucu — tahan sampai ronde habis!'},
+  {emoji:'🫠', text:'Muka meleleh — perlahan turunkan semua ekspresi!'},
+  {emoji:'🤭', text:'Tutup mulut pakai tangan, tatap mata lawan!'},
+  {emoji:'😶', text:'Bekukan ekspresi — jangan gerak sama sekali!'},
+  {emoji:'🙃', text:'Miringkan kepala ke kiri — tahan!'},
+  {emoji:'😏', text:'Satu sudut bibir naik — tampang sok cool!'},
+  {emoji:'🫤', text:'Muka bingung — kening berkerut, mulut miring!'},
+  {emoji:'😮', text:'Mulut terbuka lebar — ekspresi kaget!'},
+  {emoji:'🤓', text:'Pura-pura pakai kacamata dengan jari!'},
+  {emoji:'😪', text:'Pura-pura ngantuk berat — mata setengah terpejam!'},
+  {emoji:'🤯', text:'Ekspresi kepala meledak — tahan selama mungkin!'},
+  {emoji:'😒', text:'Muka bete paling dramatis yang bisa kamu lakuin!'},
+  {emoji:'🥺', text:'Muka minta sesuatu — tatap lawan dengan mata berkaca-kaca!'},
+  {emoji:'😈', text:'Muka jahat paling serius — tatap lawan!'},
+];
+
+const TOTAL_ROUNDS = 10;
+const ROUND_DURATION = 12; // seconds
+
+let scores = { razan: 0, dara: 0 };
+let currentRound = 1;
+let leader = 'razan'; // who is leader this round
+let roundTimer = null;
+let timeLeft = ROUND_DURATION;
+let usedInstructions = [];
+let roundEnded = false;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function getRandInstruction() {
+  const available = INSTRUCTIONS.filter((_, i) => !usedInstructions.includes(i));
+  if (!available.length) { usedInstructions = []; return getRandInstruction(); }
+  const origIdx = INSTRUCTIONS.indexOf(available[Math.floor(Math.random() * available.length)]);
+  usedInstructions.push(origIdx);
+  return INSTRUCTIONS[origIdx];
+}
+
+function startGame(firstLeader) {
+  scores = { razan: 0, dara: 0 };
+  currentRound = 1;
+  leader = firstLeader;
+  usedInstructions = [];
+  showScreen('s-game');
+  loadRound();
+}
+
+function loadRound() {
+  roundEnded = false;
+  timeLeft = ROUND_DURATION;
+  document.getElementById('next-overlay').style.display = 'none';
+
+  const instr = getRandInstruction();
+  const mirror = leader === 'razan' ? 'dara' : 'razan';
+
+  document.getElementById('round-label').textContent = `Ronde ${currentRound}/${TOTAL_ROUNDS}`;
+  document.getElementById('score-r').textContent = scores.razan;
+  document.getElementById('score-d').textContent = scores.dara;
+
+  // Top = Dara (mirrored visually)
+  // Bottom = Razan
+  const topPlayer = 'dara';
+  const botPlayer = 'razan';
+  const topIsLeader = leader === 'dara';
+  const botIsLeader = leader === 'razan';
+
+  document.getElementById('top-label').textContent = '👧 Dara';
+  document.getElementById('top-role').textContent = topIsLeader ? '👑 Pemimpin' : '🪞 Cermin';
+  document.getElementById('top-role').className = 'half-role ' + (topIsLeader ? 'leader' : 'mirror');
+  document.getElementById('top-emoji').textContent = topIsLeader ? instr.emoji : '🪞';
+  document.getElementById('top-text').textContent = topIsLeader ? instr.text : 'Tiru pemimpin persis!';
+
+  document.getElementById('bot-label').textContent = '🧑 Razan';
+  document.getElementById('bot-role').textContent = botIsLeader ? '👑 Pemimpin' : '🪞 Cermin';
+  document.getElementById('bot-role').className = 'half-role ' + (botIsLeader ? 'leader' : 'mirror');
+  document.getElementById('bot-emoji').textContent = botIsLeader ? instr.emoji : '🪞';
+  document.getElementById('bot-text').textContent = botIsLeader ? instr.text : 'Tiru pemimpin persis!';
+
+  // Animate instruction
+  [document.getElementById('top-text'), document.getElementById('bot-text')].forEach(el => {
+    el.classList.remove('animate');
+    void el.offsetWidth;
+    el.classList.add('animate');
+  });
+
+  // Reset timer bars
+  document.getElementById('top-timer-bar').style.width = '100%';
+  document.getElementById('bot-timer-bar').style.width = '100%';
+  document.getElementById('top-timer-bar').className = 'timer-bar-fill';
+  document.getElementById('bot-timer-bar').className = 'timer-bar-fill';
+
+  startRoundTimer();
+}
+
+function startRoundTimer() {
+  clearInterval(roundTimer);
+  roundTimer = setInterval(() => {
+    timeLeft -= 0.1;
+    const pct = Math.max(0, (timeLeft / ROUND_DURATION) * 100);
+    const danger = pct < 30;
+    ['top', 'bot'].forEach(side => {
+      const bar = document.getElementById(side + '-timer-bar');
+      bar.style.width = pct + '%';
+      bar.className = 'timer-bar-fill' + (danger ? ' danger' : '');
+    });
+    if (timeLeft <= 0) {
+      clearInterval(roundTimer);
+      if (!roundEnded) timeUp();
+    }
+  }, 100);
+}
+
+function timeUp() {
+  roundEnded = true;
+  const mirror = leader === 'razan' ? 'dara' : 'razan';
+  // Time up = mirror survived = mirror wins this round
+  scores[mirror]++;
+  showNextOverlay('⏰', `Waktu habis!`, `${mirror === 'razan' ? 'Razan' : 'Dara'} berhasil bertahan — dapet poin! 🎉`);
+}
+
+function reportLaugh(side) {
+  if (roundEnded) return;
+  roundEnded = true;
+  clearInterval(roundTimer);
+
+  // Who pressed the button?
+  // top = Dara's side, bot = Razan's side
+  const presser = side === 'top' ? 'dara' : 'razan';
+  const laugher = presser === 'razan' ? 'dara' : 'razan';
+  const laugherName = laugher === 'razan' ? 'Razan' : 'Dara';
+  const presserName = presser === 'razan' ? 'Razan' : 'Dara';
+
+  // Presser gets the point (they caught the laugher)
+  scores[presser]++;
+
+  showNextOverlay('😂', `${laugherName} Ketahuan!`,
+    `${presserName} nangkep ${laugherName} yang ga tahan — dapet poin! 🎉`);
+}
+
+function showNextOverlay(icon, title, sub) {
+  document.getElementById('next-icon').textContent = icon;
+  document.getElementById('next-title').textContent = title;
+  document.getElementById('next-sub').textContent = sub;
+  document.getElementById('score-r').textContent = scores.razan;
+  document.getElementById('score-d').textContent = scores.dara;
+  const isLast = currentRound >= TOTAL_ROUNDS;
+  document.getElementById('next-btn').textContent = isLast ? 'Lihat Hasil 🏆' : 'Ronde Berikutnya →';
+  document.getElementById('next-btn').onclick = isLast ? showResult : nextRound;
+  document.getElementById('next-overlay').style.display = 'flex';
+}
+
+function nextRound() {
+  currentRound++;
+  leader = leader === 'razan' ? 'dara' : 'razan'; // swap leader
+  loadRound();
+}
+
+function showResult() {
+  document.getElementById('next-overlay').style.display = 'none';
+  const r = scores.razan, d = scores.dara;
+  const tie = r === d;
+  const winner = r > d ? 'Razan' : 'Dara';
+  const loser = r > d ? 'Dara' : 'Razan';
+
+  document.getElementById('end-icon').textContent = tie ? '🪞' : '🏆';
+  document.getElementById('end-title').textContent = tie ? 'Seri!' : `${winner} Menang!`;
+  document.getElementById('end-sub').textContent = tie
+    ? 'Sama kuat — dua-duanya susah dibuat ketawa!'
+    : `${winner} paling jago nahan ketawa hari ini!`;
+  document.getElementById('end-r').textContent = r;
+  document.getElementById('end-d').textContent = d;
+
+  let verdict;
+  if (tie) {
+    verdict = `Seri ${r}-${d}! Dua-duanya sama-sama punya muka tembok. Kalian emang jodoh — susah dibuat ketawa 😄`;
+  } else if (Math.abs(r-d) === 1) {
+    verdict = `<strong>${winner}</strong> menang tipis ${r>d?r:d}-${r>d?d:r}. Hampir imbang — ${loser} hampir bisa ngalahin!`;
+  } else {
+    verdict = `<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}! ${loser} kebanyakan ketawa hari ini — terlalu lucu sih lawannya 😄`;
+  }
+
+  document.getElementById('end-verdict').innerHTML = verdict;
+  showScreen('s-result');
+  if (!tie) confetti(50);
+}
+
+function confetti(n) {
+  const colors = ['#c9a96e','#c17a6f','#fff','#b5c4b1','#e8c4b0'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
+}
+</script>
+</body>
+</html>
