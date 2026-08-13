@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tarik Pilihan 🧲</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.15),transparent 60%);
+    pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--cream)}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── GAME ── */
+  #s-game{background:var(--cream);padding:1.25rem;justify-content:flex-start;padding-top:1rem}
+
+  .game-header{width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-shrink:0}
+  .gh-progress{font-size:11px;color:var(--muted)}
+  .gh-progress b{color:var(--rose);font-size:14px}
+  .gh-skip{background:none;border:1.5px solid var(--blush);border-radius:50px;padding:.3rem .85rem;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s}
+  .gh-skip:active{background:var(--warm)}
+
+  .question-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:1.25rem 1.5rem;width:100%;max-width:420px;box-shadow:0 4px 20px rgba(193,122,111,.08);margin-bottom:1rem;flex-shrink:0;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 65%);pointer-events:none}
+  .q-num{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .q-emoji{font-size:2rem;display:block;margin-bottom:.5rem}
+  .q-text{font-size:clamp(14px,4vw,17px);font-weight:600;color:var(--ink);line-height:1.45}
+  .q-text.animate{animation:qin .35s cubic-bezier(.34,1.2,.64,1)}
+  @keyframes qin{from{transform:translateY(8px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+
+  /* Input phase */
+  .input-phase{width:100%;max-width:420px;flex-shrink:0}
+  .turn-label{font-size:11px;font-weight:600;text-align:center;padding:.4rem .85rem;border-radius:8px;margin-bottom:.6rem;display:block}
+  .turn-label.razan{background:rgba(74,124,199,.1);color:#3a5cb5}
+  .turn-label.dara{background:rgba(193,122,111,.1);color:var(--rose)}
+
+  .answer-input{width:100%;padding:.9rem 1rem;border:1.5px solid var(--blush);border-radius:16px;font-family:'Poppins',sans-serif;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s;resize:none;line-height:1.5;margin-bottom:.75rem}
+  .answer-input:focus{border-color:var(--rose)}
+
+  /* Locked phase */
+  .locked-phase{width:100%;max-width:420px;flex-shrink:0}
+  .locked-card{background:#fff;border:1.5px solid rgba(193,122,111,.15);border-radius:16px;padding:1.1rem;text-align:center;margin-bottom:.75rem;position:relative;overflow:hidden}
+  .locked-card::after{content:'🔒';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(250,246,240,.9);backdrop-filter:blur(4px)}
+  .locked-name{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.3rem}
+  .locked-answer{font-size:13px;color:var(--ink);filter:blur(6px)}
+
+  .submit-btn{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35);transition:all .15s;margin-bottom:.5rem}
+  .submit-btn:active{transform:scale(.97);background:var(--deep)}
+  .submit-btn.gold{background:linear-gradient(135deg,var(--gold),#e8b870)}
+
+  /* ── REVEAL ── */
+  #s-reveal{background:var(--cream);padding:1.25rem}
+  .reveal-header{width:100%;max-width:420px;text-align:center;margin-bottom:1rem;flex-shrink:0}
+  .reveal-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .reveal-q{font-size:12px;color:var(--muted);line-height:1.55;max-width:300px;margin:0 auto}
+
+  .reveal-cards{width:100%;max-width:420px;display:flex;flex-direction:column;gap:.6rem;margin-bottom:1rem;flex-shrink:0}
+  .reveal-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:18px;padding:1.1rem 1.25rem;text-align:center;box-shadow:0 2px 10px rgba(193,122,111,.06);animation:revealin .4s cubic-bezier(.34,1.3,.64,1) both}
+  @keyframes revealin{from{transform:scale(.85) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+  .reveal-card:nth-child(2){animation-delay:.15s}
+  .reveal-player{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.4rem}
+  .reveal-player.blue{color:#3a5cb5}
+  .reveal-player.rose{color:var(--rose)}
+  .reveal-answer{font-size:clamp(15px,4.5vw,18px);font-weight:600;color:var(--ink);line-height:1.4}
+
+  /* Debate timer */
+  .debate-bar{width:100%;max-width:420px;margin-bottom:.75rem;flex-shrink:0}
+  .debate-label{font-size:11px;color:var(--muted);margin-bottom:.35rem;display:block}
+  .debate-progress{height:5px;background:var(--warm);border-radius:3px;overflow:hidden}
+  .debate-fill{height:100%;background:var(--rose);border-radius:3px;transition:width .1s linear}
+
+  .next-q-btn{width:100%;max-width:420px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35);transition:all .15s;flex-shrink:0}
+  .next-q-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── RESULT ── */
+  #s-result{background:var(--cream)}
+  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .end-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.35rem auto 1.25rem;position:relative;z-index:1}
+  .highlight-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:1.25rem;margin-bottom:1rem;width:100%;max-width:380px;box-shadow:0 4px 20px rgba(193,122,111,.08);position:relative;z-index:1}
+  .hl-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.75rem}
+  .hl-item{display:flex;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(193,122,111,.08);text-align:left}
+  .hl-item:last-child{border-bottom:none}
+  .hl-q{font-size:11px;color:var(--muted);flex:1;line-height:1.4}
+  .hl-answers{font-size:11px;color:var(--ink);flex:1.5;line-height:1.5}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🧲</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Tarik <span>Pilihan</span></h1>
+  <p class="intro-sub">Jawab pertanyaan absurd diam-diam — reveal barengan, terus debat siapa yang lebih bagus! 😄</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot"></span>Pertanyaan absurd muncul — Razan jawab diam-diam</div>
+    <div class="rule"><span class="rule-dot"></span>Selesai → kunci jawaban, kasih ke Dara → Dara jawab</div>
+    <div class="rule"><span class="rule-dot"></span>Tap Reveal → dua jawaban muncul barengan!</div>
+    <div class="rule"><span class="rule-dot"></span>30 detik debat — siapa yang punya jawaban paling bagus? 😏</div>
+  </div>
+  <button class="start-btn" onclick="startGame()">Mulai! 🧲</button>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="game-header">
+    <div class="gh-progress">Pertanyaan <b id="q-num">1</b>/20</div>
+    <button class="gh-skip" onclick="skipQuestion()">Lewati →</button>
+  </div>
+
+  <div class="question-card">
+    <span class="q-num" id="q-num-label">Pertanyaan 1</span>
+    <span class="q-emoji" id="q-emoji">🤔</span>
+    <p class="q-text" id="q-text">...</p>
+  </div>
+
+  <!-- Phase 1: Razan input -->
+  <div class="input-phase" id="phase-razan">
+    <span class="turn-label razan">✍️ Giliran Razan — jawab diam-diam!</span>
+    <textarea class="answer-input" id="input-razan" placeholder="Tulis jawabanmu di sini..." rows="2"></textarea>
+    <button class="submit-btn" onclick="submitRazan()">Kunci Jawaban 🔒</button>
+  </div>
+
+  <!-- Phase 2: Dara input -->
+  <div class="input-phase" id="phase-dara" style="display:none">
+    <div class="locked-phase" style="margin-bottom:.75rem">
+      <div class="locked-card">
+        <span class="locked-name">🧑 Razan</span>
+        <p class="locked-answer" id="locked-razan-preview">...</p>
+      </div>
+    </div>
+    <span class="turn-label dara">✍️ Giliran Dara — jawab diam-diam!</span>
+    <textarea class="answer-input" id="input-dara" placeholder="Tulis jawabanmu di sini..." rows="2"></textarea>
+    <button class="submit-btn gold" onclick="submitDara()">Reveal Jawaban! ✨</button>
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div id="s-reveal" class="screen">
+  <div class="reveal-header">
+    <p class="reveal-title">✨ Reveal!</p>
+    <p class="reveal-q" id="reveal-q">...</p>
+  </div>
+
+  <div class="reveal-cards">
+    <div class="reveal-card">
+      <span class="reveal-player blue">🧑 Razan</span>
+      <p class="reveal-answer" id="reveal-razan">...</p>
+    </div>
+    <div class="reveal-card">
+      <span class="reveal-player rose">👧 Dara</span>
+      <p class="reveal-answer" id="reveal-dara">...</p>
+    </div>
+  </div>
+
+  <div class="debate-bar">
+    <span class="debate-label" id="debate-label">⏱️ Waktu debat: 30 detik</span>
+    <div class="debate-progress"><div class="debate-fill" id="debate-fill" style="width:100%"></div></div>
+  </div>
+
+  <button class="next-q-btn" id="next-q-btn" onclick="nextQuestion()">Pertanyaan Berikutnya →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon">🧲</span>
+  <h2 class="end-title">Selesai! 🎉</h2>
+  <p class="end-sub">Inilah semua jawaban kalian — simpan buat kenangan ya! 🤍</p>
+  <div class="highlight-card">
+    <span class="hl-title">Semua Jawaban Kalian</span>
+    <div id="hl-list"></div>
+  </div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {emoji:'🍔', text:'Kalau bisa jadi satu makanan, kamu jadi apa? Kenapa?'},
+  {emoji:'🎬', text:'Kalau hidupmu jadi judul film, judulnya apa?'},
+  {emoji:'🦸', text:'Kalau punya satu kekuatan super, kamu pilih apa?'},
+  {emoji:'🐾', text:'Kalau kamu jadi hewan, kamu jadi hewan apa?'},
+  {emoji:'🌍', text:'Kalau bisa tinggal di mana aja di dunia, kamu pilih mana?'},
+  {emoji:'⏰', text:'Kalau bisa balik ke satu momen di hidupmu, kamu pilih kapan?'},
+  {emoji:'🎵', text:'Kalau hidupmu punya soundtrack, lagu apa yang paling cocok?'},
+  {emoji:'🌈', text:'Describe dirimu dalam 3 kata — jujur ya!'},
+  {emoji:'🪐', text:'Kalau ada planet lain yang bisa ditinggali, kamu mau ga pindah ke sana?'},
+  {emoji:'🧞', text:'Kalau ketemu jin dan dikasih 3 permintaan, kamu minta apa aja?'},
+  {emoji:'📺', text:'Kalau hidupmu jadi genre film, genrenya apa? Kenapa?'},
+  {emoji:'🎭', text:'Kalau harus ganti nama, kamu mau nama apa?'},
+  {emoji:'🌙', text:'Hal terakhir yang kamu pikirin sebelum tidur biasanya apa?'},
+  {emoji:'🔮', text:'Kalau bisa lihat masa depan, kamu mau tau apa?'},
+  {emoji:'🏝️', text:'Kalau terdampar di pulau terpencil, benda apa yang paling kamu mau bawa?'},
+  {emoji:'💰', text:'Kalau tiba-tiba dapat Rp1 miliar hari ini, yang pertama kamu lakuin apa?'},
+  {emoji:'🤝', text:'Hal apa yang paling kamu banggain dari dirimu sendiri?'},
+  {emoji:'😬', text:'Hal apa yang paling bikin kamu malu kalau diinget?'},
+  {emoji:'💭', text:'Kalau bisa ngobrol sama dirimu 10 tahun lalu, apa yang mau kamu bilang?'},
+  {emoji:'🎁', text:'Hadiah terbaik yang pernah kamu terima itu apa?'},
+];
+
+const DEBATE_TIME = 30;
+const TOTAL = 20;
+
+let currentIdx = 0;
+let answers = [];
+let shuffled = [];
+let currentRazan = '';
+let debateTimer = null;
+let debateLeft = DEBATE_TIME;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function startGame() {
+  currentIdx = 0;
+  answers = [];
+  shuffled = shuffle(QUESTIONS);
+  showScreen('s-game');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  clearInterval(debateTimer);
+  const q = shuffled[currentIdx];
+  document.getElementById('q-num').textContent = currentIdx + 1;
+  document.getElementById('q-num-label').textContent = `Pertanyaan ${currentIdx + 1}`;
+
+  const qEmoji = document.getElementById('q-emoji');
+  const qText = document.getElementById('q-text');
+  qEmoji.textContent = q.emoji;
+  qText.classList.remove('animate');
+  void qText.offsetWidth;
+  qText.classList.add('animate');
+  qText.textContent = q.text;
+
+  // Reset inputs
+  document.getElementById('input-razan').value = '';
+  document.getElementById('input-dara').value = '';
+  currentRazan = '';
+  document.getElementById('phase-razan').style.display = 'block';
+  document.getElementById('phase-dara').style.display = 'none';
+  setTimeout(() => document.getElementById('input-razan').focus(), 100);
+}
+
+function submitRazan() {
+  const val = document.getElementById('input-razan').value.trim();
+  if (!val) { document.getElementById('input-razan').focus(); return; }
+  currentRazan = val;
+  document.getElementById('locked-razan-preview').textContent = val;
+  document.getElementById('phase-razan').style.display = 'none';
+  document.getElementById('phase-dara').style.display = 'block';
+  setTimeout(() => document.getElementById('input-dara').focus(), 100);
+}
+
+function submitDara() {
+  const val = document.getElementById('input-dara').value.trim();
+  if (!val) { document.getElementById('input-dara').focus(); return; }
+  const q = shuffled[currentIdx];
+  answers.push({ q: q.text, emoji: q.emoji, razan: currentRazan, dara: val });
+  showReveal(q.text, currentRazan, val);
+}
+
+function showReveal(qText, razanAns, daraAns) {
+  document.getElementById('reveal-q').textContent = qText;
+  document.getElementById('reveal-razan').textContent = razanAns;
+  document.getElementById('reveal-dara').textContent = daraAns;
+  document.getElementById('debate-label').textContent = `⏱️ Waktu debat: ${DEBATE_TIME} detik`;
+  document.getElementById('debate-fill').style.width = '100%';
+  document.getElementById('debate-fill').style.background = 'var(--rose)';
+  const isLast = currentIdx >= TOTAL - 1;
+  document.getElementById('next-q-btn').textContent = isLast ? 'Lihat Semua Jawaban 🎉' : 'Pertanyaan Berikutnya →';
+  showScreen('s-reveal');
+  startDebateTimer();
+  confetti(30);
+}
+
+function startDebateTimer() {
+  clearInterval(debateTimer);
+  debateLeft = DEBATE_TIME;
+  debateTimer = setInterval(() => {
+    debateLeft -= 0.1;
+    const pct = Math.max(0, (debateLeft / DEBATE_TIME) * 100);
+    document.getElementById('debate-fill').style.width = pct + '%';
+    document.getElementById('debate-label').textContent = `⏱️ Waktu debat: ${Math.ceil(debateLeft)} detik`;
+    if (pct < 30) document.getElementById('debate-fill').style.background = '#e57373';
+    if (debateLeft <= 0) clearInterval(debateTimer);
+  }, 100);
+}
+
+function nextQuestion() {
+  clearInterval(debateTimer);
+  currentIdx++;
+  if (currentIdx >= TOTAL) { showResult(); return; }
+  showScreen('s-game');
+  loadQuestion();
+}
+
+function skipQuestion() {
+  clearInterval(debateTimer);
+  currentIdx++;
+  if (currentIdx >= TOTAL) { showResult(); return; }
+  loadQuestion();
+}
+
+function showResult() {
+  const list = document.getElementById('hl-list');
+  list.innerHTML = answers.map(a => `
+    <div class="hl-item">
+      <div class="hl-q">${a.emoji} ${a.q}</div>
+      <div class="hl-answers">
+        <span style="color:#3a5cb5;font-weight:600">Razan:</span> ${a.razan}<br>
+        <span style="color:var(--rose);font-weight:600">Dara:</span> ${a.dara}
+      </div>
+    </div>`).join('');
+  showScreen('s-result');
+  confetti(60);
+}
+
+function confetti(n) {
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#faf6f0'];
+  for (let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
