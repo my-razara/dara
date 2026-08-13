@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Detak Jantung 🫀</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;
+    --blue:#4a7cc7;--blue-l:rgba(74,124,199,.15);
+    --rose-l:rgba(193,122,111,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#0a0a14}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:linear-gradient(160deg,#0a0a14,#12081e)}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 30% 30%,rgba(74,124,199,.15),transparent 55%),
+    radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.15),transparent 55%);
+    pointer-events:none}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:heartbeat 1s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.2)}28%{transform:scale(1)}42%{transform:scale(1.15)}70%{transform:scale(1)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:#e57373}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
+  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+  .rule-dot.blue{background:var(--blue)}
+  .rule-dot.rose{background:var(--rose)}
+  .rule-dot.gold{background:var(--gold)}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#e57373,#c17a6f);color:#fff;box-shadow:0 4px 18px rgba(229,115,115,.4);transition:all .2s;position:relative;z-index:1;animation:btnpulse 2s ease-in-out infinite}
+  @keyframes btnpulse{0%,100%{box-shadow:0 4px 18px rgba(229,115,115,.4)}50%{box-shadow:0 4px 28px rgba(229,115,115,.7)}}
+  .start-btn:active{transform:scale(.97)}
+
+  /* ── GAME ── */
+  #s-game{padding:0;background:#0a0a14}
+
+  /* EKG background */
+  .ekg-bg{position:fixed;inset:0;z-index:0;opacity:.06;pointer-events:none}
+
+  /* Header */
+  .game-header{position:fixed;top:0;left:0;right:0;z-index:20;
+    background:rgba(10,10,20,.8);backdrop-filter:blur(8px);
+    padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between}
+  .gh-player{text-align:center}
+  .gh-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block}
+  .gh-name.blue{color:rgba(74,124,199,.8)}
+  .gh-name.rose{color:rgba(193,122,111,.8)}
+  .gh-bpm{font-size:1.4rem;font-weight:700;color:#fff;display:block;line-height:1}
+  .gh-bpm-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase}
+  .gh-mid{text-align:center}
+  .gh-timer{font-size:1.8rem;font-weight:700;color:#fff;display:block;line-height:1}
+  .gh-timer-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase}
+
+  /* Waveform canvas */
+  .wave-area{position:fixed;top:60px;left:0;right:0;height:120px;z-index:5;pointer-events:none}
+  #wave-canvas{width:100%;height:100%}
+
+  /* Split tap area */
+  .tap-area{position:fixed;inset:0;top:180px;bottom:0;display:flex;z-index:10}
+  .tap-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;position:relative;overflow:hidden}
+  .tap-side.left{border-right:1px solid rgba(255,255,255,.06)}
+
+  /* Ripple */
+  .ripple{position:absolute;border-radius:50%;animation:rippleout .6s ease-out forwards;pointer-events:none}
+  @keyframes rippleout{0%{transform:scale(0);opacity:.8}100%{transform:scale(4);opacity:0}}
+  .ripple.blue{background:rgba(74,124,199,.4)}
+  .ripple.rose{background:rgba(193,122,111,.4)}
+
+  /* Tap button */
+  .tap-btn{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;position:relative;z-index:1;transition:transform .1s}
+  .tap-btn.blue{background:rgba(74,124,199,.12);border:2px solid rgba(74,124,199,.3)}
+  .tap-btn.rose{background:rgba(193,122,111,.12);border:2px solid rgba(193,122,111,.3)}
+  .tap-btn.pressed{transform:scale(.88)!important}
+  .tap-icon{font-size:2.2rem;display:block}
+  .tap-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em}
+  .tap-hint{font-size:10px;color:rgba(255,255,255,.3)}
+
+  /* Pulse ring */
+  .pulse-ring{position:absolute;width:120px;height:120px;border-radius:50%;animation:none;pointer-events:none}
+  .pulse-ring.blue{border:2px solid rgba(74,124,199,.5)}
+  .pulse-ring.rose{border:2px solid rgba(193,122,111,.5)}
+  .pulse-ring.animate{animation:pulseRing .6s ease-out forwards}
+  @keyframes pulseRing{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.5);opacity:0}}
+
+  /* Countdown overlay */
+  #countdown-overlay{position:fixed;inset:0;z-index:100;background:rgba(10,10,20,.95);display:flex;align-items:center;justify-content:center;flex-direction:column}
+  .cd-num{font-size:6rem;font-weight:700;color:#fff;animation:cdpop .8s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+  .cd-label{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* ── RESULT ── */
+  #s-result{background:linear-gradient(160deg,#0a0a14,#12081e);padding:1rem 1.25rem}
+  #s-result::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 50% 30%,rgba(229,115,115,.15),transparent 60%);
+    pointer-events:none}
+  .result-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:heartbeat 1s ease-in-out infinite;position:relative;z-index:1}
+  .result-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .result-score{font-size:3.5rem;font-weight:700;color:#e57373;display:block;margin-bottom:.25rem;animation:scorepop .5s cubic-bezier(.34,1.5,.64,1) .2s both;position:relative;z-index:1}
+  @keyframes scorepop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+  .result-score-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;position:relative;z-index:1}
+
+  /* Graph */
+  .graph-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1rem;margin-bottom:1rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .graph-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:.75rem}
+  #result-canvas{width:100%;border-radius:10px}
+
+  /* Stats */
+  .stats-row{display:flex;gap:.6rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1}
+  .stat-card{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem .6rem;text-align:center}
+  .stat-val{font-size:1.4rem;font-weight:700;display:block}
+  .stat-val.blue{color:#7eb3f5}
+  .stat-val.rose{color:#e8a090}
+  .stat-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:.2rem;display:block}
+
+  /* Verdict */
+  .verdict-card{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .verdict-text{font-size:13px;color:rgba(255,255,255,.85);line-height:1.65;font-weight:500}
+  .verdict-text strong{color:#e57373}
+
+  /* Buttons */
+  .result-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .result-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .result-btn-p{background:linear-gradient(135deg,#e57373,#c17a6f);color:#fff}
+  .result-btn-p:active{transform:scale(.97)}
+  .result-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🫀</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Detak <span>Jantung</span></h1>
+  <p class="intro-sub">Tap layar ngikutin detak jantungmu masing-masing — lihat seberapa sinkron kalian! 💓</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot blue"></span>Razan tap sisi kiri ngikutin detak jantungnya</div>
+    <div class="rule"><span class="rule-dot rose"></span>Dara tap sisi kanan ngikutin detak jantungnya</div>
+    <div class="rule"><span class="rule-dot gold"></span>Timer 30 detik — tap natural, jangan dibuat-buat!</div>
+    <div class="rule"><span class="rule-dot gold"></span>Selesai → lihat seberapa sinkron detak kalian 🫀</div>
+  </div>
+  <button class="start-btn" onclick="startCountdown()">Mulai! 🫀</button>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="countdown-overlay" style="display:none">
+  <span class="cd-num" id="cd-num">3</span>
+  <span class="cd-label">Siapkan jarimu!</span>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <!-- EKG bg -->
+  <svg class="ekg-bg" viewBox="0 0 400 100" preserveAspectRatio="none">
+    <polyline points="0,50 40,50 55,20 65,80 75,50 120,50 135,15 145,85 155,50 200,50 215,20 225,80 235,50 280,50 295,15 305,85 315,50 360,50 375,20 385,80 395,50 400,50" fill="none" stroke="white" stroke-width="1.5"/>
+  </svg>
+
+  <!-- Header -->
+  <div class="game-header">
+    <div class="gh-player">
+      <span class="gh-name blue">🧑 Razan</span>
+      <span class="gh-bpm" id="bpm-razan">—</span>
+      <span class="gh-bpm-label">BPM</span>
+    </div>
+    <div class="gh-mid">
+      <span class="gh-timer" id="game-timer">30</span>
+      <span class="gh-timer-label">detik</span>
+    </div>
+    <div class="gh-player">
+      <span class="gh-name rose">Dara 👧</span>
+      <span class="gh-bpm" id="bpm-dara">—</span>
+      <span class="gh-bpm-label">BPM</span>
+    </div>
+  </div>
+
+  <!-- Waveform -->
+  <div class="wave-area">
+    <canvas id="wave-canvas"></canvas>
+  </div>
+
+  <!-- Tap areas -->
+  <div class="tap-area">
+    <div class="tap-side left" id="tap-razan" ontouchstart="handleTap('razan',event)" onclick="handleTap('razan',event)">
+      <div class="pulse-ring blue" id="ring-razan"></div>
+      <div class="tap-btn blue" id="btn-razan">
+        <span class="tap-icon">💙</span>
+        <span class="tap-name">Razan</span>
+        <span class="tap-hint">Tap ikutin detak</span>
+      </div>
+    </div>
+    <div class="tap-side right" id="tap-dara" ontouchstart="handleTap('dara',event)" onclick="handleTap('dara',event)">
+      <div class="pulse-ring rose" id="ring-dara"></div>
+      <div class="tap-btn rose" id="btn-dara">
+        <span class="tap-icon">🩷</span>
+        <span class="tap-name">Dara</span>
+        <span class="tap-hint">Tap ikutin detak</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="result-icon" id="result-icon">🫀</span>
+  <h2 class="result-title">Sinkronisasi Detak Kalian</h2>
+  <span class="result-score" id="result-score">0%</span>
+  <span class="result-score-label">Tingkat Kecocokan</span>
+
+  <div class="graph-card">
+    <span class="graph-title">Grafik Detak — Biru: Razan · Merah: Dara</span>
+    <canvas id="result-canvas" height="100"></canvas>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-val blue" id="stat-bpm-r">—</span>
+      <span class="stat-label">BPM Razan</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val" id="stat-sync" style="color:#e57373">—</span>
+      <span class="stat-label">Sinkronisasi</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val rose" id="stat-bpm-d">—</span>
+      <span class="stat-label">BPM Dara</span>
+    </div>
+  </div>
+
+  <div class="verdict-card">
+    <p class="verdict-text" id="verdict-text">...</p>
+  </div>
+
+  <div class="result-btns">
+    <button class="result-btn result-btn-p" onclick="startCountdown()">Coba Lagi 🔄</button>
+    <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const DURATION = 30;
+let taps = { razan: [], dara: [] };
+let gameTimer = null;
+let timeLeft = DURATION;
+let waveCtx, waveCanvas;
+let waveData = { razan: [], dara: [] };
+let waveAnim = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── COUNTDOWN ──
+function startCountdown() {
+  taps = { razan: [], dara: [] };
+  waveData = { razan: [], dara: [] };
+  document.getElementById('bpm-razan').textContent = '—';
+  document.getElementById('bpm-dara').textContent = '—';
+  document.getElementById('game-timer').textContent = DURATION;
+  showScreen('s-game');
+  document.getElementById('countdown-overlay').style.display = 'flex';
+
+  let count = 3;
+  const cdEl = document.getElementById('cd-num');
+  cdEl.textContent = count;
+
+  const interval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(interval);
+      document.getElementById('countdown-overlay').style.display = 'none';
+      startGame();
+    } else {
+      cdEl.style.animation = 'none';
+      void cdEl.offsetWidth;
+      cdEl.style.animation = 'cdpop .8s cubic-bezier(.34,1.5,.64,1)';
+      cdEl.textContent = count;
+    }
+  }, 800);
+}
+
+// ── GAME ──
+function startGame() {
+  timeLeft = DURATION;
+  setupWave();
+  startWaveAnim();
+
+  gameTimer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('game-timer').textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(gameTimer);
+      cancelAnimationFrame(waveAnim);
+      setTimeout(showResult, 400);
+    }
+  }, 1000);
+}
+
+function handleTap(player, e) {
+  if (e.type === 'touchstart') e.preventDefault();
+  if (timeLeft <= 0 || timeLeft === DURATION) return;
+
+  const now = Date.now();
+  taps[player].push(now);
+  waveData[player].push({ t: DURATION - timeLeft, v: 1 });
+
+  // Ripple
+  const side = document.getElementById('tap-' + player);
+  const rect = side.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const rip = document.createElement('div');
+  rip.className = 'ripple ' + (player === 'razan' ? 'blue' : 'rose');
+  const size = 80;
+  rip.style.cssText = `width:${size}px;height:${size}px;left:${clientX-rect.left-size/2}px;top:${clientY-rect.top-size/2}px`;
+  side.appendChild(rip);
+  setTimeout(() => rip.remove(), 600);
+
+  // Pulse ring
+  const ring = document.getElementById('ring-' + player);
+  ring.classList.remove('animate');
+  void ring.offsetWidth;
+  ring.classList.add('animate');
+
+  // Btn press
+  const btn = document.getElementById('btn-' + player);
+  btn.classList.add('pressed');
+  setTimeout(() => btn.classList.remove('pressed'), 100);
+
+  // Update BPM
+  updateBPM(player);
+}
+
+function updateBPM(player) {
+  const t = taps[player];
+  if (t.length < 2) return;
+  const recent = t.slice(-4);
+  if (recent.length < 2) return;
+  const intervals = [];
+  for (let i = 1; i < recent.length; i++) intervals.push(recent[i] - recent[i-1]);
+  const avg = intervals.reduce((a,b)=>a+b) / intervals.length;
+  const bpm = Math.round(60000 / avg);
+  document.getElementById('bpm-' + player).textContent = Math.min(200, Math.max(30, bpm));
+}
+
+// ── WAVEFORM ──
+function setupWave() {
+  waveCanvas = document.getElementById('wave-canvas');
+  waveCanvas.width = waveCanvas.offsetWidth * window.devicePixelRatio;
+  waveCanvas.height = waveCanvas.offsetHeight * window.devicePixelRatio;
+  waveCtx = waveCanvas.getContext('2d');
+  waveCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function startWaveAnim() {
+  const W = waveCanvas.offsetWidth;
+  const H = waveCanvas.offsetHeight;
+  const elapsed = () => DURATION - timeLeft;
+
+  function draw() {
+    waveCtx.clearRect(0, 0, W, H);
+    ['razan','dara'].forEach(p => {
+      const color = p === 'razan' ? '#4a7cc7' : '#c17a6f';
+      waveCtx.beginPath();
+      waveCtx.strokeStyle = color;
+      waveCtx.lineWidth = 1.5;
+      waveCtx.globalAlpha = 0.7;
+      const el = elapsed() || 1;
+      waveData[p].forEach((pt, i) => {
+        const x = (pt.t / DURATION) * W;
+        const y = H / 2;
+        if (i === 0) { waveCtx.moveTo(x, y); return; }
+        // Draw spike
+        waveCtx.lineTo(x - 4, y);
+        waveCtx.lineTo(x - 2, y - H*0.35);
+        waveCtx.lineTo(x, y + H*0.2);
+        waveCtx.lineTo(x + 2, y - H*0.1);
+        waveCtx.lineTo(x + 4, y);
+      });
+      // Draw to current position
+      const curX = (el / DURATION) * W;
+      waveCtx.lineTo(curX, H/2);
+      waveCtx.stroke();
+      waveCtx.globalAlpha = 1;
+    });
+    waveAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── RESULT ──
+function calcBPM(tapArr) {
+  if (tapArr.length < 2) return 0;
+  const intervals = [];
+  for (let i = 1; i < tapArr.length; i++) intervals.push(tapArr[i] - tapArr[i-1]);
+  const avg = intervals.reduce((a,b)=>a+b) / intervals.length;
+  return Math.round(60000 / avg);
+}
+
+function calcSync() {
+  const r = taps.razan, d = taps.dara;
+  if (r.length < 2 || d.length < 2) return 0;
+
+  // Compare intervals
+  const getIntervals = arr => {
+    const ints = [];
+    for (let i=1;i<arr.length;i++) ints.push(arr[i]-arr[i-1]);
+    return ints;
+  };
+  const ri = getIntervals(r);
+  const di = getIntervals(d);
+  const avgR = ri.reduce((a,b)=>a+b,0)/ri.length;
+  const avgD = di.reduce((a,b)=>a+b,0)/di.length;
+
+  // BPM difference score
+  const bpmDiff = Math.abs(avgR - avgD);
+  const bpmScore = Math.max(0, 100 - (bpmDiff / avgR) * 100);
+
+  // Tap count similarity
+  const countDiff = Math.abs(r.length - d.length);
+  const countScore = Math.max(0, 100 - countDiff * 5);
+
+  return Math.round((bpmScore * 0.7 + countScore * 0.3));
+}
+
+function showResult() {
+  const bpmR = calcBPM(taps.razan);
+  const bpmD = calcBPM(taps.dara);
+  const sync = calcSync();
+
+  document.getElementById('result-score').textContent = sync + '%';
+  document.getElementById('stat-bpm-r').textContent = bpmR || '—';
+  document.getElementById('stat-bpm-d').textContent = bpmD || '—';
+  document.getElementById('stat-sync').textContent = sync + '%';
+
+  // Icon
+  let icon, verdict;
+  if (sync >= 85) {
+    icon = '💞';
+    verdict = `<strong>Luar biasa! ${sync}% sinkron.</strong> Detak jantung kalian udah satu frekuensi — kayak udah terhubung tanpa perlu ngomong. Ini bukan kebetulan 🤍`;
+  } else if (sync >= 70) {
+    icon = '💓';
+    verdict = `<strong>Keren! ${sync}% sinkron.</strong> Ritme kalian mirip banget — ada koneksi yang kuat antara Razan dan Dara. Makin lama bareng, makin sinkron 💕`;
+  } else if (sync >= 50) {
+    icon = '💗';
+    verdict = `<strong>Lumayan! ${sync}% sinkron.</strong> Kalian punya ritme yang beda tapi saling melengkapi — kayak musik duet yang justru bagus karena kontrasnya 🎵`;
+  } else if (sync >= 30) {
+    icon = '💛';
+    verdict = `<strong>${sync}% sinkron.</strong> Salah satu dari kalian kayaknya lagi excited banget hari ini 😄 Coba lagi waktu sama-sama santai — siapa tau hasilnya lebih tinggi!`;
+  } else {
+    icon = '🤍';
+    verdict = `<strong>${sync}% sinkron.</strong> Detak kalian beda jauh hari ini! Mungkin salah satu lagi deg-degan ketemu yang satunya 👀 Atau emang beda ritme — tetep lucu kok 😄`;
+  }
+
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('verdict-text').innerHTML = verdict;
+
+  // Draw result graph
+  drawResultGraph();
+  showScreen('s-result');
+  if (sync >= 70) confetti(60);
+}
+
+function drawResultGraph() {
+  const canvas = document.getElementById('result-canvas');
+  const W = canvas.offsetWidth;
+  const H = 100;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = 'rgba(255,255,255,.03)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw baseline
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H/2);
+  ctx.lineTo(W, H/2);
+  ctx.stroke();
+
+  ['razan','dara'].forEach(p => {
+    const color = p === 'razan' ? '#7eb3f5' : '#e8a090';
+    const offset = p === 'razan' ? -18 : 18;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.moveTo(0, H/2 + offset);
+    waveData[p].forEach(pt => {
+      const x = (pt.t / DURATION) * W;
+      ctx.lineTo(x - 3, H/2 + offset);
+      ctx.lineTo(x - 1, H/2 + offset - 28);
+      ctx.lineTo(x + 1, H/2 + offset + 16);
+      ctx.lineTo(x + 3, H/2 + offset - 8);
+      ctx.lineTo(x + 5, H/2 + offset);
+    });
+    ctx.lineTo(W, H/2 + offset);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+}
+
+function confetti(n) {
+  const colors = ['#e57373','#c17a6f','#7eb3f5','#c9a96e','#fff'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
+}
+</script>
+</body>
+</html>
