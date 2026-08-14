@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Masak Bareng! 🍳</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#1a0f00}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:linear-gradient(160deg,#1a0f00,#2d1a00)}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 30% 30%,rgba(255,180,50,.1),transparent 55%),
+    radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.08),transparent 55%);
+    pointer-events:none}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#ffa726;display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:#ffa726}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
+  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#ffa726;display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#e65100,#ffa726);color:#fff;box-shadow:0 4px 18px rgba(255,167,38,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97)}
+
+  /* ── COUNTDOWN ── */
+  #s-countdown{background:#1a0f00}
+  .cd-big{font-size:7rem;font-weight:700;color:#fff;display:block;line-height:1;animation:cdpop .7s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* ── GAME ── */
+  #s-game{padding:0;background:#1a0f00;justify-content:flex-start;overflow:hidden}
+
+  /* Restaurant header */
+  .resto-header{position:sticky;top:0;z-index:30;background:rgba(26,15,0,.95);backdrop-filter:blur(8px);padding:.35rem .75rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,167,38,.15);flex-shrink:0;width:100%}
+  .rh-score{font-size:1.2rem;font-weight:700;color:#ffa726}
+  .rh-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .rh-mid{text-align:center}
+  .rh-level{font-size:11px;color:#ffa726;font-weight:600}
+  .rh-orders{font-size:9px;color:rgba(255,255,255,.35)}
+  .rh-lives{font-size:1.2rem;letter-spacing:2px}
+
+  /* Timer bar */
+  .order-timer-bar{height:5px;background:rgba(255,255,255,.08);flex-shrink:0;width:100%}
+  .order-timer-fill{height:100%;background:#ffa726;transition:width .1s linear,background .3s}
+
+  /* Split screen */
+  .game-split{flex:1;display:flex;flex-direction:column;width:100%;overflow:hidden;min-height:0}
+
+  /* Chef area (top - mirrored for Dara) */
+  .chef-half{flex:1;position:relative;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+  .chef-half.top{transform:scaleY(-1);border-bottom:2px solid rgba(255,167,38,.2)}
+  .chef-half.top .chef-inner{transform:scaleY(-1)}
+  .chef-half.bottom{border-top:2px solid rgba(255,167,38,.2)}
+
+  .chef-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;gap:.3rem;position:relative;z-index:5;overflow:hidden;min-height:0}
+
+  .chef-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.2rem .6rem;border-radius:50px;display:inline-block}
+  .chef-badge.cook{background:rgba(255,152,0,.15);color:#ffa726;border:1px solid rgba(255,152,0,.3)}
+  .chef-badge.prep{background:rgba(100,180,255,.15);color:#7eb3f5;border:1px solid rgba(100,180,255,.3)}
+
+  /* Order display */
+  .order-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.4rem .75rem;width:100%;max-width:300px;text-align:center}
+  .oc-label{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:.15rem}
+  .oc-dish{font-size:1rem;font-weight:700;color:#fff;display:block;margin-bottom:.1rem}
+  .oc-task{font-size:11px;color:rgba(255,255,255,.5);line-height:1.3}
+
+  /* Action buttons */
+  .action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;width:100%;max-width:300px}
+  .action-btn{padding:.5rem .25rem;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.15rem;transition:all .12s;font-family:'Poppins',sans-serif}
+  .action-btn:active{transform:scale(.88)}
+  .action-btn.correct{border-color:rgba(129,199,132,.5);background:rgba(129,199,132,.1);animation:correctflash .3s ease}
+  @keyframes correctflash{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  .action-btn.wrong{border-color:rgba(229,115,115,.5);background:rgba(229,115,115,.1);animation:wrongshake .3s ease}
+  @keyframes wrongshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .action-btn.done{border-color:rgba(129,199,132,.4);background:rgba(129,199,132,.08);opacity:.5}
+  .ab-emoji{font-size:1.3rem;display:block}
+  .ab-label{font-size:8.5px;color:rgba(255,255,255,.5);font-weight:500}
+  .progress-dots{display:flex;gap:.25rem;justify-content:center;margin:.1rem 0}
+  .pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .2s}
+  .pdot.done{background:#4caf50}
+
+  /* Customer queue */
+  .customer-strip{flex-shrink:0;padding:.25rem .5rem;background:rgba(0,0,0,.3);display:flex;gap:.35rem;overflow-x:auto;-webkit-overflow-scrolling:touch;border-top:1px solid rgba(255,167,38,.1);width:100%}
+  .customer-strip::-webkit-scrollbar{display:none}
+  .cust-item{flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.25rem .4rem;text-align:center;min-width:40px}
+  .cust-item.current{border-color:rgba(255,167,38,.4);background:rgba(255,167,38,.08)}
+  .cust-item.done{border-color:rgba(129,199,132,.3);background:rgba(129,199,132,.06);opacity:.6}
+  .cust-emoji{font-size:.9rem;display:block}
+  .cust-dish{font-size:8px;color:rgba(255,255,255,.4)}
+
+  /* Overlay feedback */
+  .feedback-overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;pointer-events:none}
+  .feedback-overlay.show{display:flex}
+  .fo-card{background:rgba(0,0,0,.85);border-radius:20px;padding:1.25rem 2rem;text-align:center;animation:fopop .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes fopop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+  .fo-icon{font-size:3rem;display:block;margin-bottom:.35rem}
+  .fo-text{font-size:16px;font-weight:700;color:#fff}
+  .fo-pts{font-size:13px;margin-top:.2rem;display:block}
+
+  /* ── RESULT ── */
+  #s-result{background:linear-gradient(160deg,#1a0f00,#2d1a00)}
+  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,167,38,.12),transparent 60%);pointer-events:none}
+  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .end-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .end-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.35rem auto 1rem;position:relative;z-index:1}
+  .end-score-big{font-size:3.5rem;font-weight:700;color:#ffa726;display:block;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1) .2s both;position:relative;z-index:1}
+  .end-score-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;display:block;position:relative;z-index:1}
+  .end-stars{font-size:2.5rem;display:block;margin-bottom:1rem;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1) .4s both;position:relative;z-index:1}
+  .stats-row{display:flex;gap:.6rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1}
+  .stat-card{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem .5rem;text-align:center}
+  .stat-val{font-size:1.4rem;font-weight:700;display:block}
+  .stat-val.orange{color:#ffa726}
+  .stat-val.green{color:#81c784}
+  .stat-val.red{color:#e57373}
+  .stat-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:.15rem;display:block;line-height:1.3}
+  .end-verdict{background:rgba(255,167,38,.07);border:1px solid rgba(255,167,38,.18);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .end-verdict strong{color:#ffa726}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btn-p{background:linear-gradient(135deg,#e65100,#ffa726);color:#fff}
+  .end-btn-p:active{transform:scale(.97)}
+  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🍳</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Masak <span>Bareng!</span></h1>
+  <p class="intro-sub">Kalian punya restoran kecil — satu masak, satu siapkan bahan. Layani customer secepat mungkin! 👨‍🍳</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot" style="background:#ffa726"></span>👨‍🍳 <b style="color:#ffa726">Chef</b> — tap bahan masakan sesuai order</div>
+    <div class="rule"><span class="rule-dot" style="background:#7eb3f5"></span>🧑‍🍳 <b style="color:#7eb3f5">Prep</b> — tap bahan segar sesuai order</div>
+    <div class="rule"><span class="rule-dot" style="background:#81c784"></span>Selesaikan order sebelum timer habis!</div>
+    <div class="rule"><span class="rule-dot" style="background:#e57373"></span>Salah bahan atau terlalu lama → customer marah 😡</div>
+  </div>
+  <button class="start-btn" onclick="startCountdown()">Buka Restoran! 🍳</button>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="s-countdown" class="screen">
+  <span class="cd-big" id="cd-num">3</span>
+  <span class="cd-sub" id="cd-sub">Bersiap memasak...</span>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="resto-header">
+    <div>
+      <span class="rh-score" id="rh-score">0</span>
+      <span class="rh-label">Skor</span>
+    </div>
+    <div class="rh-mid">
+      <div class="rh-level" id="rh-level">🍳 Restoran Razan & Dara</div>
+      <div class="rh-orders" id="rh-orders">Order 1</div>
+    </div>
+    <div style="text-align:right">
+      <span class="rh-lives" id="rh-lives">❤️❤️❤️</span>
+      <span class="rh-label">Nyawa</span>
+    </div>
+  </div>
+
+  <!-- Order timer bar -->
+  <div class="order-timer-bar">
+    <div class="order-timer-fill" id="order-timer-bar" style="width:100%"></div>
+  </div>
+
+  <!-- Customer queue -->
+  <div class="customer-strip" id="customer-strip"></div>
+
+  <div class="game-split" id="game-split">
+    <!-- TOP = Dara (prep, mirrored) -->
+    <div class="chef-half top" id="half-dara">
+      <div class="chef-inner">
+        <span class="chef-badge prep">🧑‍🍳 Dara — Prep Bahan</span>
+        <div class="order-card">
+          <span class="oc-label">Siapkan bahan ini</span>
+          <span class="oc-dish" id="prep-dish">-</span>
+          <span class="oc-task" id="prep-task">Tunggu order...</span>
+        </div>
+        <div class="progress-dots" id="prep-dots"></div>
+        <div class="action-grid" id="prep-grid"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM = Razan (cook) -->
+    <div class="chef-half bottom" id="half-razan">
+      <div class="chef-inner">
+        <span class="chef-badge cook">👨‍🍳 Razan — Masak</span>
+        <div class="order-card">
+          <span class="oc-label">Masak ini</span>
+          <span class="oc-dish" id="cook-dish">-</span>
+          <span class="oc-task" id="cook-task">Tunggu order...</span>
+        </div>
+        <div class="progress-dots" id="cook-dots"></div>
+        <div class="action-grid" id="cook-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK OVERLAY -->
+<div class="feedback-overlay" id="feedback-overlay">
+  <div class="fo-card">
+    <span class="fo-icon" id="fo-icon">✅</span>
+    <p class="fo-text" id="fo-text">Order Selesai!</p>
+    <span class="fo-pts" id="fo-pts" style="color:#ffa726">+100 poin</span>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon" id="end-icon">🍳</span>
+  <span class="end-score-big" id="end-score">0</span>
+  <span class="end-score-label">Total Skor</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <span class="end-stars" id="end-stars">⭐⭐⭐</span>
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-val green" id="stat-done">0</span>
+      <span class="stat-label">Order Selesai ✅</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val red" id="stat-fail">0</span>
+      <span class="stat-label">Order Gagal ❌</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val orange" id="stat-combo">0</span>
+      <span class="stat-label">Combo Terbaik 🔥</span>
+    </div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="startCountdown()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+// ── MENU DATA ──
+const MENU = [
+  {
+    id:'burger', name:'🍔 Burger', emoji:'🍔',
+    cook: [{emoji:'🥩',label:'Daging'},{emoji:'🍞',label:'Roti'},{emoji:'🧅',label:'Bawang'}],
+    prep: [{emoji:'🥬',label:'Selada'},{emoji:'🍅',label:'Tomat'},{emoji:'🧀',label:'Keju'}]
+  },
+  {
+    id:'ramen', name:'🍜 Ramen', emoji:'🍜',
+    cook: [{emoji:'🍝',label:'Mie'},{emoji:'🥚',label:'Telur'},{emoji:'🍖',label:'Ayam'}],
+    prep: [{emoji:'🧅',label:'Bawang'},{emoji:'🥦',label:'Brokoli'},{emoji:'🌶️',label:'Cabai'}]
+  },
+  {
+    id:'pizza', name:'🍕 Pizza', emoji:'🍕',
+    cook: [{emoji:'🫓',label:'Adonan'},{emoji:'🍅',label:'Saus'},{emoji:'🧀',label:'Keju'}],
+    prep: [{emoji:'🌶️',label:'Paprika'},{emoji:'🍄',label:'Jamur'},{emoji:'🥩',label:'Pepperoni'}]
+  },
+  {
+    id:'sushi', name:'🍣 Sushi', emoji:'🍣',
+    cook: [{emoji:'🍚',label:'Nasi'},{emoji:'🐟',label:'Ikan'},{emoji:'🥒',label:'Timun'}],
+    prep: [{emoji:'🌿',label:'Nori'},{emoji:'🥑',label:'Alpukat'},{emoji:'🫚',label:'Kecap'}]
+  },
+  {
+    id:'salad', name:'🥗 Salad', emoji:'🥗',
+    cook: [{emoji:'🥚',label:'Telur'},{emoji:'🍗',label:'Ayam'},{emoji:'🫒',label:'Olive'}],
+    prep: [{emoji:'🥬',label:'Selada'},{emoji:'🍅',label:'Tomat'},{emoji:'🥕',label:'Wortel'}]
+  },
+  {
+    id:'tacos', name:'🌮 Tacos', emoji:'🌮',
+    cook: [{emoji:'🥩',label:'Daging'},{emoji:'🌽',label:'Jagung'},{emoji:'🧅',label:'Bawang'}],
+    prep: [{emoji:'🌶️',label:'Cabai'},{emoji:'🥑',label:'Alpukat'},{emoji:'🍋',label:'Lemon'}]
+  },
+];
+
+const CUSTOMERS = ['👦','👧','👨','👩','🧓','👴','👵','🧑','🧒'];
+const TOTAL_ORDERS = 10;
+const ORDER_TIME = 30; // seconds per order
+
+let score = 0;
+let lives = 3;
+let ordersDone = 0;
+let ordersFailed = 0;
+let currentCombo = 0;
+let bestCombo = 0;
+let currentOrder = null;
+let orderQueue = [];
+let cookDone = [];
+let prepDone = [];
+let orderTimer = null;
+let timeLeft = ORDER_TIME;
+let orderCount = 0;
+let feedbackTimeout = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startCountdown() {
+  score = 0; lives = 3; ordersDone = 0; ordersFailed = 0;
+  currentCombo = 0; bestCombo = 0; orderCount = 0;
+  showScreen('s-countdown');
+  let count = 3;
+  const el = document.getElementById('cd-num');
+  const sub = document.getElementById('cd-sub');
+  el.textContent = count;
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
+
+  const interval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(interval);
+      startGame();
+    } else {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
+      el.textContent = count;
+      if (count === 1) sub.textContent = 'Siap memasak!';
+    }
+  }, 800);
+}
+
+function startGame() {
+  // Build order queue
+  orderQueue = [];
+  const shuffled = [...MENU].sort(() => Math.random() - .5);
+  for (let i = 0; i < TOTAL_ORDERS; i++) {
+    orderQueue.push({
+      menu: shuffled[i % shuffled.length],
+      customer: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)]
+    });
+  }
+
+  showScreen('s-game');
+  renderCustomerStrip();
+  updateHUD();
+  nextOrder();
+}
+
+function renderCustomerStrip() {
+  const strip = document.getElementById('customer-strip');
+  strip.innerHTML = orderQueue.map((o, i) => `
+    <div class="cust-item ${i === orderCount ? 'current' : i < orderCount ? 'done' : ''}" id="cust-${i}">
+      <span class="cust-emoji">${o.customer}</span>
+      <span class="cust-dish">${o.menu.emoji}</span>
+    </div>`).join('');
+}
+
+function nextOrder() {
+  if (orderCount >= TOTAL_ORDERS || lives <= 0) { endGame(); return; }
+  clearInterval(orderTimer);
+
+  currentOrder = orderQueue[orderCount];
+  cookDone = new Array(currentOrder.menu.cook.length).fill(false);
+  prepDone = new Array(currentOrder.menu.prep.length).fill(false);
+  timeLeft = ORDER_TIME;
+
+  // Update customer strip
+  document.querySelectorAll('.cust-item').forEach((el, i) => {
+    el.className = 'cust-item' + (i === orderCount ? ' current' : i < orderCount ? ' done' : '');
+  });
+
+  document.getElementById('rh-orders').textContent = `Order ${orderCount + 1}/${TOTAL_ORDERS}`;
+  renderTasks();
+  startOrderTimer();
+}
+
+function renderTasks() {
+  const m = currentOrder.menu;
+
+  // Cook side (Razan - bottom)
+  document.getElementById('cook-dish').textContent = m.name;
+  document.getElementById('cook-task').textContent = 'Tap bahan masakan yang benar!';
+  renderGrid('cook-grid', m.cook, 'cook', cookDone);
+  renderDots('cook-dots', cookDone);
+
+  // Prep side (Dara - top)
+  document.getElementById('prep-dish').textContent = m.name;
+  document.getElementById('prep-task').textContent = 'Tap bahan segar yang benar!';
+  renderGrid('prep-grid', m.prep, 'prep', prepDone);
+  renderDots('prep-dots', prepDone);
+}
+
+function renderGrid(containerId, items, role, doneArr) {
+  // Shuffle items with decoys
+  const allItems = [...items];
+  // Add 3 random wrong items
+  const wrongPool = [
+    {emoji:'🍋',label:'Lemon'},{emoji:'🥝',label:'Kiwi'},{emoji:'🫐',label:'Blueberry'},
+    {emoji:'🧄',label:'Bawang Putih'},{emoji:'🥞',label:'Pancake'},{emoji:'🫑',label:'Paprika'},
+    {emoji:'🌰',label:'Kacang'},{emoji:'🫘',label:'Kacang Merah'},{emoji:'🥐',label:'Croissant'},
+  ];
+  const wrongs = wrongPool.sort(() => Math.random()-.5).slice(0, 3);
+  const grid = [...allItems, ...wrongs].sort(() => Math.random()-.5);
+
+  const container = document.getElementById(containerId);
+  container.innerHTML = grid.map((item, i) => {
+    const isCorrect = items.some(it => it.emoji === item.emoji);
+    const isDone = doneArr[items.findIndex(it => it.emoji === item.emoji)];
+    return `<div class="action-btn${isDone ? ' done' : ''}"
+      onclick="tapItem('${role}', '${item.emoji}', '${item.label}', ${isCorrect}, this)">
+      <span class="ab-emoji">${item.emoji}</span>
+      <span class="ab-label">${item.label}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderDots(containerId, doneArr) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = doneArr.map(d => `<div class="pdot ${d ? 'done' : ''}"></div>`).join('');
+}
+
+function tapItem(role, emoji, label, isCorrect, btn) {
+  const doneArr = role === 'cook' ? cookDone : prepDone;
+  const items = role === 'cook' ? currentOrder.menu.cook : currentOrder.menu.prep;
+  const idx = items.findIndex(it => it.emoji === emoji);
+
+  // Already tapped
+  if (idx >= 0 && doneArr[idx]) return;
+
+  if (isCorrect && idx >= 0) {
+    doneArr[idx] = true;
+    btn.classList.add('correct', 'done');
+    setTimeout(() => btn.classList.remove('correct'), 300);
+    renderDots(role === 'cook' ? 'cook-dots' : 'prep-dots', doneArr);
+    if (navigator.vibrate) navigator.vibrate(30);
+    checkOrderComplete();
+  } else {
+    btn.classList.add('wrong');
+    setTimeout(() => btn.classList.remove('wrong'), 300);
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    score = Math.max(0, score - 10);
+    updateHUD();
+  }
+}
+
+function checkOrderComplete() {
+  const cookOk = cookDone.every(Boolean);
+  const prepOk = prepDone.every(Boolean);
+  if (!cookOk || !prepOk) return;
+
+  clearInterval(orderTimer);
+  ordersDone++;
+  orderCount++;
+  currentCombo++;
+  if (currentCombo > bestCombo) bestCombo = currentCombo;
+
+  // Score based on time left
+  const timeBonus = Math.round(timeLeft * 3);
+  const comboBonus = currentCombo > 1 ? currentCombo * 10 : 0;
+  const pts = 100 + timeBonus + comboBonus;
+  score += pts;
+  updateHUD();
+
+  showFeedback('✅', currentCombo > 1 ? `🔥 COMBO x${currentCombo}!` : 'Order Selesai!', `+${pts} poin`,'#ffa726');
+
+  setTimeout(() => {
+    hideFeedback();
+    if (orderCount >= TOTAL_ORDERS || lives <= 0) endGame();
+    else nextOrder();
+  }, 1500);
+}
+
+function startOrderTimer() {
+  clearInterval(orderTimer);
+  timeLeft = ORDER_TIME;
+  updateTimerBar();
+
+  orderTimer = setInterval(() => {
+    timeLeft -= 0.1;
+    timeLeft = Math.round(timeLeft * 10) / 10;
+    updateTimerBar();
+    if (timeLeft <= 0) {
+      clearInterval(orderTimer);
+      failOrder();
+    }
+  }, 100);
+}
+
+function updateTimerBar() {
+  const pct = Math.max(0, (timeLeft / ORDER_TIME) * 100);
+  const bar = document.getElementById('order-timer-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : '#ffa726';
+}
+
+function failOrder() {
+  ordersFailed++;
+  lives--;
+  orderCount++;
+  currentCombo = 0;
+  updateHUD();
+
+  showFeedback('😡', 'Customer Marah!', '-1 Nyawa', '#e57373');
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+
+  setTimeout(() => {
+    hideFeedback();
+    if (lives <= 0 || orderCount >= TOTAL_ORDERS) endGame();
+    else nextOrder();
+  }, 1500);
+}
+
+function updateHUD() {
+  document.getElementById('rh-score').textContent = score;
+  document.getElementById('rh-lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3-lives));
+}
+
+function showFeedback(icon, text, pts, color) {
+  clearTimeout(feedbackTimeout);
+  document.getElementById('fo-icon').textContent = icon;
+  document.getElementById('fo-text').textContent = text;
+  document.getElementById('fo-pts').textContent = pts;
+  document.getElementById('fo-pts').style.color = color;
+  document.getElementById('feedback-overlay').classList.add('show');
+}
+
+function hideFeedback() {
+  document.getElementById('feedback-overlay').classList.remove('show');
+}
+
+function endGame() {
+  clearInterval(orderTimer);
+  hideFeedback();
+
+  document.getElementById('end-score').textContent = score;
+  document.getElementById('stat-done').textContent = ordersDone;
+  document.getElementById('stat-fail').textContent = ordersFailed;
+  document.getElementById('stat-combo').textContent = bestCombo;
+
+  const pct = ordersDone / TOTAL_ORDERS;
+  let icon, title, sub, stars, verdict;
+
+  if (pct >= .9 && lives > 0) {
+    icon = '🏆'; title = 'Restoran Terbaik!'; sub = 'Hampir semua order selesai sempurna!';
+    stars = '⭐⭐⭐';
+    verdict = `<strong>Luar biasa!</strong> ${ordersDone}/${TOTAL_ORDERS} order selesai dengan skor ${score}. Kalian tim masak yang solid banget! 🍳`;
+  } else if (pct >= .6) {
+    icon = '😄'; title = 'Cukup Bagus!'; sub = 'Restoran kalian berjalan lancar!';
+    stars = '⭐⭐';
+    verdict = `<strong>Bagus!</strong> ${ordersDone}/${TOTAL_ORDERS} order selesai. ${bestCombo > 1 ? `Combo terbaik ${bestCombo}x — kerja tim yang oke!` : 'Latihan lagi buat combo lebih tinggi!'}`;
+  } else {
+    icon = '😅'; title = 'Perlu Latihan!'; sub = 'Banyak customer yang kecewa...';
+    stars = '⭐';
+    verdict = `<strong>${ordersDone}/${TOTAL_ORDERS} order selesai.</strong> ${ordersFailed} customer kecewa — koordinasi masih perlu ditingkatkan! Main lagi biar makin jago 😄`;
+  }
+
+  document.getElementById('end-icon').textContent = icon;
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-sub').textContent = sub;
+  document.getElementById('end-stars').textContent = stars;
+  document.getElementById('end-verdict').innerHTML = verdict;
+
+  showScreen('s-result');
+  if (pct >= .8) confetti(70);
+}
+
+function confetti(n) {
+  const colors = ['#ffa726','#e65100','#fff','#ffca28','#81c784'];
+  for (let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
