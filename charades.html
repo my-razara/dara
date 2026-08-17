@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Charades Cepat 🤦</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#0a0a14}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:linear-gradient(160deg,#0a0a14,#1a0a1a)}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 30% 30%,rgba(193,122,111,.12),transparent 55%),
+    radial-gradient(ellipse at 70% 70%,rgba(201,169,110,.08),transparent 55%);
+    pointer-events:none}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
+  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+
+  /* Category grid */
+  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;max-width:380px;margin-bottom:1.25rem;position:relative;z-index:1}
+  .cat-btn{padding:.75rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem;transition:all .15s;font-family:'Poppins',sans-serif}
+  .cat-btn:active{transform:scale(.93)}
+  .cat-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.15)}
+  .cat-icon{font-size:1.5rem;display:block}
+  .cat-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.7)}
+
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── PICK ── */
+  #s-pick{background:linear-gradient(160deg,#0a0a14,#1a0a1a);padding:1.5rem}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);max-width:300px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
+  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.09)}
+
+  /* ── COUNTDOWN ── */
+  #s-countdown{background:#0a0a14}
+  .cd-big{font-size:8rem;font-weight:700;color:#fff;display:block;line-height:1;animation:cdpop .7s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* ── GAME (LANDSCAPE) ── */
+  #s-game{
+    background:#0a0a14;padding:0;
+    /* Force landscape feel — word big, buttons bottom */
+    flex-direction:column;justify-content:space-between;
+  }
+
+  /* Flash overlay */
+  #flash-overlay{position:fixed;inset:0;z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
+  #flash-overlay.green{background:rgba(76,175,80,.35);opacity:1}
+  #flash-overlay.red{background:rgba(229,115,115,.3);opacity:1}
+
+  /* Word display */
+  .word-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;position:relative;z-index:10}
+  .word-cat-badge{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:.75rem}
+  .word-display{font-size:clamp(2.2rem,10vw,4rem);font-weight:700;color:#fff;line-height:1.15;text-align:center;max-width:90%;animation:wordin .3s cubic-bezier(.34,1.2,.64,1)}
+  @keyframes wordin{from{transform:scale(.8) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+  .word-display.correct-word{color:#81c784}
+  .word-display.skip-word{color:#e57373}
+  .word-hint{font-size:12px;color:rgba(255,255,255,.3);margin-top:.5rem;font-style:italic}
+
+  /* Timer ring */
+  .timer-wrap{position:relative;width:70px;height:70px;flex-shrink:0;margin:.5rem}
+  .timer-svg{width:70px;height:70px;transform:rotate(-90deg)}
+  .timer-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:6}
+  .timer-fill{fill:none;stroke:var(--rose);stroke-width:6;stroke-linecap:round;stroke-dasharray:188.5;stroke-dashoffset:0;transition:stroke-dashoffset .1s linear,stroke .3s}
+  .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:#fff}
+
+  /* Score display */
+  .score-row{display:flex;gap:1.5rem;align-items:center;margin:.25rem 0}
+  .sc-item{text-align:center}
+  .sc-val{font-size:1.5rem;font-weight:700;display:block}
+  .sc-val.green{color:#81c784}
+  .sc-val.red{color:#e57373}
+  .sc-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em}
+
+  /* Action buttons */
+  .action-row{display:flex;gap:.75rem;padding:1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));width:100%;flex-shrink:0}
+  .action-btn{flex:1;padding:1.1rem .5rem;border-radius:20px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:.25rem}
+  .action-btn .ab-icon{font-size:1.5rem;display:block}
+  .action-btn .ab-label{font-size:11px;font-weight:600}
+  .btn-correct{background:rgba(76,175,80,.2);color:#81c784;border:2px solid rgba(76,175,80,.4)}
+  .btn-correct:active{background:rgba(76,175,80,.4);transform:scale(.94)}
+  .btn-skip{background:rgba(229,115,115,.15);color:#e57373;border:2px solid rgba(229,115,115,.3)}
+  .btn-skip:active{background:rgba(229,115,115,.3);transform:scale(.94)}
+
+  /* ── RESULT ── */
+  #s-result{background:linear-gradient(160deg,#0a0a14,#1a0a1a)}
+  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(193,122,111,.15),transparent 60%);pointer-events:none}
+  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .end-score-big{font-size:4rem;font-weight:700;color:var(--rose);display:block;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1) .2s both;position:relative;z-index:1}
+  .end-score-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;display:block;position:relative;z-index:1}
+
+  .res-stats{display:flex;gap:.75rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1}
+  .res-stat{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem .5rem;text-align:center}
+  .rs-val{font-size:1.5rem;font-weight:700;display:block}
+  .rs-val.green{color:#81c784}
+  .rs-val.red{color:#e57373}
+  .rs-val.gold{color:var(--gold)}
+  .rs-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:.15rem;display:block}
+
+  /* Words recap */
+  .recap-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1rem 1.1rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1;max-height:200px;overflow-y:auto}
+  .recap-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .recap-list{display:flex;flex-wrap:wrap;gap:.35rem}
+  .recap-word{font-size:12px;font-weight:600;padding:.25rem .65rem;border-radius:8px;display:flex;align-items:center;gap:.3rem}
+  .recap-word.correct{background:rgba(76,175,80,.15);color:#81c784;border:1px solid rgba(76,175,80,.25)}
+  .recap-word.skipped{background:rgba(229,115,115,.1);color:#e57373;border:1px solid rgba(229,115,115,.2)}
+
+  .end-verdict{background:rgba(193,122,111,.07);border:1px solid rgba(193,122,111,.2);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .end-verdict strong{color:var(--rose)}
+
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btn-p{background:var(--rose);color:#fff}
+  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🤦</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Charades <span>Cepat!</span></h1>
+  <p class="intro-sub">Pegang HP di jidat — lawan kasih clue tanpa nyebut katanya. Tebak sebanyak mungkin dalam 60 detik! 🧠</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot" style="background:var(--rose)"></span>Pegang HP di jidat — layar menghadap ke lawan</div>
+    <div class="rule"><span class="rule-dot" style="background:var(--gold)"></span>Lawan kasih clue — ga boleh nyebut kata atau ejaannya!</div>
+    <div class="rule"><span class="rule-dot" style="background:#81c784"></span>Bener → tap ✓ Bener! · Ga tau → tap ✗ Skip</div>
+    <div class="rule"><span class="rule-dot" style="background:#fff"></span>60 detik — sebanyak mungkin kata yang bisa ditebak!</div>
+  </div>
+
+  <!-- Category picker -->
+  <div class="cat-grid" id="cat-grid">
+    <div class="cat-btn selected" data-cat="campuran" onclick="toggleCat(this)">
+      <span class="cat-icon">🎲</span>
+      <span class="cat-name">Campuran</span>
+    </div>
+    <div class="cat-btn" data-cat="hewan" onclick="toggleCat(this)">
+      <span class="cat-icon">🐾</span>
+      <span class="cat-name">Hewan</span>
+    </div>
+    <div class="cat-btn" data-cat="makanan" onclick="toggleCat(this)">
+      <span class="cat-icon">🍔</span>
+      <span class="cat-name">Makanan</span>
+    </div>
+    <div class="cat-btn" data-cat="film" onclick="toggleCat(this)">
+      <span class="cat-icon">🎬</span>
+      <span class="cat-name">Film & Tokoh</span>
+    </div>
+    <div class="cat-btn" data-cat="tempat" onclick="toggleCat(this)">
+      <span class="cat-icon">🌍</span>
+      <span class="cat-name">Tempat</span>
+    </div>
+    <div class="cat-btn" data-cat="absurd" onclick="toggleCat(this)">
+      <span class="cat-icon">🤪</span>
+      <span class="cat-name">Absurd</span>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="goToPick()">Pilih Siapa Duluan! 🤦</button>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <span style="font-size:2.5rem;display:block;margin-bottom:1rem;position:relative;z-index:1">🤦</span>
+  <p class="pick-title">Siapa yang pegang HP di jidat?</p>
+  <p class="pick-sub">Yang pegang HP yang harus tebak — lawan yang kasih clue! Gantian setelah 60 detik.</p>
+  <div class="pick-btns">
+    <div class="pick-btn" onclick="startGame('razan')">
+      <span style="font-size:2rem;flex-shrink:0">🧑</span>
+      <div style="text-align:left">
+        <span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan yang nebak</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Razan pegang HP di jidat, Dara kasih clue</span>
+      </div>
+    </div>
+    <div class="pick-btn" onclick="startGame('dara')">
+      <span style="font-size:2rem;flex-shrink:0">👧</span>
+      <div style="text-align:left">
+        <span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara yang nebak</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Dara pegang HP di jidat, Razan kasih clue</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="s-countdown" class="screen">
+  <span class="cd-big" id="cd-num">3</span>
+  <span class="cd-sub" id="cd-sub">Tempel HP di jidat!</span>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div id="flash-overlay"></div>
+
+  <!-- Word -->
+  <div class="word-area">
+    <span class="word-cat-badge" id="word-cat">🎲 Campuran</span>
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.5rem">
+      <div class="timer-wrap">
+        <svg class="timer-svg" viewBox="0 0 70 70">
+          <circle class="timer-track" cx="35" cy="35" r="30"/>
+          <circle class="timer-fill" id="timer-fill" cx="35" cy="35" r="30"/>
+        </svg>
+        <div class="timer-num" id="timer-num">60</div>
+      </div>
+      <div>
+        <div class="score-row">
+          <div class="sc-item"><span class="sc-val green" id="sc-correct">0</span><span class="sc-label">Bener ✓</span></div>
+          <div class="sc-item"><span class="sc-val red" id="sc-skip">0</span><span class="sc-label">Skip ✗</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="word-display" id="word-display">...</p>
+    <span class="word-hint" id="word-hint">Kasih clue ke lawan — ga boleh nyebut katanya!</span>
+  </div>
+
+  <!-- Buttons -->
+  <div class="action-row">
+    <button class="action-btn btn-skip" onclick="skipWord()">
+      <span class="ab-icon">✗</span>
+      <span class="ab-label">Skip</span>
+    </button>
+    <button class="action-btn btn-correct" onclick="correctWord()">
+      <span class="ab-icon">✓</span>
+      <span class="ab-label">Bener!</span>
+    </button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon" id="end-icon">🤦</span>
+  <span class="end-score-big" id="end-score">0</span>
+  <span class="end-score-label">kata berhasil ditebak</span>
+
+  <div class="res-stats">
+    <div class="res-stat">
+      <span class="rs-val green" id="rs-correct">0</span>
+      <span class="rs-label">Bener ✓</span>
+    </div>
+    <div class="res-stat">
+      <span class="rs-val red" id="rs-skip">0</span>
+      <span class="rs-label">Skip ✗</span>
+    </div>
+    <div class="res-stat">
+      <span class="rs-val gold" id="rs-pct">0%</span>
+      <span class="rs-label">Akurasi</span>
+    </div>
+  </div>
+
+  <div class="recap-card">
+    <span class="recap-title">Semua Kata</span>
+    <div class="recap-list" id="recap-list"></div>
+  </div>
+
+  <div class="end-verdict" id="end-verdict">...</div>
+
+  <div class="end-btns" style="flex-direction:column;gap:.5rem">
+    <button class="end-btn end-btn-p" id="swap-btn" onclick="swapPlayer()" style="background:linear-gradient(135deg,#c9a96e,#c17a6f)">Gantian! 🔄</button>
+    <div style="display:flex;gap:.5rem">
+      <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Mulai Baru</button>
+      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Ganti Kategori</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORDS = {
+  hewan: [
+    'Kucing','Anjing','Gajah','Singa','Harimau','Penguin','Jerapah','Koala',
+    'Panda','Kuda','Lumba-lumba','Hiu','Ular','Buaya','Kura-kura','Kelinci',
+    'Hamster','Kelelawar','Cumi-cumi','Gurita','Lebah','Kupu-kupu','Kuda Nil',
+    'Zebra','Gorila','Kanguru','Flamingo','Merak','Bunglon','Laba-laba',
+  ],
+  makanan: [
+    'Bakso','Soto','Rendang','Nasi Goreng','Mie Ayam','Sushi','Pizza','Burger',
+    'Es Krim','Martabak','Gado-gado','Sate','Pempek','Rawon','Ketoprak',
+    'Dimsum','Ramen','Kebab','Donat','Croissant','Tempe','Tahu Goreng',
+    'Kue Lapis','Onde-onde','Klepon','Gulai','Opor Ayam','Pecel','Nasi Uduk',
+    'Bubur Ayam',
+  ],
+  film: [
+    'Spiderman','Batman','Iron Man','Elsa','Moana','Shrek','Minion','Doraemon',
+    'Naruto','Spongebob','Tom dan Jerry','Harry Potter','Cinderella','Rapunzel',
+    'Deadpool','Thor','Hulk','Captain America','Wonder Woman','Joker',
+    'Pikachu','Sonic','Mario','Hobbit','Avatar','Dora','Kung Fu Panda',
+    'Ratatouille','Coco','Soul',
+  ],
+  tempat: [
+    'Bali','Paris','Tokyo','New York','London','Dubai','Singapura','Maldives',
+    'Raja Ampat','Bromo','Komodo','Lombok','Medan','Bandung','Yogyakarta',
+    'Borobudur','Prambanan','Eiffel Tower','Colosseum','Great Wall',
+    'Machu Picchu','Sahara','Amazon','Antartika','Hawaii','Santorini',
+    'Istanbul','Barcelona','Sydney','Seoul',
+  ],
+  absurd: [
+    'Kentut','Ngupil','Ngorok','Cegukan','Bersin','Melamun','Mengantuk',
+    'Salah Paham','Kebelet','Ketiduran di Kelas','Telpon Salah Sambung',
+    'Lupa Nama Orang','Pura-pura Sibuk','Stalking Media Sosial','Nyasar',
+    'Lupa Password','Mager','Gabut','Ghosting','Baper',
+    'Overthinking','PHP','Friendzone','Bucin','FOMO',
+    'Keselek','Jatuh di Depan Umum','Kepeleset','Salah Pintu','Ngantri Panjang',
+  ],
+};
+
+// Build campuran
+WORDS.campuran = [
+  ...WORDS.hewan.slice(0,6),
+  ...WORDS.makanan.slice(0,6),
+  ...WORDS.film.slice(0,6),
+  ...WORDS.tempat.slice(0,6),
+  ...WORDS.absurd.slice(0,6),
+].sort(() => Math.random() - .5);
+
+const CAT_LABELS = {
+  campuran:'🎲 Campuran', hewan:'🐾 Hewan', makanan:'🍔 Makanan',
+  film:'🎬 Film & Tokoh', tempat:'🌍 Tempat', absurd:'🤪 Absurd'
+};
+
+const GAME_DURATION = 60;
+const MAX_WORDS = 10;
+
+let selectedCat = 'campuran';
+let currentPlayer = 'razan';
+let wordQueue = [];
+let wordIdx = 0;
+let correctCount = 0;
+let skipCount = 0;
+let wordHistory = []; // {word, correct}
+let wordCount = 0;
+let timerInterval = null;
+let timeLeft = GAME_DURATION;
+let flashTimeout = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toggleCat(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCat = btn.dataset.cat;
+}
+
+function goToPick() {
+  showScreen('s-pick');
+}
+
+function startGame(player) {
+  currentPlayer = player;
+  correctCount = 0; skipCount = 0; wordHistory = [];
+  timeLeft = GAME_DURATION; wordIdx = 0; wordCount = 0;
+
+  // Shuffle words
+  wordQueue = [...WORDS[selectedCat]].sort(() => Math.random() - .5);
+  // If not enough, duplicate
+  while (wordQueue.length < 30) wordQueue = [...wordQueue, ...WORDS[selectedCat]].sort(() => Math.random() - .5);
+
+  showScreen('s-countdown');
+  const playerName = player === 'razan' ? 'Razan' : 'Dara';
+  startCountdown(`${playerName}, tempel HP di jidat!`);
+}
+
+function startCountdown(subText) {
+  let count = 3;
+  const el = document.getElementById('cd-num');
+  const sub = document.getElementById('cd-sub');
+  sub.textContent = subText;
+  el.textContent = count;
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
+
+  const interval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(interval);
+      launchGame();
+    } else {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
+      el.textContent = count;
+    }
+  }, 800);
+}
+
+function launchGame() {
+  showScreen('s-game');
+  document.getElementById('word-cat').textContent = CAT_LABELS[selectedCat];
+  document.getElementById('sc-correct').textContent = '0';
+  document.getElementById('sc-skip').textContent = '0';
+  showWord();
+  startTimer();
+}
+
+function showWord() {
+  if (wordIdx >= wordQueue.length) wordIdx = 0;
+  const word = wordQueue[wordIdx];
+  const el = document.getElementById('word-display');
+  el.className = 'word-display';
+  void el.offsetWidth;
+  el.className = 'word-display';
+  el.textContent = word;
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'wordin .3s cubic-bezier(.34,1.2,.64,1)';
+
+  // Hint based on category
+  const hints = {
+    campuran:'Kasih clue ke lawan — ga boleh nyebut katanya!',
+    hewan:'Ini hewan apa? Kasih clue tanpa nyebut namanya!',
+    makanan:'Ini makanan apa? Kasih clue tanpa nyebut namanya!',
+    film:'Ini karakter/film apa? Kasih clue tanpa nyebut namanya!',
+    tempat:'Ini tempat apa? Kasih clue tanpa nyebut namanya!',
+    absurd:'Jelasin situasinya tanpa nyebut katanya!',
+  };
+  document.getElementById('word-hint').textContent = `Kata ${wordCount + 1}/${MAX_WORDS} — ` + hints[selectedCat];
+}
+
+function correctWord() {
+  if (timeLeft <= 0) return;
+  const word = wordQueue[wordIdx];
+  wordHistory.push({word, correct: true});
+  correctCount++;
+  wordCount++;
+  document.getElementById('sc-correct').textContent = correctCount;
+  flash('green');
+  if (navigator.vibrate) navigator.vibrate(40);
+  wordIdx++;
+  if (wordCount >= MAX_WORDS) { clearInterval(timerInterval); endGame(); return; }
+  showWord();
+}
+
+function skipWord() {
+  if (timeLeft <= 0) return;
+  const word = wordQueue[wordIdx];
+  wordHistory.push({word, correct: false});
+  skipCount++;
+  wordCount++;
+  document.getElementById('sc-skip').textContent = skipCount;
+  flash('red');
+  if (navigator.vibrate) navigator.vibrate([60,30,60]);
+  wordIdx++;
+  if (wordCount >= MAX_WORDS) { clearInterval(timerInterval); endGame(); return; }
+  showWord();
+}
+
+function flash(color) {
+  const el = document.getElementById('flash-overlay');
+  el.className = color;
+  clearTimeout(flashTimeout);
+  flashTimeout = setTimeout(() => el.className = '', 300);
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimer();
+  timerInterval = setInterval(() => {
+    timeLeft -= 0.1;
+    timeLeft = Math.round(timeLeft * 10) / 10;
+    updateTimer();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      endGame();
+    }
+  }, 100);
+}
+
+function updateTimer() {
+  const pct = Math.max(0, timeLeft / GAME_DURATION);
+  const circumference = 188.5;
+  const offset = circumference * (1 - pct);
+  const fill = document.getElementById('timer-fill');
+  fill.style.strokeDashoffset = offset;
+  fill.style.stroke = pct < .3 ? '#e57373' : pct < .6 ? '#ffb300' : 'var(--rose)';
+  document.getElementById('timer-num').textContent = Math.ceil(timeLeft);
+}
+
+function endGame() {
+  showScreen('s-result');
+  const total = correctCount + skipCount;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  const playerName = currentPlayer === 'razan' ? 'Razan' : 'Dara';
+
+  document.getElementById('end-score').textContent = correctCount;
+  document.getElementById('rs-correct').textContent = correctCount;
+  document.getElementById('rs-skip').textContent = skipCount;
+  document.getElementById('rs-pct').textContent = pct + '%';
+
+  // Recap
+  const list = document.getElementById('recap-list');
+  list.innerHTML = wordHistory.map(w =>
+    `<div class="recap-word ${w.correct ? 'correct' : 'skipped'}">${w.correct ? '✓' : '✗'} ${w.word}</div>`
+  ).join('');
+
+  // Verdict
+  let icon, verdict;
+  if (correctCount >= 15) {
+    icon = '🏆';
+    verdict = `<strong>Luar biasa! ${correctCount} kata!</strong> ${playerName} dan pasangannya telepati banget — komunikasi kalian top tier! 🧠🤍`;
+    confetti(80);
+  } else if (correctCount >= 10) {
+    icon = '🎉';
+    verdict = `<strong>${correctCount} kata berhasil!</strong> Cukup solid — kalian nyambung! ${skipCount > 0 ? `${skipCount} kata dilewat, tapi overall bagus!` : 'Ga ada yang diskip — sempurna!'} 🤦`;
+    confetti(50);
+  } else if (correctCount >= 5) {
+    icon = '😄';
+    verdict = `<strong>${correctCount} kata.</strong> Lumayan! Clue-nya mungkin kurang jelas, atau ${playerName} terlalu lama mikir 😄 Main lagi biar makin nyambung!`;
+  } else {
+    icon = '😅';
+    verdict = `<strong>${correctCount} kata.</strong> Hmm, kayaknya komunikasinya masih perlu latihan nih 😂 Atau kata-katanya terlalu susah? Main lagi!`;
+  }
+
+  document.getElementById('end-icon').textContent = icon;
+  document.getElementById('end-verdict').innerHTML = verdict;
+}
+
+function swapPlayer() {
+  // Swap player and restart with same category
+  const nextPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
+  startGame(nextPlayer);
+}
+
+function confetti(n) {
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#fff'];
+  for (let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
