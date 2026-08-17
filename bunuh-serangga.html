@@ -194,10 +194,10 @@ const BUG_HEART = '❤️';
 const BUG_HEART2 = '💕';
 
 const LEVELS = [
-  {time:60, maxBugs:8,  spawnRate:1200, speed:1.2, rareChance:.04, heartChance:.08},
-  {time:45, maxBugs:12, spawnRate:900,  speed:1.8, rareChance:.06, heartChance:.1},
-  {time:30, maxBugs:18, spawnRate:650,  speed:2.5, rareChance:.08, heartChance:.12},
-  {time:15, maxBugs:25, spawnRate:450,  speed:3.5, rareChance:.1,  heartChance:.15},
+  {time:60, maxBugs:8,  spawnRate:1200, speed:1.2, rareChance:.04, heartChance:.22},
+  {time:45, maxBugs:12, spawnRate:900,  speed:1.8, rareChance:.06, heartChance:.28},
+  {time:30, maxBugs:18, spawnRate:650,  speed:2.5, rareChance:.08, heartChance:.34},
+  {time:15, maxBugs:25, spawnRate:450,  speed:3.5, rareChance:.1,  heartChance:.40},
 ];
 
 let score = 0;
@@ -283,7 +283,12 @@ function spawnBug(lv) {
 
   const roll = Math.random();
   let emoji, type;
-  if (roll < lv.heartChance) {
+  if (roll < lv.heartChance * 0.7) {
+    // Bomb - camouflaged
+    emoji = BUG_BOMB;
+    type = 'bomb';
+  } else if (roll < lv.heartChance) {
+    // Heart - bonus points
     emoji = Math.random() < .5 ? BUG_HEART : BUG_HEART2;
     type = 'heart';
   } else if (roll < lv.heartChance + lv.rareChance) {
@@ -302,7 +307,11 @@ function spawnBug(lv) {
   const speed = (0.5 + Math.random() * 1.5);
 
   const el = document.createElement('div');
-  el.className = 'bug' + (type === 'bomb' ? ' heart' : '') + (type === 'heart' ? ' heart' : '') + (type === 'rare' ? ' rare' : '');
+  el.className = 'bug' + (type === 'heart' ? ' heart' : '') + (type === 'rare' ? ' rare' : '');
+  if (type === 'bomb') {
+    el.style.filter = 'sepia(0.5) brightness(0.6) hue-rotate(10deg)';
+    el.style.fontSize = (1.4 + Math.random() * .5) + 'rem';
+  }
   el.id = id;
   el.textContent = emoji;
   el.style.left = x + 'px';
