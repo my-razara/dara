@@ -291,7 +291,7 @@ const MENU = [
 
 const CUSTOMERS = ['👦','👧','👨','👩','🧓','👴','👵','🧑','🧒'];
 const TOTAL_ORDERS = 10;
-const ORDER_TIME = 30; // seconds per order
+const ORDER_TIME = 20; // seconds per order
 
 let score = 0;
 let lives = 3;
@@ -448,9 +448,15 @@ function tapItem(role, emoji, label, isCorrect, btn) {
   } else {
     btn.classList.add('wrong');
     setTimeout(() => btn.classList.remove('wrong'), 300);
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    score = Math.max(0, score - 10);
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    lives--;
+    score = Math.max(0, score - 20);
     updateHUD();
+    showFeedback('💔', 'Bahan Salah!', '-1 Nyawa & -20 poin', '#e57373');
+    setTimeout(() => {
+      hideFeedback();
+      if (lives <= 0) { clearInterval(orderTimer); endGame(); }
+    }, 900);
   }
 }
 
