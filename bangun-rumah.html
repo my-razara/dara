@@ -145,7 +145,30 @@
     <div class="rule"><span class="rule-dot"></span>Tiap item punya efek beda (Romantis, Fun, Hemat, Aesthetic)</div>
     <div class="rule"><span class="rule-dot"></span>Setelah semua giliran — rumah kalian dinilai! 🏆</div>
   </div>
-  <button class="start-btn" onclick="startGame()">Bangun Rumah! 🏠</button>
+  <button class="start-btn" onclick="showScreen('s-pick')">Bangun Rumah! 🏠</button>
+</div>
+
+<!-- PICK WHO GOES FIRST -->
+<div id="s-pick" class="screen">
+  <span style="font-size:3.5rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite">🏠</span>
+  <p style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1">Siapa yang rencanain duluan?</p>
+  <p style="font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1">Yang pertama beli item duluan — gantian setelahnya sampai budget habis!</p>
+  <div style="display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1">
+    <div onclick="startGame('razan')" style="padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);transition:all .15s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
+      <span style="font-size:2rem;flex-shrink:0">🧑</span>
+      <div>
+        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan duluan</span>
+        <span style="font-size:11px;color:var(--muted);margin-top:.1rem;display:block">Razan yang pilih item pertama</span>
+      </div>
+    </div>
+    <div onclick="startGame('dara')" style="padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);transition:all .15s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
+      <span style="font-size:2rem;flex-shrink:0">👧</span>
+      <div>
+        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara duluan</span>
+        <span style="font-size:11px;color:var(--muted);margin-top:.1rem;display:block">Dara yang pilih item pertama</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- SHOP -->
@@ -159,7 +182,7 @@
       <span class="sh-turn" id="sh-turn">🧑 Giliran Razan</span>
     </div>
     <div>
-      <span class="sh-round" style="font-size:10px;color:var(--muted)">Putaran <b id="sh-round">1</b>/10</span>
+      <span class="sh-round" style="font-size:10px;color:var(--muted)">Item dibeli: <b id="sh-round">0</b></span>
     </div>
   </div>
 
@@ -227,7 +250,7 @@
     <div class="verdict-card" id="verdict-card">...</div>
 
     <div class="result-btns">
-      <button class="result-btn result-btn-p" onclick="startGame()">Main Lagi 🔄</button>
+      <button class="result-btn result-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
       <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
     </div>
   </div>
@@ -236,43 +259,74 @@
 <script>
 // ── ITEMS ──
 const SHOP_ITEMS = [
-  // Furniture
-  {id:'sofa',     emoji:'🛋️', name:'Sofa',          price:500000,  cat:'Furnitur',   romantic:15, fun:10, hemat:5,  aesthetic:20},
-  {id:'kasur',    emoji:'🛏️', name:'Kasur Premium', price:800000,  cat:'Furnitur',   romantic:25, fun:5,  hemat:0,  aesthetic:15},
-  {id:'meja',     emoji:'🪑', name:'Meja Makan',    price:300000,  cat:'Furnitur',   romantic:10, fun:10, hemat:15, aesthetic:10},
-  {id:'lemari',   emoji:'🪞', name:'Lemari Hias',   price:400000,  cat:'Furnitur',   romantic:5,  fun:5,  hemat:10, aesthetic:25},
-  {id:'karpet',   emoji:'🪃', name:'Karpet Lucu',   price:200000,  cat:'Furnitur',   romantic:5,  fun:15, hemat:20, aesthetic:15},
+  // Furnitur
+  {id:'sofa',       emoji:'🛋️', name:'Sofa 3 Dudukan',    price:1200000, cat:'Furnitur',    romantic:15, fun:10, hemat:5,  aesthetic:20},
+  {id:'sofa2',      emoji:'🪑', name:'Kursi Santai',       price:400000,  cat:'Furnitur',    romantic:10, fun:10, hemat:15, aesthetic:15},
+  {id:'kasur',      emoji:'🛏️', name:'Kasur Spring Bed',   price:1500000, cat:'Furnitur',    romantic:25, fun:5,  hemat:0,  aesthetic:15},
+  {id:'kasur2',     emoji:'🛌', name:'Kasur Lipat',        price:350000,  cat:'Furnitur',    romantic:5,  fun:10, hemat:30, aesthetic:5},
+  {id:'meja',       emoji:'🍽️', name:'Meja Makan',         price:600000,  cat:'Furnitur',    romantic:15, fun:15, hemat:10, aesthetic:15},
+  {id:'mejakecil',  emoji:'☕', name:'Meja Kopi',          price:250000,  cat:'Furnitur',    romantic:20, fun:10, hemat:20, aesthetic:20},
+  {id:'lemari',     emoji:'🪞', name:'Lemari Pakaian',     price:800000,  cat:'Furnitur',    romantic:5,  fun:5,  hemat:10, aesthetic:20},
+  {id:'rak',        emoji:'📚', name:'Rak Buku',           price:300000,  cat:'Furnitur',    romantic:10, fun:10, hemat:20, aesthetic:25},
+  {id:'karpet',     emoji:'🟤', name:'Karpet Bulu',        price:350000,  cat:'Furnitur',    romantic:10, fun:15, hemat:15, aesthetic:25},
+  {id:'gorden',     emoji:'🪟', name:'Gorden Aesthetic',   price:200000,  cat:'Furnitur',    romantic:10, fun:5,  hemat:20, aesthetic:30},
+  {id:'lampu',      emoji:'💡', name:'Lampu Hias',         price:150000,  cat:'Furnitur',    romantic:25, fun:5,  hemat:25, aesthetic:30},
+  {id:'cermin',     emoji:'🪞', name:'Cermin Besar',       price:300000,  cat:'Furnitur',    romantic:5,  fun:10, hemat:15, aesthetic:35},
 
-  // Electronics
-  {id:'tv',       emoji:'📺', name:'TV Besar',       price:1200000, cat:'Elektronik', romantic:5,  fun:30, hemat:0,  aesthetic:10},
-  {id:'speaker',  emoji:'🔊', name:'Speaker Music',  price:600000,  cat:'Elektronik', romantic:20, fun:20, hemat:5,  aesthetic:10},
-  {id:'ac',       emoji:'❄️', name:'AC Dingin',      price:700000,  cat:'Elektronik', romantic:5,  fun:10, hemat:0,  aesthetic:5},
-  {id:'kulkas',   emoji:'🧊', name:'Kulkas Es Krim', price:500000,  cat:'Elektronik', romantic:10, fun:20, hemat:10, aesthetic:5},
+  // Elektronik
+  {id:'tv',         emoji:'📺', name:'Smart TV 55"',       price:2000000, cat:'Elektronik',  romantic:5,  fun:35, hemat:-5, aesthetic:15},
+  {id:'tv2',        emoji:'🖥️', name:'TV 32"',             price:800000,  cat:'Elektronik',  romantic:5,  fun:25, hemat:10, aesthetic:10},
+  {id:'speaker',    emoji:'🔊', name:'Speaker Bluetooth',  price:500000,  cat:'Elektronik',  romantic:20, fun:25, hemat:10, aesthetic:15},
+  {id:'ac',         emoji:'❄️', name:'AC 1 PK',            price:1500000, cat:'Elektronik',  romantic:5,  fun:10, hemat:-5, aesthetic:5},
+  {id:'ac2',        emoji:'🌬️', name:'Kipas Angin',        price:150000,  cat:'Elektronik',  romantic:5,  fun:10, hemat:30, aesthetic:5},
+  {id:'kulkas',     emoji:'🧊', name:'Kulkas 2 Pintu',     price:900000,  cat:'Elektronik',  romantic:10, fun:20, hemat:10, aesthetic:10},
+  {id:'mesinair',   emoji:'🚿', name:'Water Heater',       price:600000,  cat:'Elektronik',  romantic:5,  fun:10, hemat:0,  aesthetic:5},
+  {id:'wifi',       emoji:'📡', name:'WiFi Router',        price:300000,  cat:'Elektronik',  romantic:5,  fun:30, hemat:10, aesthetic:5},
+  {id:'kamera',     emoji:'📸', name:'Kamera Polaroid',    price:400000,  cat:'Elektronik',  romantic:30, fun:20, hemat:10, aesthetic:25},
+  {id:'proyektor',  emoji:'🎥', name:'Proyektor Mini',     price:700000,  cat:'Elektronik',  romantic:25, fun:30, hemat:5,  aesthetic:20},
 
-  // Garden & Outdoor
-  {id:'pohon',    emoji:'🌳', name:'Pohon Rindang',  price:250000,  cat:'Taman',      romantic:15, fun:10, hemat:30, aesthetic:25},
-  {id:'bunga',    emoji:'🌸', name:'Taman Bunga',    price:150000,  cat:'Taman',      romantic:25, fun:5,  hemat:35, aesthetic:30},
-  {id:'kolam',    emoji:'🏊', name:'Kolam Renang',   price:2000000, cat:'Taman',      romantic:20, fun:40, hemat:-10,aesthetic:30},
-  {id:'ayunan',   emoji:'🪜', name:'Ayunan',         price:300000,  cat:'Taman',      romantic:15, fun:25, hemat:15, aesthetic:20},
+  // Dapur
+  {id:'kompor',     emoji:'🍳', name:'Kompor Gas',         price:400000,  cat:'Dapur',       romantic:20, fun:25, hemat:15, aesthetic:10},
+  {id:'microwave',  emoji:'📻', name:'Microwave',          price:500000,  cat:'Dapur',       romantic:5,  fun:15, hemat:10, aesthetic:10},
+  {id:'blender',    emoji:'🥤', name:'Blender',            price:200000,  cat:'Dapur',       romantic:10, fun:20, hemat:15, aesthetic:10},
+  {id:'dispenser',  emoji:'💧', name:'Dispenser Air',      price:250000,  cat:'Dapur',       romantic:5,  fun:5,  hemat:20, aesthetic:5},
+  {id:'peralatan',  emoji:'🍴', name:'Set Peralatan Masak',price:300000,  cat:'Dapur',       romantic:15, fun:20, hemat:15, aesthetic:10},
 
-  // Pets
-  {id:'kucing',   emoji:'🐱', name:'Kucing Peliharaan',price:100000,cat:'Hewan',      romantic:25, fun:30, hemat:15, aesthetic:15},
-  {id:'anjing',   emoji:'🐶', name:'Anjing Lucu',    price:150000,  cat:'Hewan',      romantic:20, fun:35, hemat:10, aesthetic:10},
-  {id:'ikan',     emoji:'🐠', name:'Akuarium Ikan',  price:200000,  cat:'Hewan',      romantic:15, fun:15, hemat:20, aesthetic:30},
+  // Taman & Outdoor
+  {id:'pohon',      emoji:'🌳', name:'Pohon Rindang',      price:200000,  cat:'Taman',       romantic:15, fun:10, hemat:30, aesthetic:25},
+  {id:'bunga',      emoji:'🌸', name:'Taman Bunga',        price:150000,  cat:'Taman',       romantic:25, fun:10, hemat:30, aesthetic:35},
+  {id:'kaktus',     emoji:'🌵', name:'Kaktus Hias',        price:50000,   cat:'Taman',       romantic:5,  fun:15, hemat:40, aesthetic:20},
+  {id:'kolam',      emoji:'🏊', name:'Kolam Renang',       price:3000000, cat:'Taman',       romantic:20, fun:40, hemat:-20,aesthetic:30},
+  {id:'kolam2',     emoji:'🛁', name:'Kolam Kecil',        price:500000,  cat:'Taman',       romantic:15, fun:25, hemat:10, aesthetic:20},
+  {id:'ayunan',     emoji:'🪑', name:'Ayunan',             price:200000,  cat:'Taman',       romantic:20, fun:30, hemat:20, aesthetic:20},
+  {id:'hammock',    emoji:'🛺', name:'Hammock',            price:250000,  cat:'Taman',       romantic:35, fun:25, hemat:20, aesthetic:25},
+  {id:'bbq',        emoji:'🔥', name:'Grill BBQ',          price:400000,  cat:'Taman',       romantic:20, fun:35, hemat:10, aesthetic:15},
+  {id:'gazebo',     emoji:'⛺', name:'Gazebo Mini',        price:800000,  cat:'Taman',       romantic:30, fun:20, hemat:5,  aesthetic:30},
+  {id:'trampolin',  emoji:'🤸', name:'Trampolin',          price:600000,  cat:'Taman',       romantic:5,  fun:40, hemat:5,  aesthetic:10},
 
-  // Transport
-  {id:'mobil',    emoji:'🚗', name:'Mobil Keluarga', price:1500000, cat:'Kendaraan',  romantic:10, fun:25, hemat:-5, aesthetic:20},
-  {id:'sepeda',   emoji:'🚲', name:'Sepeda Berdua',  price:300000,  cat:'Kendaraan',  romantic:30, fun:20, hemat:25, aesthetic:15},
+  // Hewan
+  {id:'kucing',     emoji:'🐱', name:'Kucing Peliharaan',  price:100000,  cat:'Hewan',       romantic:25, fun:30, hemat:15, aesthetic:15},
+  {id:'anjing',     emoji:'🐶', name:'Anjing Lucu',        price:200000,  cat:'Hewan',       romantic:20, fun:35, hemat:10, aesthetic:10},
+  {id:'ikan',       emoji:'🐠', name:'Akuarium Ikan',      price:300000,  cat:'Hewan',       romantic:15, fun:15, hemat:15, aesthetic:35},
+  {id:'hamster',    emoji:'🐹', name:'Hamster',            price:80000,   cat:'Hewan',       romantic:15, fun:25, hemat:25, aesthetic:10},
+  {id:'burung',     emoji:'🦜', name:'Burung Peliharaan',  price:150000,  cat:'Hewan',       romantic:15, fun:20, hemat:20, aesthetic:20},
 
-  // Special
-  {id:'hammock',  emoji:'🛺', name:'Hammock',        price:200000,  cat:'Spesial',    romantic:35, fun:20, hemat:20, aesthetic:25},
-  {id:'bbq',      emoji:'🔥', name:'Grill BBQ',      price:350000,  cat:'Spesial',    romantic:15, fun:35, hemat:10, aesthetic:10},
-  {id:'teleskop', emoji:'🔭', name:'Teleskop Bintang',price:450000, cat:'Spesial',    romantic:40, fun:15, hemat:10, aesthetic:20},
-  {id:'piano',    emoji:'🎹', name:'Piano Mini',     price:800000,  cat:'Spesial',    romantic:35, fun:25, hemat:0,  aesthetic:35},
+  // Kendaraan
+  {id:'mobil',      emoji:'🚗', name:'Mobil Keluarga',     price:2500000, cat:'Kendaraan',   romantic:10, fun:25, hemat:-10,aesthetic:20},
+  {id:'motor',      emoji:'🛵', name:'Motor',              price:800000,  cat:'Kendaraan',   romantic:5,  fun:20, hemat:10, aesthetic:10},
+  {id:'sepeda',     emoji:'🚲', name:'Sepeda Berdua',      price:300000,  cat:'Kendaraan',   romantic:30, fun:25, hemat:25, aesthetic:15},
+
+  // Spesial & Romantis
+  {id:'teleskop',   emoji:'🔭', name:'Teleskop Bintang',   price:500000,  cat:'Spesial',     romantic:40, fun:20, hemat:10, aesthetic:20},
+  {id:'piano',      emoji:'🎹', name:'Piano Mini',         price:1200000, cat:'Spesial',     romantic:35, fun:25, hemat:0,  aesthetic:35},
+  {id:'gitar',      emoji:'🎸', name:'Gitar Akustik',      price:400000,  cat:'Spesial',     romantic:30, fun:25, hemat:15, aesthetic:20},
+  {id:'perpustakaan',emoji:'📖',name:'Sudut Baca',         price:200000,  cat:'Spesial',     romantic:25, fun:15, hemat:20, aesthetic:30},
+  {id:'bioskop',    emoji:'🎬', name:'Home Theater',       price:1500000, cat:'Spesial',     romantic:30, fun:40, hemat:-5, aesthetic:25},
+  {id:'gym',        emoji:'🏋️', name:'Alat Gym',          price:700000,  cat:'Spesial',     romantic:5,  fun:30, hemat:5,  aesthetic:15},
+  {id:'dapur_cafe', emoji:'☕', name:'Sudut Kafe Mini',    price:600000,  cat:'Spesial',     romantic:35, fun:20, hemat:10, aesthetic:40},
 ];
 
 const BUDGET_START = 10000000;
-const MAX_ROUNDS = 10;
 
 let budget = BUDGET_START;
 let boughtItems = [];
@@ -285,11 +339,11 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-function startGame() {
+function startGame(firstPlayer) {
   budget = BUDGET_START;
   boughtItems = [];
-  currentTurn = 'razan';
-  round = 1;
+  currentTurn = firstPlayer || 'razan';
+  round = 0;
   passCount = 0;
   showScreen('s-shop');
   renderShop();
@@ -310,7 +364,7 @@ function updateHeader() {
   const el = document.getElementById('sh-turn');
   el.textContent = `${icon} Giliran ${name}`;
   el.className = 'sh-turn ' + currentTurn;
-  document.getElementById('sh-round').textContent = round;
+  document.getElementById('sh-round').textContent = boughtItems.length;
 }
 
 function updateHousePreview() {
@@ -375,8 +429,9 @@ function nextTurn() {
   renderShop();
   updateHousePreview();
 
-  // Auto finish if budget empty or max rounds
-  if (budget <= Math.min(...SHOP_ITEMS.filter(i => !boughtItems.some(b=>b.id===i.id)).map(i=>i.price)) || round > MAX_ROUNDS) {
+  // Auto finish if can't afford anything
+  const remaining = SHOP_ITEMS.filter(i => !boughtItems.some(b => b.id === i.id));
+  if (remaining.length === 0 || budget < Math.min(...remaining.map(i => i.price))) {
     finishGame();
   }
 }
@@ -399,18 +454,23 @@ function calculateAndShowResult() {
     aesthetic += item.aesthetic;
   });
 
-  // Normalize to 0-100
-  const maxPossible = boughtItems.length * 40;
-  const norm = (v) => Math.min(100, Math.max(0, Math.round((v / Math.max(maxPossible, 1)) * 100)));
+  // Normalize to 0-100 based on items bought
+  // Max per item is ~40 pts per category, but avg is ~18
+  // Use avg-based normalization for fairer scoring
+  const avgPerItem = { romantic: 18, fun: 20, hemat: 14, aesthetic: 18 };
+  const norm = (v, cat) => {
+    const max = avgPerItem[cat] * Math.max(boughtItems.length, 1) * 1.5;
+    return Math.min(100, Math.max(0, Math.round((v / max) * 100)));
+  };
 
-  // Budget savings bonus
+  romantic  = norm(romantic,  'romantic');
+  fun       = norm(fun,       'fun');
+  aesthetic = norm(aesthetic, 'aesthetic');
+
+  // Hemat: based on budget saved + items hemat score
   const savedPct = budget / BUDGET_START;
-  const hematBonus = Math.round(savedPct * 30);
-  hemat = Math.min(100, norm(hemat) + hematBonus);
-
-  romantic = norm(romantic);
-  fun = norm(fun);
-  aesthetic = norm(aesthetic);
+  const hematBase = norm(hemat, 'hemat');
+  hemat = Math.min(100, Math.round(hematBase * 0.6 + savedPct * 40));
 
   // House preview
   document.getElementById('rhb-items').innerHTML = boughtItems.map(i => `<span class="rhb-item">${i.emoji}</span>`).join('');
