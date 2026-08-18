@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mirror of Us 🪞</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;
+    --bg:#0a0a14;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:var(--bg)}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--bg)}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 40% 40%,rgba(193,122,111,.12),transparent 55%),
+    radial-gradient(ellipse at 70% 70%,rgba(201,169,110,.08),transparent 55%);
+    pointer-events:none}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2rem 1.5rem}
+  .mirror-emoji{font-size:4rem;display:block;margin-bottom:1.25rem;animation:float 4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .intro-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.5rem}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:.75rem}
+  .intro-title em{font-style:normal;color:var(--rose)}
+  .intro-q{font-size:13.5px;color:rgba(255,255,255,.55);line-height:1.85;max-width:300px;font-style:italic;margin-bottom:2rem}
+  .intro-btn{padding:1rem 2.5rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;box-shadow:0 6px 24px rgba(193,122,111,.35);transition:all .2s;animation:btnpulse 2.5s ease-in-out infinite}
+  @keyframes btnpulse{0%,100%{box-shadow:0 6px 24px rgba(193,122,111,.35)}50%{box-shadow:0 6px 32px rgba(193,122,111,.6)}}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* ── QUESTIONS ── */
+  #s-questions{background:var(--bg);padding:0;justify-content:flex-start}
+
+  /* Progress */
+  .q-header{flex-shrink:0;padding:.75rem 1.25rem;width:100%;display:flex;align-items:center;gap:.75rem}
+  .q-progress-bar{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+  .q-progress-fill{height:100%;background:linear-gradient(to right,var(--rose),var(--gold));border-radius:2px;transition:width .4s ease}
+  .q-step{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap}
+
+  /* Question card */
+  .q-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.5rem 1.25rem 2rem;width:100%;display:flex;flex-direction:column;align-items:center}
+  .q-card{width:100%;max-width:420px;margin-top:.5rem}
+  .q-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.5rem}
+  .q-question{font-size:clamp(1.1rem,4.5vw,1.5rem);font-weight:700;color:#fff;line-height:1.35;margin-bottom:.35rem}
+  .q-sub{font-size:12px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:1.25rem;line-height:1.55}
+
+  /* Options grid */
+  .options-grid{display:grid;gap:.6rem;width:100%}
+  .options-grid.col2{grid-template-columns:repeat(2,1fr)}
+  .options-grid.col3{grid-template-columns:repeat(3,1fr)}
+  .option-btn{padding:.85rem .5rem;border-radius:16px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:all .15s;font-family:'Poppins',sans-serif;text-align:center}
+  .option-btn:active{transform:scale(.93)}
+  .option-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.15)}
+  .opt-emoji{font-size:1.8rem;display:block;line-height:1}
+  .opt-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.8);line-height:1.3}
+  .opt-sub{font-size:9.5px;color:rgba(255,255,255,.35);font-style:italic;line-height:1.3}
+
+  /* Next btn */
+  .q-next-wrap{flex-shrink:0;padding:.75rem 1.25rem calc(.75rem + env(safe-area-inset-bottom));width:100%}
+  .q-next-btn{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .q-next-btn:active{transform:scale(.97)}
+  .q-next-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+
+  /* ── GENERATING ── */
+  #s-generating{background:var(--bg)}
+  .gen-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:2rem;position:relative;z-index:1}
+  .gen-mirror{font-size:5rem;display:block;animation:mirrorpulse 1.5s ease-in-out infinite}
+  @keyframes mirrorpulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.3)}}
+  .gen-text{font-size:14px;color:rgba(255,255,255,.5);font-style:italic;animation:gentextfade 2s ease-in-out infinite}
+  @keyframes gentextfade{0%,100%{opacity:.5}50%{opacity:1}}
+  .gen-dots{display:flex;gap:.4rem}
+  .gen-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);animation:gendot .8s ease-in-out infinite}
+  .gen-dot:nth-child(2){animation-delay:.2s}
+  .gen-dot:nth-child(3){animation-delay:.4s}
+  @keyframes gendot{0%,100%{transform:scale(.6);opacity:.3}50%{transform:scale(1.2);opacity:1}}
+
+  /* ── PORTRAIT ── */
+  #s-portrait{background:var(--bg);padding:0;justify-content:flex-start}
+
+  .portrait-scroll{width:100%;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.25rem 1.25rem 2rem;display:flex;flex-direction:column;align-items:center;gap:1rem;scroll-behavior:smooth}
+
+  /* Portrait card - dynamic bg */
+  .portrait-main{width:100%;max-width:400px;border-radius:24px;padding:1.5rem 1.25rem;position:relative;text-align:center}
+  .portrait-main::before{content:'';position:absolute;inset:0;opacity:.15;pointer-events:none}
+  .portrait-shine{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.15),transparent 60%);pointer-events:none;border-radius:24px}
+  .pm-label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);display:block;margin-bottom:.4rem;position:relative;z-index:1}
+  .pm-title{font-size:clamp(1.4rem,5.5vw,2rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:.35rem;position:relative;z-index:1}
+  .pm-type{font-size:12px;color:rgba(255,255,255,.6);font-style:italic;margin-bottom:.85rem;position:relative;z-index:1;line-height:1.4}
+  .pm-tags{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.85rem;position:relative;z-index:1}
+  .pm-tag{padding:.3rem .85rem;border-radius:50px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .pm-divider{height:1px;background:rgba(255,255,255,.12);margin-bottom:1.25rem;position:relative;z-index:1}
+  .pm-desc{font-size:12px;color:rgba(255,255,255,.8);line-height:1.7;font-style:italic;position:relative;z-index:1}
+  .pm-sig{font-size:11px;color:rgba(255,255,255,.35);margin-top:1rem;display:block;position:relative;z-index:1}
+
+  /* Elements display */
+  .elements-card{width:100%;max-width:400px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem 1.25rem}
+  .el-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:.75rem}
+  .el-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .el-item{display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.04);border-radius:10px;padding:.5rem .65rem}
+  .el-emoji{font-size:1.2rem;flex-shrink:0}
+  .el-info{text-align:left}
+  .el-cat{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .el-val{font-size:12px;font-weight:600;color:rgba(255,255,255,.8)}
+
+  /* Poem */
+  .poem-card{width:100%;max-width:400px;background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.2);border-radius:20px;padding:1.25rem 1.5rem;text-align:center}
+  .poem-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);display:block;margin-bottom:.85rem;opacity:.7}
+  .poem-text{font-size:13px;color:rgba(255,255,255,.75);line-height:2;font-style:italic}
+  .poem-line{display:block}
+
+  /* Redo / share */
+  .portrait-btns{width:100%;max-width:400px;display:flex;gap:.6rem;padding-bottom:1rem}
+  .pb-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s}
+  .pb-btn-p{background:linear-gradient(135deg,var(--rose),var(--gold));color:#fff}
+  .pb-btn-p:active{transform:scale(.97)}
+  .pb-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  /* Shimmer on load */
+  @keyframes shimmer{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .shimmer{animation:shimmer .5s ease forwards}
+  .shimmer-delay-1{animation-delay:.1s;opacity:0}
+  .shimmer-delay-2{animation-delay:.2s;opacity:0}
+  .shimmer-delay-3{animation-delay:.35s;opacity:0}
+  .shimmer-delay-4{animation-delay:.5s;opacity:0}
+  .shimmer-delay-5{animation-delay:.65s;opacity:0}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="mirror-emoji">🪞</span>
+    <span class="intro-eyebrow">Hadiah untuk Dara</span>
+    <h1 class="intro-title">Mirror<br>of <em>Us</em></h1>
+    <p class="intro-q">"Aku penasaran... kalau hubungan kita dijadikan sebuah dunia, bentuknya seperti apa?"</p>
+    <button class="intro-btn" onclick="startQuestions()">Mulai Cermin Kita ✨</button>
+  </div>
+</div>
+
+<!-- QUESTIONS -->
+<div id="s-questions" class="screen">
+  <div class="q-header">
+    <div class="q-progress-bar"><div class="q-progress-fill" id="q-progress" style="width:0%"></div></div>
+    <span class="q-step" id="q-step">1 / 7</span>
+  </div>
+  <div class="q-scroll" id="q-scroll">
+    <div class="q-card" id="q-card"></div>
+  </div>
+  <div class="q-next-wrap">
+    <button class="q-next-btn" id="q-next-btn" onclick="nextQuestion()" disabled>Selanjutnya →</button>
+  </div>
+</div>
+
+<!-- GENERATING -->
+<div id="s-generating" class="screen">
+  <div class="gen-wrap">
+    <span class="gen-mirror">🪞</span>
+    <p class="gen-text" id="gen-text">Cermin sedang membaca perasaanmu...</p>
+    <div class="gen-dots"><div class="gen-dot"></div><div class="gen-dot"></div><div class="gen-dot"></div></div>
+  </div>
+</div>
+
+<!-- PORTRAIT -->
+<div id="s-portrait" class="screen">
+  <div style="flex-shrink:0;width:100%;background:rgba(10,10,20,.9);backdrop-filter:blur(8px);padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.5)">🪞 Mirror of Us</span>
+    <button onclick="showScreen('s-intro')" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif">Kembali</button>
+  </div>
+  <div class="portrait-scroll" id="portrait-scroll"></div>
+</div>
+
+<script>
+// ── QUESTIONS ──
+const QUESTIONS = [
+  {
+    id:'color', step:1,
+    eyebrow:'Pertanyaan 1 dari 7',
+    q:'Kalau hubungan kita punya warna...',
+    sub:'Pilih warna yang paling merepresentasikan perasaanmu tentang kita',
+    cols:3,
+    options:[
+      {emoji:'🔴',label:'Merah',sub:'Passion & intens',value:'red',tags:['Intens','Penuh Gairah'],vibe:90},
+      {emoji:'🩷',label:'Pink',sub:'Manis & lembut',value:'pink',tags:['Manis','Mellow'],vibe:70},
+      {emoji:'🟠',label:'Oranye',sub:'Hangat & ceria',value:'orange',tags:['Hangat','Energik'],vibe:80},
+      {emoji:'🟡',label:'Kuning',sub:'Cerah & bahagia',value:'yellow',tags:['Bahagia','Ceria'],vibe:85},
+      {emoji:'🔵',label:'Biru',sub:'Tenang & dalam',value:'blue',tags:['Tenang','Dalam'],vibe:65},
+      {emoji:'🟣',label:'Ungu',sub:'Misterius & dalam',value:'purple',tags:['Misterius','Koneksi Jiwa'],vibe:75},
+      {emoji:'🟢',label:'Hijau',sub:'Tumbuh & natural',value:'green',tags:['Tumbuh','Natural'],vibe:72},
+      {emoji:'⚫',label:'Hitam',sub:'Bold & kuat',value:'black',tags:['Bold','Powerful'],vibe:78},
+      {emoji:'🤍',label:'Putih',sub:'Murni & bersih',value:'white',tags:['Murni','Damai'],vibe:68},
+    ]
+  },
+  {
+    id:'weather', step:2,
+    eyebrow:'Pertanyaan 2 dari 7',
+    q:'Cuaca apa yang menggambarkan kita?',
+    sub:'Bukan cuaca favorit — tapi yang paling mirip sama hubungan kita',
+    cols:3,
+    options:[
+      {emoji:'☀️',label:'Cerah',sub:'Selalu hangat',value:'sunny',tags:['Hangat','Konsisten'],vibe:80},
+      {emoji:'🌤️',label:'Berawan sedikit',sub:'Mostly baik-baik',value:'partlycloudy',tags:['Stabil','Ada Lika-liku'],vibe:72},
+      {emoji:'🌧️',label:'Hujan',sub:'Dalam & melankolis',value:'rainy',tags:['Melankolis','Dalam'],vibe:65},
+      {emoji:'⛈️',label:'Badai',sub:'Chaos tapi hidup',value:'stormy',tags:['Intens','Chaotic'],vibe:85},
+      {emoji:'🌈',label:'Setelah hujan',sub:'Indah setelah susah',value:'rainbow',tags:['Harapan','Kuat'],vibe:90},
+      {emoji:'❄️',label:'Dingin',sub:'Quiet & kontemplatif',value:'cold',tags:['Tenang','Intim'],vibe:68},
+      {emoji:'🌊',label:'Ombak',sub:'Naik turun tapi indah',value:'wave',tags:['Dinamis','Bebas'],vibe:78},
+      {emoji:'🌙',label:'Malam berbintang',sub:'Tenang & romantis',value:'night',tags:['Romantis','Damai'],vibe:88},
+      {emoji:'🌫️',label:'Berkabut',sub:'Misterius & intim',value:'foggy',tags:['Misterius','Dekat'],vibe:70},
+    ]
+  },
+  {
+    id:'place', step:3,
+    eyebrow:'Pertanyaan 3 dari 7',
+    q:'Kalau kita punya tempat sendiri...',
+    sub:'Di mana dunia kita berada?',
+    cols:3,
+    options:[
+      {emoji:'🏠',label:'Rumah kecil',sub:'Hangat & private',value:'home',tags:['Intim','Homey'],vibe:80},
+      {emoji:'🏝️',label:'Pulau terpencil',sub:'Hanya berdua',value:'island',tags:['Eksklusif','Romantis'],vibe:88},
+      {emoji:'🌲',label:'Hutan',sub:'Natural & tersembunyi',value:'forest',tags:['Natural','Misterius'],vibe:72},
+      {emoji:'🏔️',label:'Puncak gunung',sub:'Di atas segalanya',value:'mountain',tags:['Tinggi','Bebas'],vibe:85},
+      {emoji:'🌊',label:'Tepi laut',sub:'Tenang & luas',value:'beach',tags:['Bebas','Luas'],vibe:83},
+      {emoji:'🌌',label:'Luar angkasa',sub:'Tak terbatas',value:'space',tags:['Tak Terbatas','Epik'],vibe:90},
+      {emoji:'☕',label:'Cafe kecil',sub:'Nyaman & hangat',value:'cafe',tags:['Cozy','Nyaman'],vibe:75},
+      {emoji:'🌃',label:'Kota malam',sub:'Hidup & bersinar',value:'city',tags:['Hidup','Bersinar'],vibe:78},
+      {emoji:'🌸',label:'Taman bunga',sub:'Indah & tenang',value:'garden',tags:['Indah','Lembut'],vibe:82},
+    ]
+  },
+  {
+    id:'music', step:4,
+    eyebrow:'Pertanyaan 4 dari 7',
+    q:'Musik apa yang terasa seperti kita?',
+    sub:'Genre atau suasana yang merepresentasikan hubungan kita',
+    cols:2,
+    options:[
+      {emoji:'🎸',label:'Indie / Alternative',sub:'Unik & ga mainstream',value:'indie',tags:['Unik','Autentik']},
+      {emoji:'🎹',label:'Piano / Klasik',sub:'Elegan & timeless',value:'classical',tags:['Elegan','Mendalam']},
+      {emoji:'🎵',label:'Pop / OPM',sub:'Catchy & manis',value:'pop',tags:['Manis','Fun']},
+      {emoji:'🎶',label:'Jazz / Lo-fi',sub:'Santai & cozy',value:'jazz',tags:['Santai','Cozy']},
+      {emoji:'🔥',label:'R&B / Soul',sub:'Dalam & penuh rasa',value:'rnb',tags:['Penuh Rasa','Intim']},
+      {emoji:'🌊',label:'Ambient / Instrumental',sub:'Mengalir & tenang',value:'ambient',tags:['Tenang','Mengalir']},
+    ]
+  },
+  {
+    id:'animal', step:5,
+    eyebrow:'Pertanyaan 5 dari 7',
+    q:'Hewan apa yang melambangkan kita?',
+    sub:'Kalau hubungan kita adalah seekor hewan...',
+    cols:3,
+    options:[
+      {emoji:'🦋',label:'Kupu-kupu',sub:'Indah & berubah',value:'butterfly',tags:['Bertumbuh','Indah']},
+      {emoji:'🐺',label:'Serigala',sub:'Loyal & kuat',value:'wolf',tags:['Loyal','Kuat']},
+      {emoji:'🦁',label:'Singa',sub:'Berani & protektif',value:'lion',tags:['Berani','Protektif']},
+      {emoji:'🐬',label:'Lumba-lumba',sub:'Ceria & bebas',value:'dolphin',tags:['Ceria','Bebas']},
+      {emoji:'🦅',label:'Elang',sub:'Tinggi & tajam',value:'eagle',tags:['Tajam','Bebas']},
+      {emoji:'🐢',label:'Kura-kura',sub:'Sabar & tahan lama',value:'turtle',tags:['Sabar','Abadi']},
+      {emoji:'🦊',label:'Rubah',sub:'Pintar & playful',value:'fox',tags:['Cerdas','Playful']},
+      {emoji:'🐧',label:'Penguin',sub:'Setia seumur hidup',value:'penguin',tags:['Setia','Manis']},
+      {emoji:'🐱',label:'Kucing',sub:'Manja & misterius',value:'cat',tags:['Manja','Intim']},
+    ]
+  },
+  {
+    id:'flower', step:6,
+    eyebrow:'Pertanyaan 6 dari 7',
+    q:'Bunga apa yang paling cocok untuk kita?',
+    sub:'Setiap bunga punya makna berbeda...',
+    cols:3,
+    options:[
+      {emoji:'🌹',label:'Mawar Merah',sub:'Cinta & gairah',value:'rose',tags:['Cinta Sejati','Passion']},
+      {emoji:'🌸',label:'Sakura',sub:'Indah & singkat',value:'sakura',tags:['Precious','Carpe Diem']},
+      {emoji:'🌻',label:'Bunga Matahari',sub:'Bahagia & setia',value:'sunflower',tags:['Setia','Optimis']},
+      {emoji:'💜',label:'Lavender',sub:'Tenang & healing',value:'lavender',tags:['Healing','Damai']},
+      {emoji:'🌼',label:'Daisy',sub:'Sederhana & tulus',value:'daisy',tags:['Tulus','Sederhana']},
+      {emoji:'🌺',label:'Hibiscus',sub:'Eksotis & berani',value:'hibiscus',tags:['Unik','Berani']},
+      {emoji:'🌷',label:'Tulip',sub:'Elegan & sempurna',value:'tulip',tags:['Elegan','Indah']},
+      {emoji:'🌿',label:'Tanaman Hijau',sub:'Tumbuh & bertahan',value:'plant',tags:['Bertumbuh','Kuat']},
+      {emoji:'🍀',label:'Semanggi',sub:'Beruntung & langka',value:'clover',tags:['Beruntung','Langka']},
+    ]
+  },
+  {
+    id:'vibe', step:7,
+    eyebrow:'Pertanyaan 7 dari 7',
+    q:'Satu kata untuk suasana kita...',
+    sub:'Kalau harus pilih satu — yang paling terasa',
+    cols:3,
+    options:[
+      {emoji:'🔥',label:'Passionate',sub:'Penuh api',value:'passionate',tags:['Intens','Berapi']},
+      {emoji:'🌙',label:'Dreamy',sub:'Seperti mimpi',value:'dreamy',tags:['Romantis','Magical']},
+      {emoji:'⚡',label:'Electric',sub:'Ada chemistry kuat',value:'electric',tags:['Chemistry','Spontan']},
+      {emoji:'🌊',label:'Deep',sub:'Sangat dalam',value:'deep',tags:['Dalam','Bermakna']},
+      {emoji:'☀️',label:'Warm',sub:'Selalu hangat',value:'warm',tags:['Nyaman','Hangat']},
+      {emoji:'🌀',label:'Chaotic',sub:'Ramai tapi seru',value:'chaotic',tags:['Seru','Tak Terduga']},
+      {emoji:'🕊️',label:'Peaceful',sub:'Tenang & damai',value:'peaceful',tags:['Damai','Stabil']},
+      {emoji:'✨',label:'Magical',sub:'Selalu bikin kagum',value:'magical',tags:['Ajaib','Unik']},
+      {emoji:'🫶',label:'Comforting',sub:'Rumah yang nyaman',value:'comforting',tags:['Rumah','Aman']},
+    ]
+  },
+];
+
+// ── RELATIONSHIP TYPES ──
+const REL_TYPES = [
+  {name:'The Comfortable Chaos',desc:'Hubungan kalian penuh kejutan dan keramaian — tapi di dalamnya ada kehangatan yang selalu bisa diandalkan. Kalian saling melengkapi dalam ketidaksempurnaan yang indah.',condition:v=>v.vibe==='chaotic'||v.weather==='stormy'},
+  {name:'The Quiet Universe',desc:'Seperti dua bintang yang tenang di galaksi yang sama — kalian tidak perlu banyak kata untuk saling mengerti. Kedalaman hubungan kalian lebih terasa daripada terucap.',condition:v=>v.vibe==='deep'||v.weather==='night'},
+  {name:'The Dreamy Sanctuary',desc:'Hubungan kalian terasa seperti tempat berlindung — penuh imajinasi, keindahan, dan ketenangan. Bersama kalian, dunia terasa lebih ringan dan lebih indah.',condition:v=>v.vibe==='dreamy'||v.weather==='rainbow'},
+  {name:'The Electric Love',desc:'Ada chemistry yang ga bisa dijelaskan antara kalian — seperti percikan listrik yang selalu hidup. Kalian saling menarik satu sama lain dengan cara yang magical.',condition:v=>v.vibe==='electric'||v.color==='red'},
+  {name:'The Passionate Journey',desc:'Cinta kalian bukan yang kalem — tapi yang membara dan penuh warna. Setiap momen terasa hidup, setiap hari jadi petualangan baru bersama.',condition:v=>v.vibe==='passionate'||v.color==='red'},
+  {name:'The Peaceful Harbor',desc:'Di tengah dunia yang ramai, kalian adalah ketenangan satu sama lain. Hubungan kalian adalah pelabuhan — tempat pulang yang selalu hangat dan aman.',condition:v=>v.vibe==='peaceful'||v.vibe==='comforting'},
+  {name:'The Magical Chapter',desc:'Ada sesuatu yang tak biasa dalam hubungan kalian — semesta seperti selalu berpihak. Kebersamaan kalian terasa seperti cerita yang ditulis oleh bintang-bintang.',condition:v=>v.vibe==='magical'||v.place==='space'},
+  {name:'The Warm Forever',desc:'Seperti sinar matahari yang tidak pernah pergi — hubungan kalian konsisten, hangat, dan tulus. Kalian adalah rumah satu sama lain.',condition:v=>v.vibe==='warm'||v.weather==='sunny'},
+];
+
+// ── GRADIENT PALETTES ──
+const PALETTES = {
+  red:    {bg:'linear-gradient(135deg,#4a0010,#c17a6f)',text:'#ffb5a7'},
+  pink:   {bg:'linear-gradient(135deg,#3d0030,#c17a6f)',text:'#ffb5c8'},
+  orange: {bg:'linear-gradient(135deg,#3d1a00,#c9a96e)',text:'#ffd0a0'},
+  yellow: {bg:'linear-gradient(135deg,#2d2000,#c9a96e)',text:'#ffe680'},
+  blue:   {bg:'linear-gradient(135deg,#001a3d,#0077b6)',text:'#90e0ef'},
+  purple: {bg:'linear-gradient(135deg,#1a0040,#7b2d8b)',text:'#d4a8ff'},
+  green:  {bg:'linear-gradient(135deg,#002010,#2d6a4f)',text:'#95d5b2'},
+  black:  {bg:'linear-gradient(135deg,#0a0a0a,#2d2d2d)',text:'#e0e0e0'},
+  white:  {bg:'linear-gradient(135deg,#1a1a2e,#4a4a6a)',text:'#e8e8ff'},
+};
+
+// ── POEM GENERATOR ──
+function generatePoem(answers) {
+  const poems = {
+    passionate: ['Dalam api yang tak pernah padam,','kita berdua jadi nyala yang sama.','Bukan karena mudah —','tapi karena memang begini adanya.'],
+    dreamy:     ['Seperti mimpi yang tak mau berakhir,','kita hidup di antara bintang-bintang.','Di sini, waktu melambat —','dan semua terasa cukup.'],
+    electric:   ['Ada percikan yang tidak bisa dijelaskan','setiap kali matamu bertemu mataku.','Mungkin ini bukan kebetulan —','mungkin memang semesta yang mengatur.'],
+    deep:       ['Kita bukan cinta yang terlihat —','kita cinta yang dirasakan.','Di bawah permukaan yang tenang,','ada lautan yang tak bertepi.'],
+    warm:       ['Kamu adalah satu-satunya tempat','yang selalu terasa seperti rumah.','Tidak perlu kata yang indah —','kehadiranmu sudah cukup.'],
+    chaotic:    ['Kita berantakan dengan cara yang indah,','penuh kejutan yang tidak terduga.','Di tengah semua kekacauan itu —','aku selalu tahu kamu ada.'],
+    peaceful:   ['Bersamamu, dunia tidak terlalu berisik.','Bersamamu, aku bisa bernafas.','Kita bukan yang paling dramatis —','tapi kita yang paling nyata.'],
+    magical:    ['Ada sesuatu yang tidak bisa kujelaskan','tentang caramu membuatku percaya.','Mungkin ini sihir —','atau mungkin memang begini bentuk cinta.'],
+    comforting: ['Kamu bukan pelarian —','kamu adalah tempat pulang.','Di pelukanmu, aku tidak perlu','menjadi siapapun selain diriku sendiri.'],
+  };
+  return poems[answers.vibe] || poems.warm;
+}
+
+let currentQ = 0;
+let answers = {};
+let selectedOption = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuestions() {
+  currentQ = 0; answers = {}; selectedOption = null;
+  showScreen('s-questions');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const pct = (currentQ / QUESTIONS.length) * 100;
+  document.getElementById('q-progress').style.width = pct + '%';
+  document.getElementById('q-step').textContent = `${currentQ+1} / ${QUESTIONS.length}`;
+  document.getElementById('q-next-btn').disabled = true;
+  selectedOption = null;
+
+  const card = document.getElementById('q-card');
+  card.innerHTML = `
+    <span class="q-eyebrow">${q.eyebrow}</span>
+    <h2 class="q-question">${q.q}</h2>
+    <p class="q-sub">${q.sub}</p>
+    <div class="options-grid col${q.cols}" id="options-grid"></div>`;
+
+  const grid = document.getElementById('options-grid');
+  q.options.forEach((opt,i) => {
+    const btn = document.createElement('div');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-emoji">${opt.emoji}</span><span class="opt-label">${opt.label}</span><span class="opt-sub">${opt.sub}</span>`;
+    btn.onclick = () => selectOption(opt, btn);
+    grid.appendChild(btn);
+  });
+
+  // Scroll to top
+  document.getElementById('q-scroll').scrollTop = 0;
+}
+
+function selectOption(opt, btn) {
+  document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedOption = opt;
+  document.getElementById('q-next-btn').disabled = false;
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function nextQuestion() {
+  if (!selectedOption) return;
+  const q = QUESTIONS[currentQ];
+  answers[q.id] = selectedOption.value;
+  answers[q.id + '_data'] = selectedOption;
+
+  currentQ++;
+  if (currentQ >= QUESTIONS.length) {
+    generatePortrait();
+  } else {
+    renderQuestion();
+  }
+}
+
+function generatePortrait() {
+  showScreen('s-generating');
+  const texts = [
+    'Cermin sedang membaca perasaanmu...',
+    'Menyusun warna-warna hubungan kalian...',
+    'Merajut kata-kata yang tepat...',
+    'Hampir selesai...',
+  ];
+  let ti = 0;
+  const iv = setInterval(() => {
+    ti++;
+    if (ti < texts.length) document.getElementById('gen-text').textContent = texts[ti];
+  }, 700);
+  setTimeout(() => { clearInterval(iv); buildPortrait(); }, 2800);
+}
+
+function buildPortrait() {
+  // Find relationship type
+  let relType = REL_TYPES.find(r=>r.condition(answers)) || REL_TYPES[7];
+
+  // Collect all tags
+  const allTags = [];
+  ['color','weather','place','music','animal','flower','vibe'].forEach(k => {
+    if (answers[k+'_data'] && answers[k+'_data'].tags) allTags.push(...answers[k+'_data'].tags);
+  });
+  const uniqueTags = [...new Set(allTags)].slice(0,6);
+
+  // Palette
+  const palette = PALETTES[answers.color] || PALETTES.purple;
+
+  // Elements list
+  const elements = [
+    {cat:'Warna',val:answers.color_data?.label||'',emoji:answers.color_data?.emoji||''},
+    {cat:'Cuaca',val:answers.weather_data?.label||'',emoji:answers.weather_data?.emoji||''},
+    {cat:'Tempat',val:answers.place_data?.label||'',emoji:answers.place_data?.emoji||''},
+    {cat:'Musik',val:answers.music_data?.label||'',emoji:answers.music_data?.emoji||''},
+    {cat:'Hewan',val:answers.animal_data?.label||'',emoji:answers.animal_data?.emoji||''},
+    {cat:'Bunga',val:answers.flower_data?.label||'',emoji:answers.flower_data?.emoji||''},
+    {cat:'Suasana',val:answers.vibe_data?.label||'',emoji:answers.vibe_data?.emoji||''},
+  ];
+
+  // Poem
+  const poem = generatePoem(answers);
+
+  // Build portrait HTML
+  const scroll = document.getElementById('portrait-scroll');
+  scroll.innerHTML = `
+    <!-- Main portrait card -->
+    <div class="portrait-main shimmer" style="background:${palette.bg};box-shadow:0 8px 40px rgba(0,0,0,.4)">
+      <div class="portrait-shine"></div>
+      <span class="pm-label" style="color:${palette.text}88">🪞 Relationship Portrait — Razan & Dara</span>
+      <h2 class="pm-title">"${relType.name}"</h2>
+      <p class="pm-type" style="color:${palette.text}99">${answers.weather_data?.emoji||''} ${answers.vibe_data?.label||''} · ${answers.flower_data?.emoji||''} ${answers.flower_data?.label||''} · ${answers.place_data?.emoji||''} ${answers.place_data?.label||''}</p>
+      <div class="pm-tags">
+        ${uniqueTags.map(t=>`<span class="pm-tag" style="background:rgba(255,255,255,.12);border-color:${palette.text}33">${t}</span>`).join('')}
+      </div>
+      <div class="pm-divider"></div>
+      <p class="pm-desc">${relType.desc}</p>
+      <span class="pm-sig" style="color:${palette.text}55">— Ditulis oleh cermin kita ✨</span>
+    </div>
+
+    <!-- Elements -->
+    <div class="elements-card shimmer shimmer-delay-1">
+      <span class="el-title">Elemen Hubungan Kalian</span>
+      <div class="el-grid">
+        ${elements.map(e=>`
+          <div class="el-item">
+            <span class="el-emoji">${e.emoji}</span>
+            <div class="el-info">
+              <span class="el-cat">${e.cat}</span>
+              <span class="el-val">${e.val}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Poem -->
+    <div class="poem-card shimmer shimmer-delay-2">
+      <span class="poem-title">✍️ Untuk Kamu, dari Cermin Kita</span>
+      <p class="poem-text">
+        ${poem.map(l=>`<span class="poem-line">${l}</span>`).join('')}
+      </p>
+    </div>
+
+    <!-- Buttons -->
+    <div class="portrait-btns shimmer shimmer-delay-3">
+      <button class="pb-btn pb-btn-p" onclick="startQuestions()">Coba Lagi ✨</button>
+    </div>`;
+
+  showScreen('s-portrait');
+  setTimeout(() => {
+    const scroll = document.getElementById('portrait-scroll');
+    if (scroll) scroll.scrollTop = 0;
+  }, 50);
+  confetti(60);
+}
+
+function confetti(n) {
+  const colors=['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#fff','#d4a8ff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
