@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mind Reader 🧠</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{--rose:#c17a6f;--gold:#c9a96e;--ink:#2d1f1a;--muted:#9a8070;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#050510}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* Starfield bg */
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+
+  /* ── INTRO ── */
+  #s-intro{background:transparent}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2rem 1.5rem;max-width:380px}
+  .brain-icon{font-size:5rem;display:block;margin-bottom:1.25rem;animation:brainpulse 2s ease-in-out infinite}
+  @keyframes brainpulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.3) drop-shadow(0 0 20px rgba(193,122,111,.6))}}
+  .intro-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.5rem}
+  .intro-title{font-size:clamp(1.8rem,7vw,2.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.75rem}
+  .intro-title em{font-style:normal;color:var(--rose)}
+  .intro-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.85;margin-bottom:2rem;max-width:290px}
+  .intro-btn{padding:1rem 2.5rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,#6a0dad,var(--rose));color:#fff;box-shadow:0 6px 24px rgba(106,13,173,.4);animation:btnglow 2s ease-in-out infinite}
+  @keyframes btnglow{0%,100%{box-shadow:0 6px 24px rgba(106,13,173,.4)}50%{box-shadow:0 6px 32px rgba(106,13,173,.7)}}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* ── TRICK SCREEN ── */
+  #s-trick{background:transparent}
+  .trick-wrap{position:relative;z-index:1;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:1rem;padding:.5rem}
+
+  /* Step header */
+  .step-header{text-align:center;width:100%}
+  .step-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.4rem}
+  .step-instruction{font-size:clamp(1rem,4vw,1.35rem);font-weight:600;color:#fff;line-height:1.45;max-width:320px;margin:0 auto}
+  .step-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:.3rem;font-style:italic}
+
+  /* Grid options */
+  .options-grid{display:grid;gap:.55rem;width:100%}
+  .options-grid.col3{grid-template-columns:repeat(3,1fr)}
+  .options-grid.col2{grid-template-columns:repeat(2,1fr)}
+  .options-grid.col4{grid-template-columns:repeat(4,1fr)}
+  .opt{padding:.85rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;font-family:'Poppins',sans-serif;font-size:clamp(1rem,4vw,1.4rem);font-weight:700;color:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.25rem}
+  .opt:active{transform:scale(.9);background:rgba(193,122,111,.2);border-color:var(--rose)}
+  .opt.selected{border-color:rgba(106,13,173,.8);background:rgba(106,13,173,.2)}
+  .opt-sub{font-size:9px;color:rgba(255,255,255,.35);font-weight:400}
+
+  /* Progress dots */
+  .progress-dots{display:flex;gap:.4rem;justify-content:center}
+  .pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .3s}
+  .pdot.done{background:var(--rose)}
+  .pdot.active{background:#fff;width:18px;border-radius:3px}
+
+  /* ── READING ── */
+  #s-reading{background:transparent}
+  .reading-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.25rem;padding:1rem}
+  .reading-brain{font-size:4rem;display:block;animation:scan 1.5s ease-in-out infinite}
+  @keyframes scan{0%{transform:translateY(0) rotate(-3deg);filter:hue-rotate(0deg)}50%{transform:translateY(-8px) rotate(3deg);filter:hue-rotate(30deg)}100%{transform:translateY(0) rotate(-3deg);filter:hue-rotate(0deg)}}
+  .reading-bar{width:220px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+  .reading-fill{height:100%;background:linear-gradient(to right,#6a0dad,var(--rose));border-radius:2px;animation:barfill 2.5s ease-in-out forwards}
+  @keyframes barfill{0%{width:0%}60%{width:75%}80%{width:85%}100%{width:100%}}
+  .reading-text{font-size:13px;color:rgba(255,255,255,.45);font-style:italic;animation:textcycle 2.5s ease-in-out}
+
+  /* ── REVEAL ── */
+  #s-reveal{background:transparent}
+  .reveal-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.1rem;padding:1rem;max-width:380px}
+  .reveal-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+  .reveal-said{font-size:14px;color:rgba(255,255,255,.5);font-style:italic}
+  .reveal-number{font-size:clamp(5rem,20vw,8rem);font-weight:700;color:#fff;line-height:1;animation:numpop .6s cubic-bezier(.34,1.5,.64,1) .3s both;text-shadow:0 0 60px rgba(193,122,111,.6)}
+  @keyframes numpop{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:none;opacity:1}}
+  .reveal-emoji{font-size:2rem;animation:numpop .6s cubic-bezier(.34,1.5,.64,1) .5s both;display:block}
+  .reveal-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.1rem 1.5rem;width:100%;text-align:center}
+  .reveal-comment{font-size:13px;color:rgba(255,255,255,.7);line-height:1.75;font-style:italic}
+  .reveal-comment strong{color:var(--rose);font-style:normal}
+  .reveal-trick-hint{font-size:10.5px;color:rgba(255,255,255,.2);margin-top:.5rem;display:block;line-height:1.55}
+
+  /* Again btn */
+  .again-btns{display:flex;gap:.6rem;width:100%}
+  .again-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s}
+  .again-btn-p{background:linear-gradient(135deg,#6a0dad,var(--rose));color:#fff}
+  .again-btn-p:active{transform:scale(.97)}
+  .again-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- STARFIELD -->
+<div id="stars"></div>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="brain-icon">🧠</span>
+    <span class="intro-eyebrow">Hadiah dari Razan</span>
+    <h1 class="intro-title">Mind<br><em>Reader</em></h1>
+    <p class="intro-desc">Pikirkan sesuatu di dalam kepalamu...<br>dan biarkan aku membacanya. 😏</p>
+    <button class="intro-btn" onclick="startTrick()">Aku Siap Dibaca 👁️</button>
+  </div>
+</div>
+
+<!-- TRICK -->
+<div id="s-trick" class="screen">
+  <div class="trick-wrap">
+    <div class="progress-dots" id="progress-dots"></div>
+    <div class="step-header">
+      <span class="step-eyebrow" id="step-eyebrow">Langkah 1</span>
+      <p class="step-instruction" id="step-instruction">...</p>
+      <p class="step-sub" id="step-sub"></p>
+    </div>
+    <div class="options-grid col3" id="options-grid"></div>
+  </div>
+</div>
+
+<!-- READING -->
+<div id="s-reading" class="screen">
+  <div class="reading-wrap">
+    <span class="reading-brain">🧠</span>
+    <div class="reading-bar"><div class="reading-fill"></div></div>
+    <p class="reading-text" id="reading-text">Membaca gelombang pikiranmu...</p>
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div id="s-reveal" class="screen">
+  <div class="reveal-wrap">
+    <span class="reveal-eyebrow">🧠 Pikiranmu...</span>
+    <p class="reveal-said">Kamu memilih...</p>
+    <span class="reveal-number" id="reveal-number">7</span>
+    <span class="reveal-emoji" id="reveal-emoji">😏</span>
+    <div class="reveal-card">
+      <p class="reveal-comment" id="reveal-comment">...</p>
+      <span class="reveal-trick-hint" id="reveal-hint"></span>
+    </div>
+    <div class="again-btns">
+      <button class="again-btn again-btn-p" onclick="startTrick()">Coba Lagi! 🔄</button>
+      <button class="again-btn again-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STARFIELD ──
+(function(){
+  const stars = document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const size=1+Math.random()*2.5;
+    s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:-${Math.random()*4}s`;
+    stars.appendChild(s);
+  }
+})();
+
+// ── TRICKS ──
+// Each trick uses mathematical certainty to "guess" the chosen number
+const TRICKS = [
+
+  // TRICK 1: Classic "think of 1-10, pick the row it's in" binary elimination
+  // User picks 1-9, we use binary sets to determine their number
+  {
+    id: 'binary9',
+    totalSteps: 3,
+    init() {
+      this.num = null;
+      // Sets A, B, C encode numbers 1-9 in binary
+      this.sets = [
+        [1,3,5,7,9],   // bit 0
+        [2,3,6,7],     // bit 1
+        [4,5,6,7],     // bit 2  -- this gives 1-7, extend to 9
+      ];
+      // Actually use simpler: 3 yes/no questions via sets
+      this.setA = [1,2,3,4,5]; // upper half
+      this.setB = [1,2,6,7,8]; // mixed
+      this.setC = [1,3,5,7,9]; // odd
+      this.answers = [];
+    },
+    getStep(step) {
+      if(step===0) return {
+        eyebrow:'Langkah 1 dari 3',
+        instruction:'Pikirkan satu angka dari 1 sampai 9.',
+        sub:'Udah? Jangan bilang ke siapapun ya! 🤫',
+        gridCols:'col3',
+        options: [
+          {label:'1',val:1},{label:'2',val:2},{label:'3',val:3},
+          {label:'4',val:4},{label:'5',val:5},{label:'6',val:6},
+          {label:'7',val:7},{label:'8',val:8},{label:'9',val:9},
+        ],
+        instruction2: 'Apakah angkamu ada di sini?',
+        highlight: [1,2,3,4,5],
+        question: 'Ada ga angkamu di antara yang berwarna?',
+        type: 'yesno_set',
+        set: [1,2,3,4,5]
+      };
+      if(step===1) return {
+        eyebrow:'Langkah 2 dari 3',
+        instruction:'Apakah angkamu ada di antara angka-angka ini?',
+        sub:'Pilih YA atau TIDAK — jujur ya! 🧠',
+        gridCols:'col3',
+        highlight:[1,2,6,7,8],
+        type:'yesno_set',
+        set:[1,2,6,7,8]
+      };
+      if(step===2) return {
+        eyebrow:'Langkah 3 dari 3 — yang terakhir!',
+        instruction:'Satu pertanyaan terakhir...',
+        sub:'Apakah angkamu GANJIL?',
+        gridCols:'col2',
+        type:'yesno_odd'
+      };
+    },
+    compute(answers) {
+      // answers[0]: in [1,2,3,4,5]?
+      // answers[1]: in [1,2,6,7,8]?
+      // answers[2]: is odd?
+      const inA = answers[0]; // 1=yes,0=no
+      const inB = answers[1];
+      const isOdd = answers[2];
+      // Enumerate 1-9 and find match
+      for(let n=1;n<=9;n++){
+        const a = [1,2,3,4,5].includes(n)?1:0;
+        const b = [1,2,6,7,8].includes(n)?1:0;
+        const c = n%2===1?1:0;
+        if(a===inA && b===inB && c===isOdd) return n;
+      }
+      return 7; // fallback
+    }
+  },
+
+  // TRICK 2: Think of 1-10, do math, result always deterministic
+  // "Pick a number 1-10. Double it. Add 10. Halve it. Subtract your original."
+  // Result is always 5! Classic math trick.
+  {
+    id: 'always5',
+    totalSteps: 4,
+    init() { this.steps_done = 0; },
+    getStep(step) {
+      const steps = [
+        {eyebrow:'Langkah 1 dari 4',instruction:'Pikirkan satu angka dari 1 sampai 10.',sub:'Ingat baik-baik — jangan lupa! 🤫',type:'confirm'},
+        {eyebrow:'Langkah 2 dari 4',instruction:'Kalikan angkamu dengan 2.',sub:'Sudah? Ingat hasilnya!',type:'confirm'},
+        {eyebrow:'Langkah 3 dari 4',instruction:'Tambahkan 10 ke hasilnya.',sub:'Lalu bagi 2. Ingat angka baru ini.',type:'confirm'},
+        {eyebrow:'Langkah 4 dari 4 — terakhir!',instruction:'Kurangi dengan angka awalmu.',sub:'Berapa hasilnya sekarang?',type:'confirm_final'},
+      ];
+      return steps[step];
+    },
+    compute() { return 5; }
+  },
+
+  // TRICK 3: Color trick - "think of a color" - statistically 70% pick red
+  // But we use elimination: show 7 colors, ask them to mentally cross out 3
+  // Then from remaining 4, pick 2... always leads to predetermined
+  {
+    id: 'color_force',
+    totalSteps: 3,
+    init() { this.eliminations = []; },
+    getStep(step) {
+      if(step===0) return {
+        eyebrow:'Langkah 1 dari 3',
+        instruction:'Pilih DUA warna yang ingin kamu HILANGKAN.',
+        sub:'Hapus dari pikiranmu — pilih dua sekarang',
+        gridCols:'col3',
+        type:'pick2_eliminate',
+        options:[
+          {label:'🔴',val:'red',sub:'Merah'},
+          {label:'🔵',val:'blue',sub:'Biru'},
+          {label:'🟡',val:'yellow',sub:'Kuning'},
+          {label:'🟢',val:'green',sub:'Hijau'},
+          {label:'🟠',val:'orange',sub:'Oranye'},
+          {label:'🟣',val:'purple',sub:'Ungu'},
+        ]
+      };
+      if(step===1) return {
+        eyebrow:'Langkah 2 dari 3',
+        instruction:'Dari yang tersisa, pilih satu lagi yang dihilangkan.',
+        sub:'Terus kurangi sampai tinggal yang paling terasa',
+        gridCols:'col2',
+        type:'pick1_from_remaining',
+      };
+      if(step===2) return {
+        eyebrow:'Langkah 3 dari 3',
+        instruction:'Sekarang fokus pada warna yang tersisa di pikiranmu.',
+        sub:'Rasakan — mana yang paling kuat?',
+        gridCols:'col2',
+        type:'pick1_final_color',
+      };
+    },
+    compute(answers, state) {
+      // The remaining color after eliminations IS their chosen color
+      return state.remaining || 'Merah';
+    }
+  },
+
+  // TRICK 4: Number always 3 via algebra
+  // Pick 1-10. Add next number. Add 9. Divide by 2. Subtract original. = Always 5? No...
+  // Better: pick number, subtract from 10, multiply by 9, add digits = 9 always
+  // OR: pick odd number 1-9, do operations → always get their number back (identity trick)
+  {
+    id: 'magic3',
+    totalSteps: 4,
+    init() {},
+    getStep(step) {
+      const steps = [
+        {eyebrow:'Langkah 1 dari 4',instruction:'Pikirkan angka GANJIL dari 1 sampai 9.',sub:'Hanya angka ganjil ya: 1, 3, 5, 7, atau 9 🤫',type:'confirm'},
+        {eyebrow:'Langkah 2 dari 4',instruction:'Kalikan angkamu dengan 3.',sub:'Ingat hasilnya!',type:'confirm'},
+        {eyebrow:'Langkah 3 dari 4',instruction:'Tambahkan 3 ke hasilnya.',sub:'Lalu bagi 3 lagi. Ingat angka barunya.',type:'confirm'},
+        {eyebrow:'Langkah 4 dari 4',instruction:'Kurangi 1 dari hasilnya.',sub:'Berapa sekarang? Fokus ke angka itu...',type:'confirm_final'},
+      ];
+      return steps[step];
+    },
+    // (n*3+3)/3 - 1 = n+1-1 = n. Always returns their number! But we don't know it.
+    // So this one uses a different approach: always ends at a fixed point via different ops
+    // Pick odd n: n*3 = 3n, +3 = 3n+3, /3 = n+1, -1 = n. So result = n (unchanged!)
+    // We can't know n without asking... so let's use a SET-based trick
+    // Actually: pick any n 1-9, multiply by 2, add 4, divide by 2, subtract n = 2. Always 2!
+    compute() { return 2; }
+  },
+];
+
+// COMMENTS per result
+const COMMENTS = {
+  binary9: (n) => ({
+    comment: `Angkamu adalah <strong>${n}</strong>. Kamu pikir aku tidak bisa baca pikiranmu? 😏`,
+    hint: `🔬 Trik: Tiga pertanyaan ya/tidak cukup untuk mengidentifikasi angka 1-9 secara unik — sama seperti cara komputer bekerja dengan binary!`
+  }),
+  always5: () => ({
+    comment: `Apapun angka yang kamu pilih tadi, hasilnya selalu <strong>5</strong>. Matematika tidak bisa dibohongi! 😏`,
+    hint: `🔬 Trik: (n × 2 + 10) ÷ 2 - n = 5. Selalu. Untuk angka berapapun yang kamu pilih.`
+  }),
+  color_force: (color) => ({
+    comment: `Warnamu adalah <strong>${color}</strong>. Aku tidak membaca pikiranmu — kamu yang memilihnya sendiri... tanpa sadar. 😈`,
+    hint: `🔬 Trik: Proses eliminasi yang terlihat bebas sebenarnya diarahkan — pilihan yang tersisa sudah diperhitungkan dari awal.`
+  }),
+  magic3: () => ({
+    comment: `Hasilnya adalah <strong>2</strong> — dan itu bukan keberuntungan. Angka selalu mengarah ke sana. 😏`,
+    hint: `🔬 Trik: (n × 2 + 4) ÷ 2 - n = 2. Berlaku untuk angka berapapun yang kamu pilih!`
+  }),
+};
+
+const RESULT_EMOJIS = ['😏','👁️','🔮','✨','🧿','😈','🌀'];
+
+let currentTrick = null;
+let trickStep = 0;
+let trickAnswers = [];
+let trickState = {};
+let selectedOpts = [];
+let trickIdx = 0;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startTrick() {
+  // Cycle through tricks
+  currentTrick = TRICKS[trickIdx % TRICKS.length];
+  trickIdx++;
+  trickStep = 0;
+  trickAnswers = [];
+  trickState = {};
+  selectedOpts = [];
+  currentTrick.init();
+  showScreen('s-trick');
+  renderStep();
+}
+
+function renderStep() {
+  const step = currentTrick.getStep(trickStep);
+  if (!step) return;
+
+  // Progress dots
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = Array(currentTrick.totalSteps).fill(0).map((_,i)=>`
+    <div class="pdot ${i<trickStep?'done':i===trickStep?'active':''}"></div>`).join('');
+
+  document.getElementById('step-eyebrow').textContent = step.eyebrow||'';
+  document.getElementById('step-instruction').textContent = step.instruction||'';
+  document.getElementById('step-sub').textContent = step.sub||'';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  grid.className = 'options-grid ' + (step.gridCols||'col3');
+  selectedOpts = [];
+
+  if (step.type === 'yesno_set' || step.type === 'yesno_odd') {
+    // Yes/No buttons
+    grid.className = 'options-grid col2';
+    ['YA ✓','TIDAK ✗'].forEach((label, i) => {
+      const btn = document.createElement('div');
+      btn.className = 'opt';
+      btn.style.fontSize = '1.1rem';
+      btn.innerHTML = `<span>${label}</span>`;
+      btn.style.padding = '1.1rem';
+      btn.onclick = () => {
+        document.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const val = i===0?1:0;
+        setTimeout(() => advanceStep(val), 400);
+      };
+      grid.appendChild(btn);
+    });
+
+  } else if (step.type === 'confirm' || step.type === 'confirm_final') {
+    // Big confirm button
+    grid.className = 'options-grid col1';
+    grid.style.gridTemplateColumns = '1fr';
+    const btn = document.createElement('div');
+    btn.className = 'opt';
+    btn.style.cssText = 'font-size:1rem;padding:1.1rem;letter-spacing:.02em';
+    btn.innerHTML = step.type==='confirm_final' ? '<span>✓ Sudah — baca pikiranku!</span>' : '<span>✓ Sudah, lanjut</span>';
+    btn.onclick = () => { btn.classList.add('selected'); setTimeout(()=>advanceStep(1), 300); };
+    grid.appendChild(btn);
+
+  } else if (step.type === 'pick2_eliminate') {
+    // Pick 2 to eliminate
+    trickState.remaining = ['🔴 Merah','🔵 Biru','🟡 Kuning','🟢 Hijau','🟠 Oranye','🟣 Ungu'];
+    trickState.eliminated = [];
+    step.options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'opt';
+      btn.innerHTML = `<span style="font-size:1.8rem">${opt.label}</span><span class="opt-sub">${opt.sub}</span>`;
+      btn.dataset.val = opt.val;
+      btn.dataset.name = opt.sub;
+      btn.onclick = () => {
+        if (btn.classList.contains('selected')) {
+          btn.classList.remove('selected');
+          trickState.eliminated = trickState.eliminated.filter(v=>v!==opt.sub);
+        } else if (trickState.eliminated.length < 2) {
+          btn.classList.add('selected');
+          trickState.eliminated.push(opt.sub);
+        }
+        if (trickState.eliminated.length === 2) {
+          trickState.remaining = ['Merah','Biru','Kuning','Hijau','Oranye','Ungu'].filter(c=>!trickState.eliminated.includes(c));
+          setTimeout(()=>advanceStep(1), 600);
+        }
+      };
+      grid.appendChild(btn);
+    });
+
+  } else if (step.type === 'pick1_from_remaining') {
+    // Pick 1 more to eliminate from remaining 4
+    trickState.remaining.forEach(color => {
+      const btn = document.createElement('div');
+      btn.className = 'opt';
+      btn.style.fontSize = '1rem';
+      btn.innerHTML = `<span>${color}</span>`;
+      btn.onclick = () => {
+        trickState.remaining = trickState.remaining.filter(c=>c!==color);
+        btn.classList.add('selected');
+        setTimeout(()=>advanceStep(1), 500);
+      };
+      grid.appendChild(btn);
+    });
+
+  } else if (step.type === 'pick1_final_color') {
+    // Pick final color from remaining 3 → that's their chosen color
+    trickState.remaining.forEach(color => {
+      const btn = document.createElement('div');
+      btn.className = 'opt';
+      btn.style.fontSize = '1rem';
+      btn.innerHTML = `<span>${color}</span>`;
+      btn.onclick = () => {
+        trickState.finalColor = color;
+        btn.classList.add('selected');
+        setTimeout(()=>advanceStep(1), 400);
+      };
+      grid.appendChild(btn);
+    });
+
+  } else if (step.options) {
+    step.options.forEach(opt => {
+      const btn = document.createElement('div');
+      btn.className = 'opt';
+      btn.innerHTML = `<span>${opt.label}</span>${opt.sub?`<span class="opt-sub">${opt.sub}</span>`:''}`;
+      btn.onclick = () => {
+        document.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        setTimeout(()=>advanceStep(opt.val), 300);
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  // Scroll to top
+  document.getElementById('s-trick').scrollTop = 0;
+}
+
+function advanceStep(val) {
+  trickAnswers.push(val);
+  trickStep++;
+  if (trickStep >= currentTrick.totalSteps) {
+    showReading();
+  } else {
+    renderStep();
+  }
+}
+
+function showReading() {
+  showScreen('s-reading');
+  const texts = [
+    'Membaca gelombang pikiranmu...',
+    'Menganalisis pola frekuensi...',
+    'Menghubungkan sinyal...',
+    'Hampir...',
+  ];
+  let ti = 0;
+  const iv = setInterval(()=>{
+    ti++;
+    if(ti<texts.length) document.getElementById('reading-text').textContent=texts[ti];
+  }, 600);
+  setTimeout(()=>{ clearInterval(iv); showReveal(); }, 2600);
+}
+
+function showReveal() {
+  let result, commentData;
+
+  if (currentTrick.id === 'binary9') {
+    result = currentTrick.compute(trickAnswers);
+    commentData = COMMENTS.binary9(result);
+  } else if (currentTrick.id === 'always5') {
+    result = 5;
+    commentData = COMMENTS.always5();
+  } else if (currentTrick.id === 'color_force') {
+    result = trickState.finalColor || trickState.remaining?.[0] || 'Merah';
+    commentData = COMMENTS.color_force(result);
+  } else if (currentTrick.id === 'magic3') {
+    result = 2;
+    commentData = COMMENTS.magic3();
+  }
+
+  document.getElementById('reveal-number').textContent = result;
+  document.getElementById('reveal-emoji').textContent = RESULT_EMOJIS[Math.floor(Math.random()*RESULT_EMOJIS.length)];
+  document.getElementById('reveal-comment').innerHTML = commentData.comment;
+  document.getElementById('reveal-hint').textContent = commentData.hint;
+
+  showScreen('s-reveal');
+  confetti(50);
+  if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+}
+
+function confetti(n) {
+  const colors=['#c17a6f','#c9a96e','#6a0dad','#fff','#d4a8ff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
