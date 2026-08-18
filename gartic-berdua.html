@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gartic Berdua 🎨</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --blue:#4a7cc7;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.3),transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.12),transparent 60%);
+    pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--cream)}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── PICK ── */
+  #s-pick{background:var(--cream)}
+  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
+  .pick-sub{font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
+  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  .pick-btn:active{transform:scale(.97);background:var(--warm)}
+
+  /* ── PASS ── */
+  #s-pass{background:var(--ink);padding:1.5rem}
+  .pass-icon{font-size:4rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite}
+  .pass-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .pass-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.5rem;position:relative;z-index:1}
+  .pass-ready-btn{width:100%;max-width:320px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--gold);color:var(--ink);box-shadow:0 4px 18px rgba(201,169,110,.4);transition:all .2s;position:relative;z-index:1}
+  .pass-ready-btn:active{transform:scale(.97)}
+
+  /* ── WORD REVEAL ── */
+  #s-word{background:var(--cream);padding:1.5rem}
+  .word-header{text-align:center;margin-bottom:1.25rem;position:relative;z-index:1;width:100%;max-width:400px}
+  .word-player{font-size:11px;font-weight:700;padding:.28rem .85rem;border-radius:50px;display:inline-block;margin-bottom:.75rem}
+  .word-player.razan{background:rgba(74,124,199,.1);color:var(--blue)}
+  .word-player.dara{background:rgba(193,122,111,.1);color:var(--rose)}
+  .word-label{font-size:12px;color:var(--muted);display:block;margin-bottom:.5rem}
+  .word-display{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;color:var(--ink);display:block;line-height:1.3;margin-bottom:.35rem}
+  .word-hint{font-size:12px;color:var(--muted);font-style:italic;line-height:1.6;display:block}
+  .word-ready-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
+  .word-ready-btn:active{transform:scale(.97);background:var(--deep)}
+  .word-sub-note{font-size:11px;color:var(--muted);margin-top:.75rem;display:block;position:relative;z-index:1;font-style:italic}
+
+  /* ── DRAW ── */
+  #s-draw{background:var(--cream);padding:0;justify-content:flex-start}
+  .draw-topbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.45rem .75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .draw-word-chip{background:rgba(193,122,111,.1);border:1px solid rgba(193,122,111,.2);border-radius:50px;padding:.3rem .85rem;font-size:12px;font-weight:700;color:var(--rose);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .draw-timer{font-size:1.2rem;font-weight:700;display:block;line-height:1;transition:color .3s}
+  .draw-timer.warn{color:#e57373;animation:timerwarn .5s ease-in-out infinite}
+  @keyframes timerwarn{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  .draw-timer-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .draw-done-btn{padding:.4rem .9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;background:var(--rose);color:#fff;transition:all .15s;white-space:nowrap}
+  .draw-done-btn:active{background:var(--deep);transform:scale(.97)}
+
+  /* Timer bar */
+  .timer-bar-wrap{height:3px;background:rgba(193,122,111,.15);flex-shrink:0;width:100%}
+  .timer-bar-fill{height:100%;background:var(--rose);transition:width .1s linear,background .3s}
+
+  /* Canvas */
+  .draw-canvas-wrap{flex:1;position:relative;width:100%;overflow:hidden;background:#fff;border-bottom:1px solid rgba(193,122,111,.08);touch-action:none}
+  canvas.main-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+
+  /* Draw toolbar */
+  .draw-toolbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-top:1px solid rgba(193,122,111,.1);padding:.45rem .6rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+  .color-strip{display:flex;gap:.35rem;align-items:center}
+  .color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+  .color-dot.active{border-color:var(--ink);transform:scale(1.2)}
+  .brush-row{display:flex;gap:.3rem;align-items:center}
+  .brush-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .brush-btn.active{border-color:var(--rose);background:rgba(193,122,111,.1)}
+  .brush-dot{border-radius:50%;background:var(--ink)}
+  .tool-btns{display:flex;gap:.35rem}
+  .tool-btn{padding:.32rem .55rem;border-radius:8px;border:1.5px solid var(--blush);background:#fff;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);transition:all .15s;font-family:'Poppins',sans-serif}
+  .tool-btn.active{border-color:var(--rose);color:var(--rose);background:rgba(193,122,111,.08)}
+  .tool-btn:active{transform:scale(.9)}
+
+  /* ── GUESS ── */
+  #s-guess{background:var(--cream);padding:0;justify-content:flex-start}
+  .guess-topbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between}
+  .guess-player-badge{font-size:11px;font-weight:700;padding:.25rem .75rem;border-radius:50px}
+  .guess-player-badge.razan{background:rgba(74,124,199,.1);color:var(--blue)}
+  .guess-player-badge.dara{background:rgba(193,122,111,.1);color:var(--rose)}
+  .guess-round{font-size:10px;color:var(--muted)}
+
+  .guess-drawing-wrap{flex:1;position:relative;width:100%;background:#fff;border-bottom:1px solid rgba(193,122,111,.08);overflow:hidden}
+  canvas.guess-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+  .guess-input-area{flex-shrink:0;padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom));width:100%;background:rgba(250,246,240,.97);border-top:1px solid rgba(193,122,111,.1)}
+  .guess-label{font-size:11px;color:var(--muted);display:block;margin-bottom:.4rem;text-align:center;font-style:italic}
+  .guess-input-row{display:flex;gap:.5rem}
+  .guess-input{flex:1;padding:.75rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:'Poppins',sans-serif;font-size:15px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s}
+  .guess-input:focus{border-color:var(--rose)}
+  .guess-submit-btn{padding:.75rem 1rem;border-radius:14px;border:none;cursor:pointer;background:var(--rose);color:#fff;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s;white-space:nowrap}
+  .guess-submit-btn:active{transform:scale(.95);background:var(--deep)}
+
+  /* ── ROUND RESULT ── */
+  #s-round-result{background:var(--cream);padding:1.5rem}
+  .rr-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:popin .5s cubic-bezier(.34,1.5,.64,1);position:relative;z-index:1}
+  @keyframes popin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  .rr-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
+  .rr-sub{font-size:13px;color:var(--muted);line-height:1.65;max-width:280px;margin:.25rem auto .85rem;position:relative;z-index:1}
+
+  .answer-compare{width:100%;max-width:380px;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.85rem;position:relative;z-index:1}
+  .answer-box{border-radius:14px;padding:.85rem 1.1rem;text-align:left}
+  .answer-box.correct-ans{background:rgba(129,199,132,.1);border:1.5px solid rgba(129,199,132,.3)}
+  .answer-box.guess-ans{background:#fff;border:1.5px solid rgba(193,122,111,.15)}
+  .ab-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:.25rem}
+  .ab-label.green{color:#4caf50}
+  .ab-label.rose{color:var(--rose)}
+  .ab-word{font-size:clamp(1rem,4vw,1.3rem);font-weight:700;color:var(--ink)}
+
+  /* Mini drawing preview */
+  .mini-drawing{width:100%;max-width:380px;border-radius:14px;overflow:hidden;border:1.5px solid rgba(193,122,111,.15);margin-bottom:.85rem;background:#fff;position:relative;z-index:1}
+  canvas.mini-canvas{width:100%;display:block}
+
+  .score-row-rr{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:.85rem;position:relative;z-index:1}
+  .srr-item{text-align:center}
+  .srr-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.2rem}
+  .srr-score{font-size:2rem;font-weight:700;color:var(--rose);display:block}
+  .srr-vs{color:var(--blush)}
+
+  .next-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35);transition:all .15s;position:relative;z-index:1}
+  .next-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── FINAL RESULT ── */
+  #s-final{background:var(--cream);padding:0;justify-content:flex-start}
+  .final-topbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.6rem 1rem;text-align:center}
+  .final-topbar-title{font-size:13px;font-weight:700;color:var(--ink)}
+  .final-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.85rem;width:100%}
+
+  .final-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%;max-width:380px;box-shadow:0 4px 20px rgba(193,122,111,.08)}
+  .fsc-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
+  .fsc-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .fsc-sc{font-size:2.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .fsc-vs{color:var(--blush)}
+
+  .gallery-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;width:100%;max-width:380px;text-align:left;margin-bottom:.1rem}
+  .gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;width:100%;max-width:380px}
+  .gallery-item{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  .gallery-item canvas{width:100%;display:block}
+  .gallery-label{padding:.4rem .65rem;font-size:10px;color:var(--muted);border-top:1px solid rgba(193,122,111,.08);display:flex;justify-content:space-between;align-items:center}
+  .gallery-word{font-weight:600;color:var(--ink);font-size:10px}
+  .gallery-correct{font-size:9px;color:#4caf50;font-weight:600}
+  .gallery-wrong{font-size:9px;color:#e57373;font-weight:600}
+
+  .verdict-card{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1.1rem;font-size:13px;color:var(--ink);line-height:1.75;width:100%;max-width:380px}
+  .verdict-card strong{color:var(--rose)}
+
+  .final-btns{display:flex;gap:.6rem;width:100%;max-width:380px;padding-bottom:1rem}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .final-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .final-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .final-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* Slot machine */
+  @keyframes slotroll{0%{transform:translateY(-4px);opacity:.5}50%{transform:translateY(2px);opacity:1}100%{transform:translateY(-4px);opacity:.5}}
+  .slot-rolling{animation:slotroll .12s ease-in-out infinite}
+  @keyframes wordreveal{from{transform:scale(.85) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+  .word-revealed{animation:wordreveal .4s cubic-bezier(.34,1.5,.64,1)!important}
+
+  /* Category picker */
+  .cat-pick-btn{padding:.6rem .35rem;border-radius:12px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;font-size:1.1rem;text-align:center;transition:all .15s;color:var(--ink);box-shadow:0 2px 6px rgba(193,122,111,.05)}
+  .cat-pick-btn span{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-top:.2rem;font-family:'Poppins',sans-serif}
+  .cat-pick-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.08)}
+  .cat-pick-btn:active{transform:scale(.93)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🎨</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Gartic <span>Berdua!</span></h1>
+  <p class="intro-sub">Gambar kata rahasia — lawan tebak! Gantian sampai 5 ronde. Mirip Gartic.io tapi berdua! 🖌️</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot"></span>Dapat kata rahasia → gambar dalam 60 detik</div>
+    <div class="rule"><span class="rule-dot"></span>Kasih HP ke lawan → lawan tebak gambarmu</div>
+    <div class="rule"><span class="rule-dot"></span>Bener → +2 poin untuk penebak & +1 untuk pemain!</div>
+    <div class="rule"><span class="rule-dot"></span>5 ronde total — siapa yang paling banyak poin menang! 🏆</div>
+  </div>
+  <!-- Category picker -->
+  <div style="width:100%;max-width:380px;margin-bottom:1.25rem;position:relative;z-index:1">
+    <p style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Pilih Kategori Kata</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem" id="cat-grid">
+      <div class="cat-pick-btn selected" data-cat="campuran" onclick="selectCat(this)">🎲<br><span>Campuran</span></div>
+      <div class="cat-pick-btn" data-cat="romantis" onclick="selectCat(this)">💕<br><span>Romantis</span></div>
+      <div class="cat-pick-btn" data-cat="hewan" onclick="selectCat(this)">🐾<br><span>Hewan</span></div>
+      <div class="cat-pick-btn" data-cat="makanan" onclick="selectCat(this)">🍔<br><span>Makanan</span></div>
+      <div class="cat-pick-btn" data-cat="tempat" onclick="selectCat(this)">🌍<br><span>Tempat</span></div>
+      <div class="cat-pick-btn" data-cat="absurd" onclick="selectCat(this)">🤪<br><span>Absurd</span></div>
+    </div>
+  </div>
+  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 🎨</button>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <span style="font-size:3rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite">🎨</span>
+  <p class="pick-title">Siapa yang gambar duluan?</p>
+  <p class="pick-sub">Gantian tiap ronde — 5 ronde total</p>
+  <div class="pick-btns">
+    <div class="pick-btn" onclick="initGame('razan')">
+      <span style="font-size:2rem;flex-shrink:0">🧑</span>
+      <div style="text-align:left">
+        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan gambar duluan</span>
+        <span style="font-size:11px;color:var(--muted);display:block;margin-top:.1rem">Dara yang nebak</span>
+      </div>
+    </div>
+    <div class="pick-btn" onclick="initGame('dara')">
+      <span style="font-size:2rem;flex-shrink:0">👧</span>
+      <div style="text-align:left">
+        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara gambar duluan</span>
+        <span style="font-size:11px;color:var(--muted);display:block;margin-top:.1rem">Razan yang nebak</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <span class="pass-icon" id="pass-icon">📱</span>
+  <p class="pass-title" id="pass-title">Kasih HP!</p>
+  <p class="pass-sub" id="pass-sub">Jangan kasih tau kata rahasianya! 🙈</p>
+  <button class="pass-ready-btn" id="pass-ready-btn" onclick="afterPass()">Aku Udah Pegang HP! 👋</button>
+</div>
+
+<!-- WORD REVEAL -->
+<div id="s-word" class="screen">
+  <div class="word-header">
+    <span class="word-player razan" id="word-player-badge">🧑 Razan</span>
+    <span class="word-label" id="word-label">Tap untuk lihat kata rahasiamu</span>
+    <div id="word-slot-wrap" style="position:relative;z-index:1;width:100%;max-width:340px;margin:.5rem auto">
+      <div id="word-slot" onclick="revealWord()" style="
+        background:#fff;border:2px solid rgba(193,122,111,.2);border-radius:16px;
+        padding:1.1rem 1rem;cursor:pointer;transition:all .2s;
+        box-shadow:0 4px 16px rgba(193,122,111,.1);min-height:70px;
+        display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.35rem">
+        <span id="word-slot-text" style="font-size:clamp(1.4rem,5vw,2rem);font-weight:700;color:var(--ink);display:block;line-height:1.2;text-align:center">
+          🔒 Tap untuk buka
+        </span>
+        <span id="word-slot-sub" style="font-size:11px;color:var(--muted);font-style:italic">Pastiin lawan ga ngintip!</span>
+      </div>
+    </div>
+    <span class="word-hint" id="word-hint" style="display:none">Gambar ini dalam 60 detik!</span>
+  </div>
+  <button class="word-ready-btn" id="word-ready-btn" onclick="startDraw()" style="display:none">Siap! Mulai Gambar 🎨</button>
+  <span class="word-sub-note" id="word-sub-note">Pastiin lawan udah noleh dulu sebelum tap! 👀</span>
+</div>
+
+<!-- DRAW -->
+<div id="s-draw" class="screen">
+  <div class="draw-topbar">
+    <div class="draw-word-chip" id="draw-word-chip">Kucing</div>
+    <div style="text-align:center">
+      <span class="draw-timer" id="draw-timer">60</span>
+      <span class="draw-timer-label">detik</span>
+    </div>
+    <button class="draw-done-btn" onclick="finishDraw()">Selesai ✓</button>
+  </div>
+  <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timer-bar" style="width:100%"></div></div>
+
+  <div class="draw-canvas-wrap" id="draw-canvas-wrap">
+    <canvas class="main-canvas" id="draw-canvas"></canvas>
+  </div>
+
+  <div class="draw-toolbar">
+    <div class="color-strip" id="draw-color-strip"></div>
+    <div class="brush-row" id="draw-brush-row"></div>
+    <div class="tool-btns">
+      <button class="tool-btn" id="eraser-btn" onclick="toggleEraser()">⬜</button>
+      <button class="tool-btn" onclick="clearCanvas()">🗑️</button>
+    </div>
+  </div>
+</div>
+
+<!-- GUESS -->
+<div id="s-guess" class="screen">
+  <div class="guess-topbar">
+    <span class="guess-player-badge razan" id="guess-player-badge">👧 Dara nebak</span>
+    <span class="guess-round" id="guess-round">Ronde 1/5</span>
+  </div>
+  <div class="guess-drawing-wrap" id="guess-drawing-wrap">
+    <canvas class="guess-canvas" id="guess-canvas"></canvas>
+  </div>
+  <div class="guess-input-area">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+      <span class="guess-label" style="margin-bottom:0">Gambar apa ini?</span>
+      <span id="guess-attempts" style="font-size:11px;font-weight:700;color:var(--rose)">Sisa 10 tebakan</span>
+    </div>
+    <div id="guess-history" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem"></div>
+    <div class="guess-input-row">
+      <input type="text" class="guess-input" id="guess-input" placeholder="Tulis tebakanmu..." autocomplete="off" autocorrect="off">
+      <button class="guess-submit-btn" onclick="submitGuess()">Tebak! 🎯</button>
+    </div>
+    <button onclick="giveUp()" style="width:100%;margin-top:.4rem;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline">Menyerah (lihat jawaban)</button>
+  </div>
+</div>
+
+<!-- ROUND RESULT -->
+<div id="s-round-result" class="screen">
+  <span class="rr-icon" id="rr-icon">🎉</span>
+  <h2 class="rr-title" id="rr-title">Bener!</h2>
+  <p class="rr-sub" id="rr-sub">...</p>
+
+  <div class="answer-compare">
+    <div class="answer-box correct-ans">
+      <span class="ab-label green">✓ Kata yang benar</span>
+      <span class="ab-word" id="rr-correct-word">...</span>
+    </div>
+    <div class="answer-box guess-ans">
+      <span class="ab-label rose" id="rr-guess-label">Tebakan Dara</span>
+      <span class="ab-word" id="rr-guess-word">...</span>
+    </div>
+  </div>
+
+  <div class="mini-drawing">
+    <canvas class="mini-canvas" id="mini-canvas" height="160"></canvas>
+  </div>
+
+  <div class="score-row-rr">
+    <div class="srr-item"><span class="srr-name">🧑 Razan</span><span class="srr-score" id="rr-score-r">0</span></div>
+    <span class="srr-vs">🎨</span>
+    <div class="srr-item"><span class="srr-name">Dara 👧</span><span class="srr-score" id="rr-score-d">0</span></div>
+  </div>
+
+  <button class="next-btn" id="next-btn" onclick="nextRound()">Ronde Berikutnya →</button>
+</div>
+
+<!-- FINAL RESULT -->
+<div id="s-final" class="screen">
+  <div class="final-topbar">
+    <span class="final-topbar-title">🏆 Hasil Akhir — Gartic Berdua</span>
+  </div>
+  <div class="final-scroll">
+    <div class="final-score-card">
+      <div><span class="fsc-av">🧑</span><span class="fsc-nm">Razan</span><span class="fsc-sc" id="final-r">0</span></div>
+      <span class="fsc-vs">🎨</span>
+      <div><span class="fsc-av">👧</span><span class="fsc-nm">Dara</span><span class="fsc-sc" id="final-d">0</span></div>
+    </div>
+
+    <span class="gallery-title">🖼️ Galeri Gambar</span>
+    <div class="gallery-grid" id="gallery-grid"></div>
+
+    <div class="verdict-card" id="final-verdict">...</div>
+
+    <div class="final-btns">
+      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── WORD BANK ──
+const WORD_BANK = {
+  romantis: [
+    {word:'Pelukan',hint:'Sesuatu yang hangat dari orang tersayang'},
+    {word:'Ciuman',hint:'Sentuhan bibir'},
+    {word:'Kencan',hint:'Pergi berdua ke tempat spesial'},
+    {word:'Bunga Mawar',hint:'Bunga merah identik cinta'},
+    {word:'Cincin',hint:'Perhiasan lingkaran untuk jari'},
+    {word:'Jantung',hint:'Berdegup kencang saat jatuh cinta'},
+    {word:'Lilin Romantis',hint:'Cahaya kecil bikin suasana intim'},
+    {word:'Surat Cinta',hint:'Pesan tertulis untuk tersayang'},
+    {word:'Sunset Berdua',hint:'Melihat matahari terbenam bersama'},
+    {word:'Genggam Tangan',hint:'Jari-jari yang saling mengunci'},
+    {word:'Stargazing',hint:'Melihat bintang bersama malam hari'},
+    {word:'Piknik Romantis',hint:'Makan di taman beralaskan tikar'},
+  ],
+  hewan: [
+    {word:'Kucing Tidur',hint:'Hewan berbulu yang lagi istirahat'},
+    {word:'Anjing Berlari',hint:'Hewan peliharaan yang lagi sprint'},
+    {word:'Gajah',hint:'Hewan darat terbesar dengan belalai'},
+    {word:'Penguin',hint:'Burung hitam putih yang tidak bisa terbang'},
+    {word:'Hiu',hint:'Predator laut dengan gigi tajam'},
+    {word:'Lumba-lumba',hint:'Mamalia laut yang suka melompat'},
+    {word:'Jerapah',hint:'Hewan dengan leher paling panjang'},
+    {word:'Koala',hint:'Hewan Australia yang suka pohon eukaliptus'},
+    {word:'Gurita',hint:'Makhluk laut dengan 8 tentakel'},
+    {word:'Kura-kura',hint:'Hewan lambat dengan cangkang'},
+    {word:'Flamingo',hint:'Burung merah muda yang berdiri satu kaki'},
+    {word:'Beruang Kutub',hint:'Hewan putih yang hidup di es'},
+  ],
+  makanan: [
+    {word:'Pizza',hint:'Makanan bulat Italia dengan topping'},
+    {word:'Bakso',hint:'Bola daging dalam kuah'},
+    {word:'Sushi',hint:'Nasi gulung ala Jepang'},
+    {word:'Es Krim',hint:'Makanan manis dingin di cone'},
+    {word:'Ramen',hint:'Mie kuah panas ala Jepang'},
+    {word:'Burger',hint:'Roti bulat berisi daging'},
+    {word:'Donat',hint:'Roti manis berbentuk cincin'},
+    {word:'Taco',hint:'Tortilla isi daging ala Meksiko'},
+    {word:'Martabak',hint:'Kue tebal manis-asin khas Indonesia'},
+    {word:'Croissant',hint:'Roti bulan sabit ala Prancis'},
+    {word:'Rendang',hint:'Daging berbumbu khas Padang'},
+    {word:'Pancake',hint:'Kue tipis yang ditumpuk'},
+  ],
+  tempat: [
+    {word:'Pantai',hint:'Pinggir laut dengan pasir'},
+    {word:'Cafe Cozy',hint:'Tempat minum kopi yang nyaman'},
+    {word:'Gunung Berapi',hint:'Gunung yang bisa meletus'},
+    {word:'Menara Eiffel',hint:'Menara besi terkenal di Paris'},
+    {word:'Bawah Laut',hint:'Dunia di kedalaman samudra'},
+    {word:'Hutan Hujan',hint:'Hutan lebat dengan hujan deras'},
+    {word:'Istana',hint:'Tempat tinggal raja dan ratu'},
+    {word:'Taman Bermain',hint:'Tempat anak-anak bersenang-senang'},
+    {word:'Perpustakaan',hint:'Gedung penuh buku'},
+    {word:'Pulau Terpencil',hint:'Pulau kecil di tengah lautan'},
+    {word:'Pasar Malam',hint:'Pasar yang buka saat gelap'},
+    {word:'Rooftop',hint:'Atap gedung tinggi dengan pemandangan'},
+  ],
+  absurd: [
+    {word:'Astronot Makan Bakso',hint:'Orang di luar angkasa yang lagi slurp'},
+    {word:'Kucing Jadi Presiden',hint:'Hewan berbulu yang mimpin negara'},
+    {word:'Robot Masak Rendang',hint:'Mesin yang lagi bikin masakan Padang'},
+    {word:'Dinosaurus Main HP',hint:'Hewan purba yang lagi scrolling'},
+    {word:'Naga Minum Kopi',hint:'Makhluk api yang butuh kafein'},
+    {word:'Penyihir Naik Ojol',hint:'Orang bertongkat pakai helm'},
+    {word:'Ikan Terbang Ke Bulan',hint:'Makhluk air yang jadi astronot'},
+    {word:'Gurita DJ',hint:'8 tangan yang lagi putar musik'},
+    {word:'Gajah Balerina',hint:'Hewan besar yang lagi ballet'},
+    {word:'Zombie Makan Salad',hint:'Makhluk hidup lagi diet'},
+    {word:'Duyung Naik Motor',hint:'Setengah ikan yang ugal-ugalan'},
+    {word:'Beruang Yoga',hint:'Hewan besar yang lagi meditasi'},
+  ],
+  campuran: [] // filled dynamically
+};
+
+// Build campuran from all categories
+Object.keys(WORD_BANK).forEach(k => {
+  if (k !== 'campuran') WORD_BANK.campuran.push(...WORD_BANK[k]);
+});
+
+let WORDS = WORD_BANK.campuran; // default
+
+const TOTAL_ROUNDS = 5;
+const DRAW_TIME = 60;
+const COLORS = ['#2d1f1a','#c17a6f','#4a7cc7','#81c784','#e57373','#ffb74d','#ba68c8','#ffffff'];
+const BRUSH_SIZES = [3, 8, 16];
+
+let drawer = 'razan';
+let guesser = 'dara';
+let currentRound = 0;
+let scores = { razan: 0, dara: 0 };
+let currentWord = null;
+let usedWords = [];
+let rounds = []; // {word, guess, correct, drawerImageData, drawer, guesser}
+let drawTimer = null;
+let timeLeft = DRAW_TIME;
+let isErasing = false;
+let currentColor = '#c17a6f';
+let currentBrush = 8;
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let drawCtx = null;
+let savedDrawing = null; // ImageData of current drawing
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function initGame(firstDrawer) {
+  drawer = firstDrawer;
+  guesser = firstDrawer === 'razan' ? 'dara' : 'razan';
+  currentRound = 0;
+  scores = { razan: 0, dara: 0 };
+  usedWords = [];
+  rounds = [];
+  startRound();
+}
+
+function startRound() {
+  currentRound++;
+  currentWord = getRandomWord();
+  savedDrawing = null;
+  isErasing = false;
+
+  // Show word to drawer
+  const drawerName = drawer === 'razan' ? 'Razan' : 'Dara';
+  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
+  const badge = document.getElementById('word-player-badge');
+  if (badge) {
+    badge.textContent = `${drawer==='razan'?'🧑':'👧'} ${drawerName} menggambar`;
+    badge.className = 'word-player ' + drawer;
+  }
+  // Reset word reveal slot
+  const slot = document.getElementById('word-slot');
+  if (slot) {
+    slot.dataset.revealed = '0';
+    slot.style.background = '#fff';
+    slot.style.borderColor = 'rgba(193,122,111,.2)';
+    slot.style.cursor = 'pointer';
+    document.getElementById('word-slot-text').textContent = '🔒 Tap untuk buka';
+    document.getElementById('word-slot-text').classList.remove('word-revealed','slot-rolling');
+    document.getElementById('word-slot-sub').textContent = 'Pastiin lawan ga ngintip!';
+    document.getElementById('word-label').textContent = 'Tap untuk lihat kata rahasiamu';
+    document.getElementById('word-hint').style.display = 'none';
+    document.getElementById('word-ready-btn').style.display = 'none';
+    document.getElementById('word-sub-note').textContent = 'Pastiin lawan udah noleh dulu sebelum tap! 👀';
+  }
+
+  showScreen('s-word');
+}
+
+function getRandomWord() {
+  const available = WORDS.filter(w => !usedWords.includes(w.word));
+  const pool = available.length ? available : WORDS;
+  const w = pool[Math.floor(Math.random() * pool.length)];
+  usedWords.push(w.word);
+  return w;
+}
+
+function revealWord() {
+  const slot = document.getElementById('word-slot');
+  const slotText = document.getElementById('word-slot-text');
+  const slotSub = document.getElementById('word-slot-sub');
+
+  // Already revealed
+  if (slot.dataset.revealed === '1') return;
+
+  // Rolling animation - show random words fast
+  const fakeWords = ['🍕 Pizza','🐱 Kucing','🌈 Pelangi','🎸 Gitar','🏔️ Gunung',
+    '🦋 Kupu','🌊 Ombak','🎨 Lukisan','⚡ Petir','🌸 Bunga',
+    '🚀 Roket','🎭 Topeng','🦊 Rubah','🍦 Es Krim','🌙 Bulan'];
+
+  slotText.classList.add('slot-rolling');
+  slotSub.textContent = 'Loading...';
+  slot.style.cursor = 'default';
+  slot.style.borderColor = 'rgba(193,122,111,.4)';
+
+  let rollCount = 0;
+  const totalRolls = 18;
+  // Varying speed: fast at start, slow at end
+  const getDelay = (count) => count < 8 ? 80 : count < 14 ? 140 : 220;
+
+  const runRoll = () => {
+    rollCount++;
+    // Guard against null if screen switched
+    const st = document.getElementById('word-slot-text');
+    const ss = document.getElementById('word-slot-sub');
+    const sl = document.getElementById('word-slot');
+    if (!st || !sl) return;
+
+    const fake = fakeWords[Math.floor(Math.random() * fakeWords.length)];
+    st.textContent = fake;
+
+    if (rollCount >= totalRolls) {
+      // Final reveal
+      st.classList.remove('slot-rolling');
+      st.classList.add('word-revealed');
+      st.textContent = currentWord.word;
+      if (ss) ss.textContent = '';
+      sl.style.background = 'rgba(193,122,111,.06)';
+      sl.style.borderColor = 'var(--rose)';
+      sl.dataset.revealed = '1';
+
+      const wl = document.getElementById('word-label');
+      const wh = document.getElementById('word-hint');
+      const wr = document.getElementById('word-ready-btn');
+      const wn = document.getElementById('word-sub-note');
+      if (wl) wl.textContent = 'Kata rahasiamu:';
+      if (wh) { wh.style.display = 'block'; wh.textContent = '💡 Hint: ' + currentWord.hint; }
+      if (wr) wr.style.display = 'block';
+      if (wn) wn.textContent = 'Jangan tunjukkan kata ini ke lawan ya! 🤫';
+
+      if (navigator.vibrate) navigator.vibrate([50, 30, 100]);
+    } else {
+      setTimeout(runRoll, getDelay(rollCount));
+    }
+  };
+  setTimeout(runRoll, 80);
+}
+
+function startDraw() {
+  showScreen('s-draw');
+  document.getElementById('draw-word-chip').textContent = currentWord.word;
+  currentColor = drawer === 'razan' ? '#4a7cc7' : '#c17a6f';
+  currentBrush = 8;
+  isErasing = false;
+  setupDrawToolbar();
+  setTimeout(() => {
+    initDrawCanvas();
+    startDrawTimer();
+  }, 100);
+}
+
+function initDrawCanvas() {
+  const wrap = document.getElementById('draw-canvas-wrap');
+  const canvas = document.getElementById('draw-canvas');
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  drawCtx = canvas.getContext('2d');
+  drawCtx.fillStyle = '#fff';
+  drawCtx.fillRect(0, 0, canvas.width, canvas.height);
+  setupDrawEvents(canvas);
+}
+
+function setupDrawToolbar() {
+  const strip = document.getElementById('draw-color-strip');
+  strip.innerHTML = '';
+  COLORS.forEach(c => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot' + (c===currentColor?' active':'');
+    dot.style.background = c;
+    if(c==='#ffffff') dot.style.border='2px solid #e8c4b0';
+    dot.onclick = () => {
+      currentColor = c; isErasing = false;
+      document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
+      dot.classList.add('active');
+      document.getElementById('eraser-btn').classList.remove('active');
+    };
+    strip.appendChild(dot);
+  });
+  const brushRow = document.getElementById('draw-brush-row');
+  brushRow.innerHTML = '';
+  BRUSH_SIZES.forEach(size => {
+    const btn = document.createElement('div');
+    btn.className = 'brush-btn' + (size===currentBrush?' active':'');
+    btn.innerHTML = `<div class="brush-dot" style="width:${Math.min(size,18)}px;height:${Math.min(size,18)}px"></div>`;
+    btn.onclick = () => {
+      currentBrush = size;
+      document.querySelectorAll('.brush-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    brushRow.appendChild(btn);
+  });
+}
+
+function setupDrawEvents(canvas) {
+  const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const sx = canvas.width / rect.width;
+    const sy = canvas.height / rect.height;
+    const t = e.touches ? e.touches[0] : e;
+    return { x: (t.clientX - rect.left) * sx, y: (t.clientY - rect.top) * sy };
+  };
+  const start = (e) => {
+    e.preventDefault(); isDrawing = true;
+    const p = getPos(e); lastX = p.x; lastY = p.y;
+    drawCtx.beginPath(); drawCtx.moveTo(lastX, lastY);
+  };
+  const move = (e) => {
+    e.preventDefault(); if (!isDrawing) return;
+    const p = getPos(e);
+    drawCtx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
+    drawCtx.strokeStyle = isErasing ? 'rgba(0,0,0,1)' : currentColor;
+    drawCtx.lineWidth = isErasing ? currentBrush * 2 : currentBrush;
+    drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
+    drawCtx.lineTo(p.x, p.y); drawCtx.stroke();
+    drawCtx.beginPath(); drawCtx.moveTo(p.x, p.y);
+    lastX = p.x; lastY = p.y;
+  };
+  const end = (e) => { e.preventDefault(); isDrawing = false; drawCtx.beginPath(); };
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end, {passive:false});
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('mouseleave', end);
+}
+
+function toggleEraser() {
+  isErasing = !isErasing;
+  document.getElementById('eraser-btn').classList.toggle('active', isErasing);
+}
+
+function clearCanvas() {
+  const c = document.getElementById('draw-canvas');
+  drawCtx.fillStyle = '#fff';
+  drawCtx.fillRect(0, 0, c.width, c.height);
+}
+
+function startDrawTimer() {
+  timeLeft = DRAW_TIME;
+  updateTimerBar();
+  clearInterval(drawTimer);
+  drawTimer = setInterval(() => {
+    timeLeft -= 0.1;
+    timeLeft = Math.round(timeLeft * 10) / 10;
+    updateTimerBar();
+    const timerEl = document.getElementById('draw-timer');
+    timerEl.textContent = Math.ceil(timeLeft);
+    timerEl.className = 'draw-timer' + (timeLeft <= 10 ? ' warn' : '');
+    if (navigator.vibrate && timeLeft <= 10 && Math.round(timeLeft) === timeLeft) navigator.vibrate(30);
+    if (timeLeft <= 0) { clearInterval(drawTimer); finishDraw(); }
+  }, 100);
+}
+
+function updateTimerBar() {
+  const pct = Math.max(0, (timeLeft / DRAW_TIME) * 100);
+  const bar = document.getElementById('timer-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : 'var(--rose)';
+}
+
+function finishDraw() {
+  clearInterval(drawTimer);
+  const canvas = document.getElementById('draw-canvas');
+  savedDrawing = drawCtx.getImageData(0, 0, canvas.width, canvas.height);
+
+  // Pass to guesser
+  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
+  document.getElementById('pass-icon').textContent = guesser === 'razan' ? '🧑' : '👧';
+  document.getElementById('pass-title').textContent = `Kasih HP ke ${guesserName}!`;
+  document.getElementById('pass-sub').textContent = `${guesserName} harus nebak gambar tadi. Jangan kasih tau kata rahasianya! 🙈`;
+  document.getElementById('pass-ready-btn').textContent = `${guesser==='razan'?'🧑':'👧'} ${guesserName} Udah Pegang HP! 👀`;
+  showScreen('s-pass');
+}
+
+function afterPass() {
+  // Reset attempts
+  guessAttempts = 0;
+  guessHistory = [];
+  const hist = document.getElementById('guess-history');
+  if (hist) hist.innerHTML = '';
+  const attEl = document.getElementById('guess-attempts');
+  if (attEl) attEl.textContent = 'Sisa 10 tebakan';
+
+  // Show guess screen
+  const badge = document.getElementById('guess-player-badge');
+  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
+  badge.textContent = `${guesser==='razan'?'🧑':'👧'} ${guesserName} nebak`;
+  badge.className = 'guess-player-badge ' + guesser;
+  document.getElementById('guess-round').textContent = `Ronde ${currentRound}/${TOTAL_ROUNDS}`;
+  document.getElementById('guess-input').value = '';
+  showScreen('s-guess');
+
+  // Render drawing on guess canvas
+  setTimeout(() => {
+    const wrap = document.getElementById('guess-drawing-wrap');
+    const gc = document.getElementById('guess-canvas');
+    gc.width = wrap.clientWidth;
+    gc.height = wrap.clientHeight;
+    const gCtx = gc.getContext('2d');
+    gCtx.fillStyle = '#fff';
+    gCtx.fillRect(0, 0, gc.width, gc.height);
+
+    if (savedDrawing) {
+      // Scale drawing to fit guess canvas
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = savedDrawing.width;
+      tmpCanvas.height = savedDrawing.height;
+      tmpCanvas.getContext('2d').putImageData(savedDrawing, 0, 0);
+      gCtx.drawImage(tmpCanvas, 0, 0, gc.width, gc.height);
+    }
+
+    setTimeout(() => document.getElementById('guess-input').focus(), 300);
+  }, 100);
+}
+
+let guessAttempts = 0;
+const MAX_ATTEMPTS = 10;
+let guessHistory = [];
+
+function selectCat(btn) {
+  document.querySelectorAll('.cat-pick-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  WORDS = WORD_BANK[btn.dataset.cat];
+  usedWords = [];
+}
+
+function giveUp() {
+  // Count as wrong, show answer
+  const lastGuess = guessHistory.length ? guessHistory[guessHistory.length-1] : '(menyerah)';
+  rounds.push({
+    word: currentWord.word,
+    guess: '(menyerah)',
+    correct: false,
+    imageData: savedDrawing,
+    imgWidth: document.getElementById('draw-canvas')?.width || 300,
+    imgHeight: document.getElementById('draw-canvas')?.height || 300,
+    drawer, guesser,
+  });
+  showRoundResult(false, '(menyerah)');
+}
+
+function submitGuess() {
+  const input = document.getElementById('guess-input');
+  const guess = input.value.trim();
+  if (!guess) { input.focus(); return; }
+
+  input.value = '';
+  input.focus();
+  guessAttempts++;
+  guessHistory.push(guess);
+
+  const correct = guess.toLowerCase().trim() === currentWord.word.toLowerCase().trim();
+
+  // Add to history display
+  const hist = document.getElementById('guess-history');
+  if (hist) {
+    const tag = document.createElement('span');
+    tag.style.cssText = `font-size:10px;font-weight:600;padding:.2rem .5rem;border-radius:6px;background:${correct?'rgba(129,199,132,.15)':'rgba(229,115,115,.1)'};color:${correct?'#4caf50':'#e57373'};border:1px solid ${correct?'rgba(129,199,132,.3)':'rgba(229,115,115,.2)'}`;
+    tag.textContent = (correct ? '✓ ' : '✗ ') + guess;
+    hist.appendChild(tag);
+  }
+
+  // Update attempts counter
+  const attEl = document.getElementById('guess-attempts');
+  if (attEl) {
+    const left = MAX_ATTEMPTS - guessAttempts;
+    attEl.textContent = left > 0 ? `Sisa ${left} tebakan` : 'Tebakan habis!';
+    attEl.style.color = left <= 3 ? '#e57373' : 'var(--rose)';
+  }
+
+  if (correct) {
+    scores[guesser] += 2;
+    scores[drawer] += 1;
+    rounds.push({
+      word: currentWord.word, guess, correct: true,
+      imageData: savedDrawing,
+      imgWidth: document.getElementById('draw-canvas')?.width || 300,
+      imgHeight: document.getElementById('draw-canvas')?.height || 300,
+      drawer, guesser,
+    });
+    showRoundResult(true, guess);
+    return;
+  }
+
+  if (guessAttempts >= MAX_ATTEMPTS) {
+    rounds.push({
+      word: currentWord.word, guess, correct: false,
+      imageData: savedDrawing,
+      imgWidth: document.getElementById('draw-canvas')?.width || 300,
+      imgHeight: document.getElementById('draw-canvas')?.height || 300,
+      drawer, guesser,
+    });
+    showRoundResult(false, guess);
+  }
+}
+
+function showRoundResult(correct, guess) {
+  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
+  const drawerName = drawer === 'razan' ? 'Razan' : 'Dara';
+
+  document.getElementById('rr-icon').textContent = correct ? '🎉' : '😅';
+  document.getElementById('rr-title').textContent = correct ? `${guesserName} Bener!` : 'Belum Pas...';
+  document.getElementById('rr-sub').textContent = correct
+    ? `${guesserName} berhasil nebak! +2 poin untuk ${guesserName}, +1 untuk ${drawerName}!`
+    : `Jawabannya "${currentWord.word}" — belum ketebak kali ini!`;
+
+  document.getElementById('rr-correct-word').textContent = currentWord.word;
+  document.getElementById('rr-guess-label').textContent = `Tebakan ${guesserName}`;
+  document.getElementById('rr-guess-word').textContent = guess;
+  document.getElementById('rr-guess-word').style.color = correct ? '#4caf50' : '#e57373';
+  document.getElementById('rr-score-r').textContent = scores.razan;
+  document.getElementById('rr-score-d').textContent = scores.dara;
+
+  // Mini canvas
+  const mini = document.getElementById('mini-canvas');
+  const mCtx = mini.getContext('2d');
+  mini.width = mini.parentElement.clientWidth;
+  mini.height = 160;
+  mCtx.fillStyle = '#fff';
+  mCtx.fillRect(0, 0, mini.width, 160);
+  if (savedDrawing) {
+    const tmp = document.createElement('canvas');
+    tmp.width = savedDrawing.width; tmp.height = savedDrawing.height;
+    tmp.getContext('2d').putImageData(savedDrawing, 0, 0);
+    mCtx.drawImage(tmp, 0, 0, mini.width, 160);
+  }
+
+  const isLast = currentRound >= TOTAL_ROUNDS;
+  document.getElementById('next-btn').textContent = isLast ? 'Lihat Hasil Akhir 🏆' : 'Ronde Berikutnya →';
+  document.getElementById('next-btn').onclick = isLast ? showFinalResult : nextRound;
+
+  showScreen('s-round-result');
+  if (correct) confetti(50);
+  if (navigator.vibrate) navigator.vibrate(correct ? [100,50,200] : [200,100,200]);
+}
+
+function nextRound() {
+  // Swap roles
+  const tmp = drawer;
+  drawer = guesser;
+  guesser = tmp;
+  startRound();
+}
+
+function showFinalResult() {
+  const r = scores.razan, d = scores.dara;
+  document.getElementById('final-r').textContent = r;
+  document.getElementById('final-d').textContent = d;
+
+  // Gallery
+  const gallery = document.getElementById('gallery-grid');
+  gallery.innerHTML = '';
+  rounds.forEach(round => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    const c = document.createElement('canvas');
+    c.style.width = '100%';
+    const w = Math.floor(gallery.clientWidth / 2) - 10;
+    c.width = w; c.height = 100;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, 100);
+    if (round.imageData) {
+      const tmp = document.createElement('canvas');
+      tmp.width = round.imageData.width; tmp.height = round.imageData.height;
+      tmp.getContext('2d').putImageData(round.imageData, 0, 0);
+      ctx.drawImage(tmp, 0, 0, w, 100);
+    }
+    const drawerName = round.drawer === 'razan' ? 'Razan' : 'Dara';
+    item.innerHTML = `
+      <div class="gallery-label">
+        <span class="gallery-word">${round.word}</span>
+        <span class="${round.correct ? 'gallery-correct' : 'gallery-wrong'}">${round.correct ? '✓' : '✗'}</span>
+      </div>`;
+    item.insertBefore(c, item.firstChild);
+    gallery.appendChild(item);
+  });
+
+  // Verdict
+  const tie = r === d;
+  const winner = r > d ? 'Razan' : 'Dara';
+  const loser = r > d ? 'Dara' : 'Razan';
+  const correctCount = rounds.filter(r=>r.correct).length;
+  let verdict;
+  if (tie) verdict = `Seri ${r}-${d}! Dua-duanya sama jago — baik menggambar maupun menebak! 🎨`;
+  else if (correctCount === TOTAL_ROUNDS) verdict = `<strong>Sempurna!</strong> Semua ${TOTAL_ROUNDS} kata ketebak! Kalian beneran bisa baca pikiran satu sama lain 🧠🤍`;
+  else if (correctCount >= 3) verdict = `<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}! ${correctCount} dari ${TOTAL_ROUNDS} kata berhasil ditebak — komunikasi kalian bagus!`;
+  else verdict = `<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}. ${TOTAL_ROUNDS - correctCount} kata ga ketebak — gambarnya terlalu abstrak, atau tebakannya terlalu kreatif 😂`;
+
+  document.getElementById('final-verdict').innerHTML = verdict;
+  showScreen('s-final');
+  if (correctCount >= 3 || !tie) confetti(70);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('guess-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitGuess();
+  });
+});
+
+function confetti(n) {
+  const colors=['#c17a6f','#c9a96e','#e8c4b0','#4a7cc7','#81c784','#fff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
