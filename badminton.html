@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Badminton Battle 🏸</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;user-select:none;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#0a0a1a}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:linear-gradient(160deg,#0a0a1a,#0a1a2a)}
+  #s-intro::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse at 30% 30%,rgba(100,180,255,.1),transparent 55%),
+    radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.08),transparent 55%);
+    pointer-events:none}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:shuttle 2s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes shuttle{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(15deg)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#64b4ff;display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:#64b4ff}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
+  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(100,180,255,.2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#64b4ff;display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#1a5a8a,#64b4ff);color:#fff;box-shadow:0 4px 18px rgba(100,180,255,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97)}
+
+  /* ── COUNTDOWN ── */
+  #s-countdown{background:#0a0a1a}
+  .cd-big{font-size:8rem;font-weight:700;color:#fff;display:block;line-height:1;animation:cdpop .7s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* ── GAME ── */
+  #s-game{padding:0;overflow:hidden;background:#0a0a1a}
+
+  /* Court */
+  #court{position:fixed;inset:0;touch-action:none}
+
+  /* Court background */
+  .court-bg{position:absolute;inset:0;background:linear-gradient(to bottom,#0d1a3a 0%,#0a1228 48%,#1a0a0d 52%,#2a0d10 100%)}
+  .court-line{position:absolute;background:rgba(255,255,255,.12)}
+  .court-line.h{height:1px;left:5%;right:5%}
+  .court-line.v{width:1px;top:5%;bottom:5%}
+  .net{position:absolute;left:0;right:0;height:3px;background:linear-gradient(to right,transparent,rgba(255,255,255,.4),rgba(255,255,255,.6),rgba(255,255,255,.4),transparent);z-index:5}
+  .net::before{content:'NET';position:absolute;left:50%;top:-10px;transform:translateX(-50%);font-size:8px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.15em}
+
+  /* Score areas */
+  .score-top{position:absolute;top:0;left:0;right:0;height:44px;background:rgba(10,26,58,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 .75rem;z-index:20}
+  .score-bot{position:absolute;bottom:0;left:0;right:0;height:44px;background:rgba(42,13,16,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:0 .75rem;z-index:20;transform:scaleY(-1)}
+  .score-bot > *{transform:scaleY(-1)}
+
+  .s-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5)}
+  .s-pts{font-size:1.5rem;font-weight:700;color:#fff;display:flex;gap:.25rem;align-items:baseline}
+  .s-pts span{font-size:.75rem;color:rgba(255,255,255,.3)}
+  .s-power{display:flex;gap:2px;align-items:center}
+  .power-pip{width:12px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);transition:all .2s}
+  .power-pip.full{background:#ffd54f}
+  .power-pip.charging{background:#ff9800;animation:chargepulse .4s ease-in-out infinite}
+  @keyframes chargepulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+  /* Player zones */
+  .zone{position:absolute;left:0;right:0;z-index:15;display:flex;align-items:center;justify-content:center}
+  .zone-top{top:44px}
+  .zone-bot{bottom:44px}
+
+  /* Player */
+  .player{position:absolute;font-size:2rem;transition:left .08s linear;z-index:12;text-align:center;line-height:1;bottom:0}
+  .player-top{top:44px}
+  .player-bot{bottom:44px}
+
+  /* Shuttlecock */
+  #shuttle{position:absolute;font-size:1.6rem;z-index:18;transition:none;text-align:center;line-height:1;pointer-events:none}
+  #shuttle.smash{animation:smashpulse .15s ease-in-out 3}
+  @keyframes smashpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+  #shuttle.fire{filter:drop-shadow(0 0 8px #ff6b00)}
+  #shuttle.bomb{filter:drop-shadow(0 0 8px #ff0000) brightness(1.3)}
+
+  /* Timing ring */
+  #timing-ring{position:absolute;z-index:17;pointer-events:none;display:none}
+  .ring{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.3);top:50%;left:50%;transform:translate(-50%,-50%)}
+  .ring-outer{width:70px;height:70px;animation:ringpulse 1s ease-in-out infinite}
+  .ring-perfect{width:36px;height:36px;border-color:rgba(100,255,100,.5)}
+  .ring-good{width:52px;height:52px;border-color:rgba(255,200,50,.4)}
+  @keyframes ringpulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(.9)}50%{opacity:.6;transform:translate(-50%,-50%) scale(1.05)}}
+
+  /* Hit feedback */
+  .hit-feedback{position:absolute;z-index:25;font-size:14px;font-weight:700;pointer-events:none;animation:hitfloat .7s ease forwards;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+  @keyframes hitfloat{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-50px) scale(.8);opacity:0}}
+
+  /* Combo */
+  #combo-display{position:absolute;left:50%;transform:translateX(-50%);z-index:22;text-align:center;pointer-events:none;transition:all .2s}
+  .combo-num{font-size:1.8rem;font-weight:700;color:#ffd54f;display:block;line-height:1;text-shadow:0 0 20px rgba(255,213,79,.6)}
+  .combo-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,213,79,.7)}
+
+  /* Special shot btns */
+  .special-btns{position:absolute;z-index:20;display:flex;gap:.35rem}
+  .special-btns.top{top:48px;right:8px}
+  .special-btns.bot{bottom:48px;right:8px}
+  .sp-btn{padding:.3rem .5rem;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);cursor:pointer;font-size:.75rem;color:rgba(255,255,255,.7);font-family:'Poppins',sans-serif;font-weight:600;transition:all .15s;white-space:nowrap}
+  .sp-btn:active{background:rgba(255,255,255,.2);transform:scale(.92)}
+  .sp-btn.used{opacity:.3;pointer-events:none}
+  .sp-btn.top-btn{transform:scaleY(-1)}
+
+  /* Serve indicator */
+  #serve-indicator{position:absolute;left:50%;transform:translateX(-50%);z-index:25;background:rgba(100,180,255,.9);color:#fff;font-size:12px;font-weight:700;padding:.4rem 1.1rem;border-radius:50px;pointer-events:none;transition:opacity .3s}
+
+  /* ── POINT ── */
+  #s-point{background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:50}
+  .point-icon{font-size:3rem;display:block;margin-bottom:.5rem;animation:cdpop .4s cubic-bezier(.34,1.5,.64,1);position:relative;z-index:1}
+  .point-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .point-score{font-size:2rem;font-weight:700;color:#64b4ff;display:block;margin-bottom:.75rem;position:relative;z-index:1;letter-spacing:.05em}
+  .point-next-btn{padding:.85rem 2rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:linear-gradient(135deg,#1a5a8a,#64b4ff);color:#fff;transition:all .15s;position:relative;z-index:1}
+  .point-next-btn:active{transform:scale(.97)}
+
+  /* ── RESULT ── */
+  #s-result{background:linear-gradient(160deg,#0a0a1a,#0a1a2a)}
+  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(100,180,255,.15),transparent 60%);pointer-events:none}
+  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:shuttle 2s ease-in-out infinite;position:relative;z-index:1}
+  .end-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .end-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.35rem auto 1rem;position:relative;z-index:1}
+  .final-score{background:rgba(255,255,255,.05);border:1px solid rgba(100,180,255,.2);border-radius:20px;padding:1.1rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%;max-width:360px;position:relative;z-index:1}
+  .fs-av{font-size:1.5rem;display:block;margin-bottom:.15rem}
+  .fs-nm{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .fs-sc{font-size:2.4rem;font-weight:700;color:#64b4ff;display:block;line-height:1}
+  .fs-vs{color:rgba(255,255,255,.2)}
+  .end-verdict{background:rgba(100,180,255,.07);border:1px solid rgba(100,180,255,.2);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-verdict strong{color:#64b4ff}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btn-p{background:linear-gradient(135deg,#1a5a8a,#64b4ff);color:#fff}
+  .end-btn-p:active{transform:scale(.97)}
+  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">🏸</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Badminton <span>Battle!</span></h1>
+  <p class="intro-sub">Satu HP, dua pemain — tap zona kamu untuk pukul! Timing sempurna = smash! 🔥</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot" style="background:#64b4ff"></span>👧 Dara main di atas — 🧑 Razan main di bawah</div>
+    <div class="rule"><span class="rule-dot" style="background:#ffd54f"></span>Tap zona kamu saat 🏸 mendekati → pukul!</div>
+    <div class="rule"><span class="rule-dot" style="background:#ff6b6b"></span>Tahan sebelum tap → power bar naik → SMASH! 💥</div>
+    <div class="rule"><span class="rule-dot" style="background:#81c784"></span>Ga tap / telat → lawan dapet poin. First to 11!</div>
+  </div>
+  <button class="start-btn" onclick="startCountdown()">Main! 🏸</button>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="s-countdown" class="screen">
+  <span class="cd-big" id="cd-num">3</span>
+  <span class="cd-sub" id="cd-sub">Dara atas — Razan bawah!</span>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div id="court">
+    <div class="court-bg"></div>
+
+    <!-- Court lines -->
+    <div class="court-line h" style="top:25%"></div>
+    <div class="court-line h" style="top:75%"></div>
+    <div class="court-line v" style="left:50%"></div>
+    <div class="court-line v" style="left:50%;top:50%;bottom:0"></div>
+
+    <!-- Score top (Dara) -->
+    <div class="score-top">
+      <span class="s-name">👧 Dara</span>
+      <div class="s-pts"><span id="score-d">0</span><span>pts</span></div>
+      <div class="s-power" id="power-d"></div>
+    </div>
+
+    <!-- Score bot (Razan) - mirrored -->
+    <div class="score-bot">
+      <span class="s-name">🧑 Razan</span>
+      <div class="s-pts"><span id="score-r">0</span><span>pts</span></div>
+      <div class="s-power" id="power-r"></div>
+    </div>
+
+    <!-- Net -->
+    <div class="net" id="net"></div>
+
+    <!-- Players -->
+    <div class="player player-top" id="player-d">👧</div>
+    <div class="player player-bot" id="player-r">🧑</div>
+
+    <!-- Shuttle -->
+    <div id="shuttle">🏸</div>
+
+    <!-- Timing ring -->
+    <div id="timing-ring">
+      <div class="ring ring-outer"></div>
+      <div class="ring ring-good"></div>
+      <div class="ring ring-perfect"></div>
+    </div>
+
+    <!-- Combo -->
+    <div id="combo-display" style="opacity:0;top:48%">
+      <span class="combo-num" id="combo-num">0</span>
+      <span class="combo-label">COMBO</span>
+    </div>
+
+    <!-- Special shots -->
+    <div class="special-btns top">
+      <button class="sp-btn top-btn" id="sp-d-1" onclick="useSpecial('d','speed')">⚡</button>
+      <button class="sp-btn top-btn" id="sp-d-2" onclick="useSpecial('d','curve')">🌀</button>
+    </div>
+    <div class="special-btns bot">
+      <button class="sp-btn" id="sp-r-1" onclick="useSpecial('r','speed')">⚡</button>
+      <button class="sp-btn" id="sp-r-2" onclick="useSpecial('r','curve')">🌀</button>
+    </div>
+
+    <!-- Serve indicator -->
+    <div id="serve-indicator" style="opacity:0"></div>
+  </div>
+</div>
+
+<!-- POINT SCREEN -->
+<div id="s-point" class="screen">
+  <span class="point-icon" id="pt-icon">🎉</span>
+  <h2 class="point-title" id="pt-title">Poin!</h2>
+  <span class="point-score" id="pt-score">0 - 0</span>
+  <button class="point-next-btn" onclick="resumeAfterPoint()">Lanjut! →</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <span class="end-icon">🏸</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <div class="final-score">
+    <div><span class="fs-av">👧</span><span class="fs-nm">Dara</span><span class="fs-sc" id="end-d">0</span></div>
+    <span class="fs-vs">🏸</span>
+    <div><span class="fs-av">🧑</span><span class="fs-nm">Razan</span><span class="fs-sc" id="end-r">0</span></div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="startCountdown()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const WIN_SCORE = 11;
+const DEUCE_DIFF = 2;
+const COURT_PAD_TOP = 44;
+const COURT_PAD_BOT = 44;
+
+// Shuttle physics
+let shuttle = { x:0, y:0, vx:0, vy:0, inPlay:false, side:'r', bounces:0 };
+let scores = { d:0, r:0 };
+let combo = 0;
+let gameActive = false;
+let raf = null;
+let courtW = 0, courtH = 0, netY = 0;
+let chargingPlayer = null;
+let chargeStart = 0;
+let chargeTimer = null;
+let powerBars = { d:0, r:0 };
+let specials = { d:{speed:true,curve:true}, r:{speed:true,curve:true} };
+let nextSpecial = { d:null, r:null };
+let holdTimers = {};
+let lastTime = 0;
+
+// Player positions
+let players = { d:{ x:0 }, r:{ x:0 } };
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startCountdown() {
+  scores = {d:0, r:0};
+  combo = 0;
+  specials = {d:{speed:true,curve:true}, r:{speed:true,curve:true}};
+  showScreen('s-countdown');
+  let count = 3;
+  const el = document.getElementById('cd-num');
+  const sub = document.getElementById('cd-sub');
+  el.textContent = count;
+  el.style.animation='none'; void el.offsetWidth;
+  el.style.animation='cdpop .7s cubic-bezier(.34,1.5,.64,1)';
+  const iv = setInterval(()=>{
+    count--;
+    if (count<=0) { clearInterval(iv); initGame(); }
+    else {
+      el.style.animation='none'; void el.offsetWidth;
+      el.style.animation='cdpop .7s cubic-bezier(.34,1.5,.64,1)';
+      el.textContent=count;
+    }
+  },800);
+}
+
+function initGame() {
+  showScreen('s-game');
+  const court = document.getElementById('court');
+  courtW = court.offsetWidth;
+  courtH = court.offsetHeight;
+  netY = courtH / 2;
+
+  // Position net
+  document.getElementById('net').style.top = netY + 'px';
+
+  // Init players center
+  players.d.x = courtW / 2 - 20;
+  players.r.x = courtW / 2 - 20;
+  updatePlayerPos('d');
+  updatePlayerPos('r');
+
+  updatePowerBars();
+  updateSpecialBtns();
+  updateScoreDisplay();
+
+  setupTouchControls();
+  serve('r'); // Razan serves first
+}
+
+function serve(player) {
+  shuttle.inPlay = false;
+  shuttle.bounces = 0;
+  shuttle.side = player;
+  combo = 0;
+  updateCombo();
+
+  const si = document.getElementById('serve-indicator');
+  const serveName = player==='r'?'Razan':'Dara';
+  si.textContent = `🏸 ${serveName} Serve`;
+  si.style.opacity='1';
+  si.style.top = player==='r' ? (courtH - COURT_PAD_BOT - 80)+'px' : (COURT_PAD_TOP + 50)+'px';
+
+  // Position shuttle near server
+  const sx = players[player].x + 20;
+  const sy = player==='r'
+    ? courtH - COURT_PAD_BOT - 80
+    : COURT_PAD_TOP + 60;
+  setShuttlePos(sx, sy);
+  document.getElementById('shuttle').style.display='block';
+
+  setTimeout(()=>{
+    si.style.opacity='0';
+    launchServe(player);
+  },1000);
+}
+
+function launchServe(player) {
+  shuttle.inPlay = true;
+  shuttle.side = player;
+  const dir = player==='r' ? -1 : 1; // r goes up (-), d goes down (+)
+  shuttle.vx = (Math.random()-0.5)*1.5; // very slight x drift
+  shuttle.vy = dir * 3; // start slow
+  shuttle.x = courtW/2;
+  shuttle.y = player==='r'
+    ? courtH - COURT_PAD_BOT - 60
+    : COURT_PAD_TOP + 60;
+  gameActive = true;
+  lastTime = performance.now();
+  requestAnimationFrame(gameLoop);
+}
+
+function setShuttlePos(x, y) {
+  shuttle.x = x; shuttle.y = y;
+  const el = document.getElementById('shuttle');
+  el.style.left = (x-16)+'px';
+  el.style.top = (y-16)+'px';
+}
+
+function gameLoop(ts) {
+  if (!gameActive) return;
+  const dt = Math.min((ts-lastTime)/16, 3);
+  lastTime = ts;
+
+  // Pure linear motion - no gravity, no wall bounce
+  // Just go from one side to the other
+  shuttle.x += shuttle.vx * dt;
+  shuttle.y += shuttle.vy * dt;
+
+  // Keep X in bounds with slight bounce
+  if (shuttle.x < 20) { shuttle.x=20; shuttle.vx=Math.abs(shuttle.vx)*0.5; }
+  if (shuttle.x > courtW-20) { shuttle.x=courtW-20; shuttle.vx=-Math.abs(shuttle.vx)*0.5; }
+
+  // Update shuttle element
+  const el = document.getElementById('shuttle');
+  el.style.left = (shuttle.x-16)+'px';
+  el.style.top = (shuttle.y-16)+'px';
+
+  // Rotate based on direction
+  const angle = shuttle.vy < 0 ? -30 : 30;
+  el.style.transform = `rotate(${angle}deg)`;
+
+  // Show timing ring near active player
+  updateTimingRing();
+
+  // Check miss
+  checkMiss();
+
+  raf = requestAnimationFrame(gameLoop);
+}
+
+function updateTimingRing() {
+  const ring = document.getElementById('timing-ring');
+  const headingDown = shuttle.vy > 0;
+  const activePlayer = headingDown ? 'r' : 'd';
+  const playerY = activePlayer==='r'
+    ? courtH - COURT_PAD_BOT - 50
+    : COURT_PAD_TOP + 50;
+
+  const dist = Math.abs(shuttle.y - playerY);
+  const threshold = 100;
+  if (dist < threshold && shuttle.inPlay) {
+    ring.style.display='block';
+    ring.style.left = (shuttle.x-35)+'px';
+    ring.style.top = (playerY-35)+'px';
+    const pct = 1-(dist/threshold);
+    ring.style.opacity = pct.toFixed(2);
+  } else {
+    ring.style.display='none';
+  }
+}
+
+function checkMiss() {
+  const topBound = COURT_PAD_TOP - 5;
+  const botBound = courtH - COURT_PAD_BOT + 5;
+
+  if (shuttle.y < topBound) {
+    pointScored('r'); // shuttle passed Dara = Razan scores
+  } else if (shuttle.y > botBound) {
+    pointScored('d'); // shuttle passed Razan = Dara scores
+  }
+}
+
+// ── TOUCH CONTROLS ──
+function setupTouchControls() {
+  const court = document.getElementById('court');
+  court.addEventListener('touchstart', onTouch, {passive:false});
+  court.addEventListener('touchend', onTouchEnd, {passive:false});
+  court.addEventListener('mousedown', onMouse);
+  court.addEventListener('mouseup', onMouseUp);
+}
+
+function getPlayer(y) {
+  return y < courtH/2 ? 'd' : 'r';
+}
+
+function onTouch(e) {
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t=>{
+    const player = getPlayer(t.clientY);
+    startHold(player, t.clientX, t.clientY, t.identifier);
+  });
+}
+
+function onTouchEnd(e) {
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t=>{
+    const player = getPlayer(t.clientY);
+    endHold(player);
+  });
+}
+
+function onMouse(e) {
+  const player = getPlayer(e.clientY);
+  startHold(player, e.clientX, e.clientY, 'mouse');
+}
+function onMouseUp(e) {
+  const player = getPlayer(e.clientY);
+  endHold(player);
+}
+
+function startHold(player, cx, cy, id) {
+  // Move player toward tap x
+  players[player].x = Math.max(0, Math.min(courtW-40, cx-20));
+  updatePlayerPos(player);
+
+  // Start charge
+  if (!holdTimers[player]) {
+    holdTimers[player] = { start: Date.now() };
+    // Charge power bar
+    holdTimers[player].interval = setInterval(()=>{
+      powerBars[player] = Math.min(1, powerBars[player] + 0.08);
+      updatePowerBars();
+    }, 60);
+  }
+}
+
+function endHold(player) {
+  if (!holdTimers[player]) return;
+  clearInterval(holdTimers[player].interval);
+  const holdDur = Date.now() - holdTimers[player].start;
+  holdTimers[player] = null;
+
+  tryHit(player, holdDur);
+  // Drain power
+  powerBars[player] = Math.max(0, powerBars[player] - 0.3);
+  updatePowerBars();
+}
+
+function tryHit(player, holdDur) {
+  if (!gameActive || !shuttle.inPlay) return;
+
+  const playerY = player==='r'
+    ? courtH - COURT_PAD_BOT - 40
+    : COURT_PAD_TOP + 40;
+
+  const distX = Math.abs(shuttle.x - (players[player].x+20));
+  const distY = Math.abs(shuttle.y - playerY);
+  // Only hit if shuttle coming toward this player
+  const headingToPlayer = player==='r' ? shuttle.vy > 0 : shuttle.vy < 0;
+  if (!headingToPlayer) return;
+
+  // Hit zone - generous X, strict Y (must be close to player)
+  const reachX = courtW; // full width - player already moved to tap position
+  const reachY = 90;
+  if (distY > reachY) {
+    // Too far - miss only if shuttle was approaching
+    if (distY < 130) {
+      showHitFeedback(player,'❌ MISS','#e57373');
+      combo=0; updateCombo();
+    }
+    return;
+  }
+
+  // Determine quality
+  let quality, speedMult;
+  const isPowerFull = powerBars[player] >= 0.8;
+
+  if (isPowerFull || holdDur > 400) {
+    quality = 'SMASH'; speedMult = 2.2;
+  } else if (distY < 35) {
+    quality = 'PERFECT!'; speedMult = 1.6;
+  } else if (distY < 65) {
+    quality = 'GOOD'; speedMult = 1.2;
+  } else {
+    quality = 'OK'; speedMult = 0.9;
+  }
+
+  // Apply special
+  if (nextSpecial[player]) {
+    applySpecial(player, nextSpecial[player], speedMult);
+    nextSpecial[player] = null;
+    return;
+  }
+
+  // Hit!
+  const dir = player==='r' ? -1 : 1;
+  const targetX = players[player].x + 20;
+  const angle = (targetX/courtW - 0.5) * 0.8;
+  // Speed increases each rally hit - starts slow, gets faster
+  const baseSpeed = 3;
+  const rallyBonus = Math.min(shuttle.bounces * 0.5, 8); // +0.5 per hit, max +8
+  const smashBonus = (speedMult - 0.9) * 2;
+  const speed = baseSpeed + rallyBonus + smashBonus;
+  shuttle.vx = (Math.random()-0.5)*1.5;
+  shuttle.vy = dir * speed; // ALWAYS toward opponent
+  
+  // Show speed indicator every 3 hits
+  if (shuttle.bounces % 3 === 0 && shuttle.bounces > 0) {
+    const lvl = Math.floor(shuttle.bounces/3);
+    const labels = ['','⚡ Makin Cepat!','⚡⚡ Kenceng!','💥 BRUTAL!','🔥 MAX SPEED!'];
+    const lbl = labels[Math.min(lvl, labels.length-1)];
+    if (lbl) showHitFeedback(player, lbl, '#ffd54f');
+  }
+  shuttle.side = player;
+  shuttle.bounces++;
+  combo++;
+
+  // Feedback
+  const colors = {SMASH:'#ff6b6b','PERFECT!':'#81c784',GOOD:'#ffd54f',OK:'rgba(255,255,255,.6)'};
+  showHitFeedback(player, quality==='SMASH'?'💥 SMASH!':'✨ '+quality, colors[quality]);
+  updateCombo();
+
+  if (quality==='SMASH') {
+    document.getElementById('shuttle').classList.add('smash');
+    setTimeout(()=>document.getElementById('shuttle').classList.remove('smash'),400);
+  }
+
+  if (navigator.vibrate) navigator.vibrate(quality==='SMASH'?[50,20,80]:30);
+}
+
+function applySpecial(player, type, baseSpeed) {
+  const dir = player==='r' ? -1 : 1;
+  if (type==='speed') {
+    shuttle.vx = (Math.random()-0.5)*2;
+    shuttle.vy = dir * 12; // speed shot - very fast, straight
+    showHitFeedback(player,'⚡ SPEED!','#ffd54f');
+  } else if (type==='curve') {
+    shuttle.vx = player==='r' ? 3.5 : -3.5; // curve - goes sideways
+    shuttle.vy = dir * 7;
+    showHitFeedback(player,'🌀 CURVE!','#ba68c8');
+  }
+  shuttle.side=player; combo++;
+  updateCombo();
+  if (navigator.vibrate) navigator.vibrate([30,20,60]);
+}
+
+function useSpecial(player, type) {
+  if (!specials[player][type]) return;
+  specials[player][type] = false;
+  nextSpecial[player] = type;
+  updateSpecialBtns();
+  // Visual feedback
+  const name = type==='speed'?'⚡ Speed':'🌀 Curve';
+  showHitFeedback(player, name+' siap!','#ba68c8');
+}
+
+function showHitFeedback(player, text, color) {
+  const el = document.createElement('div');
+  el.className = 'hit-feedback';
+  el.style.color = color;
+  el.textContent = text;
+  const x = players[player].x + 10;
+  const y = player==='r' ? courtH-COURT_PAD_BOT-80 : COURT_PAD_TOP+60;
+  el.style.left = x+'px';
+  el.style.top = y+'px';
+  document.getElementById('court').appendChild(el);
+  setTimeout(()=>el.remove(),700);
+}
+
+function updateCombo() {
+  const el = document.getElementById('combo-display');
+  const num = document.getElementById('combo-num');
+  if (combo>=3) {
+    num.textContent = '🔥 ×'+combo;
+    el.style.opacity='1';
+  } else {
+    el.style.opacity='0';
+  }
+}
+
+function updatePlayerPos(player) {
+  const el = document.getElementById('player-'+player);
+  el.style.left = players[player].x+'px';
+}
+
+function updatePowerBars() {
+  ['d','r'].forEach(p=>{
+    const el = document.getElementById('power-'+p);
+    if (!el) return;
+    el.innerHTML = '';
+    for (let i=0;i<5;i++) {
+      const pip = document.createElement('div');
+      pip.className='power-pip'+(powerBars[p]>i/5+0.01?' full':powerBars[p]>i/5-0.1&&powerBars[p]>0.1?' charging':'');
+      el.appendChild(pip);
+    }
+  });
+}
+
+function updateSpecialBtns() {
+  document.getElementById('sp-d-1').classList.toggle('used',!specials.d.speed);
+  document.getElementById('sp-d-2').classList.toggle('used',!specials.d.curve);
+  document.getElementById('sp-r-1').classList.toggle('used',!specials.r.speed);
+  document.getElementById('sp-r-2').classList.toggle('used',!specials.r.curve);
+}
+
+function updateScoreDisplay() {
+  document.getElementById('score-d').textContent = scores.d;
+  document.getElementById('score-r').textContent = scores.r;
+}
+
+function pointScored(scorer) {
+  gameActive = false;
+  cancelAnimationFrame(raf);
+  combo=0; updateCombo();
+  Object.keys(holdTimers).forEach(p=>{
+    if(holdTimers[p]){clearInterval(holdTimers[p].interval);holdTimers[p]=null;}
+  });
+  powerBars={d:0,r:0}; updatePowerBars();
+
+  scores[scorer]++;
+  updateScoreDisplay();
+
+  const scorerName = scorer==='d'?'Dara':'Razan';
+  document.getElementById('pt-icon').textContent = scorer==='d'?'👧':'🧑';
+  document.getElementById('pt-title').textContent = `🏸 ${scorerName} Poin!`;
+  document.getElementById('pt-score').textContent = `${scores.d} — ${scores.r}`;
+
+  if (navigator.vibrate) navigator.vibrate([100,50,100]);
+
+  // Check win
+  const maxScore = Math.max(scores.d, scores.r);
+  const minScore = Math.min(scores.d, scores.r);
+  const isWin = maxScore >= WIN_SCORE && maxScore-minScore >= DEUCE_DIFF;
+
+  if (isWin) {
+    setTimeout(showResult, 400);
+  } else {
+    showScreen('s-point');
+  }
+}
+
+function resumeAfterPoint() {
+  // Loser serves
+  const loser = scores.d > scores.r ? 'r' : 'd';
+  showScreen('s-game');
+  setTimeout(()=>serve(loser), 200);
+}
+
+function showResult() {
+  showScreen('s-result');
+  const d=scores.d, r=scores.r;
+  const winner = d>r?'Dara':'Razan';
+  const loser = d>r?'Razan':'Dara';
+  document.getElementById('end-d').textContent=d;
+  document.getElementById('end-r').textContent=r;
+  document.getElementById('end-title').textContent=`🏆 ${winner} Menang!`;
+  document.getElementById('end-sub').textContent=`${winner} berhasil mencapai ${WIN_SCORE} poin duluan!`;
+
+  const diff=Math.abs(d-r);
+  let verdict;
+  if (diff<=2) verdict=`<strong>${winner}</strong> menang tipis ${d>r?d:r}-${d>r?r:d}! Pertandingan yang sengit banget — hampir imbang!`;
+  else if (diff<=4) verdict=`<strong>${winner}</strong> menang ${d>r?d:r}-${d>r?r:d}! ${loser} lumayan bisa handle tapi ga cukup!`;
+  else verdict=`<strong>${winner}</strong> mendominasi ${d>r?d:r}-${d>r?r:d}! ${loser} perlu banyak latihan timing nih 😄`;
+
+  document.getElementById('end-verdict').innerHTML=verdict;
+  confetti(70);
+}
+
+function confetti(n) {
+  const colors=['#64b4ff','#1a5a8a','#ffd54f','#fff','#81c784'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
