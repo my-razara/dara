@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Penalty Shootout ⚽</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{--green:#2d6a2d;--lime:#7ec850;--ink:#1a2a1a;--gold:#ffd54f;--rose:#e57373;--blue:#64b4ff}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#0d1a0d}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen.active{display:flex}
+
+  /* INTRO */
+  #s-intro{background:linear-gradient(160deg,#0d1a0d,#1a3a1a)}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:bounce 1s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--lime);display:block;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .intro-title span{color:var(--lime)}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
+  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(126,200,80,.2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--lime);display:block;margin-bottom:.6rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
+  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--green),var(--lime));color:#fff;box-shadow:0 4px 18px rgba(126,200,80,.4);transition:all .2s;position:relative;z-index:1}
+  .start-btn:active{transform:scale(.97)}
+
+  /* PICK */
+  #s-pick{background:linear-gradient(160deg,#0d1a0d,#1a3a1a)}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
+  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(126,200,80,.2);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.09)}
+
+  /* PASS */
+  #s-pass{background:#0d1a0d}
+  .pass-icon{font-size:4rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:bounce 1.5s ease-in-out infinite}
+  .pass-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  .pass-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.5rem;position:relative;z-index:1}
+  .pass-btn{width:100%;max-width:320px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--gold);color:var(--ink);box-shadow:0 4px 18px rgba(255,213,79,.4);transition:all .2s;position:relative;z-index:1}
+  .pass-btn:active{transform:scale(.97)}
+
+  /* GAME */
+  #s-game{background:#0d1a0d;padding:0;justify-content:flex-start}
+
+  /* Score bar */
+  .score-bar{flex-shrink:0;width:100%;background:rgba(13,26,13,.95);backdrop-filter:blur(8px);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(126,200,80,.1)}
+  .sb-player{text-align:center}
+  .sb-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.4);display:block}
+  .sb-score{font-size:1.4rem;font-weight:700;color:var(--lime);display:block;line-height:1}
+  .sb-mid{text-align:center;flex:1}
+  .sb-round{font-size:10px;color:rgba(255,255,255,.35);display:block}
+  .sb-kicks{display:flex;gap:3px;justify-content:center;margin-top:.2rem}
+  .kick-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+  .kick-dot.goal{background:var(--lime);border-color:var(--lime)}
+  .kick-dot.miss{background:var(--rose);border-color:var(--rose)}
+  .kick-dot.current{border-color:var(--gold);animation:dotpulse .8s ease-in-out infinite}
+  @keyframes dotpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,213,79,.4)}50%{box-shadow:0 0 0 4px rgba(255,213,79,0)}}
+
+  /* Stadium */
+  .stadium{flex:1;position:relative;width:100%;overflow:hidden;display:flex;flex-direction:column}
+  .grass{flex:1;background:linear-gradient(to bottom,#1a4a1a,#2d6a2d 40%,#1a4a1a);position:relative;display:flex;align-items:center;justify-content:center}
+  /* Goal */
+  .goal{width:200px;height:110px;position:absolute;top:15px;left:50%;transform:translateX(-50%);border:4px solid rgba(255,255,255,.85);border-bottom:none;background:rgba(255,255,255,.04)}
+  .goal-net{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 14px),repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0,rgba(255,255,255,.08) 1px,transparent 1px,transparent 14px)}
+  /* Goal zones highlight */
+  .goal-zones{position:absolute;top:19px;left:50%;transform:translateX(-50%);width:200px;height:106px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);z-index:5;pointer-events:none}
+  .gz{border:1px solid rgba(255,255,255,.0);transition:background .2s;border-radius:2px}
+  .gz.highlight{background:rgba(255,213,79,.25)!important;border-color:rgba(255,213,79,.5)!important}
+  .gz.goal-zone{background:rgba(126,200,80,.25)!important;border-color:rgba(126,200,80,.5)!important}
+  .gz.save-zone{background:rgba(229,115,115,.25)!important;border-color:rgba(229,115,115,.5)!important}
+  /* Penalty spot */
+  .penalty-spot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.6);position:absolute;bottom:55px;left:50%;transform:translateX(-50%)}
+  /* Ball */
+  #ball{position:absolute;font-size:2rem;bottom:60px;left:50%;transform:translateX(-50%);transition:none;z-index:10;line-height:1}
+  #ball.animate-goal{animation:ballgoal .6s cubic-bezier(.4,0,.2,1) forwards}
+  #ball.animate-miss-l{animation:ballmissl .5s ease-out forwards}
+  #ball.animate-miss-r{animation:ballmissr .5s ease-out forwards}
+  #ball.animate-saved{animation:ballsaved .5s cubic-bezier(.4,0,.2,1) forwards}
+  #ball.animate-panenka{animation:ballpanenka .7s ease-out forwards}
+  @keyframes ballgoal{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(calc(-50% + var(--tx))) translateY(var(--ty)) scale(.5);opacity:.7}}
+  @keyframes ballmissl{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(calc(-50% - 130px)) translateY(-60px) scale(.6);opacity:.5}}
+  @keyframes ballmissr{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(calc(-50% + 130px)) translateY(-60px) scale(.6);opacity:.5}}
+  @keyframes ballsaved{0%{transform:translateX(-50%) scale(1)}60%{transform:translateX(calc(-50% + var(--tx))) translateY(var(--ty)) scale(.7)}100%{transform:translateX(calc(-50% + var(--tx))) translateY(var(--ty)) scale(.7);opacity:.8}}
+  @keyframes ballpanenka{0%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) translateY(-80px) scale(.8)}100%{transform:translateX(-50%) translateY(-40px) scale(.5);opacity:.7}}
+  /* Keeper */
+  #keeper{position:absolute;font-size:2rem;top:120px;left:50%;transform:translateX(-50%);z-index:9;transition:left .3s ease,top .2s ease;line-height:1}
+  #keeper.dive-l{animation:keeperdivel .35s cubic-bezier(.4,0,.2,1) forwards}
+  #keeper.dive-r{animation:keeperdiver .35s cubic-bezier(.4,0,.2,1) forwards}
+  #keeper.dive-c{animation:keeperdivc .35s ease-out forwards}
+  @keyframes keeperdivel{to{transform:translateX(calc(-50% - 70px)) rotate(-30deg)}}
+  @keyframes keeperdiver{to{transform:translateX(calc(-50% + 70px)) rotate(30deg)}}
+  @keyframes keeperdivc{to{transform:translateX(-50%) translateY(-10px) scale(1.1)}}
+  /* Shooter */
+  #shooter{position:absolute;bottom:85px;left:50%;transform:translateX(-50%);font-size:2rem;z-index:8;line-height:1}
+  #shooter.kick{animation:kickanim .3s ease-out forwards}
+  @keyframes kickanim{0%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(-15deg) scale(1.1)}100%{transform:translateX(-50%) rotate(0)}}
+
+  /* Action area */
+  .action-area{flex-shrink:0;background:rgba(13,26,13,.95);backdrop-filter:blur(8px);border-top:1px solid rgba(126,200,80,.1);padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom));width:100%}
+  .action-label{font-size:11px;color:rgba(255,255,255,.4);text-align:center;display:block;margin-bottom:.6rem;font-style:italic}
+  .action-role{font-size:12px;font-weight:700;padding:.25rem .85rem;border-radius:50px;display:inline-block;margin-bottom:.65rem}
+  .action-role.shooter{background:rgba(255,213,79,.12);color:var(--gold)}
+  .action-role.keeper{background:rgba(100,180,255,.12);color:var(--blue)}
+
+  /* Shot type btns */
+  .shot-types{display:flex;gap:.5rem;justify-content:center;margin-bottom:.6rem}
+  .shot-type-btn{padding:.4rem .75rem;border-radius:8px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);cursor:pointer;font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,.6);transition:all .15s}
+  .shot-type-btn.selected{border-color:var(--gold);background:rgba(255,213,79,.12);color:var(--gold)}
+  .shot-type-btn:active{transform:scale(.92)}
+
+  /* Direction btns */
+  .dir-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;max-width:320px;margin:0 auto}
+  .dir-btn{padding:.85rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-size:1.3rem;font-weight:700;color:#fff;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-family:'Poppins',sans-serif}
+  .dir-btn:active{transform:scale(.9);background:rgba(126,200,80,.2);border-color:var(--lime)}
+  .dir-btn span{font-size:9px;color:rgba(255,255,255,.45);font-weight:500}
+  .dir-btn.keeper-btn{border-color:rgba(100,180,255,.2)}
+  .dir-btn.keeper-btn:active{background:rgba(100,180,255,.2);border-color:var(--blue)}
+
+  /* Power bar */
+  .power-wrap{margin-bottom:.5rem;display:none}
+  .power-wrap.show{display:block}
+  .power-label{font-size:10px;color:rgba(255,255,255,.4);margin-bottom:.25rem;display:block}
+  .power-bar-bg{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+  .power-bar-fill{height:100%;background:linear-gradient(to right,var(--lime),var(--gold),var(--rose));border-radius:4px;transition:width .05s linear}
+
+  /* RESULT */
+  #s-round-result{background:rgba(0,0,0,.88);backdrop-filter:blur(12px);z-index:50}
+  .rr-icon{font-size:4rem;display:block;margin-bottom:.5rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes popin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  .rr-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+  .rr-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.25rem auto .85rem}
+  .rr-score{font-size:2rem;font-weight:700;color:var(--lime);display:block;margin-bottom:1rem;letter-spacing:.1em}
+  .rr-next-btn{padding:.85rem 2rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:linear-gradient(135deg,var(--green),var(--lime));color:#fff;transition:all .15s}
+  .rr-next-btn:active{transform:scale(.97)}
+
+  /* FINAL */
+  #s-final{background:linear-gradient(160deg,#0d1a0d,#1a3a1a)}
+  #s-final::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(126,200,80,.15),transparent 60%);pointer-events:none}
+  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:bounce 1s ease-in-out infinite;position:relative;z-index:1}
+  .end-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
+  .end-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.35rem auto 1rem;position:relative;z-index:1}
+  .final-score{background:rgba(255,255,255,.05);border:1px solid rgba(126,200,80,.2);border-radius:20px;padding:1.1rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%;max-width:360px;position:relative;z-index:1}
+  .fs-av{font-size:1.5rem;display:block;margin-bottom:.15rem}
+  .fs-nm{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .fs-sc{font-size:2.4rem;font-weight:700;color:var(--lime);display:block;line-height:1}
+  .fs-vs{color:rgba(255,255,255,.2)}
+  .end-verdict{background:rgba(126,200,80,.07);border:1px solid rgba(126,200,80,.2);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-verdict strong{color:var(--lime)}
+  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btn-p{background:linear-gradient(135deg,var(--green),var(--lime));color:#fff}
+  .end-btn-p:active{transform:scale(.97)}
+  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <span class="intro-icon">⚽</span>
+  <span class="intro-label">Game Berdua</span>
+  <h1 class="intro-title">Penalty <span>Shootout!</span></h1>
+  <p class="intro-sub">Adu penalti — pilih arah tendangan, lawan jadi kiper. Gantian sampai Best of 5! 🥅</p>
+  <div class="rules-card">
+    <span class="rules-title">Cara Main</span>
+    <div class="rule"><span class="rule-dot" style="background:var(--gold)"></span>Penendang pilih arah + jenis tendangan — lawan GA BOLEH LIAT!</div>
+    <div class="rule"><span class="rule-dot" style="background:var(--blue)"></span>Kasih HP ke kiper → kiper pilih arah penyelamatan</div>
+    <div class="rule"><span class="rule-dot" style="background:var(--lime)"></span>Arah sama = selamat ✋ · Arah beda = GOAL! ⚽</div>
+    <div class="rule"><span class="rule-dot" style="background:#fff"></span>Best of 5 tendangan per ronde — siapa menang 3 duluan!</div>
+  </div>
+  <button class="start-btn" onclick="showScreen('s-pick')">Kick Off! ⚽</button>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <span style="font-size:3rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:bounce 1s ease-in-out infinite">⚽</span>
+  <p class="pick-title" style="color:#fff">Siapa yang tendang duluan?</p>
+  <p class="pick-sub">Gantian jadi penendang dan kiper tiap tendangan</p>
+  <div class="pick-btns">
+    <div class="pick-btn" onclick="initGame('razan')">
+      <span style="font-size:2rem;flex-shrink:0">🧑</span>
+      <div style="text-align:left">
+        <span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan tendang duluan</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Dara jadi kiper ronde 1</span>
+      </div>
+    </div>
+    <div class="pick-btn" onclick="initGame('dara')">
+      <span style="font-size:2rem;flex-shrink:0">👧</span>
+      <div style="text-align:left">
+        <span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara tendang duluan</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Razan jadi kiper ronde 1</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <span class="pass-icon" id="pass-icon">🥅</span>
+  <p class="pass-title" id="pass-title">Kasih HP ke Kiper!</p>
+  <p class="pass-sub" id="pass-sub">Kiper siap di bawah gawang — jangan liat pilihan penendang! 🙈</p>
+  <button class="pass-btn" id="pass-btn" onclick="goToKeeper()">Aku Udah Jadi Kiper! 🧤</button>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <!-- Score bar -->
+  <div class="score-bar">
+    <div class="sb-player">
+      <span class="sb-name" id="name-r">🧑 Razan</span>
+      <span class="sb-score" id="score-r">0</span>
+      <div class="sb-kicks" id="kicks-r"></div>
+    </div>
+    <div class="sb-mid">
+      <span class="sb-round" id="round-label">Tendangan 1/5</span>
+    </div>
+    <div class="sb-player">
+      <span class="sb-name" id="name-d">Dara 👧</span>
+      <span class="sb-score" id="score-d">0</span>
+      <div class="sb-kicks" id="kicks-d"></div>
+    </div>
+  </div>
+
+  <!-- Stadium -->
+  <div class="stadium">
+    <div class="grass">
+      <!-- Goal -->
+      <div class="goal"><div class="goal-net"></div></div>
+      <!-- Goal zones (visual highlight) -->
+      <div class="goal-zones" id="goal-zones">
+        <div class="gz" id="gz-tl"></div><div class="gz" id="gz-tc"></div><div class="gz" id="gz-tr"></div>
+        <div class="gz" id="gz-bl"></div><div class="gz" id="gz-bc"></div><div class="gz" id="gz-br"></div>
+      </div>
+      <!-- Penalty spot -->
+      <div class="penalty-spot"></div>
+      <!-- Keeper -->
+      <div id="keeper">🧤</div>
+      <!-- Shooter -->
+      <div id="shooter" style="display:none">🧑</div>
+      <!-- Ball -->
+      <div id="ball">⚽</div>
+    </div>
+  </div>
+
+  <!-- Action area -->
+  <div class="action-area" id="action-area">
+    <div style="text-align:center;margin-bottom:.4rem">
+      <span class="action-role shooter" id="action-role">⚽ Razan — Pilih Tendangan</span>
+    </div>
+    <span class="action-label" id="action-label">Pilih jenis tendangan dulu:</span>
+
+    <!-- Shot types (for shooter) -->
+    <div class="shot-types" id="shot-types">
+      <button class="shot-type-btn selected" data-type="normal" onclick="selectShotType(this)">⚽ Normal</button>
+      <button class="shot-type-btn" data-type="power" onclick="selectShotType(this)">💥 Power</button>
+      <button class="shot-type-btn" data-type="curve" onclick="selectShotType(this)">🌀 Curve</button>
+      <button class="shot-type-btn" data-type="panenka" onclick="selectShotType(this)">🎩 Panenka</button>
+    </div>
+
+    <!-- Power bar (only for power shot) -->
+    <div class="power-wrap" id="power-wrap">
+      <span class="power-label">Tahan untuk power... lepas!</span>
+      <div class="power-bar-bg"><div class="power-bar-fill" id="power-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Direction grid -->
+    <div class="dir-grid" id="dir-grid">
+      <div class="dir-btn" onclick="shootDir('tl')">↖️<span>Kiri Atas</span></div>
+      <div class="dir-btn" onclick="shootDir('tc')">⬆️<span>Tengah Atas</span></div>
+      <div class="dir-btn" onclick="shootDir('tr')">↗️<span>Kanan Atas</span></div>
+      <div class="dir-btn" onclick="shootDir('bl')">↙️<span>Kiri Bawah</span></div>
+      <div class="dir-btn" onclick="shootDir('bc')">⬇️<span>Tengah</span></div>
+      <div class="dir-btn" onclick="shootDir('br')">↘️<span>Kanan Bawah</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND RESULT -->
+<div id="s-round-result" class="screen">
+  <span class="rr-icon" id="rr-icon">⚽</span>
+  <h2 class="rr-title" id="rr-title">GOAL!</h2>
+  <p class="rr-sub" id="rr-sub">...</p>
+  <span class="rr-score" id="rr-score">0 — 0</span>
+  <button class="rr-next-btn" id="rr-next-btn" onclick="nextKick()">Tendangan Berikutnya →</button>
+</div>
+
+<!-- FINAL -->
+<div id="s-final" class="screen">
+  <span class="end-icon" id="end-icon">🏆</span>
+  <h2 class="end-title" id="end-title">...</h2>
+  <p class="end-sub" id="end-sub">...</p>
+  <div class="final-score">
+    <div><span class="fs-av">🧑</span><span class="fs-nm">Razan</span><span class="fs-sc" id="end-r">0</span></div>
+    <span class="fs-vs">⚽</span>
+    <div><span class="fs-av">👧</span><span class="fs-nm">Dara</span><span class="fs-sc" id="end-d">0</span></div>
+  </div>
+  <div class="end-verdict" id="end-verdict">...</div>
+  <div class="end-btns">
+    <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const TOTAL_KICKS = 5;
+const WIN_KICKS = 3;
+
+// Zone positions for ball animation [tx, ty] from center
+const ZONE_POS = {
+  tl:[-70,-100], tc:[0,-100], tr:[70,-100],
+  bl:[-70,-50],  bc:[0,-50],  br:[70,-50],
+};
+// Keeper dive class per zone
+const KEEPER_DIVE = {
+  tl:'dive-l', tc:'dive-c', tr:'dive-r',
+  bl:'dive-l', bc:'dive-c', br:'dive-r',
+};
+
+let shooter = 'razan';
+let keeper = 'dara';
+let scores = {razan:0, dara:0};
+let kicks = {razan:[], dara:[]};
+let kickCount = 0;
+let shootDir_chosen = null;
+let shotType = 'normal';
+let powerVal = 0;
+let powerInterval = null;
+let gamePhase = 'shoot'; // 'shoot' | 'keep'
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function initGame(firstShooter) {
+  shooter = firstShooter;
+  keeper = firstShooter==='razan'?'dara':'razan';
+  scores = {razan:0,dara:0};
+  kicks = {razan:[],dara:[]};
+  kickCount = 0;
+  showScreen('s-game');
+  resetField();
+  updateScoreBar();
+  showShooterUI();
+}
+
+function resetField() {
+  const ball = document.getElementById('ball');
+  ball.style.cssText = '';
+  ball.className = '';
+  ball.textContent = '⚽';
+  ball.style.position='absolute';
+  ball.style.fontSize='2rem';
+  ball.style.bottom='60px';
+  ball.style.left='50%';
+  ball.style.transform='translateX(-50%)';
+
+  const keeper_el = document.getElementById('keeper');
+  keeper_el.style.cssText='';
+  keeper_el.className='';
+  keeper_el.textContent='🧤';
+  keeper_el.style.position='absolute';
+  keeper_el.style.fontSize='2rem';
+  keeper_el.style.top='120px';
+  keeper_el.style.left='50%';
+  keeper_el.style.transform='translateX(-50%)';
+  keeper_el.style.zIndex='9';
+
+  // Clear zone highlights
+  ['tl','tc','tr','bl','bc','br'].forEach(z=>{
+    const el = document.getElementById('gz-'+z);
+    if(el) el.className='gz';
+  });
+
+  // Shooter emoji
+  const sh = document.getElementById('shooter');
+  sh.style.display='none';
+  sh.textContent = shooter==='razan'?'🧑':'👧';
+  keeper_el.textContent = '🧤';
+}
+
+function showShooterUI() {
+  gamePhase = 'shoot';
+  shootDir_chosen = null;
+  shotType = 'normal';
+  powerVal = 0;
+  clearInterval(powerInterval);
+
+  const shooterName = shooter==='razan'?'Razan':'Dara';
+  const keeperName = keeper==='razan'?'Razan':'Dara';
+
+  document.getElementById('action-role').textContent = `⚽ ${shooterName} — Pilih Tendangan`;
+  document.getElementById('action-role').className = 'action-role shooter';
+  document.getElementById('action-label').textContent = 'Pilih jenis tendangan (lawan jangan liat!):';
+
+  // Show shot types, dir grid
+  document.getElementById('shot-types').style.display='flex';
+  document.getElementById('dir-grid').style.display='grid';
+  document.getElementById('power-wrap').classList.remove('show');
+  document.getElementById('power-fill').style.width='0%';
+
+  // Reset shot type selection
+  document.querySelectorAll('.shot-type-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelector('[data-type="normal"]').classList.add('selected');
+
+  // Dir btns - shooter style
+  document.querySelectorAll('.dir-btn').forEach(btn=>{
+    btn.className='dir-btn';
+    btn.style.display='flex';
+  });
+}
+
+function selectShotType(btn) {
+  document.querySelectorAll('.shot-type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  shotType = btn.dataset.type;
+
+  if (shotType==='power') {
+    document.getElementById('power-wrap').classList.add('show');
+    startPowerBar();
+  } else {
+    document.getElementById('power-wrap').classList.remove('show');
+    clearInterval(powerInterval);
+    powerVal=0;
+    document.getElementById('power-fill').style.width='0%';
+  }
+
+  if (shotType==='panenka') {
+    document.getElementById('action-label').textContent='🎩 Panenka — tap TENGAH untuk chip ke atas!';
+    // Hide top/bottom dirs, only show center
+    document.querySelectorAll('.dir-btn').forEach((btn,i)=>{
+      btn.style.display = [2,5].includes(i)?'none':'flex'; // hide tr and br
+    });
+  } else {
+    document.getElementById('action-label').textContent='Sekarang pilih arah tendangan:';
+    document.querySelectorAll('.dir-btn').forEach(btn=>btn.style.display='flex');
+  }
+}
+
+function startPowerBar() {
+  clearInterval(powerInterval);
+  powerVal=0;
+  let dir=1;
+  powerInterval = setInterval(()=>{
+    powerVal += dir*3;
+    if(powerVal>=100){powerVal=100;dir=-1;}
+    if(powerVal<=0){powerVal=0;dir=1;}
+    document.getElementById('power-fill').style.width=powerVal+'%';
+  },40);
+}
+
+function shootDir(zone) {
+  clearInterval(powerInterval);
+  shootDir_chosen = zone;
+
+  // Highlight chosen zone
+  ['tl','tc','tr','bl','bc','br'].forEach(z=>{
+    document.getElementById('gz-'+z).className='gz'+(z===zone?' highlight':'');
+  });
+
+  // Pass to keeper
+  const keeperName = keeper==='razan'?'Razan':'Dara';
+  document.getElementById('pass-icon').textContent = keeper==='razan'?'🧑':'👧';
+  document.getElementById('pass-title').textContent = `Kasih HP ke ${keeperName}!`;
+  document.getElementById('pass-sub').textContent = `${keeperName} siap jadi kiper — jangan kasih liat arah tendangannya! 🙈`;
+  document.getElementById('pass-btn').textContent = `🧤 ${keeperName} Siap Jadi Kiper!`;
+
+  // Clear highlight before passing
+  setTimeout(()=>{
+    ['tl','tc','tr','bl','bc','br'].forEach(z=>{
+      document.getElementById('gz-'+z).className='gz';
+    });
+    showScreen('s-pass');
+  }, 400);
+}
+
+function goToKeeper() {
+  showScreen('s-game');
+  gamePhase='keep';
+  resetField();
+
+  const keeperName = keeper==='razan'?'Razan':'Dara';
+  document.getElementById('action-role').textContent=`🧤 ${keeperName} — Pilih Arah Penyelamatan`;
+  document.getElementById('action-role').className='action-role keeper';
+  document.getElementById('action-label').textContent='Tebak arah tendangan — pilih sekarang!';
+  document.getElementById('shot-types').style.display='none';
+  document.getElementById('power-wrap').classList.remove('show');
+
+  // Keeper btns
+  document.querySelectorAll('.dir-btn').forEach(btn=>{
+    btn.className='dir-btn keeper-btn';
+    btn.style.display='flex';
+    // Update onclick
+    const zone = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+    btn.setAttribute('onclick',`keepDir('${zone}')`);
+  });
+}
+
+function keepDir(zone) {
+  const shotZone = shootDir_chosen;
+  const isGoal = resolveKick(shotZone, zone, shotType);
+
+  // Animate
+  animateKick(shotZone, zone, isGoal);
+
+  // Record
+  const shooterKey = shooter;
+  const keeperKey = keeper;
+  kicks[shooterKey].push(isGoal?'goal':'miss');
+  if(isGoal) scores[shooterKey]++;
+
+  kickCount++;
+  updateScoreBar();
+
+  // Show result after animation
+  setTimeout(()=>{
+    const shooterName = shooter==='razan'?'Razan':'Dara';
+    const keeperName = keeper==='razan'?'Razan':'Dara';
+
+    document.getElementById('rr-icon').textContent = isGoal?'⚽':'✋';
+    document.getElementById('rr-title').textContent = isGoal?'⚽ GOAL!':'✋ Diselamatkan!';
+
+    const shotDesc = {normal:'',power:'💥 Power shot!',curve:'🌀 Curve shot!',panenka:'🎩 Panenka!'};
+    document.getElementById('rr-sub').textContent = isGoal
+      ? `${shooterName} berhasil cetak gol! ${shotDesc[shotType]}`
+      : `${keeperName} berhasil menyelamatkan! ${shotDesc[shotType]}`;
+    document.getElementById('rr-score').textContent=`${scores.razan} — ${scores.dara}`;
+
+    // Check early win or end of kicks
+    const isEnd = kickCount>=TOTAL_KICKS*2 || checkEarlyWin();
+    const rrbtn = document.getElementById('rr-next-btn');
+    rrbtn.textContent = isEnd?'Lihat Hasil 🏆':'Tendangan Berikutnya →';
+    rrbtn.onclick = isEnd ? showFinal : nextKick;
+
+    showScreen('s-round-result');
+    if(isGoal) confetti(40);
+    if(navigator.vibrate) navigator.vibrate(isGoal?[100,50,200]:[200,100,200]);
+  },1200);
+}
+
+function resolveKick(shotZone, keepZone, type) {
+  if(type==='panenka') {
+    // Panenka: keeper dives = goal, keeper stays center = saved
+    const keeperDives = keepZone!=='tc' && keepZone!=='bc';
+    return keeperDives; // goal if keeper dives away
+  }
+  if(type==='curve') {
+    // Curve: if keeper picks same side but wrong exact zone = still goal
+    const sameCol = shotZone[1]===keepZone[1]; // same column
+    return !sameCol; // goal if different column
+  }
+  // Normal/Power: exact zone match = saved
+  return shotZone !== keepZone;
+}
+
+function animateKick(shotZone, keepZone, isGoal) {
+  const ball = document.getElementById('ball');
+  const keeper_el = document.getElementById('keeper');
+  const shooter_el = document.getElementById('shooter');
+
+  // Show shooter
+  shooter_el.style.display='block';
+  shooter_el.textContent = shooter==='razan'?'🧑':'👧';
+  shooter_el.classList.add('kick');
+
+  // Keeper dives
+  setTimeout(()=>{
+    keeper_el.classList.add(KEEPER_DIVE[keepZone]);
+  },300);
+
+  // Ball animation
+  setTimeout(()=>{
+    const pos = ZONE_POS[shotZone];
+    if(shotType==='panenka') {
+      ball.className='animate-panenka';
+    } else if(isGoal) {
+      ball.style.setProperty('--tx', pos[0]+'px');
+      ball.style.setProperty('--ty', pos[1]+'px');
+      ball.className='animate-goal';
+      // Highlight goal zone
+      document.getElementById('gz-'+shotZone).className='gz goal-zone';
+    } else {
+      // Saved - ball goes to zone but keeper catches
+      ball.style.setProperty('--tx', pos[0]+'px');
+      ball.style.setProperty('--ty', pos[1]+'px');
+      ball.className='animate-saved';
+      document.getElementById('gz-'+shotZone).className='gz save-zone';
+    }
+  },400);
+}
+
+function checkEarlyWin() {
+  // If one player can't catch up
+  const r=scores.razan, d=scores.dara;
+  const kicked=kickCount;
+  const remaining=TOTAL_KICKS*2-kicked;
+  if(r-d > remaining || d-r > remaining) return true;
+  if(kicked===TOTAL_KICKS*2) return true;
+  return false;
+}
+
+function nextKick() {
+  // Swap roles
+  const tmp=shooter; shooter=keeper; keeper=tmp;
+  resetField();
+  // Fix dir btn onclicks back to shootDir
+  document.querySelectorAll('.dir-btn').forEach(btn=>{
+    const zone = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+    btn.setAttribute('onclick',`shootDir('${zone}')`);
+  });
+  showShooterUI();
+  updateScoreBar();
+  showScreen('s-game');
+}
+
+function updateScoreBar() {
+  document.getElementById('score-r').textContent=scores.razan;
+  document.getElementById('score-d').textContent=scores.dara;
+  document.getElementById('round-label').textContent=`Tendangan ${kickCount+1}/${TOTAL_KICKS*2}`;
+
+  // Kick dots
+  ['razan','dara'].forEach(p=>{
+    const el=document.getElementById('kicks-'+p[0]);
+    el.innerHTML='';
+    for(let i=0;i<TOTAL_KICKS;i++){
+      const dot=document.createElement('div');
+      const result=kicks[p][i];
+      dot.className='kick-dot'+(result==='goal'?' goal':result==='miss'?' miss':i===kicks[p].length?' current':'');
+      el.appendChild(dot);
+    }
+  });
+}
+
+function showFinal() {
+  const r=scores.razan,d=scores.dara;
+  const tie=r===d,winner=r>d?'Razan':'Dara',loser=r>d?'Dara':'Razan';
+  document.getElementById('end-r').textContent=r;
+  document.getElementById('end-d').textContent=d;
+  document.getElementById('end-icon').textContent=tie?'🤝':'🏆';
+  document.getElementById('end-title').textContent=tie?'Adu Tos!':winner+' Menang!';
+  document.getElementById('end-sub').textContent=tie?'Skor imbang — coba lagi!':winner+' jago tendang penalti hari ini!';
+
+  const diff=Math.abs(r-d);
+  let verdict;
+  if(tie) verdict=`Imbang ${r}-${d}! Dua-duanya sama bagus — main lagi buat tentukan pemenang! ⚽`;
+  else if(diff===1) verdict=`<strong>${winner}</strong> menang tipis ${r>d?r:d}-${r>d?d:r}! Pertandingan yang sengit — ${loser} hampir bisa menyamakan!`;
+  else verdict=`<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}! ${loser} harus latihan baca arah nih 😄 Rematch?`;
+
+  document.getElementById('end-verdict').innerHTML=verdict;
+  showScreen('s-final');
+  if(!tie) confetti(70);
+}
+
+function confetti(n) {
+  const colors=['#7ec850','#ffd54f','#fff','#e57373','#64b4ff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+</script>
+</body>
+</html>
