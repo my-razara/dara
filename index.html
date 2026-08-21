@@ -100,7 +100,9 @@
   .grid-item:active{transform:scale(.95);background:var(--warm)}
   @media(hover:hover){.grid-item:hover{border-color:rgba(193,122,111,.35);transform:translateY(-3px);box-shadow:0 6px 20px rgba(193,122,111,.15);background:var(--warm)}}
   .grid-item::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 70%);pointer-events:none}
-  .grid-item.locked{opacity:.55;pointer-events:none}
+  .grid-item.locked{opacity:.55;cursor:default}
+  .grid-item.secret-unlocked{border-color:rgba(193,122,111,.4);animation:secretpulse 2.5s ease-in-out infinite}
+  @keyframes secretpulse{0%,100%{box-shadow:0 0 0 0 rgba(193,122,111,0)}50%{box-shadow:0 0 0 6px rgba(193,122,111,.1)}}
 
   .item-icon-wrap{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:2px}
   .item-icon-wrap.pink{background:rgba(193,122,111,.12)}
@@ -118,6 +120,11 @@
   .grid-item-featured::after{content:'';position:absolute;inset:0;border-radius:16px;border:1.5px solid rgba(193,122,111,.35);pointer-events:none;animation:fpulse 2.5s ease-in-out infinite}
   @keyframes fpulse{0%,100%{box-shadow:0 0 0 0 rgba(193,122,111,0)}50%{box-shadow:0 0 0 5px rgba(193,122,111,.12)}}
   .featured-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--rose);color:#fff;font-size:8px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:0 0 8px 8px;white-space:nowrap;z-index:2}
+
+  /* Secret item special styles */
+  .secret-year-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;padding:2px 8px;border-radius:0 0 8px 8px;white-space:nowrap;z-index:2;letter-spacing:.05em}
+  .secret-year-badge.unlocked{background:var(--rose);color:#fff}
+  .secret-year-badge.locked{background:var(--muted);color:#fff}
 
   #popup-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(45,31,26,.45);backdrop-filter:blur(5px);align-items:flex-end;justify-content:center;padding:1rem}
   #popup-overlay.active{display:flex}
@@ -247,24 +254,92 @@
 </div>
 
 <script>
-// ── WELCOME ──
-function enterApp(){
-  const w=document.getElementById('s-welcome');
-  w.classList.add('hide');
-  setTimeout(()=>{w.style.display='none'},600);
-}
-(function(){
-  const HEARTS=['❤️','🤍','💗','💕','💓','💖'];
-  const w=document.getElementById('s-welcome');
-  for(let i=0;i<12;i++){
-    const el=document.createElement('div');
-    el.className='heart-fall';
-    el.textContent=HEARTS[Math.floor(Math.random()*HEARTS.length)];
-    el.style.cssText='left:'+Math.random()*100+'%;animation-duration:'+(5+Math.random()*6)+'s;animation-delay:-'+(Math.random()*6)+'s;font-size:'+(0.6+Math.random()*1)+'rem';
-    w.appendChild(el);
-  }
-})();
+// ── YEARLY SECRETS CONFIG ──
+// Edit bagian ini tiap tahun sebelum push ke GitHub
+// Untuk tahun yang locked, icon/label/desc bisa dikosongkan atau diisi placeholder
+const YEARLY_SECRETS = [
+  {
+    year: 2026,
+    icon: '🎂',
+    label: 'Untuk Tahun Ini',
+    sub: '18 Agustus 2026',
+    desc: 'Memory Scrapbook & Peta Kenangan — semua tempat dan momen yang pernah kita lalui bareng.',
+    link: 'birthday-scrapbook.html',
+    wrap: 'pink',
+  },
+  {
+    year: 2027,
+    icon: '🎁',
+    label: 'Surprise 2027',
+    sub: '18 Agustus 2027',
+    desc: '', // isi nanti
+    link: '', // isi nanti
+    wrap: 'gold',
+  },
+  {
+    year: 2028,
+    icon: '🎁',
+    label: 'Surprise 2028',
+    sub: '18 Agustus 2028',
+    desc: '',
+    link: '',
+    wrap: 'sage',
+  },
+  {
+    year: 2029,
+    icon: '🎁',
+    label: 'Surprise 2029',
+    sub: '18 Agustus 2029',
+    desc: '',
+    link: '',
+    wrap: 'mauve',
+  },
+  {
+    year: 2030,
+    icon: '🎁',
+    label: 'Surprise 2030',
+    sub: '18 Agustus 2030',
+    desc: '',
+    link: '',
+    wrap: 'sky',
+  },
+];
 
+// ── UNLOCK LOGIC ──
+// Terbuka kalau: tahun sekarang > tahun secret
+// ATAU tahun sama DAN sudah lewat 18 Agustus
+function isUnlocked(year) {
+  const now = new Date();
+  const nowYear = now.getFullYear();
+  const nowMonth = now.getMonth(); // 0-based, Juli=6, Agustus=7
+  const nowDay = now.getDate();
+  if (nowYear > year) return true;
+  if (nowYear === year && (nowMonth > 7 || (nowMonth === 7 && nowDay >= 18))) return true;
+  return false;
+}
+
+function daysUntilUnlock(year) {
+  const now = new Date();
+  const unlock = new Date(year, 7, 18); // 18 Agustus tahun target
+  const diff = Math.ceil((unlock - now) / (1000 * 60 * 60 * 24));
+  return Math.max(0, diff);
+}
+
+// Build secret items dynamically
+function buildSecretItems() {
+  return YEARLY_SECRETS.map(s => ({
+    year: s.year,
+    icon: isUnlocked(s.year) ? s.icon : '🔒',
+    wrap: s.wrap,
+    label: s.label,
+    sub: s.sub,
+    desc: s.desc,
+    link: s.link,
+    unlocked: isUnlocked(s.year),
+  }));
+}
+
+// ── CATS DATA ──
 const CATS = [
   {
     key:'games', emoji:'🎮', name:'Games & Quiz',
@@ -366,12 +441,8 @@ const CATS = [
   },
   {
     key:'secret', emoji:'🔒', name:'Secret',
-    desc:'Ada sesuatu yang tersembunyi di sini — terbuka otomatis di hari yang tepat',
-    sections:[
-      { label:'Secret', items:[
-        {icon:'🔒',wrap:'pink',label:'Sesuatu yang Spesial',sub:'Tunggu ya 🤍',desc:'',link:'',dimmed:true},
-      ]}
-    ]
+    desc:'Ada sesuatu yang tersembunyi di sini — terbuka otomatis di hari yang tepat setiap tahun',
+    sections:[]  // dibangun dynamic
   },
 ];
 
@@ -387,9 +458,13 @@ renderCard();
 document.getElementById('c-btn').addEventListener('click', () => showCat(idx));
 
 function getCatBadge(cat) {
+  if (cat.key === 'secret') {
+    const unlocked = YEARLY_SECRETS.filter(s => isUnlocked(s.year)).length;
+    return `🎁 ${unlocked} terbuka · ${YEARLY_SECRETS.length - unlocked} menunggu`;
+  }
   const total = cat.sections.reduce((a, s) => a + s.items.length, 0);
-  const icons = {games:'🎯', hadiah:'💌', keuangan:'💳', secret:'🎂'};
-  const units = {games:'game', hadiah:'hadiah', keuangan:'kantong', secret:'kejutan'};
+  const icons = {games:'🎯', hadiah:'💌', keuangan:'💳'};
+  const units = {games:'game', hadiah:'hadiah', keuangan:'kantong'};
   return `${icons[cat.key]||'✨'} ${total} ${units[cat.key]||'item'}`;
 }
 
@@ -437,6 +512,15 @@ function renderCatScreen(i) {
   document.getElementById('cat-hcount').textContent = getCatBadge(cat);
   const body = document.getElementById('cat-body');
   body.innerHTML = '';
+
+  if (cat.key === 'secret') {
+    renderSecretScreen(body);
+    document.getElementById('home').classList.remove('active');
+    document.getElementById('cat-screen').classList.add('active');
+    body.scrollTop = 0;
+    return;
+  }
+
   cat.sections.forEach(sec => {
     const secEl = document.createElement('div');
     secEl.className = 'section';
@@ -451,7 +535,6 @@ function renderCatScreen(i) {
       let cls = 'grid-item';
       if (item.feat) cls += ' grid-item-featured';
       if (item.locked) cls += ' locked';
-      if (item.dimmed) el.style.opacity = '0.55';
       el.className = cls;
       if (item.badge) {
         const b = document.createElement('div');
@@ -462,12 +545,9 @@ function renderCatScreen(i) {
       el.innerHTML += `<div class="item-icon-wrap ${item.wrap}">${item.icon}</div><p class="item-label">${item.label}</p><p class="item-sublabel">${item.sub}</p>`;
       if (!item.locked) {
         el.addEventListener('click', () => {
-          if (cat.key === 'secret') { checkBirthday(); return; }
           if (item.keuUser) { openKeuangan(item.keuUser); return; }
           openPopup(item.icon, item.label, item.desc, item.link);
         });
-      } else {
-        el.addEventListener('click', checkBirthday);
       }
       grid.appendChild(el);
     });
@@ -477,6 +557,54 @@ function renderCatScreen(i) {
   document.getElementById('home').classList.remove('active');
   document.getElementById('cat-screen').classList.add('active');
   body.scrollTop = 0;
+}
+
+function renderSecretScreen(body) {
+  const secEl = document.createElement('div');
+  secEl.className = 'section';
+  const lbl = document.createElement('p');
+  lbl.className = 'section-label';
+  lbl.textContent = 'SECRET';
+  secEl.appendChild(lbl);
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+
+  const items = buildSecretItems();
+  items.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'grid-item' + (item.unlocked ? ' secret-unlocked' : ' locked');
+
+    // Year badge
+    const badge = document.createElement('div');
+    badge.className = 'secret-year-badge ' + (item.unlocked ? 'unlocked' : 'locked');
+    badge.textContent = item.year;
+    el.appendChild(badge);
+
+    el.innerHTML += `
+      <div class="item-icon-wrap ${item.wrap}" style="margin-top:.35rem">${item.icon}</div>
+      <p class="item-label">${item.unlocked ? item.label : 'Terkunci'}</p>
+      <p class="item-sublabel">${item.sub}</p>`;
+
+    if (item.unlocked) {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        openPopup(item.icon, item.label, item.desc || 'Hadiah spesial untukmu 🤍', item.link);
+      });
+    } else {
+      el.addEventListener('click', () => {
+        const days = daysUntilUnlock(item.year);
+        document.getElementById('popup-icon').textContent = '🔒';
+        document.getElementById('popup-title').textContent = `Secret ${item.year}`;
+        document.getElementById('popup-desc').textContent = `Masih ${days} hari lagi 🤍 Terbuka otomatis setiap 18 Agustus ${item.year}.`;
+        document.getElementById('popup-open-btn').style.display = 'none';
+        document.getElementById('popup-overlay').classList.add('active');
+      });
+    }
+    grid.appendChild(el);
+  });
+
+  secEl.appendChild(grid);
+  body.appendChild(secEl);
 }
 
 function showHome() {
@@ -595,30 +723,30 @@ function openPopup(icon, title, desc, link) {
   document.getElementById('popup-icon').textContent = icon;
   document.getElementById('popup-title').textContent = title;
   document.getElementById('popup-desc').textContent = desc;
-  document.getElementById('popup-open-btn').style.display = 'block';
+  document.getElementById('popup-open-btn').style.display = link ? 'block' : 'none';
   document.getElementById('popup-overlay').classList.add('active');
 }
 function closePopup() { document.getElementById('popup-overlay').classList.remove('active'); curLink = ''; }
 function openLink() { if (curLink) window.location.href = curLink; }
 function handleOverlay(e) { if (e.target===document.getElementById('popup-overlay')) closePopup(); }
 
-const BDAY_MONTH = 7, BDAY_DAY = 18;
-function isBirthday() { const n=new Date(); return n.getMonth()===BDAY_MONTH && n.getDate()>=BDAY_DAY; }
-function checkBirthday() {
-  if (isBirthday()) {
-    openPopup('📖','Memory Scrapbook & Peta Kenangan','Semua tempat dan momen yang pernah kita lalui bareng. Happy birthday! 🎉','birthday-scrapbook.html');
-  } else {
-    const now=new Date();
-    const bday=new Date(now.getFullYear(),BDAY_MONTH,BDAY_DAY);
-    if (bday<now) bday.setFullYear(now.getFullYear()+1);
-    const diff=Math.ceil((bday-now)/(1000*60*60*24));
-    document.getElementById('popup-icon').textContent='🔒';
-    document.getElementById('popup-title').textContent='Masih Terkunci';
-    document.getElementById('popup-desc').textContent=`Masih ${diff} hari lagi ya 🤍 Sabar dulu — akan terbuka otomatis di hari yang tepat.`;
-    document.getElementById('popup-open-btn').style.display='none';
-    document.getElementById('popup-overlay').classList.add('active');
-  }
+// Welcome screen
+function enterApp(){
+  const w=document.getElementById('s-welcome');
+  w.classList.add('hide');
+  setTimeout(()=>{w.style.display='none'},600);
 }
+(function(){
+  const HEARTS=['❤️','🤍','💗','💕','💓','💖'];
+  const w=document.getElementById('s-welcome');
+  for(let i=0;i<12;i++){
+    const el=document.createElement('div');
+    el.className='heart-fall';
+    el.textContent=HEARTS[Math.floor(Math.random()*HEARTS.length)];
+    el.style.cssText='left:'+Math.random()*100+'%;animation-duration:'+(5+Math.random()*6)+'s;animation-delay:-'+(Math.random()*6)+'s;font-size:'+(0.6+Math.random()*1)+'rem';
+    w.appendChild(el);
+  }
+})();
 </script>
 </body>
 </html>
