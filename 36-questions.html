@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>36 Pertanyaan 💌</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:#06060f}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* ── STARFIELD ── */
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.8}}
+
+  /* ── INTRO ── */
+  #s-intro{background:transparent;padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .intro-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:.5rem}
+  .intro-title em{font-style:normal;color:var(--rose)}
+  .intro-quote{font-size:13px;color:rgba(255,255,255,.5);line-height:1.85;max-width:300px;font-style:italic;margin-bottom:.75rem}
+  .intro-source{font-size:10px;color:rgba(255,255,255,.25);margin-bottom:1.5rem}
+  .levels-preview{display:flex;gap:.6rem;margin-bottom:1.75rem;width:100%}
+  .lp{flex:1;border-radius:12px;padding:.65rem .4rem;text-align:center;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
+  .lp-icon{font-size:1.2rem;display:block;margin-bottom:.2rem}
+  .lp-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.6);display:block}
+  .lp-count{font-size:9px;color:rgba(255,255,255,.3)}
+  .intro-btn{width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--deep),var(--rose));color:#fff;box-shadow:0 6px 24px rgba(193,122,111,.4);animation:btnglow 2.5s ease-in-out infinite}
+  @keyframes btnglow{0%,100%{box-shadow:0 6px 24px rgba(193,122,111,.35)}50%{box-shadow:0 6px 32px rgba(193,122,111,.6)}}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* ── LEVEL TRANSITION ── */
+  #s-level{background:transparent;padding:1.5rem;text-align:center}
+  .level-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:360px}
+  .level-badge{font-size:3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .level-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.35rem}
+  .level-title{font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:.4rem}
+  .level-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:280px;margin-bottom:1.5rem;font-style:italic}
+  .level-tip{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem 1.1rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:1.5rem;max-width:340px;text-align:left}
+  .level-tip-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .level-start-btn{width:100%;max-width:340px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;color:#fff;transition:all .15s}
+  .level-start-btn:active{transform:scale(.97)}
+
+  /* ── QUESTION ── */
+  #s-question{background:transparent;padding:0;justify-content:flex-start}
+
+  /* Header */
+  .q-header{flex-shrink:0;width:100%;padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:5}
+  .q-level-badge{font-size:11px;font-weight:700;padding:.25rem .8rem;border-radius:50px;display:inline-block}
+  .q-progress-text{font-size:11px;color:rgba(255,255,255,.35)}
+
+  /* Progress bar */
+  .q-prog-bar{flex-shrink:0;width:100%;height:3px;background:rgba(255,255,255,.08);position:relative;z-index:5}
+  .q-prog-fill{height:100%;transition:width .5s ease,background .5s}
+
+  /* Question card */
+  .q-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem;width:100%;position:relative;z-index:5;overflow-y:auto}
+  .q-number-display{font-size:11px;color:rgba(255,255,255,.2);letter-spacing:.15em;text-transform:uppercase;display:block;margin-bottom:.75rem;text-align:center}
+  .q-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:1.5rem 1.5rem;width:100%;max-width:420px;text-align:center;position:relative;overflow:hidden;margin-bottom:1.1rem}
+  .q-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(193,122,111,.08),transparent 65%);pointer-events:none}
+  .q-card-eyebrow{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.75rem}
+  .q-text{font-size:clamp(1rem,4vw,1.3rem);font-weight:600;color:#fff;line-height:1.55}
+  .q-text.animate{animation:qin .4s cubic-bezier(.34,1.1,.64,1)}
+  @keyframes qin{from{transform:translateY(12px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+
+  /* Timer ring */
+  .timer-ring-wrap{position:relative;width:56px;height:56px;flex-shrink:0;margin:.5rem auto}
+  .timer-svg{width:56px;height:56px;transform:rotate(-90deg)}
+  .timer-track{fill:none;stroke:rgba(255,255,255,.06);stroke-width:4}
+  .timer-ring-fill{fill:none;stroke:var(--rose);stroke-width:4;stroke-linecap:round;stroke-dasharray:150.8;transition:stroke-dashoffset .5s linear,stroke .5s}
+  .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#fff}
+
+  /* Prompt */
+  .q-prompt{font-size:12px;color:rgba(255,255,255,.3);font-style:italic;text-align:center;max-width:300px;margin:0 auto .85rem;line-height:1.6}
+
+  /* Actions */
+  .q-actions{display:flex;flex-direction:column;gap:.5rem;width:100%;max-width:420px}
+  .q-next-btn{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;color:#fff;transition:all .15s}
+  .q-next-btn:active{transform:scale(.97)}
+  .q-skip-btn{background:transparent;border:none;color:rgba(255,255,255,.2);font-size:12px;cursor:pointer;font-family:'Poppins',sans-serif;text-align:center;text-decoration:underline}
+
+  /* ── STARE ── */
+  #s-stare{background:transparent;text-align:center;padding:1.5rem}
+  .stare-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px}
+  .stare-icon{font-size:4rem;display:block;margin-bottom:1rem}
+  .stare-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.35rem}
+  .stare-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:280px;margin-bottom:1.5rem;font-style:italic}
+  .stare-timer{font-size:5rem;font-weight:700;color:#fff;display:block;margin-bottom:.5rem;animation:starepulse 1s ease-in-out infinite}
+  @keyframes starepulse{0%,100%{opacity:.8}50%{opacity:1}}
+  .stare-sub2{font-size:11px;color:rgba(255,255,255,.25);font-style:italic}
+
+  /* ── FINAL ── */
+  #s-final{background:transparent;padding:1rem;overflow-y:auto;justify-content:flex-start;padding-top:2rem}
+  .final-wrap{position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:1rem;padding-bottom:2rem}
+  .final-icon{font-size:4rem;display:block;animation:float 3s ease-in-out infinite}
+  .final-title{font-size:1.3rem;font-weight:700;color:#fff;text-align:center}
+  .final-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;text-align:center;max-width:300px;font-style:italic}
+
+  .final-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%}
+  .fstat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.75rem .5rem;text-align:center}
+  .fstat-val{font-size:1.4rem;font-weight:700;color:var(--rose);display:block}
+  .fstat-label{font-size:9.5px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem;line-height:1.3}
+
+  .final-message{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:1.25rem 1.5rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.85;font-style:italic;text-align:center;max-width:400px;width:100%}
+  .final-message strong{color:var(--rose);font-style:normal}
+
+  .final-aron{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:1rem 1.25rem;font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.75;text-align:left;width:100%;max-width:400px}
+  .aron-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem;opacity:.8}
+
+  .final-btns{display:flex;gap:.6rem;width:100%;max-width:400px}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .final-btn-p{background:linear-gradient(135deg,var(--deep),var(--rose));color:#fff}
+  .final-btn-p:active{transform:scale(.97)}
+  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">💌</span>
+    <span class="intro-eyebrow">Untuk Dara, dari Razan</span>
+    <h1 class="intro-title">36 Pertanyaan<br>untuk <em>Semakin Dekat</em></h1>
+    <p class="intro-quote">"Kedekatan yang nyata tidak tumbuh dari waktu yang dihabiskan bersama — tapi dari keberanian untuk benar-benar dikenal."</p>
+    <span class="intro-source">— diadaptasi dari studi Dr. Arthur Aron, 1997</span>
+    <div class="levels-preview">
+      <div class="lp">
+        <span class="lp-icon">🌱</span>
+        <span class="lp-name">Level I</span>
+        <span class="lp-count">12 pertanyaan</span>
+      </div>
+      <div class="lp">
+        <span class="lp-icon">🌿</span>
+        <span class="lp-name">Level II</span>
+        <span class="lp-count">12 pertanyaan</span>
+      </div>
+      <div class="lp">
+        <span class="lp-icon">🌹</span>
+        <span class="lp-name">Level III</span>
+        <span class="lp-count">12 pertanyaan</span>
+      </div>
+    </div>
+    <button class="intro-btn" onclick="startLevel(1)">Mulai Perjalanan 💌</button>
+  </div>
+</div>
+
+<!-- LEVEL TRANSITION -->
+<div id="s-level" class="screen">
+  <div class="level-wrap">
+    <span class="level-badge" id="lv-badge">🌱</span>
+    <span class="level-eyebrow" id="lv-eyebrow">Level I dari III</span>
+    <h2 class="level-title" id="lv-title">Membangun Jembatan</h2>
+    <p class="level-desc" id="lv-desc">Pertanyaan-pertanyaan ringan untuk mulai membuka diri. Tidak ada jawaban yang salah — yang penting jujur.</p>
+    <div class="level-tip">
+      <span class="level-tip-title">💡 Cara main</span>
+      <span id="lv-tip">Jawab bergantian — Razan dulu, lalu Dara. Jangan buru-buru. Dengarkan satu sama lain dengan sungguh-sungguh.</span>
+    </div>
+    <button class="level-start-btn" id="lv-btn" onclick="beginQuestions()">Mulai Level I →</button>
+  </div>
+</div>
+
+<!-- QUESTION -->
+<div id="s-question" class="screen">
+  <div class="q-header">
+    <span class="q-level-badge" id="q-level-badge">🌱 Level I</span>
+    <span class="q-progress-text" id="q-progress-text">1 / 12</span>
+  </div>
+  <div class="q-prog-bar">
+    <div class="q-prog-fill" id="q-prog-fill" style="width:0%"></div>
+  </div>
+
+  <div class="q-body">
+    <span class="q-number-display" id="q-number-display">Pertanyaan 1</span>
+    <div class="q-card">
+      <span class="q-card-eyebrow">Untuk kalian berdua</span>
+      <p class="q-text" id="q-text">...</p>
+    </div>
+    <div class="timer-ring-wrap">
+      <svg class="timer-svg" viewBox="0 0 56 56">
+        <circle class="timer-track" cx="28" cy="28" r="24"/>
+        <circle class="timer-ring-fill" id="timer-ring" cx="28" cy="28" r="24"/>
+      </svg>
+      <div class="timer-num" id="timer-num">3:00</div>
+    </div>
+    <p class="q-prompt" id="q-prompt">Jawab bergantian — Razan dulu, lalu Dara</p>
+    <div class="q-actions">
+      <button class="q-next-btn" id="q-next-btn" onclick="nextQuestion()">Pertanyaan Berikutnya →</button>
+      <button class="q-skip-btn" onclick="skipQuestion()">Lewati pertanyaan ini</button>
+    </div>
+  </div>
+</div>
+
+<!-- STARE SCREEN -->
+<div id="s-stare" class="screen">
+  <div class="stare-wrap">
+    <span class="stare-icon">👁️</span>
+    <h2 class="stare-title">Tatap Mata Selama 4 Menit</h2>
+    <p class="stare-sub">Ini bagian terakhir dari eksperimen Aron. Tatap mata satu sama lain tanpa bicara — selama 4 menit penuh.</p>
+    <span class="stare-timer" id="stare-timer">4:00</span>
+    <p class="stare-sub2">Jangan bicara. Jangan noleh. Hanya saling menatap. 🤍</p>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="s-final" class="screen">
+  <div class="final-wrap">
+    <span class="final-icon">🤍</span>
+    <h2 class="final-title">Kalian Sudah Menyelesaikannya</h2>
+    <p class="final-sub">36 pertanyaan, satu sama lain yang lebih dikenal.</p>
+
+    <div class="final-stats">
+      <div class="fstat"><span class="fstat-val" id="stat-q">36</span><span class="fstat-label">Pertanyaan dijawab</span></div>
+      <div class="fstat"><span class="fstat-val" id="stat-skipped">0</span><span class="fstat-label">Pertanyaan dilewat</span></div>
+      <div class="fstat"><span class="fstat-val">🤍</span><span class="fstat-label">Satu sama lain</span></div>
+    </div>
+
+    <div class="final-message" id="final-message">...</div>
+
+    <div class="final-aron">
+      <span class="aron-title">📖 Tentang Studi Ini</span>
+      Pada 1997, psikolog Arthur Aron merancang eksperimen di mana dua orang asing duduk bersama dan menjawab 36 pertanyaan yang semakin personal. Hasilnya — banyak dari mereka merasa sangat dekat. Beberapa bahkan jatuh cinta. Bukan karena pertanyaannya ajaib, tapi karena mereka berani untuk benar-benar terlihat oleh satu sama lain.
+    </div>
+
+    <div class="final-btns">
+      <button class="final-btn final-btn-p" onclick="startLevel(1)">Ulangi dari Awal 🔄</button>
+      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── QUESTIONS ──
+const LEVELS = [
+  {
+    num: 1,
+    icon: '🌱',
+    name: 'Membangun Jembatan',
+    desc: 'Pertanyaan-pertanyaan ringan untuk mulai membuka diri. Tidak ada jawaban yang salah — yang penting jujur.',
+    color: '#7ec850',
+    gradient: 'linear-gradient(135deg,#2d6a2d,#7ec850)',
+    tip: 'Jawab bergantian — Razan dulu, lalu Dara. Jangan buru-buru. Dengarkan satu sama lain.',
+    questions: [
+      'Kalau bisa mengundang siapapun di dunia untuk makan malam, siapa yang kamu pilih dan kenapa?',
+      'Apakah kamu punya impian rahasia tentang bagaimana hidupmu 10 tahun dari sekarang?',
+      'Sebelum menelepon, apakah kamu pernah berlatih apa yang akan kamu katakan? Kenapa?',
+      'Apa artinya "hari yang sempurna" buatmu — dari pagi sampai malam?',
+      'Kapan terakhir kali kamu bernyanyi sendirian? Dan untuk siapakah kamu bernyanyi?',
+      'Kalau kamu bisa hidup sampai 90 tahun, mana yang kamu pilih — pikiran 30 tahun atau tubuh 30 tahun untuk sisa hidupmu?',
+      'Apakah kamu punya firasat tentang bagaimana kamu akan meninggal?',
+      'Sebutkan tiga hal yang menurutmu kamu dan pasanganmu punya kesamaan.',
+      'Apa yang paling kamu syukuri dalam hidupmu?',
+      'Kalau kamu bisa mengubah satu hal dari cara kamu dibesarkan, apa itu?',
+      'Ceritakan kisah hidup kamu dalam empat menit, dengan detail sebanyak mungkin.',
+      'Kalau kamu bisa bangun besok dengan satu kemampuan atau kualitas baru, apa yang kamu pilih?',
+    ]
+  },
+  {
+    num: 2,
+    icon: '🌿',
+    name: 'Masuk Lebih Dalam',
+    desc: 'Pertanyaan yang mulai menyentuh nilai, mimpi, dan ketakutan. Ini adalah bagian yang mulai terasa lebih nyata.',
+    color: '#c9a96e',
+    gradient: 'linear-gradient(135deg,#7a5a2a,#c9a96e)',
+    tip: 'Kalau ada pertanyaan yang terasa berat — bagus. Itulah tanda kamu sedang membuka sesuatu yang nyata.',
+    questions: [
+      'Apakah ada sesuatu yang sudah lama ingin kamu lakukan tapi selalu kamu tunda? Kenapa?',
+      'Apa pencapaian terbesar dalam hidupmu?',
+      'Apa yang paling kamu hargai dalam sebuah persahabatan?',
+      'Apa kenangan paling berharga dalam hidupmu?',
+      'Apakah ada sesuatu yang sudah lama ingin kamu ceritakan tapi belum pernah bisa?',
+      'Kalau kamu tahu kamu akan meninggal tiba-tiba setahun dari sekarang, apa yang akan kamu ubah dari hidupmu sekarang?',
+      'Artinya persahabatan buatmu adalah... apa?',
+      'Apa peran cinta dan kasih sayang dalam hidupmu?',
+      'Bergantian sebutkan satu hal yang positif tentang pasanganmu — 5 hal masing-masing.',
+      'Seberapa dekat dan hangat keluargamu? Apakah kamu merasa masa kecilmu lebih bahagia dari kebanyakan orang?',
+      'Bagaimana kamu merasakan hubunganmu dengan ibumu?',
+      'Buat tiga pernyataan "kita" yang benar tentang kalian berdua. Misalnya: "Kita sama-sama suka..."',
+    ]
+  },
+  {
+    num: 3,
+    icon: '🌹',
+    name: 'Saling Terlihat',
+    desc: 'Pertanyaan-pertanyaan paling personal dan rentan. Di sinilah kedekatan yang sesungguhnya tumbuh — ketika kamu berani terlihat sepenuhnya.',
+    color: '#c17a6f',
+    gradient: 'linear-gradient(135deg,var(--deep),var(--rose))',
+    tip: 'Tidak apa-apa kalau terasa tidak nyaman. Kerentanan adalah tempat kepercayaan tumbuh. Tetap jujur.',
+    questions: [
+      'Lengkapi kalimat ini: "Aku berharap ada seseorang yang bisa aku ajak untuk membicarakan ____."',
+      'Kalau kamu akan menjadi teman dekat dengan pasanganmu, bagikan sesuatu yang penting buat mereka untuk diketahui.',
+      'Ceritakan satu hal yang kamu sukai dari pasanganmu — sesuatu yang tidak akan kamu katakan pada orang baru.',
+      'Bagikan momen yang paling memalukan dalam hidupmu.',
+      'Kapan terakhir kali kamu menangis di depan orang lain? Sendirian? Apa yang membuatmu menangis?',
+      'Adakah sesuatu yang sudah terlalu serius untuk dijadikan lelucon bagimu?',
+      'Kalau kamu akan meninggal malam ini tanpa kesempatan berkomunikasi dengan siapapun, apa yang paling kamu sesali tidak pernah kamu katakan? Kenapa kamu belum mengatakannya?',
+      'Rumahmu terbakar beserta semua isinya. Setelah menyelamatkan orang dan hewan peliharaan, kamu punya waktu untuk kembali dan menyelamatkan satu benda. Apa itu dan kenapa?',
+      'Di antara semua orang dalam keluargamu, kematian siapa yang akan paling menghancurkanmu?',
+      'Bagikan masalah pribadi dan minta pendapat pasanganmu tentang bagaimana seharusnya kamu mengatasinya.',
+      'Apa satu hal yang kamu ingin pasanganmu tahu tentang dirimu yang belum pernah kamu katakan?',
+      'Tatap mata pasanganmu selama empat menit tanpa bicara. Apa yang kamu rasakan?',
+    ]
+  }
+];
+
+// ── STATE ──
+let currentLevel = 1;
+let currentQIdx = 0;
+let skippedCount = 0;
+let timerInterval = null;
+let timerSeconds = 180;
+let stareInterval = null;
+let stareSeconds = 240;
+
+// ── STARS ──
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');
+    el.className='star';
+    const size=1+Math.random()*2;
+    el.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:-${Math.random()*4}s`;
+    s.appendChild(el);
+  }
+})();
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startLevel(lvNum) {
+  currentLevel = lvNum;
+  currentQIdx = 0;
+  skippedCount = 0;
+  clearInterval(timerInterval);
+
+  const lv = LEVELS[lvNum-1];
+  document.getElementById('lv-badge').textContent = lv.icon;
+  document.getElementById('lv-eyebrow').textContent = `Level ${lv.num} dari 3`;
+  document.getElementById('lv-title').textContent = lv.name;
+  document.getElementById('lv-desc').textContent = lv.desc;
+  document.getElementById('lv-tip').textContent = lv.tip;
+  document.getElementById('lv-btn').textContent = `Mulai Level ${lv.num} →`;
+  document.getElementById('lv-btn').style.background = lv.gradient;
+
+  showScreen('s-level');
+}
+
+function beginQuestions() {
+  showScreen('s-question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const lv = LEVELS[currentLevel-1];
+  const q = lv.questions[currentQIdx];
+  const total = lv.questions.length;
+  const globalNum = (currentLevel-1)*12 + currentQIdx + 1;
+
+  // Update header
+  document.getElementById('q-level-badge').textContent = `${lv.icon} Level ${lv.num}`;
+  document.getElementById('q-level-badge').style.background = lv.gradient;
+  document.getElementById('q-level-badge').style.color = '#fff';
+  document.getElementById('q-level-badge').style.padding = '.25rem .8rem';
+  document.getElementById('q-level-badge').style.borderRadius = '50px';
+  document.getElementById('q-progress-text').textContent = `${currentQIdx+1} / ${total}`;
+
+  // Progress
+  const pct = (currentQIdx/total)*100;
+  document.getElementById('q-prog-fill').style.width = pct+'%';
+  document.getElementById('q-prog-fill').style.background = lv.color;
+
+  // Number
+  document.getElementById('q-number-display').textContent = `Pertanyaan ${globalNum} dari 36`;
+
+  // Question text
+  const qEl = document.getElementById('q-text');
+  qEl.classList.remove('animate');
+  void qEl.offsetWidth;
+  qEl.classList.add('animate');
+  qEl.textContent = q;
+
+  // Next btn style
+  document.getElementById('q-next-btn').style.background = lv.gradient;
+
+  // Timer
+  startQuestionTimer();
+
+  // Check if last question of level
+  const isLastQ = currentQIdx >= total-1;
+  const isLastLevel = currentLevel >= 3;
+  document.getElementById('q-next-btn').textContent =
+    isLastQ && isLastLevel ? 'Selesai — Tatap Mata 👁️' :
+    isLastQ ? `Lanjut ke Level ${currentLevel+1} →` :
+    'Pertanyaan Berikutnya →';
+}
+
+function startQuestionTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = 180; // 3 minutes per question
+  updateTimerDisplay();
+
+  timerInterval = setInterval(()=>{
+    timerSeconds--;
+    updateTimerDisplay();
+    if (timerSeconds <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds/60);
+  const s = timerSeconds%60;
+  document.getElementById('timer-num').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  const pct = timerSeconds/180;
+  const circumference = 150.8;
+  const offset = circumference*(1-pct);
+  const ring = document.getElementById('timer-ring');
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = pct < .3 ? '#e57373' : pct < .6 ? '#ffb300' : 'var(--rose)';
+}
+
+function nextQuestion() {
+  clearInterval(timerInterval);
+  const lv = LEVELS[currentLevel-1];
+  const total = lv.questions.length;
+
+  currentQIdx++;
+
+  if (currentQIdx >= total) {
+    // Level done
+    if (currentLevel >= 3) {
+      startStare();
+    } else {
+      startLevel(currentLevel+1);
+    }
+  } else {
+    renderQuestion();
+  }
+}
+
+function skipQuestion() {
+  skippedCount++;
+  nextQuestion();
+}
+
+function startStare() {
+  showScreen('s-stare');
+  stareSeconds = 240;
+  document.getElementById('stare-timer').textContent = '4:00';
+
+  stareInterval = setInterval(()=>{
+    stareSeconds--;
+    const m = Math.floor(stareSeconds/60);
+    const s = stareSeconds%60;
+    document.getElementById('stare-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    if (stareSeconds<=0) {
+      clearInterval(stareInterval);
+      showFinal();
+    }
+  },1000);
+}
+
+function showFinal() {
+  const answered = 36-skippedCount;
+  document.getElementById('stat-q').textContent = answered;
+  document.getElementById('stat-skipped').textContent = skippedCount;
+
+  // Final message
+  let msg;
+  if (skippedCount === 0) {
+    msg = `Kalian menjawab semua <strong>36 pertanyaan</strong> tanpa melewati satu pun. Itu bukan hal kecil — itu bukti keberanian untuk benar-benar terlihat satu sama lain. Apa yang kalian rasakan sekarang adalah kedekatan yang nyata. Jaga itu. 🤍`;
+  } else if (skippedCount <= 5) {
+    msg = `<strong>${answered} dari 36 pertanyaan</strong> dijawab — hampir semuanya. Pertanyaan yang dilewati bukan kelemahan; kadang ada hal yang butuh waktu lebih untuk bisa diucapkan. Mungkin itu bisa jadi percakapan berikutnya. 🤍`;
+  } else {
+    msg = `Kalian sudah memulai perjalanan ini — dan itu sudah cukup berani. Tidak semua pertanyaan harus dijawab sekarang. Kedekatan adalah proses, bukan tujuan. 🤍`;
+  }
+  document.getElementById('final-message').innerHTML = msg;
+
+  showScreen('s-final');
+  confetti(80);
+  if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+}
+
+function confetti(n) {
+  const colors=['#c17a6f','#c9a96e','#e8c4b0','#7ec850','#fff','#d4a8ff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*3}s;animation-delay:${Math.random()*.8}s;width:${5+Math.random()*8}px;height:${5+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+  },i*25);
+}
+</script>
+</body>
+</html>
