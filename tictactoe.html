@@ -563,18 +563,21 @@ function onChallengeSuccess(msg) {
   if (win) {
     highlightWin(win);
     setTimeout(()=>showRoundResult(currentPlayer), 600);
+    return;
   } else if (board.every(Boolean)) {
     setTimeout(()=>showRoundResult(null), 400);
+    return;
   }
-  // Stay on same player (success = keep turn)
+  // Success = giliran PINDAH ke lawan
+  currentPlayer = currentPlayer==='razan'?'dara':'razan';
   updateHeader();
 }
 
 function onChallengeFail(msg) {
   closeChallenge();
   pendingCell = null;
-  // Switch turn on fail
-  currentPlayer = currentPlayer==='razan'?'dara':'razan';
+  // Fail = giliran TETAP di kamu (hukuman: ga dapet kotak, tapi masih giliran kamu)
+  // Atau kalau mau lebih fair, giliran pindah — sesuai request: gagal = giliran tetap
   updateHeader();
   if (navigator.vibrate) navigator.vibrate([100,50,100]);
 }
@@ -582,7 +585,7 @@ function onChallengeFail(msg) {
 function failChallenge() {
   closeChallenge();
   pendingCell = null;
-  currentPlayer = currentPlayer==='razan'?'dara':'razan';
+  // Menyerah = giliran tetap (ga dapet kotak, giliran lanjut di kamu)
   updateHeader();
 }
 
