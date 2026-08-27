@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Peta Emosi 🗺️</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#c9a96e;--rose:#c17a6f;--ink:#2d1f1a;--muted:#9a8070;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#0d1a0d}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* INTRO */
+  #s-intro{background:linear-gradient(160deg,#0d1a0d,#1a3a1a);padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.85rem;animation:float 4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .intro-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(201,169,110,.7);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:.5rem}
+  .intro-title em{font-style:normal;color:var(--gold)}
+  .intro-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.85;max-width:300px;margin-bottom:1.25rem;font-style:italic}
+  .how-card{background:rgba(255,255,255,.04);border:1px solid rgba(201,169,110,.15);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;text-align:left;width:100%}
+  .how-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .how-item{display:flex;gap:.6rem;font-size:12px;color:rgba(255,255,255,.5);line-height:1.55;margin-bottom:.4rem}
+  .intro-btn{width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,#7a5a2a,var(--gold));color:var(--ink);box-shadow:0 6px 24px rgba(201,169,110,.35)}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* PICK */
+  #s-pick{background:linear-gradient(160deg,#0d1a0d,#1a3a1a);padding:1.5rem;text-align:center}
+  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.4);margin:.25rem auto 1.5rem;line-height:1.65;max-width:280px}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(201,169,110,.15);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.09)}
+
+  /* MAP SCREEN */
+  #s-map{background:#0d1a0d;padding:0;justify-content:flex-start}
+
+  /* Header */
+  .map-hdr{flex-shrink:0;width:100%;background:rgba(13,26,13,.95);backdrop-filter:blur(8px);border-bottom:1px solid rgba(201,169,110,.12);padding:.5rem .85rem;display:flex;align-items:center;justify-content:space-between}
+  .mh-badge{font-size:11px;font-weight:700;padding:.25rem .75rem;border-radius:50px;display:inline-block}
+  .mh-badge.razan{background:rgba(100,180,255,.15);color:#7eb3f5}
+  .mh-badge.dara{background:rgba(193,122,111,.15);color:#e8a090}
+  .mh-step{font-size:10px;color:rgba(255,255,255,.3)}
+
+  /* Road canvas */
+  .road-wrap{flex:1;position:relative;width:100%;overflow:hidden}
+  canvas#road-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+  /* Story sheet */
+  #story-overlay{position:fixed;inset:0;z-index:50;background:rgba(13,26,13,.65);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding:.75rem}
+  #story-overlay.show{display:flex}
+  .story-sheet{background:#1a2a1a;border:1px solid rgba(201,169,110,.18);border-radius:24px 24px 20px 20px;padding:1.25rem 1.25rem 1.5rem;width:100%;max-width:440px;box-shadow:0 -4px 40px rgba(0,0,0,.5);animation:slideup .3s cubic-bezier(.34,1.3,.64,1);max-height:80vh;overflow-y:auto}
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .ss-drag{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto .9rem}
+  .ss-loc-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+  .ss-loc-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;border:2px solid rgba(255,255,255,.15)}
+  .ss-loc-name{font-size:1rem;font-weight:700;color:#fff}
+  .ss-loc-sub{font-size:11px;color:rgba(255,255,255,.4);font-style:italic}
+  .ss-who{font-size:10px;font-weight:700;padding:.2rem .65rem;border-radius:50px;display:inline-block;margin-bottom:.75rem}
+  .ss-who.razan{background:rgba(100,180,255,.15);color:#7eb3f5}
+  .ss-who.dara{background:rgba(193,122,111,.15);color:#e8a090}
+  .ss-prompt{font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;padding:.85rem;background:rgba(255,255,255,.04);border-radius:12px;margin-bottom:.85rem;font-style:italic;border-left:3px solid var(--gold)}
+  .ss-timer-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem}
+  .ss-t-bar{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+  .ss-t-fill{height:100%;border-radius:3px;transition:width .5s linear;background:var(--gold)}
+  .ss-t-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);min-width:36px;text-align:right}
+  .ss-tips{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:.75rem .9rem;margin-bottom:1rem}
+  .ss-tips-title{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.4rem}
+  .ss-tip{font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.55;display:flex;gap:.45rem;margin-bottom:.3rem}
+  .ss-btns{display:flex;gap:.5rem}
+  .ss-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s}
+  .ss-btn-p{background:linear-gradient(135deg,#7a5a2a,var(--gold));color:var(--ink)}
+  .ss-btn-p:active{transform:scale(.97)}
+  .ss-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* PASS */
+  #s-pass{background:rgba(13,26,13,.97);text-align:center;padding:1.5rem}
+  .pass-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px}
+  .pass-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .pass-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.35rem}
+  .pass-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.25rem auto 1.5rem;font-style:italic}
+  .pass-btn{width:100%;max-width:300px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,#7a5a2a,var(--gold));color:var(--ink)}
+  .pass-btn:active{transform:scale(.97)}
+
+  /* FINAL */
+  #s-final{background:linear-gradient(160deg,#0d1a0d,#1a3a1a);padding:1rem;overflow-y:auto;justify-content:flex-start}
+  .final-wrap{position:relative;z-index:1;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:.85rem;padding:1.5rem 0 3rem;margin:0 auto}
+  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .final-title{font-size:1.2rem;font-weight:700;color:#fff;text-align:center}
+  .final-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.75;text-align:center;max-width:300px;font-style:italic}
+  .final-stops{width:100%;display:flex;flex-direction:column;gap:.5rem}
+  .fstop{background:rgba(255,255,255,.04);border:1px solid rgba(201,169,110,.1);border-radius:14px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem}
+  .fstop-icon{font-size:1.3rem;flex-shrink:0}
+  .fstop-info{flex:1}
+  .fstop-name{font-size:12px;font-weight:600;color:#fff;display:block}
+  .fstop-visitors{font-size:10px;color:rgba(255,255,255,.35)}
+  .final-msg{background:rgba(201,169,110,.06);border:1px solid rgba(201,169,110,.15);border-radius:18px;padding:1.1rem 1.25rem;font-size:13px;color:rgba(255,255,255,.75);line-height:1.85;text-align:center;font-style:italic;width:100%}
+  .final-msg strong{color:var(--gold);font-style:normal}
+  .final-btns{display:flex;gap:.6rem;width:100%}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .final-btn-p{background:linear-gradient(135deg,#7a5a2a,var(--gold));color:var(--ink)}
+  .final-btn-p:active{transform:scale(.97)}
+  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">🗺️</span>
+    <span class="intro-eyebrow">Game Berdua</span>
+    <h1 class="intro-title">Peta <em>Emosi</em></h1>
+    <p class="intro-sub">Jalan bareng di peta emosi — gantian berhenti di tiap lokasi dan cerita perasaan minggu ini.</p>
+    <div class="how-card">
+      <span class="how-title">Cara Main</span>
+      <div class="how-item"><span>🛤️</span><span>Ada 6 pemberhentian di jalan — kalian jalan bareng</span></div>
+      <div class="how-item"><span>🔄</span><span>Gantian berhenti — Razan cerita dulu, lalu Dara di lokasi yang sama</span></div>
+      <div class="how-item"><span>🎧</span><span>Yang dengerin hadir sepenuhnya — tanpa menghakimi</span></div>
+      <div class="how-item"><span>🏁</span><span>Sampai finish bareng setelah 6 lokasi!</span></div>
+    </div>
+    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai Perjalanan 🗺️</button>
+  </div>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <div class="pick-wrap">
+    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🗺️</span>
+    <p class="pick-title" style="color:#fff">Siapa yang cerita duluan?</p>
+    <p class="pick-sub">Di tiap pemberhentian, kalian gantian cerita</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('razan')">
+        <span style="font-size:2rem;flex-shrink:0">🧑</span>
+        <div style="text-align:left">
+          <span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan cerita duluan</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Di tiap lokasi, Razan dulu lalu Dara</span>
+        </div>
+      </div>
+      <div class="pick-btn" onclick="initGame('dara')">
+        <span style="font-size:2rem;flex-shrink:0">👧</span>
+        <div style="text-align:left">
+          <span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara cerita duluan</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Di tiap lokasi, Dara dulu lalu Razan</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAP -->
+<div id="s-map" class="screen">
+  <div class="map-hdr">
+    <span class="mh-badge razan" id="mh-badge">🧑 Razan cerita</span>
+    <span class="mh-step" id="mh-step">Lokasi 1/6</span>
+  </div>
+  <div class="road-wrap">
+    <canvas id="road-canvas"></canvas>
+  </div>
+</div>
+
+<!-- STORY OVERLAY -->
+<div id="story-overlay">
+  <div class="story-sheet">
+    <div class="ss-drag"></div>
+    <div class="ss-loc-row">
+      <div class="ss-loc-icon" id="ss-loc-icon">☀️</div>
+      <div>
+        <p class="ss-loc-name" id="ss-loc-name">Pulau Senang</p>
+        <p class="ss-loc-sub" id="ss-loc-sub">Cerita yang bikin bersyukur</p>
+      </div>
+    </div>
+    <span class="ss-who razan" id="ss-who">🧑 Razan cerita</span>
+    <p class="ss-prompt" id="ss-prompt">...</p>
+    <div class="ss-timer-row">
+      <div class="ss-t-bar"><div class="ss-t-fill" id="ss-t-fill" style="width:100%"></div></div>
+      <span class="ss-t-label" id="ss-t-label">3:00</span>
+    </div>
+    <div class="ss-tips">
+      <span class="ss-tips-title" id="ss-tips-title">🎧 Untuk pendengar</span>
+      <div id="ss-tips-list"></div>
+    </div>
+    <div class="ss-btns">
+      <button class="ss-btn ss-btn-p" onclick="doneStory()">Selesai Cerita ✓</button>
+      <button class="ss-btn ss-btn-o" onclick="skipStory()">Lewati</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <div class="pass-wrap">
+    <span class="pass-icon" id="pass-icon">🧑</span>
+    <h2 class="pass-title" id="pass-title">Giliran Dara!</h2>
+    <p class="pass-sub" id="pass-sub">Kasih HP ke Dara — sekarang giliran dia cerita di lokasi yang sama.</p>
+    <button class="pass-btn" id="pass-btn" onclick="continueStory()">Aku Siap Cerita 📖</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="s-final" class="screen">
+  <div class="final-wrap">
+    <span class="final-icon">🏁</span>
+    <h2 class="final-title">Kalian Sampai Finish!</h2>
+    <p class="final-sub">Semua pemberhentian sudah dilalui berdua — ini peta emosi kalian minggu ini.</p>
+    <div class="final-stops" id="final-stops"></div>
+    <div class="final-msg" id="final-msg">...</div>
+    <div class="final-btns">
+      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOCATIONS = [
+  {id:'senang',icon:'☀️',name:'Pulau Senang',sub:'Momen bersyukur minggu ini',color:'#f6c85f',bg:'rgba(246,200,95,.2)',
+    prompts:['Cerita satu momen minggu ini yang bikin kamu senyum — sekecil apapun itu.','Apa hal terbaik yang terjadi minggu ini?','Ada ga satu hal yang bikin kamu ngerasa "syukurlah ada ini"?'],
+    tips:['Ikut senang dan hadir sepenuhnya','Boleh tanya "cerita lebih?" kalau penasaran','Jangan buru-buru cerita balik dulu']},
+  {id:'berat',icon:'🌧️',name:'Lembah Berat',sub:'Yang menguras energi',color:'#7eb3f5',bg:'rgba(126,179,245,.15)',
+    prompts:['Cerita satu hal yang bikin kamu capek atau berat minggu ini.','Apa yang paling nguras energi kamu minggu ini?','Ada momen yang bikin kamu overwhelmed atau sedih?'],
+    tips:['Jangan langsung kasih solusi','Cukup bilang "aku dengar kamu"','Pelukan selalu boleh diberikan 🤍']},
+  {id:'frustrasi',icon:'😤',name:'Gunung Frustrasi',sub:'Hal yang bikin kesel',color:'#e57373',bg:'rgba(229,115,115,.15)',
+    prompts:['Apa yang bikin kamu frustrasi atau kesal minggu ini?','Cerita tentang situasi yang bikin kamu pengen ngeluarin semuanya.','Ada hal yang bikin kamu gondok minggu ini?'],
+    tips:['Biarkan mereka luapkan dulu','Tahan dorongan untuk memperbaiki','Validasi: "itu wajar banget dirasain"']},
+  {id:'perasaan',icon:'🌊',name:'Samudra Perasaan',sub:'Yang susah dijelaskan',color:'#4a7cc7',bg:'rgba(74,124,199,.15)',
+    prompts:['Cerita perasaan minggu ini yang susah kamu jelaskan.','Ada sesuatu yang kamu rasain tapi belum tau cara ngungkapinnya?','Perasaan apa yang paling dominan minggu ini?'],
+    tips:['Ga perlu kasih nama perasaannya','Cukup hadir dan dengarkan','Boleh tanya "kamu butuh apa dari aku?"']},
+  {id:'pikiran',icon:'💭',name:'Gua Pikiran',sub:'Yang belum terucap',color:'#b5c4b1',bg:'rgba(181,196,177,.15)',
+    prompts:['Cerita sesuatu yang lagi kamu pikirin tapi belum sempat diucapkan.','Ada pikiran yang terus muncul tapi kamu simpan sendiri?','Apa yang ada di kepala kamu yang belum pernah diceritakan?'],
+    tips:['Ini butuh kepercayaan ekstra — hargai','Jangan interupsi — biarkan mengalir','Terima kasih atas kepercayaannya']},
+  {id:'harapan',icon:'🌈',name:'Pantai Harapan',sub:'Yang ditunggu-tunggu',color:'#7ec850',bg:'rgba(126,200,80,.15)',
+    prompts:['Cerita satu hal yang kamu tunggu-tunggu minggu depan.','Ada mimpi atau harapan kecil yang muncul minggu ini?','Apa yang bikin kamu semangat untuk ke depannya?'],
+    tips:['Ikut excited bersama mereka','Boleh tanya "bagaimana aku bisa mendukung?"','Mimpi besar atau kecil sama-sama berharga']},
+];
+
+const STORY_TIME = 3 * 60;
+
+// Game state
+let firstTeller = 'razan'; // who tells first at each stop
+let locIdx = 0;            // current location index (0-5)
+let subStep = 0;           // 0=first teller, 1=second teller
+let currentTeller = 'razan';
+let storyTimer = null;
+let timerLeft = STORY_TIME;
+let history = [];          // {locId, teller, skipped}
+
+// Canvas state
+let cw = 0, ch = 0;
+let stopPoints = [];       // [{x,y}] computed road waypoints
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='s-map') setTimeout(()=>{setupCanvas();drawRoad();},50);
+}
+
+function initGame(first){
+  firstTeller = first;
+  locIdx = 0;
+  subStep = 0;
+  currentTeller = first;
+  history = [];
+  showScreen('s-map');
+}
+
+// ── CANVAS ROAD ──
+function setupCanvas(){
+  const canvas = document.getElementById('road-canvas');
+  const wrap = canvas.parentElement;
+  cw = wrap.clientWidth;
+  ch = wrap.clientHeight;
+  canvas.width = cw;
+  canvas.height = ch;
+
+  // Compute stop positions along a winding path
+  // Path goes from bottom-center upward with curves
+  stopPoints = computeStops();
+}
+
+function computeStops(){
+  const n = LOCATIONS.length;
+  const pts = [];
+  // Snake path: zig-zag from bottom to top
+  const margin = 60;
+  const stepH = (ch - margin*2) / (n - 1);
+  for(let i=0;i<n;i++){
+    const y = ch - margin - i * stepH;
+    // Alternate x: left side, right side
+    let x;
+    if(i===0) x = cw/2;
+    else if(i%2===1) x = cw*0.72;
+    else x = cw*0.28;
+    pts.push({x,y});
+  }
+  return pts;
+}
+
+function drawRoad(){
+  const canvas = document.getElementById('road-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,cw,ch);
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0,0,0,ch);
+  bg.addColorStop(0,'#0d2a0d');
+  bg.addColorStop(1,'#1a3a1a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,cw,ch);
+
+  // Grid texture
+  ctx.strokeStyle = 'rgba(201,169,110,.04)';
+  ctx.lineWidth = 1;
+  for(let x=0;x<cw;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,ch);ctx.stroke();}
+  for(let y=0;y<ch;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cw,y);ctx.stroke();}
+
+  // Draw road (dashed line connecting stops)
+  ctx.setLineDash([10,8]);
+  ctx.lineDashOffset = 0;
+  ctx.strokeStyle = 'rgba(201,169,110,.25)';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(stopPoints[0].x, stopPoints[0].y);
+  for(let i=1;i<stopPoints.length;i++){
+    // Curve through midpoint
+    const prev = stopPoints[i-1];
+    const curr = stopPoints[i];
+    const mx = (prev.x+curr.x)/2;
+    const my = (prev.y+curr.y)/2;
+    ctx.quadraticCurveTo(prev.x, my, curr.x, curr.y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw visited road segments
+  for(let i=0;i<locIdx;i++){
+    const from = stopPoints[i];
+    const to = stopPoints[i+1];
+    if(!to) continue;
+    ctx.strokeStyle = 'rgba(201,169,110,.55)';
+    ctx.lineWidth = 5;
+    ctx.lineCap='round';
+    ctx.beginPath();
+    const my = (from.y+to.y)/2;
+    ctx.moveTo(from.x,from.y);
+    ctx.quadraticCurveTo(from.x,my,to.x,to.y);
+    ctx.stroke();
+  }
+
+  // START label
+  const s0 = stopPoints[0];
+  ctx.fillStyle='rgba(255,255,255,.25)';
+  ctx.font='bold 10px Poppins,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('START',s0.x,s0.y+48);
+
+  // FINISH label
+  const sn = stopPoints[stopPoints.length-1];
+  ctx.fillStyle='rgba(255,255,255,.25)';
+  ctx.fillText('FINISH',sn.x,sn.y-40);
+
+  // Draw stop pins
+  LOCATIONS.forEach((loc,i)=>{
+    const pt = stopPoints[i];
+    const visited = i < locIdx;
+    const isCurrent = i === locIdx;
+
+    // Glow for current
+    if(isCurrent){
+      ctx.beginPath();
+      ctx.arc(pt.x,pt.y,38,0,Math.PI*2);
+      ctx.fillStyle='rgba(201,169,110,.12)';
+      ctx.fill();
+    }
+
+    // Pin circle bg
+    ctx.beginPath();
+    ctx.arc(pt.x,pt.y,26,0,Math.PI*2);
+    ctx.fillStyle = visited?'rgba(255,255,255,.08)':loc.bg;
+    ctx.fill();
+
+    // Border
+    ctx.beginPath();
+    ctx.arc(pt.x,pt.y,26,0,Math.PI*2);
+    ctx.strokeStyle = visited?'rgba(255,255,255,.12)':isCurrent?loc.color:'rgba(255,255,255,.2)';
+    ctx.lineWidth = isCurrent?3:2;
+    ctx.stroke();
+
+    // Emoji
+    ctx.font=`${visited?'1.2rem':'1.4rem'} serif`;
+    ctx.textAlign='center';
+    ctx.globalAlpha = visited?0.45:1;
+    ctx.fillText(loc.icon, pt.x, pt.y+8);
+    ctx.globalAlpha = 1;
+
+    // Check mark if visited
+    if(visited){
+      ctx.font='bold 12px Poppins';
+      ctx.fillStyle='rgba(201,169,110,.8)';
+      ctx.fillText('✓',pt.x+16,pt.y-16);
+    }
+
+    // Label
+    ctx.font=`${isCurrent?'bold ':''} 10px Poppins,sans-serif`;
+    ctx.fillStyle=isCurrent?'#fff':'rgba(255,255,255,.55)';
+    ctx.textAlign='center';
+    const lx = i%2===1 ? pt.x+45 : i===0?pt.x:pt.x-45;
+    ctx.fillText(loc.name, lx, pt.y+4);
+
+    // Number badge
+    ctx.beginPath();
+    ctx.arc(pt.x-18,pt.y-18,10,0,Math.PI*2);
+    ctx.fillStyle=isCurrent?loc.color:'rgba(255,255,255,.12)';
+    ctx.fill();
+    ctx.font='bold 9px Poppins';
+    ctx.fillStyle=isCurrent?'#111':'rgba(255,255,255,.5)';
+    ctx.textAlign='center';
+    ctx.fillText(i+1,pt.x-18,pt.y-14);
+  });
+
+  // Draw avatars
+  drawAvatars(ctx);
+
+  // Tap areas (invisible overlay handled via canvas click)
+  canvas.onclick = handleCanvasTap;
+  canvas.addEventListener('touchend', (e)=>{
+    e.preventDefault();
+    const t=e.changedTouches[0];
+    const rect=canvas.getBoundingClientRect();
+    const scaleX=cw/rect.width, scaleY=ch/rect.height;
+    handleCanvasTapAt((t.clientX-rect.left)*scaleX,(t.clientY-rect.top)*scaleY);
+  },{passive:false});
+}
+
+function drawAvatars(ctx){
+  // Razan avatar progress
+  const rVisited = history.filter(h=>h.teller==='razan').length;
+  const dVisited = history.filter(h=>h.teller==='dara').length;
+
+  // Razan position: between stops
+  const rIdx = Math.min(rVisited, stopPoints.length-1);
+  const dIdx = Math.min(dVisited, stopPoints.length-1);
+
+  // Draw Razan avatar
+  const rpt = stopPoints[rIdx];
+  ctx.font='1.5rem serif';
+  ctx.textAlign='center';
+  // Shadow
+  ctx.shadowColor='rgba(100,180,255,.6)';
+  ctx.shadowBlur=12;
+  ctx.fillText('🧑',rpt.x-14,rpt.y+8);
+  ctx.shadowBlur=0;
+
+  // Draw Dara avatar
+  const dpt = stopPoints[dIdx];
+  ctx.shadowColor='rgba(193,122,111,.6)';
+  ctx.shadowBlur=12;
+  ctx.fillText('👧',dpt.x+14,dpt.y+8);
+  ctx.shadowBlur=0;
+}
+
+function handleCanvasTap(e){
+  const rect = e.target.getBoundingClientRect();
+  const scaleX = cw/rect.width, scaleY = ch/rect.height;
+  handleCanvasTapAt((e.clientX-rect.left)*scaleX,(e.clientY-rect.top)*scaleY);
+}
+
+function handleCanvasTapAt(tx,ty){
+  // Only allow tapping current stop
+  if(locIdx >= LOCATIONS.length) return;
+  const pt = stopPoints[locIdx];
+  const dist = Math.sqrt((tx-pt.x)**2+(ty-pt.y)**2);
+  if(dist < 50) openStory();
+}
+
+// ── STORY ──
+function openStory(){
+  const loc = LOCATIONS[locIdx];
+  const name = currentTeller==='razan'?'Razan':'Dara';
+  const listenName = currentTeller==='razan'?'Dara':'Razan';
+
+  document.getElementById('ss-loc-icon').textContent = loc.icon;
+  document.getElementById('ss-loc-icon').style.background = loc.bg;
+  document.getElementById('ss-loc-icon').style.borderColor = loc.color;
+  document.getElementById('ss-loc-name').textContent = loc.name;
+  document.getElementById('ss-loc-sub').textContent = loc.sub;
+
+  const who = document.getElementById('ss-who');
+  who.textContent=`${currentTeller==='razan'?'🧑':'👧'} ${name} cerita`;
+  who.className='ss-who '+currentTeller;
+
+  document.getElementById('ss-prompt').textContent = loc.prompts[Math.floor(Math.random()*loc.prompts.length)];
+  document.getElementById('ss-tips-title').textContent = `🎧 Untuk ${listenName} — pendengar`;
+
+  const tipsEl=document.getElementById('ss-tips-list');
+  tipsEl.innerHTML='';
+  loc.tips.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='ss-tip';
+    el.innerHTML=`<span>🤍</span><span>${t}</span>`;
+    tipsEl.appendChild(el);
+  });
+
+  document.getElementById('story-overlay').classList.add('show');
+  updateMapHeader();
+  startStoryTimer();
+}
+
+function startStoryTimer(){
+  clearInterval(storyTimer);
+  timerLeft=STORY_TIME;
+  updateTimer();
+  storyTimer=setInterval(()=>{timerLeft--;updateTimer();if(timerLeft<=0)clearInterval(storyTimer);},1000);
+}
+
+function updateTimer(){
+  const m=Math.floor(timerLeft/60),s=timerLeft%60;
+  document.getElementById('ss-t-label').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  const pct=(timerLeft/STORY_TIME)*100;
+  const fill=document.getElementById('ss-t-fill');
+  fill.style.width=pct+'%';
+  fill.style.background=pct<20?'#e57373':pct<50?'#ffb300':'var(--gold)';
+}
+
+function doneStory(){ finishStory(false); }
+function skipStory(){ finishStory(true); }
+
+function finishStory(skipped){
+  clearInterval(storyTimer);
+  history.push({locId:LOCATIONS[locIdx].id, teller:currentTeller, skipped});
+  document.getElementById('story-overlay').classList.remove('show');
+
+  const secondTeller = firstTeller==='razan'?'dara':'razan';
+
+  if(subStep===0){
+    // First teller done → pass to second teller
+    subStep=1;
+    currentTeller=secondTeller;
+    const nextName=secondTeller==='razan'?'Razan':'Dara';
+    const loc=LOCATIONS[locIdx];
+    document.getElementById('pass-icon').textContent=secondTeller==='razan'?'🧑':'👧';
+    document.getElementById('pass-title').textContent=`Giliran ${nextName}!`;
+    document.getElementById('pass-sub').textContent=`Sekarang ${nextName} cerita di ${loc.icon} ${loc.name}. Kasih HP ke ${nextName} ya!`;
+    document.getElementById('pass-btn').textContent=`${secondTeller==='razan'?'🧑':'👧'} Aku Siap Cerita 📖`;
+    showScreen('s-pass');
+  } else {
+    // Both done at this stop → advance to next
+    subStep=0;
+    currentTeller=firstTeller;
+    locIdx++;
+    if(locIdx>=LOCATIONS.length){
+      showFinal();
+    } else {
+      // Pass to first teller for next stop
+      const loc=LOCATIONS[locIdx];
+      const firstName=firstTeller==='razan'?'Razan':'Dara';
+      document.getElementById('pass-icon').textContent=firstTeller==='razan'?'🧑':'👧';
+      document.getElementById('pass-title').textContent=`Lokasi Berikutnya! ${loc.icon}`;
+      document.getElementById('pass-sub').textContent=`Kalian tiba di ${loc.name}! ${firstName} cerita duluan ya.`;
+      document.getElementById('pass-btn').textContent=`${firstTeller==='razan'?'🧑':'👧'} ${firstName} Siap Cerita 📖`;
+      showScreen('s-pass');
+    }
+  }
+}
+
+function continueStory(){
+  showScreen('s-map');
+  setTimeout(()=>{drawRoad();updateMapHeader();},100);
+  // Auto open story for current teller
+  setTimeout(()=>openStory(),400);
+}
+
+function updateMapHeader(){
+  const loc=LOCATIONS[Math.min(locIdx,LOCATIONS.length-1)];
+  const name=currentTeller==='razan'?'Razan':'Dara';
+  const badge=document.getElementById('mh-badge');
+  badge.textContent=`${currentTeller==='razan'?'🧑':'👧'} ${name} cerita`;
+  badge.className='mh-badge '+currentTeller;
+  document.getElementById('mh-step').textContent=`Lokasi ${Math.min(locIdx+1,LOCATIONS.length)}/${LOCATIONS.length}`;
+}
+
+function showFinal(){
+  const stopsEl=document.getElementById('final-stops');
+  stopsEl.innerHTML='';
+  LOCATIONS.forEach(loc=>{
+    const rDone=history.find(h=>h.locId===loc.id&&h.teller==='razan');
+    const dDone=history.find(h=>h.locId===loc.id&&h.teller==='dara');
+    const item=document.createElement('div');
+    item.className='fstop';
+    const visitors=[rDone&&!rDone.skipped?'🧑 Razan':null,dDone&&!dDone.skipped?'👧 Dara':null].filter(Boolean).join(' & ')||'Dilewati';
+    item.innerHTML=`<span class="fstop-icon">${loc.icon}</span><div class="fstop-info"><span class="fstop-name">${loc.name}</span><span class="fstop-visitors">${visitors}</span></div>`;
+    stopsEl.appendChild(item);
+  });
+
+  const told=history.filter(h=>!h.skipped).length;
+  let msg;
+  if(told>=12) msg=`<strong>Semua ${LOCATIONS.length} lokasi</strong> sudah dilalui berdua, tanpa ada yang dilewati. Kalian baru saja saling hadir sepenuhnya untuk satu sama lain — itu yang terpenting. 🤍`;
+  else if(told>=8) msg=`<strong>${told} cerita</strong> sudah dibagikan di sepanjang jalan. Perjalanan ini bukan soal sempurna — tapi soal mau berjalan bersama. 🤍`;
+  else msg=`Kalian sudah mulai perjalanan ini bersama. Ada yang dilewati, dan itu tidak apa-apa — selalu ada minggu depan. 🤍`;
+
+  document.getElementById('final-msg').innerHTML=msg;
+  showScreen('s-final');
+  confetti(80);
+}
+
+function confetti(n){
+  const colors=['#c9a96e','#c17a6f','#b5c4b1','#7eb3f5','#fff','#7ec850'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*3}s;animation-delay:${Math.random()*.8}s;width:${5+Math.random()*8}px;height:${5+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+  },i*25);
+}
+</script>
+</body>
+</html>
