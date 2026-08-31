@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Air Hockey 🏒</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#000;font-family:'Poppins',sans-serif}
+
+  #game-wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000}
+
+  /* Score bars */
+  .score-bar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:.35rem .85rem;flex-shrink:0;z-index:10}
+  .score-bar.top{background:linear-gradient(to bottom,rgba(74,124,199,.25),transparent);transform:rotate(180deg)}
+  .score-bar.bot{background:linear-gradient(to bottom,rgba(193,122,111,.25),transparent)}
+  .sb-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.06em}
+  .sb-score{font-size:1.6rem;font-weight:900;color:#fff;line-height:1}
+  .sb-score.top{transform:rotate(180deg)}
+
+  /* Canvas */
+  #arena{display:block;flex-shrink:0}
+
+  /* Overlay screens */
+  .overlay{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+  .overlay.show{display:flex}
+
+  /* Intro */
+  #o-intro{background:linear-gradient(160deg,#0a0a1a,#1a0a1a)}
+  .oi-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .oi-title{font-size:clamp(1.8rem,7vw,2.5rem);font-weight:900;color:#fff;margin-bottom:.35rem}
+  .oi-title span{color:#64b4ff}
+  .oi-sub{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.75;max-width:280px;margin:.35rem auto 1.5rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:320px}
+  .how-item{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.75rem .5rem;text-align:center}
+  .how-emoji{font-size:1.4rem;display:block;margin-bottom:.25rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.5);line-height:1.4}
+  .oi-btn{width:100%;max-width:320px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,#1a5a8a,#64b4ff);color:#fff;box-shadow:0 6px 24px rgba(100,180,255,.35)}
+  .oi-btn:active{transform:scale(.97)}
+
+  /* Countdown */
+  #o-countdown{background:rgba(0,0,0,.75);backdrop-filter:blur(8px)}
+  .cd-num{font-size:8rem;font-weight:900;color:#fff;line-height:1;animation:cdpop .6s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.5);margin-top:.5rem}
+
+  /* Goal */
+  #o-goal{background:rgba(0,0,0,.7);backdrop-filter:blur(8px)}
+  .goal-text{font-size:3rem;font-weight:900;color:#fff;display:block;animation:cdpop .4s cubic-bezier(.34,1.5,.64,1)}
+  .goal-scorer{font-size:1.1rem;color:rgba(255,255,255,.7);margin-top:.35rem;display:block}
+  .goal-score{font-size:2.5rem;font-weight:900;color:#64b4ff;display:block;margin-top:.25rem}
+
+  /* Result */
+  #o-result{background:linear-gradient(160deg,#0a0a1a,#1a0a1a)}
+  .res-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .res-title{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:.25rem}
+  .res-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;margin-bottom:1rem}
+  .res-score{font-size:3rem;font-weight:900;color:#64b4ff;display:block;margin-bottom:1.25rem;letter-spacing:.1em}
+  .res-btns{display:flex;gap:.6rem;width:100%;max-width:320px}
+  .res-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .res-btn-p{background:linear-gradient(135deg,#1a5a8a,#64b4ff);color:#fff}
+  .res-btn-p:active{transform:scale(.97)}
+  .res-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<div id="game-wrap">
+  <!-- Top score (Dara - rotated) -->
+  <div class="score-bar top">
+    <span class="sb-name">DARA 👧</span>
+    <span class="sb-score top" id="score-d">0</span>
+  </div>
+  <canvas id="arena"></canvas>
+  <!-- Bottom score (Razan) -->
+  <div class="score-bar bot">
+    <span class="sb-name">🧑 RAZAN</span>
+    <span class="sb-score" id="score-r">0</span>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="overlay show" id="o-intro">
+  <span class="oi-icon">🏒</span>
+  <h1 class="oi-title">Air <span>Hockey!</span></h1>
+  <p class="oi-sub">Satu HP, dua pemain — geser paddle, pukul puck, cetak gol! First to 7 menang! 🏆</p>
+  <div class="how-row">
+    <div class="how-item"><span class="how-emoji">🧑</span><span class="how-text">Razan main di bawah</span></div>
+    <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Drag paddle di zonamu</span></div>
+    <div class="how-item"><span class="how-emoji">👧</span><span class="how-text">Dara main di atas</span></div>
+  </div>
+  <button class="oi-btn" onclick="startCountdown()">Mulai! 🏒</button>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="overlay" id="o-countdown">
+  <span class="cd-num" id="cd-num">3</span>
+  <span class="cd-sub" id="cd-sub">Siapkan jarimu!</span>
+</div>
+
+<!-- GOAL -->
+<div class="overlay" id="o-goal">
+  <span class="goal-text" id="goal-text">⚡ GOAL!</span>
+  <span class="goal-scorer" id="goal-scorer">Razan cetak gol!</span>
+  <span class="goal-score" id="goal-score">1 — 0</span>
+</div>
+
+<!-- RESULT -->
+<div class="overlay" id="o-result">
+  <span class="res-icon" id="res-icon">🏆</span>
+  <h2 class="res-title" id="res-title">Razan Menang!</h2>
+  <p class="res-sub" id="res-sub">First to 7 — permainan yang sengit!</p>
+  <span class="res-score" id="res-score">7 — 3</span>
+  <div class="res-btns">
+    <button class="res-btn res-btn-p" onclick="startCountdown()">Main Lagi 🔄</button>
+    <button class="res-btn res-btn-o" onclick="showOverlay('o-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+const WIN_SCORE = 7;
+const PUCK_RADIUS = 18;
+const PADDLE_RADIUS = 32;
+const PUCK_MAX_SPEED = 22;
+const PUCK_MIN_SPEED = 6;
+const FRICTION = 0.995;
+
+let W = 0, H = 0;
+let canvas, ctx;
+let animFrame = null;
+let gameActive = false;
+
+let scores = {r: 0, d: 0};
+
+// Puck
+let puck = {x:0, y:0, vx:0, vy:0};
+
+// Paddles
+let paddles = {
+  r: {x:0, y:0, vx:0, vy:0, touchId:null, prevX:0, prevY:0},
+  d: {x:0, y:0, vx:0, vy:0, touchId:null, prevX:0, prevY:0},
+};
+
+// Table dimensions (computed)
+let tableTop = 0, tableBot = 0;
+let goalW = 0;
+let centerY = 0;
+let goalLeft = 0, goalRight = 0;
+
+function showOverlay(id) {
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show'));
+  if (id) document.getElementById(id).classList.add('show');
+}
+
+function initCanvas() {
+  canvas = document.getElementById('arena');
+  ctx = canvas.getContext('2d');
+  const wrap = document.getElementById('game-wrap');
+  const scoreH = document.querySelector('.score-bar').offsetHeight;
+  W = wrap.clientWidth;
+  H = wrap.clientHeight - scoreH * 2;
+  canvas.width = W;
+  canvas.height = H;
+
+  tableTop = PUCK_RADIUS + 2;
+  tableBot = H - PUCK_RADIUS - 2;
+  centerY = H / 2;
+  goalW = W * 0.38;
+  goalLeft = (W - goalW) / 2;
+  goalRight = goalLeft + goalW;
+
+  resetPositions();
+  setupTouch();
+}
+
+function resetPositions() {
+  // Puck center
+  puck.x = W / 2;
+  puck.y = H / 2;
+  puck.vx = 0;
+  puck.vy = 0;
+
+  // Paddles
+  paddles.r.x = W / 2;
+  paddles.r.y = H * 0.78;
+  paddles.r.vx = 0; paddles.r.vy = 0;
+
+  paddles.d.x = W / 2;
+  paddles.d.y = H * 0.22;
+  paddles.d.vx = 0; paddles.d.vy = 0;
+}
+
+function launchPuck(toward) {
+  // toward: 'r' = downward, 'd' = upward
+  const speed = 7;
+  const angle = (Math.random() - 0.5) * Math.PI * 0.4;
+  puck.vx = Math.sin(angle) * speed;
+  puck.vy = toward === 'r' ? speed * Math.cos(angle) : -speed * Math.cos(angle);
+  puck.x = W / 2;
+  puck.y = H / 2;
+}
+
+// ── TOUCH ──
+function setupTouch() {
+  canvas.addEventListener('touchstart', onTouchStart, {passive: false});
+  canvas.addEventListener('touchmove', onTouchMove, {passive: false});
+  canvas.addEventListener('touchend', onTouchEnd, {passive: false});
+  canvas.addEventListener('touchcancel', onTouchEnd, {passive: false});
+  // Mouse support
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+}
+
+function getPlayer(y) {
+  return y > H / 2 ? 'r' : 'd';
+}
+
+function onTouchStart(e) {
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (t.clientX - rect.left) * (W / rect.width);
+    const y = (t.clientY - rect.top) * (H / rect.height);
+    const p = getPlayer(y);
+    if (paddles[p].touchId === null) {
+      paddles[p].touchId = t.identifier;
+      paddles[p].prevX = x;
+      paddles[p].prevY = y;
+      movePaddle(p, x, y);
+    }
+  });
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (t.clientX - rect.left) * (W / rect.width);
+    const y = (t.clientY - rect.top) * (H / rect.height);
+    ['r','d'].forEach(p => {
+      if (paddles[p].touchId === t.identifier) {
+        paddles[p].vx = x - paddles[p].prevX;
+        paddles[p].vy = y - paddles[p].prevY;
+        paddles[p].prevX = x;
+        paddles[p].prevY = y;
+        movePaddle(p, x, y);
+      }
+    });
+  });
+}
+
+function onTouchEnd(e) {
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t => {
+    ['r','d'].forEach(p => {
+      if (paddles[p].touchId === t.identifier) {
+        paddles[p].touchId = null;
+        paddles[p].vx = 0;
+        paddles[p].vy = 0;
+      }
+    });
+  });
+}
+
+// Mouse (for testing on desktop)
+let mousePlayer = null;
+function onMouseDown(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (W / rect.width);
+  const y = (e.clientY - rect.top) * (H / rect.height);
+  mousePlayer = getPlayer(y);
+  paddles[mousePlayer].prevX = x;
+  paddles[mousePlayer].prevY = y;
+  movePaddle(mousePlayer, x, y);
+}
+function onMouseMove(e) {
+  if (!mousePlayer) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (W / rect.width);
+  const y = (e.clientY - rect.top) * (H / rect.height);
+  paddles[mousePlayer].vx = x - paddles[mousePlayer].prevX;
+  paddles[mousePlayer].vy = y - paddles[mousePlayer].prevY;
+  paddles[mousePlayer].prevX = x;
+  paddles[mousePlayer].prevY = y;
+  movePaddle(mousePlayer, x, y);
+}
+function onMouseUp() { mousePlayer = null; }
+
+function movePaddle(p, x, y) {
+  // Constrain to own half
+  const pad = PADDLE_RADIUS;
+  paddles[p].x = Math.max(pad, Math.min(W - pad, x));
+  if (p === 'r') {
+    paddles[p].y = Math.max(H / 2 + pad, Math.min(H - pad, y));
+  } else {
+    paddles[p].y = Math.max(pad, Math.min(H / 2 - pad, y));
+  }
+}
+
+// ── GAME LOOP ──
+function gameLoop() {
+  if (!gameActive) return;
+  update();
+  draw();
+  animFrame = requestAnimationFrame(gameLoop);
+}
+
+function update() {
+  // Move puck
+  puck.x += puck.vx;
+  puck.y += puck.vy;
+  puck.vx *= FRICTION;
+  puck.vy *= FRICTION;
+
+  // Min speed
+  const speed = Math.sqrt(puck.vx**2 + puck.vy**2);
+  if (speed > 0 && speed < PUCK_MIN_SPEED) {
+    puck.vx = puck.vx / speed * PUCK_MIN_SPEED;
+    puck.vy = puck.vy / speed * PUCK_MIN_SPEED;
+  }
+  // Max speed
+  if (speed > PUCK_MAX_SPEED) {
+    puck.vx = puck.vx / speed * PUCK_MAX_SPEED;
+    puck.vy = puck.vy / speed * PUCK_MAX_SPEED;
+  }
+
+  // Wall bounce (left/right)
+  if (puck.x - PUCK_RADIUS < 0) {
+    puck.x = PUCK_RADIUS;
+    puck.vx = Math.abs(puck.vx) * 0.85;
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+  if (puck.x + PUCK_RADIUS > W) {
+    puck.x = W - PUCK_RADIUS;
+    puck.vx = -Math.abs(puck.vx) * 0.85;
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+
+  // Top wall / goal (Dara's goal = top)
+  if (puck.y - PUCK_RADIUS < 0) {
+    // Check if in goal
+    if (puck.x > goalLeft && puck.x < goalRight) {
+      goalScored('r'); // Razan scores
+      return;
+    }
+    puck.y = PUCK_RADIUS;
+    puck.vy = Math.abs(puck.vy) * 0.85;
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+
+  // Bottom wall / goal (Razan's goal = bottom)
+  if (puck.y + PUCK_RADIUS > H) {
+    if (puck.x > goalLeft && puck.x < goalRight) {
+      goalScored('d'); // Dara scores
+      return;
+    }
+    puck.y = H - PUCK_RADIUS;
+    puck.vy = -Math.abs(puck.vy) * 0.85;
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+
+  // Paddle collision
+  ['r','d'].forEach(p => {
+    const pad = paddles[p];
+    const dx = puck.x - pad.x;
+    const dy = puck.y - pad.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const minDist = PUCK_RADIUS + PADDLE_RADIUS;
+
+    if (dist < minDist && dist > 0) {
+      // Push puck out
+      const nx = dx / dist;
+      const ny = dy / dist;
+      puck.x = pad.x + nx * minDist;
+      puck.y = pad.y + ny * minDist;
+
+      // Reflect velocity + add paddle velocity
+      const dot = puck.vx * nx + puck.vy * ny;
+      puck.vx -= 2 * dot * nx;
+      puck.vy -= 2 * dot * ny;
+
+      // Add paddle momentum
+      puck.vx += pad.vx * 1.5;
+      puck.vy += pad.vy * 1.5;
+
+      // Speed boost on hit
+      const newSpeed = Math.sqrt(puck.vx**2 + puck.vy**2);
+      if (newSpeed < 8) {
+        puck.vx = puck.vx / newSpeed * 8;
+        puck.vy = puck.vy / newSpeed * 8;
+      }
+
+      if (navigator.vibrate) navigator.vibrate(25);
+    }
+  });
+}
+
+// ── DRAW ──
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Table bg
+  const tableBg = ctx.createLinearGradient(0, 0, 0, H);
+  tableBg.addColorStop(0, '#0a1a3a');
+  tableBg.addColorStop(0.5, '#0d1f2d');
+  tableBg.addColorStop(1, '#1a0a1a');
+  ctx.fillStyle = tableBg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Field lines
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 1;
+  // Side lines
+  ctx.strokeRect(2, 2, W-4, H-4);
+  // Center line
+  ctx.setLineDash([12, 8]);
+  ctx.beginPath();
+  ctx.moveTo(0, H/2);
+  ctx.lineTo(W, H/2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, 55, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, 5, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,.15)';
+  ctx.fill();
+
+  // Goals
+  // Top goal (Dara's)
+  drawGoal(goalLeft, 0, goalW, 14, '#64b4ff');
+  // Bottom goal (Razan's)
+  drawGoal(goalLeft, H-14, goalW, 14, '#e8a090');
+
+  // Goal posts
+  ctx.fillStyle = 'rgba(255,255,255,.6)';
+  // Top
+  ctx.fillRect(goalLeft-4, 0, 6, 20);
+  ctx.fillRect(goalRight-2, 0, 6, 20);
+  // Bottom
+  ctx.fillRect(goalLeft-4, H-20, 6, 20);
+  ctx.fillRect(goalRight-2, H-20, 6, 20);
+
+  // Player zones (subtle)
+  ctx.fillStyle = 'rgba(100,180,255,.025)';
+  ctx.fillRect(0, 0, W, H/2);
+  ctx.fillStyle = 'rgba(232,160,144,.025)';
+  ctx.fillRect(0, H/2, W, H/2);
+
+  // Draw paddles
+  drawPaddle(paddles.r, '#e8a090', '#c17a6f', '🧑');
+  drawPaddle(paddles.d, '#7eb3f5', '#4a7cc7', '👧');
+
+  // Draw puck
+  drawPuck();
+}
+
+function drawGoal(x, y, w, h, color) {
+  ctx.fillStyle = color + '22';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = color + '66';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+}
+
+function drawPaddle(pad, fillColor, strokeColor, emoji) {
+  const r = PADDLE_RADIUS;
+  // Shadow
+  ctx.beginPath();
+  ctx.arc(pad.x+3, pad.y+3, r, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,.4)';
+  ctx.fill();
+  // Main circle
+  const grad = ctx.createRadialGradient(pad.x-r*0.3, pad.y-r*0.3, 2, pad.x, pad.y, r);
+  grad.addColorStop(0, fillColor);
+  grad.addColorStop(1, strokeColor);
+  ctx.beginPath();
+  ctx.arc(pad.x, pad.y, r, 0, Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  // Border
+  ctx.strokeStyle = 'rgba(255,255,255,.3)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  // Inner ring
+  ctx.beginPath();
+  ctx.arc(pad.x, pad.y, r*0.55, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,255,255,.2)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  // Emoji
+  ctx.font = '1rem serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, pad.x, pad.y);
+}
+
+function drawPuck() {
+  const r = PUCK_RADIUS;
+  const x = puck.x, y = puck.y;
+  // Shadow
+  ctx.beginPath();
+  ctx.arc(x+3, y+3, r, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,.5)';
+  ctx.fill();
+  // Puck
+  const grad = ctx.createRadialGradient(x-r*0.35, y-r*0.35, 2, x, y, r);
+  grad.addColorStop(0, '#555');
+  grad.addColorStop(1, '#111');
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  // Shine
+  ctx.beginPath();
+  ctx.arc(x-r*0.3, y-r*0.3, r*0.3, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,.18)';
+  ctx.fill();
+  // Border
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,255,255,.2)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Speed trail
+  const speed = Math.sqrt(puck.vx**2 + puck.vy**2);
+  if (speed > 8) {
+    ctx.beginPath();
+    ctx.arc(x - puck.vx*1.5, y - puck.vy*1.5, r*0.5, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,.06)';
+    ctx.fill();
+  }
+}
+
+// ── SCORING ──
+function goalScored(scorer) {
+  gameActive = false;
+  cancelAnimationFrame(animFrame);
+  scores[scorer]++;
+
+  const scorerName = scorer === 'r' ? 'Razan' : 'Dara';
+  document.getElementById('goal-text').textContent = '⚡ GOAL!';
+  document.getElementById('goal-scorer').textContent = `${scorer==='r'?'🧑':'👧'} ${scorerName} cetak gol!`;
+  document.getElementById('goal-score').textContent = `${scores.r} — ${scores.d}`;
+  updateScoreDisplay();
+  showOverlay('o-goal');
+  if (navigator.vibrate) navigator.vibrate([100,50,200]);
+
+  // Check win
+  if (scores.r >= WIN_SCORE || scores.d >= WIN_SCORE) {
+    setTimeout(() => showResult(), 1800);
+  } else {
+    setTimeout(() => {
+      showOverlay(null);
+      resetPositions();
+      startCountdownFrom(2, () => {
+        // Puck goes toward scorer's opponent next
+        launchPuck(scorer === 'r' ? 'd' : 'r');
+        gameActive = true;
+        animFrame = requestAnimationFrame(gameLoop);
+      });
+    }, 1500);
+  }
+}
+
+function updateScoreDisplay() {
+  document.getElementById('score-r').textContent = scores.r;
+  document.getElementById('score-d').textContent = scores.d;
+}
+
+function showResult() {
+  showOverlay(null);
+  const rWon = scores.r >= WIN_SCORE;
+  const winner = rWon ? 'Razan' : 'Dara';
+  document.getElementById('res-icon').textContent = '🏆';
+  document.getElementById('res-title').textContent = `${rWon?'🧑':'👧'} ${winner} Menang!`;
+  document.getElementById('res-sub').textContent = `First to ${WIN_SCORE} — pemenang hari ini adalah ${winner}!`;
+  document.getElementById('res-score').textContent = `${scores.r} — ${scores.d}`;
+  showOverlay('o-result');
+  confetti(80);
+}
+
+// ── COUNTDOWN ──
+function startCountdown() {
+  scores = {r:0, d:0};
+  updateScoreDisplay();
+  showOverlay(null);
+  initCanvas();
+  startCountdownFrom(3, () => {
+    launchPuck(Math.random() > 0.5 ? 'r' : 'd');
+    gameActive = true;
+    animFrame = requestAnimationFrame(gameLoop);
+  });
+}
+
+function startCountdownFrom(from, cb) {
+  showOverlay('o-countdown');
+  let n = from;
+  const el = document.getElementById('cd-num');
+  const sub = document.getElementById('cd-sub');
+  el.textContent = n;
+  el.style.animation = 'none'; void el.offsetWidth;
+  el.style.animation = 'cdpop .6s cubic-bezier(.34,1.5,.64,1)';
+  sub.textContent = n === 3 ? 'Siapkan jarimu!' : n === 2 ? 'Bersiap...' : 'Mulai!';
+  if (navigator.vibrate) navigator.vibrate(50);
+
+  const iv = setInterval(() => {
+    n--;
+    if (n <= 0) {
+      clearInterval(iv);
+      showOverlay(null);
+      cb();
+    } else {
+      el.style.animation = 'none'; void el.offsetWidth;
+      el.style.animation = 'cdpop .6s cubic-bezier(.34,1.5,.64,1)';
+      el.textContent = n;
+      sub.textContent = n === 2 ? 'Bersiap...' : 'Mulai!';
+      if (navigator.vibrate) navigator.vibrate(50);
+    }
+  }, 900);
+}
+
+function confetti(n) {
+  const colors=['#64b4ff','#e8a090','#ffd54f','#fff','#7ec850'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+
+// Init on load
+window.addEventListener('load', () => { initCanvas(); draw(); });
+window.addEventListener('resize', () => { if (gameActive) { cancelAnimationFrame(animFrame); initCanvas(); gameActive=true; animFrame=requestAnimationFrame(gameLoop); } else { initCanvas(); draw(); } });
+</script>
+</body>
+</html>
