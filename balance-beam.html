@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Balance Beam Walk 🎪</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;user-select:none;font-family:'Poppins',sans-serif}
+  html,body{height:100%;overflow:hidden;background:#06060f}
+
+  #game-wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;background:#06060f}
+
+  /* Header */
+  .g-header{flex-shrink:0;width:100%;background:rgba(6,6,15,.95);border-bottom:1px solid rgba(255,255,255,.06);padding:.45rem .85rem;display:flex;align-items:center;justify-content:space-between}
+  .gh-player{font-size:11px;font-weight:700;padding:.2rem .7rem;border-radius:50px}
+  .gh-player.razan{background:rgba(126,179,245,.15);color:#7eb3f5}
+  .gh-player.dara{background:rgba(232,160,144,.15);color:#e8a090}
+  .gh-round{font-size:10px;color:rgba(255,255,255,.25);text-align:center}
+  .gh-score{font-size:11px;font-weight:700;color:rgba(255,255,255,.5)}
+
+  /* Canvas */
+  #arena{display:block;flex-shrink:0;width:100%}
+
+  /* Bottom tap zone - split L/R */
+  #tap-zone{flex-shrink:0;width:100%;display:flex;position:relative}
+  .tap-half{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.25rem;transition:background .1s;cursor:pointer}
+  .tap-half:active{background:rgba(255,255,255,.04)}
+  .tap-half.left{border-right:1px solid rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.06)}
+  .tap-half.right{border-top:1px solid rgba(255,255,255,.06)}
+  .tap-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.2);letter-spacing:.08em;text-transform:uppercase}
+  .tap-key{font-size:1.4rem}
+  .tap-flash{position:absolute;inset:0;pointer-events:none;opacity:0;border-radius:4px}
+  .tap-half.flash-l .tap-flash{background:rgba(126,179,245,.12);opacity:1}
+  .tap-half.flash-r .tap-flash{background:rgba(232,160,144,.12);opacity:1}
+
+  /* Overlays */
+  .overlay{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+  .overlay.show{display:flex}
+
+  /* INTRO */
+  #o-intro{background:linear-gradient(160deg,#06060f,#0f0a1a)}
+  .oi-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:sway 2s ease-in-out infinite}
+  @keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+  .oi-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
+  .oi-title span{color:#ffd54f}
+  .oi-sub{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:320px}
+  .how-item{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
+  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
+  .oi-btn{width:100%;max-width:320px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#4a3a00,#ffd54f);color:#1a1000;box-shadow:0 6px 24px rgba(255,213,79,.3)}
+  .oi-btn:active{transform:scale(.97)}
+
+  /* PICK */
+  #o-pick{background:rgba(6,6,15,.97);backdrop-filter:blur(12px)}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);max-width:260px;margin:.3rem auto 1.4rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.55rem;width:100%;max-width:320px}
+  .pick-btn{padding:.95rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:all .15s}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+
+  /* COUNTDOWN */
+  #o-cd{background:rgba(6,6,15,.92);backdrop-filter:blur(10px)}
+  .cd-num{font-size:8rem;font-weight:900;color:#fff;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+  .cd-sub{font-size:13px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* RESULT */
+  #o-result{background:linear-gradient(160deg,#06060f,#0f0a1a)}
+  .res-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:sway 2s ease-in-out infinite}
+  .res-title{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:.25rem}
+  .res-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:.85rem;max-width:280px}
+  .res-times{display:flex;gap:1rem;align-items:center;justify-content:center;margin:.5rem 0 1.25rem}
+  .rt-item{text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.75rem 1.1rem}
+  .rt-name{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;display:block}
+  .rt-val{font-size:1.5rem;font-weight:900;display:block}
+  .rt-val.razan{color:#7eb3f5}
+  .rt-val.dara{color:#e8a090}
+  .rt-val.dnf{color:rgba(255,255,255,.25);font-size:1rem}
+  .res-btns{display:flex;gap:.55rem;width:100%;max-width:320px}
+  .res-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .res-btn-p{background:linear-gradient(135deg,#4a3a00,#ffd54f);color:#1a1000}
+  .res-btn-p:active{transform:scale(.97)}
+  .res-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="game-wrap">
+  <div class="g-header">
+    <span class="gh-player razan" id="gh-player">🧑 Razan</span>
+    <div class="gh-round" id="gh-round">Ronde 1/3</div>
+    <span class="gh-score" id="gh-score">0 – 0</span>
+  </div>
+  <canvas id="arena"></canvas>
+  <div id="tap-zone">
+    <div class="tap-half left" id="tap-l" ontouchstart="tapLeft(event)" onmousedown="tapLeft(event)">
+      <div class="tap-flash"></div>
+      <span class="tap-key">⬅️</span>
+      <span class="tap-label">Kiri</span>
+    </div>
+    <div class="tap-half right" id="tap-r" ontouchstart="tapRight(event)" onmousedown="tapRight(event)">
+      <div class="tap-flash"></div>
+      <span class="tap-key">➡️</span>
+      <span class="tap-label">Kanan</span>
+    </div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="overlay show" id="o-intro">
+  <span class="oi-icon">🎪</span>
+  <h1 class="oi-title">Balance <span>Beam!</span></h1>
+  <p class="oi-sub">Tap kiri-kanan bergantian buat jaga keseimbangan karakter di atas tali — sampai ke ujung sebelum jatuh!</p>
+  <div class="how-row">
+    <div class="how-item"><span class="how-emoji">⬅️</span><span class="how-text">Tap kiri waktu karakter miring kiri</span></div>
+    <div class="how-item"><span class="how-emoji">⚖️</span><span class="how-text">Jaga balance bar tetap di tengah</span></div>
+    <div class="how-item"><span class="how-emoji">➡️</span><span class="how-text">Tap kanan waktu miring kanan</span></div>
+  </div>
+  <button class="oi-btn" onclick="showOverlay('o-pick')">Mulai! 🎪</button>
+</div>
+
+<!-- PICK -->
+<div class="overlay" id="o-pick">
+  <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:sway 2s ease-in-out infinite">🎪</span>
+  <p class="pick-title">Siapa yang jalan duluan?</p>
+  <p class="pick-sub">3 ronde — yang paling cepat sampai ujung (atau paling jauh) menang</p>
+  <div class="pick-btns">
+    <div class="pick-btn" onclick="initRound('razan')">
+      <span style="font-size:2rem;flex-shrink:0">🧑</span>
+      <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan jalan duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Kasih HP ke Razan</span></div>
+    </div>
+    <div class="pick-btn" onclick="initRound('dara')">
+      <span style="font-size:2rem;flex-shrink:0">👧</span>
+      <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara jalan duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Kasih HP ke Dara</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="overlay" id="o-cd">
+  <span class="cd-num" id="cd-num">3</span>
+  <span class="cd-sub" id="cd-sub">Siap-siap...</span>
+</div>
+
+<!-- RESULT -->
+<div class="overlay" id="o-result">
+  <span class="res-icon" id="res-icon">🏆</span>
+  <h2 class="res-title" id="res-title">Razan Menang!</h2>
+  <p class="res-sub" id="res-sub">Sampai ujung lebih cepat!</p>
+  <div class="res-times" id="res-times"></div>
+  <div class="res-btns">
+    <button class="res-btn res-btn-p" onclick="newGame()">Main Lagi 🔄</button>
+    <button class="res-btn res-btn-o" onclick="showOverlay('o-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const TOTAL_ROUNDS = 3;
+const ROPE_LENGTH_FACTOR = 0.88;
+const CHAR_SPEED_BASE = 0.6;
+const TILT_GRAVITY = 0.002;      // sangat lambat miring
+const TILT_TAP_CORRECT = 0.07;   // koreksi sangat kuat
+const TILT_TAP_WRONG = 0.025;    // penalti sangat ringan
+const TILT_MAX = 1.0;
+const WIND_STRENGTH = 0.0005;    // hampir ga ada angin
+const PROGRESS_THRESHOLD = 1.0;
+
+// ── STATE ──
+let W = 0, H = 0, TZ_H = 0;
+let canvas, ctx, animFrame;
+let gameActive = false;
+
+// Per-round state
+let player = 'razan';         // current player
+let tilt = 0;                 // -1=full left, +1=full right
+let tiltVel = 0;
+let progress = 0;             // 0 to 1
+let fallen = false;
+let roundStartTime = 0;
+let lastTap = null;           // 'l' or 'r' — must alternate
+let windDir = 1;
+let windTimer = 0;
+
+// Scores — store distance reached per player per round
+let scores = { razan: 0, dara: 0 };        // wins
+let roundResults = [];                      // [{razan: dist, dara: dist}]
+let roundIdx = 0;
+let subTurn = 0;   // 0=first player, 1=second player
+let firstPlayer = 'razan';
+
+// Visual
+let charY = 0;
+let legPhase = 0;
+let dustParticles = [];
+let shakeAmt = 0;
+
+function showOverlay(id) {
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show'));
+  if (id) document.getElementById(id).classList.add('show');
+}
+
+// ── INIT ──
+function initCanvas() {
+  canvas = document.getElementById('arena');
+  const wrap = document.getElementById('game-wrap');
+  const headerH = document.querySelector('.g-header').offsetHeight;
+  TZ_H = Math.min(110, wrap.clientHeight * 0.18);
+  document.getElementById('tap-zone').style.height = TZ_H + 'px';
+  W = wrap.clientWidth;
+  H = wrap.clientHeight - headerH - TZ_H;
+  canvas.width = W;
+  canvas.height = H;
+}
+
+function newGame() {
+  scores = { razan: 0, dara: 0 };
+  roundResults = [];
+  roundIdx = 0;
+  subTurn = 0;
+  showOverlay('o-pick');
+}
+
+function initRound(first) {
+  firstPlayer = first;
+  player = first;
+  subTurn = 0;
+  startCountdown();
+}
+
+function startCountdown() {
+  showOverlay('o-cd');
+  let n = 3;
+  const el = document.getElementById('cd-num');
+  const sub = document.getElementById('cd-sub');
+  el.style.animation = 'none'; void el.offsetWidth;
+  el.style.animation = 'cdpop .5s cubic-bezier(.34,1.5,.64,1)';
+  el.textContent = n;
+  sub.textContent = `${player === 'razan' ? '🧑 Razan' : '👧 Dara'} — siap!`;
+  if (navigator.vibrate) navigator.vibrate(40);
+
+  const iv = setInterval(() => {
+    n--;
+    if (n <= 0) {
+      clearInterval(iv);
+      el.textContent = 'GO!';
+      sub.textContent = 'Tap kiri-kanan bergantian!';
+      el.style.animation = 'none'; void el.offsetWidth;
+      el.style.animation = 'cdpop .5s cubic-bezier(.34,1.5,.64,1)';
+      if (navigator.vibrate) navigator.vibrate([60, 30, 100]);
+      setTimeout(() => { showOverlay(null); startRound(); }, 700);
+    } else {
+      el.style.animation = 'none'; void el.offsetWidth;
+      el.style.animation = 'cdpop .5s cubic-bezier(.34,1.5,.64,1)';
+      el.textContent = n;
+      sub.textContent = n === 2 ? 'Bersiap...' : 'Mulai jalan!';
+      if (navigator.vibrate) navigator.vibrate(30);
+    }
+  }, 900);
+}
+
+function startRound() {
+  initCanvas();
+  tilt = 0;
+  tiltVel = 0;
+  progress = 0;
+  fallen = false;
+  lastTap = null;
+  windDir = Math.random() > .5 ? 1 : -1;
+  windTimer = 0;
+  dustParticles = [];
+  shakeAmt = 0;
+  legPhase = 0;
+  roundStartTime = Date.now();
+  gameActive = true;
+  updateHUD();
+  if (animFrame) cancelAnimationFrame(animFrame);
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ── TAP ──
+function tapLeft(e) {
+  e.preventDefault();
+  if (!gameActive) return;
+  flashTap('l');
+  handleTap('l');
+}
+function tapRight(e) {
+  e.preventDefault();
+  if (!gameActive) return;
+  flashTap('r');
+  handleTap('r');
+}
+
+function flashTap(side) {
+  const el = document.getElementById(side === 'l' ? 'tap-l' : 'tap-r');
+  const cls = side === 'l' ? 'flash-l' : 'flash-r';
+  el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), 120);
+}
+
+function handleTap(side) {
+  // Correct tap: opposite of tilt direction
+  // tilt > 0 = leaning right → need right tap? No: leaning right → tap left to correct
+  // Actually: tilt > 0 means leaning RIGHT → tap LEFT to correct
+  const correctSide = tilt > 0 ? 'l' : 'r';
+  const isCorrect = side === correctSide;
+
+  if (Math.abs(tilt) < 0.05) {
+    // Near center — either side advances
+    tiltVel += (side === 'l' ? -1 : 1) * TILT_TAP_CORRECT * 0.3;
+  } else if (isCorrect) {
+    tiltVel -= Math.sign(tilt) * TILT_TAP_CORRECT;
+    if (navigator.vibrate) navigator.vibrate(15);
+  } else {
+    // Wrong side — penalty
+    tiltVel += Math.sign(tilt) * TILT_TAP_WRONG;
+    shakeAmt = 8;
+    if (navigator.vibrate) navigator.vibrate([60, 20, 60]);
+  }
+
+  // Advance only if roughly balanced
+  if (Math.abs(tilt) < 0.75) {
+    const balanceBonus = 1 - Math.abs(tilt) * 0.5;
+    progress += (CHAR_SPEED_BASE * balanceBonus * 0.014);
+    progress = Math.min(progress, PROGRESS_THRESHOLD);
+  }
+
+  lastTap = side;
+  legPhase += 1;
+
+  // Spawn dust
+  if (Math.random() > 0.4) {
+    const ropeX = getRopeStartX() + progress * getRopeLength();
+    const ropeY = getRopeY(ropeX);
+    dustParticles.push({ x: ropeX, y: ropeY, vx: (Math.random() - .5) * 2, vy: -Math.random() * 1.5, life: 1 });
+  }
+}
+
+// ── PHYSICS ──
+function update() {
+  if (!gameActive) return;
+
+  // Wind
+  windTimer++;
+  if (windTimer > 120 + Math.random() * 80) {
+    windDir *= -1;
+    windTimer = 0;
+  }
+  const wind = windDir * WIND_STRENGTH * (0.5 + Math.abs(tilt));
+
+  // Tilt physics
+  tiltVel += TILT_GRAVITY * Math.sign(tilt || 0.01) + wind;
+  tiltVel *= 0.88; // damping
+  tilt += tiltVel;
+  tilt = Math.max(-TILT_MAX, Math.min(TILT_MAX, tilt));
+
+  // Shake decay
+  if (shakeAmt > 0) shakeAmt *= 0.8;
+
+  // Leg bob
+  legPhase += 0.05;
+
+  // Dust
+  dustParticles.forEach(d => { d.x += d.vx; d.y += d.vy; d.vy += 0.05; d.life -= 0.04; });
+  dustParticles = dustParticles.filter(d => d.life > 0);
+
+  // Check fall
+  if (Math.abs(tilt) >= TILT_MAX) {
+    fallen = true;
+    gameActive = false;
+    if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
+    setTimeout(() => endTurn(progress), 800);
+    return;
+  }
+
+  // Check win
+  if (progress >= PROGRESS_THRESHOLD) {
+    gameActive = false;
+    if (navigator.vibrate) navigator.vibrate([50, 30, 100, 30, 200]);
+    setTimeout(() => endTurn(PROGRESS_THRESHOLD), 600);
+  }
+}
+
+// ── ROPE GEOMETRY ──
+function getRopeStartX() { return W * 0.06; }
+function getRopeEndX() { return W * 0.94; }
+function getRopeLength() { return getRopeEndX() - getRopeStartX(); }
+function getRopeY(x) {
+  // Catenary-ish sag
+  const mid = (getRopeStartX() + getRopeEndX()) / 2;
+  const relX = (x - mid) / (getRopeLength() / 2);
+  const sag = H * 0.045 * (1 - relX * relX);
+  return H * 0.42 + sag;
+}
+
+// ── DRAW ──
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Sky bg
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#0a0820');
+  sky.addColorStop(1, '#1a0d30');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,.4)';
+  for (let i = 0; i < 30; i++) {
+    const sx = (i * 137.5) % W;
+    const sy = (i * 73.1) % (H * 0.6);
+    ctx.beginPath();
+    ctx.arc(sx, sy, .8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Platforms
+  const startX = getRopeStartX();
+  const endX = getRopeEndX();
+  const ropeY = getRopeY(startX);
+  const PLAT_W = 32, PLAT_H = 18;
+
+  // Left platform
+  ctx.fillStyle = '#5a3a1a';
+  ctx.fillRect(0, ropeY - PLAT_H * .5, startX + PLAT_W * .5, PLAT_H * 1.5);
+  ctx.fillStyle = '#8a5a2a';
+  ctx.fillRect(0, ropeY - PLAT_H * .5, startX + PLAT_W * .5, 6);
+
+  // Right platform
+  ctx.fillStyle = '#5a3a1a';
+  ctx.fillRect(endX - PLAT_W * .5, ropeY - PLAT_H * .5, W - endX + PLAT_W * .5, PLAT_H * 1.5);
+  ctx.fillStyle = '#8a5a2a';
+  ctx.fillRect(endX - PLAT_W * .5, ropeY - PLAT_H * .5, W - endX + PLAT_W * .5, 6);
+
+  // Rope shadow
+  ctx.beginPath();
+  ctx.moveTo(startX, ropeY + 3);
+  for (let x = startX; x <= endX; x += 2) {
+    ctx.lineTo(x, getRopeY(x) + 3);
+  }
+  ctx.strokeStyle = 'rgba(0,0,0,.3)';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Rope
+  ctx.beginPath();
+  ctx.moveTo(startX, ropeY);
+  for (let x = startX; x <= endX; x += 2) {
+    ctx.lineTo(x, getRopeY(x));
+  }
+  const ropeGrad = ctx.createLinearGradient(0, ropeY - 3, 0, ropeY + 3);
+  ropeGrad.addColorStop(0, '#c9a96e');
+  ropeGrad.addColorStop(1, '#7a5a2a');
+  ctx.strokeStyle = ropeGrad;
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  // Rope strands
+  ctx.beginPath();
+  ctx.moveTo(startX, ropeY - 1.5);
+  for (let x = startX; x <= endX; x += 2) {
+    ctx.lineTo(x, getRopeY(x) - 1.5);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,.12)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Progress marker (finish line area glow)
+  const finGlow = ctx.createRadialGradient(endX, getRopeY(endX), 0, endX, getRopeY(endX), 40);
+  finGlow.addColorStop(0, 'rgba(255,213,79,.15)');
+  finGlow.addColorStop(1, 'transparent');
+  ctx.fillStyle = finGlow;
+  ctx.fillRect(endX - 40, 0, 80, H);
+
+  // Finish flag
+  ctx.fillStyle = '#ffd54f';
+  ctx.fillRect(endX - 2, getRopeY(endX) - 40, 3, 40);
+  ctx.beginPath();
+  ctx.moveTo(endX + 1, getRopeY(endX) - 40);
+  ctx.lineTo(endX + 20, getRopeY(endX) - 32);
+  ctx.lineTo(endX + 1, getRopeY(endX) - 24);
+  ctx.fillStyle = '#ffd54f';
+  ctx.fill();
+
+  // Dust
+  dustParticles.forEach(d => {
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, 2 * d.life, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(201,169,110,${d.life * 0.5})`;
+    ctx.fill();
+  });
+
+  // Character
+  const charX = startX + progress * getRopeLength();
+  const ropeYAtChar = getRopeY(charX);
+  const tiltAngle = tilt * 0.55;
+  const shake = fallen ? 0 : (shakeAmt * (Math.random() - .5));
+  const bobY = fallen ? 0 : Math.sin(legPhase * 0.5) * 1.5;
+
+  ctx.save();
+  ctx.translate(charX + shake, ropeYAtChar + bobY);
+  ctx.rotate(tiltAngle);
+
+  const isRazan = player === 'razan';
+  const bodyColor = isRazan ? '#7eb3f5' : '#e8a090';
+  const skinColor = '#f5c5a0';
+  const CHAR_SCALE = Math.min(W, 400) / 400;
+
+  if (fallen) {
+    // Fallen pose — rotated 90deg
+    ctx.rotate(Math.PI / 2 * Math.sign(tilt));
+    ctx.globalAlpha = 0.6;
+  }
+
+  // Shadow on rope
+  ctx.beginPath();
+  ctx.ellipse(0, 2, 10, 3, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,.25)';
+  ctx.fill();
+
+  // Legs (walking animation)
+  const legSwing = Math.sin(legPhase) * 8;
+  // Left leg
+  ctx.beginPath();
+  ctx.moveTo(-3, 0);
+  ctx.lineTo(-5 + legSwing * .3, 14);
+  ctx.strokeStyle = bodyColor;
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  // Right leg
+  ctx.beginPath();
+  ctx.moveTo(3, 0);
+  ctx.lineTo(5 - legSwing * .3, 14);
+  ctx.stroke();
+
+  // Body
+  ctx.beginPath();
+  ctx.roundRect(-10, -20, 20, 22, 6);
+  ctx.fillStyle = bodyColor;
+  ctx.fill();
+
+  // Arms (balance pole or outstretched)
+  const armAngle = tilt * 0.3;
+  // Balance pole
+  ctx.save();
+  ctx.rotate(armAngle * 0.2);
+  ctx.beginPath();
+  ctx.moveTo(-28, -10);
+  ctx.lineTo(28, -10);
+  ctx.strokeStyle = '#c9a96e';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  // Pole ends
+  ctx.beginPath();
+  ctx.arc(-28, -10, 3, 0, Math.PI * 2);
+  ctx.arc(28, -10, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#a07840';
+  ctx.fill();
+  ctx.restore();
+
+  // Left arm
+  ctx.beginPath();
+  ctx.moveTo(-10, -15);
+  ctx.lineTo(-28, -10);
+  ctx.strokeStyle = bodyColor;
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  // Right arm
+  ctx.beginPath();
+  ctx.moveTo(10, -15);
+  ctx.lineTo(28, -10);
+  ctx.stroke();
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(0, -28, 11, 0, Math.PI * 2);
+  ctx.fillStyle = skinColor;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,.1)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Face
+  if (!fallen) {
+    // Eyes
+    const eyeX = tilt * 1.5;
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.arc(-4 + eyeX, -30, 1.5, 0, Math.PI * 2);
+    ctx.arc(4 + eyeX, -30, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Mouth - worried if tilting much
+    const worry = Math.abs(tilt) > 0.4;
+    ctx.beginPath();
+    if (worry) {
+      ctx.arc(0, -24, 3, 0.2 * Math.PI, 0.8 * Math.PI, true);
+    } else {
+      ctx.arc(0, -26, 3, 0.1 * Math.PI, 0.9 * Math.PI);
+    }
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Sweat drop if very tilted
+    if (Math.abs(tilt) > 0.6) {
+      ctx.beginPath();
+      ctx.arc(10, -34, 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(100,180,255,.7)';
+      ctx.fill();
+    }
+  } else {
+    // X eyes
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+    [-4, 4].forEach(ex => {
+      ctx.beginPath();
+      ctx.moveTo(ex - 2, -31); ctx.lineTo(ex + 2, -27);
+      ctx.moveTo(ex + 2, -31); ctx.lineTo(ex - 2, -27);
+      ctx.stroke();
+    });
+  }
+
+  // Hair / hat
+  ctx.fillStyle = isRazan ? '#4a3020' : '#3a2510';
+  ctx.beginPath();
+  ctx.ellipse(0, -37, 9, 5, 0, Math.PI, 0);
+  ctx.fill();
+
+  ctx.restore();
+
+  // Balance bar UI
+  drawBalanceBar();
+
+  // Progress bar
+  drawProgressBar();
+}
+
+function drawBalanceBar() {
+  const barW = W * 0.55;
+  const barH = 10;
+  const barX = (W - barW) / 2;
+  const barY = H - 28;
+
+  // Track
+  ctx.fillStyle = 'rgba(255,255,255,.06)';
+  ctx.beginPath();
+  ctx.roundRect(barX, barY, barW, barH, 5);
+  ctx.fill();
+
+  // Zones
+  const zones = [
+    { x: barX, w: barW * 0.2, color: 'rgba(229,115,115,.35)' },
+    { x: barX + barW * 0.2, w: barW * 0.15, color: 'rgba(255,183,77,.25)' },
+    { x: barX + barW * 0.35, w: barW * 0.3, color: 'rgba(76,175,80,.25)' },
+    { x: barX + barW * 0.65, w: barW * 0.15, color: 'rgba(255,183,77,.25)' },
+    { x: barX + barW * 0.8, w: barW * 0.2, color: 'rgba(229,115,115,.35)' },
+  ];
+  zones.forEach(z => {
+    ctx.fillStyle = z.color;
+    ctx.beginPath();
+    ctx.roundRect(z.x, barY, z.w, barH, 0);
+    ctx.fill();
+  });
+
+  // Center line
+  ctx.fillStyle = 'rgba(76,175,80,.6)';
+  ctx.fillRect(barX + barW / 2 - 1, barY, 2, barH);
+
+  // Indicator
+  const indicX = barX + (barW / 2) + tilt * (barW / 2);
+  const indicColor = Math.abs(tilt) > 0.65 ? '#e57373' : Math.abs(tilt) > 0.35 ? '#ffb300' : '#66bb6a';
+  ctx.beginPath();
+  ctx.arc(indicX, barY + barH / 2, 8, 0, Math.PI * 2);
+  ctx.fillStyle = indicColor;
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,.2)';
+  ctx.font = '8px Poppins';
+  ctx.textAlign = 'center';
+  ctx.fillText('⚖️ Keseimbangan', W / 2, barY - 4);
+}
+
+function drawProgressBar() {
+  const barW = W * 0.7;
+  const barH = 6;
+  const barX = (W - barW) / 2;
+  const barY = H - 14;
+
+  ctx.fillStyle = 'rgba(255,255,255,.06)';
+  ctx.beginPath();
+  ctx.roundRect(barX, barY, barW, barH, 3);
+  ctx.fill();
+
+  const fillW = progress * barW;
+  const pg = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+  pg.addColorStop(0, '#7eb3f5');
+  pg.addColorStop(1, '#ffd54f');
+  ctx.fillStyle = pg;
+  ctx.beginPath();
+  ctx.roundRect(barX, barY, fillW, barH, 3);
+  ctx.fill();
+
+  // Finish star
+  ctx.font = '10px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('⭐', barX + barW + 10, barY + barH);
+}
+
+function loop() {
+  update();
+  draw();
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ── TURN LOGIC ──
+function endTurn(dist) {
+  cancelAnimationFrame(animFrame);
+  gameActive = false;
+
+  // Store result
+  if (subTurn === 0) {
+    // First player done
+    if (!roundResults[roundIdx]) roundResults[roundIdx] = {};
+    roundResults[roundIdx][player] = dist;
+    // Switch to second player
+    const second = firstPlayer === 'razan' ? 'dara' : 'razan';
+    player = second;
+    subTurn = 1;
+    updateHUD();
+    setTimeout(() => startCountdown(), 600);
+  } else {
+    // Second player done
+    if (!roundResults[roundIdx]) roundResults[roundIdx] = {};
+    roundResults[roundIdx][player] = dist;
+
+    // Determine round winner
+    const r = roundResults[roundIdx].razan || 0;
+    const d = roundResults[roundIdx].dara || 0;
+    if (r > d) scores.razan++;
+    else if (d > r) scores.dara++;
+    // tie = no point
+
+    roundIdx++;
+    subTurn = 0;
+    player = firstPlayer;
+
+    if (roundIdx >= TOTAL_ROUNDS) {
+      setTimeout(() => showFinalResult(), 500);
+    } else {
+      updateHUD();
+      setTimeout(() => startCountdown(), 600);
+    }
+  }
+}
+
+function showFinalResult() {
+  const r = scores.razan, d = scores.dara;
+  const tie = r === d;
+  const winner = r > d ? 'Razan' : 'Dara';
+  document.getElementById('res-icon').textContent = tie ? '🤝' : '🏆';
+  document.getElementById('res-title').textContent = tie ? 'Seri!' : `${r > d ? '🧑' : '👧'} ${winner} Menang!`;
+  document.getElementById('res-sub').textContent = tie
+    ? `${r}-${d} — sama-sama jago jaga keseimbangan!`
+    : `${winner} menang ${r > d ? r : d}-${r > d ? d : r} ronde!`;
+
+  // Show round results
+  const timesEl = document.getElementById('res-times');
+  timesEl.innerHTML = '';
+  [{ name: '🧑 Razan', key: 'razan', cls: 'razan' }, { name: 'Dara 👧', key: 'dara', cls: 'dara' }].forEach(p => {
+    const total = roundResults.reduce((s, rr) => s + (rr[p.key] || 0), 0);
+    const pct = Math.round((total / TOTAL_ROUNDS) * 100);
+    const item = document.createElement('div');
+    item.className = 'rt-item';
+    item.innerHTML = `<span class="rt-name">${p.name}</span><span class="rt-val ${p.cls}">${scores[p.key]}W</span><span style="font-size:9px;color:rgba(255,255,255,.3)">${pct}% rata-rata</span>`;
+    timesEl.appendChild(item);
+  });
+
+  showOverlay('o-result');
+  if (!tie) confetti(80);
+  else confetti(40);
+}
+
+function updateHUD() {
+  const name = player === 'razan' ? 'Razan' : 'Dara';
+  const badge = document.getElementById('gh-player');
+  badge.textContent = `${player === 'razan' ? '🧑' : '👧'} ${name}`;
+  badge.className = 'gh-player ' + player;
+  document.getElementById('gh-round').textContent = `Ronde ${Math.min(roundIdx + 1, TOTAL_ROUNDS)}/${TOTAL_ROUNDS}`;
+  document.getElementById('gh-score').textContent = `${scores.razan} – ${scores.dara}`;
+}
+
+function confetti(n) {
+  const colors = ['#ffd54f', '#7eb3f5', '#e8a090', '#fff', '#81c784'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 18);
+}
+
+// ── BOOT ──
+window.addEventListener('load', () => {
+  initCanvas();
+  ctx = canvas.getContext('2d');
+  // Draw static background
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#0a0820');
+  sky.addColorStop(1, '#1a0d30');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+});
+</script>
+</body>
+</html>
