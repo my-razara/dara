@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sort the Blocks Race 🟦</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#06060f}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* STARS */
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+  @keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.6}}
+
+  /* ── INTRO ── */
+  #s-intro{background:transparent;padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
+  .intro-title span{color:#ffd54f}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:340px}
+  .how-item{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
+  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
+  .mode-row{display:flex;gap:.5rem;width:100%;max-width:340px;margin-bottom:1.25rem}
+  .mode-btn{flex:1;padding:.75rem .5rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;text-align:center}
+  .mode-btn.active{border-color:#ffd54f;background:rgba(255,213,79,.1)}
+  .mode-btn:active{transform:scale(.96)}
+  .mode-label{font-size:12px;font-weight:700;color:#fff;display:block}
+  .mode-sub{font-size:9px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem}
+  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000;box-shadow:0 6px 20px rgba(255,213,79,.3)}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* ── PICK ── */
+  #s-pick{background:transparent;padding:1.5rem;text-align:center}
+  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);margin:.25rem auto 1.4rem;max-width:260px;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.55rem;width:100%}
+  .pick-btn{padding:.95rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:all .15s}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+
+  /* ── COUNTDOWN ── */
+  #s-cd{background:rgba(6,6,15,.95);backdrop-filter:blur(12px);text-align:center}
+  .cd-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+  .cd-num{font-size:8rem;font-weight:900;color:#fff;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+  .cd-sub{font-size:13px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* ── GAME ── */
+  #s-game{background:transparent;padding:0;justify-content:flex-start}
+
+  /* Header */
+  .g-header{flex-shrink:0;width:100%;background:rgba(6,6,15,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:.5rem .85rem;display:flex;align-items:center;justify-content:space-between}
+  .gh-player{font-size:11px;font-weight:700;padding:.22rem .7rem;border-radius:50px}
+  .gh-player.razan{background:rgba(126,179,245,.15);color:#7eb3f5}
+  .gh-player.dara{background:rgba(232,160,144,.15);color:#e8a090}
+  .gh-timer{font-size:1.1rem;font-weight:900;color:#fff;min-width:50px;text-align:center}
+  .gh-timer.warn{color:#e57373;animation:timerpulse .4s ease-in-out infinite}
+  @keyframes timerpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  .gh-round{font-size:10px;color:rgba(255,255,255,.25)}
+
+  /* Game body */
+  .g-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.75rem;width:100%;display:flex;flex-direction:column;align-items:center;gap:.75rem;position:relative;z-index:1}
+
+  /* Goal display */
+  .goal-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.75rem 1rem;width:100%;max-width:420px}
+  .gc-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.5rem}
+  .goal-blocks{display:flex;gap:.35rem;flex-wrap:wrap}
+
+  /* Puzzle area */
+  .puzzle-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:.85rem 1rem;width:100%;max-width:420px}
+  .pc-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.65rem}
+  .columns-wrap{display:flex;gap:.5rem;justify-content:center;align-items:flex-end}
+
+  /* Column (tube/stack) */
+  .col-wrap{display:flex;flex-direction:column;align-items:center;gap:.25rem;cursor:pointer}
+  .col-label{font-size:9px;color:rgba(255,255,255,.25);font-weight:700}
+  .col-tube{display:flex;flex-direction:column;justify-content:flex-end;border:2px solid rgba(255,255,255,.12);border-top:none;border-radius:0 0 10px 10px;padding:.25rem .25rem .3rem;transition:border-color .15s;min-height:0}
+  .col-tube.selected{border-color:#ffd54f;box-shadow:0 0 12px rgba(255,213,79,.3)}
+  .col-tube.valid-target{border-color:rgba(126,200,80,.6);box-shadow:0 0 8px rgba(126,200,80,.2)}
+  .col-top{width:100%;height:6px;border:2px solid rgba(255,255,255,.12);border-bottom:none;border-radius:6px 6px 0 0;margin-bottom:-2px;transition:border-color .15s}
+  .col-top.selected{border-color:#ffd54f}
+  .col-top.valid-target{border-color:rgba(126,200,80,.6)}
+  .col-wrap.empty-col .col-tube{border-color:rgba(255,255,255,.06)}
+
+  /* Block */
+  .block{border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:rgba(0,0,0,.6);transition:all .2s;flex-shrink:0}
+  .block.top-block{box-shadow:0 -2px 0 rgba(255,255,255,.3),0 3px 8px rgba(0,0,0,.3)}
+  .block.selected-block{transform:scale(1.08);box-shadow:0 0 12px rgba(255,213,79,.5),0 -2px 0 rgba(255,255,255,.4)}
+
+  /* Move counter */
+  .move-row{display:flex;align-items:center;justify-content:center;gap:1rem;width:100%;max-width:420px}
+  .move-item{text-align:center}
+  .move-num{font-size:1.5rem;font-weight:900;color:#ffd54f;display:block;line-height:1}
+  .move-label{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.06em}
+
+  /* ── PASS ── */
+  #s-pass{background:rgba(6,6,15,.97);backdrop-filter:blur(12px);text-align:center;padding:1.5rem}
+  .pass-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px;gap:.75rem}
+  .pass-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .pass-title{font-size:1.1rem;font-weight:700;color:#fff}
+  .pass-result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem 1.25rem;width:100%}
+  .pr-name{font-size:11px;color:rgba(255,255,255,.4);display:block;margin-bottom:.25rem}
+  .pr-val{font-size:1.4rem;font-weight:900;color:#ffd54f;display:block}
+  .pr-val.razan{color:#7eb3f5}
+  .pr-val.dara{color:#e8a090}
+  .pass-sub{font-size:12px;color:rgba(255,255,255,.35);line-height:1.6;max-width:260px;font-style:italic}
+  .pass-btn{width:100%;max-width:280px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000}
+  .pass-btn:active{transform:scale(.97)}
+
+  /* ── RESULT ── */
+  #s-result{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
+  .result-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
+  .result-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .result-title{font-size:1.3rem;font-weight:900;color:#fff}
+  .result-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;max-width:280px;font-style:italic}
+  .result-cards{display:flex;gap:.6rem;width:100%}
+  .result-card{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.85rem .75rem;text-align:center}
+  .rc-name{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:.3rem}
+  .rc-time{font-size:1.4rem;font-weight:900;display:block}
+  .rc-time.razan{color:#7eb3f5}
+  .rc-time.dara{color:#e8a090}
+  .rc-time.dnf{color:rgba(255,255,255,.2);font-size:1rem}
+  .rc-moves{font-size:10px;color:rgba(255,255,255,.3);display:block;margin-top:.1rem}
+  .result-btns{display:flex;gap:.6rem;width:100%}
+  .result-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .result-btn-p{background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000}
+  .result-btn-p:active{transform:scale(.97)}
+  .result-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  /* Solve animation */
+  @keyframes solvepop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+  .solve-anim{animation:solvepop .4s ease}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">🟦</span>
+    <h1 class="intro-title">Sort the <span>Blocks!</span></h1>
+    <p class="intro-sub">Race sorting blok warna ke kolom yang benar — siapa paling cepat dan sedikit gerakan menang!</p>
+    <div class="how-row">
+      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Tap kolom untuk pilih blok teratas</span></div>
+      <div class="how-item"><span class="how-emoji">🔄</span><span class="how-text">Tap kolom lain untuk pindahkan</span></div>
+      <div class="how-item"><span class="how-emoji">🏆</span><span class="how-text">Selesai lebih cepat = menang!</span></div>
+    </div>
+    <div class="mode-row" id="mode-row">
+      <div class="mode-btn active" id="mode-easy" onclick="selectMode('easy')">
+        <span class="mode-label">😊 Mudah</span>
+        <span class="mode-sub">3 warna · 3 kolom</span>
+      </div>
+      <div class="mode-btn" id="mode-medium" onclick="selectMode('medium')">
+        <span class="mode-label">😤 Sedang</span>
+        <span class="mode-sub">4 warna · 5 kolom</span>
+      </div>
+      <div class="mode-btn" id="mode-hard" onclick="selectMode('hard')">
+        <span class="mode-label">🔥 Susah</span>
+        <span class="mode-sub">5 warna · 6 kolom</span>
+      </div>
+    </div>
+    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai Race! 🟦</button>
+  </div>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <div class="pick-wrap">
+    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🟦</span>
+    <p class="pick-title" style="color:#fff">Siapa yang duluan?</p>
+    <p class="pick-sub">Papan sama — siapa beresin lebih cepat menang</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('razan')">
+        <span style="font-size:2rem;flex-shrink:0">🧑</span>
+        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Kasih HP ke Razan</span></div>
+      </div>
+      <div class="pick-btn" onclick="initGame('dara')">
+        <span style="font-size:2rem;flex-shrink:0">👧</span>
+        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Kasih HP ke Dara</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="s-cd" class="screen">
+  <div class="cd-wrap">
+    <span class="cd-num" id="cd-num">3</span>
+    <span class="cd-sub" id="cd-sub">Siap-siap...</span>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="g-header">
+    <span class="gh-player razan" id="gh-player">🧑 Razan</span>
+    <span class="gh-timer" id="gh-timer">0:00</span>
+    <span class="gh-round" id="gh-round">Giliran 1/2</span>
+  </div>
+  <div class="g-body" id="g-body">
+    <div class="goal-card">
+      <span class="gc-label">🎯 Target — Tiap kolom harus 1 warna</span>
+      <div class="goal-blocks" id="goal-display"></div>
+    </div>
+    <div class="puzzle-card">
+      <span class="pc-label">🟦 Susun blok — tap pilih, tap lagi untuk pindah</span>
+      <div class="columns-wrap" id="columns-wrap"></div>
+    </div>
+    <div class="move-row">
+      <div class="move-item"><span class="move-num" id="move-count">0</span><span class="move-label">Gerakan</span></div>
+      <div class="move-item"><span class="move-num" id="undo-btn" onclick="undoMove()" style="cursor:pointer;font-size:1.2rem">↩️</span><span class="move-label">Undo</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <div class="pass-wrap">
+    <span class="pass-icon" id="pass-icon">🧑</span>
+    <h2 class="pass-title" id="pass-title">Razan selesai!</h2>
+    <div class="pass-result">
+      <span class="pr-name" id="pr-name">Waktu Razan</span>
+      <span class="pr-val razan" id="pr-val">0:42</span>
+    </div>
+    <p class="pass-sub" id="pass-sub">Kasih HP ke Dara — papan yang sama, race waktu dimulai!</p>
+    <button class="pass-btn" id="pass-btn" onclick="startSecondPlayer()">Aku Siap! 🟦</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="result-wrap">
+    <span class="result-icon" id="result-icon">🏆</span>
+    <h2 class="result-title" id="result-title">Razan Menang!</h2>
+    <p class="result-sub" id="result-sub">Lebih cepat dan lebih efisien!</p>
+    <div class="result-cards" id="result-cards"></div>
+    <div class="result-btns">
+      <button class="result-btn result-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── COLORS ──
+const COLORS = [
+  {id:'red',   hex:'#e57373', light:'#ef9a9a', name:'Merah'},
+  {id:'blue',  hex:'#64b5f6', light:'#90caf9', name:'Biru'},
+  {id:'green', hex:'#81c784', light:'#a5d6a7', name:'Hijau'},
+  {id:'gold',  hex:'#ffd54f', light:'#ffe082', name:'Kuning'},
+  {id:'purple',hex:'#ce93d8', light:'#e1bee7', name:'Ungu'},
+  {id:'teal',  hex:'#4db6ac', light:'#80cbc4', name:'Tosca'},
+];
+
+// ── MODE CONFIG ──
+const MODES = {
+  easy:   {colors:3, cols:4, stackH:3}, // 3 color cols + 1 empty
+  medium: {colors:4, cols:6, stackH:4}, // 4 color cols + 2 empty
+  hard:   {colors:5, cols:7, stackH:4}, // 5 color cols + 2 empty
+};
+
+let selectedMode = 'easy';
+let firstPlayer = 'razan';
+let currentPlayer = 'razan';
+let turn = 0; // 0=first, 1=second
+
+// Puzzle state
+let columns = [];   // array of arrays of colorId
+let selectedCol = null;
+let moveCount = 0;
+let history = [];   // for undo
+let timerInterval = null;
+let startTime = 0;
+let elapsed = 0;
+let gameActive = false;
+
+// Results
+let results = {}; // {razan:{time,moves}, dara:{time,moves}}
+let sharedPuzzle = []; // same initial puzzle for both
+
+// ── STARS ──
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    el.className='star';
+    const size=1+Math.random()*2;
+    el.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s`;
+    s.appendChild(el);
+  }
+})();
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectMode(m){
+  selectedMode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+}
+
+// ── PUZZLE GENERATION ──
+function generatePuzzle(mode){
+  const cfg=MODES[mode];
+  const cols=cfg.cols;
+  const h=cfg.stackH;
+  const numColors=cfg.colors;
+  const usedColors=COLORS.slice(0,numColors);
+
+  // Create solved state: each color col filled with same color
+  let puzzle=[];
+  for(let i=0;i<numColors;i++){
+    puzzle.push(Array(h).fill(usedColors[i].id));
+  }
+  // Add empty columns
+  for(let i=numColors;i<cols;i++){
+    puzzle.push([]);
+  }
+
+  // Shuffle by doing random valid moves backwards
+  for(let k=0;k<120;k++){
+    const nonEmpty=puzzle.map((c,i)=>({c,i})).filter(x=>x.c.length>0);
+    if(!nonEmpty.length) break;
+    const from=nonEmpty[Math.floor(Math.random()*nonEmpty.length)];
+    const toOptions=puzzle.map((c,i)=>({c,i})).filter(x=>x.i!==from.i&&x.c.length<h);
+    if(!toOptions.length) continue;
+    const to=toOptions[Math.floor(Math.random()*toOptions.length)];
+    to.c.push(from.c.pop());
+  }
+
+  return puzzle;
+}
+
+// ── GAME INIT ──
+function initGame(first){
+  firstPlayer=first;
+  currentPlayer=first;
+  turn=0;
+  results={};
+  sharedPuzzle=generatePuzzle(selectedMode);
+  startRound();
+}
+
+function startRound(){
+  columns=sharedPuzzle.map(col=>[...col]);
+  selectedCol=null;
+  moveCount=0;
+  history=[];
+  elapsed=0;
+  gameActive=false;
+  renderGoal();
+  updateHUD();
+  startCountdown();
+}
+
+function startCountdown(){
+  showScreen('s-cd');
+  let n=3;
+  const el=document.getElementById('cd-num');
+  const sub=document.getElementById('cd-sub');
+  el.style.animation='none';void el.offsetWidth;
+  el.style.animation='cdpop .5s cubic-bezier(.34,1.5,.64,1)';
+  el.textContent=n;
+  const name=currentPlayer==='razan'?'Razan':'Dara';
+  sub.textContent=`${currentPlayer==='razan'?'🧑':'👧'} ${name} — siap beresin!`;
+  if(navigator.vibrate) navigator.vibrate(40);
+
+  const iv=setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(iv);
+      el.textContent='GO!';
+      sub.textContent='Beresin blok warnanya!';
+      el.style.animation='none';void el.offsetWidth;
+      el.style.animation='cdpop .5s cubic-bezier(.34,1.5,.64,1)';
+      if(navigator.vibrate) navigator.vibrate([60,30,100]);
+      setTimeout(()=>{showScreen('s-game');startTimer();gameActive=true;renderBoard();},700);
+    } else {
+      el.style.animation='none';void el.offsetWidth;
+      el.style.animation='cdpop .5s cubic-bezier(.34,1.5,.64,1)';
+      el.textContent=n;
+      sub.textContent=n===2?'Bersiap...':'Mulai!';
+      if(navigator.vibrate) navigator.vibrate(30);
+    }
+  },900);
+}
+
+// ── TIMER ──
+function startTimer(){
+  startTime=Date.now();
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    elapsed=Math.floor((Date.now()-startTime)/1000);
+    const m=Math.floor(elapsed/60), s=elapsed%60;
+    const el=document.getElementById('gh-timer');
+    if(!el) return;
+    el.textContent=`${m}:${s.toString().padStart(2,'0')}`;
+    el.className='gh-timer'+(elapsed>60?' warn':'');
+  },500);
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);
+  elapsed=Math.floor((Date.now()-startTime)/1000);
+  return elapsed;
+}
+
+// ── HUD ──
+function updateHUD(){
+  const name=currentPlayer==='razan'?'Razan':'Dara';
+  const badge=document.getElementById('gh-player');
+  if(badge){badge.textContent=`${currentPlayer==='razan'?'🧑':'👧'} ${name}`;badge.className='gh-player '+currentPlayer;}
+  const gr=document.getElementById('gh-round'); if(gr) gr.textContent=`Giliran ${turn+1}/2`;
+  const mc=document.getElementById('move-count'); if(mc) mc.textContent=moveCount;
+}
+
+// ── RENDER GOAL ──
+function renderGoal(){
+  const cfg=MODES[selectedMode];
+  const usedColors=COLORS.slice(0,cfg.colors);
+  const el=document.getElementById('goal-display');
+  el.innerHTML='';
+  usedColors.forEach(c=>{
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;gap:2px;align-items:center';
+    for(let i=0;i<cfg.stackH;i++){
+      const b=document.createElement('div');
+      const bSize=Math.min(32,Math.floor((window.innerWidth-80)/(cfg.colors*1.5)));
+      b.style.cssText=`width:${bSize}px;height:${Math.max(14,bSize*.5)}px;border-radius:4px;background:${c.hex};border:1px solid rgba(255,255,255,.2)`;
+      wrap.appendChild(b);
+    }
+    const lbl=document.createElement('div');
+    lbl.style.cssText=`font-size:8px;color:rgba(255,255,255,.3);margin-top:3px`;
+    lbl.textContent=c.name;
+    wrap.appendChild(lbl);
+    el.appendChild(wrap);
+  });
+}
+
+// ── RENDER BOARD ──
+function renderBoard(){
+  const wrap=document.getElementById('columns-wrap');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const cfg=MODES[selectedMode];
+  const maxH=cfg.stackH;
+  const colW=Math.min(52,Math.floor((window.innerWidth-60)/cfg.cols)-6);
+  const blockH=Math.max(18,Math.min(32,colW*.6));
+
+  columns.forEach((col,idx)=>{
+    const colWrap=document.createElement('div');
+    colWrap.className='col-wrap'+(col.length===0?' empty-col':'');
+    colWrap.onclick=()=>tapColumn(idx);
+
+    const isSelected=selectedCol===idx;
+    const isValidTarget=selectedCol!==null&&selectedCol!==idx&&canPlace(selectedCol,idx);
+
+    // Top cap
+    const top=document.createElement('div');
+    top.className='col-top'+(isSelected?' selected':isValidTarget?' valid-target':'');
+    top.style.width=colW+'px';
+    colWrap.appendChild(top);
+
+    // Tube
+    const tube=document.createElement('div');
+    tube.className='col-tube'+(isSelected?' selected':isValidTarget?' valid-target':'');
+    tube.style.cssText=`width:${colW}px;height:${maxH*blockH+maxH*3+8}px`;
+
+    // Empty slots
+    const emptySlots=maxH-col.length;
+    for(let e=0;e<emptySlots;e++){
+      const slot=document.createElement('div');
+      slot.style.cssText=`width:${colW-6}px;height:${blockH}px;border-radius:4px;background:rgba(255,255,255,.02);margin:1.5px auto`;
+      tube.appendChild(slot);
+    }
+
+    // Blocks (bottom = index 0)
+    const colCopy=[...col];
+    colCopy.forEach((colorId,bi)=>{
+      const c=COLORS.find(x=>x.id===colorId)||COLORS[0];
+      const block=document.createElement('div');
+      block.className='block'+(bi===col.length-1?' top-block':'')+(isSelected&&bi===col.length-1?' selected-block':'');
+      block.style.cssText=`width:${colW-6}px;height:${blockH}px;margin:1.5px auto;background:linear-gradient(145deg,${c.light},${c.hex})`;
+
+      // Show color indicator dot
+      const dot=document.createElement('div');
+      dot.style.cssText=`width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4)`;
+      block.appendChild(dot);
+      tube.appendChild(block);
+    });
+
+    colWrap.appendChild(tube);
+
+    // Column number
+    const lbl=document.createElement('div');
+    lbl.className='col-label';
+    lbl.textContent=idx+1;
+    colWrap.appendChild(lbl);
+
+    wrap.appendChild(colWrap);
+  });
+}
+
+// ── INTERACTION ──
+function tapColumn(idx){
+  if(!gameActive) return;
+  if(!columns[idx]) return;
+
+  if(selectedCol===null){
+    // Select column
+    if(columns[idx].length===0) return;
+    selectedCol=idx;
+    if(navigator.vibrate) navigator.vibrate(15);
+    renderBoard();
+  } else {
+    if(idx===selectedCol){
+      // Deselect
+      selectedCol=null;
+      renderBoard();
+      return;
+    }
+    if(!canPlace(selectedCol,idx)){
+      // Invalid — shake effect by reselecting
+      if(columns[idx].length>0){
+        // Switch selection to tapped col
+        selectedCol=idx;
+        if(navigator.vibrate) navigator.vibrate([30,20,30]);
+        renderBoard();
+      } else {
+        selectedCol=null;
+        renderBoard();
+      }
+      return;
+    }
+    // Make move
+    makeMove(selectedCol,idx);
+    selectedCol=null;
+    moveCount++;
+    document.getElementById('move-count').textContent=moveCount;
+    renderBoard();
+    if(navigator.vibrate) navigator.vibrate(20);
+
+    // Check solved
+    if(isSolved()){
+      gameActive=false;
+      const t=stopTimer();
+      results[currentPlayer]={time:t, moves:moveCount};
+
+      // Animate
+      const cw=document.getElementById('columns-wrap'); if(cw) cw.classList.add('solve-anim');
+      if(navigator.vibrate) navigator.vibrate([50,30,100,30,200]);
+      confetti(60);
+      setTimeout(()=>handleTurnEnd(),1200);
+    }
+  }
+}
+
+function canPlace(fromIdx,toIdx){
+  const cfg=MODES[selectedMode];
+  const from=columns[fromIdx];
+  const to=columns[toIdx];
+  if(from.length===0) return false;
+  if(to.length>=cfg.stackH) return false;
+  if(to.length===0) return true;
+  // Top of 'to' must match top of 'from'
+  return to[to.length-1]===from[from.length-1];
+}
+
+function makeMove(fromIdx,toIdx){
+  history.push(columns.map(c=>[...c]));
+  columns[toIdx].push(columns[fromIdx].pop());
+}
+
+function undoMove(){
+  if(!gameActive||history.length===0) return;
+  columns=history.pop().map(c=>[...c]);
+  moveCount=Math.max(0,moveCount-1);
+  selectedCol=null;
+  document.getElementById('move-count').textContent=moveCount;
+  renderBoard();
+  if(navigator.vibrate) navigator.vibrate(15);
+}
+
+function isSolved(){
+  const cfg=MODES[selectedMode];
+  const h=cfg.stackH;
+  return columns.every(col=>{
+    if(col.length===0) return true;
+    if(col.length!==h) return false;
+    return col.every(c=>c===col[0]);
+  });
+}
+
+// ── TURN END ──
+function handleTurnEnd(){
+  if(turn===0){
+    // First player done — show pass screen
+    const name=currentPlayer==='razan'?'Razan':'Dara';
+    const t=results[currentPlayer].time;
+    const m=Math.floor(t/60), s=t%60;
+    document.getElementById('pass-icon').textContent=currentPlayer==='razan'?'🧑':'👧';
+    document.getElementById('pass-title').textContent=`${name} selesai! 🎉`;
+    document.getElementById('pr-name').textContent=`Waktu ${name}`;
+    document.getElementById('pr-val').textContent=`${m}:${s.toString().padStart(2,'0')} · ${results[currentPlayer].moves} gerakan`;
+    document.getElementById('pr-val').className=`pr-val ${currentPlayer}`;
+    const second=firstPlayer==='razan'?'dara':'razan';
+    const secName=second==='razan'?'Razan':'Dara';
+    document.getElementById('pass-sub').textContent=`Kasih HP ke ${secName} — papan yang sama, race dimulai dari awal!`;
+    document.getElementById('pass-btn').textContent=`${second==='razan'?'🧑':'👧'} ${secName} Siap! 🟦`;
+    turn=1;
+    currentPlayer=second;
+    showScreen('s-pass');
+  } else {
+    // Both done — show result
+    showResult();
+  }
+}
+
+function startSecondPlayer(){
+  startRound();
+}
+
+// ── RESULT ── 
+function showResult(){
+  const r=results.razan, d=results.dara;
+  let winner=null;
+  if(r&&d){
+    // Compare time first, then moves as tiebreaker
+    if(r.time<d.time) winner='razan';
+    else if(d.time<r.time) winner='dara';
+    else if(r.moves<d.moves) winner='razan';
+    else if(d.moves<r.moves) winner='dara';
+  } else if(r&&!d) winner='razan';
+  else if(d&&!r) winner='dara';
+
+  const tie=!winner;
+  document.getElementById('result-icon').textContent=tie?'🤝':'🏆';
+  const wName=winner==='razan'?'Razan':winner==='dara'?'Dara':null;
+  document.getElementById('result-title').textContent=tie?'Seri!':`${winner==='razan'?'🧑':'👧'} ${wName} Menang!`;
+
+  let subText='';
+  if(!tie&&r&&d){
+    const faster=Math.abs(r.time-d.time);
+    subText=`Selisih ${faster} detik${r.moves!==d.moves?` dan ${Math.abs(r.moves-d.moves)} gerakan`:''} — tipis banget!`;
+  } else if(tie){
+    subText='Sama cepat dan sama efisien — rematch!';
+  }
+  document.getElementById('result-sub').textContent=subText;
+
+  // Cards
+  const cards=document.getElementById('result-cards');
+  cards.innerHTML='';
+  ['razan','dara'].forEach(p=>{
+    const res=results[p];
+    const card=document.createElement('div');
+    card.className='result-card';
+    const m=res?Math.floor(res.time/60):0;
+    const s=res?res.time%60:0;
+    card.innerHTML=`
+      <span class="rc-name">${p==='razan'?'🧑 Razan':'👧 Dara'}</span>
+      <span class="rc-time ${p}${!res?' dnf':''}">${res?`${m}:${s.toString().padStart(2,'0')}`:'DNF'}</span>
+      <span class="rc-moves">${res?`${res.moves} gerakan`:''}</span>`;
+    if(p===winner) card.style.border='1px solid #ffd54f';
+    cards.appendChild(card);
+  });
+
+  showScreen('s-result');
+  if(!tie) confetti(80);
+  else confetti(40);
+}
+
+function confetti(n){
+  const colors=['#ffd54f','#7eb3f5','#e8a090','#81c784','#fff','#ce93d8'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*18);
+}
+</script>
+</body>
+</html>
