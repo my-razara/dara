@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Guess the Number Duel 🔢</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#06060f}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* STARS */
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+  @keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.6}}
+
+  /* ── INTRO ── */
+  #s-intro{background:transparent;padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
+  .intro-title span{color:#ffd54f}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:340px}
+  .how-item{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
+  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
+  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000;box-shadow:0 6px 20px rgba(255,213,79,.3)}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* ── PICK WHO THINKS ── */
+  #s-pick{background:transparent;padding:1.5rem;text-align:center}
+  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);margin:.25rem auto 1.4rem;max-width:260px;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.55rem;width:100%}
+  .pick-btn{padding:.95rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:all .15s}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+
+  /* ── SET NUMBER ── */
+  #s-set{background:transparent;padding:1.5rem;text-align:center}
+  .set-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%;gap:.85rem}
+  .set-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block}
+  .set-title{font-size:1.1rem;font-weight:700;color:#fff}
+  .set-sub{font-size:12px;color:rgba(255,255,255,.35);font-style:italic;max-width:260px;line-height:1.65}
+
+  /* Number display */
+  .num-display{background:rgba(255,255,255,.04);border:2px solid rgba(255,213,79,.3);border-radius:20px;padding:1.25rem 2rem;min-width:160px;text-align:center}
+  .nd-num{font-size:3.5rem;font-weight:900;color:#ffd54f;display:block;line-height:1;min-height:4rem}
+  .nd-label{font-size:10px;color:rgba(255,255,255,.3);display:block;margin-top:.25rem;letter-spacing:.1em;text-transform:uppercase}
+
+  /* Keypad */
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;max-width:280px}
+  .kp-btn{padding:.85rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:1.2rem;font-weight:700;color:#fff;cursor:pointer;transition:all .12s;text-align:center}
+  .kp-btn:active{background:rgba(255,213,79,.15);border-color:rgba(255,213,79,.4);transform:scale(.92)}
+  .kp-btn.del{color:#e57373;font-size:.95rem}
+  .kp-btn.confirm{background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000;border:none;font-size:.9rem;font-weight:700}
+  .kp-btn.confirm:active{transform:scale(.95)}
+  .kp-btn:disabled{opacity:.3;pointer-events:none}
+
+  .set-hint{font-size:11px;color:rgba(255,255,255,.2);font-style:italic}
+
+  /* ── COVER SCREEN (hide number from guesser) ── */
+  #s-cover{background:rgba(6,6,15,.98);backdrop-filter:blur(16px);text-align:center;padding:1.5rem}
+  .cover-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px;gap:.85rem}
+  .cover-icon{font-size:4rem;display:block;animation:float 3s ease-in-out infinite}
+  .cover-title{font-size:1.1rem;font-weight:700;color:#fff}
+  .cover-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;font-style:italic}
+  .cover-info{background:rgba(255,213,79,.06);border:1px solid rgba(255,213,79,.2);border-radius:14px;padding:.85rem 1.1rem;width:100%}
+  .ci-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,213,79,.6);display:block;margin-bottom:.35rem}
+  .ci-text{font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.65}
+  .cover-btn{width:100%;max-width:280px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000}
+  .cover-btn:active{transform:scale(.97)}
+
+  /* ── GUESS SCREEN ── */
+  #s-guess{background:transparent;padding:0;justify-content:flex-start}
+
+  /* Header */
+  .g-header{flex-shrink:0;width:100%;background:rgba(6,6,15,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:.5rem .85rem;display:flex;align-items:center;justify-content:space-between}
+  .gh-guesser{font-size:11px;font-weight:700;padding:.22rem .7rem;border-radius:50px}
+  .gh-guesser.razan{background:rgba(126,179,245,.15);color:#7eb3f5}
+  .gh-guesser.dara{background:rgba(232,160,144,.15);color:#e8a090}
+  .gh-tries{font-size:10px;color:rgba(255,255,255,.3)}
+  .gh-range{font-size:10px;font-weight:700;color:rgba(255,255,255,.5)}
+
+  /* Range visualizer */
+  .range-bar-wrap{flex-shrink:0;width:100%;padding:.45rem .85rem;background:rgba(6,6,15,.7);border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:.6rem}
+  .range-num{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);min-width:24px}
+  .range-bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;position:relative;overflow:visible}
+  .range-fill{position:absolute;height:100%;background:linear-gradient(to right,rgba(126,200,80,.4),rgba(255,213,79,.5));border-radius:4px;transition:all .4s ease}
+  .range-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#ffd54f;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.8);transition:left .4s ease;box-shadow:0 0 8px rgba(255,213,79,.5)}
+
+  /* Body */
+  .g-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.75rem;width:100%;display:flex;flex-direction:column;align-items:center;gap:.75rem;position:relative;z-index:1}
+
+  /* History */
+  .history-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:.75rem 1rem;width:100%;max-width:420px}
+  .hc-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.5rem}
+  .history-list{display:flex;flex-direction:column;gap:.35rem;max-height:160px;overflow-y:auto}
+  .history-item{display:flex;align-items:center;gap:.6rem;font-size:13px;animation:fadeup .25s ease}
+  @keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .hi-num{font-size:1.1rem;font-weight:900;min-width:40px;text-align:center}
+  .hi-arrow{font-size:1rem}
+  .hi-clue{font-size:12px;font-weight:600;flex:1}
+  .hi-clue.higher{color:#e57373}
+  .hi-clue.lower{color:#64b5f6}
+  .hi-clue.correct{color:#81c784}
+  .hi-try{font-size:10px;color:rgba(255,255,255,.25)}
+
+  /* Input area */
+  .input-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1rem;width:100%;max-width:420px}
+  .ic-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.65rem;text-align:center}
+  .ic-display{font-size:2.5rem;font-weight:900;color:#ffd54f;text-align:center;display:block;min-height:3rem;margin-bottom:.75rem;letter-spacing:.05em}
+  .ic-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}
+  .ick-btn{padding:.8rem;border-radius:12px;border:1.5px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);font-size:1.1rem;font-weight:700;color:#fff;cursor:pointer;transition:all .12s;text-align:center}
+  .ick-btn:active{background:rgba(255,213,79,.12);border-color:rgba(255,213,79,.3);transform:scale(.92)}
+  .ick-btn.del{color:#e57373;font-size:.9rem}
+  .ick-btn.guess{background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000;border:none;font-weight:700;font-size:.9rem}
+  .ick-btn.guess:active{transform:scale(.95)}
+
+  /* Clue buttons (for thinker) */
+  .clue-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1rem;width:100%;max-width:420px}
+  .clue-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.75rem;text-align:center}
+  .clue-guess-display{font-size:2rem;font-weight:900;color:#ffd54f;text-align:center;display:block;margin-bottom:.85rem}
+  .clue-btns{display:flex;gap:.5rem}
+  .clue-btn{flex:1;padding:.9rem;border-radius:14px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;transition:all .15s}
+  .clue-btn.higher{background:rgba(229,115,115,.15);color:#e57373;border:1.5px solid rgba(229,115,115,.25)}
+  .clue-btn.higher:active{background:rgba(229,115,115,.3);transform:scale(.97)}
+  .clue-btn.lower{background:rgba(100,181,246,.12);color:#64b5f6;border:1.5px solid rgba(100,181,246,.2)}
+  .clue-btn.lower:active{background:rgba(100,181,246,.25);transform:scale(.97)}
+  .clue-btn.correct{background:rgba(129,199,132,.15);color:#81c784;border:1.5px solid rgba(129,199,132,.25)}
+  .clue-btn.correct:active{background:rgba(129,199,132,.3);transform:scale(.97)}
+
+  /* ── ROUND RESULT ── */
+  #s-round{background:rgba(6,6,15,.97);backdrop-filter:blur(12px);text-align:center;padding:1.5rem}
+  .round-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:360px;gap:.85rem}
+  .round-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .round-title{font-size:1.1rem;font-weight:700;color:#fff}
+  .round-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1rem 1.25rem;width:100%}
+  .round-row{display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .round-row:last-child{border-bottom:none}
+  .rr-label{font-size:11px;color:rgba(255,255,255,.4)}
+  .rr-val{font-size:13px;font-weight:700;color:#fff}
+  .rr-val.razan{color:#7eb3f5}
+  .rr-val.dara{color:#e8a090}
+  .rr-val.win{color:#ffd54f}
+  .round-sub{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;font-style:italic;max-width:280px}
+  .round-btn{width:100%;max-width:280px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000}
+  .round-btn:active{transform:scale(.97)}
+
+  /* ── FINAL RESULT ── */
+  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
+  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
+  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .final-title{font-size:1.3rem;font-weight:900;color:#fff}
+  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
+  .final-scores{display:flex;gap:.6rem;width:100%}
+  .fs-card{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.85rem .75rem;text-align:center}
+  .fs-name{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:.3rem}
+  .fs-wins{font-size:2rem;font-weight:900;display:block;line-height:1}
+  .fs-wins.razan{color:#7eb3f5}
+  .fs-wins.dara{color:#e8a090}
+  .fs-detail{font-size:10px;color:rgba(255,255,255,.3);display:block;margin-top:.15rem}
+  .final-btns{display:flex;gap:.6rem;width:100%}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .final-btn-p{background:linear-gradient(135deg,#7a5a00,#ffd54f);color:#1a1000}
+  .final-btn-p:active{transform:scale(.97)}
+  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">🔢</span>
+    <h1 class="intro-title">Guess the <span>Number!</span></h1>
+    <p class="intro-sub">Satu pikirin angka 1–100, satu nebak. Dapat clue "lebih tinggi / lebih rendah" — siapa paling sedikit percobaan menang!</p>
+    <div class="how-row">
+      <div class="how-item"><span class="how-emoji">🤔</span><span class="how-text">Thinker pikirkan angka 1–100</span></div>
+      <div class="how-item"><span class="how-emoji">🎯</span><span class="how-text">Guesser nebak, thinker kasih clue</span></div>
+      <div class="how-item"><span class="how-emoji">🏆</span><span class="how-text">Sedikit percobaan = menang!</span></div>
+    </div>
+    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai Duel! 🔢</button>
+  </div>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <div class="pick-wrap">
+    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🤔</span>
+    <p class="pick-title" style="color:#fff">Siapa yang mikirin angka duluan?</p>
+    <p class="pick-sub">Gantian — Razan mikir → Dara nebak, lalu balik</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="startRound('razan')">
+        <span style="font-size:2rem;flex-shrink:0">🧑</span>
+        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan yang mikirin angka</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Dara yang nebak</span></div>
+      </div>
+      <div class="pick-btn" onclick="startRound('dara')">
+        <span style="font-size:2rem;flex-shrink:0">👧</span>
+        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara yang mikirin angka</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Razan yang nebak</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SET NUMBER (thinker sets secret number) -->
+<div id="s-set" class="screen">
+  <div class="set-wrap">
+    <span class="set-eyebrow" id="set-eyebrow">Razan — Thinker</span>
+    <p class="set-title" id="set-title">Pilih angka rahasiamu</p>
+    <p class="set-sub">Pilih angka 1–100. Jangan kasih lihat ke <span id="guesser-name">Dara</span>!</p>
+    <div class="num-display">
+      <span class="nd-num" id="set-display">—</span>
+      <span class="nd-label">Angka rahasiamu</span>
+    </div>
+    <div class="keypad" id="set-keypad"></div>
+    <p class="set-hint" id="set-hint">Pilih angka dulu</p>
+  </div>
+</div>
+
+<!-- COVER (hide phone before passing) -->
+<div id="s-cover" class="screen">
+  <div class="cover-wrap">
+    <span class="cover-icon" id="cover-icon">🙈</span>
+    <h2 class="cover-title" id="cover-title">Angka tersimpan!</h2>
+    <p class="cover-sub" id="cover-sub">Kasih HP ke Dara — jangan lihat layar ini!</p>
+    <div class="cover-info">
+      <span class="ci-label">📋 Aturan untuk penebak</span>
+      <p class="ci-text" id="cover-rules">Nebak angka 1–100. Setelah nebak, Razan kasih clue: lebih tinggi, lebih rendah, atau tepat! Coba selesaikan dengan sesedikit mungkin percobaan.</p>
+    </div>
+    <button class="cover-btn" id="cover-btn" onclick="startGuessing()">Aku Siap Nebak! 🎯</button>
+  </div>
+</div>
+
+<!-- GUESS SCREEN -->
+<div id="s-guess" class="screen">
+  <div class="g-header">
+    <span class="gh-guesser razan" id="gh-guesser">🧑 Razan nebak</span>
+    <span class="gh-tries" id="gh-tries">0 percobaan</span>
+    <span class="gh-range" id="gh-range">1 – 100</span>
+  </div>
+  <div class="range-bar-wrap">
+    <span class="range-num" id="range-lo">1</span>
+    <div class="range-bar">
+      <div class="range-fill" id="range-fill" style="left:0%;width:100%"></div>
+      <div class="range-dot" id="range-dot" style="left:50%"></div>
+    </div>
+    <span class="range-num" id="range-hi">100</span>
+  </div>
+  <div class="g-body">
+
+    <!-- History -->
+    <div class="history-card">
+      <span class="hc-label">📜 Riwayat tebakan</span>
+      <div class="history-list" id="history-list">
+        <div style="font-size:12px;color:rgba(255,255,255,.2);font-style:italic;text-align:center;padding:.5rem">Belum ada tebakan</div>
+      </div>
+    </div>
+
+    <!-- Guesser input -->
+    <div class="input-card" id="guesser-input-card">
+      <span class="ic-label" id="ic-label">Nebak angkanya!</span>
+      <span class="ic-display" id="ic-display">—</span>
+      <div class="ic-keypad" id="ic-keypad"></div>
+    </div>
+
+    <!-- Thinker clue card (hidden initially) -->
+    <div class="clue-card" id="clue-card" style="display:none">
+      <span class="clue-title" id="clue-title">Tebakan masuk — kasih clue!</span>
+      <span class="clue-guess-display" id="clue-guess-display">42</span>
+      <div class="clue-btns">
+        <button class="clue-btn higher" onclick="giveClue('higher')">⬆️ Lebih Tinggi</button>
+        <button class="clue-btn correct" onclick="giveClue('correct')">✅ Tepat!</button>
+        <button class="clue-btn lower" onclick="giveClue('lower')">⬇️ Lebih Rendah</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ROUND RESULT -->
+<div id="s-round" class="screen">
+  <div class="round-wrap">
+    <span class="round-icon" id="round-icon">🎉</span>
+    <h2 class="round-title" id="round-title">Dara berhasil nebak!</h2>
+    <div class="round-card" id="round-card"></div>
+    <p class="round-sub" id="round-sub">Sekarang gantian — Dara mikirin angka, Razan yang nebak!</p>
+    <button class="round-btn" id="round-btn" onclick="nextRound()">Gantian Sekarang 🔄</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="s-final" class="screen">
+  <div class="final-wrap">
+    <span class="final-icon" id="final-icon">🏆</span>
+    <h2 class="final-title" id="final-title">Razan Menang!</h2>
+    <p class="final-sub" id="final-sub">Sedikit percobaan = otak lebih tajam!</p>
+    <div class="final-scores" id="final-scores"></div>
+    <div class="final-btns">
+      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let thinker = 'razan';
+let guesser = 'dara';
+let secretNumber = 0;
+let guessInput = '';
+let guessHistory = []; // [{guess, clue}]
+let tryCount = 0;
+let rangeLo = 1, rangeHi = 100;
+let waitingForClue = false; // true when thinker needs to give clue
+let currentGuess = 0;
+
+// Round results: {razan: tries, dara: tries}
+let roundResults = {};
+let turn = 0; // 0=first pair, 1=second pair
+let firstThinker = 'razan';
+
+// ── STARS ──
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    el.className='star';
+    const sz=1+Math.random()*2;
+    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s`;
+    s.appendChild(el);
+  }
+})();
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+// ── ROUND START ──
+function startRound(thinkerPlayer){
+  thinker=thinkerPlayer;
+  guesser=thinker==='razan'?'dara':'razan';
+  firstThinker=thinkerPlayer;
+  turn=0;
+  roundResults={};
+  setupSetScreen();
+}
+
+function setupSetScreen(){
+  const tName=thinker==='razan'?'Razan':'Dara';
+  const gName=guesser==='razan'?'Razan':'Dara';
+  const el=document.getElementById('set-eyebrow');
+  if(el) el.textContent=`${thinker==='razan'?'🧑':'👧'} ${tName} — Thinker`;
+  const tl=document.getElementById('set-title');
+  if(tl) tl.textContent=`Pilih angka rahasiamu, ${tName}!`;
+  const gn=document.getElementById('guesser-name');
+  if(gn) gn.textContent=gName;
+
+  guessInput='';
+  secretNumber=0;
+  updateSetDisplay();
+  buildSetKeypad();
+  showScreen('s-set');
+}
+
+function buildSetKeypad(){
+  const kp=document.getElementById('set-keypad');
+  if(!kp) return;
+  kp.innerHTML='';
+  [1,2,3,4,5,6,7,8,9,'⌫',0,'OK'].forEach(k=>{
+    const btn=document.createElement('div');
+    btn.className='kp-btn'+(k==='⌫'?' del':k==='OK'?' confirm':'');
+    btn.textContent=k;
+    btn.addEventListener('click',()=>handleSetKey(k));
+    kp.appendChild(btn);
+  });
+}
+
+function handleSetKey(k){
+  if(k==='⌫'){
+    guessInput=guessInput.slice(0,-1);
+  } else if(k==='OK'){
+    const n=parseInt(guessInput);
+    if(!n||n<1||n>100){
+      const hint=document.getElementById('set-hint');
+      if(hint){hint.textContent='Pilih angka antara 1–100!';hint.style.color='#e57373';}
+      return;
+    }
+    secretNumber=n;
+    setupCoverScreen();
+    return;
+  } else {
+    if(guessInput.length>=3) return;
+    const next=guessInput+k;
+    if(parseInt(next)>100) return;
+    guessInput=next;
+  }
+  updateSetDisplay();
+}
+
+function updateSetDisplay(){
+  const el=document.getElementById('set-display');
+  if(el) el.textContent=guessInput||'—';
+  const hint=document.getElementById('set-hint');
+  if(hint){
+    const n=parseInt(guessInput);
+    if(!guessInput) {hint.textContent='Pilih angka dulu';hint.style.color='rgba(255,255,255,.2)';}
+    else if(n<1||n>100) {hint.textContent='Angka harus 1–100!';hint.style.color='#e57373';}
+    else {hint.textContent=`Angka ${n} siap disimpan — tap OK`;hint.style.color='rgba(255,213,79,.6)';}
+  }
+}
+
+// ── COVER SCREEN ──
+function setupCoverScreen(){
+  const tName=thinker==='razan'?'Razan':'Dara';
+  const gName=guesser==='razan'?'Razan':'Dara';
+  const ci=document.getElementById('cover-icon');
+  if(ci) ci.textContent=thinker==='razan'?'🧑':'👧';
+  const ct=document.getElementById('cover-title');
+  if(ct) ct.textContent='Angka tersimpan! 🔐';
+  const cs=document.getElementById('cover-sub');
+  if(cs) cs.textContent=`Kasih HP ke ${gName} — jangan lihat layar dulu!`;
+  const cr=document.getElementById('cover-rules');
+  if(cr) cr.textContent=`Nebak angka 1–100. Setelah nebak, ${tName} kasih clue: lebih tinggi, lebih rendah, atau tepat! Coba dengan sesedikit mungkin percobaan.`;
+  const cb=document.getElementById('cover-btn');
+  if(cb) cb.textContent=`${guesser==='razan'?'🧑':'👧'} ${gName} Siap Nebak! 🎯`;
+  showScreen('s-cover');
+}
+
+// ── GUESSING ──
+function startGuessing(){
+  guessHistory=[];
+  tryCount=0;
+  rangeLo=1; rangeHi=100;
+  guessInput='';
+  waitingForClue=false;
+  currentGuess=0;
+
+  updateGuessHUD();
+  renderHistory();
+  buildGuessKeypad();
+  updateRangeBar();
+
+  // Show guesser input, hide clue card
+  const gic=document.getElementById('guesser-input-card');
+  if(gic) gic.style.display='block';
+  const cc=document.getElementById('clue-card');
+  if(cc) cc.style.display='none';
+
+  const icl=document.getElementById('ic-label');
+  if(icl) icl.textContent='Nebak angkanya!';
+  const icd=document.getElementById('ic-display');
+  if(icd) icd.textContent='—';
+
+  showScreen('s-guess');
+}
+
+function buildGuessKeypad(){
+  const kp=document.getElementById('ic-keypad');
+  if(!kp) return;
+  kp.innerHTML='';
+  [1,2,3,4,5,6,7,8,9,'⌫',0,'NEBAK!'].forEach(k=>{
+    const btn=document.createElement('div');
+    btn.className='ick-btn'+(k==='⌫'?' del':k==='NEBAK!'?' guess':'');
+    btn.textContent=k;
+    btn.addEventListener('click',()=>handleGuessKey(k));
+    btn.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});
+    kp.appendChild(btn);
+  });
+}
+
+function handleGuessKey(k){
+  if(waitingForClue) return;
+  if(k==='⌫'){
+    guessInput=guessInput.slice(0,-1);
+  } else if(k==='NEBAK!'){
+    const n=parseInt(guessInput);
+    if(!n||n<1||n>100){
+      const icd=document.getElementById('ic-display');
+      if(icd){icd.textContent='1–100!';setTimeout(()=>{icd.textContent=guessInput||'—';},800);}
+      return;
+    }
+    submitGuess(n);
+    return;
+  } else {
+    if(guessInput.length>=3) return;
+    const next=guessInput+k;
+    if(parseInt(next)>100) return;
+    guessInput=next;
+  }
+  const icd=document.getElementById('ic-display');
+  if(icd) icd.textContent=guessInput||'—';
+}
+
+function submitGuess(n){
+  currentGuess=n;
+  tryCount++;
+  waitingForClue=true;
+  guessInput='';
+
+  updateGuessHUD();
+
+  // Switch view: hide guesser input, show thinker clue card
+  const gic=document.getElementById('guesser-input-card');
+  if(gic) gic.style.display='none';
+  const cc=document.getElementById('clue-card');
+  if(cc) cc.style.display='block';
+
+  const tName=thinker==='razan'?'Razan':'Dara';
+  const ct=document.getElementById('clue-title');
+  if(ct) ct.textContent=`${thinker==='razan'?'🧑':'👧'} ${tName} — kasih clue!`;
+  const cgd=document.getElementById('clue-guess-display');
+  if(cgd) cgd.textContent=n;
+
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+
+function giveClue(clue){
+  waitingForClue=false;
+  const n=currentGuess;
+
+  // Add to history
+  guessHistory.push({guess:n, clue});
+  renderHistory();
+
+  if(clue==='correct'){
+    // Won!
+    roundResults[guesser]=tryCount;
+    if(navigator.vibrate) navigator.vibrate([50,30,100,30,200]);
+    confetti(60);
+    setTimeout(()=>showRoundResult(),800);
+    return;
+  }
+
+  // Update range
+  if(clue==='higher'){
+    rangeLo=Math.max(rangeLo, n+1);
+  } else {
+    rangeHi=Math.min(rangeHi, n-1);
+  }
+  updateRangeBar();
+  updateGuessHUD();
+
+  // Back to guesser input
+  const gic=document.getElementById('guesser-input-card');
+  if(gic) gic.style.display='block';
+  const cc=document.getElementById('clue-card');
+  if(cc) cc.style.display='none';
+  const icd=document.getElementById('ic-display');
+  if(icd) icd.textContent='—';
+
+  if(navigator.vibrate) navigator.vibrate(15);
+}
+
+function updateGuessHUD(){
+  const gName=guesser==='razan'?'Razan':'Dara';
+  const badge=document.getElementById('gh-guesser');
+  if(badge){
+    badge.textContent=`${guesser==='razan'?'🧑':'👧'} ${gName} nebak`;
+    badge.className='gh-guesser '+guesser;
+  }
+  const tries=document.getElementById('gh-tries');
+  if(tries) tries.textContent=`${tryCount} percobaan`;
+  const range=document.getElementById('gh-range');
+  if(range) range.textContent=`${rangeLo} – ${rangeHi}`;
+}
+
+function updateRangeBar(){
+  const fill=document.getElementById('range-fill');
+  const dot=document.getElementById('range-dot');
+  const lo=document.getElementById('range-lo');
+  const hi=document.getElementById('range-hi');
+  if(lo) lo.textContent=rangeLo;
+  if(hi) hi.textContent=rangeHi;
+  const loP=(rangeLo-1)/99*100;
+  const hiP=(rangeHi-1)/99*100;
+  const midP=(loP+hiP)/2;
+  if(fill) {fill.style.left=loP+'%';fill.style.width=(hiP-loP)+'%';}
+  if(dot) dot.style.left=midP+'%';
+}
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  if(!list) return;
+  if(guessHistory.length===0){
+    list.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,.2);font-style:italic;text-align:center;padding:.5rem">Belum ada tebakan</div>';
+    return;
+  }
+  list.innerHTML='';
+  [...guessHistory].reverse().forEach((h,idx)=>{
+    const real=guessHistory.length-idx;
+    const item=document.createElement('div');
+    item.className='history-item';
+    const arrow=h.clue==='higher'?'⬆️':h.clue==='lower'?'⬇️':'✅';
+    const clueText=h.clue==='higher'?'Lebih Tinggi':h.clue==='lower'?'Lebih Rendah':'Tepat!';
+    const clueClass=h.clue==='higher'?'higher':h.clue==='lower'?'lower':'correct';
+    item.innerHTML=`
+      <span class="hi-num" style="color:${h.clue==='correct'?'#ffd54f':'rgba(255,255,255,.7)'}">${h.guess}</span>
+      <span class="hi-arrow">${arrow}</span>
+      <span class="hi-clue ${clueClass}">${clueText}</span>
+      <span class="hi-try">#${real}</span>`;
+    list.appendChild(item);
+  });
+  list.scrollTop=0;
+}
+
+// ── ROUND RESULT ──
+function showRoundResult(){
+  const gName=guesser==='razan'?'Razan':'Dara';
+  const tries=roundResults[guesser];
+  const icon=document.getElementById('round-icon');
+  if(icon) icon.textContent=guesser==='razan'?'🧑':'👧';
+  const title=document.getElementById('round-title');
+  if(title) title.textContent=`${gName} berhasil nebak! 🎉`;
+
+  const card=document.getElementById('round-card');
+  if(card){
+    card.innerHTML=`
+      <div class="round-row"><span class="rr-label">Angka rahasianya</span><span class="rr-val win">${secretNumber}</span></div>
+      <div class="round-row"><span class="rr-label">Tebakan ${gName}</span><span class="rr-val ${guesser}">${tries} percobaan</span></div>
+      <div class="round-row"><span class="rr-label">Thinker</span><span class="rr-val">${thinker==='razan'?'🧑 Razan':'👧 Dara'}</span></div>`;
+  }
+
+  if(turn===0){
+    // First pair done — second pair now
+    const tName2=guesser==='razan'?'Razan':'Dara'; // guesser becomes thinker
+    const gName2=thinker==='razan'?'Razan':'Dara';
+    const sub=document.getElementById('round-sub');
+    if(sub) sub.textContent=`Sekarang gantian! ${tName2} mikirin angka, ${gName2} yang nebak.`;
+    const btn=document.getElementById('round-btn');
+    if(btn) btn.textContent=`Gantian Sekarang 🔄`;
+  } else {
+    // Both done — show final
+    const sub=document.getElementById('round-sub');
+    if(sub) sub.textContent='Kedua giliran sudah selesai — lihat siapa yang lebih jagoan!';
+    const btn=document.getElementById('round-btn');
+    if(btn) btn.textContent='Lihat Hasil Akhir 🏆';
+  }
+
+  showScreen('s-round');
+}
+
+function nextRound(){
+  if(turn===0){
+    turn=1;
+    // Swap roles
+    const tmp=thinker;
+    thinker=guesser;
+    guesser=tmp;
+    setupSetScreen();
+  } else {
+    showFinal();
+  }
+}
+
+// ── FINAL ──
+function showFinal(){
+  const rTries=roundResults.razan||999;
+  const dTries=roundResults.dara||999;
+  const tie=rTries===dTries;
+  const winner=rTries<dTries?'razan':'dara';
+
+  const icon=document.getElementById('final-icon');
+  if(icon) icon.textContent=tie?'🤝':'🏆';
+  const title=document.getElementById('final-title');
+  if(title) title.textContent=tie?'Seri!':`${winner==='razan'?'🧑 Razan':'👧 Dara'} Menang!`;
+  const sub=document.getElementById('final-sub');
+  if(sub) sub.textContent=tie?`Sama-sama ${rTries} percobaan — otak kalian setara!`:`Selisih ${Math.abs(rTries-dTries)} percobaan — ${winner==='razan'?'Razan':'Dara'} lebih jago nebak!`;
+
+  const sc=document.getElementById('final-scores');
+  if(sc){
+    sc.innerHTML='';
+    ['razan','dara'].forEach(p=>{
+      const tries=roundResults[p]||'—';
+      const card=document.createElement('div');
+      card.className='fs-card';
+      if(p===winner&&!tie) card.style.border='1px solid #ffd54f';
+      card.innerHTML=`
+        <span class="fs-name">${p==='razan'?'🧑 Razan':'👧 Dara'}</span>
+        <span class="fs-wins ${p}">${tries}</span>
+        <span class="fs-detail">percobaan</span>`;
+      sc.appendChild(card);
+    });
+  }
+
+  showScreen('s-final');
+  if(!tie) confetti(80);
+  else confetti(40);
+}
+
+function confetti(n){
+  const colors=['#ffd54f','#7eb3f5','#e8a090','#81c784','#fff','#ce93d8'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*18);
+}
+</script>
+</body>
+</html>
