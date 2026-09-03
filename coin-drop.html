@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Coin Drop Battle 🪙</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none;user-select:none;font-family:'Poppins',sans-serif}
+  html,body{height:100%;overflow:hidden;background:#06060f}
+
+  #game-wrap{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;background:#06060f}
+
+  /* Score header */
+  .score-bar{width:100%;display:flex;align-items:center;justify-content:space-between;padding:.35rem .85rem;flex-shrink:0;background:rgba(6,6,15,.95);border-bottom:1px solid rgba(255,255,255,.06)}
+  .sb-player{text-align:center;flex:1}
+  .sb-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;display:block}
+  .sb-score{font-size:1.5rem;font-weight:900;display:block;line-height:1}
+  .sb-score.razan{color:#7eb3f5}
+  .sb-score.dara{color:#e8a090}
+  .sb-mid{text-align:center;flex:.7}
+  .turn-badge{font-size:10px;font-weight:700;padding:.2rem .7rem;border-radius:50px;display:inline-block}
+  .turn-badge.razan{background:rgba(126,179,245,.15);color:#7eb3f5}
+  .turn-badge.dara{background:rgba(232,160,144,.15);color:#e8a090}
+  .round-label{font-size:9px;color:rgba(255,255,255,.25);display:block;margin-top:.15rem}
+
+  /* Canvas */
+  #board{display:block;flex-shrink:0}
+
+  /* Drop zone — finger drag area above board */
+  #drop-zone{width:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;background:rgba(6,6,15,.8);border-bottom:1px solid rgba(255,255,255,.06)}
+  .dz-hint{font-size:11px;color:rgba(255,255,255,.2);font-style:italic;pointer-events:none;position:absolute}
+  #drop-indicator{position:absolute;top:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;pointer-events:none;display:none;border:3px solid rgba(255,255,255,.6);transition:left .05s}
+
+  /* Overlays */
+  .overlay{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem}
+  .overlay.show{display:flex}
+
+  #o-intro{background:linear-gradient(160deg,#06060f,#1a0a1a)}
+  .oi-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .oi-title{font-size:clamp(1.8rem,7vw,2.5rem);font-weight:900;color:#fff;margin-bottom:.35rem}
+  .oi-title span{color:#ffd54f}
+  .oi-sub{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.75;max-width:280px;margin:.35rem auto 1.25rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:320px}
+  .how-item{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.75rem .4rem;text-align:center}
+  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.25rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.5);line-height:1.4}
+  .oi-btn{width:100%;max-width:320px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,#b8860b,#ffd54f);color:#1a1000;box-shadow:0 6px 24px rgba(255,213,79,.3)}
+  .oi-btn:active{transform:scale(.97)}
+
+  #o-pick{background:rgba(6,6,15,.96);backdrop-filter:blur(12px)}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.4);margin:.35rem auto 1.5rem;max-width:260px;line-height:1.65}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:320px}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:all .15s}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.09)}
+
+  #o-result{background:linear-gradient(160deg,#06060f,#1a0a1a)}
+  .res-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .res-title{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:.25rem}
+  .res-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;margin-bottom.75rem}
+  .res-scores{display:flex;gap:1rem;align-items:center;justify-content:center;margin:.75rem 0 1.25rem}
+  .rs-item{text-align:center}
+  .rs-name{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .rs-score{font-size:2.5rem;font-weight:900;display:block;line-height:1}
+  .rs-score.razan{color:#7eb3f5}
+  .rs-score.dara{color:#e8a090}
+  .rs-vs{color:rgba(255,255,255,.2);font-size:1.2rem;align-self:center}
+  .res-btns{display:flex;gap:.6rem;width:100%;max-width:320px}
+  .res-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .res-btn-p{background:linear-gradient(135deg,#b8860b,#ffd54f);color:#1a1000}
+  .res-btn-p:active{transform:scale(.97)}
+  .res-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+
+  /* Score popup */
+  .score-popup{position:fixed;pointer-events:none;z-index:40;font-size:1.4rem;font-weight:900;color:#ffd54f;text-shadow:0 2px 8px rgba(0,0,0,.5);animation:poprise .9s ease forwards}
+  @keyframes poprise{0%{transform:translateY(0) scale(.8);opacity:1}100%{transform:translateY(-60px) scale(1.1);opacity:0}}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="game-wrap">
+  <div class="score-bar">
+    <div class="sb-player">
+      <span class="sb-name">🧑 RAZAN</span>
+      <span class="sb-score razan" id="sc-r">0</span>
+    </div>
+    <div class="sb-mid">
+      <span class="turn-badge razan" id="turn-badge">Giliran Razan</span>
+      <span class="round-label" id="round-label">Ronde 1/5</span>
+    </div>
+    <div class="sb-player">
+      <span class="sb-name">DARA 👧</span>
+      <span class="sb-score dara" id="sc-d">0</span>
+    </div>
+  </div>
+  <div id="drop-zone">
+    <span class="dz-hint" id="dz-hint">Geser kiri-kanan lalu lepas untuk jatuhkan koin</span>
+    <div id="drop-indicator"></div>
+  </div>
+  <canvas id="board"></canvas>
+</div>
+
+<!-- INTRO -->
+<div class="overlay show" id="o-intro">
+  <span class="oi-icon">🪙</span>
+  <h1 class="oi-title">Coin Drop <span>Battle!</span></h1>
+  <p class="oi-sub">Jatuhkan koin ke papan paku — koin masuk slot skor tertinggi menang! 5 ronde, koin paling banyak poin juaranya.</p>
+  <div class="how-row">
+    <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Geser kiri-kanan di zona drop</span></div>
+    <div class="how-item"><span class="how-emoji">🪙</span><span class="how-text">Lepas — koin jatuh lewat paku</span></div>
+    <div class="how-item"><span class="how-emoji">🏆</span><span class="how-text">Slot tengah nilai tertinggi!</span></div>
+  </div>
+  <button class="oi-btn" onclick="showOverlay('o-pick')">Mulai! 🪙</button>
+</div>
+
+<!-- PICK -->
+<div class="overlay" id="o-pick">
+  <span style="font-size:3rem;display:block;margin-bottom:1rem">🪙</span>
+  <p class="pick-title">Siapa yang duluan?</p>
+  <p class="pick-sub">5 ronde — tiap ronde masing-masing dapat 1 giliran jatuhkan koin</p>
+  <div class="pick-btns">
+    <div class="pick-btn" onclick="startGame('razan')">
+      <span style="font-size:2rem;flex-shrink:0">🧑</span>
+      <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan duluan</span><span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Razan jatuhkan koin pertama</span></div>
+    </div>
+    <div class="pick-btn" onclick="startGame('dara')">
+      <span style="font-size:2rem;flex-shrink:0">👧</span>
+      <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara duluan</span><span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Dara jatuhkan koin pertama</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="overlay" id="o-result">
+  <span class="res-icon" id="res-icon">🏆</span>
+  <h2 class="res-title" id="res-title">Razan Menang!</h2>
+  <p class="res-sub" id="res-sub">5 ronde selesai — pemenangnya adalah...</p>
+  <div class="res-scores">
+    <div class="rs-item"><span class="rs-name">🧑 Razan</span><span class="rs-score razan" id="res-r">0</span></div>
+    <span class="rs-vs">vs</span>
+    <div class="rs-item"><span class="rs-name">Dara 👧</span><span class="rs-score dara" id="res-d">0</span></div>
+  </div>
+  <div class="res-btns">
+    <button class="res-btn res-btn-p" onclick="showOverlay('o-pick')">Main Lagi 🔄</button>
+    <button class="res-btn res-btn-o" onclick="showOverlay('o-intro')">Menu</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const ROWS = 8;           // rows of pegs
+const TOTAL_ROUNDS = 5;   // rounds total (each player drops once per round)
+const SLOT_VALUES = [10, 30, 50, 100, 200, 100, 50, 30, 10]; // 9 slots
+
+// ── STATE ──
+let W = 0, H = 0, DZ_H = 0;
+let canvas, ctx;
+let pegs = [];
+let slots = [];
+let coins = [];
+let animFrame = null;
+let gameActive = false;
+
+let firstPlayer = 'razan';
+let currentPlayer = 'razan';
+let round = 1;
+let subTurn = 0; // 0=first player, 1=second player of round
+let scores = {razan:0, dara:0};
+
+// Drop zone interaction
+let dropX = 0;
+let dragging = false;
+
+// Colors
+const PLAYER_COLORS = {
+  razan: {coin:'#7eb3f5', shadow:'#2a5a9a', glow:'rgba(126,179,245,.4)'},
+  dara:  {coin:'#e8a090', shadow:'#8a3a2a', glow:'rgba(232,160,144,.4)'},
+};
+
+function showOverlay(id){
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show'));
+  if(id) document.getElementById(id).classList.add('show');
+}
+
+function startGame(first){
+  firstPlayer = first;
+  currentPlayer = first;
+  round = 1;
+  subTurn = 0;
+  scores = {razan:0, dara:0};
+  coins = [];
+  showOverlay(null);
+  initBoard();
+  updateHUD();
+  gameActive = true;
+  if(animFrame) cancelAnimationFrame(animFrame);
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ── BOARD SETUP ──
+function initBoard(){
+  canvas = document.getElementById('board');
+  const wrap = document.getElementById('game-wrap');
+  const scoreH = document.querySelector('.score-bar').offsetHeight;
+
+  W = wrap.clientWidth;
+  const totalH = wrap.clientHeight - scoreH;
+
+  DZ_H = 52;
+  H = totalH - DZ_H;
+
+  canvas.width = W;
+  canvas.height = H;
+
+  const dz = document.getElementById('drop-zone');
+  dz.style.height = DZ_H + 'px';
+
+  dropX = W / 2;
+  updateDropIndicator();
+
+  buildPegs();
+  buildSlots();
+  setupTouch();
+}
+
+function buildPegs(){
+  pegs = [];
+  const cols = 9;
+  const pegSpacingX = W / (cols + 1);
+  const pegSpacingY = (H * 0.72) / (ROWS + 1);
+  const startY = pegSpacingY;
+
+  for(let r=0;r<ROWS;r++){
+    const numPegs = (r%2===0) ? cols : cols-1;
+    const offsetX = (r%2===0) ? pegSpacingX : pegSpacingX*1.5;
+    for(let c=0;c<numPegs;c++){
+      pegs.push({
+        x: offsetX + c * pegSpacingX,
+        y: startY + r * pegSpacingY,
+        r: 5,
+      });
+    }
+  }
+}
+
+function buildSlots(){
+  slots = [];
+  const n = SLOT_VALUES.length;
+  const slotW = W / n;
+  const slotY = H * 0.86;
+  for(let i=0;i<n;i++){
+    slots.push({
+      x: slotW * i,
+      y: slotY,
+      w: slotW,
+      h: H - slotY,
+      value: SLOT_VALUES[i],
+      highlight: 0,
+    });
+  }
+}
+
+// ── TOUCH/DRAG ──
+function setupTouch(){
+  const dz = document.getElementById('drop-zone');
+  dz.addEventListener('touchstart', onDZTouchStart, {passive:false});
+  dz.addEventListener('touchmove', onDZTouchMove, {passive:false});
+  dz.addEventListener('touchend', onDZTouchEnd, {passive:false});
+  dz.addEventListener('mousedown', onDZMouseDown);
+  window.addEventListener('mousemove', onDZMouseMove);
+  window.addEventListener('mouseup', onDZMouseUp);
+}
+
+function getX(e){
+  const rect = document.getElementById('drop-zone').getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  return Math.max(20, Math.min(W-20, clientX - rect.left));
+}
+
+function onDZTouchStart(e){ e.preventDefault(); dragging=true; dropX=getX(e); updateDropIndicator(true); }
+function onDZTouchMove(e){ e.preventDefault(); if(!dragging) return; dropX=getX(e); updateDropIndicator(true); }
+function onDZTouchEnd(e){ e.preventDefault(); if(!dragging) return; dragging=false; dropCoin(); updateDropIndicator(false); }
+function onDZMouseDown(e){ dragging=true; dropX=getX(e); updateDropIndicator(true); }
+function onDZMouseMove(e){ if(!dragging) return; dropX=getX(e); updateDropIndicator(true); }
+function onDZMouseUp(e){ if(!dragging) return; dragging=false; dropCoin(); updateDropIndicator(false); }
+
+function updateDropIndicator(show){
+  const ind = document.getElementById('drop-indicator');
+  const hint = document.getElementById('dz-hint');
+  if(show){
+    ind.style.display='block';
+    ind.style.left = dropX+'px';
+    const col = PLAYER_COLORS[currentPlayer];
+    ind.style.background = col.coin;
+    ind.style.borderColor = '#fff';
+    ind.style.boxShadow = `0 0 12px ${col.glow}`;
+    hint.style.opacity='0';
+  } else {
+    ind.style.display='none';
+    hint.style.opacity='1';
+  }
+}
+
+// ── DROP COIN ──
+let coinDroppedThisTurn = false;
+
+function dropCoin(){
+  if(!gameActive || coinDroppedThisTurn) return;
+  coinDroppedThisTurn = true;
+
+  const col = PLAYER_COLORS[currentPlayer];
+  const coin = {
+    x: dropX,
+    y: -10,
+    vx: (Math.random()-.5) * 0.5,
+    vy: 0,
+    r: 11,
+    color: col.coin,
+    shadow: col.shadow,
+    glow: col.glow,
+    player: currentPlayer,
+    active: true,
+    settled: false,
+    trail: [],
+  };
+  coins.push(coin);
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+
+// ── PHYSICS ──
+const GRAVITY = 0.45;
+const BOUNCE = 0.38;
+const FRICTION = 0.75;
+
+function update(){
+  coins.forEach(coin=>{
+    if(!coin.active) return;
+    coin.trail.push({x:coin.x, y:coin.y});
+    if(coin.trail.length>6) coin.trail.shift();
+
+    coin.vy += GRAVITY;
+    coin.x += coin.vx;
+    coin.y += coin.vy;
+
+    // Wall bounce
+    if(coin.x - coin.r < 0){ coin.x = coin.r; coin.vx = Math.abs(coin.vx)*BOUNCE; }
+    if(coin.x + coin.r > W){ coin.x = W-coin.r; coin.vx = -Math.abs(coin.vx)*BOUNCE; }
+
+    // Peg collision
+    pegs.forEach(peg=>{
+      const dx = coin.x - peg.x;
+      const dy = coin.y - peg.y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const minD = coin.r + peg.r;
+      if(dist < minD && dist > 0){
+        const nx = dx/dist, ny = dy/dist;
+        coin.x = peg.x + nx*minD;
+        coin.y = peg.y + ny*minD;
+        const dot = coin.vx*nx + coin.vy*ny;
+        coin.vx = (coin.vx - 2*dot*nx)*BOUNCE + (Math.random()-.5)*0.8;
+        coin.vy = (coin.vy - 2*dot*ny)*BOUNCE;
+        if(navigator.vibrate) navigator.vibrate(8);
+      }
+    });
+
+    // Slot walls collision (vertical dividers)
+    const slotW = W / SLOT_VALUES.length;
+    for(let i=1;i<SLOT_VALUES.length;i++){
+      const wallX = slotW*i;
+      const wallTop = H*0.86;
+      if(coin.y > wallTop && Math.abs(coin.x - wallX) < coin.r){
+        if(coin.x < wallX){ coin.x = wallX - coin.r; coin.vx = -Math.abs(coin.vx)*BOUNCE; }
+        else { coin.x = wallX + coin.r; coin.vx = Math.abs(coin.vx)*BOUNCE; }
+      }
+    }
+
+    // Hit floor / slot bottom
+    if(coin.y + coin.r > H){
+      coin.y = H - coin.r;
+      coin.active = false;
+      coin.settled = true;
+
+      // Find which slot
+      const slotIdx = Math.floor(coin.x / slotW);
+      const val = SLOT_VALUES[Math.max(0, Math.min(SLOT_VALUES.length-1, slotIdx))];
+
+      // Highlight slot
+      if(slots[slotIdx]) slots[slotIdx].highlight = 40;
+
+      // Add score
+      scores[coin.player] += val;
+      updateHUD();
+      showScorePopup(coin.x, coin.y - 30, val, coin.player);
+      if(navigator.vibrate) navigator.vibrate([30,20,60]);
+
+      // Next turn
+      setTimeout(()=>advanceTurn(), 900);
+    }
+  });
+
+  // Decay slot highlights
+  slots.forEach(s=>{ if(s.highlight>0) s.highlight=Math.max(0,s.highlight-1); });
+}
+
+// ── DRAW ──
+function draw(){
+  ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0d0820');
+  bg.addColorStop(1,'#1a0d2a');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Slot walls
+  const slotW = W/SLOT_VALUES.length;
+  const slotTop = H*0.86;
+  ctx.strokeStyle='rgba(255,255,255,.15)';
+  ctx.lineWidth=2;
+  for(let i=1;i<SLOT_VALUES.length;i++){
+    ctx.beginPath();
+    ctx.moveTo(slotW*i, slotTop);
+    ctx.lineTo(slotW*i, H);
+    ctx.stroke();
+  }
+
+  // Slots
+  slots.forEach((slot,i)=>{
+    // Background
+    const isMiddle = i===4;
+    const isHighValue = slot.value >= 100;
+    let slotBg;
+    if(slot.highlight>0){
+      const alpha = slot.highlight/40 * 0.4;
+      slotBg = `rgba(255,213,79,${alpha})`;
+    } else if(isMiddle){
+      slotBg = 'rgba(255,213,79,.1)';
+    } else if(isHighValue){
+      slotBg = 'rgba(255,213,79,.05)';
+    } else {
+      slotBg = 'rgba(255,255,255,.02)';
+    }
+    ctx.fillStyle=slotBg;
+    ctx.fillRect(slot.x, slotTop, slot.w, slot.h);
+
+    // Value text
+    const textColor = slot.highlight>0?'#ffd54f':isMiddle?'rgba(255,213,79,.9)':isHighValue?'rgba(255,213,79,.6)':'rgba(255,255,255,.3)';
+    ctx.fillStyle=textColor;
+    ctx.font=`bold ${isMiddle?'11':'9'}px Poppins`;
+    ctx.textAlign='center';
+    ctx.fillText(slot.value, slot.x+slot.w/2, slotTop+14);
+  });
+
+  // Slot top line
+  ctx.fillStyle='rgba(255,213,79,.25)';
+  ctx.fillRect(0, slotTop, W, 2);
+
+  // Pegs
+  pegs.forEach(peg=>{
+    // Glow
+    ctx.beginPath();
+    ctx.arc(peg.x,peg.y,peg.r+3,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,.04)';
+    ctx.fill();
+    // Peg
+    const grad=ctx.createRadialGradient(peg.x-1,peg.y-1,1,peg.x,peg.y,peg.r);
+    grad.addColorStop(0,'#ddd');
+    grad.addColorStop(1,'#888');
+    ctx.beginPath();
+    ctx.arc(peg.x,peg.y,peg.r,0,Math.PI*2);
+    ctx.fillStyle=grad;
+    ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.3)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+    // Shine
+    ctx.beginPath();
+    ctx.arc(peg.x-1.5,peg.y-1.5,1.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,.5)';
+    ctx.fill();
+  });
+
+  // Coins
+  coins.forEach(coin=>{
+    // Trail
+    coin.trail.forEach((t,i)=>{
+      const alpha=(i/coin.trail.length)*0.2;
+      ctx.beginPath();
+      ctx.arc(t.x,t.y,coin.r*(i/coin.trail.length)*0.7,0,Math.PI*2);
+      ctx.fillStyle=coin.color+Math.floor(alpha*255).toString(16).padStart(2,'0');
+      ctx.fill();
+    });
+
+    // Shadow
+    ctx.beginPath();
+    ctx.arc(coin.x+2,coin.y+2,coin.r,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,.35)';
+    ctx.fill();
+
+    // Coin
+    const cg=ctx.createRadialGradient(coin.x-coin.r*.3,coin.y-coin.r*.3,1,coin.x,coin.y,coin.r);
+    cg.addColorStop(0,'#fff');
+    cg.addColorStop(0.3,coin.color);
+    cg.addColorStop(1,coin.shadow);
+    ctx.beginPath();
+    ctx.arc(coin.x,coin.y,coin.r,0,Math.PI*2);
+    ctx.fillStyle=cg;
+    ctx.fill();
+
+    // Glow ring
+    ctx.beginPath();
+    ctx.arc(coin.x,coin.y,coin.r,0,Math.PI*2);
+    ctx.strokeStyle=coin.color;
+    ctx.lineWidth=1.5;
+    ctx.stroke();
+
+    // Coin symbol
+    ctx.font=`bold 9px Poppins`;
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(0,0,0,.5)';
+    ctx.fillText('🪙'.substring(0,1),coin.x,coin.y+3);
+  });
+}
+
+function loop(){
+  update();
+  draw();
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ── HUD ──
+function updateHUD(){
+  document.getElementById('sc-r').textContent=scores.razan;
+  document.getElementById('sc-d').textContent=scores.dara;
+
+  const name=currentPlayer==='razan'?'Razan':'Dara';
+  const badge=document.getElementById('turn-badge');
+  badge.textContent=`Giliran ${name}`;
+  badge.className='turn-badge '+currentPlayer;
+
+  const totalTurns=TOTAL_ROUNDS*2;
+  const turnsDone=(round-1)*2+subTurn;
+  document.getElementById('round-label').textContent=`Ronde ${round}/${TOTAL_ROUNDS}`;
+
+  const hint=document.getElementById('dz-hint');
+  hint.textContent=`${name} — geser lalu lepas untuk jatuhkan koin`;
+}
+
+// ── SCORE POPUP ──
+function showScorePopup(x, y, val, player){
+  const el=document.createElement('div');
+  el.className='score-popup';
+  el.textContent=`+${val}`;
+  el.style.cssText=`left:${x}px;top:${y+document.querySelector('.score-bar').offsetHeight+DZ_H}px;transform:translateX(-50%);color:${player==='razan'?'#7eb3f5':'#e8a090'}`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),900);
+}
+
+// ── TURN LOGIC ──
+function advanceTurn(){
+  coinDroppedThisTurn=false;
+  const second=firstPlayer==='razan'?'dara':'razan';
+
+  if(subTurn===0){
+    // First player done → second player
+    subTurn=1;
+    currentPlayer=second;
+    updateHUD();
+  } else {
+    // Both done → next round
+    subTurn=0;
+    round++;
+    currentPlayer=firstPlayer;
+    if(round>TOTAL_ROUNDS){
+      setTimeout(()=>showResult(),400);
+    } else {
+      updateHUD();
+    }
+  }
+}
+
+function showResult(){
+  gameActive=false;
+  cancelAnimationFrame(animFrame);
+
+  const r=scores.razan, d=scores.dara;
+  const tie=r===d;
+  const winner=r>d?'Razan':'Dara';
+  document.getElementById('res-icon').textContent=tie?'🤝':'🏆';
+  document.getElementById('res-title').textContent=tie?'Seri!':`${r>d?'🧑':'👧'} ${winner} Menang!`;
+  document.getElementById('res-sub').textContent=tie?`Sama kuat — ${r} vs ${d}! Dua-duanya jago!`:`${winner} menang dengan selisih ${Math.abs(r-d)} poin!`;
+  document.getElementById('res-r').textContent=r;
+  document.getElementById('res-d').textContent=d;
+  showOverlay('o-result');
+  if(!tie) confetti(80);
+  else confetti(40);
+}
+
+function confetti(n){
+  const colors=['#ffd54f','#7eb3f5','#e8a090','#fff','#81c784'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*20);
+}
+
+window.addEventListener('load',()=>{
+  // Pre-init canvas size for background
+  canvas=document.getElementById('board');
+  const wrap=document.getElementById('game-wrap');
+  const scoreH=document.querySelector('.score-bar').offsetHeight;
+  W=wrap.clientWidth;
+  DZ_H=52;
+  H=wrap.clientHeight-scoreH-DZ_H;
+  canvas.width=W;
+  canvas.height=H;
+  document.getElementById('drop-zone').style.height=DZ_H+'px';
+  buildPegs();
+  buildSlots();
+  // Draw static board
+  ctx=canvas.getContext('2d');
+  draw();
+});
+
+window.addEventListener('resize',()=>{
+  if(gameActive){ cancelAnimationFrame(animFrame); initBoard(); animFrame=requestAnimationFrame(loop); }
+});
+</script>
+</body>
+</html>
