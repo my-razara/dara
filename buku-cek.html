@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Buku Cek Cinta 💌</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --paper:#fdf8f0;--paper2:#f9f3e8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 70% 50% at 20% 10%,rgba(232,196,176,.4),transparent 60%),
+    radial-gradient(ellipse 60% 60% at 80% 90%,rgba(193,122,111,.15),transparent 60%);
+    pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* ── INTRO ── */
+  #s-intro{background:var(--cream);padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:.85rem;animation:float 4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+  .intro-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:.5rem}
+  .intro-title em{font-style:normal;color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.85;max-width:300px;margin-bottom:1.25rem;font-style:italic}
+  .intro-info{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;margin-bottom:1.5rem}
+  .ii{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:12px;padding:.65rem .4rem;text-align:center;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  .ii-val{font-size:1.2rem;font-weight:700;color:var(--rose);display:block}
+  .ii-label{font-size:9px;color:var(--muted);display:block;margin-top:.1rem}
+  .intro-btn{width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 6px 24px rgba(193,122,111,.4)}
+  .intro-btn:active{transform:scale(.97);background:var(--deep)}
+
+  /* ── BOOK SCREEN ── */
+  #s-book{background:var(--cream);padding:0;justify-content:flex-start}
+
+  /* Header */
+  .book-header{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.55rem 1rem;display:flex;align-items:center;justify-content:space-between}
+  .bh-title{font-size:13px;font-weight:700;color:var(--ink)}
+  .bh-count{font-size:11px;color:var(--muted)}
+
+  /* Book body - scrollable */
+  .book-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.85rem 1rem 2rem;width:100%;display:flex;flex-direction:column;align-items:center;gap:.75rem}
+
+  /* Check / Cek item */
+  .check-item{width:100%;max-width:420px;position:relative;cursor:pointer;transition:transform .15s}
+  .check-item:active{transform:scale(.98)}
+  .check-item.used{cursor:default;opacity:.7}
+
+  /* Paper check design */
+  .check-paper{background:var(--paper);border-radius:4px;box-shadow:0 3px 16px rgba(45,31,26,.12),0 1px 4px rgba(45,31,26,.08);position:relative;overflow:hidden}
+  /* Perforated left edge */
+  .check-paper::before{content:'';position:absolute;left:52px;top:0;bottom:0;width:1px;background:repeating-linear-gradient(to bottom,rgba(193,122,111,.3) 0,rgba(193,122,111,.3) 4px,transparent 4px,transparent 8px)}
+  /* Watermark */
+  .check-paper::after{content:'CINTA';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:3rem;font-weight:700;color:rgba(193,122,111,.04);pointer-events:none;letter-spacing:.3em;font-family:'Poppins',sans-serif}
+
+  /* Stub (left part) */
+  .check-stub{position:absolute;left:0;top:0;bottom:0;width:52px;background:rgba(193,122,111,.06);display:flex;align-items:center;justify-content:center}
+  .stub-num{font-size:10px;font-weight:700;color:var(--rose);transform:rotate(-90deg);white-space:nowrap;letter-spacing:.08em}
+
+  /* Check body */
+  .check-body{padding:.9rem .9rem .9rem 68px}
+
+  /* Bank header */
+  .check-bank{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;padding-bottom:.5rem;border-bottom:1px solid rgba(45,31,26,.08)}
+  .bank-name{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--rose)}
+  .bank-date{font-size:9px;color:var(--muted);font-style:italic}
+
+  /* Pay to */
+  .check-payto{display:flex;align-items:baseline;gap:.4rem;margin-bottom:.4rem}
+  .payto-label{font-size:9px;color:var(--muted);white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.06em}
+  .payto-name{font-size:13px;font-weight:700;color:var(--ink);border-bottom:1px solid rgba(45,31,26,.15);flex:1}
+
+  /* Amount box */
+  .check-amount-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
+  .amount-text{font-size:11px;font-weight:600;color:var(--ink);font-family:'Caveat',cursive;font-size:14px;flex:1;border-bottom:1px solid rgba(45,31,26,.12);padding-bottom:.1rem}
+  .amount-box{border:2px solid var(--rose);border-radius:6px;padding:.2rem .6rem;font-size:13px;font-weight:700;color:var(--rose);white-space:nowrap;font-family:'Caveat',cursive}
+
+  /* Description */
+  .check-desc{font-size:12.5px;font-family:'Caveat',cursive;color:var(--ink);line-height:1.5;margin-bottom:.6rem;padding:.35rem .5rem;background:rgba(201,169,110,.06);border-radius:6px;border-left:2px solid var(--gold)}
+
+  /* Footer */
+  .check-footer{display:flex;align-items:flex-end;justify-content:space-between}
+  .check-memo{font-size:9px;color:var(--muted);font-style:italic}
+  .check-sig{font-family:'Caveat',cursive;font-size:1.1rem;font-weight:700;color:var(--rose);text-align:right}
+  .check-sig-label{font-size:8px;color:var(--muted);text-align:right;border-top:1px solid rgba(45,31,26,.12);padding-top:.15rem;margin-top:.15rem}
+
+  /* MICR line */
+  .check-micr{background:var(--paper2);padding:.3rem .6rem .3rem 68px;font-size:8px;color:rgba(45,31,26,.25);font-family:monospace;letter-spacing:.15em;border-top:1px solid rgba(45,31,26,.05)}
+
+  /* USED stamp */
+  .used-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);font-size:1.3rem;font-weight:900;color:var(--rose);border:3px solid var(--rose);border-radius:6px;padding:.2rem .8rem;opacity:.5;pointer-events:none;letter-spacing:.1em;white-space:nowrap;font-family:'Poppins',sans-serif;background:rgba(250,246,240,.7)}
+
+  /* Tear effect bottom */
+  .check-tear{height:8px;background:linear-gradient(to right,transparent 0%,var(--blush) 5%,var(--blush) 95%,transparent 100%);position:relative;overflow:hidden}
+  .check-tear::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to right,transparent 0,transparent 6px,var(--paper) 6px,var(--paper) 8px)}
+
+  /* ── DETAIL OVERLAY ── */
+  #detail-overlay{position:fixed;inset:0;z-index:50;background:rgba(45,31,26,.5);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding:.75rem}
+  #detail-overlay.show{display:flex}
+  .detail-sheet{background:var(--cream);border-radius:24px 24px 20px 20px;padding:1.5rem 1.5rem 2rem;width:100%;max-width:440px;box-shadow:0 -4px 40px rgba(45,31,26,.2);animation:slideup .3s cubic-bezier(.34,1.3,.64,1);max-height:85vh;overflow-y:auto}
+  @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  .ds-drag{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto .9rem}
+  .ds-check-preview{background:var(--paper);border-radius:12px;padding:1.25rem;margin-bottom:1rem;border:1px solid rgba(193,122,111,.12);position:relative;overflow:hidden}
+  .ds-check-preview::after{content:'CINTA';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:2.5rem;font-weight:700;color:rgba(193,122,111,.04);pointer-events:none;letter-spacing:.3em}
+  .ds-emoji{font-size:2.5rem;display:block;text-align:center;margin-bottom:.5rem}
+  .ds-title{font-size:1.1rem;font-weight:700;color:var(--ink);text-align:center;margin-bottom:.25rem}
+  .ds-value{font-size:14px;font-weight:700;color:var(--rose);text-align:center;margin-bottom:.65rem;font-family:'Caveat',cursive;font-size:1.2rem}
+  .ds-desc{font-size:13px;color:var(--muted);line-height:1.75;text-align:center;margin-bottom:.85rem;font-style:italic}
+  .ds-terms{background:rgba(201,169,110,.06);border:1px solid rgba(201,169,110,.15);border-radius:12px;padding:.85rem 1rem;margin-bottom:1rem}
+  .ds-terms-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.45rem}
+  .ds-term{font-size:11.5px;color:var(--muted);line-height:1.6;display:flex;gap:.5rem;margin-bottom:.3rem}
+  .ds-btns{display:flex;gap:.6rem}
+  .ds-btn{flex:1;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s}
+  .ds-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .ds-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .ds-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .ds-btn-used{background:rgba(45,31,26,.08);color:var(--muted);border:1.5px solid var(--blush);cursor:not-allowed}
+
+  /* CONFIRM overlay */
+  #confirm-overlay{position:fixed;inset:0;z-index:60;background:rgba(45,31,26,.6);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:1.5rem}
+  #confirm-overlay.show{display:flex}
+  .confirm-sheet{background:var(--cream);border-radius:24px;padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(45,31,26,.2);animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes popin{from{transform:scale(.7) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+  .cf-icon{font-size:3rem;display:block;margin-bottom:.75rem}
+  .cf-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .cf-sub{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem;font-style:italic}
+  .cf-btns{display:flex;gap:.6rem}
+  .cf-btn{flex:1;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700}
+  .cf-btn-p{background:var(--rose);color:#fff}
+  .cf-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .cf-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  /* SUCCESS flash */
+  #success-flash{position:fixed;inset:0;z-index:70;background:var(--rose);display:none;align-items:center;justify-content:center;flex-direction:column;gap:.5rem}
+  #success-flash.show{display:flex;animation:flashin .5s ease}
+  @keyframes flashin{from{opacity:0}to{opacity:1}}
+  .sf-icon{font-size:4rem}
+  .sf-text{font-size:1.2rem;font-weight:700;color:#fff;font-family:'Caveat',cursive;font-size:1.8rem}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">📒</span>
+    <span class="intro-eyebrow">Hadiah dari Razan</span>
+    <h1 class="intro-title">Buku Cek <em>Cinta</em></h1>
+    <p class="intro-sub">12 lembar cek spesial yang bisa dicairkan kapanpun Dara mau — satu lembar, satu pengalaman yang dijamin Razan. 🤍</p>
+    <div class="intro-info">
+      <div class="ii"><span class="ii-val">12</span><span class="ii-label">Lembar Cek</span></div>
+      <div class="ii"><span class="ii-val">∞</span><span class="ii-label">Berlaku Selamanya</span></div>
+      <div class="ii"><span class="ii-val">🤍</span><span class="ii-label">Dijamin Razan</span></div>
+    </div>
+    <button class="intro-btn" onclick="showScreen('s-book')">Buka Buku Cek 📒</button>
+  </div>
+</div>
+
+<!-- BOOK -->
+<div id="s-book" class="screen">
+  <div class="book-header">
+    <span class="bh-title">📒 Buku Cek Cinta — Dara</span>
+    <span class="bh-count" id="bh-count">12 cek tersisa</span>
+  </div>
+  <div class="book-body" id="book-body"></div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail-overlay" onclick="handleDetailOverlay(event)">
+  <div class="detail-sheet" id="detail-sheet">
+    <div class="ds-drag"></div>
+    <div class="ds-check-preview">
+      <span class="ds-emoji" id="ds-emoji">🎬</span>
+      <p class="ds-title" id="ds-title">...</p>
+      <p class="ds-value" id="ds-value">...</p>
+      <p class="ds-desc" id="ds-desc">...</p>
+    </div>
+    <div class="ds-terms">
+      <span class="ds-terms-title">📋 Syarat & Ketentuan</span>
+      <div id="ds-terms-list"></div>
+    </div>
+    <div class="ds-btns">
+      <button class="ds-btn ds-btn-p" id="ds-cairkan-btn" onclick="cairkanPrompt()">Cairkan Sekarang 💸</button>
+      <button class="ds-btn ds-btn-o" onclick="closeDetail()">Simpan Dulu</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div id="confirm-overlay" onclick="handleConfirmOverlay(event)">
+  <div class="confirm-sheet">
+    <span class="cf-icon" id="cf-icon">💸</span>
+    <h2 class="cf-title" id="cf-title">Cairkan Cek?</h2>
+    <p class="cf-sub" id="cf-sub">Sekali dicairkan, cek ini tidak bisa digunakan lagi.</p>
+    <div class="cf-btns">
+      <button class="cf-btn cf-btn-p" onclick="confirmCairkan()">Ya, Cairkan! 💸</button>
+      <button class="cf-btn cf-btn-o" onclick="closeConfirm()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS FLASH -->
+<div id="success-flash">
+  <span class="sf-icon">✅</span>
+  <span class="sf-text" id="sf-text">Cek dicairkan!</span>
+</div>
+
+<script>
+const CHECKS = [
+  {
+    id:'nonton',
+    emoji:'🎬',
+    title:'Nonton Bareng',
+    value:'SATU (1) SESI NONTON',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Nonton Bareng',
+    desc:'Satu sesi nonton bareng — film, series, atau apapun yang Dara mau. Razan yang nyiapin cemilannya juga.',
+    terms:['Film/series pilihan Dara — full Razan ga boleh protes','Razan yang beli/siapin cemilan','Bisa online atau bioskop','Tidak ada batas waktu penggunaan'],
+    memo:'Film apapun — pilihan Dara final',
+    cat:'Hiburan',
+  },
+  {
+    id:'makan',
+    emoji:'🍽️',
+    title:'Bebas Pilih Tempat Makan',
+    value:'SATU (1) KALI MAKAN',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Dinner/Makan Siang',
+    desc:'Dara boleh milih tempat makan apapun — dari warteg sampai restoran fancy, Razan yang bayar dan ga boleh komplain soal harga.',
+    terms:['Pilihan tempat 100% milik Dara','Razan yang bayar — no complain','Berlaku untuk makan siang atau malam','Bisa kapanpun Dara mau'],
+    memo:'Pilihan Dara adalah hukum',
+    cat:'Kuliner',
+  },
+  {
+    id:'marah',
+    emoji:'🕊️',
+    title:'Bebas dari Omelan',
+    value:'SATU (1) KALI BEBAS MARAH',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Immunity Card',
+    desc:'Apapun yang Razan lakuin hari itu — ga boleh dimarahin, ga boleh disambat, ga boleh di-silent treatment. Berlaku seharian penuh.',
+    terms:['Berlaku seharian — dari bangun sampai tidur','Dara ga boleh ngambek atau marah hari itu','Razan tetap minta maaf kalau salah','Tidak berlaku untuk hal yang menyakiti serius'],
+    memo:'Satu hari bebas dari omelan sayang',
+    cat:'Privilege',
+  },
+  {
+    id:'jalan',
+    emoji:'🚗',
+    title:'Date Surprise',
+    value:'SATU (1) DATE DADAKAN',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Full Day Date',
+    desc:'Cairkan kapanpun, Razan akan atur date spesial hari itu — dari tempat, transport, sampai makan. Semua kejutan.',
+    terms:['Razan yang atur semua — Dara tinggal siap-siap','Kasih tau H-1 biar Razan bisa persiapan','Tempat surprise — Dara ga boleh tanya','Dara hanya perlu cantik dan happy 🤍'],
+    memo:'Tinggal bilang, Razan yang urus',
+    cat:'Petualangan',
+  },
+  {
+    id:'pijat',
+    emoji:'💆',
+    title:'Pijat Kepala Gratis',
+    value:'SATU (1) SESI PIJAT',
+    payto:'Dara Syifa Aulia',
+    amount:'30 Menit Pijat Kepala',
+    desc:'30 menit pijat kepala, punggung, atau bahu — kapanpun Dara capek atau stres. Razan yang mijit, ga ada biaya apapun.',
+    terms:['Minimal 30 menit — kalau Dara mau lebih, oke','Razan ga boleh complain atau buru-buru','Bisa disambi nonton atau dengerin musik','Tidak ada masa kadaluarsa'],
+    memo:'Tangan Razan selalu ada buat Dara',
+    cat:'Self-care',
+  },
+  {
+    id:'masak',
+    emoji:'🍳',
+    title:'Razan Masak Buat Dara',
+    value:'SATU (1) KALI MASAK',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Homemade Meal',
+    desc:'Razan masak makanan spesial buat Dara — dari belanja sampai menyajikan. Dara tinggal duduk dan makan.',
+    terms:['Dara boleh request menu apapun','Razan yang belanja dan masak','Dara ga perlu bantu beres-beres','Kalau gagal, Razan yang pesan delivery 😅'],
+    memo:'Dengan cinta dari dapur Razan',
+    cat:'Kuliner',
+  },
+  {
+    id:'menang',
+    emoji:'🏆',
+    title:'Dara Selalu Menang',
+    value:'SATU (1) KALI DARA BENAR',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Kartu Kemenangan',
+    desc:'Apapun yang lagi diperdebatkan hari itu — Dara yang menang. Razan mengakui Dara benar tanpa tapi, tanpa syarat.',
+    terms:['Berlaku untuk 1 perdebatan/pertengkaran','Razan wajib bilang "iya, kamu bener"','Tidak boleh dikomplain setelahnya','Tidak berlaku untuk hal yang membahayakan'],
+    memo:'Karena Dara selalu punya point',
+    cat:'Privilege',
+  },
+  {
+    id:'bebas',
+    emoji:'🌸',
+    title:'Me Time Tanpa Diganggu',
+    value:'SATU (1) HARI ME TIME',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Hari Bebas Total',
+    desc:'Sehari penuh — Dara bebas lakuin apapun yang dia mau, Razan ga akan ganggu, ga akan tanya-tanya, ga akan minta waktu.',
+    terms:['Berlaku seharian — Razan tidak akan chat dulu','Dara bebas pergi kemana pun','Razan akan tunggu kabar dari Dara','Tetap aman dan kasih tau kalau ada apa-apa'],
+    memo:'Waktu untuk dirimu sendiri 🌸',
+    cat:'Self-care',
+  },
+  {
+    id:'keputusan',
+    emoji:'👑',
+    title:'Dara Pegang Keputusan',
+    value:'SATU (1) HARI FULL KONTROL',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Kartu Keputusan',
+    desc:'Semua keputusan hari itu — mau ngapain, mau kemana, mau makan apa — ada di tangan Dara. Razan nurut 100%.',
+    terms:['Keputusan Dara final dan tidak bisa di-veto','Razan akan ikut kemanapun','Berlaku dari pagi sampai malam','Razan janji tidak akan ngeluh'],
+    memo:'Hari ini, Dara adalah bosnya',
+    cat:'Privilege',
+  },
+  {
+    id:'foto',
+    emoji:'📸',
+    title:'Sesi Foto Bareng',
+    value:'SATU (1) SESI FOTO',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Photo Session',
+    desc:'Satu sesi foto bareng di tempat yang Dara mau — Razan akan bawa tripod, atur lighting, dan pastikan hasilnya bagus.',
+    terms:['Lokasi pilihan Dara','Razan yang atur setup foto','Minimal 1 jam sesi foto','Semua foto jadi milik Dara'],
+    memo:'Kenangan yang Dara mau abadikan',
+    cat:'Kenangan',
+  },
+  {
+    id:'nulis',
+    emoji:'💌',
+    title:'Surat Cinta Khusus',
+    value:'SATU (1) SURAT CINTA',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Handwritten Letter',
+    desc:'Razan akan nulis surat tangan — dengan perasaan, tentang apa yang Razan rasain saat itu. Bukan copy-paste, bukan ketik — tangan.',
+    terms:['Razan nulis dengan tangan sendiri','Isi surat jujur dan dari hati','Dara boleh minta tema/topik tertentu','Dikirim langsung atau via post kalau mau nostalgic'],
+    memo:'Kata-kata yang tidak bisa diketik',
+    cat:'Kenangan',
+  },
+  {
+    id:'pelukan',
+    emoji:'🤗',
+    title:'Pelukan Kapanpun',
+    value:'SATU (1) PELUKAN EKSTRA PANJANG',
+    payto:'Dara Syifa Aulia',
+    amount:'1x Hug On Demand',
+    desc:'Cairkan kapanpun Dara butuh — Razan akan berhenti dari apapun yang lagi dikerjain dan memeluk Dara selama yang Dara butuhkan.',
+    terms:['Bisa dicairkan kapanpun — tengah malam sekalipun','Razan berhenti apapun aktivitasnya','Durasi pelukan sesuai kebutuhan Dara','Tidak ada penolakan, tidak ada syarat'],
+    memo:'Karena kamu selalu butuh pelukan 🤍',
+    cat:'Cinta',
+  },
+];
+
+// Load used checks from localStorage
+function loadUsed() {
+  try { return JSON.parse(localStorage.getItem('buku-cek-used') || '[]'); } catch { return []; }
+}
+function saveUsed(used) {
+  try { localStorage.setItem('buku-cek-used', JSON.stringify(used)); } catch {}
+}
+
+let usedChecks = loadUsed();
+let currentCheckId = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 's-book') renderBook();
+}
+
+function renderBook() {
+  const body = document.getElementById('book-body');
+  body.innerHTML = '';
+  const remaining = CHECKS.filter(c => !usedChecks.includes(c.id)).length;
+  document.getElementById('bh-count').textContent = `${remaining} cek tersisa`;
+
+  CHECKS.forEach((check, idx) => {
+    const used = usedChecks.includes(check.id);
+    const item = document.createElement('div');
+    item.className = 'check-item' + (used ? ' used' : '');
+    item.onclick = () => openDetail(check.id);
+
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+
+    item.innerHTML = `
+      <div class="check-paper">
+        <div class="check-stub"><span class="stub-num">CEK #${String(idx+1).padStart(2,'0')}</span></div>
+        <div class="check-body">
+          <div class="check-bank">
+            <span class="bank-name">🏦 Bank Cinta Razan</span>
+            <span class="bank-date">${dateStr}</span>
+          </div>
+          <div class="check-payto">
+            <span class="payto-label">Bayarkan kepada:</span>
+            <span class="payto-name">${check.payto}</span>
+          </div>
+          <div class="check-amount-row">
+            <span class="amount-text">${check.amount}</span>
+            <span class="amount-box">${check.emoji}</span>
+          </div>
+          <div class="check-desc">${check.desc.substring(0, 80)}${check.desc.length > 80 ? '...' : ''}</div>
+          <div class="check-footer">
+            <div>
+              <span class="check-memo">${check.memo}</span>
+            </div>
+            <div>
+              <span class="check-sig">Razan</span>
+              <span class="check-sig-label">Tanda Tangan</span>
+            </div>
+          </div>
+        </div>
+        <div class="check-micr">⑆ 0607 ⑆ 1718 ⑆ ${String(idx+1).padStart(4,'0')} ⑇</div>
+        ${used ? '<div class="used-stamp">✓ DICAIRKAN</div>' : ''}
+      </div>
+      <div class="check-tear"></div>`;
+    body.appendChild(item);
+  });
+}
+
+function openDetail(id) {
+  const check = CHECKS.find(c => c.id === id);
+  if (!check) return;
+  currentCheckId = id;
+  const used = usedChecks.includes(id);
+
+  document.getElementById('ds-emoji').textContent = check.emoji;
+  document.getElementById('ds-title').textContent = check.title;
+  document.getElementById('ds-value').textContent = check.value;
+  document.getElementById('ds-desc').textContent = check.desc;
+
+  const termsList = document.getElementById('ds-terms-list');
+  termsList.innerHTML = '';
+  check.terms.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'ds-term';
+    el.innerHTML = `<span>✦</span><span>${t}</span>`;
+    termsList.appendChild(el);
+  });
+
+  const btn = document.getElementById('ds-cairkan-btn');
+  if (used) {
+    btn.textContent = '✓ Sudah Dicairkan';
+    btn.className = 'ds-btn ds-btn-used';
+    btn.onclick = null;
+  } else {
+    btn.textContent = 'Cairkan Sekarang 💸';
+    btn.className = 'ds-btn ds-btn-p';
+    btn.onclick = cairkanPrompt;
+  }
+
+  document.getElementById('detail-overlay').classList.add('show');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('show');
+  currentCheckId = null;
+}
+
+function handleDetailOverlay(e) {
+  if (e.target === document.getElementById('detail-overlay')) closeDetail();
+}
+
+function cairkanPrompt() {
+  if (!currentCheckId) return;
+  const check = CHECKS.find(c => c.id === currentCheckId);
+  document.getElementById('cf-icon').textContent = check.emoji;
+  document.getElementById('cf-title').textContent = `Cairkan "${check.title}"?`;
+  document.getElementById('cf-sub').textContent = 'Sekali dicairkan tidak bisa digunakan lagi — pastikan ini waktunya yang tepat! 🤍';
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('show');
+}
+
+function handleConfirmOverlay(e) {
+  if (e.target === document.getElementById('confirm-overlay')) closeConfirm();
+}
+
+function confirmCairkan() {
+  if (!currentCheckId) return;
+  const check = CHECKS.find(c => c.id === currentCheckId);
+  usedChecks.push(currentCheckId);
+  saveUsed(usedChecks);
+  closeConfirm();
+  closeDetail();
+
+  // Flash success
+  document.getElementById('sf-text').textContent = `"${check.title}" dicairkan! 💸`;
+  const flash = document.getElementById('success-flash');
+  flash.classList.add('show');
+  if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
+  confetti(60);
+
+  setTimeout(() => {
+    flash.classList.remove('show');
+    renderBook();
+  }, 2000);
+}
+
+function confetti(n) {
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#fff'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
+}
+</script>
+</body>
+</html>
