@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bowling Mini 🎳</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#06060f}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* STARS */
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+  @keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.6}}
+
+  /* ── INTRO ── */
+  #s-intro{background:transparent;padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
+  .intro-title span{color:#ffd54f}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:340px}
+  .how-item{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
+  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
+  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#1a3a6a,#64b5f6);color:#fff;box-shadow:0 6px 20px rgba(100,181,246,.3)}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* ── PICK ── */
+  #s-pick{background:transparent;padding:1.5rem;text-align:center}
+  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);margin:.25rem auto 1.4rem;max-width:260px;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.55rem;width:100%}
+  .pick-btn{padding:.95rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:all .15s}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+
+  /* ── GAME ── */
+  #s-game{background:transparent;padding:0;justify-content:flex-start}
+
+  /* Score header */
+  .g-header{flex-shrink:0;width:100%;background:rgba(6,6,15,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:.45rem .85rem;display:flex;align-items:center;justify-content:space-between;height:52px;min-height:52px;max-height:52px}
+  .gh-left{display:flex;flex-direction:column}
+  .gh-player{font-size:11px;font-weight:700;padding:.2rem .7rem;border-radius:50px;display:inline-block;margin-bottom:.1rem}
+  .gh-player.razan{background:rgba(126,179,245,.15);color:#7eb3f5}
+  .gh-player.dara{background:rgba(232,160,144,.15);color:#e8a090}
+  .gh-frame{font-size:9px;color:rgba(255,255,255,.25)}
+  .gh-scores{display:flex;gap:.75rem;align-items:center}
+  .gh-score-item{text-align:center}
+  .gh-score-name{font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.05em;display:block}
+  .gh-score-val{font-size:1.2rem;font-weight:900;display:block;line-height:1}
+  .gh-score-val.razan{color:#7eb3f5}
+  .gh-score-val.dara{color:#e8a090}
+  .gh-vs{font-size:.8rem;color:rgba(255,255,255,.15)}
+
+  /* Scorecard strip */
+  .scorecard{flex-shrink:0;width:100%;background:rgba(6,6,15,.7);border-bottom:1px solid rgba(255,255,255,.05);padding:.35rem .75rem;display:flex;gap:.4rem;align-items:center;justify-content:center;height:50px;min-height:50px;max-height:50px;overflow:hidden}
+  .sc-frame{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:.3rem .5rem;text-align:center;min-width:52px}
+  .sc-frame.active{border-color:rgba(255,213,79,.4);background:rgba(255,213,79,.06)}
+  .sc-frame-num{font-size:8px;color:rgba(255,255,255,.25);display:block;letter-spacing:.05em}
+  .sc-rolls{display:flex;gap:.2rem;justify-content:center;margin:.15rem 0}
+  .sc-roll{width:18px;height:18px;border-radius:4px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+  .sc-roll.strike{background:rgba(255,213,79,.2);border-color:rgba(255,213,79,.5);color:#ffd54f}
+  .sc-roll.spare{background:rgba(129,199,132,.15);border-color:rgba(129,199,132,.4);color:#81c784}
+  .sc-total{font-size:11px;font-weight:700;color:#fff;display:block}
+  .sc-total.razan{color:#7eb3f5}
+  .sc-total.dara{color:#e8a090}
+
+  /* Lane canvas */
+  #lane{display:block;width:100%;flex-shrink:0}
+
+  /* Swipe zone */
+  #swipe-zone{flex-shrink:0;width:100%;background:rgba(6,6,15,.85);border-top:1px solid rgba(255,255,255,.06);padding:.5rem .85rem;display:flex;flex-direction:column;align-items:center;gap:.3rem;height:110px;min-height:110px;max-height:110px;overflow:hidden}
+  .sz-label{font-size:10px;color:rgba(255,255,255,.25);font-style:italic}
+  .sz-arrow{font-size:1.4rem;color:rgba(255,255,255,.15);animation:arrowbounce 1.2s ease-in-out infinite}
+  @keyframes arrowbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .sz-guide{width:100%;max-width:300px;height:44px;background:rgba(255,255,255,.03);border:1.5px dashed rgba(255,255,255,.1);border-radius:50px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .sz-ball{width:36px;height:36px;border-radius:50%;position:absolute;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:background .2s;cursor:grab}
+  .sz-ball.razan{background:radial-gradient(circle at 35% 35%,#90caf9,#1565c0);box-shadow:0 4px 12px rgba(21,101,192,.5)}
+  .sz-ball.dara{background:radial-gradient(circle at 35% 35%,#f48fb1,#c62828);box-shadow:0 4px 12px rgba(198,40,40,.5)}
+
+  /* Result overlay */
+  #result-overlay{position:fixed;inset:0;z-index:50;background:rgba(6,6,15,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
+  #result-overlay.show{display:flex}
+  .res-sheet{background:rgba(20,20,40,.95);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:1.5rem;width:90%;max-width:340px;text-align:center;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes popin{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  .res-icon{font-size:2.5rem;display:block;margin-bottom:.5rem}
+  .res-title{font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:.25rem}
+  .res-score{font-size:.95rem;color:rgba(255,255,255,.5);margin-bottom:1rem}
+  .res-btn{width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#1a3a6a,#64b5f6);color:#fff;margin-bottom:.5rem}
+  .res-btn:active{transform:scale(.97)}
+  .res-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Final */
+  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
+  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
+  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .final-title{font-size:1.3rem;font-weight:900;color:#fff}
+  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
+  .final-score{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%}
+  .fs-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
+  .fs-nm{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .fs-sc{font-size:2.5rem;font-weight:900;display:block;line-height:1}
+  .fs-sc.razan{color:#7eb3f5}
+  .fs-sc.dara{color:#e8a090}
+  .fs-vs{color:rgba(255,255,255,.15)}
+  .frame-recap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:.85rem 1rem;width:100%}
+  .fr-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.6rem}
+  .fr-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:.25rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .fr-row:last-child{border-bottom:none}
+  .fr-label{color:rgba(255,255,255,.35)}
+  .fr-vals{display:flex;gap:.75rem}
+  .fr-val{font-weight:700}
+  .fr-val.razan{color:#7eb3f5}
+  .fr-val.dara{color:#e8a090}
+  .verdict{background:rgba(100,181,246,.06);border:1px solid rgba(100,181,246,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;width:100%}
+  .verdict strong{color:#64b5f6;font-style:normal}
+  .final-btns{display:flex;gap:.6rem;width:100%}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .final-btn-p{background:linear-gradient(135deg,#1a3a6a,#64b5f6);color:#fff}
+  .final-btn-p:active{transform:scale(.97)}
+  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">🎳</span>
+    <h1 class="intro-title">Bowling <span>Mini!</span></h1>
+    <p class="intro-sub">Swipe bola ke atas buat lempar ke pin — gantian 3 frame, total skor tertinggi menang!</p>
+    <div class="how-row">
+      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Swipe bola ke atas untuk lempar</span></div>
+      <div class="how-item"><span class="how-emoji">🎳</span><span class="how-text">Arahkan ke kiri/kanan buat bidik</span></div>
+      <div class="how-item"><span class="how-emoji">🏆</span><span class="how-text">Strike/Spare dapat bonus poin!</span></div>
+    </div>
+    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai! 🎳</button>
+  </div>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <div class="pick-wrap">
+    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🎳</span>
+    <p class="pick-title" style="color:#fff">Siapa yang lempar duluan?</p>
+    <p class="pick-sub">3 frame — gantian tiap frame</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('razan')">
+        <span style="font-size:2rem;flex-shrink:0">🧑</span>
+        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Razan lempar di Frame 1</span></div>
+      </div>
+      <div class="pick-btn" onclick="initGame('dara')">
+        <span style="font-size:2rem;flex-shrink:0">👧</span>
+        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Dara lempar di Frame 1</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="g-header">
+    <div class="gh-left">
+      <span class="gh-player razan" id="gh-player">🧑 Razan giliran</span>
+      <span class="gh-frame" id="gh-frame">Frame 1 · Lemparan 1</span>
+    </div>
+    <div class="gh-scores">
+      <div class="gh-score-item"><span class="gh-score-name">Razan</span><span class="gh-score-val razan" id="gh-sc-r">0</span></div>
+      <span class="gh-vs">🎳</span>
+      <div class="gh-score-item"><span class="gh-score-name">Dara</span><span class="gh-score-val dara" id="gh-sc-d">0</span></div>
+    </div>
+  </div>
+  <div class="scorecard" id="scorecard"></div>
+  <canvas id="lane"></canvas>
+  <div id="swipe-zone">
+    <span class="sz-label" id="sz-label">Swipe ke atas atau tap 🎳 Lempar!</span>
+    <div style="display:flex;align-items:center;gap:.6rem;width:100%;max-width:340px;justify-content:center">
+      <button id="aim-left-btn" onclick="aimLeft()" style="width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-size:1rem;cursor:pointer;color:rgba(255,255,255,.6);flex-shrink:0">◀</button>
+      <div class="sz-guide" id="sz-guide" style="flex:1;max-height:40px">
+        <div class="sz-ball razan" id="sz-ball" style="top:2px">🎳</div>
+      </div>
+      <button id="aim-right-btn" onclick="aimRight()" style="width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-size:1rem;cursor:pointer;color:rgba(255,255,255,.6);flex-shrink:0">▶</button>
+    </div>
+    <button id="throw-btn" onclick="throwFromBtn()" style="padding:.5rem 1.5rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:Poppins,sans-serif;background:linear-gradient(135deg,#1a3a6a,#64b5f6);color:#fff;box-shadow:0 3px 10px rgba(100,181,246,.3);transition:all .15s">🎳 Lempar!</button>
+  </div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div id="result-overlay">
+  <div class="res-sheet">
+    <span class="res-icon" id="res-icon">🎳</span>
+    <h2 class="res-title" id="res-title">STRIKE!</h2>
+    <p class="res-score" id="res-score">+10 pin roboh semua!</p>
+    <button class="res-btn" id="res-next-btn" onclick="nextTurn()">Lanjut →</button>
+    <button class="res-btn res-btn-o" onclick="nextTurn()">Lanjut</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="s-final" class="screen">
+  <div class="final-wrap">
+    <span class="final-icon" id="final-icon">🏆</span>
+    <h2 class="final-title" id="final-title">Razan Menang!</h2>
+    <p class="final-sub" id="final-sub">Skor tertinggi setelah 3 frame!</p>
+    <div class="final-score">
+      <div><span class="fs-av">🧑</span><span class="fs-nm">Razan</span><span class="fs-sc razan" id="end-r">0</span></div>
+      <span class="fs-vs">🎳</span>
+      <div><span class="fs-av">👧</span><span class="fs-nm">Dara</span><span class="fs-sc dara" id="end-d">0</span></div>
+    </div>
+    <div class="frame-recap">
+      <span class="fr-title">📋 Recap Per Frame</span>
+      <div id="frame-recap-list"></div>
+    </div>
+    <div class="verdict" id="verdict">...</div>
+    <div class="final-btns">
+      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const TOTAL_FRAMES = 3;
+const PIN_COUNT = 10;
+
+// ── STATE ──
+let firstPlayer = 'razan';
+let currentPlayer = 'razan';
+let frameIdx = 0;       // 0-2
+let rollIdx = 0;        // 0 or 1 in frame
+let pinsLeft = 10;
+
+// scores[player][frame] = {rolls:[r1,r2], pins:total}
+let scores = {
+  razan: Array.from({length:TOTAL_FRAMES},()=>({rolls:[],pins:0,total:0})),
+  dara:  Array.from({length:TOTAL_FRAMES},()=>({rolls:[],pins:0,total:0})),
+};
+let cumulative = {razan:0, dara:0};
+
+// Canvas
+let canvas, ctx, W, H;
+
+// Pin state
+let pins = []; // [{x,y,up,wobble,wobbleDir}]
+let ball = null; // {x,y,vx,vy,active}
+let animFrame = null;
+let throwing = false;
+
+// Swipe
+let swipeStartX=0, swipeStartY=0, swipeStartTime=0;
+let ballGuideX=0; // 0..1 horizontal position
+
+// ── KEYBOARD SUPPORT ──
+document.addEventListener('keydown', e=>{
+  if(e.code==='ArrowLeft') aimLeft();
+  if(e.code==='ArrowRight') aimRight();
+  if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();throwFromBtn();}
+});
+
+// ── STARS ──
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    el.className='star';
+    const sz=1+Math.random()*2;
+    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s`;
+    s.appendChild(el);
+  }
+})();
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+  if(id==='s-game') setTimeout(initCanvas,50);
+}
+
+// ── INIT ──
+function initGame(first){
+  firstPlayer=first;
+  currentPlayer=first;
+  frameIdx=0;
+  rollIdx=0;
+  pinsLeft=10;
+  scores={
+    razan:Array.from({length:TOTAL_FRAMES},()=>({rolls:[],pins:0,total:0})),
+    dara: Array.from({length:TOTAL_FRAMES},()=>({rolls:[],pins:0,total:0})),
+  };
+  cumulative={razan:0,dara:0};
+  ball=null;
+  throwing=false;
+  mouseDown=false;
+  window._frameSub=0;
+  window._frameEnd=false;
+  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+  showScreen('s-game');
+}
+
+function initCanvas(){
+  canvas=document.getElementById('lane');
+  if(!canvas) return;
+  // Use fixed heights so canvas never shifts
+  const HDR_H=52, SC_H=50, SZ_H=110;
+  W=window.innerWidth;
+  H=Math.max(180, window.innerHeight - HDR_H - SC_H - SZ_H);
+  canvas.width=W;
+  canvas.height=H;
+  canvas.style.width=W+'px';
+  canvas.style.height=H+'px';
+  canvas.style.display='block';
+  canvas.style.flexShrink='0';
+  ballGuideX=0.5;
+  setupBallGuide();
+  setupPins();
+  renderScorecard();
+  updateHUD();
+  if(animFrame) cancelAnimationFrame(animFrame);
+  animFrame=requestAnimationFrame(drawLoop);
+}
+
+// ── PIN LAYOUT (triangle, 4-3-2-1) ──
+function setupPins(){
+  pins=[];
+  const rows=[4,3,2,1];
+  const pinR=Math.min(W*0.042,16);
+  const spacingX=pinR*2.8;
+  const spacingY=pinR*2.6;
+  // Center pins in upper 45% of canvas
+  const totalPinH=3*spacingY; // 4 rows
+  const topY=H*0.12;
+  let pidx=0;
+  rows.forEach((count,row)=>{
+    const rowW=(count-1)*spacingX;
+    const startX=(W-rowW)/2;
+    for(let c=0;c<count;c++){
+      pins.push({
+        id:pidx++,
+        x:startX+c*spacingX,
+        y:topY+row*spacingY,
+        r:pinR,
+        up:true,
+        wobble:0,
+        wobbleV:0,
+        fallDir:0,
+      });
+    }
+  });
+}
+
+function resetPins(){
+  pins.forEach(p=>{p.up=true;p.wobble=0;p.wobbleV=0;});
+}
+
+// ── DRAW LOOP ──
+function drawLoop(){
+  animFrame=requestAnimationFrame(drawLoop);
+  ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  drawLane();
+  updatePhysics();
+  drawPins();
+  if(ball&&ball.active) drawBall();
+}
+
+function drawLane(){
+  // Lane bg
+  const lg=ctx.createLinearGradient(0,0,0,H);
+  lg.addColorStop(0,'#1a1a2e');
+  lg.addColorStop(1,'#0d0d1a');
+  ctx.fillStyle=lg;
+  ctx.fillRect(0,0,W,H);
+
+  // Lane wood stripes
+  const laneW=W*0.75;
+  const laneX=(W-laneW)/2;
+  for(let i=0;i<8;i++){
+    ctx.fillStyle=`rgba(${140+i*5},${100+i*3},${60+i*2},${0.06+i*0.005})`;
+    ctx.fillRect(laneX+i*(laneW/8),0,laneW/8,H);
+  }
+
+  // Lane border lines
+  ctx.strokeStyle='rgba(201,169,110,.2)';
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(laneX,0);ctx.lineTo(laneX,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(laneX+laneW,0);ctx.lineTo(laneX+laneW,H);ctx.stroke();
+
+  // Guide arrows (pointing up = toward pins)
+  const arrowY=H*0.68;
+  const arrowPositions=[-2,-1,0,1,2];
+  arrowPositions.forEach(offset=>{
+    const ax=W/2+offset*(laneW/10);
+    ctx.beginPath();
+    ctx.moveTo(ax,arrowY+10);
+    ctx.lineTo(ax-5,arrowY+20);
+    ctx.lineTo(ax+5,arrowY+20);
+    ctx.closePath();
+    ctx.fillStyle='rgba(201,169,110,.25)';
+    ctx.fill();
+  });
+
+  // Foul line
+  ctx.fillStyle='rgba(229,115,115,.3)';
+  ctx.fillRect(laneX,H*0.75,laneW,2);
+  ctx.fillStyle='rgba(229,115,115,.2)';
+  ctx.font='8px Poppins';
+  ctx.textAlign='left';
+  ctx.fillText('FOUL LINE',laneX+4,H*0.75-4);
+}
+
+function updatePhysics(){
+  if(!ball||!ball.active) return;
+  ball.x+=ball.vx;
+  ball.y+=ball.vy;
+
+  // Check pin collisions
+  pins.forEach(pin=>{
+    if(!pin.up) return;
+    const dx=ball.x-pin.x;
+    const dy=ball.y-pin.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<ball.r+pin.r){
+      pin.wobble=0.6;
+      pin.wobbleV=0.25*Math.sign(dx);
+      pin.fallDir=Math.sign(dx)||1;
+      // Knock down after wobble
+      setTimeout(()=>{
+        if(pin.wobble>0.1) pin.up=false;
+      },300+Math.random()*200);
+      // Scatter nearby pins
+      pins.forEach(p2=>{
+        if(!p2.up||p2===pin) return;
+        const d2=Math.sqrt((p2.x-pin.x)**2+(p2.y-pin.y)**2);
+        if(d2<pin.r*4.5){
+          setTimeout(()=>{
+            if(Math.random()<0.55){
+              p2.wobble=0.4;
+              p2.wobbleV=0.18*(Math.random()-.5)||0.1;
+              setTimeout(()=>{if(Math.random()<0.6)p2.up=false;},400+Math.random()*300);
+            }
+          },150+Math.random()*150);
+        }
+      });
+      ball.vx*=0.5;
+      ball.vy*=0.6;
+    }
+  });
+
+  // Wobble physics
+  pins.forEach(p=>{
+    if(Math.abs(p.wobble)>0.01){
+      p.wobble+=p.wobbleV;
+      p.wobbleV*=0.82;
+      if(Math.abs(p.wobble)>0.65){p.wobble=0.65*Math.sign(p.wobble);p.wobbleV*=-0.6;}
+    } else {p.wobble=0;}
+  });
+
+  // Ball out of bounds — exits top or sides
+  if(ball.y<-ball.r*2||ball.x<-50||ball.x>W+50){
+    ball.active=false;
+    setTimeout(()=>resolveThrow(),600);
+  }
+}
+
+function drawPins(){
+  const pinR=pins[0]?.r||12;
+  pins.forEach(pin=>{
+    ctx.save();
+    ctx.translate(pin.x,pin.y);
+    if(!pin.up){
+      ctx.rotate(Math.PI/2*pin.fallDir);
+      ctx.globalAlpha=0.35;
+    } else {
+      ctx.rotate(pin.wobble*0.4);
+    }
+
+    // Pin shadow
+    ctx.beginPath();
+    ctx.ellipse(2,3,pinR*.7,pinR*.4,0,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,.3)';
+    ctx.fill();
+
+    // Pin body
+    const pg=ctx.createRadialGradient(-pinR*.25,-pinR*.3,1,0,0,pinR);
+    pg.addColorStop(0,'#fff');
+    pg.addColorStop(0.6,'#e8e8e8');
+    pg.addColorStop(1,'#bbb');
+    ctx.beginPath();
+    ctx.arc(0,0,pinR,0,Math.PI*2);
+    ctx.fillStyle=pg;
+    ctx.fill();
+
+    // Red stripe
+    ctx.beginPath();
+    ctx.arc(0,0,pinR,0,Math.PI*2);
+    ctx.strokeStyle='rgba(229,57,53,.7)';
+    ctx.lineWidth=pinR*.35;
+    ctx.stroke();
+
+    // White center
+    ctx.beginPath();
+    ctx.arc(0,0,pinR*.62,0,Math.PI*2);
+    ctx.fillStyle='#fff';
+    ctx.fill();
+
+    // Shine
+    ctx.beginPath();
+    ctx.arc(-pinR*.25,-pinR*.25,pinR*.22,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,.7)';
+    ctx.fill();
+
+    ctx.restore();
+  });
+}
+
+function drawBall(){
+  const {x,y,r}=ball;
+  const player=currentPlayer;
+
+  // Shadow
+  ctx.beginPath();
+  ctx.ellipse(x+4,y+4,r*.9,r*.5,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,0,0,.3)';
+  ctx.fill();
+
+  // Ball
+  const bg=ctx.createRadialGradient(x-r*.3,y-r*.3,1,x,y,r);
+  if(player==='razan'){
+    bg.addColorStop(0,'#90caf9');
+    bg.addColorStop(0.6,'#1976d2');
+    bg.addColorStop(1,'#0d47a1');
+  } else {
+    bg.addColorStop(0,'#f48fb1');
+    bg.addColorStop(0.6,'#e53935');
+    bg.addColorStop(1,'#b71c1c');
+  }
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=bg;
+  ctx.fill();
+
+  // Finger holes
+  const holeColor='rgba(0,0,0,.4)';
+  [[.15,-.2],[-.2,.1],[.05,.25]].forEach(([hx,hy])=>{
+    ctx.beginPath();
+    ctx.arc(x+hx*r,y+hy*r,r*.13,0,Math.PI*2);
+    ctx.fillStyle=holeColor;
+    ctx.fill();
+  });
+
+  // Shine
+  ctx.beginPath();
+  ctx.arc(x-r*.3,y-r*.35,r*.25,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,255,255,.35)';
+  ctx.fill();
+}
+
+// ── SWIPE INPUT ──
+let _listenersAdded=false;
+function setupBallGuide(){
+  const guide=document.getElementById('sz-guide');
+  const ballEl=document.getElementById('sz-ball');
+  if(!guide||!ballEl) return;
+
+  // Position + color only
+  const gW=guide.offsetWidth||300;
+  ballEl.style.left=(ballGuideX*gW-18)+'px';
+  ballEl.className='sz-ball '+currentPlayer;
+
+  // Only add event listeners ONCE
+  if(!_listenersAdded){
+    _listenersAdded=true;
+    guide.addEventListener('touchstart',onSwipeStart,{passive:false});
+    guide.addEventListener('touchmove',onSwipeMove,{passive:false});
+    guide.addEventListener('touchend',onSwipeEnd,{passive:false});
+    guide.addEventListener('mousedown',onSwipeStart);
+    window.addEventListener('mousemove',onSwipeMoveW);
+    window.addEventListener('mouseup',onSwipeEndW);
+  }
+}
+
+let mouseDown=false;
+function onSwipeStart(e){
+  e.preventDefault();
+  if(throwing) return;
+  const t=e.touches?e.touches[0]:e;
+  swipeStartX=t.clientX;
+  swipeStartY=t.clientY;
+  swipeStartTime=Date.now();
+  mouseDown=true;
+}
+function onSwipeMove(e){
+  e.preventDefault();
+  if(!mouseDown||throwing) return;
+  const t=e.touches?e.touches[0]:e;
+  const guide=document.getElementById('sz-guide');
+  const ballEl=document.getElementById('sz-ball');
+  if(!guide||!ballEl) return;
+  const rect=guide.getBoundingClientRect();
+  const relX=Math.max(0,Math.min(1,(t.clientX-rect.left)/rect.width));
+  ballGuideX=relX;
+  ballEl.style.left=(relX*rect.width-18)+'px';
+}
+function onSwipeMoveW(e){ if(mouseDown) onSwipeMove(e); }
+function onSwipeEnd(e){
+  e.preventDefault();
+  if(!mouseDown||throwing) return;
+  mouseDown=false;
+  const t=e.changedTouches?e.changedTouches[0]:e;
+  const dy=swipeStartY-t.clientY;
+  const dx=t.clientX-swipeStartX;
+  const dt=(Date.now()-swipeStartTime)/1000;
+  // Require upward swipe
+  if(dy>20){
+    const speed=Math.min(Math.max(dy/dt,200),900);
+    throwBall(ballGuideX,speed,dx/Math.max(dt*200,1));
+  }
+}
+function onSwipeEndW(e){ if(mouseDown) onSwipeEnd(e); mouseDown=false; }
+
+function throwBall(xRatio,speed,angleFactor){
+  if(throwing) return;
+  const tb=document.getElementById('throw-btn');
+  if(tb){tb.disabled=true;tb.style.opacity='.4';}
+  if(throwing) return;
+  throwing=true;
+
+  const ballEl=document.getElementById('sz-ball');
+  if(ballEl) ballEl.style.opacity='0';
+  const szLabel=document.getElementById('sz-label');
+  if(szLabel) szLabel.textContent='...';
+
+  const ballR=Math.min(W*0.055,20);
+  const startX=W*xRatio;
+  const startY=H*0.88;
+  const speedNorm=Math.max(speed/300, 0.8); // min speed
+  const vx=angleFactor*speedNorm*1.8;
+  const vy=-speedNorm*10;
+
+  ball={x:startX,y:startY,vx,vy,r:ballR,active:true};
+  if(navigator.vibrate) navigator.vibrate(30);
+
+  // Auto resolve after 3s if ball still going
+  setTimeout(()=>{
+    if(ball&&ball.active){ball.active=false;setTimeout(()=>resolveThrow(),500);}
+  },3000);
+}
+
+// ── RESOLVE THROW ──
+function resolveThrow(){
+  const totalDown=pins.filter(p=>!p.up).length;
+  // knocked = newly knocked this roll (not counting already fallen)
+  const prevKnocked = PIN_COUNT - pinsLeft;
+  const knocked = Math.min(totalDown - prevKnocked, pinsLeft);
+  const wasStrike=rollIdx===0&&knocked===10;
+  const wasSpare=rollIdx===1&&knocked===pinsLeft&&knocked>0;
+
+  // Record roll
+  const frame=scores[currentPlayer][frameIdx];
+  frame.rolls.push(Math.max(0,knocked));
+  frame.pins+=Math.max(0,knocked);
+
+  pinsLeft=Math.max(0,pinsLeft-knocked);
+
+  // Calculate frame total (simple: just pin count, bonus for strike/spare)
+  if(wasStrike) frame.total=10+3; // +3 bonus for strike
+  else if(wasSpare) frame.total=10+1; // +1 bonus for spare
+  else frame.total=frame.pins;
+
+  cumulative[currentPlayer]+=frame.total;
+
+  // Show result popup
+  let icon,title,score;
+  if(wasStrike){
+    icon='🎳✨';title='STRIKE!';score=`+${frame.total} — semua pin roboh! 🎉`;
+    confetti(50);if(navigator.vibrate) navigator.vibrate([60,30,120,30,200]);
+  } else if(wasSpare){
+    icon='✅';title='SPARE!';score=`+${frame.total} — sisa pin roboh semua!`;
+    if(navigator.vibrate) navigator.vibrate([50,30,100]);
+  } else if(knocked===0){
+    icon='😬';title='Gutter!';score=`0 pin — coba lagi!`;
+    if(navigator.vibrate) navigator.vibrate(100);
+  } else {
+    icon='🎳';title=`${knocked} Pin!`;score=`+${knocked} pin roboh`;
+    if(navigator.vibrate) navigator.vibrate(40);
+  }
+
+  const ro=document.getElementById('result-overlay');
+  const ri=document.getElementById('res-icon');
+  const rt=document.getElementById('res-title');
+  const rs=document.getElementById('res-score');
+  if(ri) ri.textContent=icon;
+  if(rt) rt.textContent=title;
+  if(rs) rs.textContent=score;
+  if(ro) ro.classList.add('show');
+
+  renderScorecard();
+  updateHUD();
+
+  // Determine if frame ends
+  const frameEnd=wasStrike||rollIdx===1;
+  window._frameEnd=frameEnd;
+}
+
+function nextTurn(){
+  const tb=document.getElementById('throw-btn');
+  if(tb){tb.disabled=false;tb.style.opacity='1';}
+  ballGuideX=0.5;
+  // Re-lock canvas size so it doesn't shift
+  if(canvas){
+    canvas.style.width=W+'px';
+    canvas.style.height=H+'px';
+  }
+  const ro=document.getElementById('result-overlay');
+  if(ro) ro.classList.remove('show');
+
+  const frameEnd=window._frameEnd;
+
+  if(frameEnd){
+    // Move to next frame or finish
+    // Check if other player still needs to play this frame
+    const second=currentPlayer===firstPlayer?(firstPlayer==='razan'?'dara':'razan'):null;
+
+    // Each frame: firstPlayer plays, then second player plays
+    // Track with sub-turn within frame
+    if(!window._frameSub) window._frameSub=0;
+
+    if(window._frameSub===0){
+      // First player done this frame — second player's turn
+      window._frameSub=1;
+      currentPlayer=firstPlayer==='razan'?'dara':'razan';
+      rollIdx=0;
+      pinsLeft=10;
+      ball=null;
+      throwing=false;
+      resetPins();
+      setupBallGuide();
+      const ballEl=document.getElementById('sz-ball');
+      if(ballEl){ballEl.style.opacity='1';ballEl.className='sz-ball '+currentPlayer;}
+      const szLabel=document.getElementById('sz-label');
+      if(szLabel) szLabel.textContent='Swipe bola ke atas untuk lempar!';
+      updateHUD();
+    } else {
+      // Both played this frame
+      window._frameSub=0;
+      frameIdx++;
+      currentPlayer=firstPlayer;
+      rollIdx=0;
+      pinsLeft=10;
+      ball=null;
+      throwing=false;
+
+      if(frameIdx>=TOTAL_FRAMES){
+        showFinal();
+        return;
+      }
+      resetPins();
+      setupBallGuide();
+      const ballEl=document.getElementById('sz-ball');
+      if(ballEl){ballEl.style.opacity='1';ballEl.className='sz-ball '+currentPlayer;}
+      const szLabel=document.getElementById('sz-label');
+      if(szLabel) szLabel.textContent='Swipe bola ke atas untuk lempar!';
+      updateHUD();
+    }
+  } else {
+    // Same player, second roll
+    rollIdx=1;
+    ball=null;
+    throwing=false;
+    // Keep standing pins only
+    const ballEl=document.getElementById('sz-ball');
+    if(ballEl) ballEl.style.opacity='1';
+    const szLabel=document.getElementById('sz-label');
+    if(szLabel) szLabel.textContent=`${pinsLeft} pin tersisa — lempar lagi!`;
+    updateHUD();
+  }
+}
+
+// ── HUD ──
+function updateHUD(){
+  const name=currentPlayer==='razan'?'Razan':'Dara';
+  const badge=document.getElementById('gh-player');
+  if(badge){badge.textContent=`${currentPlayer==='razan'?'🧑':'👧'} ${name} giliran`;badge.className='gh-player '+currentPlayer;}
+  const gf=document.getElementById('gh-frame');
+  if(gf) gf.textContent=`Frame ${frameIdx+1} · Lemparan ${rollIdx+1}`;
+  const scr=document.getElementById('gh-sc-r');
+  if(scr) scr.textContent=cumulative.razan;
+  const scd=document.getElementById('gh-sc-d');
+  if(scd) scd.textContent=cumulative.dara;
+}
+
+function renderScorecard(){
+  const el=document.getElementById('scorecard');
+  if(!el) return;
+  el.innerHTML='';
+  for(let f=0;f<TOTAL_FRAMES;f++){
+    const sc=document.createElement('div');
+    sc.className='sc-frame'+(f===frameIdx?' active':'');
+
+    const fr=document.createElement('div');
+    fr.style.cssText='display:flex;flex-direction:column;align-items:center';
+
+    // Frame number
+    const fn=document.createElement('span');
+    fn.className='sc-frame-num';
+    fn.textContent='F'+(f+1);
+    fr.appendChild(fn);
+
+    // Rolls for each player
+    ['razan','dara'].forEach(p=>{
+      const frame=scores[p][f];
+      const rollsEl=document.createElement('div');
+      rollsEl.className='sc-rolls';
+      const rolls=frame.rolls;
+      const isStrike=rolls[0]===10;
+      const isSpare=!isStrike&&rolls.length>=2&&(rolls[0]||0)+(rolls[1]||0)===10;
+
+      const r1=document.createElement('div');
+      r1.className='sc-roll'+(isStrike?' strike':'');
+      r1.textContent=isStrike?'X':(rolls[0]!==undefined?rolls[0]:'');
+      rollsEl.appendChild(r1);
+
+      if(!isStrike){
+        const r2=document.createElement('div');
+        r2.className='sc-roll'+(isSpare?' spare':'');
+        r2.textContent=isSpare?'/':(rolls[1]!==undefined?rolls[1]:'');
+        rollsEl.appendChild(r2);
+      }
+
+      // Total
+      const tot=document.createElement('span');
+      tot.className='sc-total '+p;
+      tot.textContent=frame.total||'';
+      fr.appendChild(rollsEl);
+      fr.appendChild(tot);
+    });
+
+    sc.appendChild(fr);
+    el.appendChild(sc);
+  }
+}
+
+// ── FINAL ──
+function showFinal(){
+  const r=cumulative.razan,d=cumulative.dara;
+  const tie=r===d,winner=r>d?'razan':'dara';
+  const wName=winner==='razan'?'Razan':'Dara';
+  const fi=document.getElementById('final-icon');
+  if(fi) fi.textContent=tie?'🤝':'🏆';
+  const ft=document.getElementById('final-title');
+  if(ft) ft.textContent=tie?'Seri!':`${winner==='razan'?'🧑':'👧'} ${wName} Menang!`;
+  const fs=document.getElementById('final-sub');
+  if(fs) fs.textContent=tie?`${r} vs ${d} — sama kuat!`:`${wName} menang ${r>d?r:d}-${r>d?d:r}!`;
+  const er=document.getElementById('end-r');if(er) er.textContent=r;
+  const ed=document.getElementById('end-d');if(ed) ed.textContent=d;
+
+  // Frame recap
+  const recap=document.getElementById('frame-recap-list');
+  if(recap){
+    recap.innerHTML='';
+    for(let f=0;f<TOTAL_FRAMES;f++){
+      const row=document.createElement('div');row.className='fr-row';
+      const rFrame=scores.razan[f],dFrame=scores.dara[f];
+      const rStr=rFrame.rolls[0]===10?'X':rFrame.rolls.join('-')||'-';
+      const dStr=dFrame.rolls[0]===10?'X':dFrame.rolls.join('-')||'-';
+      row.innerHTML=`<span class="fr-label">Frame ${f+1}</span><div class="fr-vals"><span class="fr-val razan">${rStr} (${rFrame.total||0})</span><span style="color:rgba(255,255,255,.15)">·</span><span class="fr-val dara">${dStr} (${dFrame.total||0})</span></div>`;
+      recap.appendChild(row);
+    }
+  }
+
+  let vt='';
+  if(tie) vt=`Seri ${r}-${d}! Dua-duanya sama-sama jago di lintasan. Rematch?`;
+  else vt=`<strong>${wName}</strong> menang ${r>d?r:d}-${r>d?d:r}! ${winner==='razan'?'Razan':'Dara'} punya aim yang lebih tajam hari ini. 🎳`;
+  const vd=document.getElementById('verdict');if(vd) vd.innerHTML=vt;
+
+  showScreen('s-final');
+  if(!tie) confetti(80); else confetti(40);
+}
+
+function aimLeft(){
+  if(throwing) return;
+  ballGuideX=Math.max(0.05, ballGuideX-0.08);
+  updateBallPos();
+}
+
+function aimRight(){
+  if(throwing) return;
+  ballGuideX=Math.min(0.95, ballGuideX+0.08);
+  updateBallPos();
+}
+
+function updateBallPos(){
+  const guide=document.getElementById('sz-guide');
+  const ballEl=document.getElementById('sz-ball');
+  if(!guide||!ballEl) return;
+  const gW=guide.offsetWidth||300;
+  ballEl.style.left=(ballGuideX*gW-18)+'px';
+}
+
+function throwFromBtn(){
+  if(throwing) return;
+  // Slight random angle variation for fun
+  const angleFactor=(ballGuideX-0.5)*2;
+  throwBall(ballGuideX, 600, angleFactor*1.5);
+}
+
+function confetti(n){
+  const colors=['#64b5f6','#e8a090','#ffd54f','#81c784','#fff'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*18);
+}
+</script>
+</body>
+</html>
