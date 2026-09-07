@@ -247,13 +247,15 @@ const MODES = {
     label:   'Papan Cinta 🌸',
   },
   medium: {
+    // removed 50 (DUEL_SQ overlap) from ladders
     snakes:  {98:40, 84:58, 71:22, 54:19, 36:6, 93:73},
-    ladders: {4:25, 13:46, 33:62, 50:80, 67:90, 17:55},
+    ladders: {4:25, 13:46, 33:62, 51:80, 67:90, 17:55},
     label:   'Papan Klasik ⚖️',
   },
   hard: {
-    snakes:  {99:18, 95:60, 91:24, 86:14, 75:32, 68:5, 55:38, 30:9},
-    ladders: {3:44, 22:68, 57:85},
+    // removed 75 (DUEL_SQ) and 68 (TANT_SQ) from snakes
+    snakes:  {99:18, 95:60, 91:24, 86:14, 76:32, 69:5, 55:38, 30:9},
+    ladders: {3:44, 22:69, 57:86},
     label:   'Papan Neraka 🔥',
   },
 };
@@ -352,11 +354,14 @@ function cellPxCenter(num){
 
 // ── CANVAS ──
 function resizeAndDraw(){
-  const w=canvas.parentElement.offsetWidth;
+  const w=Math.min(canvas.parentElement.offsetWidth, window.innerWidth-24);
   const dpr=window.devicePixelRatio||1;
-  canvas.width=w*dpr; canvas.height=w*dpr;
-  canvas.style.width=w+'px'; canvas.style.height=w+'px';
-  ctx.scale(dpr,dpr);
+  canvas.width=w*dpr;
+  canvas.height=w*dpr;
+  canvas.style.width=w+'px';
+  canvas.style.height=w+'px';
+  // Reset transform before scaling to prevent stacking!
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   cellSize=w/SIZE;
   drawBoard();
   placePions();
@@ -367,7 +372,8 @@ window.addEventListener('resize',()=>{
 
 function drawBoard(){
   const s=cellSize;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!s||s<=0) return; // guard against invalid state
+  ctx.clearRect(0,0,canvas.width/((window.devicePixelRatio||1)), canvas.height/((window.devicePixelRatio||1)));
   ctx.fillStyle='#fff8f4';
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
@@ -524,9 +530,6 @@ function drawLadders(){
     // Draw two rails
     ctx.lineWidth=Math.max(2,s*.07);
     ctx.lineCap='round';
-    [[-1,1]].flat().forEach(side=>{
-      // Left rail and right rail
-    });
 
     // Left rail
     ctx.beginPath();
@@ -574,15 +577,17 @@ function drawLadders(){
 
 // ── PIONS ──
 function placePions(){
+  if(!cellSize||cellSize<=0) return;
   positionPion('razan',positions.razan,false);
   positionPion('dara',positions.dara,false);
 }
 
 function positionPion(player,pos,animate){
   const pion=document.getElementById(`pion-${player}`);
-  const{cx,cy}=cellPxCenter(pos);
+  if(!pion||!cellSize||cellSize<=0) return;
+  const{cx,cy}=cellPxCenter(Math.max(1,Math.min(100,pos)));
   const offset=player==='razan'?-cellSize*.18:cellSize*.18;
-  const bw=canvas.parentElement.offsetWidth;
+  const bw=canvas.parentElement.offsetWidth||canvas.style.width.replace('px','')||300;
   pion.style.left=(((cx+offset)/bw)*100)+'%';
   pion.style.top=((cy/bw)*100)+'%';
   if(animate){
@@ -612,7 +617,14 @@ function startGame(first){
   currentTurn=first;
   isRolling=false;
   showScreen('s-game');
-  setTimeout(()=>{resizeAndDraw();updateUI();enableRoll();},100);
+  // Wait for DOM to render before measuring canvas parent width
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      resizeAndDraw();
+      updateUI();
+      enableRoll();
+    });
+  });
 }
 
 function enableRoll(){
@@ -738,7 +750,7 @@ function showPopup({emoji,type,typeLabel,title,text,onClose}){
 function closePopup(){
   document.getElementById('popup-overlay').classList.remove('active');
   const cb=popupCallback; popupCallback=null;
-  if(cb) setTimeout(cb,150);
+  if(cb) setTimeout(()=>{ try{const r=cb(); if(r&&r.catch) r.catch(e=>console.warn(e));}catch(e){console.warn(e);}},200);
 }
 
 function showEnd(winner){
@@ -762,7 +774,7 @@ function confetti(){
   },i*20);
 }
 
-window.addEventListener('load',()=>resizeAndDraw());
+// resizeAndDraw called when game starts, not on load
 </script>
 </body>
 </html>
