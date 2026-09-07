@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Archery Duel 🏹</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none;user-select:none}
+  html,body{height:100%;overflow:hidden;background:#0a1a0a}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  .screen.active{display:flex}
+
+  /* TREES BG */
+  #bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+
+  /* INTRO */
+  #s-intro{background:transparent;padding:1.5rem;text-align:center}
+  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
+  .intro-title span{color:#ffd54f}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:340px}
+  .how-item{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.7rem .4rem;text-align:center}
+  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
+  .how-text{font-size:10px;color:rgba(255,255,255,.45);line-height:1.4}
+  .rounds-row{display:flex;gap:.5rem;width:100%;max-width:340px;margin-bottom:1.25rem}
+  .round-opt{flex:1;padding:.65rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);cursor:pointer;text-align:center;transition:all .15s}
+  .round-opt.sel{border-color:#ffd54f;background:rgba(255,213,79,.1)}
+  .round-opt:active{transform:scale(.95)}
+  .ro-num{font-size:1.2rem;font-weight:900;color:#ffd54f;display:block}
+  .ro-label{font-size:9px;color:rgba(255,255,255,.4)}
+  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#5a3a00,#ffd54f);color:#1a1000;box-shadow:0 6px 20px rgba(255,213,79,.3)}
+  .intro-btn:active{transform:scale(.97)}
+
+  /* PICK */
+  #s-pick{background:transparent;padding:1.5rem;text-align:center}
+  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);margin:.25rem auto 1.4rem;max-width:260px;line-height:1.6}
+  .pick-btns{display:flex;gap:.6rem;width:100%}
+  .pick-btn{flex:1;padding:1.1rem .5rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:all .15s}
+  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+
+  /* GAME */
+  #s-game{background:transparent;flex-direction:column;padding:0;justify-content:flex-start}
+
+  /* Header */
+  .g-header{flex-shrink:0;width:100%;background:rgba(10,26,10,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:.45rem .85rem;display:flex;align-items:center;justify-content:space-between;z-index:10}
+  .gh-player{text-align:center}
+  .gh-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;display:block}
+  .gh-score{font-size:1.5rem;font-weight:900;display:block;line-height:1}
+  .gh-score.razan{color:#7eb3f5}
+  .gh-score.dara{color:#e8a090}
+  .gh-mid{text-align:center}
+  .gh-round{font-size:11px;font-weight:700;color:#ffd54f;display:block}
+  .gh-arrows{font-size:9px;color:rgba(255,255,255,.3);display:block;margin-top:.1rem}
+
+  /* Arena - 2 columns */
+  .arena{flex:1;display:flex;width:100%;overflow:hidden;position:relative;z-index:1}
+  .lane{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;overflow:hidden;border-right:1px solid rgba(255,255,255,.05)}
+  .lane:last-child{border-right:none}
+
+  /* Lane bg gradient */
+  .lane.razan-lane{background:linear-gradient(to bottom,#0a1a0a,#0d2010)}
+  .lane.dara-lane{background:linear-gradient(to bottom,#0a1a0a,#1a0d10)}
+
+  /* Lane label */
+  .lane-label{position:absolute;top:.5rem;left:0;right:0;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.5;z-index:5;pointer-events:none}
+  .lane-label.razan{color:#7eb3f5}
+  .lane-label.dara{color:#e8a090}
+
+  /* Target */
+  .target-wrap{position:absolute;z-index:5;transition:none;pointer-events:none}
+  .target-svg{display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+
+  /* Arrow hit effect */
+  .hit-effect{position:absolute;pointer-events:none;z-index:6;animation:hitpop .5s ease forwards}
+  @keyframes hitpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:1}100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}}
+
+  /* Score popup */
+  .score-pop{position:absolute;pointer-events:none;z-index:7;font-size:1.1rem;font-weight:900;animation:scorepop .8s ease forwards;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+  @keyframes scorepop{0%{transform:translate(-50%,-100%) scale(.8);opacity:1}100%{transform:translate(-50%,-200%) scale(1.1);opacity:0}}
+
+  /* Bow & arrow area */
+  .bow-area{position:absolute;bottom:0;left:0;right:0;height:160px;display:flex;align-items:center;justify-content:center;z-index:8;touch-action:none}
+  .bow-canvas{display:block;touch-action:none}
+
+  /* Pull indicator */
+  .pull-ring{position:absolute;border-radius:50%;border:2px dashed rgba(255,255,255,.3);pointer-events:none;transition:all .1s;display:none}
+
+  /* Countdown overlay */
+  #s-cd{background:rgba(10,26,10,.95);backdrop-filter:blur(12px);text-align:center}
+  .cd-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+  .cd-player{font-size:.9rem;color:rgba(255,255,255,.5);margin-bottom:.5rem}
+  .cd-num{font-size:8rem;font-weight:900;color:#fff;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1)}
+  @keyframes cdpop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+  .cd-sub{font-size:13px;color:rgba(255,255,255,.4);margin-top:.5rem}
+
+  /* Pass screen */
+  #s-pass{background:rgba(10,26,10,.97);backdrop-filter:blur(12px);text-align:center;padding:1.5rem}
+  .pass-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px;gap:.75rem}
+  .pass-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .pass-title{font-size:1.1rem;font-weight:700;color:#fff}
+  .pass-score-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.85rem 1.25rem;width:100%}
+  .psc-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0}
+  .psc-name{font-size:11px;color:rgba(255,255,255,.4)}
+  .psc-val{font-size:1.1rem;font-weight:900}
+  .psc-val.razan{color:#7eb3f5}
+  .psc-val.dara{color:#e8a090}
+  .pass-sub{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;max-width:260px;font-style:italic}
+  .pass-btn{width:100%;max-width:280px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#5a3a00,#ffd54f);color:#1a1000}
+  .pass-btn:active{transform:scale(.97)}
+
+  /* FINAL */
+  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
+  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
+  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
+  .final-title{font-size:1.3rem;font-weight:900;color:#fff}
+  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
+  .final-score{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%}
+  .fs-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
+  .fs-nm{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .fs-sc{font-size:2.5rem;font-weight:900;display:block;line-height:1}
+  .fs-sc.razan{color:#7eb3f5}
+  .fs-sc.dara{color:#e8a090}
+  .fs-vs{color:rgba(255,255,255,.15)}
+  .rounds-recap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:.85rem 1rem;width:100%}
+  .rr-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.5rem}
+  .rr-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .rr-row:last-child{border-bottom:none}
+  .rr-label{color:rgba(255,255,255,.35)}
+  .rr-vals{display:flex;gap:.75rem}
+  .rr-val{font-weight:700}
+  .rr-val.razan{color:#7eb3f5}
+  .rr-val.dara{color:#e8a090}
+  .verdict{background:rgba(255,213,79,.05);border:1px solid rgba(255,213,79,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;width:100%}
+  .verdict strong{color:#ffd54f;font-style:normal}
+  .final-btns{display:flex;gap:.6rem;width:100%}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .final-btn-p{background:linear-gradient(135deg,#5a3a00,#ffd54f);color:#1a1000}
+  .final-btn-p:active{transform:scale(.97)}
+  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+  /* Arrow stuck in board */
+  .stuck-arrow{position:absolute;pointer-events:none;z-index:6;font-size:1.2rem;transform-origin:center;animation:stickin .15s ease forwards}
+  @keyframes stickin{from{transform:translate(-50%,-50%) scale(1.5)}to{transform:translate(-50%,-50%) scale(1)}}
+
+  /* Miss text */
+  .miss-pop{position:absolute;pointer-events:none;z-index:7;font-size:1rem;font-weight:900;color:rgba(255,100,100,.9);text-shadow:0 2px 8px rgba(0,0,0,.6);animation:misspop .9s ease forwards;white-space:nowrap}
+  @keyframes misspop{0%{transform:translate(-50%,-50%) scale(.7);opacity:1}60%{transform:translate(-50%,-120%) scale(1.1);opacity:1}100%{transform:translate(-50%,-180%) scale(1);opacity:0}}
+
+  /* Hit flash overlay */
+  .hit-flash{position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:0;animation:flashin .35s ease forwards}
+  @keyframes flashin{0%{opacity:.35}100%{opacity:0}}
+
+  /* Arrow trail dot */
+  .trail-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,213,79,.6);transform:translate(-50%,-50%);pointer-events:none;z-index:5;animation:trailfade .5s ease forwards}
+  @keyframes trailfade{from{opacity:.7;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(.2)}}
+
+  /* Confetti */
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- BG trees -->
+<div id="bg"></div>
+
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="intro-wrap">
+    <span class="intro-icon">🏹</span>
+    <h1 class="intro-title">Archery <span>Duel!</span></h1>
+    <p class="intro-sub">Tarik busur, bidik target, lepas! Tiap ronde masing-masing dapat giliran memanah — skor tertinggi menang!</p>
+    <div class="how-row">
+      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Drag busur ke bawah untuk tarik</span></div>
+      <div class="how-item"><span class="how-emoji">🎯</span><span class="how-text">Target muncul random di arena</span></div>
+      <div class="how-item"><span class="how-emoji">🏹</span><span class="how-text">Lepas jari untuk lepas anak panah</span></div>
+    </div>
+    <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:.75rem">Pilih jumlah ronde:</div>
+    <div class="rounds-row">
+      <div class="round-opt sel" id="opt-3" onclick="selRounds(3)"><span class="ro-num">3</span><span class="ro-label">Ronde</span></div>
+      <div class="round-opt" id="opt-5" onclick="selRounds(5)"><span class="ro-num">5</span><span class="ro-label">Ronde</span></div>
+      <div class="round-opt" id="opt-7" onclick="selRounds(7)"><span class="ro-num">7</span><span class="ro-label">Ronde</span></div>
+    </div>
+    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai Duel! 🏹</button>
+  </div>
+</div>
+
+<!-- PICK -->
+<div id="s-pick" class="screen">
+  <div class="pick-wrap">
+    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🏹</span>
+    <p class="pick-title" style="color:#fff">Siapa yang memanah duluan?</p>
+    <p class="pick-sub">Gantian tiap ronde — masing-masing dapat arrow yang sama</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('razan')">
+        <span style="font-size:2rem">🧑</span>
+        <span style="font-size:13px;font-weight:700;color:#fff">Razan dulu</span>
+        <span style="font-size:10px;color:rgba(255,255,255,.35)">Razan memanah ronde 1</span>
+      </div>
+      <div class="pick-btn" onclick="initGame('dara')">
+        <span style="font-size:2rem">👧</span>
+        <span style="font-size:13px;font-weight:700;color:#fff">Dara dulu</span>
+        <span style="font-size:10px;color:rgba(255,255,255,.35)">Dara memanah ronde 1</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="s-cd" class="screen">
+  <div class="cd-wrap">
+    <p class="cd-player" id="cd-player">Razan siap!</p>
+    <span class="cd-num" id="cd-num">3</span>
+    <span class="cd-sub" id="cd-sub">Bersiap...</span>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="g-header">
+    <div class="gh-player">
+      <span class="gh-name">🧑 Razan</span>
+      <span class="gh-score razan" id="gh-sc-r">0</span>
+    </div>
+    <div class="gh-mid">
+      <span class="gh-round" id="gh-round">Ronde 1</span>
+      <span class="gh-arrows" id="gh-arrows">🏹🏹🏹</span>
+    </div>
+    <div class="gh-player">
+      <span class="gh-name">Dara 👧</span>
+      <span class="gh-score dara" id="gh-sc-d">0</span>
+    </div>
+  </div>
+  <div class="arena" id="arena">
+    <!-- Left lane: Razan -->
+    <div class="lane razan-lane" id="lane-razan">
+      <span class="lane-label razan" id="lane-label-razan">🧑 Razan</span>
+      <div style="position:absolute;bottom:75px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,.2);pointer-events:none;z-index:4" id="hint-razan">Drag busur ke bawah lalu lepas ↑</div>
+      <!-- targets and effects rendered here -->
+      <canvas class="bow-canvas" id="bow-razan"></canvas>
+    </div>
+    <!-- Right lane: Dara -->
+    <div class="lane dara-lane" id="lane-dara">
+      <span class="lane-label dara" id="lane-label-dara">Dara 👧</span>
+      <div style="position:absolute;bottom:75px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,.2);pointer-events:none;z-index:4" id="hint-dara">Drag busur ke bawah lalu lepas ↑</div>
+      <canvas class="bow-canvas" id="bow-dara"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <div class="pass-wrap">
+    <span class="pass-icon" id="pass-icon">🧑</span>
+    <h2 class="pass-title" id="pass-title">Razan selesai!</h2>
+    <div class="pass-score-card" id="pass-score-card"></div>
+    <p class="pass-sub" id="pass-sub">Kasih HP ke Dara — giliran Dara memanah sekarang!</p>
+    <button class="pass-btn" id="pass-btn" onclick="startNextPlayer()">Aku Siap! 🏹</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="s-final" class="screen">
+  <div class="final-wrap">
+    <span class="final-icon" id="final-icon">🏆</span>
+    <h2 class="final-title" id="final-title">Razan Menang!</h2>
+    <p class="final-sub" id="final-sub">Pemanah terbaik hari ini!</p>
+    <div class="final-score">
+      <div><span class="fs-av">🧑</span><span class="fs-nm">Razan</span><span class="fs-sc razan" id="end-r">0</span></div>
+      <span class="fs-vs">🏹</span>
+      <div><span class="fs-av">👧</span><span class="fs-nm">Dara</span><span class="fs-sc dara" id="end-d">0</span></div>
+    </div>
+    <div class="rounds-recap">
+      <span class="rr-title">📋 Recap Per Ronde</span>
+      <div id="rr-list"></div>
+    </div>
+    <div class="verdict" id="verdict">...</div>
+    <div class="final-btns">
+      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const ARROWS_PER_ROUND = 8;        // more arrows
+const TARGET_DURATION  = 5000;     // targets stay longer (5s)
+const TARGET_COUNT     = 5;        // targets per round
+
+const RING_SCORES = [10, 7, 4, 1]; // bull → outer
+const RING_COLORS = ['#e53935','#ff7043','#ffd54f','#aaa'];
+const RING_RATIOS = [.18, .38, .60, .85]; // bigger rings = easier to hit
+
+// ── STATE ──
+let totalRounds = 3;
+let firstPlayer = 'razan';
+let currentPlayer = 'razan';
+let roundIdx = 0;
+let subTurn = 0; // 0=first player, 1=second player
+let scores = {razan:0, dara:0};
+let roundScores = []; // [{razan,dara}]
+let arrowsLeft = ARROWS_PER_ROUND;
+let roundScore = 0; // score for current player this round
+let gameActive = false;
+let targets = []; // active targets on screen
+let targetTimers = [];
+
+// Bow state per lane
+const bowState = {
+  razan: {pulling:false,pullX:0,pullY:0,baseX:0,baseY:0,ctx:null,canvas:null},
+  dara:  {pulling:false,pullX:0,pullY:0,baseX:0,baseY:0,ctx:null,canvas:null},
+};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+function selRounds(n){
+  totalRounds=n;
+  [3,5,7].forEach(x=>{
+    const el=document.getElementById('opt-'+x);
+    if(el) el.classList.toggle('sel',x===n);
+  });
+}
+
+// ── BG TREES ──
+function drawBgTrees(){
+  const bg=document.getElementById('bg');
+  bg.innerHTML='';
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
+  svg.style.cssText='position:absolute;inset:0';
+  const W=window.innerWidth, H=window.innerHeight;
+  // Draw forest silhouette
+  let path='M0,'+H;
+  const treeCount=18;
+  for(let i=0;i<=treeCount;i++){
+    const x=(i/treeCount)*W;
+    const treeH=H*.15+Math.sin(i*2.3)*H*.08+Math.random()*H*.08;
+    const w=W*.04+Math.random()*W*.02;
+    path+=` L${x-w/2},${H-treeH} L${x},${H-treeH-w*.8} L${x+w/2},${H-treeH}`;
+  }
+  path+=` L${W},${H} Z`;
+  const treePath=document.createElementNS('http://www.w3.org/2000/svg','path');
+  treePath.setAttribute('d',path);
+  treePath.setAttribute('fill','rgba(0,60,0,.6)');
+  svg.appendChild(treePath);
+  // Stars
+  for(let i=0;i<40;i++){
+    const star=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    star.setAttribute('cx',Math.random()*W+'');
+    star.setAttribute('cy',Math.random()*H*.5+'');
+    star.setAttribute('r',(Math.random()*1.5+.5)+'');
+    star.setAttribute('fill',`rgba(255,255,255,${.2+Math.random()*.5})`);
+    svg.appendChild(star);
+  }
+  bg.appendChild(svg);
+}
+drawBgTrees();
+
+// ── INIT GAME ──
+function initGame(first){
+  firstPlayer=first;
+  currentPlayer=first;
+  roundIdx=0; subTurn=0;
+  scores={razan:0,dara:0};
+  roundScores=[];
+  showScreen('s-game');
+  setTimeout(()=>{
+    setupLanes();
+    updateHUD();
+    startCountdown(()=>startRound());
+  },80);
+}
+
+function setupLanes(){
+  ['razan','dara'].forEach(p=>{
+    const laneEl=document.getElementById('lane-'+p);
+    const bowCanvas=document.getElementById('bow-'+p);
+    if(!laneEl||!bowCanvas) return;
+    const lW=laneEl.offsetWidth, lH=laneEl.offsetHeight;
+    bowCanvas.width=lW; bowCanvas.height=lH;
+    bowCanvas.style.position='absolute';
+    bowCanvas.style.inset='0';
+    bowCanvas.style.width=lW+'px';
+    bowCanvas.style.height=lH+'px';
+    const bctx=bowCanvas.getContext('2d');
+    bowState[p].ctx=bctx;
+    bowState[p].canvas=bowCanvas;
+    bowState[p].baseX=lW/2;
+    bowState[p].baseY=lH-70; // higher bow position
+    bowState[p].pulling=false;
+    drawBow(p);
+  });
+  setupInput();
+}
+
+// ── INPUT ──
+function setupInput(){
+  const arena=document.getElementById('arena');
+  if(!arena) return;
+  // Remove old listeners by cloning
+  const newArena=arena.cloneNode(false);
+  // Move children
+  while(arena.firstChild) newArena.appendChild(arena.firstChild);
+  arena.parentNode.replaceChild(newArena,arena);
+  // Re-get references after DOM change
+  const a=document.getElementById('arena')||newArena;
+
+  a.addEventListener('touchstart',onTouchStart,{passive:false});
+  a.addEventListener('touchmove',onTouchMove,{passive:false});
+  a.addEventListener('touchend',onTouchEnd,{passive:false});
+  a.addEventListener('mousedown',onMouseDown);
+  window.addEventListener('mousemove',onMouseMove);
+  window.addEventListener('mouseup',onMouseUp);
+}
+
+function getLanePlayer(clientX){
+  const arena=document.getElementById('arena');
+  if(!arena) return null;
+  const rect=arena.getBoundingClientRect();
+  const relX=clientX-rect.left;
+  return relX<rect.width/2?'razan':'dara';
+}
+
+function getRelPos(clientX,clientY,player){
+  const lane=document.getElementById('lane-'+player);
+  if(!lane) return{x:0,y:0};
+  const rect=lane.getBoundingClientRect();
+  return{x:clientX-rect.left,y:clientY-rect.top};
+}
+
+let mousePlayer=null;
+function onMouseDown(e){
+  if(!gameActive) return;
+  const p=getLanePlayer(e.clientX);
+  if(p!==currentPlayer) return;
+  mousePlayer=p;
+  startPull(p,e.clientX,e.clientY);
+}
+function onMouseMove(e){
+  if(!mousePlayer||!gameActive) return;
+  updatePull(mousePlayer,e.clientX,e.clientY);
+}
+function onMouseUp(e){
+  if(!mousePlayer||!gameActive) return;
+  releasePull(mousePlayer);
+  mousePlayer=null;
+}
+
+function onTouchStart(e){
+  e.preventDefault();
+  if(!gameActive) return;
+  Array.from(e.changedTouches).forEach(t=>{
+    const p=getLanePlayer(t.clientX);
+    if(p!==currentPlayer) return;
+    startPull(p,t.clientX,t.clientY);
+  });
+}
+function onTouchMove(e){
+  e.preventDefault();
+  if(!gameActive) return;
+  Array.from(e.changedTouches).forEach(t=>{
+    const p=getLanePlayer(t.clientX);
+    if(p===currentPlayer&&bowState[p].pulling) updatePull(p,t.clientX,t.clientY);
+  });
+}
+function onTouchEnd(e){
+  e.preventDefault();
+  if(!gameActive) return;
+  Array.from(e.changedTouches).forEach(t=>{
+    const p=getLanePlayer(t.clientX);
+    if(p===currentPlayer&&bowState[p].pulling) releasePull(p);
+  });
+}
+
+function startPull(player,cx,cy){
+  const pos=getRelPos(cx,cy,player);
+  const bs=bowState[player];
+  bs.pulling=true;
+  bs.pullX=pos.x; bs.pullY=pos.y;
+  if(navigator.vibrate) navigator.vibrate(15);
+  // Hide hint once player starts pulling
+  const hint=document.getElementById('hint-'+player);
+  if(hint) hint.style.display='none';
+  drawBow(player);
+}
+
+function updatePull(player,cx,cy){
+  const pos=getRelPos(cx,cy,player);
+  const bs=bowState[player];
+  if(!bs.pulling) return;
+  // Clamp pull — max pull distance
+  const dx=pos.x-bs.baseX, dy=pos.y-bs.baseY;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  const maxPull=80;
+  if(dist>maxPull){
+    bs.pullX=bs.baseX+dx/dist*maxPull;
+    bs.pullY=bs.baseY+dy/dist*maxPull;
+  } else {
+    bs.pullX=pos.x; bs.pullY=pos.y;
+  }
+  drawBow(player);
+}
+
+function releasePull(player){
+  const bs=bowState[player];
+  if(!bs.pulling) return;
+  bs.pulling=false;
+  const dx=bs.pullX-bs.baseX, dy=bs.pullY-bs.baseY;
+  const power=Math.sqrt(dx*dx+dy*dy);
+  // Direction: arrow goes opposite of pull direction
+  // Normalize direction only, power controls speed separately
+  const norm=Math.sqrt(dx*dx+dy*dy)||1;
+  const vx=-dx/norm, vy=-dy/norm;
+  fireArrow(player,bs.baseX,bs.baseY,vx,vy,Math.min(power,100));
+  drawBow(player);
+}
+
+// ── BOW DRAWING ──
+function drawBow(player){
+  const bs=bowState[player];
+  const ctx=bs.ctx;
+  if(!ctx) return;
+  const laneEl=document.getElementById('lane-'+player);
+  if(!laneEl) return;
+  const W=laneEl.offsetWidth, H=laneEl.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+
+  const bx=bs.baseX, by=bs.baseY;
+  const isR=player==='razan';
+  const bowColor=isR?'#7eb3f5':'#e8a090';
+  const stringColor='rgba(255,255,255,.7)';
+
+  // Bow arc
+  const bowH=60, bowW=18;
+  ctx.beginPath();
+  ctx.arc(bx,by-bowH/2,bowH/2,Math.PI*.7,Math.PI*1.3);
+  ctx.strokeStyle=bowColor;
+  ctx.lineWidth=5;
+  ctx.lineCap='round';
+  ctx.stroke();
+
+  // Bow string
+  const pullX=bs.pulling?bs.pullX:bx;
+  const pullY=bs.pulling?bs.pullY:by;
+  const topStr={x:bx,y:by-bowH};
+  const botStr={x:bx,y:by};
+
+  ctx.beginPath();
+  ctx.moveTo(topStr.x,topStr.y);
+  ctx.lineTo(pullX,pullY);
+  ctx.lineTo(botStr.x,botStr.y);
+  ctx.strokeStyle=stringColor;
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+
+  // Arrow on string when pulling
+  if(bs.pulling){
+    const dx=bx-pullX, dy=by-bowH/2-pullY;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    if(len>5){
+      const nx=dx/len, ny=dy/len;
+      const arrowLen=50;
+      // Arrow shaft
+      ctx.beginPath();
+      ctx.moveTo(pullX,pullY);
+      ctx.lineTo(pullX+nx*arrowLen,pullY+ny*arrowLen);
+      ctx.strokeStyle='#c9a96e';
+      ctx.lineWidth=2.5;
+      ctx.stroke();
+      // Arrowhead
+      const tipX=pullX+nx*arrowLen, tipY=pullY+ny*arrowLen;
+      const perpX=-ny, perpY=nx;
+      ctx.beginPath();
+      ctx.moveTo(tipX+nx*8,tipY+ny*8);
+      ctx.lineTo(tipX+perpX*4,tipY+perpY*4);
+      ctx.lineTo(tipX-perpX*4,tipY-perpY*4);
+      ctx.fillStyle='#e57373';
+      ctx.fill();
+      // Fletching
+      ctx.beginPath();
+      ctx.moveTo(pullX-nx*5,pullY-ny*5);
+      ctx.lineTo(pullX+perpX*6-nx*2,pullY+perpY*6-ny*2);
+      ctx.moveTo(pullX-nx*5,pullY-ny*5);
+      ctx.lineTo(pullX-perpX*6-nx*2,pullY-perpY*6-ny*2);
+      ctx.strokeStyle='#e53935';
+      ctx.lineWidth=2;
+      ctx.stroke();
+    }
+    // Pull strength indicator
+    const pullDist=Math.sqrt((bs.pullX-bx)**2+(bs.pullY-(by-bowH/2))**2);
+    const pct=Math.min(pullDist/80,1);
+    ctx.beginPath();
+    ctx.arc(pullX,pullY,8*pct+4,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,213,79,${pct*.8})`;
+    ctx.lineWidth=2;
+    ctx.stroke();
+  }
+
+  // Bow grip
+  ctx.beginPath();
+  ctx.arc(bx,by-bowH/2,5,0,Math.PI*2);
+  ctx.fillStyle=bowColor;
+  ctx.fill();
+}
+
+// ── FIRE ARROW (animated) ──
+function fireArrow(player,startX,startY,vx,vy,power){
+  if(arrowsLeft<=0) return;
+  arrowsLeft--;
+  updateHUD();
+  if(navigator.vibrate) navigator.vibrate([20,10,40]);
+
+  const lane=document.getElementById('lane-'+player);
+  if(!lane) return;
+  const lW=lane.offsetWidth, lH=lane.offsetHeight;
+
+  const speed=(power/100)*12+6;
+  let ax=startX, ay=startY;
+  let avx=vx*speed, avy=vy*speed;
+  let frame=0;
+  const maxFrames=80;
+  let hit=false;
+  let trailTimer=0;
+
+  const anim=setInterval(()=>{
+    frame++;
+    ax+=avx*.7; ay+=avy*.7;
+    avy+=.08;
+
+    // Draw trail dots every 4 frames
+    trailTimer++;
+    if(trailTimer%4===0){
+      const dot=document.createElement('div');
+      dot.className='trail-dot';
+      dot.style.left=ax+'px';
+      dot.style.top=ay+'px';
+      lane.appendChild(dot);
+      setTimeout(()=>dot.parentNode&&dot.parentNode.removeChild(dot),500);
+    }
+
+    // Check hit on targets
+    for(let i=0;i<targets.length;i++){
+      const t=targets[i];
+      if(t.player!==player||t.hit) continue;
+      const dx=ax-t.x, dy=ay-t.y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const r=t.radius;
+      if(dist<r*1.15){
+        hit=true;
+        t.hit=true;
+        // Determine score ring
+        let pts=1;
+        for(let ri=0;ri<RING_RATIOS.length;ri++){
+          if(dist<r*RING_RATIOS[ri]){pts=RING_SCORES[ri];break;}
+        }
+        roundScore+=pts;
+        scores[player]+=pts;
+        showHitEffect(player,t.x,t.y,pts,RING_COLORS[RING_SCORES.indexOf(pts)]||'#fff');
+        // Stick arrow into target
+        showStuckArrow(player,ax,ay,vx,vy);
+        removeTarget(t);
+        updateHUD();
+        clearInterval(anim);
+        checkRoundEnd();
+        return;
+      }
+    }
+
+    // Out of bounds — show miss
+    if(frame>=maxFrames||ay<-30||ax<-10||ax>lW+10){
+      clearInterval(anim);
+      if(!hit){
+        showMiss(player,Math.max(10,Math.min(lW-10,ax)),Math.max(10,Math.min(lH-100,ay)));
+        // Stick arrow where it landed on wall/ground
+        showStuckArrow(player,Math.max(15,Math.min(lW-15,ax)),Math.min(lH*0.7,Math.max(20,ay)),vx,vy);
+      }
+      checkRoundEnd();
+    }
+  },16);
+}
+
+function showStuckArrow(player,x,y,vx,vy){
+  const lane=document.getElementById('lane-'+player);
+  if(!lane) return;
+  // Angle of arrow
+  const angle=Math.atan2(vy,vx)*180/Math.PI;
+  const el=document.createElement('div');
+  el.className='stuck-arrow';
+  el.style.cssText=`left:${x}px;top:${y}px;transform:translate(-50%,-50%) rotate(${angle+90}deg)`;
+  el.textContent='🏹';
+  lane.appendChild(el);
+  // Fade out after 2s
+  setTimeout(()=>{
+    el.style.transition='opacity .5s';
+    el.style.opacity='0';
+    setTimeout(()=>el.parentNode&&el.parentNode.removeChild(el),500);
+  },2000);
+}
+
+function showMiss(player,x,y){
+  const lane=document.getElementById('lane-'+player);
+  if(!lane) return;
+  // Miss text
+  const pop=document.createElement('div');
+  pop.className='miss-pop';
+  pop.style.cssText=`left:${Math.max(40,Math.min(lane.offsetWidth-40,x))}px;top:${Math.max(60,Math.min(lane.offsetHeight-60,y))}px`;
+  pop.textContent='💨 Miss!';
+  lane.appendChild(pop);
+  setTimeout(()=>pop.parentNode&&pop.parentNode.removeChild(pop),900);
+  // Lane flash red
+  const flash=document.createElement('div');
+  flash.className='hit-flash';
+  flash.style.background='rgba(255,0,0,.15)';
+  lane.appendChild(flash);
+  setTimeout(()=>flash.parentNode&&flash.parentNode.removeChild(flash),350);
+  if(navigator.vibrate) navigator.vibrate([60,20,60]);
+}
+
+// ── TARGETS ──
+function spawnTarget(player){
+  const lane=document.getElementById('lane-'+player);
+  if(!lane) return;
+  const lW=lane.offsetWidth, lH=lane.offsetHeight;
+  const r=Math.min(lW*.2,52); // bigger targets
+  const margin=r+10;
+  const x=margin+Math.random()*(lW-margin*2);
+  const y=margin+Math.random()*(lH*.58); // avoid bow area
+
+  const t={player,x,y,radius:r,hit:false,id:Date.now()+Math.random(),el:null,timerEl:null};
+
+  // Create target element
+  const wrap=document.createElement('div');
+  wrap.className='target-wrap';
+  wrap.style.left=x+'px'; wrap.style.top=y+'px';
+  wrap.style.transform='translate(-50%,-50%)';
+  wrap.style.transition='opacity .3s';
+  wrap.dataset.tid=t.id;
+
+  // Draw target rings as SVG
+  const svgSize=r*2+4;
+  const svg=`<svg width="${svgSize}" height="${svgSize}" class="target-svg">
+    <circle cx="${svgSize/2}" cy="${svgSize/2}" r="${r}" fill="#333" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+    ${RING_RATIOS.slice().reverse().map((ratio,i)=>{
+      const ri=RING_RATIOS.length-1-i;
+      return `<circle cx="${svgSize/2}" cy="${svgSize/2}" r="${r*ratio*2}" fill="${RING_COLORS[ri]}" opacity=".85"/>`;
+    }).join('')}
+    <circle cx="${svgSize/2}" cy="${svgSize/2}" r="${r*RING_RATIOS[0]*2}" fill="#e53935"/>
+    <circle cx="${svgSize/2}" cy="${svgSize/2}" r="3" fill="#fff"/>
+  </svg>`;
+  wrap.innerHTML=svg;
+
+  // Timer ring (shrinking border)
+  const timerRing=document.createElement('div');
+  timerRing.style.cssText=`position:absolute;inset:-4px;border-radius:50%;border:3px solid rgba(255,213,79,.7);animation:timershrink ${TARGET_DURATION}ms linear forwards`;
+  wrap.appendChild(timerRing);
+
+  lane.appendChild(wrap);
+  t.el=wrap;
+  targets.push(t);
+
+  // Auto remove after duration
+  const timer=setTimeout(()=>{
+    if(!t.hit) removeTarget(t);
+    checkRoundEnd();
+  },TARGET_DURATION);
+  t.timer=timer;
+}
+
+function removeTarget(t){
+  if(t.el){
+    t.el.style.opacity='0';
+    setTimeout(()=>{if(t.el&&t.el.parentNode) t.el.parentNode.removeChild(t.el);},300);
+  }
+  clearTimeout(t.timer);
+  targets=targets.filter(x=>x!==t);
+}
+
+function clearAllTargets(){
+  targets.forEach(t=>{
+    clearTimeout(t.timer);
+    if(t.el&&t.el.parentNode) t.el.parentNode.removeChild(t.el);
+  });
+  targets=[];
+  targetTimers.forEach(clearTimeout);
+  targetTimers=[];
+  // Clear stuck arrows and effects from both lanes
+  ['razan','dara'].forEach(p=>{
+    const lane=document.getElementById('lane-'+p);
+    if(!lane) return;
+    lane.querySelectorAll('.stuck-arrow,.miss-pop,.hit-effect,.score-pop,.trail-dot,.hit-flash').forEach(el=>el.remove());
+  });
+}
+
+// ── HIT EFFECT ──
+function showHitEffect(player,x,y,pts,color){
+  const lane=document.getElementById('lane-'+player);
+  if(!lane) return;
+
+  // Big burst circle
+  const hitEl=document.createElement('div');
+  hitEl.className='hit-effect';
+  hitEl.style.cssText=`left:${x}px;top:${y}px;width:60px;height:60px;border-radius:50%;background:${color};margin:-30px;border:3px solid rgba(255,255,255,.6)`;
+  lane.appendChild(hitEl);
+  setTimeout(()=>hitEl.parentNode&&hitEl.parentNode.removeChild(hitEl),500);
+
+  // Score popup — big and bold
+  const pop=document.createElement('div');
+  pop.className='score-pop';
+  const label=pts===10?'🎯 BULL! +10':pts===7?'⭐ Nice! +7':pts===4?'👍 +4':'· +1';
+  pop.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${pts>=7?'1.4rem':'1rem'}`;
+  pop.textContent=label;
+  lane.appendChild(pop);
+  setTimeout(()=>pop.parentNode&&pop.parentNode.removeChild(pop),900);
+
+  // Lane flash green
+  const flash=document.createElement('div');
+  flash.className='hit-flash';
+  flash.style.background=pts===10?'rgba(255,213,79,.2)':'rgba(100,255,100,.12)';
+  lane.appendChild(flash);
+  setTimeout(()=>flash.parentNode&&flash.parentNode.removeChild(flash),350);
+
+  if(navigator.vibrate) navigator.vibrate(pts===10?[40,20,80,20,120]:pts>=7?[30,10,60]:[20]);
+}
+
+// ── ROUND LOGIC ──
+function startRound(){
+  clearAllTargets();
+  arrowsLeft=ARROWS_PER_ROUND;
+  roundScore=0;
+  gameActive=true;
+  updateHUD();
+
+  // Spawn targets periodically for current player
+  let spawned=0;
+  function spawnNext(){
+    if(spawned>=TARGET_COUNT||!gameActive) return;
+    spawnTarget(currentPlayer);
+    spawned++;
+    if(spawned<TARGET_COUNT){
+      // Spawn new target when previous one disappears
+      const delay=spawned===1?200:1200+Math.random()*600;
+      const t=setTimeout(spawnNext,delay);
+      targetTimers.push(t);
+    }
+  }
+  spawnNext();
+}
+
+let roundEndTriggered=false;
+function checkRoundEnd(){
+  if(!gameActive) return;
+  if(arrowsLeft>0) return;
+  // All arrows used — wait a bit for last arrow animation
+  setTimeout(()=>{
+    if(!gameActive) return;
+    endTurn();
+  },800);
+}
+
+function endTurn(){
+  gameActive=false;
+  clearAllTargets();
+
+  // Store round score for current player
+  if(subTurn===0){
+    // First player done
+    const rEntry={};
+    rEntry[currentPlayer]=roundScore;
+    roundScores[roundIdx]=rEntry;
+    // Show pass screen
+    showPassScreen(()=>{
+      subTurn=1;
+      const second=currentPlayer===firstPlayer?(firstPlayer==='razan'?'dara':'razan'):'razan';
+      currentPlayer=second;
+      updateHUD();
+      startCountdown(()=>startRound());
+    });
+  } else {
+    // Second player done
+    if(roundScores[roundIdx]) roundScores[roundIdx][currentPlayer]=roundScore;
+    else roundScores[roundIdx]={[currentPlayer]:roundScore};
+    roundIdx++;
+    subTurn=0;
+    currentPlayer=firstPlayer;
+    if(roundIdx>=totalRounds){
+      showFinal();
+    } else {
+      updateHUD();
+      startCountdown(()=>startRound());
+    }
+  }
+}
+
+function showPassScreen(cb){
+  const second=firstPlayer==='razan'?'dara':'razan';
+  const secName=second==='razan'?'Razan':'Dara';
+  const curName=currentPlayer==='razan'?'Razan':'Dara';
+
+  const pi=document.getElementById('pass-icon');
+  const pt=document.getElementById('pass-title');
+  const ps=document.getElementById('pass-sub');
+  const pb=document.getElementById('pass-btn');
+  const psc=document.getElementById('pass-score-card');
+
+  if(pi) pi.textContent=currentPlayer==='razan'?'🧑':'👧';
+  if(pt) pt.textContent=`${curName} selesai ronde ${roundIdx+1}!`;
+  if(ps) ps.textContent=`Kasih HP ke ${secName} — sekarang giliran ${secName} memanah!`;
+  if(pb) pb.textContent=`${second==='razan'?'🧑':'👧'} ${secName} Siap! 🏹`;
+  if(psc){
+    psc.innerHTML=`
+      <div class="psc-row"><span class="psc-name">Skor ${curName} ronde ini</span><span class="psc-val ${currentPlayer}">${roundScore} poin</span></div>
+      <div class="psc-row"><span class="psc-name">Total ${curName}</span><span class="psc-val ${currentPlayer}">${scores[currentPlayer]} poin</span></div>`;
+  }
+
+  window._passCallback=cb;
+  showScreen('s-pass');
+}
+
+function startNextPlayer(){
+  const cb=window._passCallback;
+  window._passCallback=null;
+  if(cb) cb();
+}
+
+function startCountdown(cb){
+  showScreen('s-cd');
+  const name=currentPlayer==='razan'?'Razan':'Dara';
+  const cp=document.getElementById('cd-player');
+  const cn=document.getElementById('cd-num');
+  const cs=document.getElementById('cd-sub');
+  if(cp) cp.textContent=`${currentPlayer==='razan'?'🧑':'👧'} ${name} — Ronde ${roundIdx+1}`;
+  let n=3;
+  const tick=()=>{
+    if(cn){cn.style.animation='none';void cn.offsetWidth;cn.style.animation='cdpop .5s cubic-bezier(.34,1.5,.64,1)';}
+    if(cn) cn.textContent=n;
+    if(cs) cs.textContent=n===3?'Bersiap...':n===2?'Siap busurmu!':'Bidik!';
+    if(navigator.vibrate) navigator.vibrate(30);
+    n--;
+    if(n<0){
+      if(cn) cn.textContent='GO!';
+      if(cs) cs.textContent='Tembak targetnya! 🏹';
+      setTimeout(()=>{showScreen('s-game');setupLanes();cb();},600);
+    } else {
+      setTimeout(tick,900);
+    }
+  };
+  tick();
+}
+
+// ── HUD ──
+function updateHUD(){
+  const scr=document.getElementById('gh-sc-r');
+  const scd=document.getElementById('gh-sc-d');
+  const gr=document.getElementById('gh-round');
+  const ga=document.getElementById('gh-arrows');
+  if(scr) scr.textContent=scores.razan;
+  if(scd) scd.textContent=scores.dara;
+  if(gr) gr.textContent=`Ronde ${Math.min(roundIdx+1,totalRounds)}/${totalRounds}`;
+  if(ga) ga.textContent='🏹'.repeat(arrowsLeft)+(arrowsLeft===0?'':'')||'—';
+
+  // Lane labels
+  const llr=document.getElementById('lane-label-razan');
+  const lld=document.getElementById('lane-label-dara');
+  if(llr) llr.style.opacity=currentPlayer==='razan'?'1':'.3';
+  if(lld) lld.style.opacity=currentPlayer==='dara'?'1':'.3';
+}
+
+// ── FINAL ──
+function showFinal(){
+  const r=scores.razan, d=scores.dara;
+  const tie=r===d;
+  const winner=r>d?'razan':'dara';
+  const wName=winner==='razan'?'Razan':'Dara';
+
+  const fi=document.getElementById('final-icon');
+  if(fi) fi.textContent=tie?'🤝':'🏆';
+  const ft=document.getElementById('final-title');
+  if(ft) ft.textContent=tie?'Seri!':`${winner==='razan'?'🧑':'👧'} ${wName} Menang!`;
+  const fs=document.getElementById('final-sub');
+  if(fs) fs.textContent=tie?'Sama-sama jago memanah!':'Pemanah terbaik hari ini!';
+  const er=document.getElementById('end-r');if(er) er.textContent=r;
+  const ed=document.getElementById('end-d');if(ed) ed.textContent=d;
+
+  // Rounds recap
+  const rrl=document.getElementById('rr-list');
+  if(rrl){
+    rrl.innerHTML='';
+    roundScores.forEach((rs,i)=>{
+      const row=document.createElement('div');row.className='rr-row';
+      row.innerHTML=`<span class="rr-label">Ronde ${i+1}</span><div class="rr-vals"><span class="rr-val razan">${rs.razan||0}</span><span style="color:rgba(255,255,255,.2)">vs</span><span class="rr-val dara">${rs.dara||0}</span></div>`;
+      rrl.appendChild(row);
+    });
+  }
+
+  const vd=document.getElementById('verdict');
+  if(vd){
+    let txt=tie?`Seri ${r}-${d}! Aim kalian sama tajamnya — rematch?`:`<strong>${wName}</strong> menang ${r>d?r:d}-${r>d?d:r}! Bidikan ${wName} hari ini tidak bisa dibendung. 🏹`;
+    vd.innerHTML=txt;
+  }
+
+  showScreen('s-final');
+  if(!tie) confetti(80); else confetti(40);
+}
+
+// CSS animation for timer ring
+const style=document.createElement('style');
+style.textContent=`@keyframes timershrink{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0)}}`;
+document.head.appendChild(style);
+
+function confetti(n){
+  const colors=['#ffd54f','#7eb3f5','#e8a090','#81c784','#fff','#c17a6f'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*18);
+}
+</script>
+</body>
+</html>
