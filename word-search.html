@@ -2,831 +2,784 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Search — Razan & Dara 🤍</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Word Search — Razan & Dara 🔍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #faf6f0;
-    --warm: #f5ede0;
-    --blush: #e8c4b0;
-    --rose: #c17a6f;
-    --deep: #7a3f35;
-    --ink: #2d1f1a;
-    --gold: #c9a96e;
-    --muted: #9a8070;
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{min-height:100%;background:var(--cream);overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 15%,rgba(232,196,176,.3),transparent 65%),radial-gradient(ellipse 50% 60% at 80% 85%,rgba(193,122,111,.15),transparent 65%);pointer-events:none;z-index:0}
+
+  .screen{display:none;min-height:100vh;position:relative;z-index:1}
+  .screen.active{display:block}
+
+  /* Page container — responsive max-width */
+  .page{max-width:520px;margin:0 auto;padding:0 1rem 4rem}
+
+  /* ── DESKTOP GAME LAYOUT ── */
+  .game-layout{display:flex;flex-direction:column;gap:1rem}
+
+  @media(min-width:700px){
+    .page{max-width:680px;padding:0 1.5rem 4rem}
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  @media(min-width:1024px){
+    .page{max-width:1100px;padding:0 2rem 4rem}
 
-  body {
-    background: var(--cream);
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    padding: 2rem 1rem 5rem;
-    overflow-x: hidden;
+    /* Two-column game layout on desktop */
+    .game-layout{
+      flex-direction:row;
+      align-items:flex-start;
+      gap:1.5rem;
+    }
+    .game-col-left{
+      flex:1;
+      min-width:0;
+    }
+    .game-col-right{
+      width:280px;
+      flex-shrink:0;
+      position:sticky;
+      top:1rem;
+    }
+
+    /* Intro & cat screens wider */
+    #s-intro .intro-wrap{max-width:560px}
+    .mode-cards{flex-direction:row!important}
+    .mode-card{flex:1}
+    .cat-grid{grid-template-columns:repeat(4,1fr)!important;max-width:680px!important}
+
+    /* Game header wider */
+    .g-top{padding:.75rem 0}
   }
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 60% 50% at 20% 15%, rgba(232,196,176,0.3) 0%, transparent 65%),
-      radial-gradient(ellipse 50% 60% at 80% 85%, rgba(193,122,111,0.15) 0%, transparent 65%);
-    pointer-events: none; z-index: 0;
+  /* ── INTRO ── */
+  #s-intro.active{display:flex!important;align-items:center;justify-content:center;padding:2rem 1rem;min-height:100vh}
+  .intro-wrap{max-width:420px;width:100%;text-align:center}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1.25rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .intro-title{font-size:clamp(1.8rem,6vw,2.5rem);font-weight:700;color:var(--ink);margin-bottom:.75rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13.5px;color:var(--muted);line-height:1.8;margin-bottom:2rem;max-width:340px;margin-left:auto;margin-right:auto}
+
+  /* Mode cards */
+  .mode-cards{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem}
+  .mode-card{background:#fff;border:2px solid var(--blush);border-radius:16px;padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;gap:1rem;text-align:left;transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.06);user-select:none}
+  .mode-card:active{transform:scale(.97);border-color:var(--rose)}
+  .mc-icon{font-size:2rem;flex-shrink:0;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+  .mc-icon.easy{background:rgba(181,196,177,.2)}
+  .mc-icon.normal{background:rgba(201,169,110,.15)}
+  .mc-icon.hard{background:rgba(193,122,111,.12)}
+  .mc-title{font-size:14px;font-weight:700;color:var(--ink);display:block;margin-bottom:.1rem}
+  .mc-desc{font-size:11px;color:var(--muted);display:block;line-height:1.5}
+  .mc-badge{font-size:9px;font-weight:700;padding:.15rem .55rem;border-radius:50px;display:inline-block;margin-top:.3rem}
+  .mc-badge.easy{background:rgba(76,175,80,.1);color:#2a7a2a}
+  .mc-badge.normal{background:rgba(201,169,110,.15);color:#7a5000}
+  .mc-badge.hard{background:rgba(193,122,111,.12);color:#7a1a1a}
+
+  /* ── CATEGORY SELECT ── */
+  #s-cat{padding:2rem 1rem;min-height:100vh}
+  .cat-header{text-align:center;margin-bottom:1.5rem}
+  .cat-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .cat-sub{font-size:12px;color:var(--muted);line-height:1.6}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;max-width:420px;margin:0 auto 1.5rem}
+  @media(min-width:600px){.cat-grid{grid-template-columns:repeat(3,1fr);max-width:560px}}
+  @media(min-width:1024px){.cat-grid{grid-template-columns:repeat(4,1fr);max-width:680px}}
+  .cat-card{background:#fff;border:2px solid var(--blush);border-radius:14px;padding:.85rem .75rem;cursor:pointer;text-align:center;transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.05)}
+  .cat-card:active{transform:scale(.95);border-color:var(--rose)}
+  .cat-card.sel{border-color:var(--rose);background:rgba(193,122,111,.04)}
+  .cc-emoji{font-size:1.6rem;display:block;margin-bottom:.25rem}
+  .cc-label{font-size:11px;font-weight:600;color:var(--ink);display:block}
+  .cc-count{font-size:9px;color:var(--muted)}
+  .start-btn{width:100%;max-width:420px;display:block;margin:0 auto;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
+  .back-btn{display:block;margin:.75rem auto 0;text-align:center;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Poppins',sans-serif}
+
+  /* ── GAME ── */
+  #s-game .page{padding-top:1rem}
+  .g-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+  .g-top-left{display:flex;flex-direction:column}
+  .g-mode-badge{font-size:9px;font-weight:700;padding:.15rem .55rem;border-radius:50px;display:inline-block;width:fit-content;margin-bottom:.2rem}
+  .g-mode-badge.easy{background:rgba(76,175,80,.1);color:#2a7a2a}
+  .g-mode-badge.normal{background:rgba(201,169,110,.15);color:#7a5000}
+  .g-mode-badge.hard{background:rgba(193,122,111,.12);color:#7a1a1a}
+  .g-cat-label{font-size:12px;font-weight:600;color:var(--ink)}
+  .stats-row{display:flex;gap:1.25rem;align-items:center}
+  .stat{text-align:center}
+  .stat-num{font-size:1.3rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .stat-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .timer-stat .stat-num{font-size:1rem;font-weight:700;color:var(--ink)}
+  .timer-stat .stat-num.warn{color:#e53935;animation:pulse .5s ease infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.4}}
+
+  /* Grid */
+  .grid-wrap{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1rem;margin-bottom:.85rem;box-shadow:0 2px 16px rgba(45,31,26,.06);overflow:hidden;touch-action:none;width:100%}
+  #word-grid{display:grid;gap:2px;width:100%;margin:0 auto;touch-action:none;user-select:none}
+  .cell{display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--ink);border-radius:6px;cursor:pointer;transition:background .08s,color .08s;text-transform:uppercase;border:1px solid transparent;aspect-ratio:1}
+  .cell.selecting{background:rgba(193,122,111,.25);color:var(--deep)}
+  .cell.found{color:#fff}
+
+  /* Word list */
+  .word-list-wrap{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1rem 1.25rem;margin-bottom:.85rem;box-shadow:0 2px 12px rgba(45,31,26,.05)}
+  .wl-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:block}
+  .word-list{display:flex;flex-wrap:wrap;gap:.4rem}
+  @media(min-width:1024px){
+    .game-col-right .word-list-wrap{max-height:calc(100vh - 120px);overflow-y:auto;margin-bottom:0}
+    .game-col-right .word-list{flex-direction:column;gap:.3rem}
+    .game-col-right .word-chip{text-align:left}
   }
+  .word-chip{padding:.28rem .75rem;border-radius:50px;font-size:11px;font-weight:500;background:var(--warm);color:var(--muted);border:1px solid var(--blush);text-transform:uppercase;letter-spacing:.04em;transition:all .2s}
+  .word-chip.found{color:#fff;border-color:transparent;text-decoration:line-through;opacity:.8}
 
-  .page { max-width: 680px; margin: 0 auto; position: relative; z-index: 1; }
+  /* btn */
+  .btn-row{display:flex;gap:.6rem;max-width:420px;margin:0 auto}
+  .btn{flex:1;padding:.75rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;transition:all .2s;text-align:center}
+  .btn-primary{background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.3)}
+  .btn-primary:active{background:var(--deep);transform:scale(.97)}
+  .btn-outline{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .btn-outline:active{border-color:var(--rose);color:var(--rose)}
 
-  /* ── HEADER ── */
-  .header { text-align: center; padding: 2rem 0 1.5rem; }
+  /* Win */
+  #win-screen{display:none;text-align:center;background:#fff;border:1px solid rgba(193,122,111,.2);border-radius:16px;padding:2rem 1.5rem;margin-bottom:1.25rem;box-shadow:0 4px 24px rgba(193,122,111,.12)}
+  #win-screen.show{display:block;animation:popin .4s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes popin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  .win-emoji{font-size:3.5rem;display:block;margin-bottom:.75rem}
+  .win-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+  .win-msg{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:1.25rem}
+  .win-stat{font-size:1.5rem;font-weight:700;color:var(--rose);display:block;margin:.25rem 0}
+  .win-stat-label{font-size:10px;color:var(--muted)}
 
-  .header-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+  .confetti-piece{position:fixed;border-radius:2px;animation:confetti-fall linear forwards;pointer-events:none;z-index:9999}
+  @keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 
-  .header-label {
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.5rem; display: block;
+  /* Fade transition — no position:fixed, use display+opacity */
+  .screen{
+    display:none;
+    opacity:0;
+    transition:opacity .3s ease;
   }
-
-  .header-title {
-    font-size: clamp(1.6rem, 5vw, 2.2rem);
-    font-weight: 600; color: var(--ink); margin-bottom: 0.5rem;
+  .screen.visible{
+    display:block;
+    pointer-events:none;
   }
-
-  .header-title span { color: var(--rose); }
-
-  .header-sub {
-    font-size: 13px; color: var(--muted); line-height: 1.7;
-    max-width: 380px; margin: 0 auto 1.5rem;
+  .screen.active{
+    display:block;
+    opacity:1;
+    pointer-events:auto;
   }
-
-  /* ── STATS ── */
-  .stats {
-    display: flex; justify-content: center; gap: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .stat { text-align: center; }
-  .stat-num { font-size: 1.5rem; font-weight: 600; color: var(--rose); display: block; }
-  .stat-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-
-  /* ── GRID ── */
-  .grid-wrap {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 16px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 16px rgba(45,31,26,0.06);
-    overflow-x: auto;
-  }
-
-  #word-grid {
-    display: grid;
-    gap: 2px;
-    width: fit-content;
-    margin: 0 auto;
-    user-select: none;
-  }
-
-  .cell {
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 500;
-    color: var(--ink);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.1s, color 0.1s;
-    text-transform: uppercase;
-    border: 1px solid transparent;
-  }
-
-  .cell:hover { background: var(--warm); }
-  .cell.selecting { background: rgba(193,122,111,0.25); color: var(--deep); }
-  .cell.found { background: var(--rose); color: #fff; border-color: var(--deep); }
-
-  /* Different colors for found words */
-  .cell.found-0 { background: #c17a6f; }
-  .cell.found-1 { background: #b5a090; }
-  .cell.found-2 { background: #c9a96e; }
-  .cell.found-3 { background: #b5c4b1; }
-  .cell.found-4 { background: #c4a0a8; }
-  .cell.found-5 { background: #9ab0c4; }
-  .cell.found-6 { background: #c4b0a0; }
-  .cell.found-7 { background: #a0b4c4; }
-  .cell.found-8 { background: #c4a0b4; }
-  .cell.found-9 { background: #b4c4a0; }
-  .cell.found-10 { background: #c4b4a0; }
-  .cell.found-11 { background: #a0c4b4; }
-  .cell.found-12 { background: #c4a8a0; }
-  .cell.found-13 { background: #a8b0c4; }
-  .cell.found-14 { background: #c4b0b8; }
-  .cell.found-15 { background: #b0c4a8; }
-  .cell.found-16 { background: #c4a0a0; }
-  .cell.found-17 { background: #a0a8c4; }
-  .cell.found-18 { background: #c4b8a0; }
-  .cell.found-19 { background: #a8c4a0; }
-  .cell.found-20 { background: #c4a0c4; }
-  .cell.found-21 { background: #a0c4c4; }
-  .cell.found-22 { background: #c4c4a0; }
-  .cell.found-23 { background: #a0b8a8; }
-  .cell.found-24 { background: #c4a8b8; }
-
-  /* ── WORD LIST ── */
-  .word-list-wrap {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 16px; padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 12px rgba(45,31,26,0.05);
-  }
-
-  .word-list-title {
-    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 1rem; display: block;
-  }
-
-  .word-list {
-    display: flex; flex-wrap: wrap; gap: 0.5rem;
-  }
-
-  .word-chip {
-    padding: 0.35rem 0.85rem;
-    border-radius: 50px;
-    font-size: 12px; font-weight: 400;
-    background: var(--warm);
-    color: var(--muted);
-    border: 1px solid var(--blush);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    transition: all 0.2s;
-  }
-
-  .word-chip.found {
-    color: #fff;
-    border-color: transparent;
-    text-decoration: line-through;
-    opacity: 0.8;
-  }
-
-  /* ── WIN SCREEN ── */
-  #win-screen {
-    display: none; text-align: center;
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.2);
-    border-radius: 16px; padding: 2.5rem 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 24px rgba(193,122,111,0.12);
-  }
-
-  #win-screen.show { display: block; animation: pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-
-  @keyframes pop-in {
-    from { transform: scale(0.85); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .win-emoji { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
-  .win-title { font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
-  .win-msg { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 1.5rem; }
-  .win-time { font-size: 2rem; font-weight: 700; color: var(--rose); margin: 0.5rem 0; }
-  .win-time-label { font-size: 11px; color: var(--muted); }
-
-  /* ── TIMER ── */
-  .timer {
-    font-size: 13px; color: var(--muted);
-    text-align: center; margin-bottom: 1rem;
-    letter-spacing: 0.05em;
-  }
-
-  .timer span { color: var(--rose); font-weight: 600; font-size: 1.1rem; }
-
-  /* ── BUTTON ── */
-  .btn {
-    display: block; width: 100%;
-    padding: 0.85rem; border-radius: 50px; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
-    transition: all 0.2s; text-align: center;
-  }
-
-  .btn-primary { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(193,122,111,0.3); }
-  .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
-  .btn-outline { background: transparent; color: var(--muted); border: 1.5px solid var(--blush); }
-  .btn-outline:hover { border-color: var(--rose); color: var(--rose); }
-
-  .btn-row { display: flex; gap: 0.75rem; }
-  .btn-row .btn { flex: 1; }
-
-  /* ── CONFETTI ── */
-  .confetti-piece {
-    position: fixed; border-radius: 2px;
-    animation: confetti-fall linear forwards;
-    pointer-events: none; z-index: 9999;
-  }
-  @keyframes confetti-fall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-
-  @media (max-width: 480px) {
-    .cell { width: 22px; height: 22px; font-size: 10px; }
-  }
-
-  /* ── INTRO SCREEN ── */
-  #intro-screen {
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    padding: 2rem 1rem;
-    position: relative; z-index: 1;
-  }
-
-  #game-screen { display: none; }
-
-  .intro-wrap { max-width: 420px; width: 100%; text-align: center; }
-
-  .intro-icon {
-    font-size: 4rem; display: block; margin-bottom: 1.5rem;
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
-
-  .intro-label {
-    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem; display: block;
-  }
-
-  .intro-title {
-    font-size: clamp(1.8rem, 6vw, 2.5rem);
-    font-weight: 600; color: var(--ink); line-height: 1.15;
-    margin-bottom: 0.75rem;
-  }
-
-  .intro-title span { color: var(--rose); }
-
-  .intro-sub {
-    font-size: 14px; color: var(--muted);
-    line-height: 1.8; margin-bottom: 2rem;
-  }
-
-  .intro-info {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 12px; padding: 1.25rem 1.5rem;
-    margin-bottom: 2rem; text-align: left;
-  }
-
-  .intro-info-title {
-    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem; display: block;
-  }
-
-  .intro-info-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
-
-  .intro-info-list li {
-    font-size: 13px; color: var(--muted);
-    display: flex; gap: 0.5rem; align-items: flex-start;
-  }
-
-  .intro-info-list li::before { content: '·'; color: var(--rose); font-weight: 700; flex-shrink: 0; }
-
-  .intro-meta {
-    display: flex; justify-content: center; gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .intro-meta-item { text-align: center; }
-  .intro-meta-num { font-size: 1.5rem; font-weight: 600; color: var(--rose); display: block; }
-  .intro-meta-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
-
-  .btn-start {
-    width: 100%; padding: 1rem;
-    border-radius: 50px; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px; font-weight: 600;
-    background: var(--rose); color: #fff;
-    box-shadow: 0 6px 24px rgba(193,122,111,0.4);
-    transition: all 0.2s; letter-spacing: 0.04em;
-  }
-
-  .btn-start:hover { background: var(--deep); transform: translateY(-2px); }
 </style>
 </head>
 <body>
 
-<!-- INTRO SCREEN -->
-<div id="intro-screen">
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
   <div class="intro-wrap">
     <span class="intro-icon">🔍</span>
-    <span class="intro-label">Mini Game</span>
+    <span class="intro-label">Mini Game Berdua</span>
     <h1 class="intro-title">Word Search<br><span>Razan & Dara</span></h1>
-    <p class="intro-sub">Temukan semua kata tersembunyi tentang kita berdua sebelum waktu habis! 🤍</p>
-
-    <div class="intro-meta">
-      <div class="intro-meta-item">
-        <span class="intro-meta-num">12</span>
-        <span class="intro-meta-label">Kata</span>
+    <p class="intro-sub">Cari kata-kata tersembunyi di grid — tentang kita, tentang cinta, tentang hidup! Ada 3 mode dan banyak kategori kata.</p>
+    <div class="mode-cards" style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem">
+      <div class="mode-card" onclick="selectMode('easy')">
+        <div class="mc-icon easy">🌸</div>
+        <div>
+          <span class="mc-title">Mudah</span>
+          <span class="mc-desc">Grid 8×8 · 8 kata · 6 menit · kata kanan & bawah saja</span>
+          <span class="mc-badge easy">Santai</span>
+        </div>
       </div>
-      <div class="intro-meta-item">
-        <span class="intro-meta-num">5</span>
-        <span class="intro-meta-label">Menit</span>
+      <div class="mode-card" onclick="selectMode('normal')">
+        <div class="mc-icon normal">✨</div>
+        <div>
+          <span class="mc-title">Normal</span>
+          <span class="mc-desc">Grid 11×11 · 12 kata · 5 menit · semua arah</span>
+          <span class="mc-badge normal">Seru</span>
+        </div>
       </div>
-      <div class="intro-meta-item">
-        <span class="intro-meta-num">10x10</span>
-        <span class="intro-meta-label">Grid</span>
+      <div class="mode-card" onclick="selectMode('hard')">
+        <div class="mc-icon hard">🔥</div>
+        <div>
+          <span class="mc-title">Susah</span>
+          <span class="mc-desc">Grid 14×14 · 18 kata · 4 menit · termasuk diagonal balik</span>
+          <span class="mc-badge hard">Tantangan</span>
+        </div>
       </div>
     </div>
-
-    <div class="intro-info">
-      <span class="intro-info-title">Cara Main</span>
-      <ul class="intro-info-list">
-        <li>Drag atau swipe untuk pilih huruf</li>
-        <li>Kata bisa horizontal, vertikal, atau diagonal</li>
-        <li>Kata tersusun dari kiri ke kanan atau atas ke bawah</li>
-        <li>Temukan semua 12 kata sebelum 5 menit habis</li>
-      </ul>
-    </div>
-
-    <button class="btn-start" onclick="startGame()">Mulai Main! →</button>
   </div>
 </div>
 
-<!-- GAME SCREEN -->
-<div id="game-screen">
-<div class="page">
-
-  <div class="header">
-    <span class="header-icon">🔍</span>
-    <span class="header-label">Mini Game</span>
-    <h1 class="header-title">Word Search <span>Razan & Dara</span></h1>
-    <p class="header-sub">Temukan semua kata yang tersembunyi di grid. Kata-katanya semua tentang kita! 🤍</p>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <span class="stat-num" id="found-count">0</span>
-      <span class="stat-label">Ditemukan</span>
+<!-- CATEGORY SELECT -->
+<div id="s-cat" class="screen">
+  <div class="page">
+    <div class="cat-header" style="padding-top:1.5rem">
+      <p class="cat-title">Pilih Kategori Kata</p>
+      <p class="cat-sub">Kata-kata yang harus kamu cari di grid</p>
     </div>
-    <div class="stat">
-      <span class="stat-num" id="total-count">25</span>
-      <span class="stat-label">Total Kata</span>
+    <div class="cat-grid" id="cat-grid"></div>
+    <button class="start-btn" onclick="startGame()">Mulai! 🔍</button>
+    <button class="back-btn" onclick="showScreen('s-intro')">← Ganti mode</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div class="page">
+    <div class="g-top">
+      <div class="g-top-left">
+        <span class="g-mode-badge" id="g-mode-badge">Normal</span>
+        <span class="g-cat-label" id="g-cat-label">Kata Cinta</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-num" id="found-count">0</span>
+          <span class="stat-label">Kata</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="total-count">12</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat timer-stat">
+          <span class="stat-num" id="timer-display">05:00</span>
+          <span class="stat-label">Waktu</span>
+        </div>
+      </div>
     </div>
-    <div class="stat">
-      <span class="stat-num" id="timer-display">00:00</span>
-      <span class="stat-label">Sisa Waktu</span>
+
+    <div class="game-layout">
+      <div class="game-col-left">
+        <div class="grid-wrap">
+          <div id="word-grid"></div>
+        </div>
+      </div>
+      <div class="game-col-right">
+        <div class="word-list-wrap">
+          <span class="wl-title">Kata yang dicari</span>
+          <div class="word-list" id="word-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="win-screen">
+      <span class="win-emoji" id="win-emoji">🎉</span>
+      <h2 class="win-title" id="win-title">Semua kata ditemukan!</h2>
+      <p class="win-msg" id="win-msg">Hebat banget! 🤍</p>
+      <span class="win-stat-label">Kata ditemukan</span>
+      <span class="win-stat" id="win-score">0/12</span>
+      <span class="win-stat-label">Waktu terpakai</span>
+      <span class="win-stat" id="win-time" style="font-size:1.1rem;color:var(--muted)">00:00</span>
+      <div class="btn-row" style="margin-top:1.25rem">
+        <button class="btn btn-primary" onclick="playAgain()">Main Lagi 🔄</button>
+        <button class="btn btn-outline" onclick="showScreen('s-intro')">Menu</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="playAgain()">Reset</button>
+      <button class="btn btn-outline" onclick="showScreen('s-cat')">Kategori</button>
     </div>
   </div>
-
-  <div class="grid-wrap">
-    <div id="word-grid"></div>
-  </div>
-
-  <div class="word-list-wrap">
-    <span class="word-list-title">Kata yang harus ditemukan</span>
-    <div class="word-list" id="word-list"></div>
-  </div>
-
-  <div id="win-screen">
-    <span class="win-emoji" id="win-emoji">🎉</span>
-    <h2 class="win-title" id="win-title">Semua kata ditemukan!</h2>
-    <p class="win-msg" id="win-msg">Kamu berhasil nemuin semua kata tentang kita berdua 🤍</p>
-    <div style="margin: 1rem 0 0.5rem;">
-      <p class="win-time-label">Kata ditemukan</p>
-      <p class="win-time" id="win-score">0 / 12</p>
-    </div>
-    <div style="margin-bottom: 1.5rem;">
-      <p class="win-time-label">Waktu terpakai</p>
-      <p style="font-size: 1.2rem; font-weight: 600; color: var(--muted);" id="win-time">00:00</p>
-    </div>
-    <div class="btn-row" style="max-width: 360px; margin: 0 auto;">
-      <button class="btn btn-primary" onclick="playAgain()">Main Lagi 🔄</button>
-      <button class="btn btn-outline" onclick="backToIntro()">Kembali</button>
-    </div>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn btn-outline" onclick="playAgain()">Reset</button>
-  </div>
-
 </div>
 
 <script>
-/* ══════════════════════════════
-   KATA-KATA — Edit sesuka kamu!
-   Maksimal 15 karakter per kata.
-   Gunakan huruf kapital semua.
-══════════════════════════════ */
-const WORDS = [
-  "RAZAN",
-  "DARA",
-  "SAYANG",
-  "NONA",
-  "MAAF",
-  "CANTIK",
-  "IMUT",
-  "PELUK",
-  "RINDU",
-  "SETIA",
-  "BAHAGIA",
-  "NIKAH"
+// ── WORD BANKS ──
+const CATEGORIES = [
+  {
+    id:'cinta', label:'Kata Cinta', emoji:'💌', color:'#c17a6f',
+    words:['SAYANG','CINTA','RINDU','PELUK','CIUMAN','SETIA','MANIS','HANGAT','MESRA','BAHAGIA','ABADI','TULUS','IKHLAS','ROMANTIS','MANJA','SPECIAL','KAGUM','PERHATIAN','KASIH','RASA','INDAH','MULIA','SELAMANYA','BERSAMA','INTIM']
+  },
+  {
+    id:'kita', label:'Tentang Kita', emoji:'🤍', color:'#c9a96e',
+    words:['RAZAN','DARA','RAZARA','CONDET','JAKARTA','HUBUNGAN','PACARAN','KENANGAN','CERITA','MOMEN','FOTO','SELFIE','JANJIAN','NGOBROL','KETAWA','NONTON','MAKAN','JALAN','BARENG','SAMA','BERDUA','DEKAT','PERCAYA','SETIA','NYAMAN']
+  },
+  {
+    id:'perasaan', label:'Perasaan', emoji:'💭', color:'#b5c4b1',
+    words:['SENANG','SEDIH','KANGEN','KHAWATIR','BANGGA','KAGUM','LEGA','TENANG','GEMBIRA','GIRANG','MALU','GROGI','BAPER','GALAU','SUSAH','KAGET','HERAN','TERHARU','SYUKUR','DAMAI','AMAN','NYAMAN','PERCAYA','YAKIN','BERANI']
+  },
+  {
+    id:'tempat', label:'Tempat Kita', emoji:'🗺️', color:'#9ab0c4',
+    words:['JAKARTA','CONDET','KAFE','RESTO','MALL','TAMAN','PANTAI','GUNUNG','BIOSKOP','RUMAH','KAMAR','ANGKOT','BUSWAY','GRABCAR','GOJEK','STASIUN','WARUNG','MINIMARKET','JALAN','LORONG','GANG','KAMPUS','KANTOR','SEKOLAH','MASJID']
+  },
+  {
+    id:'aktivitas', label:'Aktivitas', emoji:'⭐', color:'#c4a0a8',
+    words:['MASAK','MAKAN','NONTON','GAMING','JALAN','MANDI','TIDUR','KERJA','BELAJAR','IBADAH','OLAHRAGA','BELANJA','FOTO','NGOBROL','BECANDA','MAIN','KETAWA','NYANYI','DENGERIN','PELUKAN','PEGANGAN','NEMENIN','BANTUIN','NUNGGUIN','CURHAT']
+  },
+  {
+    id:'harapan', label:'Harapan & Doa', emoji:'🌟', color:'#c9a96e',
+    words:['NIKAH','MENIKAH','KELUARGA','RUMAH','ANAK','BAHAGIA','SEHAT','SUKSES','REZEKI','BERKAH','DHUHA','TAHAJUD','SABAR','SYUKUR','IKHLAS','TAWAKKAL','MAJU','JAGA','LINDUNGI','RIDHO','SURGA','TULUS','ABADI','SETIA','DOAKAN']
+  },
+  {
+    id:'sifat', label:'Sifat Dara', emoji:'👧', color:'#c4b0b8',
+    words:['CANTIK','IMUT','LUCU','MANIS','PINTAR','RAJIN','SABAR','PERHATIAN','BAIK','LEMBUT','HANGAT','MANJA','CEREWET','RECEH','UNIK','KREATIF','MANDIRI','KUAT','TANGGUH','SETIA','JUJUR','TULUS','POLOS','ASIK','SERU']
+  },
+  {
+    id:'anniversary', label:'Kata Istimewa', emoji:'🎊', color:'#c17a6f',
+    words:['ULANG','TAHUN','SPESIAL','HADIAH','KEJUTAN','BUNGA','KADO','COKLAT','SELAMAT','TERIMA','KASIH','MAAF','JANJI','SUMPAH','KOMITMEN','DUKUNGAN','SEMANGAT','IKHLAS','BERKAH','RASA','SYUKUR','TULUS','ABADI','SETIA','SABAR','BANGGA','BAHAGIA','RINDU','CINTA','SAYANG']
+  },
 ];
 
-const GRID_SIZE = 10;
-let grid = [];
-let placed = [];
-let selecting = false;
-let startCell = null;
-let currentSelection = [];
-let foundWords = [];
-let timerInterval = null;
-let seconds = 0;
-let gameStarted = false;
-const TIME_LIMIT = 5 * 60;
+// ── MODE CONFIG ──
+const MODES = {
+  easy:   {size:8,  wordCount:8,  time:360, dirs:[[0,1],[1,0]], label:'Mudah'},
+  normal: {size:11, wordCount:12, time:300, dirs:[[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1]], label:'Normal'},
+  hard:   {size:14, wordCount:18, time:240, dirs:[[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]], label:'Susah'},
+};
 
-/* ══ GRID GENERATION ══ */
-const directions = [
-  [0, 1],   // right
-  [1, 0],   // down
-  [1, 1],   // diagonal down-right
-  [0, -1],  // left
-  [-1, 0],  // up
-  [-1, -1], // diagonal up-left
-  [1, -1],  // diagonal down-left
-  [-1, 1],  // diagonal up-right
+const FOUND_COLORS = [
+  '#c17a6f','#b5a090','#c9a96e','#b5c4b1','#c4a0a8','#9ab0c4','#c4b0a0','#a0b4c4',
+  '#c4a0b4','#b4c4a0','#c4b4a0','#a0c4b4','#c4a8a0','#a8b0c4','#c4b0b8','#b0c4a8',
+  '#c4a0a0','#a0a8c4','#c4b8a0','#a8c4a0',
 ];
 
-function initGrid() {
-  grid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(''));
-  placed = [];
+// ── STATE ──
+let currentMode='normal';
+let selectedCatId='cinta';
+let grid=[], placed=[], foundWords=[];
+let selecting=false, startCell=null, currentSel=[];
+let timerInterval=null, seconds=0, timeLimit=300;
+let activeWords=[];
 
-  const sorted = [...WORDS].sort((a, b) => b.length - a.length);
+function showScreen(id){
+  const current=document.querySelector('.screen.active');
+  const next=document.getElementById(id);
+  if(!next||next===current) return;
 
-  for (const word of sorted) {
-    let placed_ok = false;
-    let attempts = 0;
-    while (!placed_ok && attempts < 200) {
+  if(current){
+    // Fade out current
+    current.classList.remove('active');
+    setTimeout(()=>{
+      current.classList.remove('visible');
+      // Fade in next
+      next.classList.add('visible');
+      window.scrollTo(0,0);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          next.classList.add('active');
+        });
+      });
+    },300);
+  } else {
+    // First show — no fade
+    next.classList.add('visible','active');
+    window.scrollTo(0,0);
+  }
+}
+
+// ── INTRO → MODE SELECT ──
+function selectMode(mode){
+  currentMode=mode;
+  buildCatGrid();
+  showScreen('s-cat');
+}
+
+function buildCatGrid(){
+  const cg=document.getElementById('cat-grid');
+  if(!cg) return;
+  cg.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    const card=document.createElement('div');
+    card.className='cat-card'+(cat.id===selectedCatId?' sel':'');
+    card.innerHTML=`<span class="cc-emoji">${cat.emoji}</span><span class="cc-label">${cat.label}</span><span class="cc-count">${MODES[currentMode].wordCount} kata</span>`;
+    card.onclick=()=>{
+      selectedCatId=cat.id;
+      document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('sel'));
+      card.classList.add('sel');
+    };
+    cg.appendChild(card);
+  });
+}
+
+// ── GAME START ──
+function startGame(){
+  stopTimer();
+  seconds=0;
+  foundWords=[];
+
+  const mode=MODES[currentMode];
+  const cat=CATEGORIES.find(c=>c.id===selectedCatId)||CATEGORIES[0];
+  timeLimit=mode.time;
+
+  // Pick words — filter by grid size first, then shuffle and take wordCount
+  const fittingWords=cat.words.filter(w=>w.length<=mode.size);
+  const shuffled=[...fittingWords].sort(()=>Math.random()-.5);
+  activeWords=shuffled.slice(0,mode.wordCount);
+
+  // HUD
+  const mb=document.getElementById('g-mode-badge');
+  if(mb){mb.textContent=mode.label;mb.className='g-mode-badge '+currentMode;}
+  const cl=document.getElementById('g-cat-label');
+  if(cl) cl.textContent=cat.label+' '+cat.emoji;
+
+  document.getElementById('found-count').textContent='0';
+  document.getElementById('total-count').textContent=activeWords.length;
+  document.getElementById('win-screen').classList.remove('show');
+  updateTimerDisplay();
+
+  showScreen('s-game');
+  // Render grid after screen is visible so offsetWidth is correct
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const SIZE=MODES[currentMode].size;
+      initGrid(SIZE);
+      renderGrid(SIZE);
+      renderWordList();
+      startTimer();
+    });
+  });
+}
+
+// ── GRID GENERATION ──
+function initGrid(SIZE){
+  grid=Array.from({length:SIZE},()=>Array(SIZE).fill(''));
+  placed=[];
+  const mode=MODES[currentMode];
+  const dirs=mode.dirs;
+  const sorted=[...activeWords].sort((a,b)=>b.length-a.length);
+
+  for(const word of sorted){
+    let ok=false, attempts=0;
+    while(!ok&&attempts<300){
       attempts++;
-      const dir = directions[Math.floor(Math.random() * directions.length)];
-      const row = Math.floor(Math.random() * GRID_SIZE);
-      const col = Math.floor(Math.random() * GRID_SIZE);
-
-      if (canPlace(word, row, col, dir)) {
-        placeWord(word, row, col, dir);
-        placed_ok = true;
+      const dir=dirs[Math.floor(Math.random()*dirs.length)];
+      const r=Math.floor(Math.random()*SIZE);
+      const c=Math.floor(Math.random()*SIZE);
+      if(canPlace(word,r,c,dir,SIZE)){
+        placeWord(word,r,c,dir);
+        ok=true;
       }
     }
-    if (!placed_ok) {
-      // Force place horizontally
-      for (let r = 0; r < GRID_SIZE && !placed_ok; r++) {
-        for (let c = 0; c <= GRID_SIZE - word.length && !placed_ok; c++) {
-          if (canPlace(word, r, c, [0, 1])) {
-            placeWord(word, r, c, [0, 1]);
-            placed_ok = true;
-          }
+    // Fallback: force horizontal
+    if(!ok){
+      for(let r=0;r<SIZE&&!ok;r++){
+        for(let c=0;c<=SIZE-word.length&&!ok;c++){
+          if(canPlace(word,r,c,[0,1],SIZE)){placeWord(word,r,c,[0,1]);ok=true;}
         }
       }
     }
   }
 
-  // Fill empty cells with random letters
-  const letters = 'ABCDEFGHIJKLMNOPRSTUVWYZ';
-  for (let r = 0; r < GRID_SIZE; r++) {
-    for (let c = 0; c < GRID_SIZE; c++) {
-      if (!grid[r][c]) {
-        grid[r][c] = letters[Math.floor(Math.random() * letters.length)];
-      }
-    }
-  }
+  // Remove words that couldn't be placed (unfindable)
+  const placedWords=placed.map(p=>p.word);
+  activeWords=activeWords.filter(w=>placedWords.includes(w));
+
+  const letters='ABCDEFGHIJKLMNPRSTUVWYZ';
+  for(let r=0;r<SIZE;r++)
+    for(let c=0;c<SIZE;c++)
+      if(!grid[r][c]) grid[r][c]=letters[Math.floor(Math.random()*letters.length)];
 }
 
-function canPlace(word, row, col, dir) {
-  for (let i = 0; i < word.length; i++) {
-    const r = row + dir[0] * i;
-    const c = col + dir[1] * i;
-    if (r < 0 || r >= GRID_SIZE || c < 0 || c >= GRID_SIZE) return false;
-    if (grid[r][c] && grid[r][c] !== word[i]) return false;
+function canPlace(word,r,c,dir,SIZE){
+  for(let i=0;i<word.length;i++){
+    const nr=r+dir[0]*i, nc=c+dir[1]*i;
+    if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) return false;
+    if(grid[nr][nc]&&grid[nr][nc]!==word[i]) return false;
   }
   return true;
 }
 
-function placeWord(word, row, col, dir) {
-  const cells = [];
-  for (let i = 0; i < word.length; i++) {
-    const r = row + dir[0] * i;
-    const c = col + dir[1] * i;
-    grid[r][c] = word[i];
-    cells.push([r, c]);
+function placeWord(word,r,c,dir){
+  const cells=[];
+  for(let i=0;i<word.length;i++){
+    const nr=r+dir[0]*i, nc=c+dir[1]*i;
+    grid[nr][nc]=word[i];
+    cells.push([nr,nc]);
   }
-  placed.push({ word, cells });
+  placed.push({word,cells});
 }
 
-/* ══ RENDER ══ */
-function renderGrid() {
-  const container = document.getElementById('word-grid');
-  container.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 28px)`;
-  container.innerHTML = '';
+// ── RENDER ──
+function renderGrid(SIZE){
+  const container=document.getElementById('word-grid');
+  if(!container) return;
+  container.innerHTML='';
+  container.style.gridTemplateColumns=`repeat(${SIZE},1fr)`;
 
-  for (let r = 0; r < GRID_SIZE; r++) {
-    for (let c = 0; c < GRID_SIZE; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.textContent = grid[r][c];
-      cell.dataset.row = r;
-      cell.dataset.col = c;
+  // Defer font size calc until screen is actually visible
+  // Use a post-render rAF to measure real width
+  const _SIZE=SIZE;
+  requestAnimationFrame(()=>{
+    const colLeft=document.querySelector('.game-col-left');
+    const wrapEl=document.querySelector('.grid-wrap');
+    const wrapW=(colLeft&&colLeft.offsetWidth>0?colLeft:wrapEl)?.offsetWidth||320;
+    const cellW=Math.floor((wrapW-32-_SIZE*2)/_SIZE);
+    const fs=Math.max(9,Math.min(cellW*.55,18));
+    document.querySelectorAll('#word-grid .cell').forEach(c=>c.style.fontSize=fs+'px');
+  });
+  // Initial font size estimate (corrected by rAF above)
+  const wrapW=window.innerWidth>1024?Math.min(window.innerWidth-340,680):Math.min(window.innerWidth-32,520);
+  const cellW=Math.floor((wrapW-32-SIZE*2)/SIZE);
+  const fs=Math.max(9,Math.min(cellW*.55,18));
 
-      cell.addEventListener('mousedown', onStart);
-      cell.addEventListener('mouseover', onMove);
-      cell.addEventListener('mouseup', onEnd);
-      cell.addEventListener('touchstart', onTouchStart, { passive: false });
-      cell.addEventListener('touchmove', onTouchMove, { passive: false });
-      cell.addEventListener('touchend', onTouchEnd);
-
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.textContent=grid[r][c];
+      cell.dataset.row=r;
+      cell.dataset.col=c;
+      cell.style.fontSize=fs+'px';
       container.appendChild(cell);
     }
   }
+
+  // Touch events on container (not per-cell, for perf)
+  // Remove old listeners first to prevent stacking
+  container.removeEventListener('mousedown',onStart);
+  container.removeEventListener('mouseover',onMove);
+  container.removeEventListener('touchstart',onTouchStart);
+  container.removeEventListener('touchmove',onTouchMove);
+  container.removeEventListener('touchend',onTouchEnd);
+  container.addEventListener('mousedown',onStart);
+  container.addEventListener('mouseover',onMove);
+  container.addEventListener('touchstart',onTouchStart,{passive:false});
+  container.addEventListener('touchmove',onTouchMove,{passive:false});
+  container.addEventListener('touchend',onTouchEnd,{passive:false});
+  container.addEventListener('touchcancel',onTouchEnd,{passive:false});
+  // mouseup on window — add only once
+  if(!window._wsMouseUpAdded){
+    window._wsMouseUpAdded=true;
+    window.addEventListener('mouseup',onEnd);
+  }
 }
 
-function renderWordList() {
-  const list = document.getElementById('word-list');
-  list.innerHTML = '';
-  WORDS.forEach((w, i) => {
-    const chip = document.createElement('div');
-    chip.className = 'word-chip';
-    chip.id = `chip-${w}`;
-    chip.textContent = w;
+function renderWordList(){
+  const list=document.getElementById('word-list');
+  if(!list) return;
+  list.innerHTML='';
+  activeWords.forEach(w=>{
+    const chip=document.createElement('div');
+    chip.className='word-chip';
+    chip.id='chip-'+w;
+    chip.textContent=w;
     list.appendChild(chip);
   });
-  document.getElementById('total-count').textContent = WORDS.length;
+  // Update total count after filtering
+  const tc=document.getElementById('total-count');
+  if(tc) tc.textContent=activeWords.length;
+  const fc=document.getElementById('found-count');
+  if(fc) fc.textContent=foundWords.length;
 }
 
-/* ══ SELECTION ══ */
-function getCell(row, col) {
-  return document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+// ── INPUT ──
+function getCellFromPoint(x,y){
+  const el=document.elementFromPoint(x,y);
+  if(el&&el.classList.contains('cell')) return el;
+  return null;
 }
 
-function onStart(e) {
-  selecting = true;
-  startCell = { row: +e.target.dataset.row, col: +e.target.dataset.col };
-  currentSelection = [startCell];
-  highlightSelection();
+function onStart(e){
+  const el=e.target.closest('.cell');
+  if(!el) return;
+  selecting=true;
+  startCell={row:+el.dataset.row,col:+el.dataset.col};
+  currentSel=[startCell];
+  highlightSel();
 }
 
-function onMove(e) {
-  if (!selecting) return;
-  const row = +e.target.dataset.row;
-  const col = +e.target.dataset.col;
-  const endCell = { row, col };
-  currentSelection = getCellsBetween(startCell, endCell);
-  highlightSelection();
+function onMove(e){
+  if(!selecting) return;
+  const el=e.target.closest?.('.cell')||e.target;
+  if(!el||!el.dataset.row) return;
+  const end={row:+el.dataset.row,col:+el.dataset.col};
+  currentSel=cellsBetween(startCell,end);
+  highlightSel();
 }
 
-function onEnd() {
-  if (!selecting) return;
-  selecting = false;
-  checkSelection();
-  clearHighlight();
-  currentSelection = [];
+function onEnd(){
+  if(!selecting) return;
+  selecting=false;
+  checkSel();
+  clearSel();
+  currentSel=[];
 }
 
-function onTouchStart(e) {
+function onTouchStart(e){
   e.preventDefault();
-  const touch = e.touches[0];
-  const el = document.elementFromPoint(touch.clientX, touch.clientY);
-  if (el && el.classList.contains('cell')) onStart({ target: el });
+  const t=e.touches[0];
+  const el=getCellFromPoint(t.clientX,t.clientY);
+  if(!el) return;
+  selecting=true;
+  startCell={row:+el.dataset.row,col:+el.dataset.col};
+  currentSel=[startCell];
+  highlightSel();
 }
 
-function onTouchMove(e) {
+function onTouchMove(e){
   e.preventDefault();
-  const touch = e.touches[0];
-  const el = document.elementFromPoint(touch.clientX, touch.clientY);
-  if (el && el.classList.contains('cell')) onMove({ target: el });
+  if(!selecting) return;
+  const t=e.touches[0];
+  const el=getCellFromPoint(t.clientX,t.clientY);
+  if(!el||!el.dataset.row) return;
+  const end={row:+el.dataset.row,col:+el.dataset.col};
+  currentSel=cellsBetween(startCell,end);
+  highlightSel();
 }
 
-function onTouchEnd(e) { onEnd(); }
+function onTouchEnd(e){e.preventDefault();onEnd();}
 
-function getCellsBetween(start, end) {
-  const cells = [];
-  const dr = end.row - start.row;
-  const dc = end.col - start.col;
-
-  // Only allow straight lines and diagonals
-  const len = Math.max(Math.abs(dr), Math.abs(dc));
-  if (len === 0) return [start];
-
-  // Check if it's a valid direction
-  const isValid =
-    dr === 0 || dc === 0 ||
-    Math.abs(dr) === Math.abs(dc);
-
-  if (!isValid) return [start];
-
-  const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
-  const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
-
-  for (let i = 0; i <= len; i++) {
-    cells.push({ row: start.row + stepR * i, col: start.col + stepC * i });
-  }
+function cellsBetween(a,b){
+  const dr=b.row-a.row, dc=b.col-a.col;
+  const len=Math.max(Math.abs(dr),Math.abs(dc));
+  if(len===0) return [a];
+  if(dr!==0&&dc!==0&&Math.abs(dr)!==Math.abs(dc)) return [a];
+  const sr=dr===0?0:dr/Math.abs(dr), sc=dc===0?0:dc/Math.abs(dc);
+  const cells=[];
+  for(let i=0;i<=len;i++) cells.push({row:a.row+sr*i,col:a.col+sc*i});
   return cells;
 }
 
-function highlightSelection() {
-  // Clear previous selection
-  document.querySelectorAll('.cell.selecting').forEach(c => c.classList.remove('selecting'));
-  currentSelection.forEach(({ row, col }) => {
-    const cell = getCell(row, col);
-    if (cell && !cell.classList.contains('found')) {
-      cell.classList.add('selecting');
-    }
+function getCell(r,c){
+  return document.querySelector(`#word-grid .cell[data-row="${r}"][data-col="${c}"]`);
+}
+
+function highlightSel(){
+  document.querySelectorAll('#word-grid .cell.selecting').forEach(c=>c.classList.remove('selecting'));
+  currentSel.forEach(({row,col})=>{
+    const c=getCell(row,col);
+    if(c&&!c.classList.contains('found')) c.classList.add('selecting');
   });
 }
 
-function clearHighlight() {
-  document.querySelectorAll('.cell.selecting').forEach(c => c.classList.remove('selecting'));
+function clearSel(){
+  document.querySelectorAll('#word-grid .cell.selecting').forEach(c=>c.classList.remove('selecting'));
 }
 
-function checkSelection() {
-  const selected = currentSelection.map(({ row, col }) => grid[row][col]).join('');
-
-  for (const { word, cells } of placed) {
-    if (foundWords.includes(word)) continue;
-    if (selected === word) {
-      const idx = WORDS.indexOf(word);
-      markFound(word, cells, idx);
-      return;
+function checkSel(){
+  if(foundWords.length===activeWords.length) return; // game over
+  if(!activeWords.length) return; // game not started
+  const selected=currentSel.map(({row,col})=>grid[row][col]).join('');
+  for(const {word,cells} of placed){
+    if(foundWords.includes(word)) continue;
+    if(selected===word){markFound(word,cells);return;}
+    // also check reverse (for hard mode — though we don't add reverse words,
+    // user might drag backwards)
+    if(selected===word.split('').reverse().join('')){
+      markFound(word,[...cells].reverse());return;
     }
   }
 }
 
-function markFound(word, cells, idx) {
+function markFound(word,cells){
   foundWords.push(word);
+  const idx=activeWords.indexOf(word);
+  const color=FOUND_COLORS[idx%FOUND_COLORS.length];
 
-  cells.forEach(([r, c]) => {
-    const cell = getCell(r, c);
-    if (cell) {
-      cell.classList.remove('selecting');
-      cell.classList.add('found', `found-${idx % 25}`);
-    }
+  cells.forEach(([r,c])=>{
+    const cell=getCell(r,c);
+    if(cell){cell.classList.remove('selecting');cell.classList.add('found');cell.style.background=color;}
   });
 
-  const chip = document.getElementById(`chip-${word}`);
-  if (chip) {
-    chip.classList.add('found');
-    chip.style.background = getColor(idx % 25);
-  }
+  const chip=document.getElementById('chip-'+word);
+  if(chip){chip.classList.add('found');chip.style.background=color;}
 
-  document.getElementById('found-count').textContent = foundWords.length;
+  document.getElementById('found-count').textContent=foundWords.length;
+  if(navigator.vibrate) navigator.vibrate(30);
 
-  if (foundWords.length === WORDS.length) {
-    setTimeout(showWin, 500);
-  }
+  if(foundWords.length>=activeWords.length&&activeWords.length>0) setTimeout(showWin,500);
 }
 
-function getColor(idx) {
-  const colors = [
-    '#c17a6f','#b5a090','#c9a96e','#b5c4b1','#c4a0a8',
-    '#9ab0c4','#c4b0a0','#a0b4c4','#c4a0b4','#b4c4a0',
-    '#c4b4a0','#a0c4b4','#c4a8a0','#a8b0c4','#c4b0b8',
-    '#b0c4a8','#c4a0a0','#a0a8c4','#c4b8a0','#a8c4a0',
-    '#c4a0c4','#a0c4c4','#c4c4a0','#a0b8a8','#c4a8b8'
-  ];
-  return colors[idx] || '#c17a6f';
-}
-
-/* ══ TIMER ══ */
-function startTimer() {
-  gameStarted = true;
-  timerInterval = setInterval(() => {
+// ── TIMER ──
+function startTimer(){
+  stopTimer(); // always clear before starting new
+  timerInterval=setInterval(()=>{
     seconds++;
-    const remaining = TIME_LIMIT - seconds;
-    if (remaining <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      document.getElementById('timer-display').textContent = '00:00';
+    const rem=timeLimit-seconds;
+    if(rem<=0){
+      clearInterval(timerInterval);timerInterval=null;
+      document.getElementById('timer-display').textContent='00:00';
       showResult(false);
       return;
     }
-    const m = String(Math.floor(remaining / 60)).padStart(2, '0');
-    const s = String(remaining % 60).padStart(2, '0');
-    document.getElementById('timer-display').textContent = `${m}:${s}`;
-  }, 1000);
+    updateTimerDisplay();
+  },1000);
 }
 
-function stopTimer() {
-  clearInterval(timerInterval);
+function stopTimer(){
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
 }
 
-/* ══ WIN ══ */
-function showWin() {
-  showResult(true);
+function updateTimerDisplay(){
+  const rem=Math.max(0,timeLimit-seconds);
+  const m=String(Math.floor(rem/60)).padStart(2,'0');
+  const s=String(rem%60).padStart(2,'0');
+  const el=document.getElementById('timer-display');
+  if(el){el.textContent=`${m}:${s}`;el.className='stat-num'+(rem<=30?' warn':'');}
 }
 
-function showResult(completed) {
+// ── WIN ──
+function showWin(){showResult(true);}
+
+function showResult(completed){
   stopTimer();
-  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const s = String(seconds % 60).padStart(2, '0');
-  const found = foundWords.length;
-  const total = WORDS.length;
+  const used=seconds;
+  const m=String(Math.floor(used/60)).padStart(2,'0');
+  const s=String(used%60).padStart(2,'0');
 
-  document.getElementById('win-score').textContent = found + ' / ' + total;
-  document.getElementById('win-time').textContent = m + ':' + s;
+  document.getElementById('win-score').textContent=`${foundWords.length}/${activeWords.length}`;
+  document.getElementById('win-time').textContent=`${m}:${s}`;
 
-  if (completed) {
-    document.getElementById('win-emoji').textContent = '🎉';
-    document.getElementById('win-title').textContent = 'Semua kata ditemukan!';
-    document.getElementById('win-msg').textContent = 'Kamu berhasil nemuin semua kata tentang kita berdua. Mantap banget! 🤍';
+  const ws=document.getElementById('win-screen');
+  const we=document.getElementById('win-emoji');
+  const wt=document.getElementById('win-title');
+  const wm=document.getElementById('win-msg');
+
+  if(completed){
+    if(we) we.textContent='🎉';
+    if(wt) wt.textContent='Semua kata ditemukan!';
+    if(wm) wm.textContent=`Hebat banget! ${foundWords.length} kata ditemukan dalam ${m}:${s} 🤍`;
     launchConfetti();
   } else {
-    if (found === 0) {
-      document.getElementById('win-emoji').textContent = '😅';
-      document.getElementById('win-title').textContent = 'Waktu habis!';
-      document.getElementById('win-msg').textContent = 'Belum ada kata yang ketemu nih. Coba lagi ya! 💪';
-    } else if (found < total / 2) {
-      document.getElementById('win-emoji').textContent = '😬';
-      document.getElementById('win-title').textContent = 'Waktu habis!';
-      document.getElementById('win-msg').textContent = 'Lumayan, tapi masih kurang nih. Mau coba lagi? 👀';
-    } else if (found < total) {
-      document.getElementById('win-emoji').textContent = '🌸';
-      document.getElementById('win-title').textContent = 'Waktu habis!';
-      document.getElementById('win-msg').textContent = 'Hampir semua! Tinggal ' + (total - found) + ' kata lagi. Coba lagi? 🤍';
-    }
+    const left=activeWords.length-foundWords.length;
+    if(we) we.textContent=foundWords.length===0?'😅':foundWords.length<activeWords.length/2?'😬':'🌸';
+    if(wt) wt.textContent='Waktu habis!';
+    if(wm) wm.textContent=foundWords.length===0?'Belum ada yang ketemu nih — coba lagi!':
+      `${foundWords.length} kata ketemu, tinggal ${left} lagi. Coba lagi yuk!`;
   }
 
-  document.getElementById('win-screen').classList.add('show');
-  document.getElementById('win-screen').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if(ws) ws.classList.add('show');
+  if(ws){
+    ws.scrollIntoView({behavior:'smooth',block:'nearest'});
+    // Also scroll the screen container itself
+    const gameScreen=document.getElementById('s-game');
+    if(gameScreen) setTimeout(()=>gameScreen.scrollTop=ws.offsetTop-20,100);
+  }
 }
 
-/* ══ REVEAL ══ */
-function revealAll() {
-  placed.forEach(({ word, cells }) => {
-    if (!foundWords.includes(word)) {
-      const idx = WORDS.indexOf(word);
-      markFound(word, cells, idx);
-    }
+function playAgain(){
+  stopTimer();
+  seconds=0;
+  foundWords=[];
+  const ws=document.getElementById('win-screen');
+  if(ws) ws.classList.remove('show');
+  const fc=document.getElementById('found-count');
+  if(fc) fc.textContent='0';
+  updateTimerDisplay();
+
+  const SIZE=MODES[currentMode].size;
+  initGrid(SIZE);
+  requestAnimationFrame(()=>{
+    renderGrid(SIZE);
+    renderWordList();
+    startTimer();
   });
-  stopTimer();
 }
 
-/* ══ RESET ══ */
-function startGame() {
-  document.getElementById('intro-screen').style.display = 'none';
-  document.getElementById('game-screen').style.display = 'block';
-  resetGame();
-  startTimer();
-}
+// ── CONFETTI ──
+// Init: ensure first active screen has visible class
+(function(){
+  const first=document.querySelector('.screen.active');
+  if(first) first.classList.add('visible');
+})();
 
-function resetGame() {
-  stopTimer();
-  seconds = 0;
-  gameStarted = false;
-  foundWords = [];
-  document.getElementById('timer-display').textContent = '05:00';
-  document.getElementById('found-count').textContent = '0';
-  document.getElementById('win-screen').classList.remove('show');
-  initGrid();
-  renderGrid();
-  renderWordList();
+function launchConfetti(){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0','#a0c4b4'];
+  for(let i=0;i<80;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),5000);
+  },i*25);
 }
-
-function playAgain() {
-  resetGame();
-  startTimer();
-}
-
-function backToIntro() {
-  resetGame();
-  document.getElementById('game-screen').style.display = 'none';
-  document.getElementById('intro-screen').style.display = 'flex';
-}
-
-/* ══ CONFETTI ══ */
-function launchConfetti() {
-  const colors = ['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
-  for (let i = 0; i < 80; i++) {
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.cssText = `
-        left:${Math.random()*100}vw; top:-10px;
-        background:${colors[Math.floor(Math.random()*colors.length)]};
-        animation-duration:${1.5+Math.random()*2.5}s;
-        animation-delay:${Math.random()*0.5}s;
-        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
-        border-radius:${Math.random()>0.5?'50%':'2px'};
-      `;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
-    }, i * 30);
-  }
-}
-
 </script>
-</div>
-</div>
-
 </body>
 </html>
