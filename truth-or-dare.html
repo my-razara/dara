@@ -2,604 +2,708 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Truth or Dare — Razan & Dara 🤍</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #faf6f0;
-    --warm: #f5ede0;
-    --blush: #e8c4b0;
-    --rose: #c17a6f;
-    --deep: #7a3f35;
-    --ink: #2d1f1a;
-    --gold: #c9a96e;
-    --muted: #9a8070;
-    --navy: #2d3f5f;
-  }
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--navy:#2d3f5f;--sage:#b5c4b1;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{min-height:100%;background:var(--cream);overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 15% 20%,rgba(232,196,176,.35),transparent 70%),radial-gradient(ellipse 50% 60% at 85% 80%,rgba(193,122,111,.18),transparent 70%);pointer-events:none;z-index:0}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--cream);
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(232,196,176,0.35) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 60% at 85% 80%, rgba(193,122,111,0.18) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
-  }
-
-  .container {
-    width: 100%; max-width: 520px;
-    position: relative; z-index: 1;
-  }
-
-  .screen { display: none; }
-  .screen.active { display: block; }
+  /* Screens */
+  .screen{display:none;min-height:100vh;position:relative;z-index:1;align-items:center;justify-content:center;padding:2rem 1rem}
+  .screen.active{display:flex;flex-direction:column}
+  .wrap{width:100%;max-width:480px;margin:0 auto}
 
   /* ── INTRO ── */
-  #screen-intro { text-align: center; }
+  #s-intro{text-align:center}
+  .intro-hearts{font-size:2rem;display:block;margin-bottom:1.25rem;letter-spacing:.4rem}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .intro-title{font-size:clamp(1.5rem,5vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.5rem;line-height:1.2}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.75;margin:.5rem auto 1.5rem;max-width:340px}
 
-  .intro-hearts {
-    font-size: 2.5rem; margin-bottom: 1.5rem;
-    letter-spacing: 0.5rem;
-  }
+  /* Level cards */
+  .level-cards{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.25rem}
+  .level-card{background:#fff;border:2px solid var(--blush);border-radius:14px;padding:.9rem 1.1rem;cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left;transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.06);user-select:none}
+  .level-card:active{transform:scale(.97)}
+  .level-card.sel{border-width:2.5px}
+  .level-card.sel.lv1{border-color:var(--sage);background:rgba(181,196,177,.06)}
+  .level-card.sel.lv2{border-color:var(--rose);background:rgba(193,122,111,.05)}
+  .level-card.sel.lv3{border-color:var(--deep);background:rgba(122,63,53,.05)}
+  .lc-icon{font-size:1.8rem;flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .lc-icon.lv1{background:rgba(181,196,177,.2)}
+  .lc-icon.lv2{background:rgba(193,122,111,.1)}
+  .lc-icon.lv3{background:rgba(122,63,53,.1)}
+  .lc-title{font-size:13px;font-weight:700;color:var(--ink);display:block;margin-bottom:.1rem}
+  .lc-desc{font-size:11px;color:var(--muted);display:block;line-height:1.45}
+  .lc-badge{font-size:9px;font-weight:700;padding:.15rem .5rem;border-radius:50px;display:inline-block;margin-top:.25rem}
+  .lc-badge.lv1{background:rgba(181,196,177,.25);color:#3a6040}
+  .lc-badge.lv2{background:rgba(193,122,111,.12);color:var(--deep)}
+  .lc-badge.lv3{background:rgba(122,63,53,.12);color:var(--deep)}
 
-  .intro-label {
-    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem;
-  }
+  /* Round select */
+  .round-opts{display:flex;gap:.45rem;margin-bottom:1.25rem}
+  .round-opt{flex:1;padding:.55rem .3rem;border-radius:12px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+  .round-opt.sel{border-color:var(--rose);background:rgba(193,122,111,.06)}
+  .round-opt:active{transform:scale(.95)}
+  .ro-num{font-size:1.1rem;font-weight:900;color:var(--rose);display:block}
+  .ro-lbl{font-size:9px;color:var(--muted)}
 
-  .intro-title {
-    font-size: clamp(1.6rem, 5vw, 2.2rem);
-    font-weight: 600; color: var(--ink);
-    line-height: 1.2; margin-bottom: 0.75rem;
-  }
+  .start-btn{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .start-btn:active{transform:scale(.97);background:var(--deep)}
 
-  .intro-title span { color: var(--rose); }
-
-  .intro-sub {
-    font-size: 14px; color: var(--muted);
-    line-height: 1.7; margin-bottom: 2rem;
-    max-width: 380px; margin-left: auto; margin-right: auto;
-  }
-
-  .intro-rules {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 12px; padding: 1.25rem 1.5rem;
-    margin-bottom: 2rem; text-align: left;
-  }
-
-  .rules-title {
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.75rem;
-  }
-
-  .rules-list {
-    list-style: none; display: flex; flex-direction: column; gap: 0.5rem;
-  }
-
-  .rules-list li {
-    font-size: 13px; color: var(--muted);
-    display: flex; gap: 0.5rem; align-items: flex-start;
-  }
-
-  .rules-list li::before {
-    content: '·'; color: var(--rose); font-weight: 700; flex-shrink: 0;
-  }
-
-  /* ── PLAYER SELECT ── */
-  #screen-select { text-align: center; }
-
-  .select-title {
-    font-size: 1.3rem; font-weight: 600;
-    color: var(--ink); margin-bottom: 0.5rem;
-  }
-
-  .select-sub {
-    font-size: 13px; color: var(--muted); margin-bottom: 2rem;
-  }
-
-  .player-cards {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1rem; margin-bottom: 1.5rem;
-  }
-
-  .player-card {
-    background: #fff;
-    border: 2px solid var(--blush);
-    border-radius: 12px; padding: 1.5rem 1rem;
-    cursor: pointer; transition: all 0.2s;
-    text-align: center;
-  }
-
-  .player-card:hover, .player-card.selected {
-    border-color: var(--rose);
-    background: var(--warm);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(193,122,111,0.2);
-  }
-
-  .player-emoji { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
-  .player-name { font-size: 15px; font-weight: 600; color: var(--ink); }
-  .player-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  /* ── PICK FIRST ── */
+  #s-first{text-align:center}
+  .first-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .first-sub{font-size:12px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6}
+  .player-btns{display:flex;gap:.65rem}
+  .player-btn{flex:1;background:#fff;border:2px solid var(--blush);border-radius:16px;padding:1.1rem .75rem;cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+  .player-btn:active{transform:scale(.95);border-color:var(--rose)}
 
   /* ── TYPE SELECT ── */
-  #screen-type { text-align: center; }
+  #s-type{text-align:center}
+  .turn-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .85rem;border-radius:50px;font-size:11px;font-weight:700;margin-bottom:.75rem}
+  .turn-chip.razan{background:rgba(126,179,245,.12);color:#1a3a6a}
+  .turn-chip.dara{background:rgba(232,160,144,.12);color:#6a1a1a}
+  .type-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:1rem}
+  .type-cards{display:flex;gap:.65rem;margin-bottom:1rem}
+  .type-card{flex:1;padding:1.5rem .75rem;border-radius:14px;cursor:pointer;text-align:center;border:2px solid transparent;transition:all .15s;user-select:none}
+  .type-card.truth{background:rgba(45,63,95,.07);border-color:rgba(45,63,95,.2)}
+  .type-card.dare{background:rgba(193,122,111,.08);border-color:rgba(193,122,111,.25)}
+  .type-card.berdua{background:rgba(201,169,110,.08);border-color:rgba(201,169,110,.25)}
+  .type-card:active{transform:scale(.95)}
+  .type-emoji{font-size:2rem;display:block;margin-bottom:.5rem}
+  .type-label{font-size:13px;font-weight:700}
+  .type-card.truth .type-label{color:var(--navy)}
+  .type-card.dare .type-label{color:var(--rose)}
+  .type-card.berdua .type-label{color:#8a6a20}
+  .type-desc{font-size:10px;color:var(--muted);margin-top:.2rem;line-height:1.4}
+  .skip-info{font-size:10px;color:var(--muted);font-style:italic;margin-top:.25rem}
 
-  .type-cards {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1rem; margin: 1.5rem 0;
-  }
+  /* ── GAME ── */
+  #s-card{padding-top:1rem}
 
-  .type-card {
-    padding: 2rem 1rem;
-    border-radius: 12px; cursor: pointer;
-    transition: all 0.2s; text-align: center;
-    border: 2px solid transparent;
-  }
+  /* Progress */
+  .progress-row{display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem}
+  .progress-wrap{flex:1;background:var(--warm);border-radius:50px;height:6px;overflow:hidden;border:1px solid var(--blush)}
+  .progress-bar{height:100%;background:linear-gradient(to right,var(--rose),var(--gold));border-radius:50px;transition:width .4s ease}
+  .progress-label{font-size:11px;font-weight:700;color:var(--rose);white-space:nowrap}
 
-  .type-card.truth {
-    background: rgba(45,63,95,0.07);
-    border-color: rgba(45,63,95,0.2);
-  }
+  /* Score bar */
+  .score-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:50px;padding:.45rem 1.1rem;margin-bottom:.85rem;box-shadow:0 1px 6px rgba(193,122,111,.06)}
+  .score-item{text-align:center}
+  .score-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;display:block}
+  .score-num{font-size:1.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .score-vs{color:var(--blush);font-size:1rem}
 
-  .type-card.dare {
-    background: rgba(193,122,111,0.08);
-    border-color: rgba(193,122,111,0.25);
-  }
+  /* Card */
+  .card-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+  .card-for{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold)}
+  .card-badge{display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .7rem;border-radius:50px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .badge-truth{background:rgba(45,63,95,.1);color:var(--navy);border:1px solid rgba(45,63,95,.2)}
+  .badge-dare{background:rgba(193,122,111,.1);color:var(--rose);border:1px solid rgba(193,122,111,.25)}
+  .badge-berdua{background:rgba(201,169,110,.12);color:#8a6a20;border:1px solid rgba(201,169,110,.3)}
 
-  .type-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(45,31,26,0.1);
-  }
+  .card-box{background:#fff;border:1.5px solid rgba(193,122,111,.15);border-radius:18px;padding:2rem 1.5rem;margin-bottom:.85rem;box-shadow:0 4px 24px rgba(45,31,26,.08);min-height:150px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;animation:cardpop .35s cubic-bezier(.34,1.3,.64,1)}
+  .card-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top left,rgba(232,196,176,.2),transparent 60%);pointer-events:none}
+  @keyframes cardpop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .card-text{font-size:1rem;font-weight:400;color:var(--ink);line-height:1.7;position:relative;z-index:1;text-align:center}
 
-  .type-emoji { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
-
-  .type-label {
-    font-size: 1.1rem; font-weight: 600;
-  }
-
-  .type-card.truth .type-label { color: var(--navy); }
-  .type-card.dare .type-label { color: var(--rose); }
-
-  .type-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
-
-  /* ── CARD ── */
-  #screen-card { text-align: center; }
-
-  .card-for {
-    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.5rem;
-  }
-
-  .card-type-badge {
-    display: inline-block;
-    padding: 4px 16px; border-radius: 50px;
-    font-size: 12px; font-weight: 500;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    margin-bottom: 1.5rem;
-  }
-
-  .badge-truth {
-    background: rgba(45,63,95,0.1);
-    color: var(--navy);
-    border: 1px solid rgba(45,63,95,0.2);
-  }
-
-  .badge-dare {
-    background: rgba(193,122,111,0.12);
-    color: var(--rose);
-    border: 1px solid rgba(193,122,111,0.3);
-  }
-
-  .card-box {
-    background: #fff;
-    border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 16px; padding: 2.5rem 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 24px rgba(45,31,26,0.08);
-    min-height: 160px;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden;
-  }
-
-  .card-box::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at top left, rgba(232,196,176,0.2), transparent 60%);
-    pointer-events: none;
-  }
-
-  .card-text {
-    font-size: 1.1rem; font-weight: 400;
-    color: var(--ink); line-height: 1.65;
-    position: relative; z-index: 1;
-  }
-
-  .card-counter {
-    font-size: 11px; color: var(--muted);
-    letter-spacing: 0.05em; margin-bottom: 1.5rem;
-  }
-
-  .card-counter span { color: var(--rose); font-weight: 600; }
-
-  .card-actions {
-    display: flex; flex-direction: column; gap: 0.75rem;
-  }
-
-  .done-btn-row {
-    display: flex; gap: 0.75rem;
-  }
-
-  /* ── SCORE ── */
-  .score-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    background: #fff; border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 50px; padding: 0.5rem 1.25rem;
-    margin-bottom: 1.5rem;
-    font-size: 13px;
-  }
-
-  .score-item { text-align: center; }
-  .score-name { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-  .score-num { font-size: 1.2rem; font-weight: 600; color: var(--rose); }
-  .score-divider { color: var(--blush); font-size: 1.2rem; }
+  /* Actions */
+  .card-actions{display:flex;flex-direction:column;gap:.55rem}
+  .action-row{display:flex;gap:.55rem}
+  .btn{padding:.8rem 1.25rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;transition:all .2s;flex:1;text-align:center;user-select:none}
+  .btn-primary{background:var(--rose);color:#fff;box-shadow:0 3px 12px rgba(193,122,111,.3)}
+  .btn-primary:active{background:var(--deep)}
+  .btn-navy{background:var(--navy);color:#fff;box-shadow:0 3px 12px rgba(45,63,95,.2)}
+  .btn-navy:active{background:#1e2d45}
+  .btn-outline{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .btn-outline:active{border-color:var(--rose);color:var(--rose)}
+  .btn-warn{background:transparent;color:#c17a6f;border:1.5px solid rgba(193,122,111,.3);font-size:12px}
+  .btn-warn:active{background:rgba(193,122,111,.08)}
 
   /* ── END ── */
-  #screen-end { text-align: center; }
-  .end-emoji { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
-  .end-title { font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
-  .end-sub { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
+  #s-end{text-align:center}
+  .end-emoji{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:320px;margin:.4rem auto 1.5rem}
+  .final-scores{display:flex;gap:.65rem;margin-bottom:1.25rem}
+  .fs-card{flex:1;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:1rem .75rem;text-align:center;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  .fs-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.25rem}
+  .fs-num{font-size:2.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .fs-detail{font-size:10px;color:var(--muted);display:block;margin-top:.15rem}
+  .end-btns{display:flex;flex-direction:column;gap:.5rem}
 
-  .final-score {
-    background: #fff; border: 1px solid rgba(193,122,111,0.15);
-    border-radius: 12px; padding: 1.5rem;
-    margin-bottom: 2rem;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
-  }
-
-  .final-item { text-align: center; }
-  .final-name { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-  .final-num { font-size: 2rem; font-weight: 700; color: var(--rose); }
-  .final-label { font-size: 11px; color: var(--muted); }
-
-  /* ── BUTTONS ── */
-  .btn {
-    display: inline-block; padding: 0.85rem 2rem;
-    border-radius: 50px; border: none; cursor: pointer;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px; font-weight: 500;
-    letter-spacing: 0.04em; transition: all 0.2s;
-    width: 100%; text-align: center;
-  }
-
-  .btn-primary {
-    background: var(--rose); color: #fff;
-    box-shadow: 0 4px 16px rgba(193,122,111,0.3);
-  }
-  .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
-
-  .btn-navy {
-    background: var(--navy); color: #fff;
-    box-shadow: 0 4px 16px rgba(45,63,95,0.25);
-  }
-  .btn-navy:hover { background: #1e2d45; transform: translateY(-1px); }
-
-  .btn-outline {
-    background: transparent; color: var(--muted);
-    border: 1.5px solid var(--blush);
-  }
-  .btn-outline:hover { border-color: var(--rose); color: var(--rose); }
-
-  .btn-sm {
-    padding: 0.65rem 1.5rem; font-size: 13px;
-  }
-
-  @media (max-width: 480px) {
-    .player-cards, .type-cards { grid-template-columns: 1fr; }
-    .done-btn-row { flex-direction: column; }
-  }
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
-<div class="container">
 
-  <!-- INTRO -->
-  <div id="screen-intro" class="screen active">
-    <div class="intro-hearts">🤍 💫 🤍</div>
-    <p class="intro-label">Game Khusus Buat Kalian</p>
+<!-- INTRO -->
+<div id="s-intro" class="screen active">
+  <div class="wrap">
+    <span class="intro-hearts">🤍 💫 🤍</span>
+    <span class="intro-label">Game Khusus Buat Kalian</span>
     <h1 class="intro-title">Truth or Dare<br><span>Razan & Dara</span></h1>
-    <p class="intro-sub">Jawab jujur atau terima tantangan. Ga ada yang boleh kabur. 👀</p>
-    <div class="intro-rules">
-      <p class="rules-title">Cara Main</p>
-      <ul class="rules-list">
-        <li>Pilih siapa yang duluan kena giliran</li>
-        <li>Pilih Truth atau Dare</li>
-        <li>Kalau selesai, kasih poin ke yang berhasil</li>
-        <li>Kalau skip, poin ga dapet</li>
-        <li>Yang poin paling banyak di akhir — menang, dan boleh minta apapun 😏</li>
-      </ul>
-    </div>
-    <button class="btn btn-primary" onclick="showScreen('screen-select')">Mulai Main →</button>
-  </div>
+    <p class="intro-sub">Jawab jujur atau terima tantangan. Ada tiga kategori — pilih level keberanian kalian! Skip boleh, tapi -1 poin 😄</p>
 
-  <!-- SELECT PLAYER -->
-  <div id="screen-select" class="screen">
-    <div style="text-align:center; margin-bottom: 1.5rem;">
-      <p class="select-title">Giliran siapa sekarang?</p>
-      <p class="select-sub">Pilih dulu siapa yang kena</p>
-    </div>
-    <div class="player-cards">
-      <div class="player-card" onclick="selectPlayer('razan')">
-        <span class="player-emoji">🧑</span>
-        <p class="player-name">Razan</p>
-        <p class="player-sub">Giliran dia nih</p>
+    <div class="level-cards">
+      <div class="level-card lv1 sel" id="lc-1" onclick="selLevel(1)">
+        <div class="lc-icon lv1">🌸</div>
+        <div>
+          <span class="lc-title">Santai</span>
+          <span class="lc-desc">Pertanyaan & tantangan ringan — cocok buat warm up atau lagi malu-maluan</span>
+          <span class="lc-badge lv1">Kalem · Seru</span>
+        </div>
       </div>
-      <div class="player-card" onclick="selectPlayer('dara')">
-        <span class="player-emoji">👧</span>
-        <p class="player-name">Dara</p>
-        <p class="player-sub">Giliran dia nih</p>
+      <div class="level-card lv2" id="lc-2" onclick="selLevel(2)">
+        <div class="lc-icon lv2">🔥</div>
+        <div>
+          <span class="lc-title">Berani</span>
+          <span class="lc-desc">Lebih personal dan menantang — butuh kejujuran dan keberanian</span>
+          <span class="lc-badge lv2">Intim · Jujur</span>
+        </div>
+      </div>
+      <div class="level-card lv3" id="lc-3" onclick="selLevel(3)">
+        <div class="lc-icon lv3">💀</div>
+        <div>
+          <span class="lc-title">Nekat</span>
+          <span class="lc-desc">Semua level + yang paling ekstrem — siap-siap baper dan malu 😂</span>
+          <span class="lc-badge lv3">Campur Semua</span>
+        </div>
       </div>
     </div>
-    <button class="btn btn-outline btn-sm" onclick="showScreen('screen-end')" style="margin-top:0.5rem">
-      Selesai Main
-    </button>
-  </div>
 
-  <!-- SELECT TYPE -->
-  <div id="screen-type" class="screen">
-    <div style="text-align:center; margin-bottom: 0.5rem;">
-      <p class="card-for" id="type-for">Giliran RAZAN</p>
-      <p class="select-title">Pilih Truth atau Dare?</p>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:.55rem;text-align:center">Jumlah ronde:</div>
+    <div class="round-opts">
+      <div class="round-opt" id="ro-5" onclick="selRounds(5)"><span class="ro-num">5</span><span class="ro-lbl">ronde</span></div>
+      <div class="round-opt sel" id="ro-10" onclick="selRounds(10)"><span class="ro-num">10</span><span class="ro-lbl">ronde</span></div>
+      <div class="round-opt" id="ro-15" onclick="selRounds(15)"><span class="ro-num">15</span><span class="ro-lbl">ronde</span></div>
+      <div class="round-opt" id="ro-20" onclick="selRounds(20)"><span class="ro-num">20</span><span class="ro-lbl">ronde</span></div>
     </div>
+
+    <button class="start-btn" onclick="goPickFirst()">Mulai! 🤍</button>
+  </div>
+</div>
+
+<!-- PICK FIRST PLAYER -->
+<div id="s-first" class="screen">
+  <div class="wrap" style="text-align:center">
+    <span style="font-size:2.5rem;display:block;margin-bottom:1rem">🎲</span>
+    <p class="first-title">Siapa yang mulai duluan?</p>
+    <p class="first-sub">Abis ini giliran otomatis bergantian</p>
+    <div class="player-btns">
+      <div class="player-btn" onclick="startGame('razan')">
+        <span style="font-size:2rem;display:block;margin-bottom:.35rem">🧑</span>
+        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan</span>
+        <span style="font-size:10px;color:var(--muted)">Razan duluan</span>
+      </div>
+      <div class="player-btn" onclick="startGame('dara')">
+        <span style="font-size:2rem;display:block;margin-bottom:.35rem">👧</span>
+        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara</span>
+        <span style="font-size:10px;color:var(--muted)">Dara duluan</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TYPE SELECT -->
+<div id="s-type" class="screen">
+  <div class="wrap" style="text-align:center">
+    <div class="turn-chip razan" id="turn-chip">🧑 Giliran Razan</div>
+    <p class="type-title">Truth, Dare, atau Berdua?</p>
     <div class="type-cards">
-      <div class="type-card truth" onclick="selectType('truth')">
+      <div class="type-card truth" onclick="pickType('truth')">
         <span class="type-emoji">💬</span>
         <p class="type-label">Truth</p>
         <p class="type-desc">Jawab jujur,<br>ga boleh bohong</p>
       </div>
-      <div class="type-card dare" onclick="selectType('dare')">
+      <div class="type-card dare" onclick="pickType('dare')">
         <span class="type-emoji">🎯</span>
         <p class="type-label">Dare</p>
         <p class="type-desc">Terima tantangan,<br>ga boleh nolak</p>
       </div>
+      <div class="type-card berdua" onclick="pickType('berdua')">
+        <span class="type-emoji">👫</span>
+        <p class="type-label">Berdua</p>
+        <p class="type-desc">Tantangan<br>bareng dua-duanya</p>
+      </div>
     </div>
-    <button class="btn btn-outline btn-sm" onclick="showScreen('screen-select')">← Ganti Giliran</button>
+    <p class="skip-info">⚠️ Skip boleh tapi -1 poin</p>
   </div>
+</div>
 
-  <!-- CARD -->
-  <div id="screen-card" class="screen">
+<!-- CARD -->
+<div id="s-card" class="screen">
+  <div class="wrap">
+    <div class="progress-row">
+      <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+      <span class="progress-label" id="progress-label">0/10</span>
+    </div>
     <div class="score-bar">
       <div class="score-item">
-        <p class="score-name">Razan</p>
-        <p class="score-num" id="score-razan">0</p>
+        <span class="score-name">🧑 Razan</span>
+        <span class="score-num" id="sc-r">0</span>
       </div>
-      <span class="score-divider">vs</span>
+      <span class="score-vs">vs</span>
       <div class="score-item">
-        <p class="score-name">Dara</p>
-        <p class="score-num" id="score-dara">0</p>
+        <span class="score-name">Dara 👧</span>
+        <span class="score-num" id="sc-d">0</span>
       </div>
     </div>
-
-    <p class="card-for" id="card-for">Buat RAZAN</p>
-    <div style="text-align:center">
-      <span class="card-type-badge" id="card-badge">Truth</span>
+    <div class="card-meta">
+      <span class="card-for" id="card-for">Buat RAZAN</span>
+      <span class="card-badge badge-truth" id="card-badge">💬 Truth</span>
     </div>
     <div class="card-box">
       <p class="card-text" id="card-text">...</p>
     </div>
-    <p class="card-counter">Kartu <span id="card-used">1</span> dari <span id="card-total">20</span></p>
-
     <div class="card-actions">
-      <div class="done-btn-row">
-        <button class="btn btn-primary" onclick="markDone(true)">✓ Selesai (+1 poin)</button>
-        <button class="btn btn-outline" onclick="markDone(false)">✗ Skip</button>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="markDone(true)">✓ Selesai +1</button>
+        <button class="btn btn-warn" onclick="markSkip()">✗ Skip -1</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="nextCard()">Kartu Lain →</button>
+      <button class="btn btn-outline" onclick="nextCard()">Kartu Lain (gratis 1x) →</button>
     </div>
   </div>
+</div>
 
-  <!-- END -->
-  <div id="screen-end" class="screen">
+<!-- END -->
+<div id="s-end" class="screen">
+  <div class="wrap">
     <span class="end-emoji" id="end-emoji">🎉</span>
     <h2 class="end-title" id="end-title">Game selesai!</h2>
-    <p class="end-sub" id="end-sub">Kalian udah main Truth or Dare bareng. Seru kan? 🤍</p>
-    <div class="final-score">
-      <div class="final-item">
-        <p class="final-name">Razan</p>
-        <p class="final-num" id="final-razan">0</p>
-        <p class="final-label">poin</p>
+    <p class="end-sub" id="end-sub">Kalian udah main Truth or Dare bareng!</p>
+    <div class="final-scores">
+      <div class="fs-card" id="fs-r">
+        <span class="fs-name">🧑 Razan</span>
+        <span class="fs-num" id="end-r">0</span>
+        <span class="fs-detail">poin</span>
       </div>
-      <div class="final-item">
-        <p class="final-name">Dara</p>
-        <p class="final-num" id="final-dara">0</p>
-        <p class="final-label">poin</p>
+      <div class="fs-card" id="fs-d">
+        <span class="fs-name">Dara 👧</span>
+        <span class="fs-num" id="end-d">0</span>
+        <span class="fs-detail">poin</span>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="resetGame()">Main Lagi 🔄</button>
+    <div class="end-btns">
+      <button class="btn btn-primary" onclick="goPickFirst()">Main Lagi 🔄</button>
+      <button class="btn btn-outline" onclick="showScreen('s-intro')">Ganti Level / Ronde</button>
+    </div>
   </div>
-
 </div>
 
 <script>
-/* ══════════════════════════════════════
-   DATA — Truth & Dare untuk Razan & Dara
-══════════════════════════════════════ */
+// ── CARD DATA ──
+// Level 1: Santai
+const TRUTH_L1_R = [
+  "Kalau Dara tiba-tiba ngirim meme random jam 2 pagi, kamu bales atau pura-pura tidur?",
+  "Hal paling receh yang pernah bikin kamu senyum sendiri gara-gara Dara — apa?",
+  "Makanan apa yang pengen kamu makan bareng Dara tapi belum pernah dicoba?",
+  "Kalau bisa milih satu hari diulang bareng Dara, hari apa dan kenapa?",
+  "Hal kecil apa dari kebiasaan Dara yang tanpa sadar sering kamu ikutin?",
+  "Lagu apa yang paling sering kamu dengerin dan mengingatkan ke Dara?",
+  "Tempat yang paling pengen kamu kunjungi bareng Dara — kapanpun itu?",
+  "Apa hal pertama yang biasanya kamu pikirin pas baru bangun pagi dan ingat Dara?",
+  "Kalau Dara jadi satu objek di rumahmu, dia jadi objek apa dan kenapa?",
+  "Hal lucu apa dari Dara yang bikin kamu senyum tiap kali ingat?",
+  "Kalau kalian berdua jadi karakter film, kalian jadi film genre apa?",
+  "Kebiasaan Dara yang menurut kamu paling 'Dara banget' — apa?",
+  "Satu kata yang paling menggambarkan Dara menurut kamu sekarang?",
+  "Apa hal yang bikin kamu ngerasa paling nyaman sama Dara?",
+  "Aktivitas santai apa yang pengen banget kamu lakuin bareng Dara?",
+];
 
-const data = {
-  razan: {
-    truth: [
-      "Jujur — pernah ga kamu sengaja nunda bales chat Dara padahal hp kamu ada di tangan? Kenapa?",
-      "Sebutin satu hal yang Dara lakuin yang bikin kamu sebel tapi kamu ga pernah bilang ke dia.",
-      "Kalau kamu bisa hapus satu kenangan buruk dari hubungan kalian, kamu hapus yang mana?",
-      "Pernah ga kamu ngerasa cemburu sama seseorang soal Dara? Siapa dan kenapa?",
-      "Apa hal paling egois yang pernah kamu lakuin ke Dara — yang mungkin kamu belum minta maaf?",
-      "Kalau Dara bisa baca semua chat kamu dari 6 bulan terakhir, chat mana yang paling bikin kamu keringat dingin?",
-      "Pernah pura-pura oke padahal sebenernya kamu lagi sakit hati sama Dara? Soal apa?",
-      "Jujur — ada ga hal yang Dara lakuin yang bikin kamu ngerasa dia masih belum 100% percaya ke kamu?",
-      "Kapan terakhir kali kamu bohong ke Dara — meski cuma bohong kecil? Bohongnya soal apa?",
-      "Kalau ada satu hal yang pengen kamu minta ke Dara tapi kamu takut buat ngomongnya — apa itu?"
-    ],
-    dare: [
-      "Kasih tau Dara satu hal yang selama ini kamu simpan sendiri dan belum pernah kamu ceritain ke siapapun.",
-      "Minta Dara pilih satu kontak di hp kamu — kamu harus kirim pesan ke kontak itu sekarang, isinya terserah Dara.",
-      "Nyanyiin lagu yang paling Dara suka, dari awal sampai reff, sambil tatap matanya — ga boleh nunduk.",
-      "Tunjukin foto atau screenshot terlucu yang ada di galeri hp kamu sekarang ke Dara tanpa boleh milih dulu.",
-      "Lakuin apapun yang Dara minta selama 10 menit penuh — tanpa nolak, tanpa nego.",
-      "Ambil hp Dara sekarang — tulis pesan di notepad-nya, isinya hal yang paling kamu suka dari dia. Tapi kamu ga boleh liat hasilnya.",
-      "Biarkan Dara ganti nama kontak kamu di hp dia jadi apapun yang dia mau — dan ga boleh diganti balik 24 jam.",
-      "Tatap mata Dara selama 1 menit penuh tanpa boleh kedip, senyum, atau ngomong. Kalau gagal, harus ngulangin.",
-      "Kasih tau Dara satu ketakutan kamu yang belum pernah kamu ceritain ke dia — serius, bukan bercanda.",
-      "Tulis satu kalimat di telapak tangan Dara — kalimat yang paling ingin kamu dia bawa kemana-mana."
-    ]
-  },
-  dara: {
-    truth: [
-      "Jujur — pernah ga kamu sengaja nunda bales chat Razan padahal hp kamu ada di tangan? Kenapa?",
-      "Sebutin satu hal yang Razan lakuin yang bikin kamu sebel tapi kamu ga pernah bilang ke dia.",
-      "Kalau kamu bisa hapus satu kenangan buruk dari hubungan kalian, kamu hapus yang mana?",
-      "Pernah ga kamu ngerasa cemburu sama seseorang soal Razan? Siapa dan kenapa?",
-      "Apa hal paling egois yang pernah kamu lakuin ke Razan — yang mungkin kamu belum minta maaf?",
-      "Kalau Razan bisa baca semua chat kamu dari 6 bulan terakhir, chat mana yang paling bikin kamu keringat dingin?",
-      "Pernah pura-pura oke padahal sebenernya kamu lagi sakit hati sama Razan? Soal apa?",
-      "Jujur — ada ga hal yang Razan lakuin yang bikin kamu ngerasa dia masih belum 100% ngerti kamu?",
-      "Kapan terakhir kali kamu bohong ke Razan — meski cuma bohong kecil? Bohongnya soal apa?",
-      "Kalau ada satu hal yang pengen kamu minta ke Razan tapi kamu takut buat ngomongnya — apa itu?"
-    ],
-    dare: [
-      "Kasih tau Razan satu hal yang selama ini kamu simpan sendiri dan belum pernah kamu ceritain ke siapapun.",
-      "Minta Razan pilih satu kontak di hp kamu — kamu harus kirim pesan ke kontak itu sekarang, isinya terserah Razan.",
-      "Nyanyiin lagu yang paling Razan suka, dari awal sampai reff, sambil tatap matanya — ga boleh nunduk.",
-      "Tunjukin foto atau screenshot terlucu yang ada di galeri hp kamu sekarang ke Razan tanpa boleh milih dulu.",
-      "Lakuin apapun yang Razan minta selama 10 menit penuh — tanpa nolak, tanpa nego.",
-      "Ambil hp Razan sekarang — tulis pesan di notepad-nya, isinya hal yang paling kamu suka dari dia. Tapi kamu ga boleh liat hasilnya.",
-      "Biarkan Razan ganti nama kontak kamu di hp dia jadi apapun yang dia mau — dan ga boleh diganti balik 24 jam.",
-      "Tatap mata Razan selama 1 menit penuh tanpa boleh kedip, senyum, atau ngomong. Kalau gagal, harus ngulangin.",
-      "Kasih tau Razan satu ketakutan kamu yang belum pernah kamu ceritain ke dia — serius, bukan bercanda.",
-      "Tulis satu kalimat di telapak tangan Razan — kalimat yang paling ingin kamu dia bawa kemana-mana."
-    ]
+const TRUTH_L1_D = [
+  "Kalau Razan tiba-tiba ngirim meme random jam 2 pagi, kamu bales atau pura-pura tidur?",
+  "Hal paling receh yang pernah bikin kamu senyum sendiri gara-gara Razan — apa?",
+  "Makanan apa yang pengen kamu makan bareng Razan tapi belum pernah dicoba?",
+  "Kalau bisa milih satu hari diulang bareng Razan, hari apa dan kenapa?",
+  "Hal kecil apa dari kebiasaan Razan yang tanpa sadar sering kamu ikutin?",
+  "Lagu apa yang paling sering kamu dengerin dan mengingatkan ke Razan?",
+  "Tempat yang paling pengen kamu kunjungi bareng Razan — kapanpun itu?",
+  "Apa hal pertama yang biasanya kamu pikirin pas baru bangun pagi dan ingat Razan?",
+  "Kalau Razan jadi satu objek di kamarmu, dia jadi objek apa dan kenapa?",
+  "Hal lucu apa dari Razan yang bikin kamu senyum tiap kali ingat?",
+  "Kalau kalian berdua jadi karakter film, kalian jadi film genre apa?",
+  "Kebiasaan Razan yang menurut kamu paling 'Razan banget' — apa?",
+  "Satu kata yang paling menggambarkan Razan menurut kamu sekarang?",
+  "Apa hal yang bikin kamu ngerasa paling nyaman sama Razan?",
+  "Aktivitas santai apa yang pengen banget kamu lakuin bareng Razan?",
+];
+
+const DARE_L1_R = [
+  "Nyanyiin lagu anak-anak favorit kamu waktu kecil ke Dara sekarang — full satu bait.",
+  "Tunjukin foto paling aneh atau memalukan di galeri HP kamu ke Dara tanpa boleh pilih dulu.",
+  "Ceritain mimpi paling aneh yang pernah kamu punya — yang kamu inget.",
+  "Lakuin gaya foto couple yang paling kamu hindarin dan foto sekarang.",
+  "Biarkan Dara ganti bio atau status WA kamu jadi apapun dia mau — selama 1 jam.",
+  "Gambar potret Dara di kertas atau notes HP dalam 1 menit — tunjukin hasilnya.",
+  "Kirimin voice note ke Dara isi 3 hal receh yang kamu suka dari dia hari ini.",
+  "Peragakan gaya foto yang paling Dara suka dari kamu — Dara yang foto.",
+  "Biarkan Dara pilih satu lagu dan kamu harus dengerin bareng dia sekarang tanpa skip.",
+  "Ceritain kejadian memalukan yang pernah terjadi waktu kalian bareng.",
+  "Gambar emotikon yang paling menggambarkan perasaan kamu hari ini dan jelaskan.",
+  "Lakuin dance move paling konyol yang bisa kamu lakuin sekarang.",
+  "Tebak menu makan favorit Dara hari ini — dia konfirmasi benar atau salah.",
+  "Kasih Dara 3 compliment spesifik soal penampilannya hari ini.",
+  "Buat caption Instagram lucu untuk foto bareng kalian yang paling baru.",
+];
+
+const DARE_L1_D = [
+  "Nyanyiin lagu anak-anak favorit kamu waktu kecil ke Razan sekarang — full satu bait.",
+  "Tunjukin foto paling aneh atau memalukan di galeri HP kamu ke Razan tanpa boleh pilih dulu.",
+  "Ceritain mimpi paling aneh yang pernah kamu punya — yang kamu inget.",
+  "Lakuin gaya foto couple yang paling kamu hindarin dan foto sekarang.",
+  "Biarkan Razan ganti bio atau status WA kamu jadi apapun dia mau — selama 1 jam.",
+  "Gambar potret Razan di kertas atau notes HP dalam 1 menit — tunjukin hasilnya.",
+  "Kirimin voice note ke Razan isi 3 hal receh yang kamu suka dari dia hari ini.",
+  "Peragakan gaya foto yang paling Razan suka dari kamu — Razan yang foto.",
+  "Biarkan Razan pilih satu lagu dan kamu harus dengerin bareng dia sekarang tanpa skip.",
+  "Ceritain kejadian memalukan yang pernah terjadi waktu kalian bareng.",
+  "Gambar emotikon yang paling menggambarkan perasaan kamu hari ini dan jelaskan.",
+  "Lakuin dance move paling konyol yang bisa kamu lakuin sekarang.",
+  "Tebak menu makan favorit Razan hari ini — dia konfirmasi benar atau salah.",
+  "Kasih Razan 3 compliment spesifik soal penampilannya hari ini.",
+  "Buat caption Instagram lucu untuk foto bareng kalian yang paling baru.",
+];
+
+// Level 2: Berani
+const TRUTH_L2_R = [
+  "Jujur — pernah ga kamu sengaja nunda bales chat Dara padahal HP kamu ada di tangan? Kenapa?",
+  "Hal yang Dara lakuin yang diam-diam bikin kamu sebel tapi kamu ga pernah bilang — apa?",
+  "Kalau bisa hapus satu kenangan buruk dari hubungan kalian, kamu hapus yang mana?",
+  "Pernah cemburu sama seseorang soal Dara? Siapa dan kenapa — jujur.",
+  "Hal paling egois yang pernah kamu lakuin ke Dara — yang mungkin belum kamu minta maaf?",
+  "Kalau Dara bisa baca semua chat kamu dari 6 bulan terakhir, chat mana yang bikin kamu paling keringat dingin?",
+  "Pernah pura-pura oke padahal sebenernya lagi sakit hati sama Dara? Soal apa?",
+  "Kapan terakhir kali kamu bohong ke Dara — sekecil apapun? Soal apa?",
+  "Satu hal yang pengen kamu minta ke Dara tapi kamu takut buat ngomongnya — apa?",
+  "Kalau kamu bisa ubah satu hal dari cara kamu bersikap ke Dara, apa yang mau kamu ubah?",
+  "Momen apa yang bikin kamu paling ngerasa takut kehilangan Dara?",
+  "Satu hal tentang Dara yang kamu pengen dia tahu tapi belum pernah kamu ucapin langsung?",
+  "Ada ga hal yang kamu lakuin yang menurutmu bikin Dara sering salah paham ke kamu?",
+  "Jujur — seberapa sering kamu beneran dengerin cerita Dara vs berpura-pura dengerin?",
+  "Satu kekhawatiran terbesar kamu soal hubungan kalian saat ini — apa?",
+];
+
+const TRUTH_L2_D = [
+  "Jujur — pernah ga kamu sengaja nunda bales chat Razan padahal HP kamu ada di tangan? Kenapa?",
+  "Hal yang Razan lakuin yang diam-diam bikin kamu sebel tapi kamu ga pernah bilang — apa?",
+  "Kalau bisa hapus satu kenangan buruk dari hubungan kalian, kamu hapus yang mana?",
+  "Pernah cemburu sama seseorang soal Razan? Siapa dan kenapa — jujur.",
+  "Hal paling egois yang pernah kamu lakuin ke Razan — yang mungkin belum kamu minta maaf?",
+  "Kalau Razan bisa baca semua chat kamu dari 6 bulan terakhir, chat mana yang bikin kamu paling keringat dingin?",
+  "Pernah pura-pura oke padahal sebenernya lagi sakit hati sama Razan? Soal apa?",
+  "Kapan terakhir kali kamu bohong ke Razan — sekecil apapun? Soal apa?",
+  "Satu hal yang pengen kamu minta ke Razan tapi kamu takut buat ngomongnya — apa?",
+  "Kalau kamu bisa ubah satu hal dari cara kamu bersikap ke Razan, apa yang mau kamu ubah?",
+  "Momen apa yang bikin kamu paling ngerasa takut kehilangan Razan?",
+  "Satu hal tentang Razan yang kamu pengen dia tahu tapi belum pernah kamu ucapin langsung?",
+  "Ada ga hal yang kamu lakuin yang menurutmu bikin Razan sering salah paham ke kamu?",
+  "Jujur — seberapa sering kamu beneran dengerin cerita Razan vs berpura-pura dengerin?",
+  "Satu kekhawatiran terbesar kamu soal hubungan kalian saat ini — apa?",
+];
+
+const DARE_L2_R = [
+  "Kasih tau Dara satu hal yang selama ini kamu simpan sendiri dan belum pernah kamu ceritain ke siapapun.",
+  "Minta Dara pilih satu kontak di HP kamu — kamu harus kirim pesan ke kontak itu sekarang, isinya terserah Dara.",
+  "Tatap mata Dara selama 1 menit penuh tanpa boleh kedip, senyum, atau ngomong. Kalau gagal, harus ngulangin.",
+  "Kasih tau Dara satu ketakutan kamu yang belum pernah kamu ceritain ke dia — serius, bukan bercanda.",
+  "Tulis satu kalimat di telapak tangan Dara — kalimat yang paling ingin kamu dia bawa kemana-mana.",
+  "Biarkan Dara ganti nama kontak kamu di HP dia jadi apapun yang dia mau — ga boleh diganti balik 24 jam.",
+  "Ceritain ke Dara momen pertama kamu mulai beneran suka sama dia — sedetail mungkin.",
+  "Bilang ke Dara satu hal yang bikin kamu bangga dari dia yang mungkin jarang kamu ucapin langsung.",
+  "Baca notifikasi terakhir yang ada di HP kamu ke Dara — apapun itu.",
+  "Kasih Dara akses ke playlist atau lagu yang paling sering kamu dengerin sendirian.",
+  "Ceritain satu hal yang pernah kamu lakuin yang kamu nyesel dan belum pernah kamu ceritain ke Dara.",
+  "Lakuin apapun yang Dara minta selama 5 menit penuh — tanpa nolak, tanpa nego.",
+  "Kasih tau Dara satu hal yang selama ini kamu ga setuju tapi kamu diem aja.",
+  "Peragakan cara kamu ngomong 'aku sayang kamu' tapi pakai bahasa yang berbeda tiap detik selama 30 detik.",
+  "Jawab jujur: hal terakhir yang bikin kamu kesal ke Dara — ceritain sekarang.",
+];
+
+const DARE_L2_D = [
+  "Kasih tau Razan satu hal yang selama ini kamu simpan sendiri dan belum pernah kamu ceritain ke siapapun.",
+  "Minta Razan pilih satu kontak di HP kamu — kamu harus kirim pesan ke kontak itu sekarang, isinya terserah Razan.",
+  "Tatap mata Razan selama 1 menit penuh tanpa boleh kedip, senyum, atau ngomong. Kalau gagal, harus ngulangin.",
+  "Kasih tau Razan satu ketakutan kamu yang belum pernah kamu ceritain ke dia — serius, bukan bercanda.",
+  "Tulis satu kalimat di telapak tangan Razan — kalimat yang paling ingin kamu dia bawa kemana-mana.",
+  "Biarkan Razan ganti nama kontak kamu di HP dia jadi apapun yang dia mau — ga boleh diganti balik 24 jam.",
+  "Ceritain ke Razan momen pertama kamu mulai beneran suka sama dia — sedetail mungkin.",
+  "Bilang ke Razan satu hal yang bikin kamu bangga dari dia yang mungkin jarang kamu ucapin langsung.",
+  "Baca notifikasi terakhir yang ada di HP kamu ke Razan — apapun itu.",
+  "Kasih Razan akses ke playlist atau lagu yang paling sering kamu dengerin sendirian.",
+  "Ceritain satu hal yang pernah kamu lakuin yang kamu nyesel dan belum pernah kamu ceritain ke Razan.",
+  "Lakuin apapun yang Razan minta selama 5 menit penuh — tanpa nolak, tanpa nego.",
+  "Kasih tau Razan satu hal yang selama ini kamu ga setuju tapi kamu diem aja.",
+  "Peragakan cara kamu ngomong 'aku sayang kamu' tapi pakai bahasa yang berbeda tiap detik selama 30 detik.",
+  "Jawab jujur: hal terakhir yang bikin kamu kesal ke Razan — ceritain sekarang.",
+];
+
+// Berdua (berlaku untuk semua level, tapi lebih banyak di level 2+)
+const BERDUA_L1 = [
+  "Dua-duanya harus senyum selebar mungkin selama 15 detik sambil tatap mata — siapa yang ketawa duluan harus ceritain satu hal receh yang dia suka dari yang satunya.",
+  "Masing-masing tebak: makanan apa yang ingin dimakan satu sama lain sekarang. Tunjukkan bareng — siapa yang benar boleh minta dibeliin.",
+  "Foto selfie bareng sekarang — dengan pose yang paling kalian hindari biasanya. Wajib disimpan.",
+  "Dua-duanya tulis di HP: satu hal yang paling kalian suka dari satu sama lain hari ini. Tunjukkan bersamaan.",
+  "Satu orang harus pejamkan mata, yang satunya atur pose mereka — foto hasilnya tanpa boleh edit.",
+  "Masing-masing sebut secara bersamaan: satu kata yang menggambarkan hubungan kalian sekarang.",
+  "Dua-duanya lakuin dance move yang sama dalam 10 detik — boleh konyol, yang penting kompak.",
+];
+
+const BERDUA_L2 = [
+  "Dua-duanya duduk berhadapan, genggam tangan, dan diam selama 1 menit penuh. Abis itu masing-masing bilang satu hal yang dirasain.",
+  "Masing-masing tulis di HP: satu hal yang ingin kalian minta maafkan ke satu sama lain. Tukar HP dan baca.",
+  "Tatap mata satu sama lain selama 2 menit tanpa ngomong — siapa yang buang muka duluan harus ceritain hal yang selama ini disimpan sendiri.",
+  "Dua-duanya jawab jujur secara bersamaan: 'Hal yang paling aku takutkan dari kehilangan kamu adalah...' — hitung 1-2-3 lalu bilang bareng.",
+  "Masing-masing sebut satu kebiasaan diri sendiri yang mungkin bikin yang satunya ga nyaman. Dengerin tanpa defensif.",
+  "Dua-duanya tutup mata, tangan di tengah — cari tangan satu sama lain tanpa ngomong. Tahan genggamannya 1 menit.",
+  "Masing-masing jawab: 'Momen ketika aku paling ngerasa dicintai olehmu adalah...' — bergantian, yang lain hanya dengerin.",
+  "Satu orang bisikkan ke telinga yang satunya: hal yang paling bikin dia bersyukur ada kamu. Yang satunya hanya dengerin.",
+];
+
+// ── STATE ──
+let selectedLevel = 1;
+let totalRounds = 10;
+let currentPlayer = 'razan';
+let currentType = 'truth';
+let roundNum = 0;
+let scores = {razan:0, dara:0};
+let skipsUsed = {razan:0, dara:0};
+let freeSkipUsed = false; // free skip per kartu
+let usedIdx = {razan:{truth:[],dare:[]}, dara:{truth:[],dare:[]}, berdua:[]};
+let currentCardText = '';
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function selLevel(n){
+  selectedLevel=n;
+  [1,2,3].forEach(x=>{
+    const el=document.getElementById('lc-'+x);
+    if(el){el.classList.remove('sel');el.classList.toggle('sel',x===n);}
+  });
+}
+
+function selRounds(n){
+  totalRounds=n;
+  [5,10,15,20].forEach(x=>{
+    const el=document.getElementById('ro-'+x);
+    if(el) el.classList.toggle('sel',x===n);
+  });
+}
+
+function goPickFirst(){
+  // Reset state
+  roundNum=0; scores={razan:0,dara:0}; skipsUsed={razan:0,dara:0};
+  usedIdx={razan:{truth:[],dare:[]},dara:{truth:[],dare:[]},berdua:[]};
+  showScreen('s-first');
+}
+
+function startGame(first){
+  currentPlayer=first;
+  showScreen('s-type');
+  updateTurnChip();
+}
+
+function updateTurnChip(){
+  const chip=document.getElementById('turn-chip');
+  if(!chip) return;
+  const name=currentPlayer==='razan'?'Razan':'Dara';
+  chip.textContent=(currentPlayer==='razan'?'🧑':'👧')+' Giliran '+name;
+  chip.className='turn-chip '+currentPlayer;
+}
+
+function pickType(type){
+  currentType=type;
+  freeSkipUsed=false;
+  showCardScreen();
+}
+
+function getCardPool(){
+  // Build pool based on level
+  if(currentType==='berdua'){
+    if(selectedLevel===1) return BERDUA_L1;
+    return [...BERDUA_L1,...BERDUA_L2];
   }
-};
-
-/* ══ STATE ══ */
-let currentPlayer = '';
-let currentType = '';
-let scores = { razan: 0, dara: 0 };
-let usedCards = { razan: { truth: [], dare: [] }, dara: { truth: [], dare: [] } };
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function selectPlayer(player) {
-  currentPlayer = player;
-  document.getElementById('type-for').textContent = `Giliran ${player.toUpperCase()}`;
-  showScreen('screen-type');
-}
-
-function selectType(type) {
-  currentType = type;
-  showCard();
-}
-
-function getRandomCard() {
-  const pool = data[currentPlayer][currentType];
-  const used = usedCards[currentPlayer][currentType];
-  const available = pool.map((_, i) => i).filter(i => !used.includes(i));
-
-  if (available.length === 0) {
-    usedCards[currentPlayer][currentType] = [];
-    return Math.floor(Math.random() * pool.length);
-  }
-
-  return available[Math.floor(Math.random() * available.length)];
-}
-
-let currentCardIndex = -1;
-
-function showCard() {
-  currentCardIndex = getRandomCard();
-  usedCards[currentPlayer][currentType].push(currentCardIndex);
-
-  const card = data[currentPlayer][currentType][currentCardIndex];
-  const used = usedCards[currentPlayer][currentType].length;
-  const total = data[currentPlayer][currentType].length;
-
-  document.getElementById('card-for').textContent = `Buat ${currentPlayer.toUpperCase()}`;
-  document.getElementById('card-text').textContent = card;
-
-  const badge = document.getElementById('card-badge');
-  badge.textContent = currentType === 'truth' ? '💬 Truth' : '🎯 Dare';
-  badge.className = `card-type-badge badge-${currentType}`;
-
-  document.getElementById('card-used').textContent = used;
-  document.getElementById('card-total').textContent = total;
-
-  document.getElementById('score-razan').textContent = scores.razan;
-  document.getElementById('score-dara').textContent = scores.dara;
-
-  showScreen('screen-card');
-}
-
-function nextCard() {
-  showCard();
-}
-
-function markDone(success) {
-  if (success) scores[currentPlayer]++;
-  showScreen('screen-select');
-  document.getElementById('score-razan').textContent = scores.razan;
-  document.getElementById('score-dara').textContent = scores.dara;
-}
-
-function resetGame() {
-  scores = { razan: 0, dara: 0 };
-  usedCards = { razan: { truth: [], dare: [] }, dara: { truth: [], dare: [] } };
-  showScreen('screen-intro');
-}
-
-// Show end screen with results
-document.addEventListener('DOMContentLoaded', () => {
-  const origEnd = showScreen;
-  window.showScreen = function(id) {
-    if (id === 'screen-end') {
-      document.getElementById('final-razan').textContent = scores.razan;
-      document.getElementById('final-dara').textContent = scores.dara;
-
-      const r = scores.razan, d = scores.dara;
-      if (r === d) {
-        document.getElementById('end-emoji').textContent = '🤝';
-        document.getElementById('end-title').textContent = 'Seri!';
-        document.getElementById('end-sub').textContent = 'Kalian sama-sama berani. Atau sama-sama pengecut. Wkwk 🤍';
-      } else if (r > d) {
-        document.getElementById('end-emoji').textContent = '🏆';
-        document.getElementById('end-title').textContent = 'Razan menang!';
-        document.getElementById('end-sub').textContent = 'Razan lebih berani hari ini. Dara harus nurut permintaan Razan satu kali. Itu peraturannya 😏';
-      } else {
-        document.getElementById('end-emoji').textContent = '👑';
-        document.getElementById('end-title').textContent = 'Dara menang!';
-        document.getElementById('end-sub').textContent = 'Dara yang paling berani hari ini! Razan harus nurut permintaan Dara satu kali. Minta apapun 😏';
-      }
+  if(currentPlayer==='razan'){
+    if(currentType==='truth'){
+      if(selectedLevel===1) return TRUTH_L1_R;
+      if(selectedLevel===2) return TRUTH_L2_R;
+      return [...TRUTH_L1_R,...TRUTH_L2_R];
+    } else {
+      if(selectedLevel===1) return DARE_L1_R;
+      if(selectedLevel===2) return DARE_L2_R;
+      return [...DARE_L1_R,...DARE_L2_R];
     }
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-  };
-});
+  } else {
+    if(currentType==='truth'){
+      if(selectedLevel===1) return TRUTH_L1_D;
+      if(selectedLevel===2) return TRUTH_L2_D;
+      return [...TRUTH_L1_D,...TRUTH_L2_D];
+    } else {
+      if(selectedLevel===1) return DARE_L1_D;
+      if(selectedLevel===2) return DARE_L2_D;
+      return [...DARE_L1_D,...DARE_L2_D];
+    }
+  }
+}
+
+function getUsedKey(){
+  if(currentType==='berdua') return usedIdx.berdua;
+  return usedIdx[currentPlayer][currentType];
+}
+
+function pickCard(){
+  const pool=getCardPool();
+  const used=getUsedKey();
+  const available=pool.map((_,i)=>i).filter(i=>!used.includes(i));
+  if(available.length===0){
+    // Reset used for this category
+    if(currentType==='berdua') usedIdx.berdua=[];
+    else usedIdx[currentPlayer][currentType]=[];
+    return Math.floor(Math.random()*pool.length);
+  }
+  const idx=available[Math.floor(Math.random()*available.length)];
+  return idx;
+}
+
+function showCardScreen(){
+  const pool=getCardPool();
+  const idx=pickCard();
+  getUsedKey().push(idx);
+  currentCardText=pool[idx];
+
+  const name=currentPlayer==='razan'?'RAZAN':'DARA';
+  const forText=currentType==='berdua'?'BERDUA':'Buat '+name;
+  const cf=document.getElementById('card-for');
+  if(cf) cf.textContent=forText;
+
+  const badge=document.getElementById('card-badge');
+  if(badge){
+    const map={truth:{label:'💬 Truth',cls:'badge-truth'},dare:{label:'🎯 Dare',cls:'badge-dare'},berdua:{label:'👫 Berdua',cls:'badge-berdua'}};
+    const m=map[currentType];
+    badge.textContent=m.label; badge.className='card-badge '+m.cls;
+  }
+
+  const ct=document.getElementById('card-text');
+  if(ct) ct.textContent=currentCardText;
+
+  // Update score & progress
+  updateScoreHUD();
+  updateProgress();
+
+  // Update next card button text
+  const ncBtn=document.querySelector('#s-card .btn-outline');
+  if(ncBtn) ncBtn.textContent=freeSkipUsed?'Kartu Lain (-1 poin) →':'Kartu Lain (gratis 1x) →';
+
+  showScreen('s-card');
+  if(navigator.vibrate) navigator.vibrate(15);
+}
+
+function nextCard(){
+  if(freeSkipUsed){
+    // Paid skip
+    scores[currentPlayer]=Math.max(0,scores[currentPlayer]-1);
+    updateScoreHUD();
+  }
+  freeSkipUsed=true;
+  showCardScreen();
+}
+
+function markDone(success){
+  if(success){
+    scores[currentPlayer]++;
+    if(navigator.vibrate) navigator.vibrate([20,10,40]);
+  }
+  advanceTurn();
+}
+
+function markSkip(){
+  scores[currentPlayer]=Math.max(0,scores[currentPlayer]-1);
+  if(navigator.vibrate) navigator.vibrate(60);
+  advanceTurn();
+}
+
+function advanceTurn(){
+  roundNum++;
+  if(roundNum>=totalRounds){
+    showEnd();
+    return;
+  }
+  // Alternate player
+  currentPlayer=currentPlayer==='razan'?'dara':'razan';
+  updateTurnChip();
+  updateScoreHUD();
+  showScreen('s-type');
+}
+
+function updateScoreHUD(){
+  const scr=document.getElementById('sc-r');
+  const scd=document.getElementById('sc-d');
+  if(scr) scr.textContent=scores.razan;
+  if(scd) scd.textContent=scores.dara;
+}
+
+function updateProgress(){
+  const bar=document.getElementById('progress-bar');
+  const lbl=document.getElementById('progress-label');
+  const pct=(roundNum/totalRounds)*100;
+  if(bar) bar.style.width=pct+'%';
+  if(lbl) lbl.textContent=`${roundNum}/${totalRounds}`;
+}
+
+function showEnd(){
+  const r=scores.razan, d=scores.dara;
+  const tie=r===d;
+  const winner=r>d?'razan':'dara';
+
+  const ee=document.getElementById('end-emoji');
+  const et=document.getElementById('end-title');
+  const es=document.getElementById('end-sub');
+  const er=document.getElementById('end-r');
+  const ed=document.getElementById('end-d');
+
+  if(er) er.textContent=r;
+  if(ed) ed.textContent=d;
+
+  if(tie){
+    if(ee) ee.textContent='🤝';
+    if(et) et.textContent='Seri!';
+    if(es) es.textContent='Kalian sama-sama berani — atau sama-sama pengecut. Wkwk 🤍 Main lagi?';
+  } else if(winner==='razan'){
+    if(ee) ee.textContent='🏆';
+    if(et) et.textContent='Razan menang!';
+    if(es) es.textContent='Razan lebih berani hari ini. Dara harus nurut satu permintaan Razan — apapun yang wajar 😏';
+    document.getElementById('fs-r')?.style.setProperty('border-color','var(--rose)');
+  } else {
+    if(ee) ee.textContent='👑';
+    if(et) et.textContent='Dara menang!';
+    if(es) es.textContent='Dara yang paling berani hari ini! Razan harus nurut satu permintaan Dara — minta apapun 😏';
+    document.getElementById('fs-d')?.style.setProperty('border-color','var(--rose)');
+  }
+
+  showScreen('s-end');
+  if(r>0||d>0) confetti(60);
+}
+
+function confetti(n=50){
+  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    const el=document.createElement('div');el.className='cp';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
+  },i*22);
+}
 </script>
 </body>
 </html>
