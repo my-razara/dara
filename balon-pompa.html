@@ -232,6 +232,17 @@
     </div>
   </div>
 
+  <div style="display:flex;gap:.45rem;margin-bottom:1rem;width:100%;max-width:380px">
+    <div onclick="WIN_TARGET=3;document.querySelectorAll('.topt').forEach(b=>b.classList.remove('tsel'));this.classList.add('tsel')" class="topt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center;transition:all .15s">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">3</span><span style="font-size:9px;color:var(--muted)">Cepat</span>
+    </div>
+    <div onclick="WIN_TARGET=5;document.querySelectorAll('.topt').forEach(b=>b.classList.remove('tsel'));this.classList.add('tsel')" class="topt tsel" style="flex:1;background:#fff;border:2px solid var(--rose);background:rgba(193,122,111,.05);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center;transition:all .15s">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">5</span><span style="font-size:9px;color:var(--muted)">Standar</span>
+    </div>
+    <div onclick="WIN_TARGET=7;document.querySelectorAll('.topt').forEach(b=>b.classList.remove('tsel'));this.classList.add('tsel')" class="topt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center;transition:all .15s">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">7</span><span style="font-size:9px;color:var(--muted)">Panjang</span>
+    </div>
+  </div>
   <button class="start-btn" onclick="showScreen('screen-who'); initGame()">Mulai! 🎈</button>
 </div>
 
@@ -309,6 +320,10 @@
   <p class="bang-title" id="bang-title">BOOM! Razan kalah!</p>
   <p class="bang-sub" id="bang-sub">Razan yang bikin balon meledak!</p>
   <div class="bang-pumps" id="bang-pumps">Balon dipompa 7x sebelum meledak</div>
+  <div id="demand-card" style="display:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:.7rem 1rem;margin-bottom:1rem;max-width:320px">
+    <span style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,200,100,.8);font-weight:700;display:block;margin-bottom:.3rem">🎯 Misi Pemenang</span>
+    <p id="demand-text" style="font-size:12.5px;color:#fff;font-weight:600;line-height:1.55"></p>
+  </div>
   <button class="bang-next" id="bang-next" onclick="nextRound()">Ronde Berikutnya →</button>
 </div>
 
@@ -330,16 +345,51 @@
 </div>
 
 <script>
-const WIN_TARGET = 5;
-const MIN_PUMPS = 3;
-const MAX_PUMPS = 15;
+let WIN_TARGET = 5;
+const MIN_PUMPS = 5;
+const MAX_PUMPS = 18;
 
 let scores = {razan:0, dara:0};
+let consec = {razan:0, dara:0};
 let round = 1;
 let currentTurn = 'razan';
 let pumps = 0;
 let explodeAt = 0;
 let gameOver = false;
+let bangTimeout = null;
+let usedDemands = [];
+let usedFinalDemands = [];
+
+// ── ROUND DEMANDS ──
+const ROUND_DEMANDS = [
+  'Kasih pelukan ke yang kalah sekarang — minimal 10 detik! 🤗',
+  'Bilang 3 hal yang kamu suka dari yang kalah — sekarang! 💬',
+  'Yang kalah kirim stiker sayang sebanyak mungkin dalam 10 detik! 💌',
+  'Yang kalah pijitin bahu yang menang minimal 1 menit! 💆',
+  'Foto bareng sekarang — yang kalah yang pilih gayanya! 📸',
+  'Yang kalah nyanyiin lagu sayang-sayang minimal 10 detik! 🎤',
+  'Yang kalah bilang hal yang jarang dia bilang ke yang menang! 🥺',
+  'Yang kalah kasih compliment spesifik yang belum pernah diucapin! ✨',
+];
+
+const FINAL_DEMANDS = [
+  '{winner} boleh minta {loser} lakuin apapun yang wajar — {loser} harus langsung iya!',
+  'Traktir {loser} minuman favoritnya — {loser} pilih, {winner} bayar sebelum minggu ini selesai!',
+  '{loser} harus pijitin {winner} minimal 5 menit — {winner} yang nilai kualitasnya.',
+  '{winner} boleh pilih film yang ditonton bareng — {loser} harus antusias!',
+  '{loser} harus kirim pesan panjang ke {winner} hari ini — hal-hal yang dia syukuri dari {winner}.',
+  '{winner} bebas minta satu momen bareng {loser} — kapanpun dan di manapun.',
+  '{loser} harus bilang "aku sayang kamu" ke {winner} dengan 3 cara berbeda sekarang.',
+  '{loser} harus ganti foto profil dengan foto pilihan {winner} selama 24 jam!',
+];
+
+function getRandomDemand(pool, used) {
+  let avail = pool.map((_,i)=>i).filter(i=>!used.includes(i));
+  if(avail.length===0){used.length=0;avail=pool.map((_,i)=>i);}
+  const idx = avail[Math.floor(Math.random()*avail.length)];
+  used.push(idx);
+  return pool[idx];
+}
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -348,9 +398,14 @@ function showScreen(id){
 
 function initGame(){
   scores = {razan:0, dara:0};
+  consec = {razan:0, dara:0};
   round = 1;
+  usedDemands = [];
+  usedFinalDemands = [];
+  clearTimeout(bangTimeout); bangTimeout = null;
   updateWhoScores();
-  document.getElementById('w-round').textContent = round;
+  const wr = document.getElementById('w-round');
+  if(wr) wr.textContent = round;
 }
 
 function updateWhoScores(){
@@ -441,42 +496,63 @@ function pump(){
 
 function doExplode(){
   gameOver = true;
-  document.getElementById('pump-btn').disabled = true;
+  const btn = document.getElementById('pump-btn');
+  if(btn) btn.disabled = true;
 
   const loser = currentTurn;
   const winner = loser==='razan' ? 'dara' : 'razan';
   const loserName = loser==='razan' ? 'Razan' : 'Dara';
   const winnerName = winner==='razan' ? 'Razan' : 'Dara';
 
-  // Explode animation
+  // Streak tracking
+  consec[winner]++;
+  consec[loser] = 0;
+
   const balloon = document.getElementById('balloon-emoji');
-  balloon.classList.add('exploding');
-  balloon.textContent = '💥';
+  if(balloon){balloon.classList.add('exploding');balloon.textContent = '💥';}
 
   scores[winner]++;
+  if(navigator.vibrate) navigator.vibrate([60,30,120]);
 
-  setTimeout(()=>{
-    document.getElementById('bang-title').textContent = `BOOM! ${loserName} kalah!`;
-    document.getElementById('bang-sub').textContent = `${loserName} yang bikin balon meledak — ${winnerName} menang ronde ini!`;
-    document.getElementById('bang-pumps').textContent = `Balon dipompa ${pumps}x sebelum meledak`;
+  clearTimeout(bangTimeout);
+  bangTimeout = setTimeout(()=>{
+    const bt=document.getElementById('bang-title');
+    const bs=document.getElementById('bang-sub');
+    const bp=document.getElementById('bang-pumps');
+    const bn=document.getElementById('bang-next');
+    const dc=document.getElementById('demand-card');
+    const dt=document.getElementById('demand-text');
 
-    if(scores[winner] >= WIN_TARGET){
-      document.getElementById('bang-next').textContent = 'Lihat Hasil Akhir 🏆';
-      document.getElementById('bang-next').onclick = showEnd;
-    } else {
-      document.getElementById('bang-next').textContent = 'Ronde Berikutnya →';
-      document.getElementById('bang-next').onclick = nextRound;
+    const streak = consec[winner];
+    if(bt) bt.textContent = (streak>=3?'🔥 '+winnerName+' '+streak+'x berturut! ':'')+'BOOM! '+loserName+' kalah!';
+    if(bs) bs.textContent = `${loserName} yang bikin balon meledak — ${winnerName} menang ronde ini!`;
+    if(bp) bp.textContent = `Balon dipompa ${pumps}x sebelum meledak`;
+
+    // Round demand
+    if(dc && dt){
+      dt.textContent = getRandomDemand(ROUND_DEMANDS, usedDemands);
+      dc.style.display = 'block';
     }
 
-    document.getElementById('bang-overlay').classList.add('show');
+    const isEnd = scores[winner] >= WIN_TARGET;
+    if(bn){
+      bn.textContent = isEnd ? 'Lihat Hasil Akhir 🏆' : 'Ronde Berikutnya →';
+      // FIX: use removeEventListener pattern via flag instead of reassigning onclick
+      bn.onclick = isEnd ? showEnd : nextRound;
+    }
+
+    const bo = document.getElementById('bang-overlay');
+    if(bo) bo.classList.add('show');
   }, 600);
 }
 
 function nextRound(){
-  document.getElementById('bang-overlay').classList.remove('show');
+  const bo = document.getElementById('bang-overlay');
+  if(bo) bo.classList.remove('show');
+  const dc = document.getElementById('demand-card');
+  if(dc) dc.style.display = 'none';
   round++;
   updateWhoScores();
-
   if(scores.razan >= WIN_TARGET || scores.dara >= WIN_TARGET){
     showEnd(); return;
   }
@@ -496,7 +572,7 @@ function showEnd(){
   document.getElementById('end-razan').textContent = r;
   document.getElementById('end-dara').textContent = d;
   document.getElementById('end-verdict').innerHTML =
-    `<strong>${winner} menang!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
+    (()=>{const tmpl=getRandomDemand(FINAL_DEMANDS,usedFinalDemands);return `<strong>🎯 Hak Pemenang:</strong><br>${tmpl.replace(/{winner}/g,winner).replace(/{loser}/g,loser)}`})();
 
   showScreen('screen-end');
   confetti();
