@@ -197,6 +197,17 @@
   <div style="display:flex;align-items:center;justify-content:center;gap:.4rem;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.2);border-radius:50px;padding:.4rem 1rem;margin-bottom:1.25rem;font-size:11.5px;color:#8a6a20;font-weight:500;width:100%;max-width:380px">
     📱 Putar HP ke landscape dulu ya!
   </div>
+  <div style="display:flex;gap:.45rem;margin-bottom:.85rem;width:100%;max-width:380px">
+    <div onclick="setRounds(3,this)" class="ro-opt" style="flex:1;background:rgba(193,122,111,.05);border:2px solid var(--rose);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">3</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
+    </div>
+    <div onclick="setRounds(5,this)" class="ro-opt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">5</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
+    </div>
+    <div onclick="setRounds(7,this)" class="ro-opt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">7</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
+    </div>
+  </div>
   <button class="start-btn" onclick="startGame()">Mulai! 🪢</button>
 </div>
 
@@ -215,7 +226,7 @@
 
   <!-- Center -->
   <div class="center-col">
-    <span class="round-badge">Ronde <span id="c-round">1</span>/5</span>
+    <span class="round-badge">Ronde <span id="c-round">1</span>/<span id="c-total">3</span></span>
 
     <!-- Rope progress bar -->
     <div class="rope-track">
@@ -257,7 +268,12 @@
 <div id="win-flash">
   <span class="wf-icon" id="wf-icon">🏆</span>
   <p class="wf-title" id="wf-title">Razan menang ronde!</p>
+  <p class="wf-streak" id="wf-streak" style="font-size:12px;font-weight:700;color:var(--gold);min-height:18px;margin-bottom:.25rem"></p>
   <p class="wf-desc" id="wf-desc">...</p>
+  <div id="wf-demand" style="display:none;background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.3);border-radius:12px;padding:.6rem .9rem;margin:.5rem 0 .75rem;max-width:300px;text-align:center">
+    <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem">🎯 Misi Pemenang</span>
+    <p id="wf-demand-text" style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.5"></p>
+  </div>
   <div class="wf-scores">
     <div class="wfs-item"><span class="wfs-num" id="wf-r">0</span><span class="wfs-name">Razan</span></div>
     <span class="wfs-vs">:</span>
@@ -284,12 +300,49 @@
 </div>
 
 <script>
-const WIN_ROUNDS = 3; // first to 3 wins
+let WIN_ROUNDS = 3;
+
+function setRounds(n,btn){
+  WIN_ROUNDS=n;
+  document.querySelectorAll(".ro-opt").forEach(b=>{b.style.borderColor="var(--blush)";b.style.background="#fff";});
+  btn.style.borderColor="var(--rose)";btn.style.background="rgba(193,122,111,.05)";
+} // first to 3 wins
 const ROUND_TIME = 10; // seconds
 const WIN_THRESHOLD = 85; // % to win a round
 const DECAY = 0.3; // rope drift back to center per frame when not tapping
 
 let taps = {razan:0, dara:0};
+let consec = {razan:0, dara:0};
+let usedDemands=[], usedFinalDemands=[];
+
+const ROUND_DEMANDS = [
+  'Kasih pelukan ke yang kalah sekarang — minimal 10 detik! 🤗',
+  'Yang kalah bilang 3 hal yang dia suka dari yang menang! 💬',
+  'Yang kalah kirim stiker sayang sebanyak mungkin dalam 10 detik! 💌',
+  'Yang kalah pijitin bahu yang menang minimal 1 menit! 💆',
+  'Yang kalah nyanyiin lagu sayang minimal 10 detik! 🎤',
+  'Foto bareng sekarang — yang kalah pilih gayanya! 📸',
+  'Yang kalah kasih compliment yang belum pernah diucapin! ✨',
+  'Yang kalah bilang hal yang jarang dia ungkapin ke yang menang! 🥺',
+];
+
+const FINAL_DEMANDS = [
+  '{winner} boleh minta {loser} lakuin apapun yang wajar — langsung iya, ga boleh nolak!',
+  'Traktir {loser} — {loser} pilih, {winner} bayar sebelum minggu ini selesai!',
+  '{loser} harus pijitin {winner} minimal 5 menit — {winner} yang nilai kualitasnya.',
+  '{winner} boleh pilih film yang ditonton bareng — {loser} harus antusias!',
+  '{loser} harus kirim pesan panjang ke {winner} hari ini — hal yang dia syukuri dari {winner}.',
+  '{loser} harus bilang "aku sayang kamu" ke {winner} dengan 3 cara berbeda sekarang.',
+  '{winner} bebas minta satu momen bareng {loser} — kapanpun dan di manapun.',
+];
+
+function getRandomDemand(pool, used){
+  let avail=pool.map((_,i)=>i).filter(i=>!used.includes(i));
+  if(avail.length===0){used.length=0;avail=pool.map((_,i)=>i);}
+  const idx=avail[Math.floor(Math.random()*avail.length)];
+  used.push(idx);
+  return pool[idx];
+}
 let wins = {razan:0, dara:0};
 let ropePos = 50; // 0=razan wins, 100=dara wins, 50=center
 let roundNum = 1;
@@ -308,8 +361,10 @@ function showScreen(id){
 
 function startGame(){
   wins={razan:0,dara:0};
+  consec={razan:0,dara:0};
+  usedDemands=[];usedFinalDemands=[];
   roundNum=1;
-  document.getElementById('win-flash').classList.remove('show');
+  const wf=document.getElementById('win-flash');if(wf) wf.classList.remove('show');
   showScreen('s-game');
   startRound();
 }
@@ -327,6 +382,9 @@ function startRound(){
   document.getElementById('timer-display').classList.remove('danger');
   clearInterval(timerInterval);
 
+  const rn=document.getElementById('round-num');if(rn) rn.textContent=roundNum;
+  const cr=document.getElementById('c-round');if(cr) cr.textContent=roundNum;
+  const ct=document.getElementById('c-total');if(ct) ct.textContent=WIN_ROUNDS;
   let cd=3;
   document.getElementById('status-text').textContent=cd;
   timerInterval=setInterval(()=>{
@@ -401,9 +459,14 @@ function startGameLoop(){
 function onTap(player, e){
   if(e) e.preventDefault();
   if(phase!=='playing')return;
+  // FIX: debounce double-fire from touchstart+click
+  const now=Date.now();
+  if(!window._lastTapTime) window._lastTapTime={razan:0,dara:0};
+  if(now-window._lastTapTime[player]<80) return;
+  window._lastTapTime[player]=now;
 
   taps[player]+=1.5;
-  lastTap[player]=Date.now();
+  lastTap[player]=now;
 
   // Visual feedback
   const side=document.getElementById(`side-${player}`);
@@ -474,8 +537,8 @@ function endRound(forceWinner){
     document.getElementById('wf-desc').textContent='Tambang persis di tengah — ronde ini tidak ada pemenang!';
   }
 
-  document.getElementById('wf-r').textContent=wins.razan;
-  document.getElementById('wf-d').textContent=wins.dara;
+  const wfr=document.getElementById('wf-r');if(wfr) wfr.textContent=wins.razan;
+  const wfd_el=document.getElementById('wf-d');if(wfd_el) wfd_el.textContent=wins.dara;
   updateUI();
 
   const gameOver=wins.razan>=WIN_ROUNDS||wins.dara>=WIN_ROUNDS;
@@ -485,7 +548,8 @@ function endRound(forceWinner){
 }
 
 function nextRound(){
-  document.getElementById('win-flash').classList.remove('show');
+  const wf=document.getElementById('win-flash');if(wf) wf.classList.remove('show');
+  const wfd=document.getElementById('wf-demand');if(wfd) wfd.style.display='none';
   roundNum++;
   startRound();
 }
@@ -500,9 +564,13 @@ function showResult(){
   document.getElementById('end-sub').textContent=tie?'Dua-duanya sama kuat!':`${winner} lebih kuat hari ini!`;
   document.getElementById('end-r').textContent=r;
   document.getElementById('end-d').textContent=d;
-  document.getElementById('end-verdict').innerHTML=tie
-    ?'Kekuatan kalian imbang — main lagi untuk tentukan yang lebih kuat!'
-    :`<strong>${winner} menang ${rw?r:d} - ${rw?d:r}!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
+  if(tie){
+    document.getElementById('end-verdict').innerHTML='Kekuatan kalian imbang — main lagi untuk tentukan yang lebih kuat!';
+  } else {
+    const tmpl=getRandomDemand(FINAL_DEMANDS,usedFinalDemands);
+    const demand=tmpl.replace(/{winner}/g,winner).replace(/{loser}/g,loser);
+    document.getElementById('end-verdict').innerHTML=`<strong>🎯 Hak Pemenang:</strong><br>${demand} 😏🤍`;
+  }
   showScreen('s-result');
   if(!tie)confetti(80);
 }
