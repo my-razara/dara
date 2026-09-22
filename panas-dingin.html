@@ -175,6 +175,14 @@
       <div class="rule"><span class="rule-dot"></span>Max 10 percobaan · 3 ronde · Yang menang boleh minta apapun 😏</div>
     </div>
   </div>
+  <div style="display:flex;gap:.45rem;margin-bottom:1rem;width:100%;max-width:380px">
+    <div onclick="setRounds(3,this)" id="ro-3" class="ro-opt ro-sel" style="flex:1;background:rgba(193,122,111,.05);border:2px solid var(--rose);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">3</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
+    </div>
+    <div onclick="setRounds(5,this)" id="ro-5" class="ro-opt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">5</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
+    </div>
+  </div>
   <button class="start-btn" onclick="showScreen('s-who')">Suit Dulu! ✊</button>
 </div>
 
@@ -268,7 +276,13 @@
 
 <script>
 const MAX_TRIES = 10;
-const TOTAL_ROUNDS = 3;
+let TOTAL_ROUNDS = 3;
+
+function setRounds(n,btn){
+  TOTAL_ROUNDS=n;
+  document.querySelectorAll('.ro-opt').forEach(b=>{b.style.borderColor='var(--blush)';b.style.background='#fff';});
+  btn.style.borderColor='var(--rose)';btn.style.background='rgba(193,122,111,.05)';
+}
 
 // Feedback levels based on distance percentage
 const FEEDBACK = [
@@ -285,6 +299,7 @@ let suitPicks={razan:null,dara:null};
 
 let hider='razan', seeker='dara';
 let hiddenX=0, hiddenY=0; // normalized 0-1
+let hiddenScreenX=0, hiddenScreenY=0; // actual screen coords
 let tries=0, roundNum=1;
 let turnPhase=0; // 0=first player hides, 1=second player hides
 let scores={razan:0,dara:0};
@@ -342,18 +357,21 @@ function startHide(){
 
 function tapHide(e){
   const area=document.getElementById('hide-area');
+  if(!area) return;
   const rect=area.getBoundingClientRect();
   const x=e.clientX-rect.left;
   const y=e.clientY-rect.top;
+  // FIX: store as normalized to hide-area, BUT also store screen coords for seek
   hiddenX=x/rect.width;
   hiddenY=y/rect.height;
+  // Store actual screen coords for seek (accounting for different layouts)
+  hiddenScreenX=e.clientX;
+  hiddenScreenY=e.clientY;
 
   const dot=document.getElementById('hide-dot');
-  dot.style.left=(x)+'px';
-  dot.style.top=(y)+'px';
-  dot.style.display='block';
-  document.getElementById('hide-label-wrap').style.display='none';
-  document.getElementById('hide-confirm').style.display='block';
+  if(dot){dot.style.left=x+'px';dot.style.top=y+'px';dot.style.display='block';}
+  const lw=document.getElementById('hide-label-wrap');if(lw) lw.style.display='none';
+  const hc=document.getElementById('hide-confirm');if(hc) hc.style.display='block';
 }
 
 // ── SEEK ──
@@ -367,37 +385,38 @@ function startSeek(){
 
   const sc=document.getElementById('seek-canvas');
 
-  // Remove old listeners first
-  if(seekTouchHandler) sc.removeEventListener('touchend',seekTouchHandler);
-  if(seekClickHandler) sc.removeEventListener('click',seekClickHandler);
+  // FIX: clone canvas to nuke all old listeners cleanly
+  const newSc=sc.cloneNode(true);
+  sc.parentNode.replaceChild(newSc,sc);
+  const freshSc=document.getElementById('seek-canvas');
 
-  seekTouchHandler=(e)=>{
+  let lastTouch=0;
+  freshSc.addEventListener('touchend',(e)=>{
     e.preventDefault();
-    lastSeekTouch=Date.now();
+    lastTouch=Date.now();
     const t=e.changedTouches[0];
     onSeekTap({clientX:t.clientX,clientY:t.clientY});
-  };
-  seekClickHandler=(e)=>{
-    if(Date.now()-lastSeekTouch<500)return;
+  },{passive:false});
+  freshSc.addEventListener('click',(e)=>{
+    if(Date.now()-lastTouch<400) return;
     onSeekTap(e);
-  };
-
-  sc.addEventListener('touchend',seekTouchHandler,{passive:false});
-  sc.addEventListener('click',seekClickHandler);
+  });
 }
 
 function initSeekCanvas(){
   canvas=document.getElementById('seek-canvas');
+  if(!canvas) return;
   ctx=canvas.getContext('2d');
   const dpr=window.devicePixelRatio||1;
   W=window.innerWidth;H=window.innerHeight;
   canvas.width=W*dpr;canvas.height=H*dpr;
   canvas.style.width=W+'px';canvas.style.height=H+'px';
-  ctx.scale(dpr,dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   drawSeekBg();
 }
 
 function drawSeekBg(){
+  if(!ctx) return;
   ctx.clearRect(0,0,W,H);
   // Draw tap history as fading dots
   tapHistory.forEach((t,i)=>{
@@ -418,14 +437,12 @@ function onSeekTap(e){
   const cx=e.clientX-rect.left;
   const cy=e.clientY-rect.top;
 
-  // Convert hidden position to canvas coords
-  const hudH=56;
-  const gameH=H-hudH;
-  const hx=hiddenX*W;
-  const hy=hudH+hiddenY*(gameH);
+  // FIX: use stored screen coords directly — no conversion needed
+  const hx=hiddenScreenX;
+  const hy=hiddenScreenY;
 
   const dist=Math.sqrt((cx-hx)**2+(cy-hy)**2);
-  const maxDist=Math.sqrt(W*W+gameH*gameH);
+  const maxDist=Math.sqrt(W*W+H*H);
   const pct=dist/maxDist;
 
   tries++;
@@ -475,10 +492,21 @@ function updateSeekHUD(){
 }
 
 function onFound(triesUsed){
-  document.getElementById('feedback').classList.remove('show');
+  const fb=document.getElementById('feedback');if(fb) fb.classList.remove('show');
   // Score = max 10, lose 1 per try
   const pts=Math.max(1,10-triesUsed+1);
   scores[seeker]+=pts;
+  // Show hidden point on canvas
+  if(ctx){
+    ctx.save();
+    ctx.beginPath();ctx.arc(hiddenScreenX,hiddenScreenY,18,0,Math.PI*2);
+    ctx.fillStyle='rgba(74,154,106,.3)';ctx.fill();
+    ctx.strokeStyle='#4a9a6a';ctx.lineWidth=3;ctx.stroke();
+    ctx.font='bold 11px Poppins,sans-serif';ctx.fillStyle='#2a7a4a';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🎯',hiddenScreenX,hiddenScreenY);
+    ctx.restore();
+  }
   updateSeekHUD();
 
   document.getElementById('fo-icon').textContent='🎯';
@@ -494,24 +522,29 @@ function onFound(triesUsed){
 }
 
 function onFailed(){
-  document.getElementById('feedback').classList.remove('show');
+  const fb=document.getElementById('feedback');if(fb) fb.classList.remove('show');
+  // FIX: hider earns points when seeker fails
+  scores[hider]+=5;
+  updateSeekHUD();
   // Show where it was
-  const hudH=56;
-  const hx=hiddenX*W;
-  const hy=hudH+hiddenY*(H-hudH);
-  ctx.save();
-  ctx.beginPath();ctx.arc(hx,hy,22,0,Math.PI*2);
-  ctx.fillStyle='rgba(193,122,111,.3)';ctx.fill();
-  ctx.strokeStyle='var(--rose)';ctx.lineWidth=3;ctx.stroke();
-  ctx.font='bold 12px Poppins,sans-serif';ctx.fillStyle='var(--rose)';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('Di sini!',hx,hy);
-  ctx.restore();
+  const hx=hiddenScreenX;
+  const hy=hiddenScreenY;
+  if(ctx){
+    ctx.save();
+    ctx.beginPath();ctx.arc(hx,hy,22,0,Math.PI*2);
+    ctx.fillStyle='rgba(193,122,111,.3)';ctx.fill();
+    ctx.strokeStyle='#c17a6f';ctx.lineWidth=3;ctx.stroke();
+    ctx.font='bold 11px Poppins,sans-serif';ctx.fillStyle='#c17a6f';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('Di sini!',hx,hy);
+    ctx.restore();
+  }
 
   document.getElementById('fo-icon').textContent='😅';
   document.getElementById('fo-title').textContent='Ga ketemu!';
-  document.getElementById('fo-desc').textContent=`${tries} percobaan habis! ${hider==='razan'?'Razan':'Dara'} sembunyi terlalu pinter 🙈`;
-  document.getElementById('fo-score').textContent='+0 poin';
+  const hiderName=hider==='razan'?'Razan':'Dara';
+  document.getElementById('fo-desc').textContent=`${tries} percobaan habis! ${hiderName} sembunyi terlalu pinter — dapat +5 poin! 🙈`;
+  document.getElementById('fo-score').textContent=`+5 poin untuk ${hiderName}!`;
   const isLastTurn=turnPhase===1&&roundNum===TOTAL_ROUNDS;
   document.getElementById('fo-btn').textContent=isLastTurn?'Lihat Hasil 🏆':'Lanjut →';
   document.getElementById('found-overlay').classList.add('show');
@@ -561,6 +594,13 @@ function showToast(msg){
   const el=document.createElement('div');el.className='toast';el.textContent=msg;
   document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
 }
+
+window.addEventListener('resize',function(){
+  if(document.getElementById('s-seek')?.classList.contains('active')){
+    initSeekCanvas();
+    drawSeekBg();
+  }
+});
 
 function confetti(n=50){
   const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
