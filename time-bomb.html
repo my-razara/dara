@@ -118,6 +118,7 @@
 
   /* ── EXPLODE ── */
   #s-explode{background:#1a0000;padding:1.5rem}
+  #s-pick{background:linear-gradient(160deg,#1a0a05,#2d0a1e);padding:1.5rem}
   .explode-icon{font-size:5rem;display:block;margin-bottom:1rem;animation:explodespin .5s ease-out}
   @keyframes explodespin{from{transform:scale(0) rotate(-180deg)}to{transform:scale(1) rotate(0)}}
   .explode-title{font-size:1.5rem;font-weight:700;color:#ff6b35;margin-bottom:.35rem}
@@ -178,15 +179,48 @@
     <div class="rule"><span class="rule-dot"></span>Gagal / waktu habis = 💥 BOM MELEDAK — kena hukuman!</div>
     <div class="rule"><span class="rule-dot"></span>Main 10 ronde — yang paling jarang kena bom menang 😏</div>
   </div>
-  <button class="start-btn" onclick="startGame()">Mulai! 💣</button>
+  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 💣</button>
 </div>
 
 <!-- GAME -->
+<!-- PICK PLAYER -->
+<div id="s-pick" class="screen">
+  <div style="text-align:center;padding:2rem 1.5rem">
+    <span style="font-size:3rem;display:block;margin-bottom:.75rem">💣</span>
+    <p style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem">Siapa yang pegang bom duluan?</p>
+    <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:1rem;line-height:1.6">Yang pegang bom harus jawab tantangan — lempar ke lawan sebelum meledak!</p>
+    <p style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.5rem">Jumlah ronde:</p>
+    <div style="display:flex;gap:.4rem;margin-bottom:1.25rem;width:100%">
+      <div onclick="setRounds(5,this)" class="ro-opt" style="flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+        <span style="font-size:1.2rem;font-weight:700;color:#fff;display:block">5</span><span style="font-size:9px;color:rgba(255,255,255,.4)">Ronde</span>
+      </div>
+      <div onclick="setRounds(10,this)" class="ro-opt" style="flex:1;background:rgba(255,143,171,.15);border:2px solid #ff8fab;border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+        <span style="font-size:1.2rem;font-weight:700;color:#fff;display:block">10</span><span style="font-size:9px;color:rgba(255,255,255,.4)">Ronde</span>
+      </div>
+      <div onclick="setRounds(15,this)" class="ro-opt" style="flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
+        <span style="font-size:1.2rem;font-weight:700;color:#fff;display:block">15</span><span style="font-size:9px;color:rgba(255,255,255,.4)">Ronde</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button onclick="startGame('razan')" style="flex:1;padding:1rem;border-radius:16px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        <span style="font-size:2rem;display:block;margin-bottom:.35rem">🧑</span>Razan
+      </button>
+      <button onclick="startGame('dara')" style="flex:1;padding:1rem;border-radius:16px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-family:Poppins,sans-serif;font-size:14px;font-weight:700;cursor:pointer">
+        <span style="font-size:2rem;display:block;margin-bottom:.35rem">👧</span>Dara
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="s-game" class="screen">
   <div class="danger-tint" id="danger-tint"></div>
   <div id="player-bar">
     <div class="pb-player active-p" id="pb-razan">🧑 Razan</div>
-    <div class="pb-score">Bom meledak<br><b id="pb-explode-count">R:0 · D:0</b></div>
+    <div class="pb-score">
+      <span style="font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em">Ronde</span><br>
+      <b id="round-num" style="font-size:13px">1/10</b><br>
+      <span style="font-size:9px;color:rgba(255,255,255,.45)">Meledak:</span> <b id="pb-explode-count" style="font-size:11px">R:0 · D:0</b>
+    </div>
     <div class="pb-player inactive-p" id="pb-dara">Dara 👧</div>
   </div>
 
@@ -228,6 +262,10 @@
     <span class="punishment-label">Hukuman</span>
     <p class="punishment-text" id="punishment-text">...</p>
   </div>
+  <div id="round-demand-card" style="display:none;background:rgba(255,143,171,.1);border:1px solid rgba(255,143,171,.25);border-radius:13px;padding:.65rem 1rem;margin:.75rem 0 0;max-width:320px;text-align:center">
+    <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#ff8fab;font-weight:700;display:block;margin-bottom:.3rem">🎯 Misi yang Selamat</span>
+    <p id="round-demand-text" style="font-size:12px;font-weight:600;color:#fff;line-height:1.55"></p>
+  </div>
   <div class="score-row">
     <div class="score-item"><span class="score-num" id="exp-r">0</span><span class="score-name">Razan</span></div>
     <span class="score-vs">💥</span>
@@ -254,7 +292,13 @@
 </div>
 
 <script>
-const TOTAL_ROUNDS = 10;
+let TOTAL_ROUNDS = 10;
+
+function setRounds(n,btn){
+  TOTAL_ROUNDS=n;
+  document.querySelectorAll('.ro-opt').forEach(b=>{b.style.borderColor='rgba(255,255,255,.2)';b.style.background='rgba(255,255,255,.08)';});
+  btn.style.borderColor='#ff8fab';btn.style.background='rgba(255,143,171,.15)';
+}
 const INIT_TIME = 20;
 const MIN_TIME = 5;
 
@@ -292,6 +336,16 @@ const CHALLENGES = [
   "Bilang kata 'semangka' 5 kali tanpa salah!",
   "Sebutkan 3 hal yang ada di dalam kamar lawan!",
   "Sebutkan hari dalam seminggu terbalik — dari Minggu!",
+  "Tiru suara dan gerakan ayam — minimal 3 detik! 🐔",
+  "Bilang 'aku sayang kamu' dengan nada dramatis sinetron!",
+  "Sebutkan 5 warna dalam bahasa Inggris — cepat!",
+  "Peragakan gimana kamu waktu lagi panik — dengan ekspresi penuh!",
+  "Ceritakan kenangan pertama sama lawan dalam 5 detik!",
+  "Bikin suara hujan — pakai mulut dan tangan!",
+  "Gambar wajah lawan di udara pakai jari — besar dan detail!",
+  "Bilang nama lengkap lawan secepat mungkin 3x berturut!",
+  "Tiru cara lawan bilang 'sayang' ke kamu — persis!",
+  "Sebutkan 5 artis Indonesia dalam 3 detik!",
 ];
 
 const PUNISHMENTS = [
@@ -305,6 +359,11 @@ const PUNISHMENTS = [
   "Tulis pesan paling manis di chat lawan sekarang! 💌",
   "Lawan bebas pilih film buat ditonton bareng — ga boleh protes! 🎬",
   "Bilang hal yang paling bikin kamu jatuh cinta sama lawan! 🥺",
+  "Kirimin lawan voice note sayang sekarang juga — minimal 20 detik! 🎙️",
+  "Lawan pilih satu kebiasaan burukmu yang harus kamu ubah minggu ini! 😬",
+  "Ceritain ke lawan satu hal yang kamu suka dari dia tapi jarang kamu bilang! 🤍",
+  "Lawan bebas ganti nama kontaknya di HP kamu jadi apapun — 24 jam! 📱",
+  "Bilang 'aku bangga sama kamu' ke lawan dengan tatap mata langsung! 👀",
 ];
 
 // STATE
@@ -318,6 +377,19 @@ let timerInterval = null;
 let currentChallenge = '';
 let usedChallenges = [];
 let usedPunishments = [];
+let consec = { razan: 0, dara: 0 };
+let usedRoundDemands = [];
+
+const ROUND_DEMANDS = [
+  'Kasih pelukan ke lawan sekarang — minimal 10 detik! 🤗',
+  'Bilang 3 hal yang kamu suka dari lawan — sekarang! 💬',
+  'Lawan kirim stiker sayang sebanyak mungkin dalam 10 detik! 💌',
+  'Yang kena bom pijitin bahu yang selamat minimal 1 menit! 💆',
+  'Foto bareng sekarang — yang kena bom pilih gayanya! 📸',
+  'Yang kena bom nyanyiin lagu sayang minimal 10 detik! 🎤',
+  'Yang kena bom bilang hal yang jarang dia ungkapin ke yang selamat! 🥺',
+  'Yang selamat kasih compliment spesifik yang belum pernah diucapin! ✨',
+];
 let canThrow = true;
 
 function showScreen(id) {
@@ -333,12 +405,17 @@ function getRandomItem(arr, used) {
   return arr[origIdx];
 }
 
-function startGame() {
+function startGame(firstPlayer) {
+  clearInterval(timerInterval); timerInterval = null; // FIX: kill stale timer
   explodeCounts = { razan: 0, dara: 0 };
   round = 1;
-  currentPlayer = Math.random() > 0.5 ? 'razan' : 'dara';
+  canThrow = true; // FIX: always reset canThrow
+  currentPlayer = firstPlayer || (Math.random() > 0.5 ? 'razan' : 'dara');
   usedChallenges = [];
   usedPunishments = [];
+  consec = { razan: 0, dara: 0 };
+  usedRoundDemands = [];
+  const rd=document.getElementById('round-display');if(rd) rd.textContent=`1/${TOTAL_ROUNDS}`;
   showScreen('s-game');
   startRound();
 }
@@ -349,7 +426,7 @@ function startRound() {
   timeLeft = baseTime;
   canThrow = true;
   currentChallenge = getRandomItem(CHALLENGES, usedChallenges);
-  document.getElementById('challenge-text').textContent = currentChallenge;
+  const ct=document.getElementById('challenge-text');if(ct) ct.textContent=currentChallenge;
   updatePlayerBar();
   updateRoundUI();
   startTimer();
@@ -371,22 +448,23 @@ function startTimer() {
     const tint = document.getElementById('danger-tint');
     const glow = document.getElementById('bomb-glow');
     const bomb = document.getElementById('bomb-emoji');
+    const ring = document.getElementById('ring-fill');
 
     if (pct < 0.25) {
-      tint.className = 'danger-tint redder';
-      glow.style.background = 'radial-gradient(circle,rgba(255,50,0,.5),transparent 70%)';
-      bomb.className = 'bomb-emoji fast';
-      document.getElementById('ring-fill').style.stroke = '#ff2200';
+      if(tint) tint.className = 'danger-tint redder';
+      if(glow) glow.style.background = 'radial-gradient(circle,rgba(255,50,0,.5),transparent 70%)';
+      if(bomb) bomb.className = 'bomb-emoji fast';
+      if(ring) ring.style.stroke = '#ff2200';
     } else if (pct < 0.5) {
-      tint.className = 'danger-tint red';
-      glow.style.background = 'radial-gradient(circle,rgba(255,80,20,.4),transparent 70%)';
-      bomb.className = 'bomb-emoji';
-      document.getElementById('ring-fill').style.stroke = '#ff5500';
+      if(tint) tint.className = 'danger-tint red';
+      if(glow) glow.style.background = 'radial-gradient(circle,rgba(255,80,20,.4),transparent 70%)';
+      if(bomb) bomb.className = 'bomb-emoji';
+      if(ring) ring.style.stroke = '#ff5500';
     } else {
-      tint.className = 'danger-tint';
-      glow.style.background = 'radial-gradient(circle,rgba(255,100,50,.3),transparent 70%)';
-      bomb.className = 'bomb-emoji';
-      document.getElementById('ring-fill').style.stroke = '#ff6b35';
+      if(tint) tint.className = 'danger-tint';
+      if(glow) glow.style.background = 'radial-gradient(circle,rgba(255,100,50,.3),transparent 70%)';
+      if(bomb) bomb.className = 'bomb-emoji';
+      if(ring) ring.style.stroke = '#ff6b35';
     }
 
     if (timeLeft <= 0) {
@@ -418,10 +496,16 @@ function throwBomb() {
 
   // New challenge
   currentChallenge = getRandomItem(CHALLENGES, usedChallenges);
-  document.getElementById('challenge-text').textContent = currentChallenge;
+  const ctEl=document.getElementById('challenge-text');if(ctEl) ctEl.textContent=currentChallenge;
 
   updatePlayerBar();
   resetDangerUI();
+
+  // FIX: if timeLeft already 0 after reduction, explode immediately
+  if(timeLeft <= 0){
+    setTimeout(()=>explode(), 300);
+    return;
+  }
 
   setTimeout(() => {
     canThrow = true;
@@ -433,17 +517,40 @@ function explode() {
   clearInterval(timerInterval);
   explodeCounts[currentPlayer]++;
 
+  // Streak: survivor (not currentPlayer) gets consecutive win
+  const survivor = currentPlayer === 'razan' ? 'dara' : 'razan';
+  consec[survivor]++;
+  consec[currentPlayer] = 0;
+  const streak = consec[survivor];
+  const survivorName = survivor === 'razan' ? 'Razan' : 'Dara';
+
   const pname = currentPlayer === 'razan' ? 'Razan' : 'Dara';
   const punishment = getRandomItem(PUNISHMENTS, usedPunishments);
 
-  document.getElementById('explode-player').textContent = `${pname} kena! 💥`;
-  document.getElementById('punishment-text').textContent = punishment;
-  document.getElementById('exp-r').textContent = explodeCounts.razan;
-  document.getElementById('exp-d').textContent = explodeCounts.dara;
+  const epEl = document.getElementById('explode-player');
+  if(epEl) epEl.textContent = (streak>=3?'🔥 '+survivorName+' '+streak+'x Selamat! · ':'')+pname+' kena! 💥';
+  const ptEl = document.getElementById('punishment-text');
+  if(ptEl) ptEl.textContent = punishment;
+  const erEl = document.getElementById('exp-r');
+  if(erEl) erEl.textContent = explodeCounts.razan;
+  const edEl = document.getElementById('exp-d');
+  if(edEl) edEl.textContent = explodeCounts.dara;
 
+  // Round demand for survivor
+  const rdEl = document.getElementById('round-demand-card');
+  const rdtEl = document.getElementById('round-demand-text');
   const isLast = round >= TOTAL_ROUNDS;
-  document.getElementById('next-btn').textContent = isLast ? 'Lihat Hasil 🏆' : `Ronde ${round + 1} →`;
-  document.getElementById('next-btn').onclick = isLast ? showResult : nextRound;
+  if(rdEl && rdtEl && !isLast){
+    let avail = ROUND_DEMANDS.map((_,i)=>i).filter(i=>!usedRoundDemands.includes(i));
+    if(avail.length===0){usedRoundDemands=[];avail=ROUND_DEMANDS.map((_,i)=>i);}
+    const idx = avail[Math.floor(Math.random()*avail.length)];
+    usedRoundDemands.push(idx);
+    rdtEl.textContent = ROUND_DEMANDS[idx];
+    rdEl.style.display = 'block';
+  } else if(rdEl) rdEl.style.display = 'none';
+
+  const nb = document.getElementById('next-btn');
+  if(nb){nb.textContent = isLast ? 'Lihat Hasil 🏆' : `Ronde ${round + 1} →`;nb.onclick = isLast ? showResult : nextRound;}
 
   resetDangerUI();
   showScreen('s-explode');
@@ -451,8 +558,10 @@ function explode() {
 }
 
 function nextRound() {
+  clearInterval(timerInterval); timerInterval = null;
+  const rd = document.getElementById('round-demand-card');
+  if(rd) rd.style.display = 'none';
   round++;
-  // Switch who starts next round
   currentPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
   showScreen('s-game');
   startRound();
@@ -460,15 +569,17 @@ function nextRound() {
 
 function updatePlayerBar() {
   const isRazan = currentPlayer === 'razan';
-  document.getElementById('pb-razan').className = 'pb-player ' + (isRazan ? 'active-p' : 'inactive-p');
-  document.getElementById('pb-dara').className = 'pb-player ' + (!isRazan ? 'active-p' : 'inactive-p');
-  document.getElementById('pb-explode-count').textContent = `R:${explodeCounts.razan} · D:${explodeCounts.dara}`;
-  const name = isRazan ? 'Razan' : 'Dara';
-  document.getElementById('throw-btn').textContent = `Lempar ke ${isRazan ? 'Dara' : 'Razan'}! 💣`;
+  const pbr=document.getElementById('pb-razan');if(pbr) pbr.className='pb-player '+(isRazan?'active-p':'inactive-p');
+  const pbd=document.getElementById('pb-dara');if(pbd) pbd.className='pb-player '+(!isRazan?'active-p':'inactive-p');
+  const pbc=document.getElementById('pb-explode-count');if(pbc) pbc.textContent=`R:${explodeCounts.razan} · D:${explodeCounts.dara}`;
+  const tb=document.getElementById('throw-btn');if(tb) tb.textContent=`Lempar ke ${isRazan?'Dara':'Razan'}! 💣`;
+  const rd=document.getElementById('round-display');if(rd) rd.textContent=`${round}/${TOTAL_ROUNDS}`;
 }
 
 function updateRoundUI() {
   document.getElementById('timer-num').textContent = Math.ceil(timeLeft);
+  const rn = document.getElementById('round-num');
+  if(rn) rn.textContent = `${round}/${TOTAL_ROUNDS}`;
 }
 
 function resetDangerUI() {
@@ -479,22 +590,22 @@ function resetDangerUI() {
 }
 
 function showResult() {
+  clearInterval(timerInterval); timerInterval = null;
   const r = explodeCounts.razan, d = explodeCounts.dara;
   const razanWin = r < d; // fewer explosions = better
   const tie = r === d;
   const winner = razanWin ? 'Razan' : 'Dara';
   const loser = razanWin ? 'Dara' : 'Razan';
 
-  document.getElementById('end-icon').textContent = tie ? '🤝' : razanWin ? '🏆' : '👑';
-  document.getElementById('end-title').textContent = tie ? 'Seri!' : `${winner} Menang!`;
-  document.getElementById('end-sub').textContent = tie
-    ? 'Sama-sama kena bom — jiwa yang setara!'
-    : `${winner} paling jago lempar bom hari ini!`;
-  document.getElementById('end-r').textContent = r;
-  document.getElementById('end-d').textContent = d;
-  document.getElementById('end-verdict').innerHTML = tie
-    ? 'Seri! Dua-duanya sama berani — main lagi untuk tentukan juaranya!'
-    : `<strong>${winner} menang!</strong> Kena bom lebih sedikit — ${loser} harus jalani <strong>satu hukuman terakhir</strong> pilihan ${winner}! 😏🤍`;
+  const ei=document.getElementById('end-icon');if(ei) ei.textContent=tie?'🤝':razanWin?'🏆':'👑';
+  const et=document.getElementById('end-title');if(et) et.textContent=tie?'Seri!':`${winner} Menang!`;
+  const es=document.getElementById('end-sub');if(es) es.textContent=tie?'Sama-sama kena bom — jiwa yang setara!':`${winner} paling jago lempar bom hari ini!`;
+  const er=document.getElementById('end-r');if(er) er.textContent=r;
+  const ed=document.getElementById('end-d');if(ed) ed.textContent=d;
+  const ev=document.getElementById('end-verdict');
+  if(ev) ev.innerHTML=tie
+    ?'Seri! Dua-duanya sama berani — main lagi untuk tentukan juaranya!'
+    :`<strong>${winner} menang!</strong> Kena bom lebih sedikit — ${loser} harus jalani <strong>satu hukuman terakhir</strong> pilihan ${winner}! 😏🤍`;
 
   showScreen('s-result');
   if (!tie) confetti(70);
