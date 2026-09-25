@@ -123,18 +123,6 @@
     .gajian-badge{background:var(--teal-l);color:var(--teal);font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;text-align:center;margin-bottom:10px}
     .warning-badge{background:var(--coral-l);color:var(--coral);font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;text-align:center;margin-bottom:10px}
   
-  /* ── PASSWORD MODAL ── */
-  #pw-overlay{position:fixed;inset:0;z-index:9999;background:rgba(26,10,5,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1.5rem}
-  #pw-overlay.hidden{display:none}
-  .pw-card{background:#fff;border-radius:24px;padding:2rem 1.75rem;width:100%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-  .pw-icon{font-size:3rem;display:block;margin-bottom:1rem}
-  .pw-title{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:.35rem}
-  .pw-sub{font-size:12.5px;color:var(--text2);line-height:1.65;margin-bottom:1.5rem}
-  .pw-input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:16px;font-family:'Poppins',sans-serif;outline:none;text-align:center;letter-spacing:.1em;margin-bottom:.75rem;transition:border-color .15s}
-  .pw-input:focus{border-color:var(--teal)}
-  .pw-btn{width:100%;padding:13px;background:var(--teal);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:opacity .15s}
-  .pw-btn:active{opacity:.85}
-  .pw-err{font-size:12px;color:var(--coral);margin-top:.5rem;min-height:18px}
 </style>
 </head>
 <body>
@@ -634,62 +622,7 @@ function changeMonth(d) {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────
-// ── PASSWORD AUTH ──────────────────────────────────────────────
-const PW_KEY = 'razan_pw_ok'; // localStorage flag
-let _serverPw = null; // password dari GS Meta sheet
-
-function checkPw() {
-  return localStorage.getItem(PW_KEY) === '1';
-}
-
-async function fetchServerPw() {
-  // Ambil password dari Sheet Meta via GS
-  return new Promise(resolve => {
-    xhrGet(getGsUrl() + '?key=' + encodeURIComponent(getGsSkey()) + '&action=getPassword', (err, d) => {
-      resolve(!err && d && d.password ? d.password : null);
-    });
-  });
-}
-
-function showPwModal() {
-  const overlay = document.getElementById('pw-overlay');
-  if (overlay) overlay.classList.remove('hidden');
-  setTimeout(() => document.getElementById('pw-input')?.focus(), 100);
-}
-
-async function submitPw() {
-  const inp = document.getElementById('pw-input');
-  const err = document.getElementById('pw-err');
-  const btn = document.querySelector('.pw-btn');
-  const val = (inp?.value || '').trim();
-  if (!val) { if(err) err.textContent = 'Isi password dulu'; return; }
-
-  if(btn) btn.textContent = 'Checking...';
-
-  // Ambil password dari GS kalau belum ada
-  if (!_serverPw) _serverPw = await fetchServerPw();
-
-  if (!_serverPw) {
-    if(err) err.textContent = 'Gagal konek ke server, coba lagi';
-    if(btn) btn.textContent = 'Masuk →';
-    return;
-  }
-
-  if (val === _serverPw) {
-    localStorage.setItem(PW_KEY, '1');
-    document.getElementById('pw-overlay')?.classList.add('hidden');
-    if(btn) btn.textContent = 'Masuk →';
-    startApp();
-  } else {
-    if(inp) inp.value = '';
-    if(err) err.textContent = 'Password salah, coba lagi';
-    if(btn) btn.textContent = 'Masuk →';
-    if(inp) inp.focus();
-    setTimeout(() => { if(err) err.textContent = ''; }, 2000);
-  }
-}
-
-async function startApp() {
+async function init() {
   const now = new Date();
   document.getElementById('hdr-date').textContent = now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('month-label').textContent = mLabel(cYear, cMonth);
@@ -706,17 +639,6 @@ async function startApp() {
     renderTxList();
   }, 100);
   startReminderCheck();
-}
-
-async function init() {
-  if (checkPw()) {
-    // Sudah login sebelumnya → langsung masuk
-    startApp();
-  } else {
-    // Belum login → tampil modal, fetch pw dari GS di background
-    showPwModal();
-    fetchServerPw().then(pw => { _serverPw = pw; });
-  }
 }
 
 // ─── HOME ─────────────────────────────────────────────────────
@@ -1144,18 +1066,6 @@ async function clearAll() {
 
 init();
 </script>
-
-<!-- PASSWORD MODAL -->
-<div id="pw-overlay" class="hidden">
-  <div class="pw-card">
-    <span class="pw-icon">💰</span>
-    <p class="pw-title">Keuangan Razan</p>
-    <p class="pw-sub" id="pw-sub">Masukkan password untuk buka aplikasi</p>
-    <input type="password" class="pw-input" id="pw-input" placeholder="••••••••" maxlength="32"
-      onkeydown="if(event.key==='Enter')submitPw()">
-    <button class="pw-btn" onclick="submitPw()">Masuk →</button>
-    <p class="pw-err" id="pw-err"></p>
-  </div>
 </div>
 
 </body>
