@@ -390,6 +390,8 @@ let cMonth = _pp.month;
 let cYear  = _pp.year;
 let txFilter = 'all';
 let chartAlloc, chartDaily, chartSave;
+let _dataCache = null; // cache localStorage parse
+let _dataCacheDirty = true; // mark dirty when data changes
 
 // ─── DEF & HELPERS ────────────────────────────────────────────
 function def() {
@@ -450,33 +452,74 @@ function xhrPost(url, body, cb) {
   xhr.onerror = function() { cb(new Error('err')); };
   xhr.send(JSON.stringify(body));
 }
-async function load() {
+async function load(forceNetwork) {
+  // FIX: use in-memory cache for navigation — avoid network on every render
+  if (!forceNetwork && _dataCache && !_dataCacheDirty) return _dataCache;
+
   const url = getGsUrl(), skey = getGsSkey();
-  if (!url || !skey) return fromLocal();
+  if (!url || !skey) {
+    _dataCache = fromLocal();
+    _dataCacheDirty = false;
+    return _dataCache;
+  }
   return new Promise((resolve) => {
+    // If cache exists and just navigating — return cache, refresh in background
+    if (_dataCache && !_dataCacheDirty && !forceNetwork) {
+      resolve(_dataCache);
+      return;
+    }
     xhrGet(url + '?key=' + encodeURIComponent(skey), (err, d) => {
-      if (err || !d || d.error) { resolve(fromLocal()); return; }
+      if (err || !d || d.error) {
+        _dataCache = fromLocal();
+        _dataCacheDirty = false;
+        resolve(_dataCache);
+        return;
+      }
       ensureShape(d);
       if (!d.txs) d.txs = [];
       if (!d.savings) d.savings = {};
-      // Normalize dates from Sheets (may come as ISO strings due to Date objects)
       d.txs = d.txs.map(tx => {
+        // Normalize date
         if (tx.date && tx.date.length > 10) {
-          // Parse ISO string and convert to local date YYYY-MM-DD
           const dt = new Date(tx.date);
           tx.date = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+        }
+        // FIX: if type missing, detect from category name or empty acc
+        // Sheets doesn't store 'type' field — income rows have empty acc
+        if (!tx.type || tx.type === '') {
+          const isIncomeCat = INCOME_CATS.includes(tx.cat);
+          const hasNoAcc = !tx.acc || tx.acc === '' || tx.acc === '-';
+          tx.type = (isIncomeCat || hasNoAcc) ? 'income' : 'expense';
         }
         return tx;
       });
       localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
+      _dataCache = d;
+      _dataCacheDirty = false;
       resolve(d);
     });
   });
 }
-function fromLocal() {
-  try { return ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def()); } catch { return def(); }
+function normalizeTxs(d) {
+  if (!d || !d.txs) return d;
+  d.txs = d.txs.map(tx => {
+    if (!tx.type || tx.type === '') {
+      const isIncomeCat = INCOME_CATS.includes(tx.cat);
+      const hasNoAcc = !tx.acc || tx.acc === '' || tx.acc === '-';
+      tx.type = (isIncomeCat || hasNoAcc) ? 'income' : 'expense';
+    }
+    return tx;
+  });
+  return d;
 }
-async function save(d) { localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); }
+function fromLocal() {
+  try { return normalizeTxs(ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def())); } catch { return def(); }
+}
+async function save(d) {
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
+  _dataCache = d;       // update cache immediately
+  _dataCacheDirty = false;
+}
 async function gsPost(action, extra) {
   extra = extra || {};
   return new Promise((resolve) => {
@@ -547,13 +590,20 @@ function showTab(name) {
   document.getElementById('nav-'+name).classList.add('active');
   ({home:renderHome,riwayat:renderTxList,nabung:renderNabung,settings:renderSettings})[name]?.();
 }
+let _changeMonthTimer = null;
 function changeMonth(d) {
   // Navigate by pay period (each period = 1 month offset of start date)
   const newDate = new Date(cYear, cMonth + d, 1);
   cYear  = newDate.getFullYear();
   cMonth = newDate.getMonth();
+  // Update label immediately — feels responsive
   document.getElementById('month-label').textContent = mLabel(cYear, cMonth);
-  renderHome(); renderTxList();
+  // Debounce render — wait 180ms before actually rendering
+  clearTimeout(_changeMonthTimer);
+  _changeMonthTimer = setTimeout(async () => {
+    await renderHome();
+    renderTxList();
+  }, 180);
 }
 
 // ─── INIT ─────────────────────────────────────────────────────
@@ -563,6 +613,7 @@ async function init() {
   document.getElementById('month-label').textContent = mLabel(cYear, cMonth);
   document.getElementById('inp-date').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   updateCats();
+  await load(true); // force fresh on init
   await renderHome();
   await renderNabung();
   renderSettings();
@@ -640,20 +691,26 @@ async function renderHome() {
     </div>`;
   }).join('');
 
-  // Donut
-  const allocCtx = document.getElementById('chart-alloc').getContext('2d');
-  if (chartAlloc) chartAlloc.destroy();
-  chartAlloc = new Chart(allocCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Cash','SeaBank','BNI Wondr','Sedekah','Admin BCA','Krom'],
-      datasets: [{ data: [s.alloc.cash, s.alloc.seabank, s.alloc.bniwondr, s.alloc.sedekah||0, s.alloc.adminbca, krom],
-        backgroundColor: ['#D85A30','#1D9E75','#BA7517','#5DB6E8','#888780','#7F77DD'], borderWidth: 0 }]
-    },
-    options: { responsive:true, maintainAspectRatio:false, cutout:'62%',
-      plugins: { legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:7}},
-        tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}} } }
-  });
+  // Donut — update data if chart exists (faster than destroy+recreate)
+  const allocData = [s.alloc.cash, s.alloc.seabank, s.alloc.bniwondr, s.alloc.sedekah||0, s.alloc.adminbca, krom];
+  if (chartAlloc) {
+    chartAlloc.data.datasets[0].data = allocData;
+    chartAlloc.update('none'); // 'none' = no animation = instant
+  } else {
+    const allocCtx = document.getElementById('chart-alloc').getContext('2d');
+    chartAlloc = new Chart(allocCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Cash','SeaBank','BNI Wondr','Sedekah','Admin BCA','Krom'],
+        datasets: [{ data: allocData,
+          backgroundColor: ['#D85A30','#1D9E75','#BA7517','#5DB6E8','#888780','#7F77DD'], borderWidth: 0 }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, cutout:'62%',
+        animation: false,
+        plugins: { legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:7}},
+          tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}} } }
+    });
+  }
 
   // Bar chart — show days in pay period (26th to 25th)
   // Build date labels for the pay period
@@ -667,17 +724,25 @@ async function renderHome() {
     periodLabels.push(dt.getDate());
   }
   const daily = periodDays.map(key => expTxs.filter(tx => tx.date === key).reduce((a,tx) => a+tx.amount, 0));
-  const dailyCtx = document.getElementById('chart-daily').getContext('2d');
-  if (chartDaily) chartDaily.destroy();
-  chartDaily = new Chart(dailyCtx, {
-    type: 'bar',
-    data: { labels: periodLabels,
-      datasets: [{ data:daily, backgroundColor:daily.map(v=>v>100000?'#D85A30':'#1D9E75'), borderRadius:3 }] },
-    options: { responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:9}}},
-        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},callback:v=>v>=1000?'Rp'+(v/1000)+'rb':''}}} }
-  });
+  // Bar chart — update data if chart exists
+  if (chartDaily) {
+    chartDaily.data.labels = periodLabels;
+    chartDaily.data.datasets[0].data = daily;
+    chartDaily.data.datasets[0].backgroundColor = daily.map(v=>v>100000?'#D85A30':'#1D9E75');
+    chartDaily.update('none');
+  } else {
+    const dailyCtx = document.getElementById('chart-daily').getContext('2d');
+    chartDaily = new Chart(dailyCtx, {
+      type: 'bar',
+      data: { labels: periodLabels,
+        datasets: [{ data:daily, backgroundColor:daily.map(v=>v>100000?'#D85A30':'#1D9E75'), borderRadius:3 }] },
+      options: { responsive:true, maintainAspectRatio:false,
+        animation: false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:9}}},
+          y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},callback:v=>v>=1000?'Rp'+(v/1000)+'rb':''}}} }
+    });
+  }
 }
 
 // ─── CATEGORIES ───────────────────────────────────────────────
@@ -752,8 +817,11 @@ function setFilter(f, btn) {
 }
 async function renderTxList() {
   const d = await load();
-  const k = mKey(cYear, cMonth);
-  let txs = d.txs.filter(tx => tx.date.startsWith(k));
+  // FIX: use pay period filter (26th to 25th) consistent with renderHome
+  const start = `${cYear}-${String(cMonth+1).padStart(2,'0')}-26`;
+  const endDate = new Date(cYear, cMonth+1, 25);
+  const end = `${endDate.getFullYear()}-${String(endDate.getMonth()+1).padStart(2,'0')}-25`;
+  let txs = d.txs.filter(tx => tx.date >= start && tx.date <= end);
   if (txFilter==='income') txs = txs.filter(tx=>tx.type==='income');
   else if (txFilter!=='all') txs = txs.filter(tx=>tx.type!=='income'&&tx.acc===txFilter);
   txs.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
@@ -770,7 +838,7 @@ async function renderTxList() {
         <div class="tx-meta">${isIncome?'Pemasukan':(tx.acc==='bca blu'?'SeaBank':tx.acc)} · ${dd[2]}/${dd[1]}${tx.note?' · '+tx.note:''}</div>
       </div>
       <div class="tx-right">
-        <div class="tx-amount" style="color:${isIncome?'var(--teal)':'var(--coral)'}">${isIncome?'+':'-'}${fmt(tx.amount)}</div>
+        <div class="tx-amount" style="color:${isIncome?'var(--teal)':'var(--coral)'}">${isIncome?'<span style="font-size:10px;font-weight:700;background:var(--teal);color:#fff;border-radius:4px;padding:1px 4px;margin-right:2px">IN</span>+':'-'}${fmt(tx.amount)}</div>
         <button class="tx-del" onclick="delTx(${tx.id})">×</button>
       </div>
     </div>`;
