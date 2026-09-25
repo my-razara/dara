@@ -218,7 +218,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Nominal (Rp)</label>
-        <input type="number" class="form-input" id="inp-amount" placeholder="Contoh: 25000" inputmode="numeric">
+        <input type="text" class="form-input" id="inp-amount" placeholder="Contoh: 25.000" inputmode="numeric" oninput="fmtInput(this)">
       </div>
       <div class="form-group">
         <label class="form-label">Keterangan <span style="color:var(--text3);font-weight:400">(opsional)</span></label>
@@ -247,7 +247,7 @@
       <div class="goal-add-form">
         <input type="text" class="form-input" id="goal-name" placeholder="Nama target, mis. Dana Nikah">
         <div class="goal-add-grid">
-          <input type="number" class="form-input" id="goal-amount" placeholder="Target Rp" inputmode="numeric">
+          <input type="text" class="form-input" id="goal-amount" placeholder="Target Rp" inputmode="numeric" oninput="fmtInput(this)">
           <input type="date" class="form-input" id="goal-deadline">
         </div>
         <button class="btn-primary" style="margin-top:2px" onclick="addGoal()">+ Buat Target</button>
@@ -577,13 +577,20 @@ async function renderHome() {
   const txs = await monthTxs(cYear, cMonth);
   const expTxs = txs.filter(tx => tx.type !== 'income');
   const incTxs = txs.filter(tx => tx.type === 'income');
-  const spent = { 'SeaBank': 0 };
-  expTxs.forEach(tx => { if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount;
-    else if (tx.acc === 'bca blu') spent['SeaBank'] += tx.amount; }); // merge lama
-  const totalSpent  = spent['SeaBank'];
+  // Hitung totalSpent dari SEMUA akun pengeluaran (bukan hanya SeaBank)
+  const totalSpent  = expTxs.reduce((a, tx) => a + tx.amount, 0);
   const totalBudget = Number(s.alloc.seabank) || 0;
-  const remaining   = totalBudget - totalSpent;
+  // FIX: income tambahan (bonus, freelance, dll) MENAMBAH budget tersedia
   const totalIncome = incTxs.reduce((a, tx) => a + tx.amount, 0);
+  // remaining = alokasi SeaBank + income tambahan - total pengeluaran
+  const remaining   = totalBudget + totalIncome - totalSpent;
+
+  // Untuk display per-akun, tetap track per akun
+  const spent = { 'SeaBank': 0 };
+  expTxs.forEach(tx => {
+    if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount;
+    else if (tx.acc === 'bca blu') spent['SeaBank'] += tx.amount;
+  });
 
   const badge = document.getElementById('home-badge');
   const todayDate = new Date();
@@ -601,13 +608,20 @@ async function renderHome() {
   document.getElementById('dash-target-nabung').textContent  = fmtS(krom);
   document.getElementById('dash-spent').textContent          = fmtS(totalSpent);
   const remEl = document.getElementById('dash-rem');
-  remEl.textContent  = fmtS(Math.abs(remaining));
+  // FIX: remaining sudah include income tambahan — tampilkan positif/negatif
+  remEl.textContent  = (remaining < 0 ? '-' : '') + fmtS(Math.abs(remaining));
   remEl.style.color  = remaining >= 0 ? 'var(--teal)' : 'var(--coral)';
-  document.getElementById('dash-income').textContent         = fmtS(totalIncome);
+  // Income tambahan: tampilkan dengan tanda + agar jelas ini menambah
+  const incEl = document.getElementById('dash-income');
+  if (incEl) {
+    incEl.textContent  = totalIncome > 0 ? '+' + fmtS(totalIncome) : fmtS(0);
+    incEl.style.color  = totalIncome > 0 ? 'var(--teal)' : 'var(--text2)';
+  }
 
   // Account list
   document.getElementById('acc-list').innerHTML = Object.entries(ACCS).map(([name, acc]) => {
-    const budget = Number(s.alloc.seabank) || 0;
+    // Budget = alokasi + income tambahan (bonus dll masuk ke SeaBank)
+    const budget = (Number(s.alloc.seabank) || 0) + totalIncome;
     const sp = spent[name] || 0;
     const rem = budget - sp;
     const pct = budget > 0 ? Math.min((sp/budget)*100, 100) : 0;
@@ -701,7 +715,7 @@ function setTxType(type) {
 // ─── SAVE TX ──────────────────────────────────────────────────
 async function saveTx() {
   const date   = document.getElementById('inp-date').value;
-  const amount = parseInt(document.getElementById('inp-amount').value);
+  const amount = parseInput('inp-amount'); // FIX: pakai parseInput agar strip titik
   const note   = document.getElementById('inp-note').value.trim();
 
   if (currentTxType === 'income') {
@@ -796,7 +810,7 @@ async function renderGoals() {
         }
       </div>
       <div class="goal-edit-row">
-        <input type="number" placeholder="Update total tersimpan" id="goal-saved-${g.id}" inputmode="numeric">
+        <input type="text" placeholder="Update tersimpan" id="goal-saved-${g.id}" inputmode="numeric" oninput="fmtInput(this)" style="width:100%">
         <button onclick="updateGoalSaved(${g.id})">Simpan</button>
       </div>
     </div>`;
@@ -804,7 +818,7 @@ async function renderGoals() {
 }
 async function addGoal() {
   const name = document.getElementById('goal-name').value.trim();
-  const target = parseInt(document.getElementById('goal-amount').value);
+  const target = parseInput('goal-amount');
   const deadline = document.getElementById('goal-deadline').value;
   if (!name||!target||target<=0||!deadline) { toast('Isi nama, target, dan deadline'); return; }
   const d = await load();
@@ -817,7 +831,7 @@ async function addGoal() {
   toast('✓ Target dibuat'); await renderGoals();
 }
 async function updateGoalSaved(id) {
-  const val = parseInt(document.getElementById(`goal-saved-${id}`).value);
+  const val = parseInput(`goal-saved-${id}`);
   if (isNaN(val)||val<0) { toast('Isi nominal dulu'); return; }
   const d = await load();
   d.settings.goals = (d.settings.goals||[]).map(g=>String(g.id)===String(id)?{...g,saved:val}:g);
