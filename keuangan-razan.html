@@ -372,8 +372,22 @@ const INCOME_CATS = ['Freelance','Bonus/THR','Hadiah','Lainnya'];
 let currentTxType = 'expense';
 
 // ─── STATE ────────────────────────────────────────────────────
-let cMonth = new Date().getMonth();
-let cYear  = new Date().getFullYear();
+// Pay period: 26th of month to 25th of next month
+// cMonth/cYear = start of current pay period (the 26th)
+function getPayPeriodStart(date) {
+  const d = date || new Date();
+  if (d.getDate() >= 26) {
+    // We're past the 26th → period started this month
+    return { year: d.getFullYear(), month: d.getMonth() };
+  } else {
+    // We're before the 26th → period started last month
+    const prev = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+    return { year: prev.getFullYear(), month: prev.getMonth() };
+  }
+}
+const _pp = getPayPeriodStart();
+let cMonth = _pp.month;
+let cYear  = _pp.year;
 let txFilter = 'all';
 let chartAlloc, chartDaily, chartSave;
 
@@ -499,11 +513,25 @@ function fmtS(n) {
   return fmt(n);
 }
 function mKey(y, m)   { return `${y}-${String(m+1).padStart(2,'0')}`; }
-function mLabel(y, m) { return new Date(y,m,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'}); }
+function mLabel(y, m) {
+  // Show pay period: "26 Sep – 25 Okt 2026"
+  const startDate = new Date(y, m, 26);
+  const endDate   = new Date(y, m+1, 25);
+  const startStr  = startDate.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+  const endStr    = endDate.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+  return `${startStr} – ${endStr}`;
+}
 function mShort(y, m) { return new Date(y,m,1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}); }
 async function monthTxs(y, m) {
-  const k = mKey(y, m), d = await load();
-  return d.txs.filter(tx => tx.date.startsWith(k));
+  // Pay period: 26th of (y,m) to 25th of next month
+  const d = await load();
+  const start = `${y}-${String(m+1).padStart(2,'0')}-26`;
+  // End: 25th of next month
+  const endDate = new Date(y, m+1, 25); // JS Date handles month overflow
+  const endY = endDate.getFullYear();
+  const endM = String(endDate.getMonth()+1).padStart(2,'0');
+  const end   = `${endY}-${endM}-25`;
+  return d.txs.filter(tx => tx.date >= start && tx.date <= end);
 }
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -520,9 +548,10 @@ function showTab(name) {
   ({home:renderHome,riwayat:renderTxList,nabung:renderNabung,settings:renderSettings})[name]?.();
 }
 function changeMonth(d) {
-  cMonth += d;
-  if (cMonth > 11) { cMonth = 0; cYear++; }
-  if (cMonth < 0)  { cMonth = 11; cYear--; }
+  // Navigate by pay period (each period = 1 month offset of start date)
+  const newDate = new Date(cYear, cMonth + d, 1);
+  cYear  = newDate.getFullYear();
+  cMonth = newDate.getMonth();
   document.getElementById('month-label').textContent = mLabel(cYear, cMonth);
   renderHome(); renderTxList();
 }
@@ -557,10 +586,14 @@ async function renderHome() {
   const totalIncome = incTxs.reduce((a, tx) => a + tx.amount, 0);
 
   const badge = document.getElementById('home-badge');
-  const today = new Date().getDate();
-  badge.innerHTML = today >= 24 && today <= 25
-    ? '<div class="warning-badge">⚠️ 2 hari lagi gajian — tahan pengeluaran dulu!</div>'
-    : today === 26
+  const todayDate = new Date();
+  const todayDay  = todayDate.getDate();
+  // Check if we're viewing the current pay period
+  const currentPP = getPayPeriodStart(todayDate);
+  const isCurrentPeriod = (cYear === currentPP.year && cMonth === currentPP.month);
+  badge.innerHTML = isCurrentPeriod && todayDay >= 24 && todayDay <= 25
+    ? '<div class="warning-badge">⚠️ ' + (26-todayDay) + ' hari lagi gajian — tahan pengeluaran dulu!</div>'
+    : isCurrentPeriod && todayDay === 26
     ? '<div class="gajian-badge">🎉 Hari ini gajian! Langsung pisah semua pos ya.</div>'
     : '';
 
@@ -608,15 +641,23 @@ async function renderHome() {
         tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}} } }
   });
 
-  // Bar chart
-  const days = new Date(cYear, cMonth+1, 0).getDate();
-  const daily = Array(days).fill(0);
-  expTxs.forEach(tx => { const dd=parseInt(tx.date.split('-')[2])-1; if(dd>=0&&dd<days) daily[dd]+=tx.amount; });
+  // Bar chart — show days in pay period (26th to 25th)
+  // Build date labels for the pay period
+  const periodDays = [];
+  const periodLabels = [];
+  const pStart = new Date(cYear, cMonth, 26);
+  const pEnd   = new Date(cYear, cMonth+1, 25);
+  for (let dt = new Date(pStart); dt <= pEnd; dt.setDate(dt.getDate()+1)) {
+    const key = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    periodDays.push(key);
+    periodLabels.push(dt.getDate());
+  }
+  const daily = periodDays.map(key => expTxs.filter(tx => tx.date === key).reduce((a,tx) => a+tx.amount, 0));
   const dailyCtx = document.getElementById('chart-daily').getContext('2d');
   if (chartDaily) chartDaily.destroy();
   chartDaily = new Chart(dailyCtx, {
     type: 'bar',
-    data: { labels: Array.from({length:days},(_,i)=>i+1),
+    data: { labels: periodLabels,
       datasets: [{ data:daily, backgroundColor:daily.map(v=>v>100000?'#D85A30':'#1D9E75'), borderRadius:3 }] },
     options: { responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},
