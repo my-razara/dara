@@ -504,7 +504,12 @@ function normalizeTxs(d) {
   if (!d || !d.txs) return d;
   d.txs = d.txs.map(tx => {
     // Fix amount — must be Number
-    tx.amount = Number(tx.amount) || 0;
+    // Strip format Rp + titik kalau amount masih string currency
+    if (typeof tx.amount === 'string') {
+      tx.amount = parseInt(tx.amount.replace(/Rp/g,'').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9]/g,'')) || 0;
+    } else {
+      tx.amount = Number(tx.amount) || 0;
+    }
     // Fix type if missing
     if (!tx.type || tx.type === '') {
       const isIncomeCat = INCOME_CATS.includes(tx.cat);
