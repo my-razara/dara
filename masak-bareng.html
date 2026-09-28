@@ -6,152 +6,163 @@
 <title>Masak Bareng! 🍳</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  :root{
+    --cream:#faf6f0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --orange:#ffa726;--dorange:#e65100;--blue:#7eb3f5;--green:#81c784;--red:#e57373;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#1a0f00}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.5rem 1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#1a0f00,#2d1a00)}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:linear-gradient(160deg,#1a0f00,#2d1a00)}
-  #s-intro::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse at 30% 30%,rgba(255,180,50,.1),transparent 55%),
-    radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.08),transparent 55%);
-    pointer-events:none}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .screen::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 30% 30%,rgba(255,180,50,.1),transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.08),transparent 55%)}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#ffa726;display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title span{color:#ffa726}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
-  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#ffa726;display:block;margin-bottom:.6rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#e65100,#ffa726);color:#fff;box-shadow:0 4px 18px rgba(255,167,38,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97)}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
 
-  /* ── COUNTDOWN ── */
-  #s-countdown{background:#1a0f00}
-  .cd-big{font-size:7rem;font-weight:700;color:#fff;display:block;line-height:1;animation:cdpop .7s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes cdpop{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+  /* INTRO */
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.7rem;animation:float 3s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.25rem}
+  .intro-title span{color:var(--orange)}
+  .intro-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);display:block;margin-bottom:.6rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem .2rem;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.55);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;line-height:1.3}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,var(--dorange),var(--orange));border-color:transparent;color:#fff}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--dorange),var(--orange));color:#fff;box-shadow:0 4px 18px rgba(255,167,38,.35);transition:transform .15s}
+  .btn-main:active{transform:scale(.97)}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
 
-  /* ── GAME ── */
-  #s-game{padding:0;background:#1a0f00;justify-content:flex-start;overflow:hidden}
+  /* COUNTDOWN */
+  #s-countdown{justify-content:center}
+  .cd-big{font-size:7rem;font-weight:700;color:#fff;display:block;line-height:1;position:relative;z-index:1}
+  .cd-big.anim{animation:pop .7s cubic-bezier(.34,1.5,.64,1)}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem;position:relative;z-index:1}
 
-  /* Restaurant header */
-  .resto-header{position:sticky;top:0;z-index:30;background:rgba(26,15,0,.95);backdrop-filter:blur(8px);padding:.35rem .75rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,167,38,.15);flex-shrink:0;width:100%}
-  .rh-score{font-size:1.2rem;font-weight:700;color:#ffa726}
-  .rh-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;display:block}
-  .rh-mid{text-align:center}
-  .rh-level{font-size:11px;color:#ffa726;font-weight:600}
-  .rh-orders{font-size:9px;color:rgba(255,255,255,.35)}
-  .rh-lives{font-size:1.2rem;letter-spacing:2px}
-
-  /* Timer bar */
-  .order-timer-bar{height:5px;background:rgba(255,255,255,.08);flex-shrink:0;width:100%}
-  .order-timer-fill{height:100%;background:#ffa726;transition:width .1s linear,background .3s}
-
-  /* Split screen */
-  .game-split{flex:1;display:flex;flex-direction:column;width:100%;overflow:hidden;min-height:0}
-
-  /* Chef area (top - mirrored for Dara) */
-  .chef-half{flex:1;position:relative;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-  .chef-half.top{transform:scaleY(-1);border-bottom:2px solid rgba(255,167,38,.2)}
-  .chef-half.top .chef-inner{transform:scaleY(-1)}
-  .chef-half.bottom{border-top:2px solid rgba(255,167,38,.2)}
-
-  .chef-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem;gap:.3rem;position:relative;z-index:5;overflow:hidden;min-height:0}
-
-  .chef-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.2rem .6rem;border-radius:50px;display:inline-block}
-  .chef-badge.cook{background:rgba(255,152,0,.15);color:#ffa726;border:1px solid rgba(255,152,0,.3)}
-  .chef-badge.prep{background:rgba(100,180,255,.15);color:#7eb3f5;border:1px solid rgba(100,180,255,.3)}
-
-  /* Order display */
-  .order-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.4rem .75rem;width:100%;max-width:300px;text-align:center}
-  .oc-label{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:.15rem}
-  .oc-dish{font-size:1rem;font-weight:700;color:#fff;display:block;margin-bottom:.1rem}
-  .oc-task{font-size:11px;color:rgba(255,255,255,.5);line-height:1.3}
-
-  /* Action buttons */
-  .action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;width:100%;max-width:300px}
-  .action-btn{padding:.5rem .25rem;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.15rem;transition:all .12s;font-family:'Poppins',sans-serif}
-  .action-btn:active{transform:scale(.88)}
-  .action-btn.correct{border-color:rgba(129,199,132,.5);background:rgba(129,199,132,.1);animation:correctflash .3s ease}
-  @keyframes correctflash{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-  .action-btn.wrong{border-color:rgba(229,115,115,.5);background:rgba(229,115,115,.1);animation:wrongshake .3s ease}
-  @keyframes wrongshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-  .action-btn.done{border-color:rgba(129,199,132,.4);background:rgba(129,199,132,.08);opacity:.5}
-  .ab-emoji{font-size:1.3rem;display:block}
-  .ab-label{font-size:8.5px;color:rgba(255,255,255,.5);font-weight:500}
-  .progress-dots{display:flex;gap:.25rem;justify-content:center;margin:.1rem 0}
-  .pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .2s}
+  /* GAME */
+  #s-game{padding:0;background:#1a0f00}
+  #s-game::before{display:none}
+  .game-wrap{position:fixed;inset:0;display:flex;flex-direction:column}
+  .half{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0}
+  .half.top .half-inner{transform:rotate(180deg)} /* Dara di seberang */
+  .half-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.5rem .75rem;width:100%;max-width:360px}
+  .badge{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.2rem .65rem;border-radius:50px}
+  .badge.cook{background:rgba(255,152,0,.15);color:var(--orange);border:1px solid rgba(255,152,0,.3)}
+  .badge.prep{background:rgba(100,180,255,.15);color:var(--blue);border:1px solid rgba(100,180,255,.3)}
+  .order-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.35rem .75rem;width:100%;text-align:center}
+  .oc-dish{font-size:.95rem;font-weight:700;color:#fff;display:block}
+  .oc-task{font-size:10.5px;color:rgba(255,255,255,.5);line-height:1.3}
+  .side-status{font-size:11px;font-weight:600;min-height:16px;color:rgba(255,255,255,.4)}
+  .side-status.ok{color:var(--green)}
+  .side-status.err{color:var(--red)}
+  .dots{display:flex;gap:.25rem;justify-content:center}
+  .pdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);transition:background .2s}
   .pdot.done{background:#4caf50}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;width:100%}
+  .item{padding:.45rem .2rem;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.1rem;transition:transform .1s}
+  .item:active{transform:scale(.88)}
+  .item.done{border-color:rgba(129,199,132,.45);background:rgba(129,199,132,.12);opacity:.55}
+  .item.wrong{border-color:rgba(229,115,115,.5);background:rgba(229,115,115,.12);animation:shake .3s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .item-e{font-size:1.3rem;display:block;line-height:1.1}
+  .item-l{font-size:8.5px;color:rgba(255,255,255,.55);font-weight:500;line-height:1.2}
+  .half.side-done .grid{opacity:.4;pointer-events:none}
 
-  /* Customer queue */
-  .customer-strip{flex-shrink:0;padding:.25rem .5rem;background:rgba(0,0,0,.3);display:flex;gap:.35rem;overflow-x:auto;-webkit-overflow-scrolling:touch;border-top:1px solid rgba(255,167,38,.1);width:100%}
-  .customer-strip::-webkit-scrollbar{display:none}
-  .cust-item{flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.25rem .4rem;text-align:center;min-width:40px}
-  .cust-item.current{border-color:rgba(255,167,38,.4);background:rgba(255,167,38,.08)}
-  .cust-item.done{border-color:rgba(129,199,132,.3);background:rgba(129,199,132,.06);opacity:.6}
-  .cust-emoji{font-size:.9rem;display:block}
-  .cust-dish{font-size:8px;color:rgba(255,255,255,.4)}
+  .mid-band{flex-shrink:0;background:rgba(26,15,0,.97);border-top:1px solid rgba(255,167,38,.25);border-bottom:1px solid rgba(255,167,38,.25);padding:.3rem .75rem}
+  .mb-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .mb-score{font-size:1.15rem;font-weight:700;color:var(--orange);line-height:1}
+  .mb-lbl{font-size:8.5px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .mb-mid{text-align:center;font-size:10.5px;color:rgba(255,255,255,.6)}
+  .mb-mid b{color:#fff}
+  .mb-combo{color:#ff9f43;font-weight:700}
+  .mb-lives{font-size:1rem;letter-spacing:1px}
+  .mb-exit{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-size:10px;border-radius:50px;padding:.1rem .45rem;cursor:pointer;margin-left:.35rem}
+  .timer-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:.3rem}
+  .timer-fill{height:100%;background:var(--orange);width:100%}
 
-  /* Overlay feedback */
-  .feedback-overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;pointer-events:none}
-  .feedback-overlay.show{display:flex}
-  .fo-card{background:rgba(0,0,0,.85);border-radius:20px;padding:1.25rem 2rem;text-align:center;animation:fopop .4s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes fopop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
-  .fo-icon{font-size:3rem;display:block;margin-bottom:.35rem}
-  .fo-text{font-size:16px;font-weight:700;color:#fff}
-  .fo-pts{font-size:13px;margin-top:.2rem;display:block}
+  .feedback{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;pointer-events:none}
+  .feedback.show{display:flex}
+  .fo-card{background:rgba(0,0,0,.88);border-radius:20px;padding:1rem 1.6rem;text-align:center;animation:pop .35s cubic-bezier(.34,1.5,.64,1);max-width:300px}
+  .fo-icon{font-size:2.6rem;display:block;margin-bottom:.25rem}
+  .fo-text{font-size:15px;font-weight:700;color:#fff}
+  .fo-sub{font-size:12px;margin-top:.15rem;display:block}
 
-  /* ── RESULT ── */
-  #s-result{background:linear-gradient(160deg,#1a0f00,#2d1a00)}
-  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,167,38,.12),transparent 60%);pointer-events:none}
-  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
-  .end-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
-  .end-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.35rem auto 1rem;position:relative;z-index:1}
-  .end-score-big{font-size:3.5rem;font-weight:700;color:#ffa726;display:block;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1) .2s both;position:relative;z-index:1}
-  .end-score-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;display:block;position:relative;z-index:1}
-  .end-stars{font-size:2.5rem;display:block;margin-bottom:1rem;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1) .4s both;position:relative;z-index:1}
-  .stats-row{display:flex;gap:.6rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1}
-  .stat-card{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem .5rem;text-align:center}
-  .stat-val{font-size:1.4rem;font-weight:700;display:block}
-  .stat-val.orange{color:#ffa726}
-  .stat-val.green{color:#81c784}
-  .stat-val.red{color:#e57373}
-  .stat-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:.15rem;display:block;line-height:1.3}
-  .end-verdict{background:rgba(255,167,38,.07);border:1px solid rgba(255,167,38,.18);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .end-verdict strong{color:#ffa726}
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
-  .end-btn-p{background:linear-gradient(135deg,#e65100,#ffa726);color:#fff}
-  .end-btn-p:active{transform:scale(.97)}
+  /* RESULT */
+  .end-icon{font-size:3.4rem;display:block;margin-bottom:.4rem;animation:float 3s ease-in-out infinite}
+  .end-score{font-size:3.2rem;font-weight:700;color:var(--orange);display:block;line-height:1;animation:pop .5s cubic-bezier(.34,1.5,.64,1) .1s both}
+  .end-label{font-size:10.5px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;display:block}
+  .end-stars{font-size:2.2rem;display:block;margin-bottom:.5rem;animation:pop .5s cubic-bezier(.34,1.5,.64,1) .3s both}
+  .end-title{font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+  .end-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6;margin:.25rem auto .9rem}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;margin-bottom:.7rem}
+  .stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.6rem .3rem}
+  .stat-v{font-size:1.15rem;font-weight:700;display:block}
+  .stat-l{font-size:9.5px;color:rgba(255,255,255,.4);line-height:1.3;display:block}
+  .stat-table{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.6rem .8rem;margin-bottom:.7rem;font-size:11.5px;color:rgba(255,255,255,.6)}
+  .stat-table .row{display:grid;grid-template-columns:1.5fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .stat-table .row:last-child{border-bottom:none}
+  .stat-table .head{color:rgba(255,255,255,.35);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .stat-table b{color:#fff}
+  .mvp{font-size:12px;color:#fff;margin-bottom:.7rem}
+  .mvp b{color:var(--orange)}
+  .verdict{background:rgba(255,167,38,.07);border:1px solid rgba(255,167,38,.18);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:.7rem;width:100%;text-align:left}
+  .verdict strong{color:var(--orange)}
+  .demand{background:linear-gradient(135deg,rgba(255,167,38,.16),rgba(193,122,111,.12));border:1px solid rgba(255,167,38,.4);border-radius:16px;padding:.8rem 1rem;margin-bottom:.7rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;display:block;margin-bottom:.3rem}
+  .demand-text{font-size:13.5px;font-weight:600;color:#fff;line-height:1.55}
+  .demand-text b{color:var(--orange)}
+  .end-btns{display:flex;gap:.6rem;width:100%;margin-top:.3rem}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700}
+  .end-btn-p{background:linear-gradient(135deg,var(--dorange),var(--orange));color:#fff}
   .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
 
-  /* Confetti */
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media(max-height:660px){.item-e{font-size:1.1rem}.item{padding:.3rem .2rem}.half-inner{gap:.2rem}}
 </style>
 </head>
 <body>
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🍳</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Masak <span>Bareng!</span></h1>
-  <p class="intro-sub">Kalian punya restoran kecil — satu masak, satu siapkan bahan. Layani customer secepat mungkin! 👨‍🍳</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot" style="background:#ffa726"></span>👨‍🍳 <b style="color:#ffa726">Chef</b> — tap bahan masakan sesuai order</div>
-    <div class="rule"><span class="rule-dot" style="background:#7eb3f5"></span>🧑‍🍳 <b style="color:#7eb3f5">Prep</b> — tap bahan segar sesuai order</div>
-    <div class="rule"><span class="rule-dot" style="background:#81c784"></span>Selesaikan order sebelum timer habis!</div>
-    <div class="rule"><span class="rule-dot" style="background:#e57373"></span>Salah bahan atau terlalu lama → customer marah 😡</div>
+  <div class="screen-inner">
+    <span class="intro-icon">🍳</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Masak <span>Bareng!</span></h1>
+    <p class="intro-sub">Kalian punya restoran kecil — satu masak, satu siapin bahan. Taruh HP di tengah dan layani customer secepat mungkin! 👨‍🍳</p>
+
+    <div class="panel">
+      <span class="panel-title">Pembagian Peran</span>
+      <div class="pills" id="role-pills">
+        <button class="pill on" data-v="razan">🧑 Razan masak<small>👧 Dara prep</small></button>
+        <button class="pill" data-v="dara">👧 Dara masak<small>🧑 Razan prep</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Jumlah Order</span>
+      <div class="pills" id="order-pills">
+        <button class="pill" data-v="8">8<small>santai</small></button>
+        <button class="pill on" data-v="12">12<small>normal</small></button>
+        <button class="pill" data-v="16">16<small>rush hour</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot" style="background:var(--orange)"></span>👨‍🍳 <b style="color:var(--orange)">Masak</b> & 🧑‍🍳 <b style="color:var(--blue)">Prep</b> masing-masing tap 3 bahan yang bener</div>
+      <div class="rule"><span class="rule-dot" style="background:var(--green)"></span>Order selesai kalau <b>dua-duanya</b> beres sebelum timer habis</div>
+      <div class="rule"><span class="rule-dot" style="background:var(--red)"></span>Salah tap = <b>−20 poin & −2 detik</b> buat timer order</div>
+      <div class="rule"><span class="rule-dot" style="background:var(--red)"></span>Timer habis = customer marah 😡 <b>−1 nyawa</b> (ada 3)</div>
+      <div class="rule"><span class="rule-dot" style="background:#ff9f43"></span>Makin lama waktu order makin mepet & bahan pengecoh makin banyak 🔥</div>
+    </div>
+    <button class="btn-main" onclick="startCountdown()">Buka Restoran! 🍳</button>
   </div>
-  <button class="start-btn" onclick="startCountdown()">Buka Restoran! 🍳</button>
 </div>
 
 <!-- COUNTDOWN -->
@@ -162,434 +173,362 @@
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="resto-header">
-    <div>
-      <span class="rh-score" id="rh-score">0</span>
-      <span class="rh-label">Skor</span>
-    </div>
-    <div class="rh-mid">
-      <div class="rh-level" id="rh-level">🍳 Restoran Razan & Dara</div>
-      <div class="rh-orders" id="rh-orders">Order 1</div>
-    </div>
-    <div style="text-align:right">
-      <span class="rh-lives" id="rh-lives">❤️❤️❤️</span>
-      <span class="rh-label">Nyawa</span>
-    </div>
-  </div>
-
-  <!-- Order timer bar -->
-  <div class="order-timer-bar">
-    <div class="order-timer-fill" id="order-timer-bar" style="width:100%"></div>
-  </div>
-
-  <!-- Customer queue -->
-  <div class="customer-strip" id="customer-strip"></div>
-
-  <div class="game-split" id="game-split">
-    <!-- TOP = Dara (prep, mirrored) -->
-    <div class="chef-half top" id="half-dara">
-      <div class="chef-inner">
-        <span class="chef-badge prep">🧑‍🍳 Dara — Prep Bahan</span>
-        <div class="order-card">
-          <span class="oc-label">Siapkan bahan ini</span>
-          <span class="oc-dish" id="prep-dish">-</span>
-          <span class="oc-task" id="prep-task">Tunggu order...</span>
-        </div>
-        <div class="progress-dots" id="prep-dots"></div>
-        <div class="action-grid" id="prep-grid"></div>
+  <div class="game-wrap">
+    <div class="half top" id="half-dara"><div class="half-inner" id="side-dara"></div></div>
+    <div class="mid-band">
+      <div class="mb-row">
+        <div><span class="mb-score" id="mb-score">0</span><span class="mb-lbl">Skor</span></div>
+        <div class="mb-mid">Order <b id="mb-order">1</b>/<span id="mb-total">12</span> <span class="mb-combo" id="mb-combo"></span></div>
+        <div style="display:flex;align-items:center"><span class="mb-lives" id="mb-lives">❤️❤️❤️</span><button class="mb-exit" onclick="exitGame()">✕</button></div>
       </div>
+      <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
     </div>
-
-    <!-- BOTTOM = Razan (cook) -->
-    <div class="chef-half bottom" id="half-razan">
-      <div class="chef-inner">
-        <span class="chef-badge cook">👨‍🍳 Razan — Masak</span>
-        <div class="order-card">
-          <span class="oc-label">Masak ini</span>
-          <span class="oc-dish" id="cook-dish">-</span>
-          <span class="oc-task" id="cook-task">Tunggu order...</span>
-        </div>
-        <div class="progress-dots" id="cook-dots"></div>
-        <div class="action-grid" id="cook-grid"></div>
-      </div>
-    </div>
+    <div class="half bottom" id="half-razan"><div class="half-inner" id="side-razan"></div></div>
   </div>
 </div>
 
-<!-- FEEDBACK OVERLAY -->
-<div class="feedback-overlay" id="feedback-overlay">
+<div class="feedback" id="feedback">
   <div class="fo-card">
     <span class="fo-icon" id="fo-icon">✅</span>
     <p class="fo-text" id="fo-text">Order Selesai!</p>
-    <span class="fo-pts" id="fo-pts" style="color:#ffa726">+100 poin</span>
+    <span class="fo-sub" id="fo-sub">+100</span>
   </div>
 </div>
 
 <!-- RESULT -->
 <div id="s-result" class="screen">
-  <span class="end-icon" id="end-icon">🍳</span>
-  <span class="end-score-big" id="end-score">0</span>
-  <span class="end-score-label">Total Skor</span>
-  <h2 class="end-title" id="end-title">...</h2>
-  <p class="end-sub" id="end-sub">...</p>
-  <span class="end-stars" id="end-stars">⭐⭐⭐</span>
-  <div class="stats-row">
-    <div class="stat-card">
-      <span class="stat-val green" id="stat-done">0</span>
-      <span class="stat-label">Order Selesai ✅</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-val red" id="stat-fail">0</span>
-      <span class="stat-label">Order Gagal ❌</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-val orange" id="stat-combo">0</span>
-      <span class="stat-label">Combo Terbaik 🔥</span>
-    </div>
-  </div>
-  <div class="end-verdict" id="end-verdict">...</div>
-  <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="startCountdown()">Main Lagi 🔄</button>
-    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
-  </div>
+  <div class="screen-inner" id="result-inner"></div>
 </div>
 
 <script>
-// ── MENU DATA ──
+// ═════════ MENU ═════════
 const MENU = [
-  {
-    id:'burger', name:'🍔 Burger', emoji:'🍔',
-    cook: [{emoji:'🥩',label:'Daging'},{emoji:'🍞',label:'Roti'},{emoji:'🧅',label:'Bawang'}],
-    prep: [{emoji:'🥬',label:'Selada'},{emoji:'🍅',label:'Tomat'},{emoji:'🧀',label:'Keju'}]
-  },
-  {
-    id:'ramen', name:'🍜 Ramen', emoji:'🍜',
-    cook: [{emoji:'🍝',label:'Mie'},{emoji:'🥚',label:'Telur'},{emoji:'🍖',label:'Ayam'}],
-    prep: [{emoji:'🧅',label:'Bawang'},{emoji:'🥦',label:'Brokoli'},{emoji:'🌶️',label:'Cabai'}]
-  },
-  {
-    id:'pizza', name:'🍕 Pizza', emoji:'🍕',
-    cook: [{emoji:'🫓',label:'Adonan'},{emoji:'🍅',label:'Saus'},{emoji:'🧀',label:'Keju'}],
-    prep: [{emoji:'🌶️',label:'Paprika'},{emoji:'🍄',label:'Jamur'},{emoji:'🥩',label:'Pepperoni'}]
-  },
-  {
-    id:'sushi', name:'🍣 Sushi', emoji:'🍣',
-    cook: [{emoji:'🍚',label:'Nasi'},{emoji:'🐟',label:'Ikan'},{emoji:'🥒',label:'Timun'}],
-    prep: [{emoji:'🌿',label:'Nori'},{emoji:'🥑',label:'Alpukat'},{emoji:'🫚',label:'Kecap'}]
-  },
-  {
-    id:'salad', name:'🥗 Salad', emoji:'🥗',
-    cook: [{emoji:'🥚',label:'Telur'},{emoji:'🍗',label:'Ayam'},{emoji:'🫒',label:'Olive'}],
-    prep: [{emoji:'🥬',label:'Selada'},{emoji:'🍅',label:'Tomat'},{emoji:'🥕',label:'Wortel'}]
-  },
-  {
-    id:'tacos', name:'🌮 Tacos', emoji:'🌮',
-    cook: [{emoji:'🥩',label:'Daging'},{emoji:'🌽',label:'Jagung'},{emoji:'🧅',label:'Bawang'}],
-    prep: [{emoji:'🌶️',label:'Cabai'},{emoji:'🥑',label:'Alpukat'},{emoji:'🍋',label:'Lemon'}]
-  },
+  { name:'🍔 Burger',   cook:[['🥩','Daging'],['🍞','Roti'],['🧅','Bawang']],   prep:[['🥬','Selada'],['🍅','Tomat'],['🧀','Keju']] },
+  { name:'🍜 Ramen',    cook:[['🍝','Mie'],['🥚','Telur'],['🍖','Daging']],     prep:[['🧅','Bawang'],['🥦','Brokoli'],['🌶️','Cabai']] },
+  { name:'🍕 Pizza',    cook:[['🫓','Adonan'],['🍅','Saus'],['🧀','Keju']],     prep:[['🫑','Paprika'],['🍄','Jamur'],['🥓','Sosis']] },
+  { name:'🍣 Sushi',    cook:[['🍚','Nasi'],['🐟','Ikan'],['🥒','Timun']],      prep:[['🌿','Nori'],['🥑','Alpukat'],['🫚','Jahe']] },
+  { name:'🥗 Salad',    cook:[['🥚','Telur'],['🍗','Ayam'],['🫒','Zaitun']],    prep:[['🥬','Selada'],['🍅','Tomat'],['🥕','Wortel']] },
+  { name:'🌮 Tacos',    cook:[['🥩','Daging'],['🌽','Jagung'],['🧅','Bawang']], prep:[['🌶️','Cabai'],['🥑','Alpukat'],['🍋','Lemon']] },
+  { name:'🍛 Nasi Goreng', cook:[['🍚','Nasi'],['🥚','Telur'],['🧄','Bawang Putih']], prep:[['🌶️','Cabai'],['🥒','Timun'],['🦐','Udang']] },
+  { name:'🍢 Sate',     cook:[['🍗','Ayam'],['🔥','Bakar'],['🧂','Garam']],     prep:[['🥜','Kacang'],['🧅','Bawang'],['🍋','Jeruk Nipis']] },
+  { name:'🥞 Martabak', cook:[['🫓','Adonan'],['🥚','Telur'],['🧈','Mentega']], prep:[['🧀','Keju'],['🍫','Cokelat'],['🥜','Kacang']] },
+  { name:'🧋 Es Teh Susu', cook:[['🍵','Teh'],['🧊','Es'],['🍬','Gula']],       prep:[['🥛','Susu'],['🍯','Madu'],['🍋','Lemon']] },
+];
+const DECOYS = [
+  ['🥝','Kiwi'],['🫐','Blueberry'],['🥐','Croissant'],['🍇','Anggur'],['🍌','Pisang'],['🥥','Kelapa'],['🍆','Terong'],
+  ['🥔','Kentang'],['🍠','Ubi'],['🍩','Donat'],['🍎','Apel'],['🍊','Jeruk'],['🫘','Kacang Merah'],['🌰','Kastanye'],
+  ['🍓','Stroberi'],['🥨','Pretzel'],['🍉','Semangka'],['🥯','Bagel'],['🍪','Kue'],['🧃','Jus'],
+];
+const CUSTOMERS = ['👦','👧','👨','👩','🧓','👴','👵','🧑','🧒','👩‍🦱','👨‍🦰'];
+
+const TEAM_GOOD = [
+  'Restoran bintang 3! Masak beneran bareng minggu ini 🍳',
+  'Rayain pakai jajan menu yang paling sering dipesen tadi 🍔',
+  'Foto berdua pose chef profesional 👨‍🍳👩‍🍳',
+];
+const TEAM_BAD = [
+  'Restoran bangkrut 😂 Saling pijitin tangan 30 detik, terus buka lagi!',
+  'Main lagi — target naik 1 bintang! 💪',
+  'Tukeran peran & buktiin siapa yang lebih jago 🔄',
+];
+const BLAME = [
+  '<b>{p}</b> bikinin <b>{o}</b> minuman beneran 🥤',
+  '<b>{p}</b> jadi pelayan: sajiin camilan ke <b>{o}</b> sambil bilang "silakan, Chef" 🙇',
+  '<b>{p}</b> yang cuci piring abis makan berikutnya 🍽️',
+  '<b>{p}</b> kasih <b>{o}</b> gelar "Chef Terbaik" + 3 pujian 👨‍🍳',
+  '<b>{p}</b> pijitin tangan <b>{o}</b> 1 menit 💆',
 ];
 
-const CUSTOMERS = ['👦','👧','👨','👩','🧓','👴','👵','🧑','🧒'];
-const TOTAL_ORDERS = 10;
-const ORDER_TIME = 20; // seconds per order
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+let CFG = { cook:'razan', orders:12 };
+let G = null;
+let tick = null, token = 0, cdTimer = null, fbTimer = null;
+const decks = {};
 
-let score = 0;
-let lives = 3;
-let ordersDone = 0;
-let ordersFailed = 0;
-let currentCombo = 0;
-let bestCombo = 0;
-let currentOrder = null;
-let orderQueue = [];
-let cookDone = [];
-let prepDone = [];
-let orderTimer = null;
-let timeLeft = ORDER_TIME;
-let orderCount = 0;
-let feedbackTimeout = null;
-
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
 }
+function bindPills(id, cb) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); cb(p.dataset.v);
+  }));
+}
+bindPills('role-pills', v => CFG.cook = v === 'dara' ? 'dara' : 'razan');
+bindPills('order-pills', v => CFG.orders = parseInt(v) || 12);
+function stopTimer() { token++; clearInterval(tick); tick = null; }
 
+// ═════════ FLOW ═════════
 function startCountdown() {
-  score = 0; lives = 3; ordersDone = 0; ordersFailed = 0;
-  currentCombo = 0; bestCombo = 0; orderCount = 0;
+  if (G && G.phase === 'countdown') return; // cegah dobel
+  stopTimer(); clearTimeout(cdTimer); clearTimeout(fbTimer);
+  const roles = { [CFG.cook]:'cook', [other(CFG.cook)]:'prep' };
+  G = {
+    phase:'countdown', roles, total: CFG.orders, idx: 0,
+    score: 0, lives: 3, combo: 0, best: 0, done: 0, failed: 0,
+    menuDeck: shuffle(MENU),
+    st: { razan:{ ok:0, wrong:0, blame:0, times:[] }, dara:{ ok:0, wrong:0, blame:0, times:[] } },
+  };
   showScreen('s-countdown');
-  let count = 3;
-  const el = document.getElementById('cd-num');
-  const sub = document.getElementById('cd-sub');
-  el.textContent = count;
-  el.style.animation = 'none';
-  void el.offsetWidth;
-  el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
-
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      startGame();
-    } else {
-      el.style.animation = 'none';
-      void el.offsetWidth;
-      el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
-      el.textContent = count;
-      if (count === 1) sub.textContent = 'Siap memasak!';
-    }
-  }, 800);
+  const el = $('cd-num'), sub = $('cd-sub');
+  let n = 3; const my = token;
+  const step = () => {
+    if (my !== token || !G) return;
+    if (n <= 0) { startGame(); return; }
+    if (el) { el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
+    if (sub) sub.textContent = n === 1 ? 'Restoran buka! 🍳' : `${NAMES[CFG.cook]} masak · ${NAMES[other(CFG.cook)]} prep`;
+    n--; cdTimer = setTimeout(step, 800);
+  };
+  step();
 }
 
 function startGame() {
-  // Build order queue
-  orderQueue = [];
-  const shuffled = [...MENU].sort(() => Math.random() - .5);
-  for (let i = 0; i < TOTAL_ORDERS; i++) {
-    orderQueue.push({
-      menu: shuffled[i % shuffled.length],
-      customer: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)]
-    });
-  }
-
+  setText('mb-total', G.total);
   showScreen('s-game');
-  renderCustomerStrip();
-  updateHUD();
+  updateHud();
   nextOrder();
 }
 
-function renderCustomerStrip() {
-  const strip = document.getElementById('customer-strip');
-  strip.innerHTML = orderQueue.map((o, i) => `
-    <div class="cust-item ${i === orderCount ? 'current' : i < orderCount ? 'done' : ''}" id="cust-${i}">
-      <span class="cust-emoji">${o.customer}</span>
-      <span class="cust-dish">${o.menu.emoji}</span>
-    </div>`).join('');
-}
+// Eskalasi: waktu order makin pendek, pengecoh makin banyak
+function orderTime(i) { return Math.max(9, 20 - Math.floor(i * 11 / Math.max(1, G.total - 1))); }
+function decoyCount(i) { const f = i / Math.max(1, G.total - 1); return f < .34 ? 3 : f < .67 ? 5 : 6; }
 
 function nextOrder() {
-  if (orderCount >= TOTAL_ORDERS || lives <= 0) { endGame(); return; }
-  clearInterval(orderTimer);
+  if (!G) return;
+  if (G.idx >= G.total || G.lives <= 0) { endGame(); return; }
+  if (!G.menuDeck.length) G.menuDeck = shuffle(MENU);
+  const menu = G.menuDeck.pop();
+  G.order = {
+    menu, customer: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)],
+    done: { cook: [false, false, false], prep: [false, false, false] },
+    sideDone: {}, start: Date.now(), dur: orderTime(G.idx), penalty: 0,
+    lock: { razan: 0, dara: 0 },
+  };
+  G.phase = 'play';
+  ['razan', 'dara'].forEach(renderSide);
+  updateHud();
+  runTimer();
+}
 
-  currentOrder = orderQueue[orderCount];
-  cookDone = new Array(currentOrder.menu.cook.length).fill(false);
-  prepDone = new Array(currentOrder.menu.prep.length).fill(false);
-  timeLeft = ORDER_TIME;
+function renderSide(p) {
+  const box = $('side-' + p); if (!box || !G.order) return;
+  const role = G.roles[p], o = G.order;
+  const items = o.menu[role];
+  const used = new Set(items.map(i => i[0]));
+  const usedLbl = new Set(items.map(i => i[1].toLowerCase()));
+  // Pengecoh nggak boleh sama emoji/label-nya sama bahan yang bener
+  const decoys = shuffle(DECOYS.filter(d => !used.has(d[0]) && !usedLbl.has(d[1].toLowerCase()))).slice(0, decoyCount(G.idx));
+  const grid = shuffle([...items.map((it, i) => ({ e: it[0], l: it[1], idx: i })), ...decoys.map(d => ({ e: d[0], l: d[1], idx: -1 }))]);
 
-  // Update customer strip
-  document.querySelectorAll('.cust-item').forEach((el, i) => {
-    el.className = 'cust-item' + (i === orderCount ? ' current' : i < orderCount ? ' done' : '');
+  const half = $('half-' + p); if (half) half.classList.remove('side-done');
+  box.innerHTML = `
+    <span class="badge ${role}">${role === 'cook' ? '👨‍🍳' : '🧑‍🍳'} ${NAMES[p]} — ${role === 'cook' ? 'Masak' : 'Prep Bahan'}</span>
+    <div class="order-card"><span class="oc-dish">${o.customer} pesen ${o.menu.name}</span>
+      <span class="oc-task">${role === 'cook' ? 'Tap bahan buat dimasak' : 'Tap bahan segar pelengkap'}</span></div>
+    <div class="dots" id="dots-${p}">${items.map(() => '<div class="pdot"></div>').join('')}</div>
+    <div class="grid" id="grid-${p}"></div>
+    <span class="side-status" id="status-${p}"></span>`;
+  const g = $('grid-' + p);
+  grid.forEach(it => {
+    const b = document.createElement('div');
+    b.className = 'item';
+    b.innerHTML = `<span class="item-e">${it.e}</span><span class="item-l">${it.l}</span>`;
+    b.addEventListener('pointerdown', e => { e.preventDefault(); tapItem(p, it.idx, b); });
+    g.appendChild(b);
   });
-
-  document.getElementById('rh-orders').textContent = `Order ${orderCount + 1}/${TOTAL_ORDERS}`;
-  renderTasks();
-  startOrderTimer();
 }
 
-function renderTasks() {
-  const m = currentOrder.menu;
-
-  // Cook side (Razan - bottom)
-  document.getElementById('cook-dish').textContent = m.name;
-  document.getElementById('cook-task').textContent = 'Tap bahan masakan yang benar!';
-  renderGrid('cook-grid', m.cook, 'cook', cookDone);
-  renderDots('cook-dots', cookDone);
-
-  // Prep side (Dara - top)
-  document.getElementById('prep-dish').textContent = m.name;
-  document.getElementById('prep-task').textContent = 'Tap bahan segar yang benar!';
-  renderGrid('prep-grid', m.prep, 'prep', prepDone);
-  renderDots('prep-dots', prepDone);
+function setStatus(p, txt, cls) {
+  const s = $('status-' + p); if (!s) return;
+  s.textContent = txt; s.className = 'side-status' + (cls ? ' ' + cls : '');
 }
 
-function renderGrid(containerId, items, role, doneArr) {
-  // Shuffle items with decoys
-  const allItems = [...items];
-  // Add 3 random wrong items
-  const wrongPool = [
-    {emoji:'🍋',label:'Lemon'},{emoji:'🥝',label:'Kiwi'},{emoji:'🫐',label:'Blueberry'},
-    {emoji:'🧄',label:'Bawang Putih'},{emoji:'🥞',label:'Pancake'},{emoji:'🫑',label:'Paprika'},
-    {emoji:'🌰',label:'Kacang'},{emoji:'🫘',label:'Kacang Merah'},{emoji:'🥐',label:'Croissant'},
-  ];
-  const wrongs = wrongPool.sort(() => Math.random()-.5).slice(0, 3);
-  const grid = [...allItems, ...wrongs].sort(() => Math.random()-.5);
-
-  const container = document.getElementById(containerId);
-  container.innerHTML = grid.map((item, i) => {
-    const isCorrect = items.some(it => it.emoji === item.emoji);
-    const isDone = doneArr[items.findIndex(it => it.emoji === item.emoji)];
-    return `<div class="action-btn${isDone ? ' done' : ''}"
-      onclick="tapItem('${role}', '${item.emoji}', '${item.label}', ${isCorrect}, this)">
-      <span class="ab-emoji">${item.emoji}</span>
-      <span class="ab-label">${item.label}</span>
-    </div>`;
-  }).join('');
-}
-
-function renderDots(containerId, doneArr) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = doneArr.map(d => `<div class="pdot ${d ? 'done' : ''}"></div>`).join('');
-}
-
-function tapItem(role, emoji, label, isCorrect, btn) {
-  const doneArr = role === 'cook' ? cookDone : prepDone;
-  const items = role === 'cook' ? currentOrder.menu.cook : currentOrder.menu.prep;
-  const idx = items.findIndex(it => it.emoji === emoji);
-
-  // Already tapped
-  if (idx >= 0 && doneArr[idx]) return;
-
-  if (isCorrect && idx >= 0) {
-    doneArr[idx] = true;
-    btn.classList.add('correct', 'done');
-    setTimeout(() => btn.classList.remove('correct'), 300);
-    renderDots(role === 'cook' ? 'cook-dots' : 'prep-dots', doneArr);
-    if (navigator.vibrate) navigator.vibrate(30);
-    checkOrderComplete();
+function tapItem(p, idx, btn) {
+  if (!G || G.phase !== 'play' || !G.order) return;
+  const o = G.order, role = G.roles[p], now = Date.now();
+  if (o.sideDone[role] || now < o.lock[p]) return;
+  if (idx >= 0) {
+    if (o.done[role][idx]) return;
+    o.done[role][idx] = true;
+    G.st[p].ok++;
+    btn.classList.add('done');
+    vib(25);
+    const dots = $('dots-' + p);
+    if (dots) dots.children[o.done[role].filter(Boolean).length - 1]?.classList.add('done');
+    if (o.done[role].every(Boolean)) {
+      o.sideDone[role] = true;
+      G.st[p].times.push((now - o.start) / 1000);
+      const half = $('half-' + p); if (half) half.classList.add('side-done');
+      setStatus(p, o.sideDone[G.roles[other(p)]] ? '✅ Beres!' : `✅ Beres! Nunggu ${NAMES[other(p)]}...`, 'ok');
+      if (!o.sideDone[G.roles[other(p)]]) setStatus(other(p), `⏳ ${NAMES[p]} udah beres — ayo!`, '');
+      checkOrder();
+    }
   } else {
-    btn.classList.add('wrong');
-    setTimeout(() => btn.classList.remove('wrong'), 300);
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    lives--;
-    score = Math.max(0, score - 20);
-    updateHUD();
-    showFeedback('💔', 'Bahan Salah!', '-1 Nyawa & -20 poin', '#e57373');
-    setTimeout(() => {
-      hideFeedback();
-      if (lives <= 0) { clearInterval(orderTimer); endGame(); }
-    }, 900);
+    G.st[p].wrong++;
+    o.lock[p] = now + 350; // cegah salah tap beruntun
+    o.penalty += 2;
+    G.score = Math.max(0, G.score - 20);
+    btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong');
+    setStatus(p, '❌ Salah bahan! −20 poin · −2 detik', 'err');
+    vib([120, 60, 120]);
+    updateHud();
   }
 }
 
-function checkOrderComplete() {
-  const cookOk = cookDone.every(Boolean);
-  const prepOk = prepDone.every(Boolean);
-  if (!cookOk || !prepOk) return;
-
-  clearInterval(orderTimer);
-  ordersDone++;
-  orderCount++;
-  currentCombo++;
-  if (currentCombo > bestCombo) bestCombo = currentCombo;
-
-  // Score based on time left
-  const timeBonus = Math.round(timeLeft * 3);
-  const comboBonus = currentCombo > 1 ? currentCombo * 10 : 0;
-  const pts = 100 + timeBonus + comboBonus;
-  score += pts;
-  updateHUD();
-
-  showFeedback('✅', currentCombo > 1 ? `🔥 COMBO x${currentCombo}!` : 'Order Selesai!', `+${pts} poin`,'#ffa726');
-
-  setTimeout(() => {
-    hideFeedback();
-    if (orderCount >= TOTAL_ORDERS || lives <= 0) endGame();
-    else nextOrder();
-  }, 1500);
-}
-
-function startOrderTimer() {
-  clearInterval(orderTimer);
-  timeLeft = ORDER_TIME;
-  updateTimerBar();
-
-  orderTimer = setInterval(() => {
-    timeLeft -= 0.1;
-    timeLeft = Math.round(timeLeft * 10) / 10;
-    updateTimerBar();
-    if (timeLeft <= 0) {
-      clearInterval(orderTimer);
-      failOrder();
-    }
+function runTimer() {
+  stopTimer();
+  const my = token, fillEl = $('timer-fill');
+  tick = setInterval(() => {
+    if (my !== token || !G || G.phase !== 'play') return;
+    const o = G.order;
+    const left = Math.max(0, o.dur - (Date.now() - o.start) / 1000 - o.penalty);
+    const pct = left / o.dur * 100;
+    if (fillEl) { fillEl.style.width = pct + '%'; fillEl.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : '#ffa726'; }
+    if (left <= 0) { stopTimer(); failOrder(); }
   }, 100);
 }
 
-function updateTimerBar() {
-  const pct = Math.max(0, (timeLeft / ORDER_TIME) * 100);
-  const bar = document.getElementById('order-timer-bar');
-  bar.style.width = pct + '%';
-  bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : '#ffa726';
+function checkOrder() {
+  const o = G.order;
+  if (!o.sideDone.cook || !o.sideDone.prep) return;
+  G.phase = 'trans'; stopTimer();
+  const left = Math.max(0, o.dur - (Date.now() - o.start) / 1000 - o.penalty);
+  G.done++; G.idx++; G.combo++; G.best = Math.max(G.best, G.combo);
+  const pts = 100 + Math.round(left * 5) + (G.combo > 1 ? G.combo * 10 : 0);
+  G.score += pts;
+  updateHud();
+  feedback('✅', G.combo > 1 ? `🔥 Combo x${G.combo}!` : 'Order Selesai!', `+${pts} poin`, '#ffa726', 1100, nextOrder);
+  if ([3, 5, 8].includes(G.combo)) confetti(20);
 }
 
 function failOrder() {
-  ordersFailed++;
-  lives--;
-  orderCount++;
-  currentCombo = 0;
-  updateHUD();
-
-  showFeedback('😡', 'Customer Marah!', '-1 Nyawa', '#e57373');
-  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
-
-  setTimeout(() => {
-    hideFeedback();
-    if (lives <= 0 || orderCount >= TOTAL_ORDERS) endGame();
-    else nextOrder();
-  }, 1500);
+  if (!G || G.phase !== 'play') return;
+  G.phase = 'trans';
+  const o = G.order;
+  const late = ['razan', 'dara'].filter(p => !o.sideDone[G.roles[p]]);
+  late.forEach(p => G.st[p].blame++);
+  G.failed++; G.lives--; G.idx++; G.combo = 0;
+  updateHud();
+  vib([200, 100, 200, 100, 300]);
+  const who = late.length === 2 ? 'Dua-duanya belum beres' : `${NAMES[late[0]]} belum beres`;
+  feedback('😡', 'Customer Marah!', `${who} · −1 nyawa`, '#e57373', 1500, () => {
+    if (G && G.lives <= 0) endGame(); else nextOrder();
+  });
 }
 
-function updateHUD() {
-  document.getElementById('rh-score').textContent = score;
-  document.getElementById('rh-lives').textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3-lives));
+function feedback(icon, text, sub, color, ms, then) {
+  clearTimeout(fbTimer);
+  setText('fo-icon', icon); setText('fo-text', text);
+  const s = $('fo-sub'); if (s) { s.textContent = sub; s.style.color = color; }
+  const f = $('feedback'); if (f) f.classList.add('show');
+  const my = token;
+  fbTimer = setTimeout(() => {
+    if (f) f.classList.remove('show');
+    if (my === token && G && G.phase === 'trans' && then) then(); // nggak jalan kalau game udah selesai/keluar
+  }, ms);
 }
 
-function showFeedback(icon, text, pts, color) {
-  clearTimeout(feedbackTimeout);
-  document.getElementById('fo-icon').textContent = icon;
-  document.getElementById('fo-text').textContent = text;
-  document.getElementById('fo-pts').textContent = pts;
-  document.getElementById('fo-pts').style.color = color;
-  document.getElementById('feedback-overlay').classList.add('show');
+function updateHud() {
+  if (!G) return;
+  setText('mb-score', G.score);
+  setText('mb-order', Math.min(G.idx + 1, G.total));
+  setText('mb-lives', '❤️'.repeat(Math.max(0, G.lives)) + '🖤'.repeat(Math.max(0, 3 - G.lives)));
+  setText('mb-combo', G.combo >= 2 ? `🔥x${G.combo}` : '');
 }
 
-function hideFeedback() {
-  document.getElementById('feedback-overlay').classList.remove('show');
+function exitGame() {
+  if (!confirm('Tutup restoran sekarang? Skor hilang.')) return;
+  stopTimer(); clearTimeout(fbTimer); clearTimeout(cdTimer);
+  const f = $('feedback'); if (f) f.classList.remove('show');
+  G = null;
+  showScreen('s-intro');
 }
 
+// ═════════ HASIL ═════════
 function endGame() {
-  clearInterval(orderTimer);
-  hideFeedback();
+  if (!G || G.phase === 'end') return;
+  G.phase = 'end';
+  stopTimer(); clearTimeout(fbTimer);
+  const f = $('feedback'); if (f) f.classList.remove('show');
 
-  document.getElementById('end-score').textContent = score;
-  document.getElementById('stat-done').textContent = ordersDone;
-  document.getElementById('stat-fail').textContent = ordersFailed;
-  document.getElementById('stat-combo').textContent = bestCombo;
+  const pct = G.done / G.total;
+  const stars = pct >= .9 && G.lives > 0 ? 3 : pct >= .6 ? 2 : pct > 0 ? 1 : 0;
+  const bankrupt = G.lives <= 0;
+  const avg = arr => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) + 's' : '—';
+  const R = G.st.razan, D = G.st.dara;
 
-  const pct = ordersDone / TOTAL_ORDERS;
-  let icon, title, sub, stars, verdict;
+  // MVP: paling sedikit salah + gagal, lalu paling cepat
+  const pen = p => G.st[p].wrong + G.st[p].blame * 2;
+  const speed = p => { const t = G.st[p].times; return t.length ? t.reduce((a, b) => a + b, 0) / t.length : 99; };
+  let mvp = pen('razan') !== pen('dara') ? (pen('razan') < pen('dara') ? 'razan' : 'dara') : (speed('razan') <= speed('dara') ? 'razan' : 'dara');
+  const worst = other(mvp);
 
-  if (pct >= .9 && lives > 0) {
-    icon = '🏆'; title = 'Restoran Terbaik!'; sub = 'Hampir semua order selesai sempurna!';
-    stars = '⭐⭐⭐';
-    verdict = `<strong>Luar biasa!</strong> ${ordersDone}/${TOTAL_ORDERS} order selesai dengan skor ${score}. Kalian tim masak yang solid banget! 🍳`;
-  } else if (pct >= .6) {
-    icon = '😄'; title = 'Cukup Bagus!'; sub = 'Restoran kalian berjalan lancar!';
-    stars = '⭐⭐';
-    verdict = `<strong>Bagus!</strong> ${ordersDone}/${TOTAL_ORDERS} order selesai. ${bestCombo > 1 ? `Combo terbaik ${bestCombo}x — kerja tim yang oke!` : 'Latihan lagi buat combo lebih tinggi!'}`;
-  } else {
-    icon = '😅'; title = 'Perlu Latihan!'; sub = 'Banyak customer yang kecewa...';
-    stars = '⭐';
-    verdict = `<strong>${ordersDone}/${TOTAL_ORDERS} order selesai.</strong> ${ordersFailed} customer kecewa — koordinasi masih perlu ditingkatkan! Main lagi biar makin jago 😄`;
-  }
+  let icon, title, sub, verdict;
+  if (stars === 3) { icon = '🏆'; title = 'Restoran Bintang 3!'; sub = 'Hampir semua order selesai sempurna!'; verdict = `<strong>Luar biasa!</strong> ${G.done}/${G.total} order beres dengan skor ${G.score}. Kalian tim dapur paling kompak 🍳`; }
+  else if (stars === 2) { icon = '😄'; title = 'Restoran Laris!'; sub = 'Kebanyakan customer puas!'; verdict = `<strong>Bagus!</strong> ${G.done}/${G.total} order beres. ${G.best > 1 ? `Combo terbaik ${G.best}x!` : 'Kejar combo biar skornya meledak!'}`; }
+  else { icon = bankrupt ? '💸' : '😅'; title = bankrupt ? 'Restoran Bangkrut!' : 'Perlu Latihan!'; sub = bankrupt ? 'Nyawa habis — customer kabur semua 😂' : 'Banyak customer kecewa...'; verdict = `<strong>${G.done}/${G.total} order beres.</strong> ${G.failed} customer marah — koordinasi masih perlu diasah. Main lagi yuk! 😄`; }
 
-  document.getElementById('end-icon').textContent = icon;
-  document.getElementById('end-title').textContent = title;
-  document.getElementById('end-sub').textContent = sub;
-  document.getElementById('end-stars').textContent = stars;
-  document.getElementById('end-verdict').innerHTML = verdict;
-
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="end-icon">${icon}</span>
+    <span class="end-score">${G.score}</span>
+    <span class="end-label">Total Skor</span>
+    <span class="end-stars">${'⭐'.repeat(stars) || '💔'}</span>
+    <h2 class="end-title">${title}</h2>
+    <p class="end-sub">${sub}</p>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-v" style="color:var(--green)">${G.done}</span><span class="stat-l">Order beres ✅</span></div>
+      <div class="stat"><span class="stat-v" style="color:var(--red)">${G.failed}</span><span class="stat-l">Order gagal ❌</span></div>
+      <div class="stat"><span class="stat-v" style="color:var(--orange)">${G.best}</span><span class="stat-l">Combo terbaik 🔥</span></div>
+    </div>
+    <div class="stat-table">
+      <div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+      <div class="row"><span>Peran</span><b>${G.roles.razan === 'cook' ? '👨‍🍳 Masak' : '🧑‍🍳 Prep'}</b><b>${G.roles.dara === 'cook' ? '👨‍🍳 Masak' : '🧑‍🍳 Prep'}</b></div>
+      <div class="row"><span>✅ Bahan bener</span><b>${R.ok}</b><b>${D.ok}</b></div>
+      <div class="row"><span>❌ Salah tap</span><b>${R.wrong}</b><b>${D.wrong}</b></div>
+      <div class="row"><span>😡 Bikin telat</span><b>${R.blame}</b><b>${D.blame}</b></div>
+      <div class="row"><span>⚡ Rata-rata beres</span><b>${avg(R.times)}</b><b>${avg(D.times)}</b></div>
+    </div>
+    <p class="mvp">🏅 MVP dapur: <b>${NAMES[mvp]}</b></p>
+    <div class="verdict">${verdict}</div>
+    <div class="demand"><span class="demand-tag">${stars >= 2 ? '🎉 Hadiah Tim' : '💪 Tantangan Tim'}</span>
+      <p class="demand-text">${draw(stars >= 2 ? 'good' : 'bad', stars >= 2 ? TEAM_GOOD : TEAM_BAD)}</p></div>
+    <div class="demand"><span class="demand-tag">😈 Buat yang paling sering bikin masalah</span>
+      <p class="demand-text">${fill(draw('blame', BLAME), { p: NAMES[worst], o: NAMES[mvp] })}</p></div>
+    <div class="end-btns">
+      <button class="end-btn end-btn-p" onclick="swapAndPlay()">Tukeran Peran 🔄</button>
+      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>`;
   showScreen('s-result');
-  if (pct >= .8) confetti(70);
+  if (stars >= 2) confetti(stars === 3 ? 80 : 45);
+}
+
+function swapAndPlay() {
+  CFG.cook = other(CFG.cook);
+  document.querySelectorAll('#role-pills .pill').forEach(x => x.classList.toggle('on', x.dataset.v === CFG.cook));
+  G = null;
+  startCountdown();
 }
 
 function confetti(n) {
   const colors = ['#ffa726','#e65100','#fff','#ffca28','#81c784'];
-  for (let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
