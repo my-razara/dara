@@ -9,135 +9,141 @@
   :root{
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
-    --gold:#c9a96e;--muted:#9a8070;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --green:#81c784;--red:#e57373;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#0a0a14}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.5rem 1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0a14,#1a0a1a)}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:linear-gradient(160deg,#0a0a14,#1a0a1a)}
-  #s-intro::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse at 30% 30%,rgba(193,122,111,.12),transparent 55%),
-    radial-gradient(ellipse at 70% 70%,rgba(201,169,110,.08),transparent 55%);
-    pointer-events:none}
-  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .screen::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 30% 30%,rgba(193,122,111,.12),transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(201,169,110,.08),transparent 55%)}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+
+  /* INTRO */
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.7rem;animation:float 3s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.25rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
-  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
-
-  /* Category grid */
-  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;max-width:380px;margin-bottom:1.25rem;position:relative;z-index:1}
-  .cat-btn{padding:.75rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem;transition:all .15s;font-family:'Poppins',sans-serif}
-  .cat-btn:active{transform:scale(.93)}
-  .cat-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.15)}
-  .cat-icon{font-size:1.5rem;display:block}
-  .cat-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.7)}
-
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* ── PICK ── */
-  #s-pick{background:linear-gradient(160deg,#0a0a14,#1a0a1a);padding:1.5rem}
-  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
-  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);max-width:300px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
-  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem}
+  .intro-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+  .chip{padding:.4rem .7rem;border-radius:50px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.55);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .15s}
+  .chip.on{background:rgba(193,122,111,.25);border-color:var(--rose);color:#fff}
+  .pool-info{font-size:11px;color:rgba(255,255,255,.4);margin-top:.5rem}
+  .pool-info b{color:var(--gold)}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.55);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:transparent;color:#fff}
+  .toggle-row{display:flex;align-items:center;gap:.7rem;cursor:pointer}
+  .tg-info{flex:1}
+  .tg-title{font-size:12.5px;font-weight:600;color:#fff;display:block}
+  .tg-sub{font-size:10.5px;color:rgba(255,255,255,.4);line-height:1.45;display:block}
+  .tg-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:transparent;flex-shrink:0}
+  .toggle-row.on .tg-check{background:var(--rose);border-color:var(--rose);color:#fff}
+  .tilt-extra{display:none;margin-top:.55rem}
+  .tilt-extra.show{display:block}
+  .mini-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:10.5px;border-radius:50px;padding:.25rem .7rem;cursor:pointer}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.35);transition:transform .15s}
+  .btn-main:active{transform:scale(.97);background:var(--deep)}
+  .btn-main.gold{background:linear-gradient(135deg,var(--gold),var(--rose))}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);margin:.3rem auto 1.2rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;text-align:left}
   .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.09)}
+  .pick-icon{font-size:2rem;flex-shrink:0}
+  .pick-name{font-size:14px;font-weight:700;color:#fff;display:block}
+  .pick-sub2{font-size:11px;color:rgba(255,255,255,.4);margin-top:.1rem;display:block}
 
-  /* ── COUNTDOWN ── */
-  #s-countdown{background:#0a0a14}
-  .cd-big{font-size:8rem;font-weight:700;color:#fff;display:block;line-height:1;animation:cdpop .7s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes cdpop{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+  /* COUNTDOWN */
+  #s-countdown{justify-content:center}
+  .cd-turn{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;position:relative;z-index:1}
+  .cd-big{font-size:7rem;font-weight:700;color:#fff;display:block;line-height:1;position:relative;z-index:1}
+  .cd-big.anim{animation:pop .7s cubic-bezier(.34,1.5,.64,1)}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.5);margin-top:.5rem;position:relative;z-index:1;max-width:300px;line-height:1.5}
 
-  /* ── GAME (LANDSCAPE) ── */
-  #s-game{
-    background:#0a0a14;padding:0;
-    /* Force landscape feel — word big, buttons bottom */
-    flex-direction:column;justify-content:space-between;
+  /* GAME */
+  #s-game{padding:0;background:#0a0a14;justify-content:space-between}
+  #s-game::before{display:none}
+  #flash{position:fixed;inset:0;z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
+  #flash.green{background:rgba(76,175,80,.4);opacity:1}
+  #flash.red{background:rgba(229,115,115,.35);opacity:1}
+  .g-top{width:100%;display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;flex-shrink:0}
+  .g-who{font-size:11px;color:rgba(255,255,255,.5);text-align:left}
+  .g-who b{color:#fff}
+  .g-scores{display:flex;gap:1rem}
+  .g-sc{text-align:center}
+  .g-sc-v{font-size:1.3rem;font-weight:700;display:block;line-height:1}
+  .g-sc-v.green{color:var(--green)}.g-sc-v.red{color:var(--red)}
+  .g-sc-l{font-size:8.5px;color:rgba(255,255,255,.35);text-transform:uppercase}
+  .timer-wrap{position:relative;width:60px;height:60px;flex-shrink:0}
+  .timer-svg{width:60px;height:60px;transform:rotate(-90deg)}
+  .timer-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:6}
+  .timer-fill{fill:none;stroke:var(--rose);stroke-width:6;stroke-linecap:round;stroke-dasharray:163.4}
+  .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#fff}
+  .word-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem 1rem;min-height:0}
+  .word-cat{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.6rem}
+  .word{font-size:clamp(2.4rem,11vw,5rem);font-weight:700;color:#fff;line-height:1.1;max-width:95%;overflow-wrap:anywhere}
+  .word.anim{animation:wordin .3s cubic-bezier(.34,1.2,.64,1)}
+  @keyframes wordin{from{transform:scale(.8) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+  .word-streak{font-size:12px;font-weight:700;color:#ff9f43;margin-top:.5rem;min-height:18px}
+  .word-hint{font-size:11px;color:rgba(255,255,255,.3);margin-top:.3rem}
+  .action-row{display:flex;gap:.75rem;padding:.8rem 1rem calc(.9rem + env(safe-area-inset-bottom));width:100%;flex-shrink:0;max-width:600px}
+  .action-btn{flex:1;padding:1.1rem .5rem;border-radius:20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.2rem;transition:transform .12s}
+  .action-btn:active{transform:scale(.94)}
+  .ab-icon{font-size:1.5rem}
+  .ab-label{font-size:11.5px;font-weight:700}
+  .btn-correct{background:rgba(76,175,80,.2);color:var(--green);border:2px solid rgba(76,175,80,.45)}
+  .btn-skip{background:rgba(229,115,115,.15);color:var(--red);border:2px solid rgba(229,115,115,.35)}
+  .g-exit{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:10px;border-radius:50px;padding:.15rem .55rem;cursor:pointer;margin-top:.3rem}
+  @media (orientation:landscape) and (max-height:500px){
+    .word{font-size:clamp(2.2rem,9vh,4.2rem)}
+    .action-row{padding:.4rem 1rem .6rem}
+    .action-btn{padding:.6rem .5rem}
+    .g-top{padding:.3rem 1rem}
   }
 
-  /* Flash overlay */
-  #flash-overlay{position:fixed;inset:0;z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
-  #flash-overlay.green{background:rgba(76,175,80,.35);opacity:1}
-  #flash-overlay.red{background:rgba(229,115,115,.3);opacity:1}
+  /* RESULT */
+  .badge{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block}
+  .end-icon{font-size:3.4rem;display:block;margin-bottom:.4rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+  .end-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6;margin:.25rem auto .9rem}
+  .big-score{font-size:3.5rem;font-weight:700;color:var(--rose);display:block;line-height:1;animation:pop .5s cubic-bezier(.34,1.5,.64,1) .1s both}
+  .big-label{font-size:10.5px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem;display:block}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;margin-bottom:.75rem}
+  .stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.6rem .3rem}
+  .stat-v{font-size:1.2rem;font-weight:700;display:block;color:#fff}
+  .stat-l{font-size:9.5px;color:rgba(255,255,255,.4);display:block;line-height:1.3}
+  .recap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.8rem .9rem;width:100%;margin-bottom:.75rem;max-height:180px;overflow-y:auto;text-align:left}
+  .recap-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .recap-list{display:flex;flex-wrap:wrap;gap:.3rem}
+  .rw{font-size:11.5px;font-weight:600;padding:.2rem .55rem;border-radius:8px}
+  .rw.ok{background:rgba(76,175,80,.15);color:var(--green);border:1px solid rgba(76,175,80,.25)}
+  .rw.no{background:rgba(229,115,115,.1);color:var(--red);border:1px solid rgba(229,115,115,.2)}
+  .rw.last{background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px dashed rgba(255,255,255,.2)}
+  .score-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%}
+  .sc-nm{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .sc-v{font-size:2rem;font-weight:700;color:var(--rose);display:block;line-height:1.1}
+  .sc-sub{font-size:9.5px;color:rgba(255,255,255,.35);display:block}
+  .sc-vs{color:rgba(255,255,255,.25)}
+  .verdict{background:rgba(193,122,111,.07);border:1px solid rgba(193,122,111,.2);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .verdict strong{color:var(--rose)}
+  .demand{background:linear-gradient(135deg,rgba(201,169,110,.18),rgba(193,122,111,.12));border:1px solid rgba(201,169,110,.4);border-radius:16px;padding:.85rem 1.1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.3rem}
+  .demand-text{font-size:13.5px;font-weight:600;color:#fff;line-height:1.55}
+  .demand-text b{color:var(--gold)}
 
-  /* Word display */
-  .word-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;position:relative;z-index:10}
-  .word-cat-badge{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:.75rem}
-  .word-display{font-size:clamp(2.2rem,10vw,4rem);font-weight:700;color:#fff;line-height:1.15;text-align:center;max-width:90%;animation:wordin .3s cubic-bezier(.34,1.2,.64,1)}
-  @keyframes wordin{from{transform:scale(.8) translateY(10px);opacity:0}to{transform:none;opacity:1}}
-  .word-display.correct-word{color:#81c784}
-  .word-display.skip-word{color:#e57373}
-  .word-hint{font-size:12px;color:rgba(255,255,255,.3);margin-top:.5rem;font-style:italic}
-
-  /* Timer ring */
-  .timer-wrap{position:relative;width:70px;height:70px;flex-shrink:0;margin:.5rem}
-  .timer-svg{width:70px;height:70px;transform:rotate(-90deg)}
-  .timer-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:6}
-  .timer-fill{fill:none;stroke:var(--rose);stroke-width:6;stroke-linecap:round;stroke-dasharray:188.5;stroke-dashoffset:0;transition:stroke-dashoffset .1s linear,stroke .3s}
-  .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;color:#fff}
-
-  /* Score display */
-  .score-row{display:flex;gap:1.5rem;align-items:center;margin:.25rem 0}
-  .sc-item{text-align:center}
-  .sc-val{font-size:1.5rem;font-weight:700;display:block}
-  .sc-val.green{color:#81c784}
-  .sc-val.red{color:#e57373}
-  .sc-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em}
-
-  /* Action buttons */
-  .action-row{display:flex;gap:.75rem;padding:1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));width:100%;flex-shrink:0}
-  .action-btn{flex:1;padding:1.1rem .5rem;border-radius:20px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;transition:all .12s;display:flex;flex-direction:column;align-items:center;gap:.25rem}
-  .action-btn .ab-icon{font-size:1.5rem;display:block}
-  .action-btn .ab-label{font-size:11px;font-weight:600}
-  .btn-correct{background:rgba(76,175,80,.2);color:#81c784;border:2px solid rgba(76,175,80,.4)}
-  .btn-correct:active{background:rgba(76,175,80,.4);transform:scale(.94)}
-  .btn-skip{background:rgba(229,115,115,.15);color:#e57373;border:2px solid rgba(229,115,115,.3)}
-  .btn-skip:active{background:rgba(229,115,115,.3);transform:scale(.94)}
-
-  /* ── RESULT ── */
-  #s-result{background:linear-gradient(160deg,#0a0a14,#1a0a1a)}
-  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(193,122,111,.15),transparent 60%);pointer-events:none}
-  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
-  .end-score-big{font-size:4rem;font-weight:700;color:var(--rose);display:block;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1) .2s both;position:relative;z-index:1}
-  .end-score-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;display:block;position:relative;z-index:1}
-
-  .res-stats{display:flex;gap:.75rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1}
-  .res-stat{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem .5rem;text-align:center}
-  .rs-val{font-size:1.5rem;font-weight:700;display:block}
-  .rs-val.green{color:#81c784}
-  .rs-val.red{color:#e57373}
-  .rs-val.gold{color:var(--gold)}
-  .rs-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:.15rem;display:block}
-
-  /* Words recap */
-  .recap-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1rem 1.1rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1;max-height:200px;overflow-y:auto}
-  .recap-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .recap-list{display:flex;flex-wrap:wrap;gap:.35rem}
-  .recap-word{font-size:12px;font-weight:600;padding:.25rem .65rem;border-radius:8px;display:flex;align-items:center;gap:.3rem}
-  .recap-word.correct{background:rgba(76,175,80,.15);color:#81c784;border:1px solid rgba(76,175,80,.25)}
-  .recap-word.skipped{background:rgba(229,115,115,.1);color:#e57373;border:1px solid rgba(229,115,115,.2)}
-
-  .end-verdict{background:rgba(193,122,111,.07);border:1px solid rgba(193,122,111,.2);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .end-verdict strong{color:var(--rose)}
-
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
-  .end-btn-p{background:var(--rose);color:#fff}
-  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
-  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-
-  /* Confetti */
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(255,159,67,.95);color:#1a0d1a;font-size:12px;font-weight:700;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -146,423 +152,415 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🤦</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Charades <span>Cepat!</span></h1>
-  <p class="intro-sub">Pegang HP di jidat — lawan kasih clue tanpa nyebut katanya. Tebak sebanyak mungkin dalam 60 detik! 🧠</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot" style="background:var(--rose)"></span>Pegang HP di jidat — layar menghadap ke lawan</div>
-    <div class="rule"><span class="rule-dot" style="background:var(--gold)"></span>Lawan kasih clue — ga boleh nyebut kata atau ejaannya!</div>
-    <div class="rule"><span class="rule-dot" style="background:#81c784"></span>Bener → tap ✓ Bener! · Ga tau → tap ✗ Skip</div>
-    <div class="rule"><span class="rule-dot" style="background:#fff"></span>60 detik — sebanyak mungkin kata yang bisa ditebak!</div>
-  </div>
+  <div class="screen-inner">
+    <span class="intro-icon">🤦</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Charades <span>Cepat!</span></h1>
+    <p class="intro-sub">Tempel HP di jidat — pasangan kasih clue tanpa nyebut katanya. Tebak sebanyak mungkin, terus gantian! 🧠</p>
 
-  <!-- Category picker -->
-  <div class="cat-grid" id="cat-grid">
-    <div class="cat-btn selected" data-cat="campuran" onclick="toggleCat(this)">
-      <span class="cat-icon">🎲</span>
-      <span class="cat-name">Campuran</span>
+    <div class="panel">
+      <span class="panel-title">Kategori</span>
+      <div class="chips" id="cat-chips"></div>
+      <p class="pool-info" id="pool-info"></p>
     </div>
-    <div class="cat-btn" data-cat="hewan" onclick="toggleCat(this)">
-      <span class="cat-icon">🐾</span>
-      <span class="cat-name">Hewan</span>
+    <div class="panel">
+      <span class="panel-title">Durasi per Giliran</span>
+      <div class="pills" id="dur-pills">
+        <button class="pill" data-v="45">45s</button>
+        <button class="pill on" data-v="60">60s</button>
+        <button class="pill" data-v="90">90s</button>
+      </div>
     </div>
-    <div class="cat-btn" data-cat="makanan" onclick="toggleCat(this)">
-      <span class="cat-icon">🍔</span>
-      <span class="cat-name">Makanan</span>
+    <div class="panel">
+      <span class="panel-title">Giliran per Orang</span>
+      <div class="pills" id="turn-pills">
+        <button class="pill" data-v="1">1<small>sekali</small></button>
+        <button class="pill on" data-v="2">2<small>normal</small></button>
+        <button class="pill" data-v="3">3<small>panjang</small></button>
+      </div>
     </div>
-    <div class="cat-btn" data-cat="film" onclick="toggleCat(this)">
-      <span class="cat-icon">🎬</span>
-      <span class="cat-name">Film & Tokoh</span>
+    <div class="panel">
+      <div class="toggle-row" id="tilt-toggle" onclick="toggleTilt()">
+        <div class="tg-info"><span class="tg-title">📱 Mode Miring (Tilt)</span>
+          <span class="tg-sub">HP di jidat: <b>nunduk</b> = Bener ✓, <b>dongak</b> = Skip ✗. Tombol tetap bisa dipakai.</span></div>
+        <div class="tg-check">✓</div>
+      </div>
+      <div class="tilt-extra" id="tilt-extra">
+        <button class="mini-btn" onclick="flipTilt(event)" id="flip-btn">🔄 Arahnya kebalik? Tukar</button>
+      </div>
     </div>
-    <div class="cat-btn" data-cat="tempat" onclick="toggleCat(this)">
-      <span class="cat-icon">🌍</span>
-      <span class="cat-name">Tempat</span>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot" style="background:var(--rose)"></span>Yang nebak tempel HP di jidat — layar ngadep ke pasangan</div>
+      <div class="rule"><span class="rule-dot" style="background:var(--gold)"></span>Pasangan kasih clue — dilarang nyebut kata / ejaannya!</div>
+      <div class="rule"><span class="rule-dot" style="background:var(--green)"></span>Bener → ✓ (atau nunduk) · Nyerah → ✗ (atau dongak)</div>
+      <div class="rule"><span class="rule-dot" style="background:#ff9f43"></span>Bener beruntun = 🔥 streak · Paling banyak bener menang!</div>
     </div>
-    <div class="cat-btn" data-cat="absurd" onclick="toggleCat(this)">
-      <span class="cat-icon">🤪</span>
-      <span class="cat-name">Absurd</span>
-    </div>
+    <button class="btn-main" onclick="goPick()">Pilih Siapa Duluan! 🤦</button>
   </div>
-
-  <button class="start-btn" onclick="goToPick()">Pilih Siapa Duluan! 🤦</button>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <span style="font-size:2.5rem;display:block;margin-bottom:1rem;position:relative;z-index:1">🤦</span>
-  <p class="pick-title">Siapa yang pegang HP di jidat?</p>
-  <p class="pick-sub">Yang pegang HP yang harus tebak — lawan yang kasih clue! Gantian setelah 60 detik.</p>
-  <div class="pick-btns">
-    <div class="pick-btn" onclick="startGame('razan')">
-      <span style="font-size:2rem;flex-shrink:0">🧑</span>
-      <div style="text-align:left">
-        <span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan yang nebak</span>
-        <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Razan pegang HP di jidat, Dara kasih clue</span>
-      </div>
+  <div class="screen-inner">
+    <span style="font-size:2.3rem;display:block;margin-bottom:.8rem">🤦</span>
+    <p class="pick-title">Siapa yang nebak duluan?</p>
+    <p class="pick-sub">Yang nebak pegang HP di jidat, pasangannya kasih clue. Gantian tiap giliran. Tips: putar HP ke landscape biar tulisannya gede 📱↔️</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="startMatch('razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan nebak duluan</span><span class="pick-sub2">Dara yang kasih clue</span></div></div>
+      <div class="pick-btn" onclick="startMatch('dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara nebak duluan</span><span class="pick-sub2">Razan yang kasih clue</span></div></div>
     </div>
-    <div class="pick-btn" onclick="startGame('dara')">
-      <span style="font-size:2rem;flex-shrink:0">👧</span>
-      <div style="text-align:left">
-        <span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara yang nebak</span>
-        <span style="font-size:11px;color:rgba(255,255,255,.4);display:block;margin-top:.1rem">Dara pegang HP di jidat, Razan kasih clue</span>
-      </div>
-    </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- COUNTDOWN -->
 <div id="s-countdown" class="screen">
+  <p class="cd-turn" id="cd-turn">Giliran 1</p>
   <span class="cd-big" id="cd-num">3</span>
   <span class="cd-sub" id="cd-sub">Tempel HP di jidat!</span>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div id="flash-overlay"></div>
-
-  <!-- Word -->
-  <div class="word-area">
-    <span class="word-cat-badge" id="word-cat">🎲 Campuran</span>
-    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.5rem">
-      <div class="timer-wrap">
-        <svg class="timer-svg" viewBox="0 0 70 70">
-          <circle class="timer-track" cx="35" cy="35" r="30"/>
-          <circle class="timer-fill" id="timer-fill" cx="35" cy="35" r="30"/>
-        </svg>
-        <div class="timer-num" id="timer-num">60</div>
-      </div>
-      <div>
-        <div class="score-row">
-          <div class="sc-item"><span class="sc-val green" id="sc-correct">0</span><span class="sc-label">Bener ✓</span></div>
-          <div class="sc-item"><span class="sc-val red" id="sc-skip">0</span><span class="sc-label">Skip ✗</span></div>
-        </div>
-      </div>
+  <div id="flash"></div>
+  <div class="g-top">
+    <div class="g-who">Nebak: <b id="g-who">Razan</b><br><button class="g-exit" onclick="exitGame()">✕ Keluar</button></div>
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 60 60"><circle class="timer-track" cx="30" cy="30" r="26"/><circle class="timer-fill" id="timer-fill" cx="30" cy="30" r="26"/></svg>
+      <div class="timer-num" id="timer-num">60</div>
     </div>
-    <p class="word-display" id="word-display">...</p>
-    <span class="word-hint" id="word-hint">Kasih clue ke lawan — ga boleh nyebut katanya!</span>
+    <div class="g-scores">
+      <div class="g-sc"><span class="g-sc-v green" id="g-ok">0</span><span class="g-sc-l">Bener</span></div>
+      <div class="g-sc"><span class="g-sc-v red" id="g-no">0</span><span class="g-sc-l">Skip</span></div>
+    </div>
   </div>
-
-  <!-- Buttons -->
+  <div class="word-area">
+    <span class="word-cat" id="word-cat">🎲</span>
+    <p class="word" id="word">...</p>
+    <span class="word-streak" id="word-streak"></span>
+    <span class="word-hint" id="word-hint">Kasih clue — jangan sebut katanya!</span>
+  </div>
   <div class="action-row">
-    <button class="action-btn btn-skip" onclick="skipWord()">
-      <span class="ab-icon">✗</span>
-      <span class="ab-label">Skip</span>
-    </button>
-    <button class="action-btn btn-correct" onclick="correctWord()">
-      <span class="ab-icon">✓</span>
-      <span class="ab-label">Bener!</span>
-    </button>
+    <button class="action-btn btn-skip" onclick="answer(false)"><span class="ab-icon">✗</span><span class="ab-label">Skip</span></button>
+    <button class="action-btn btn-correct" onclick="answer(true)"><span class="ab-icon">✓</span><span class="ab-label">Bener!</span></button>
   </div>
 </div>
 
 <!-- RESULT -->
 <div id="s-result" class="screen">
-  <span class="end-icon" id="end-icon">🤦</span>
-  <span class="end-score-big" id="end-score">0</span>
-  <span class="end-score-label">kata berhasil ditebak</span>
-
-  <div class="res-stats">
-    <div class="res-stat">
-      <span class="rs-val green" id="rs-correct">0</span>
-      <span class="rs-label">Bener ✓</span>
-    </div>
-    <div class="res-stat">
-      <span class="rs-val red" id="rs-skip">0</span>
-      <span class="rs-label">Skip ✗</span>
-    </div>
-    <div class="res-stat">
-      <span class="rs-val gold" id="rs-pct">0%</span>
-      <span class="rs-label">Akurasi</span>
-    </div>
-  </div>
-
-  <div class="recap-card">
-    <span class="recap-title">Semua Kata</span>
-    <div class="recap-list" id="recap-list"></div>
-  </div>
-
-  <div class="end-verdict" id="end-verdict">...</div>
-
-  <div class="end-btns" style="flex-direction:column;gap:.5rem">
-    <button class="end-btn end-btn-p" id="swap-btn" onclick="swapPlayer()" style="background:linear-gradient(135deg,#c9a96e,#c17a6f)">Gantian! 🔄</button>
-    <div style="display:flex;gap:.5rem">
-      <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Mulai Baru</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Ganti Kategori</button>
-    </div>
-  </div>
+  <div class="screen-inner" id="result-inner"></div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
+// ═════════ KATA ═════════
+const CATS = {
+  hewan:   { label:'🐾 Hewan', hint:'Ini hewan apa?' },
+  makanan: { label:'🍔 Makanan', hint:'Ini makanan apa?' },
+  film:    { label:'🎬 Film & Tokoh', hint:'Ini tokoh/film apa?' },
+  tempat:  { label:'🌍 Tempat', hint:'Ini tempat apa?' },
+  absurd:  { label:'🤪 Absurd', hint:'Jelasin situasinya!' },
+  kita:    { label:'💑 Tentang Kita', hint:'Momen kita banget!' },
+};
 const WORDS = {
-  hewan: [
-    'Kucing','Anjing','Gajah','Singa','Harimau','Penguin','Jerapah','Koala',
-    'Panda','Kuda','Lumba-lumba','Hiu','Ular','Buaya','Kura-kura','Kelinci',
-    'Hamster','Kelelawar','Cumi-cumi','Gurita','Lebah','Kupu-kupu','Kuda Nil',
-    'Zebra','Gorila','Kanguru','Flamingo','Merak','Bunglon','Laba-laba',
-  ],
-  makanan: [
-    'Bakso','Soto','Rendang','Nasi Goreng','Mie Ayam','Sushi','Pizza','Burger',
-    'Es Krim','Martabak','Gado-gado','Sate','Pempek','Rawon','Ketoprak',
-    'Dimsum','Ramen','Kebab','Donat','Croissant','Tempe','Tahu Goreng',
-    'Kue Lapis','Onde-onde','Klepon','Gulai','Opor Ayam','Pecel','Nasi Uduk',
-    'Bubur Ayam',
-  ],
-  film: [
-    'Spiderman','Batman','Iron Man','Elsa','Moana','Shrek','Minion','Doraemon',
-    'Naruto','Spongebob','Tom dan Jerry','Harry Potter','Cinderella','Rapunzel',
-    'Deadpool','Thor','Hulk','Captain America','Wonder Woman','Joker',
-    'Pikachu','Sonic','Mario','Hobbit','Avatar','Dora','Kung Fu Panda',
-    'Ratatouille','Coco','Soul',
-  ],
-  tempat: [
-    'Bali','Paris','Tokyo','New York','London','Dubai','Singapura','Maldives',
-    'Raja Ampat','Bromo','Komodo','Lombok','Medan','Bandung','Yogyakarta',
-    'Borobudur','Prambanan','Eiffel Tower','Colosseum','Great Wall',
-    'Machu Picchu','Sahara','Amazon','Antartika','Hawaii','Santorini',
-    'Istanbul','Barcelona','Sydney','Seoul',
-  ],
-  absurd: [
-    'Kentut','Ngupil','Ngorok','Cegukan','Bersin','Melamun','Mengantuk',
-    'Salah Paham','Kebelet','Ketiduran di Kelas','Telpon Salah Sambung',
-    'Lupa Nama Orang','Pura-pura Sibuk','Stalking Media Sosial','Nyasar',
-    'Lupa Password','Mager','Gabut','Ghosting','Baper',
-    'Overthinking','PHP','Friendzone','Bucin','FOMO',
-    'Keselek','Jatuh di Depan Umum','Kepeleset','Salah Pintu','Ngantri Panjang',
-  ],
+  hewan: ['Kucing','Anjing','Gajah','Singa','Harimau','Penguin','Jerapah','Koala','Panda','Kuda','Lumba-lumba','Hiu','Ular','Buaya','Kura-kura','Kelinci','Hamster','Kelelawar','Cumi-cumi','Gurita','Lebah','Kupu-kupu','Kuda Nil','Zebra','Gorila','Kanguru','Flamingo','Merak','Bunglon','Laba-laba'],
+  makanan: ['Bakso','Soto','Rendang','Nasi Goreng','Mie Ayam','Sushi','Pizza','Burger','Es Krim','Martabak','Gado-gado','Sate','Pempek','Rawon','Ketoprak','Dimsum','Ramen','Kebab','Donat','Croissant','Tempe','Tahu Goreng','Kue Lapis','Onde-onde','Klepon','Gulai','Opor Ayam','Pecel','Nasi Uduk','Bubur Ayam'],
+  film: ['Spiderman','Batman','Iron Man','Elsa','Moana','Shrek','Minion','Doraemon','Naruto','Spongebob','Tom dan Jerry','Harry Potter','Cinderella','Rapunzel','Deadpool','Thor','Hulk','Captain America','Wonder Woman','Joker','Pikachu','Sonic','Mario','Hobbit','Avatar','Dora','Kung Fu Panda','Ratatouille','Coco','Titanic'],
+  tempat: ['Bali','Paris','Tokyo','New York','London','Dubai','Singapura','Maldives','Raja Ampat','Bromo','Komodo','Lombok','Medan','Bandung','Yogyakarta','Borobudur','Prambanan','Menara Eiffel','Colosseum','Tembok Besar China','Machu Picchu','Gurun Sahara','Amazon','Antartika','Hawaii','Santorini','Istanbul','Barcelona','Sydney','Seoul'],
+  absurd: ['Kentut','Ngupil','Ngorok','Cegukan','Bersin','Melamun','Mengantuk','Salah Paham','Kebelet','Ketiduran di Kelas','Salah Sambung','Lupa Nama Orang','Pura-pura Sibuk','Stalking Medsos','Nyasar','Lupa Password','Mager','Gabut','Ghosting','Baper','Overthinking','PHP','Friendzone','Bucin','FOMO','Keselek','Jatuh di Depan Umum','Kepeleset','Salah Pintu','Ngantri Panjang'],
+  kita: ['Kencan Pertama','Ngambek','Video Call','Anniversary','Chat Panjang','Ketiduran pas Telponan','Makan Berdua','Foto Couple','Surprise','Cemburu','Gombal','Panggilan Sayang','Pegangan Tangan','Nonton Bioskop','Jalan Sore','Kasih Kado','Pelukan','Nunggu Balasan Chat','Double Date','Minta Maaf'],
 };
+const POOL = Object.entries(WORDS).flatMap(([c, arr]) => arr.map((w, i) => ({ id: c + '-' + i, cat: c, w })));
 
-// Build campuran
-WORDS.campuran = [
-  ...WORDS.hewan.slice(0,6),
-  ...WORDS.makanan.slice(0,6),
-  ...WORDS.film.slice(0,6),
-  ...WORDS.tempat.slice(0,6),
-  ...WORDS.absurd.slice(0,6),
-].sort(() => Math.random() - .5);
+const TURN_DEMANDS_LOW = [
+  '<b>{c}</b> (pemberi clue) peragain kata "<b>{w}</b>" yang tadi di-skip — tanpa suara 😂',
+  '<b>{g}</b> tebak ulang kata "<b>{w}</b>" — <b>{c}</b> cuma boleh pakai 3 kata clue 🤫',
+];
+const TURN_DEMANDS_GOOD = [
+  '<b>{g}</b> & <b>{c}</b> tos dulu — telepati kalian jalan 🧠✋',
+  '<b>{c}</b> kasih 1 pujian buat otak encer <b>{g}</b> 🤓',
+  '<b>{g}</b> kasih 1 pujian buat clue jago <b>{c}</b> 🗣️',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> jajanan favorit minggu ini 🍡',
+  '<b>{w}</b> pilih 3 kata susah — <b>{l}</b> harus peragain semuanya tanpa suara 😂',
+  '<b>{l}</b> pijitin <b>{w}</b> 5 menit 💆',
+  '<b>{w}</b> boleh minta 1 hal kecil — nggak boleh ditolak 😏',
+];
+const FINAL_TIE = [
+  'Seri! Kalian sama-sama jago — sudden death: 1 kata, siapa cepat dia menang ⚡',
+  'Seri! Pelukan 10 detik — telepati kalian setara 🤗',
+];
 
-const CAT_LABELS = {
-  campuran:'🎲 Campuran', hewan:'🐾 Hewan', makanan:'🍔 Makanan',
-  film:'🎬 Film & Tokoh', tempat:'🌍 Tempat', absurd:'🤪 Absurd'
-};
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+const SEEN_KEY = 'charades_seen_v2';
+let CFG = { cats: new Set(Object.keys(CATS)), dur: 60, turns: 2, tilt: false, tiltDir: 1 };
+let M = null, T = null;
+let tick = null, cdTimer = null, token = 0;
+const decks = {};
 
-const GAME_DURATION = 60;
-const MAX_WORDS = 10;
-
-let selectedCat = 'campuran';
-let currentPlayer = 'razan';
-let wordQueue = [];
-let wordIdx = 0;
-let correctCount = 0;
-let skipCount = 0;
-let wordHistory = []; // {word, correct}
-let wordCount = 0;
-let timerInterval = null;
-let timeLeft = GAME_DURATION;
-let flashTimeout = null;
-
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
+}
+let toastT = null;
+function toast(m) { const t = $('toast'); if (!t) return; t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700); }
+function bindPills(id, key) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = parseInt(p.dataset.v) || CFG[key];
+  }));
+}
+bindPills('dur-pills', 'dur');
+bindPills('turn-pills', 'turns');
+function stopTimers() { token++; clearInterval(tick); clearTimeout(cdTimer); tick = null; }
+
+// ═════════ SETUP ═════════
+function renderChips() {
+  const wrap = $('cat-chips'); if (!wrap) return;
+  wrap.innerHTML = Object.entries(CATS).map(([k, c]) => `<button class="chip ${CFG.cats.has(k) ? 'on' : ''}" data-cat="${k}">${c.label}</button>`).join('');
+  wrap.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.cat;
+    if (CFG.cats.has(k)) { if (CFG.cats.size === 1) { toast('Minimal pilih 1 kategori'); return; } CFG.cats.delete(k); }
+    else CFG.cats.add(k);
+    renderChips();
+  }));
+  const n = POOL.filter(x => CFG.cats.has(x.cat)).length;
+  const pi = $('pool-info'); if (pi) pi.innerHTML = `📚 <b>${n}</b> kata tersedia`;
+}
+function toggleTilt() {
+  CFG.tilt = !CFG.tilt;
+  const t = $('tilt-toggle'); if (t) t.classList.toggle('on', CFG.tilt);
+  const x = $('tilt-extra'); if (x) x.classList.toggle('show', CFG.tilt);
+}
+function flipTilt(e) {
+  if (e) e.stopPropagation();
+  CFG.tiltDir *= -1;
+  setText('flip-btn', CFG.tiltDir === 1 ? '🔄 Arahnya kebalik? Tukar' : '🔄 Arah ditukar ✓ (tap buat balikin)');
 }
 
-function toggleCat(btn) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedCat = btn.dataset.cat;
+// iOS butuh izin sensor lewat tap user
+async function ensureMotionPermission() {
+  if (!CFG.tilt) return;
+  try {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      const res = await DeviceMotionEvent.requestPermission();
+      if (res !== 'granted') { toggleTilt(); toast('Izin sensor ditolak — pakai tombol aja ya'); }
+    } else if (typeof DeviceMotionEvent === 'undefined') {
+      toggleTilt(); toast('HP ini nggak support tilt — pakai tombol');
+    }
+  } catch { toggleTilt(); toast('Sensor nggak bisa dipakai — pakai tombol'); }
+}
+async function goPick() { await ensureMotionPermission(); showScreen('s-pick'); }
+
+// ═════════ DECK (tanpa repeat antar giliran & antar game) ═════════
+function getSeen() { try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)) || []); } catch { return new Set(); } }
+function saveSeen(s) { try { localStorage.setItem(SEEN_KEY, JSON.stringify([...s])); } catch {} }
+function nextWord() {
+  const pool = POOL.filter(x => CFG.cats.has(x.cat));
+  const seen = getSeen();
+  let fresh = pool.filter(x => !seen.has(x.id) && !M.used.has(x.id));
+  if (!fresh.length) { pool.forEach(x => seen.delete(x.id)); fresh = pool.filter(x => !M.used.has(x.id)); if (!fresh.length) { M.used.clear(); fresh = pool; } }
+  const w = fresh[Math.floor(Math.random() * fresh.length)];
+  seen.add(w.id); saveSeen(seen); M.used.add(w.id);
+  return w;
 }
 
-function goToPick() {
-  showScreen('s-pick');
+// ═════════ MATCH ═════════
+function startMatch(first) {
+  stopTimers();
+  const f = first === 'dara' ? 'dara' : 'razan';
+  M = { first: f, turnIdx: 0, total: CFG.turns * 2, used: new Set(),
+        tot: { razan:{ ok:0, no:0, best:0 }, dara:{ ok:0, no:0, best:0 } }, turns: [] };
+  countdown();
 }
+function curGuesser() { return M.turnIdx % 2 === 0 ? M.first : other(M.first); }
 
-function startGame(player) {
-  currentPlayer = player;
-  correctCount = 0; skipCount = 0; wordHistory = [];
-  timeLeft = GAME_DURATION; wordIdx = 0; wordCount = 0;
-
-  // Shuffle words
-  wordQueue = [...WORDS[selectedCat]].sort(() => Math.random() - .5);
-  // If not enough, duplicate
-  while (wordQueue.length < 30) wordQueue = [...wordQueue, ...WORDS[selectedCat]].sort(() => Math.random() - .5);
-
+function countdown() {
+  if (!M) return;
+  const g = curGuesser();
+  T = { phase: 'countdown', g };
+  const my = ++token;
+  setText('cd-turn', `Giliran ${M.turnIdx + 1} dari ${M.total}`);
   showScreen('s-countdown');
-  const playerName = player === 'razan' ? 'Razan' : 'Dara';
-  startCountdown(`${playerName}, tempel HP di jidat!`);
-}
-
-function startCountdown(subText) {
-  let count = 3;
-  const el = document.getElementById('cd-num');
-  const sub = document.getElementById('cd-sub');
-  sub.textContent = subText;
-  el.textContent = count;
-  el.style.animation = 'none';
-  void el.offsetWidth;
-  el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
-
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      launchGame();
-    } else {
-      el.style.animation = 'none';
-      void el.offsetWidth;
-      el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
-      el.textContent = count;
-    }
-  }, 800);
-}
-
-function launchGame() {
-  showScreen('s-game');
-  document.getElementById('word-cat').textContent = CAT_LABELS[selectedCat];
-  document.getElementById('sc-correct').textContent = '0';
-  document.getElementById('sc-skip').textContent = '0';
-  showWord();
-  startTimer();
-}
-
-function showWord() {
-  if (wordIdx >= wordQueue.length) wordIdx = 0;
-  const word = wordQueue[wordIdx];
-  const el = document.getElementById('word-display');
-  el.className = 'word-display';
-  void el.offsetWidth;
-  el.className = 'word-display';
-  el.textContent = word;
-  el.style.animation = 'none';
-  void el.offsetWidth;
-  el.style.animation = 'wordin .3s cubic-bezier(.34,1.2,.64,1)';
-
-  // Hint based on category
-  const hints = {
-    campuran:'Kasih clue ke lawan — ga boleh nyebut katanya!',
-    hewan:'Ini hewan apa? Kasih clue tanpa nyebut namanya!',
-    makanan:'Ini makanan apa? Kasih clue tanpa nyebut namanya!',
-    film:'Ini karakter/film apa? Kasih clue tanpa nyebut namanya!',
-    tempat:'Ini tempat apa? Kasih clue tanpa nyebut namanya!',
-    absurd:'Jelasin situasinya tanpa nyebut katanya!',
+  const el = $('cd-num'), sub = $('cd-sub');
+  let n = 3;
+  const step = () => {
+    if (my !== token) return;
+    if (n <= 0) { beginTurn(); return; }
+    if (el) { el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
+    if (sub) sub.textContent = `${NAMES[g]}, tempel HP di jidat! ${NAMES[other(g)]} siap-siap kasih clue 🗣️`;
+    n--; cdTimer = setTimeout(step, 900);
   };
-  document.getElementById('word-hint').textContent = `Kata ${wordCount + 1}/${MAX_WORDS} — ` + hints[selectedCat];
+  step();
 }
 
-function correctWord() {
-  if (timeLeft <= 0) return;
-  const word = wordQueue[wordIdx];
-  wordHistory.push({word, correct: true});
-  correctCount++;
-  wordCount++;
-  document.getElementById('sc-correct').textContent = correctCount;
-  flash('green');
-  if (navigator.vibrate) navigator.vibrate(40);
-  wordIdx++;
-  if (wordCount >= MAX_WORDS) { clearInterval(timerInterval); endGame(); return; }
+function beginTurn() {
+  T = { phase: 'play', g: curGuesser(), ok: 0, no: 0, streak: 0, best: 0, list: [], word: null,
+        start: Date.now(), paused: 0, pauseAt: null, armed: true, lastTilt: 0 };
+  setText('g-who', NAMES[T.g]);
+  setText('g-ok', 0); setText('g-no', 0); setText('word-streak', '');
+  showScreen('s-game');
   showWord();
-}
-
-function skipWord() {
-  if (timeLeft <= 0) return;
-  const word = wordQueue[wordIdx];
-  wordHistory.push({word, correct: false});
-  skipCount++;
-  wordCount++;
-  document.getElementById('sc-skip').textContent = skipCount;
-  flash('red');
-  if (navigator.vibrate) navigator.vibrate([60,30,60]);
-  wordIdx++;
-  if (wordCount >= MAX_WORDS) { clearInterval(timerInterval); endGame(); return; }
-  showWord();
-}
-
-function flash(color) {
-  const el = document.getElementById('flash-overlay');
-  el.className = color;
-  clearTimeout(flashTimeout);
-  flashTimeout = setTimeout(() => el.className = '', 300);
-}
-
-function startTimer() {
-  clearInterval(timerInterval);
-  updateTimer();
-  timerInterval = setInterval(() => {
-    timeLeft -= 0.1;
-    timeLeft = Math.round(timeLeft * 10) / 10;
-    updateTimer();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      endGame();
-    }
+  const my = token, fillEl = $('timer-fill');
+  tick = setInterval(() => {
+    if (my !== token || !T || T.phase !== 'play' || T.pauseAt) return;
+    const left = Math.max(0, CFG.dur - (Date.now() - T.start - T.paused) / 1000);
+    const pct = left / CFG.dur;
+    if (fillEl) { fillEl.style.strokeDashoffset = 163.4 * (1 - pct); fillEl.style.stroke = pct < .3 ? '#e57373' : pct < .6 ? '#ffb300' : 'var(--rose)'; }
+    setText('timer-num', Math.ceil(left));
+    if (left <= 0) { clearInterval(tick); endTurn(); }
   }, 100);
 }
 
-function updateTimer() {
-  const pct = Math.max(0, timeLeft / GAME_DURATION);
-  const circumference = 188.5;
-  const offset = circumference * (1 - pct);
-  const fill = document.getElementById('timer-fill');
-  fill.style.strokeDashoffset = offset;
-  fill.style.stroke = pct < .3 ? '#e57373' : pct < .6 ? '#ffb300' : 'var(--rose)';
-  document.getElementById('timer-num').textContent = Math.ceil(timeLeft);
+function showWord() {
+  T.word = nextWord();
+  const el = $('word');
+  if (el) { el.textContent = T.word.w; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
+  setText('word-cat', CATS[T.word.cat].label);
+  setText('word-hint', `${CATS[T.word.cat].hint} Kasih clue tanpa nyebut katanya!`);
 }
 
-function endGame() {
-  showScreen('s-result');
-  const total = correctCount + skipCount;
-  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
-  const playerName = currentPlayer === 'razan' ? 'Razan' : 'Dara';
-
-  document.getElementById('end-score').textContent = correctCount;
-  document.getElementById('rs-correct').textContent = correctCount;
-  document.getElementById('rs-skip').textContent = skipCount;
-  document.getElementById('rs-pct').textContent = pct + '%';
-
-  // Recap
-  const list = document.getElementById('recap-list');
-  list.innerHTML = wordHistory.map(w =>
-    `<div class="recap-word ${w.correct ? 'correct' : 'skipped'}">${w.correct ? '✓' : '✗'} ${w.word}</div>`
-  ).join('');
-
-  // Verdict
-  let icon, verdict;
-  if (correctCount >= 15) {
-    icon = '🏆';
-    verdict = `<strong>Luar biasa! ${correctCount} kata!</strong> ${playerName} dan pasangannya telepati banget — komunikasi kalian top tier! 🧠🤍`;
-    confetti(80);
-  } else if (correctCount >= 10) {
-    icon = '🎉';
-    verdict = `<strong>${correctCount} kata berhasil!</strong> Cukup solid — kalian nyambung! ${skipCount > 0 ? `${skipCount} kata dilewat, tapi overall bagus!` : 'Ga ada yang diskip — sempurna!'} 🤦`;
-    confetti(50);
-  } else if (correctCount >= 5) {
-    icon = '😄';
-    verdict = `<strong>${correctCount} kata.</strong> Lumayan! Clue-nya mungkin kurang jelas, atau ${playerName} terlalu lama mikir 😄 Main lagi biar makin nyambung!`;
+function answer(ok) {
+  if (!T || T.phase !== 'play' || !T.word) return;
+  T.list.push({ w: T.word.w, ok });
+  if (ok) {
+    T.ok++; T.streak++; T.best = Math.max(T.best, T.streak);
+    setText('g-ok', T.ok);
+    flash('green'); vib(50);
+    if ([3, 5, 8, 10].includes(T.streak)) toast(`🔥 ${T.streak}x bener beruntun!`);
   } else {
-    icon = '😅';
-    verdict = `<strong>${correctCount} kata.</strong> Hmm, kayaknya komunikasinya masih perlu latihan nih 😂 Atau kata-katanya terlalu susah? Main lagi!`;
+    T.no++; T.streak = 0;
+    setText('g-no', T.no);
+    flash('red'); vib([60, 30, 60]);
   }
-
-  document.getElementById('end-icon').textContent = icon;
-  document.getElementById('end-verdict').innerHTML = verdict;
+  setText('word-streak', T.streak >= 2 ? `🔥 streak ${T.streak}` : '');
+  showWord();
 }
 
-function swapPlayer() {
-  // Swap player and restart with same category
-  const nextPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
-  startGame(nextPlayer);
+let flashT = null;
+function flash(c) { const el = $('flash'); if (!el) return; el.className = c; clearTimeout(flashT); flashT = setTimeout(() => el.className = '', 280); }
+
+// Tilt: pakai gravitasi sumbu z — nggak peduli HP portrait/landscape
+window.addEventListener('devicemotion', e => {
+  if (!CFG.tilt || !T || T.phase !== 'play') return;
+  const a = e.accelerationIncludingGravity; if (!a || a.z == null) return;
+  const z = a.z * CFG.tiltDir, now = Date.now();
+  if (Math.abs(z) < 3.5) { T.armed = true; return; }
+  if (!T.armed || now - T.lastTilt < 700) return;
+  if (z < -6.5) { T.armed = false; T.lastTilt = now; answer(true); }      // nunduk (layar ke lantai)
+  else if (z > 6.5) { T.armed = false; T.lastTilt = now; answer(false); } // dongak (layar ke langit)
+});
+
+// Pause kalau app di-background
+document.addEventListener('visibilitychange', () => {
+  if (!T || T.phase !== 'play') return;
+  if (document.hidden) T.pauseAt = Date.now();
+  else if (T.pauseAt) { T.paused += Date.now() - T.pauseAt; T.pauseAt = null; }
+});
+
+function exitGame() {
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  stopTimers(); M = null; T = null;
+  showScreen('s-intro');
+}
+
+// ═════════ HASIL GILIRAN ═════════
+function endTurn() {
+  if (!T || T.phase !== 'play') return;
+  T.phase = 'end';
+  stopTimers();
+  vib([100, 50, 100, 50, 300]);
+  const g = T.g, c = other(g), tt = M.tot[g];
+  tt.ok += T.ok; tt.no += T.no; tt.best = Math.max(tt.best, T.best);
+  M.turns.push({ g, ok: T.ok, no: T.no });
+  M.turnIdx++;
+
+  const acc = T.ok + T.no ? Math.round(T.ok / (T.ok + T.no) * 100) : 0;
+  const skipped = T.list.filter(x => !x.ok);
+  const demand = T.ok < 5 && skipped.length
+    ? fill(draw('tl', TURN_DEMANDS_LOW), { g: NAMES[g], c: NAMES[c], w: esc(skipped[Math.floor(Math.random() * skipped.length)].w) })
+    : fill(draw('tg', TURN_DEMANDS_GOOD), { g: NAMES[g], c: NAMES[c] });
+  const done = M.turnIdx >= M.total;
+  const next = done ? null : curGuesser();
+  const icon = T.ok >= 12 ? '🏆' : T.ok >= 8 ? '🎉' : T.ok >= 4 ? '😄' : '😅';
+
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="badge">Giliran ${M.turnIdx} dari ${M.total} · ${NAMES[g]} nebak</span>
+    <span class="end-icon">${icon}</span>
+    <span class="big-score">${T.ok}</span>
+    <span class="big-label">kata ketebak dalam ${CFG.dur} detik</span>
+    <div class="stats">
+      <div class="stat"><span class="stat-v" style="color:var(--red)">${T.no}</span><span class="stat-l">Skip ✗</span></div>
+      <div class="stat"><span class="stat-v" style="color:var(--gold)">${acc}%</span><span class="stat-l">Akurasi</span></div>
+      <div class="stat"><span class="stat-v" style="color:#ff9f43">${T.best}</span><span class="stat-l">🔥 Streak</span></div>
+    </div>
+    <div class="recap"><span class="recap-title">Semua Kata</span><div class="recap-list">
+      ${T.list.map(x => `<span class="rw ${x.ok ? 'ok' : 'no'}">${x.ok ? '✓' : '✗'} ${esc(x.w)}</span>`).join('')}
+      ${T.word ? `<span class="rw last">⏰ ${esc(T.word.w)}</span>` : ''}
+    </div></div>
+    <div class="demand"><span class="demand-tag">${T.ok < 5 && skipped.length ? '😈 Tantangan Giliran' : '🎉 Bonus Giliran'}</span>
+      <p class="demand-text">${demand}</p></div>
+    <button class="btn-main gold" onclick="${done ? 'showFinal()' : 'countdown()'}">${done ? 'Lihat Hasil Akhir 🏆' : `Gantian → ${NAMES[next]} nebak 🔄`}</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`;
+  showScreen('s-result');
+  if (T.ok >= 8) confetti(40);
+}
+
+// ═════════ FINAL ═════════
+function showFinal() {
+  if (!M) return;
+  const r = M.tot.razan, d = M.tot.dara, tie = r.ok === d.ok;
+  const wp = r.ok > d.ok ? 'razan' : 'dara', w = NAMES[wp], l = NAMES[other(wp)];
+  const total = r.ok + d.ok;
+  let v = tie ? `<strong>Seri ${r.ok}-${d.ok}!</strong> Nebak & kasih clue kalian sama jagonya 🧠`
+    : `<strong>${w}</strong> menang ${Math.max(r.ok, d.ok)}-${Math.min(r.ok, d.ok)}! ${w} paling cepet nangkep clue — atau clue dari ${l} yang paling jelas? 😏`;
+  v += `<br>🗣️ Total ${total} kata ketebak berdua — ${total >= 30 ? 'telepati level dewa!' : total >= 18 ? 'komunikasi kalian solid!' : 'masih bisa makin nyambung, main lagi!'}`;
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="badge">Hasil Akhir</span>
+    <span class="end-icon">${tie ? '🤝' : '🏆'}</span>
+    <h2 class="end-title">${tie ? 'Seri!' : `${w} Menang!`}</h2>
+    <p class="end-sub">${CFG.turns} giliran per orang · ${CFG.dur} detik per giliran</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v">${r.ok}</span><span class="sc-sub">skip ${r.no} · 🔥${r.best}</span></div>
+      <span class="sc-vs">🤦</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v">${d.ok}</span><span class="sc-sub">skip ${d.no} · 🔥${d.best}</span></div>
+    </div>
+    <div class="verdict">${v}</div>
+    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn-main" onclick="startMatch(M ? other(M.first) : 'razan')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Kategori / Menu</button>`;
+  showScreen('s-result');
+  confetti(tie ? 30 : 60);
 }
 
 function confetti(n) {
   const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#fff'];
-  for (let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
+
+renderChips();
 </script>
 </body>
 </html>
