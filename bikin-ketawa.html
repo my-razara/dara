@@ -10,613 +10,596 @@
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
     --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --yellow:#ffd54f;--amber:#ffb300;--water:#64b4ff;--red:#e57373;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#06060f}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.5rem 1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#06060f,#1a0a00)}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:linear-gradient(160deg,#06060f,#1a0a00)}
-  #s-intro::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse at 30% 30%,rgba(255,180,50,.1),transparent 55%),
-    radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.1),transparent 55%);
-    pointer-events:none}
-  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:wiggle 1.5s ease-in-out infinite;position:relative;z-index:1}
+  .screen::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 30% 30%,rgba(255,180,50,.1),transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.1),transparent 55%)}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
   @keyframes wiggle{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title span{color:#ffd54f}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
+  @keyframes resin{from{transform:scale(.3) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
-  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
-  .rule-dot.y{background:#ffd54f}
+  /* INTRO */
+  .intro-icon{font-size:3.4rem;display:block;margin-bottom:.75rem;animation:wiggle 1.5s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.25rem}
+  .intro-title span{color:var(--yellow)}
+  .intro-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.55);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,var(--yellow),var(--amber));border-color:transparent;color:#1a0a00}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:var(--yellow)}
+  .rule-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.35rem;background:var(--yellow)}
   .rule-dot.r{background:var(--rose)}
-
-  /* Water mode toggle */
-  .water-toggle{display:flex;align-items:center;gap:.75rem;background:rgba(100,180,255,.08);border:1px solid rgba(100,180,255,.2);border-radius:14px;padding:.75rem 1rem;width:100%;max-width:380px;margin-bottom:1.25rem;cursor:pointer;position:relative;z-index:1;transition:all .15s}
-  .water-toggle:active{background:rgba(100,180,255,.15)}
-  .water-toggle.on{background:rgba(100,180,255,.15);border-color:rgba(100,180,255,.4)}
+  .water-toggle{display:flex;align-items:center;gap:.75rem;background:rgba(100,180,255,.08);border:1px solid rgba(100,180,255,.2);border-radius:14px;padding:.75rem 1rem;width:100%;margin-bottom:1rem;cursor:pointer;transition:all .15s;text-align:left}
+  .water-toggle.on{background:rgba(100,180,255,.15);border-color:rgba(100,180,255,.45)}
   .water-icon{font-size:1.5rem;flex-shrink:0}
-  .water-info{flex:1;text-align:left}
+  .water-info{flex:1}
   .water-title{font-size:13px;font-weight:600;color:#fff;display:block}
   .water-sub{font-size:10.5px;color:rgba(255,255,255,.4);margin-top:.1rem;display:block}
   .water-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:transparent;transition:all .2s;flex-shrink:0}
-  .water-toggle.on .water-check{background:#64b4ff;border-color:#64b4ff;color:#fff}
+  .water-toggle.on .water-check{background:var(--water);border-color:var(--water);color:#fff}
+  .btn-main{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--yellow),var(--amber));color:#1a0a00;box-shadow:0 4px 18px rgba(255,213,79,.35);transition:transform .15s}
+  .btn-main:active{transform:scale(.97)}
+  .btn-main.water{background:linear-gradient(135deg,var(--water),#2196f3);color:#fff;box-shadow:0 4px 18px rgba(100,180,255,.35)}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
 
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#ffd54f,#ffb300);color:#1a0a00;box-shadow:0 4px 18px rgba(255,213,79,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97)}
-
-  /* ── PICK ── */
-  #s-pick{background:linear-gradient(160deg,#06060f,#1a0a00);padding:1.5rem}
-  #s-pick::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,213,79,.08),transparent 60%);pointer-events:none}
-  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
-  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
-  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;display:flex;align-items:center;gap:.85rem}
+  /* PICK */
+  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:rgba(255,255,255,.45);margin:.3rem auto 1.2rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;text-align:left}
   .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.09)}
   .pick-icon{font-size:2rem;flex-shrink:0}
   .pick-name{font-size:14px;font-weight:700;color:#fff;display:block}
   .pick-sub2{font-size:11px;color:rgba(255,255,255,.4);margin-top:.1rem;display:block}
 
-  /* ── WATER SCREEN ── */
-  #s-water{background:#001a2e;padding:1.5rem}
-  .water-big{font-size:5rem;display:block;margin-bottom:1rem;animation:bounce 1s ease-in-out infinite}
-  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-  .water-msg{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.35rem}
-  .water-sub2{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.5rem}
-  .water-ready-btn{width:100%;max-width:320px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#64b4ff,#2196f3);color:#fff;box-shadow:0 4px 18px rgba(100,180,255,.35);transition:all .2s}
-  .water-ready-btn:active{transform:scale(.97)}
+  /* PRE-ROUND */
+  .round-badge{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block}
+  .round-dots{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:.9rem}
+  .rd{width:16px;height:4px;border-radius:2px;background:rgba(255,255,255,.1)}
+  .rd.done{background:var(--yellow)}.rd.cur{background:#fff}
+  .role-card{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.9rem}
+  .rc{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.9rem .6rem}
+  .rc-face{font-size:2.2rem;display:block;margin-bottom:.2rem}
+  .rc-name{font-size:13px;font-weight:700;color:#fff;display:block}
+  .rc-role{font-size:10.5px;font-weight:600;display:block;margin-top:.1rem}
+  .rc-role.serius{color:#7eb3f5}.rc-role.komedian{color:var(--yellow)}
+  .water-note{background:rgba(100,180,255,.1);border:1px solid rgba(100,180,255,.3);border-radius:14px;padding:.7rem .9rem;font-size:12px;color:#cfe6ff;line-height:1.55;margin-bottom:.9rem;width:100%;display:none}
+  .water-note.show{display:block}
+  .pre-score{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:.9rem}
+  .pre-score b{color:var(--yellow)}
 
-  /* ── COUNTDOWN ── */
-  #s-countdown{background:#06060f}
-  .cd-big{font-size:8rem;font-weight:700;color:#fff;display:block;line-height:1;animation:cdpop .7s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes cdpop{from{transform:scale(.2) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+  /* COUNTDOWN */
+  #s-countdown{justify-content:center}
+  .cd-big{font-size:8rem;font-weight:700;color:#fff;display:block;line-height:1;position:relative;z-index:1}
+  .cd-big.anim{animation:resin .7s cubic-bezier(.34,1.5,.64,1)}
+  .cd-sub{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem;position:relative;z-index:1}
 
-  /* ── GAME ── */
+  /* GAME */
   #s-game{padding:0;background:#06060f}
+  #s-game::before{display:none}
   .game-wrap{position:fixed;inset:0;display:flex;flex-direction:column}
-
-  /* Score bar */
-  .score-bar{position:fixed;top:0;left:0;right:0;z-index:30;padding:.45rem 1rem;display:flex;justify-content:space-between;align-items:center;background:rgba(6,6,15,.85);backdrop-filter:blur(6px)}
-  .sb-player{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em}
-  .sb-score{font-size:1.3rem;font-weight:700;color:#ffd54f}
-  .sb-round{font-size:10px;color:rgba(255,255,255,.3);text-align:center;line-height:1.5}
-
-  /* Timer bar */
-  .timer-bar-wrap{position:fixed;top:44px;left:0;right:0;z-index:30;height:4px;background:rgba(255,255,255,.06)}
-  .timer-bar-fill{height:100%;background:#ffd54f;transition:width .1s linear,background .3s}
-
-  /* Instruction card - center */
-  .instr-center{position:fixed;top:48px;left:0;right:0;z-index:25;padding:.5rem .75rem;text-align:center;pointer-events:none}
-  .instr-card{background:rgba(255,213,79,.1);border:1px solid rgba(255,213,79,.25);border-radius:12px;padding:.6rem 1rem;display:inline-block;max-width:340px}
-  .instr-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,213,79,.6);display:block;margin-bottom:.2rem}
-  .instr-text{font-size:clamp(11px,3vw,13px);font-weight:600;color:#ffd54f;line-height:1.4}
-  .instr-text.animate{animation:instrin .3s cubic-bezier(.34,1.2,.64,1)}
-  @keyframes instrin{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
-
-  /* Split halves */
-  .half{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .half.top{transform:scaleY(-1)}
-  .half-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;padding:1rem;width:100%;position:relative;z-index:5}
-  .half.top .half-inner{transform:scaleY(-1)}
-
-  .player-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3)}
-  .player-role{font-size:12px;font-weight:700;padding:.28rem .85rem;border-radius:50px;display:inline-block}
+  .half{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:0}
+  .half.top .half-inner{transform:rotate(180deg)} /* Dara di seberang */
+  .half-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1rem 3rem;width:100%;max-width:380px}
+  .half-head{display:flex;align-items:center;gap:.45rem}
+  .player-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.4)}
+  .player-score{font-size:11px;font-weight:700;color:var(--yellow)}
+  .player-streak{font-size:10px;font-weight:700;color:#ff9f43}
+  .player-role{font-size:11.5px;font-weight:700;padding:.25rem .8rem;border-radius:50px;display:inline-block}
   .player-role.serius{background:rgba(100,150,255,.15);color:#7eb3f5;border:1px solid rgba(100,150,255,.25)}
-  .player-role.komedian{background:rgba(255,213,79,.15);color:#ffd54f;border:1px solid rgba(255,213,79,.25)}
+  .player-role.komedian{background:rgba(255,213,79,.15);color:var(--yellow);border:1px solid rgba(255,213,79,.25)}
+  .face-emoji{font-size:2.8rem;display:block;line-height:1}
+  .face-emoji.kom{animation:wiggle 1s ease-in-out infinite}
+  .instr-card{background:rgba(255,213,79,.1);border:1px solid rgba(255,213,79,.3);border-radius:14px;padding:.6rem .9rem;width:100%;max-width:300px}
+  .instr-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,213,79,.7);display:flex;justify-content:space-between;align-items:center;margin-bottom:.2rem}
+  .reroll{background:none;border:1px solid rgba(255,213,79,.35);color:rgba(255,213,79,.85);font-size:9.5px;border-radius:50px;padding:.1rem .5rem;cursor:pointer;letter-spacing:0;text-transform:none}
+  .reroll:disabled{opacity:.3}
+  .instr-text{font-size:clamp(12px,3.5vw,14px);font-weight:600;color:var(--yellow);line-height:1.4}
+  .instr-text.animate{animation:resin .35s cubic-bezier(.34,1.2,.64,1)}
+  .serius-note{font-size:12px;color:rgba(255,255,255,.45);line-height:1.5;max-width:260px}
+  .water-indicator{font-size:10px;color:rgba(100,180,255,.8);background:rgba(100,180,255,.08);border:1px solid rgba(100,180,255,.25);border-radius:50px;padding:.2rem .65rem;display:none}
+  .water-indicator.show{display:inline-block}
+  .lose-btn{padding:.7rem 1.4rem;border-radius:50px;border:1.5px solid rgba(229,115,115,.35);background:rgba(229,115,115,.08);color:rgba(229,115,115,.85);font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s}
+  .lose-btn:active{background:rgba(229,115,115,.2);transform:scale(.95)}
+  .claim-btn{padding:.55rem 1.1rem;border-radius:50px;border:1.5px solid rgba(255,213,79,.35);background:rgba(255,213,79,.08);color:var(--yellow);font-size:11.5px;font-weight:700;cursor:pointer}
+  .claim-btn:active{transform:scale(.95)}
+  .mirror-line{height:2px;background:linear-gradient(to right,transparent,rgba(255,213,79,.25),transparent);flex-shrink:0}
+  .timer-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:30;pointer-events:none;background:rgba(6,6,15,.85);border:2px solid rgba(255,213,79,.3);border-radius:50%;width:70px;height:70px;display:flex;align-items:center;justify-content:center}
+  .timer-num{font-size:1.6rem;font-weight:700;color:var(--yellow);line-height:1}
+  .timer-center.danger{border-color:rgba(229,115,115,.6)}
+  .timer-center.danger .timer-num{color:var(--red)}
+  .exit-float{position:fixed;right:.75rem;top:50%;transform:translateY(-50%);z-index:31;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);font-size:10px;border-radius:50px;padding:.2rem .55rem;cursor:pointer}
+  .round-float{position:fixed;left:.75rem;top:50%;transform:translateY(-50%);z-index:31;font-size:10px;color:rgba(255,255,255,.4)}
 
-  .face-emoji{font-size:3.5rem;display:block;line-height:1}
-  .face-emoji.serius-face{animation:serflicker 4s ease-in-out infinite}
-  @keyframes serflicker{0%,90%,100%{transform:none}92%,96%{transform:scale(.95)}}
-  .face-emoji.kom-face{animation:wiggle 1s ease-in-out infinite}
-
-  .lose-btn{padding:.75rem 1.5rem;border-radius:50px;border:1.5px solid rgba(229,115,115,.35);background:rgba(229,115,115,.08);color:rgba(229,115,115,.7);font-size:13px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s}
-  .lose-btn:active{background:rgba(229,115,115,.2);transform:scale(.95);color:#e57373}
-
-  .water-indicator{font-size:10px;color:rgba(100,180,255,.6);background:rgba(100,180,255,.08);border:1px solid rgba(100,180,255,.2);border-radius:50px;padding:.2rem .65rem;display:inline-block}
-
-  /* Mirror line */
-  .mirror-line{height:2px;background:linear-gradient(to right,transparent,rgba(255,213,79,.2),transparent);flex-shrink:0;position:relative;z-index:10}
-  .ml-icon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1rem;background:#06060f;padding:0 .4rem}
-
-  /* Timer num overlay */
-  .timer-num-center{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:28;pointer-events:none}
-  .timer-num{font-size:2.2rem;font-weight:700;color:rgba(255,255,255,.15);line-height:1;transition:color .3s}
-  .timer-num.danger{color:rgba(229,115,115,.4)}
-
-  /* ── ROUND RESULT ── */
-  #s-round{background:linear-gradient(160deg,#06060f,#1a0a00);padding:1.5rem;text-align:center}
-  .round-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:resin .5s cubic-bezier(.34,1.5,.64,1);position:relative;z-index:1}
-  @keyframes resin{from{transform:scale(.3) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .round-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
-  .round-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.25rem;position:relative;z-index:1}
-  .score-display{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1.25rem;position:relative;z-index:1}
-  .sd-item{text-align:center}
-  .sd-name{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.2rem}
-  .sd-score{font-size:2.5rem;font-weight:700;color:#ffd54f}
-  .sd-vs{color:rgba(255,255,255,.2);font-size:1.2rem}
-  .pun-card{background:rgba(255,213,79,.08);border:1px solid rgba(255,213,79,.2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.1rem;width:100%;max-width:360px;position:relative;z-index:1}
-  .pun-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,213,79,.6);display:block;margin-bottom:.4rem}
+  /* ROUND RESULT & FINAL */
+  .res-icon{font-size:3.6rem;display:block;margin-bottom:.6rem;animation:resin .5s cubic-bezier(.34,1.5,.64,1)}
+  .res-title{font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+  .res-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.65;margin:.3rem auto 1rem}
+  .score-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%}
+  .sc-nm{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .sc-v{font-size:2rem;font-weight:700;color:var(--yellow);display:block;line-height:1.1}
+  .sc-vs{color:rgba(255,255,255,.25)}
+  .pun-card{background:rgba(255,213,79,.08);border:1px solid rgba(255,213,79,.25);border-radius:16px;padding:.9rem 1.1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .pun-card.gold{background:linear-gradient(135deg,rgba(255,213,79,.16),rgba(193,122,111,.12));border-color:rgba(255,213,79,.45)}
+  .pun-label{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,213,79,.8);font-weight:700;display:block;margin-bottom:.35rem}
   .pun-text{font-size:14px;font-weight:600;color:#fff;line-height:1.55}
-  .next-round-btn{width:100%;max-width:360px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#ffd54f,#ffb300);color:#1a0a00;box-shadow:0 4px 16px rgba(255,213,79,.35);transition:all .15s;position:relative;z-index:1}
-  .next-round-btn:active{transform:scale(.97)}
+  .pun-text b{color:var(--yellow)}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;margin-bottom:.75rem}
+  .stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.55rem .3rem}
+  .stat-v{font-size:1rem;font-weight:700;color:#fff;display:block}
+  .stat-l{font-size:9.5px;color:rgba(255,255,255,.4);line-height:1.3;display:block}
+  .end-verdict{background:rgba(255,213,79,.07);border:1px solid rgba(255,213,79,.18);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .end-verdict strong{color:var(--yellow)}
 
-  /* ── RESULT ── */
-  #s-result{background:linear-gradient(160deg,#06060f,#1a0a00)}
-  #s-result::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,213,79,.12),transparent 60%);pointer-events:none}
-  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:wiggle 1.5s ease-in-out infinite;position:relative;z-index:1}
-  .end-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
-  .end-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.35rem auto 1.1rem;position:relative;z-index:1}
-  .end-score-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.1rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%;max-width:360px;position:relative;z-index:1}
-  .es-av{font-size:1.3rem;display:block;margin-bottom:.15rem}
-  .es-nm{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
-  .es-sc{font-size:2rem;font-weight:700;color:#ffd54f;display:block}
-  .es-vs{color:rgba(255,255,255,.2)}
-  .end-verdict{background:rgba(255,213,79,.07);border:1px solid rgba(255,213,79,.18);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.8);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:360px;position:relative;z-index:1}
-  .end-verdict strong{color:#ffd54f}
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
-  .end-btn-p{background:linear-gradient(135deg,#ffd54f,#ffb300);color:#1a0a00}
-  .end-btn-p:active{transform:scale(.97)}
-  .end-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-
-  /* Confetti */
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(255,159,67,.95);color:#1a0d1a;font-size:12px;font-weight:700;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  @media(max-height:640px){.face-emoji{font-size:2rem}.half-inner{gap:.35rem}}
 </style>
 </head>
 <body>
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">😂</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Bikin <span>Ketawa</span></h1>
-  <p class="intro-sub">Satu orang harus serius — lawan bebas lakuin apapun buat bikin dia ketawa! Yang paling banyak tahan menang 😈</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot y"></span>😐 <b style="color:#ffd54f">Serius</b> — harus muka datar, ga boleh ketawa sama sekali</div>
-    <div class="rule"><span class="rule-dot y"></span>😂 <b style="color:#ffd54f">Komedian</b> — dapat instruksi absurd, lakuin seabsurd mungkin!</div>
-    <div class="rule"><span class="rule-dot r"></span>Yang Serius ketawa → tap "Aku Ketawa!" — kena poin negatif</div>
-    <div class="rule"><span class="rule-dot r"></span>10 ronde, gantian peran tiap ronde</div>
-  </div>
+  <div class="screen-inner">
+    <span class="intro-icon">😂</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Bikin <span>Ketawa</span></h1>
+    <p class="intro-sub">Satu harus serius — lawan bebas lakuin instruksi absurd buat bikin dia ketawa! Taruh HP di tengah, duduk hadap-hadapan 😈</p>
 
-  <div class="water-toggle" id="water-toggle" onclick="toggleWater()">
-    <span class="water-icon">💧</span>
-    <div class="water-info">
-      <span class="water-title">Water Mode 💧</span>
-      <span class="water-sub">Yang Serius minum air dulu — dijamin makin chaos!</span>
+    <div class="panel">
+      <span class="panel-title">Jumlah Ronde</span>
+      <div class="pills" id="round-pills">
+        <button class="pill" data-n="6">6<small>singkat</small></button>
+        <button class="pill on" data-n="10">10<small>normal</small></button>
+        <button class="pill" data-n="14">14<small>panjang</small></button>
+      </div>
     </div>
-    <div class="water-check" id="water-check">✓</div>
-  </div>
+    <div class="panel">
+      <span class="panel-title">Durasi per Ronde</span>
+      <div class="pills" id="dur-pills">
+        <button class="pill" data-n="20">20s<small>cepat</small></button>
+        <button class="pill on" data-n="30">30s<small>normal</small></button>
+        <button class="pill" data-n="45">45s<small>tahan banting</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>😐 <b>Serius</b> — muka datar, dilarang senyum apalagi ketawa</div>
+      <div class="rule"><span class="rule-dot"></span>😂 <b>Komedian</b> — instruksi muncul di sisimu, lakuin seabsurd mungkin! (bisa ganti 1x)</div>
+      <div class="rule"><span class="rule-dot r"></span>Serius ketawa → Komedian <b>+1</b> & Serius kena hukuman</div>
+      <div class="rule"><span class="rule-dot r"></span>Serius bertahan → Serius <b>+1</b> & Komedian kena hukuman garing 😆</div>
+      <div class="rule"><span class="rule-dot"></span>Gantian peran tiap ronde</div>
+    </div>
 
-  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 😂</button>
+    <div class="water-toggle" id="water-toggle" onclick="toggleWater()">
+      <span class="water-icon">💧</span>
+      <div class="water-info"><span class="water-title">Water Mode</span><span class="water-sub">Yang Serius isi mulut pakai air — dijamin makin chaos!</span></div>
+      <div class="water-check">✓</div>
+    </div>
+
+    <button class="btn-main" onclick="showScreen('s-pick')">Mulai! 😂</button>
+  </div>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <span style="font-size:2rem;display:block;margin-bottom:1rem;position:relative;z-index:1">😂</span>
-  <p class="pick-title">Siapa yang Serius duluan?</p>
-  <p class="pick-sub">Yang Serius harus nahan ketawa — Komedian yang lakuin instruksi absurd!</p>
-  <div class="pick-btns">
-    <div class="pick-btn" onclick="startGame('razan')">
-      <span class="pick-icon">🧑</span>
-      <div>
-        <span class="pick-name">Razan yang Serius</span>
-        <span class="pick-sub2">Razan harus nahan ketawa — Dara jadi Komedian</span>
-      </div>
+  <div class="screen-inner">
+    <span style="font-size:2rem;display:block;margin-bottom:.8rem">😂</span>
+    <p class="pick-title">Siapa yang Serius duluan?</p>
+    <p class="pick-sub">Razan pegang sisi bawah, Dara sisi atas. Instruksi cuma muncul di sisi Komedian 🤫</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="startGame('razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan yang Serius</span><span class="pick-sub2">Dara jadi Komedian duluan</span></div></div>
+      <div class="pick-btn" onclick="startGame('dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara yang Serius</span><span class="pick-sub2">Razan jadi Komedian duluan</span></div></div>
     </div>
-    <div class="pick-btn" onclick="startGame('dara')">
-      <span class="pick-icon">👧</span>
-      <div>
-        <span class="pick-name">Dara yang Serius</span>
-        <span class="pick-sub2">Dara harus nahan ketawa — Razan jadi Komedian</span>
-      </div>
-    </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
-<!-- WATER SCREEN -->
-<div id="s-water" class="screen">
-  <span class="water-big">💧</span>
-  <p class="water-msg" id="water-player-msg">Razan, minum air dulu!</p>
-  <p class="water-sub2">Isi mulutmu dengan air — tahan sampai ronde selesai. Kalau ketawa... basah deh! 😂</p>
-  <button class="water-ready-btn" onclick="afterWater()">Udah minum! Siap 😤</button>
+<!-- PRE-ROUND -->
+<div id="s-pre" class="screen">
+  <div class="screen-inner">
+    <span class="round-badge" id="pre-badge">Ronde 1 dari 10</span>
+    <div class="round-dots" id="pre-dots"></div>
+    <p class="pre-score" id="pre-score"></p>
+    <div class="role-card">
+      <div class="rc"><span class="rc-face" id="pre-face-s">😐</span><span class="rc-name" id="pre-name-s">Razan</span><span class="rc-role serius">Serius</span></div>
+      <div class="rc"><span class="rc-face">😂</span><span class="rc-name" id="pre-name-k">Dara</span><span class="rc-role komedian">Komedian</span></div>
+    </div>
+    <div class="water-note" id="water-note">💧 <b id="water-name">Razan</b>, isi mulut pakai air dulu — tahan sampai ronde selesai. Kalau ketawa... basah deh! 😂</div>
+    <button class="btn-main" id="pre-btn" onclick="startCountdown()">Siap! 😤</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar ke menu</button>
+  </div>
 </div>
 
 <!-- COUNTDOWN -->
 <div id="s-countdown" class="screen">
   <span class="cd-big" id="cd-num">3</span>
-  <span class="cd-sub" id="cd-sub">Bersiap...</span>
+  <span class="cd-sub" id="cd-sub">Siap-siap...</span>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <!-- Score bar -->
-  <div class="score-bar">
-    <div>
-      <div class="sb-player">🧑 Razan</div>
-      <div class="sb-score" id="score-r">0</div>
-    </div>
-    <div class="sb-round">
-      <div id="round-label">Ronde 1/10</div>
-      <div id="timer-label" style="font-size:9px;margin-top:1px">⏱ 30 detik</div>
-    </div>
-    <div style="text-align:right">
-      <div class="sb-player">Dara 👧</div>
-      <div class="sb-score" id="score-d">0</div>
-    </div>
-  </div>
-
-  <!-- Timer bar -->
-  <div class="timer-bar-wrap">
-    <div class="timer-bar-fill" id="timer-bar" style="width:100%"></div>
-  </div>
-
-  <!-- Instruction -->
-  <div class="instr-center">
-    <div class="instr-card">
-      <span class="instr-label">Instruksi Komedian 🎭</span>
-      <p class="instr-text" id="instr-text">...</p>
-    </div>
-  </div>
-
-  <!-- Timer num -->
-  <div class="timer-num-center">
-    <span class="timer-num" id="timer-num">30</span>
-  </div>
-
-  <div class="game-wrap" style="padding-top:88px">
-    <!-- Top = Dara (mirrored) -->
+  <div class="timer-center" id="timer-center"><span class="timer-num" id="timer-num">30</span></div>
+  <span class="round-float" id="round-float">R1</span>
+  <button class="exit-float" onclick="exitGame()">✕</button>
+  <div class="game-wrap">
     <div class="half top">
-      <div class="half-inner">
-        <span class="player-label" id="top-label">👧 Dara</span>
-        <span class="player-role" id="top-role">😂 Komedian</span>
-        <span class="face-emoji" id="top-face">😂</span>
-        <span class="water-indicator" id="top-water" style="display:none">💧 Air di mulut!</span>
-        <button class="lose-btn" id="top-lose-btn" onclick="loseRound('top')">😂 Aku Ketawa!</button>
-      </div>
+      <div class="half-inner" id="side-dara"></div>
     </div>
-
-    <div class="mirror-line"><span class="ml-icon">😐</span></div>
-
-    <!-- Bottom = Razan -->
+    <div class="mirror-line"></div>
     <div class="half bottom">
-      <div class="half-inner">
-        <span class="player-label" id="bot-label">🧑 Razan</span>
-        <span class="player-role" id="bot-role">😐 Serius</span>
-        <span class="face-emoji" id="bot-face">😐</span>
-        <span class="water-indicator" id="bot-water" style="display:none">💧 Air di mulut!</span>
-        <button class="lose-btn" id="bot-lose-btn" onclick="loseRound('bot')">😂 Aku Ketawa!</button>
-      </div>
+      <div class="half-inner" id="side-razan"></div>
     </div>
   </div>
 </div>
 
 <!-- ROUND RESULT -->
 <div id="s-round" class="screen">
-  <span class="round-icon" id="round-icon">😂</span>
-  <h2 class="round-title" id="round-title">...</h2>
-  <p class="round-sub" id="round-sub">...</p>
-  <div class="score-display">
-    <div class="sd-item"><span class="sd-name">🧑 Razan</span><span class="sd-score" id="rd-r">0</span></div>
-    <span class="sd-vs">😂</span>
-    <div class="sd-item"><span class="sd-name">Dara 👧</span><span class="sd-score" id="rd-d">0</span></div>
+  <div class="screen-inner">
+    <span class="round-badge" id="rr-badge">Hasil Ronde 1</span>
+    <span class="res-icon" id="rr-icon">😂</span>
+    <h2 class="res-title" id="rr-title">...</h2>
+    <p class="res-sub" id="rr-sub">...</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v" id="rr-r">0</span></div>
+      <span class="sc-vs">😂</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v" id="rr-d">0</span></div>
+    </div>
+    <div class="pun-card">
+      <span class="pun-label" id="rr-pun-label">⚡ Hukuman</span>
+      <p class="pun-text" id="rr-pun">...</p>
+    </div>
+    <button class="btn-main" id="rr-next" onclick="nextRound()">Ronde Berikutnya →</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>
   </div>
-  <div class="pun-card" id="pun-card" style="display:none">
-    <span class="pun-label">⚡ Hukuman Tambahan</span>
-    <p class="pun-text" id="pun-text">...</p>
-  </div>
-  <button class="next-round-btn" id="next-round-btn" onclick="nextRound()">Ronde Berikutnya →</button>
 </div>
 
-<!-- RESULT -->
+<!-- FINAL -->
 <div id="s-result" class="screen">
-  <span class="end-icon" id="end-icon">🏆</span>
-  <h2 class="end-title" id="end-title">...</h2>
-  <p class="end-sub" id="end-sub">...</p>
-  <div class="end-score-card">
-    <div><span class="es-av">🧑</span><span class="es-nm">Razan</span><span class="es-sc" id="end-r">0</span></div>
-    <span class="es-vs">😂</span>
-    <div><span class="es-av">👧</span><span class="es-nm">Dara</span><span class="es-sc" id="end-d">0</span></div>
-  </div>
-  <div class="end-verdict" id="end-verdict">...</div>
-  <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  <div class="screen-inner">
+    <span class="res-icon" id="fn-icon">🏆</span>
+    <h2 class="res-title" id="fn-title">...</h2>
+    <p class="res-sub" id="fn-sub">...</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v" id="fn-r">0</span></div>
+      <span class="sc-vs">😂</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v" id="fn-d">0</span></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-v" id="fn-best-r">0</span><span class="stat-l">🔥 Streak terbaik Razan</span></div>
+      <div class="stat"><span class="stat-v" id="fn-fast">—</span><span class="stat-l">⚡ Ketawa tercepat</span></div>
+      <div class="stat"><span class="stat-v" id="fn-best-d">0</span><span class="stat-l">🔥 Streak terbaik Dara</span></div>
+    </div>
+    <div class="end-verdict" id="fn-verdict">...</div>
+    <div class="pun-card gold">
+      <span class="pun-label" id="fn-tag">👑 Tantangan Final</span>
+      <p class="pun-text" id="fn-demand">...</p>
+    </div>
+    <button class="btn-main" onclick="playAgain()">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Menu</button>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+// ═════════ DATA ═════════
 const INSTRUCTIONS = [
   'Tiru suara kuda yang lagi patah hati!',
   'Bilang "aku cinta kamu" dengan nada opera dramatis!',
-  'Goyang kepala kiri kanan kayak kipas angin!',
+  'Goyang kepala kiri-kanan kayak kipas angin!',
   'Nyanyi lagu anak-anak dengan suara sedalam mungkin!',
-  'Tiru cara robot jalan sambil bilang nama lawan!',
-  'Buat muka paling lebay yang bisa kamu lakuin!',
+  'Jalan kayak robot sambil nyebut nama {s}!',
+  'Bikin muka paling lebay yang kamu bisa!',
   'Tiru suara kucing yang lagi nangis!',
-  'Bilang "halo" dengan 5 aksen berbeda secepat mungkin!',
+  'Bilang "halo" pakai 5 aksen berbeda secepat mungkin!',
   'Joget sambil pura-pura nangis terisak-isak!',
-  'Tiru cara lawan ngomong sehari-hari — persis!',
-  'Cerita sesuatu dengan nada seperti film horor!',
-  'Tiru suara balon kempes perlahan!',
-  'Nyanyi lagu ulang tahun dengan gaya rapper!',
-  'Pura-pura jadi reporter berita breaking news — dramatis!',
-  'Tiru cara nenek-nenek jalan sambil ngomel!',
-  'Bilang alphabet dari Z ke A secepat mungkin!',
-  'Buat suara mobil mogok sambil goyang-goyang badan!',
-  'Tiru cara bayi nangis minta susu!',
-  'Nyanyi "twinkle twinkle" dengan gaya metal!',
-  'Pura-pura jadi penyiar radio dengan suara paling cempreng!',
-  'Tiru cara pinguin jalan sambil bilang nama diri sendiri!',
-  'Cerita mimpi indah dengan ekspresi paling lebay!',
-  'Buat suara kentut dengan mulut — berbagai variasi!',
-  'Tiru suara harimau tapi dengan ukuran semut!',
-  'Joget Poco-Poco tapi dengan gerakan paling aneh!',
+  'Tiru cara {s} ngomong sehari-hari — persis!',
+  'Ceritain harimu pakai nada film horor!',
+  'Tiru suara balon kempes pelan-pelan!',
+  'Nyanyi lagu ulang tahun gaya rapper!',
+  'Jadi reporter breaking news — sedramatis mungkin!',
+  'Tiru nenek-nenek jalan sambil ngomel!',
+  'Sebut alfabet dari Z ke A secepat mungkin!',
+  'Bikin suara mobil mogok sambil goyang-goyang badan!',
+  'Tiru bayi nangis minta susu!',
+  'Nyanyi "Twinkle Twinkle" gaya metal!',
+  'Jadi penyiar radio dengan suara paling cempreng!',
+  'Jalan kayak pinguin sambil nyebut nama sendiri!',
+  'Ceritain mimpi indah dengan ekspresi paling lebay!',
+  'Bikin suara kentut pakai mulut — berbagai variasi!',
+  'Tiru suara harimau tapi seukuran semut!',
+  'Joget Poco-Poco dengan gerakan paling aneh!',
+  'Gombalin {s} pakai suara kakek-kakek!',
+  'Jadi sales yang lagi "jualan" {s} ke pembeli!',
+  'Tiru ekspresi {s} pas lagi bete!',
+  'Nyanyiin nama {s} pakai nada dangdut!',
+  'Catwalk ala fashion show — paling aneh sedunia!',
+  'Jadi chef TV yang masak mie instan dengan super dramatis!',
+  'Tiru ayam berkokok versi sedih!',
+  'Pidato presiden tentang pentingnya rebahan!',
+  'Jadi patung — tiap 3 detik ganti pose!',
+  'Ngomong pakai suara kecil kayak habis hirup helium!',
+  'Bacain "iklan obat" dengan kecepatan super!',
+  'Adegan jatuh slow motion!',
+  'Jadi MC kondangan yang manggil tamu-tamu fiktif!',
+  'Tunjukin 5 emosi berbeda dalam 10 detik!',
+  'Tarian ulat — di lantai kalau bisa!',
+];
+const PUN_LAUGH = [
+  'Kasih ciuman di pipi <b>{w}</b> sekarang 😘',
+  'Peluk <b>{w}</b> 20 detik tanpa boleh lepas 🤗',
+  'Bilang 3 hal yang kamu suka dari <b>{w}</b> 🥺',
+  '<b>{w}</b> boleh cubit pelan pipi kamu sekali 😤',
+  'Nyanyiin lagu sayang ke <b>{w}</b> 10 detik 🎤',
+  '<b>{w}</b> bebas minta 1 hal kecil sekarang 😏',
+  'Tiru lagi instruksi komedian tadi — sekarang giliranmu 😂',
+];
+const PUN_GARING = [
+  '<b>{k}</b> garing! Bilang "maaf aku garing" pakai nada paling manja 🥺',
+  '<b>{k}</b> kasih <b>{s}</b> tepuk tangan buat muka batunya 👏',
+  '<b>{k}</b> ceritain 1 jokes bapak-bapak — kalau <b>{s}</b> nggak ketawa, ulang 😆',
+  '<b>{k}</b> pijitin bahu <b>{s}</b> 30 detik sebagai penghargaan 💆',
+  '<b>{k}</b> ngaku kalah dengan gaya MC lomba 17-an 🎤',
+];
+const WATER_EXTRA = ' 💧 Plus: lap air yang nyembur ya!';
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> es krim minggu ini 🍦',
+  '<b>{w}</b> boleh minta <b>{l}</b> nurutin 1 permintaan kecil hari ini 😏',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+  '<b>{w}</b> pilih 1 instruksi tadi — <b>{l}</b> harus lakuin lagi sambil direkam 📹',
+  '<b>{l}</b> bikin video 15 detik lucu khusus buat <b>{w}</b> 🎬',
+];
+const FINAL_TIE = [
+  'Seri! Lakuin instruksi favorit masing-masing barengan 😂',
+  'Seri! Foto berdua pakai muka paling lebay 📸',
+  'Seri! Pelukan 10 detik — sama-sama kocak 🤗',
 ];
 
-const PUNISHMENTS = [
-  'Kasih ciuman di pipi lawan sekarang! 😘',
-  'Peluk lawan 20 detik tanpa boleh lepas! 🤗',
-  'Bilang 3 hal yang kamu suka dari lawan! 🥺',
-  'Lawan boleh cubit pipi kamu sekali! 😤',
-  'Nyanyiin lagu sayang ke lawan 10 detik! 🎤',
-  'Lawan bebas minta 1 hal kecil sekarang! 😏',
-];
-
-const TOTAL_ROUNDS = 10;
-const ROUND_DURATION = 30;
-
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+let CFG = { rounds:10, dur:30 };
 let waterMode = false;
-let seriousPlayer = 'razan'; // razan or dara
-let currentRound = 1;
-let scores = { razan: 0, dara: 0 };
-let timeLeft = ROUND_DURATION;
-let timerInterval = null;
-let roundActive = false;
-let usedInstructions = [];
+let G = null;
+let tick = null, cdTimer = null, token = 0;
+const decks = {};
 
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(key, pool) { if (!decks[key] || !decks[key].length) decks[key] = shuffle(pool.map((_, i) => i)); return pool[decks[key].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
 }
-
-function toggleWater() {
-  waterMode = !waterMode;
-  const toggle = document.getElementById('water-toggle');
-  toggle.classList.toggle('on', waterMode);
+let toastT = null;
+function toast(msg) { const t = $('toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
+function stopAll() { token++; clearInterval(tick); clearTimeout(cdTimer); tick = null; }
+function bindPills(id, key) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = parseInt(p.dataset.n) || CFG[key];
+  }));
 }
+bindPills('round-pills', 'rounds');
+bindPills('dur-pills', 'dur');
+function toggleWater() { waterMode = !waterMode; const t = $('water-toggle'); if (t) t.classList.toggle('on', waterMode); }
 
+// ═════════ FLOW ═════════
 function startGame(seriousFirst) {
-  seriousPlayer = seriousFirst;
-  scores = { razan: 0, dara: 0 };
-  currentRound = 1;
-  usedInstructions = [];
-  showScreen('s-game');
-  if (waterMode) {
-    showWaterScreen();
-  } else {
-    startCountdown();
-  }
+  stopAll();
+  const s = seriousFirst === 'dara' ? 'dara' : 'razan';
+  G = {
+    firstSerious: s, serious: s, round: 1,
+    scores: { razan:0, dara:0 }, streak: { razan:0, dara:0 }, best: { razan:0, dara:0 },
+    fastest: null, phase: 'pre', instr: '', rerolled: false,
+  };
+  showPre();
 }
+function playAgain() { startGame(G ? other(G.firstSerious) : 'razan'); }
 
-function showWaterScreen() {
-  const name = seriousPlayer === 'razan' ? 'Razan' : 'Dara';
-  document.getElementById('water-player-msg').textContent = `${name}, minum air dulu!`;
-  showScreen('s-water');
-}
-
-function afterWater() {
-  startCountdown();
+function showPre() {
+  if (!G) return;
+  G.phase = 'pre';
+  const s = G.serious, k = other(s);
+  setText('pre-badge', `Ronde ${G.round} dari ${CFG.rounds}`);
+  setHTML('pre-dots', Array.from({ length: CFG.rounds }, (_, i) => `<div class="rd ${i < G.round - 1 ? 'done' : i === G.round - 1 ? 'cur' : ''}"></div>`).join(''));
+  setHTML('pre-score', `🧑 Razan <b>${G.scores.razan}</b> — <b>${G.scores.dara}</b> Dara 👧`);
+  setText('pre-name-s', NAMES[s]); setText('pre-name-k', NAMES[k]);
+  const wn = $('water-note'); if (wn) wn.classList.toggle('show', waterMode);
+  setText('water-name', NAMES[s]);
+  const pb = $('pre-btn');
+  if (pb) { pb.textContent = waterMode ? 'Udah minum! Siap 😤' : 'Siap! 😤'; pb.className = 'btn-main' + (waterMode ? ' water' : ''); }
+  showScreen('s-pre');
 }
 
 function startCountdown() {
+  if (!G || G.phase !== 'pre') return; // cegah dobel start
+  G.phase = 'countdown';
+  G.instr = fill(draw('instr', INSTRUCTIONS), { s: NAMES[G.serious] });
+  G.rerolled = false;
+  const my = ++token;
   showScreen('s-countdown');
-  let count = 3;
-  const el = document.getElementById('cd-num');
-  const sub = document.getElementById('cd-sub');
-  el.textContent = count;
-  el.style.animation = 'none';
-  void el.offsetWidth;
-  el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
-  sub.textContent = 'Siap-siap...';
+  const el = $('cd-num'), sub = $('cd-sub');
+  let n = 3;
+  const step = () => {
+    if (my !== token) return;
+    if (n <= 0) { beginRound(); return; }
+    if (el) { el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
+    if (sub) sub.textContent = n === 1 ? 'Pasang muka serius! 😐' : `${NAMES[other(G.serious)]}, siap-siap baca instruksi...`;
+    n--; cdTimer = setTimeout(step, 800);
+  };
+  step();
+}
 
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      loadRound();
+function renderSides() {
+  const s = G.serious, k = other(s);
+  ['razan', 'dara'].forEach(p => {
+    const box = $('side-' + p); if (!box) return;
+    const isS = p === s;
+    const streak = G.streak[p] >= 2 ? `<span class="player-streak">🔥${G.streak[p]}</span>` : '';
+    const head = `<div class="half-head"><span class="player-label">${p === 'razan' ? '🧑' : '👧'} ${NAMES[p]}</span><span class="player-score">${G.scores[p]}</span>${streak}</div>`;
+    if (isS) {
+      box.innerHTML = head +
+        `<span class="player-role serius">😐 Serius</span>
+         <span class="face-emoji">😐</span>
+         <span class="water-indicator ${waterMode ? 'show' : ''}">💧 Air di mulut!</span>
+         <p class="serius-note">Tahan! Jangan senyum, jangan ketawa 🗿</p>
+         <button class="lose-btn" onclick="laugh('${p}')">😂 Aku Ketawa!</button>`;
     } else {
-      el.style.animation = 'none';
-      void el.offsetWidth;
-      el.style.animation = 'cdpop .7s cubic-bezier(.34,1.5,.64,1)';
-      el.textContent = count;
-      if (count === 1) sub.textContent = 'Pasang muka serius!';
+      box.innerHTML = head +
+        `<span class="player-role komedian">😂 Komedian</span>
+         <div class="instr-card">
+           <span class="instr-label">Instruksi buat kamu 🎭 <button class="reroll" id="reroll-btn" onclick="reroll()" ${G.rerolled ? 'disabled' : ''}>🔄 ganti</button></span>
+           <p class="instr-text animate" id="instr-text"></p>
+         </div>
+         <button class="claim-btn" onclick="laugh('${s}')">😏 Dia senyum / ketawa!</button>`;
+      const it = $('instr-text'); if (it) it.textContent = G.instr;
     }
-  }, 800);
+  });
 }
 
-function getRandInstruction() {
-  const available = INSTRUCTIONS.filter((_, i) => !usedInstructions.includes(i));
-  if (!available.length) usedInstructions = [];
-  const pool = INSTRUCTIONS.filter((_, i) => !usedInstructions.includes(i));
-  const origIdx = INSTRUCTIONS.indexOf(pool[Math.floor(Math.random() * pool.length)]);
-  usedInstructions.push(origIdx);
-  return INSTRUCTIONS[origIdx];
+function reroll() {
+  if (!G || G.phase !== 'play' || G.rerolled) return;
+  G.rerolled = true;
+  G.instr = fill(draw('instr', INSTRUCTIONS), { s: NAMES[G.serious] });
+  const it = $('instr-text');
+  if (it) { it.textContent = G.instr; it.classList.remove('animate'); void it.offsetWidth; it.classList.add('animate'); }
+  const rb = $('reroll-btn'); if (rb) rb.disabled = true;
 }
 
-function loadRound() {
-  roundActive = true;
-  timeLeft = ROUND_DURATION;
-
-  const comedian = seriousPlayer === 'razan' ? 'dara' : 'razan';
-  const seriousName = seriousPlayer === 'razan' ? 'Razan' : 'Dara';
-  const comedianName = comedian === 'razan' ? 'Razan' : 'Dara';
-
-  document.getElementById('round-label').textContent = `Ronde ${currentRound}/${TOTAL_ROUNDS}`;
-  document.getElementById('score-r').textContent = scores.razan;
-  document.getElementById('score-d').textContent = scores.dara;
-
-  // Top = Dara, Bottom = Razan
-  const topIsSerious = seriousPlayer === 'dara';
-  const botIsSerious = seriousPlayer === 'razan';
-
-  document.getElementById('top-label').textContent = '👧 Dara';
-  document.getElementById('top-role').textContent = topIsSerious ? '😐 Serius' : '😂 Komedian';
-  document.getElementById('top-role').className = 'player-role ' + (topIsSerious ? 'serius' : 'komedian');
-  document.getElementById('top-face').textContent = topIsSerious ? '😐' : '😂';
-  document.getElementById('top-face').className = 'face-emoji ' + (topIsSerious ? 'serius-face' : 'kom-face');
-  document.getElementById('top-lose-btn').style.display = topIsSerious ? 'block' : 'none';
-  document.getElementById('top-water').style.display = (waterMode && topIsSerious) ? 'inline-block' : 'none';
-
-  document.getElementById('bot-label').textContent = '🧑 Razan';
-  document.getElementById('bot-role').textContent = botIsSerious ? '😐 Serius' : '😂 Komedian';
-  document.getElementById('bot-role').className = 'player-role ' + (botIsSerious ? 'serius' : 'komedian');
-  document.getElementById('bot-face').textContent = botIsSerious ? '😐' : '😂';
-  document.getElementById('bot-face').className = 'face-emoji ' + (botIsSerious ? 'serius-face' : 'kom-face');
-  document.getElementById('bot-lose-btn').style.display = botIsSerious ? 'block' : 'none';
-  document.getElementById('bot-water').style.display = (waterMode && botIsSerious) ? 'inline-block' : 'none';
-
-  // Instruction for comedian
-  const instr = getRandInstruction();
-  const instrEl = document.getElementById('instr-text');
-  instrEl.classList.remove('animate');
-  void instrEl.offsetWidth;
-  instrEl.classList.add('animate');
-  instrEl.textContent = instr;
-
+function beginRound() {
+  if (!G) return;
+  G.phase = 'play';
+  renderSides();
+  setText('round-float', `R${G.round}`);
+  setText('timer-num', CFG.dur);
+  const tc = $('timer-center'); if (tc) tc.classList.remove('danger');
   showScreen('s-game');
-  startTimer();
-}
-
-function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft -= 0.1;
-    timeLeft = Math.round(timeLeft * 10) / 10;
-    const pct = Math.max(0, (timeLeft / ROUND_DURATION) * 100);
-    const bar = document.getElementById('timer-bar');
-    bar.style.width = pct + '%';
-    bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : '#ffd54f';
-    const numEl = document.getElementById('timer-num');
-    numEl.textContent = Math.ceil(timeLeft);
-    numEl.className = 'timer-num' + (pct < 30 ? ' danger' : '');
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      if (roundActive) surviveRound();
+  const start = Date.now(), my = token;
+  G.roundStart = start;
+  let lastSec = CFG.dur;
+  tick = setInterval(() => {
+    if (my !== token || !G || G.phase !== 'play') return;
+    const left = Math.max(0, CFG.dur - (Date.now() - start) / 1000);
+    const sec = Math.ceil(left);
+    if (sec !== lastSec) {
+      lastSec = sec; setText('timer-num', sec);
+      if (tc) tc.classList.toggle('danger', left / CFG.dur < .3);
+      if (sec <= 5 && sec > 0) vib(30);
     }
+    if (left <= 0) { clearInterval(tick); endRound(false); }
   }, 100);
 }
 
-function loseRound(side) {
-  if (!roundActive) return;
-  roundActive = false;
-  clearInterval(timerInterval);
-  const loser = side === 'top' ? 'dara' : 'razan';
-  // Loser is the serious one who laughed
-  // They LOSE a point (or serious player fails = comedian wins)
-  const comedian = seriousPlayer === 'razan' ? 'dara' : 'razan';
-  scores[comedian]++; // comedian gets the point
-  showRoundResult('laugh', loser);
+function laugh() {
+  if (!G || G.phase !== 'play') return;
+  endRound(true);
 }
 
-function surviveRound() {
-  roundActive = false;
-  // Serious player survived! They get the point
-  scores[seriousPlayer]++;
-  showRoundResult('survive', seriousPlayer);
-}
+function endRound(laughed) {
+  if (!G || G.phase !== 'play') return;
+  G.phase = 'end';
+  stopAll();
+  const s = G.serious, k = other(s);
+  const held = Math.round((Date.now() - G.roundStart) / 100) / 10;
+  const winner = laughed ? k : s, loser = other(winner);
+  G.scores[winner]++;
+  G.streak[winner]++; G.streak[loser] = 0;
+  G.best[winner] = Math.max(G.best[winner], G.streak[winner]);
 
-function showRoundResult(type, player) {
-  const playerName = player === 'razan' ? 'Razan' : 'Dara';
-  const seriousName = seriousPlayer === 'razan' ? 'Razan' : 'Dara';
-  document.getElementById('rd-r').textContent = scores.razan;
-  document.getElementById('rd-d').textContent = scores.dara;
-
-  const isLast = currentRound >= TOTAL_ROUNDS;
-  document.getElementById('next-round-btn').textContent = isLast ? 'Lihat Hasil 🏆' : `Ronde ${currentRound + 1} →`;
-  document.getElementById('next-round-btn').onclick = isLast ? showFinalResult : nextRound;
-
-  if (type === 'laugh') {
-    document.getElementById('round-icon').textContent = '😂';
-    document.getElementById('round-title').textContent = `${seriousName} Ketawa!`;
-    document.getElementById('round-sub').textContent = waterMode
-      ? `Basaaah! ${seriousName} ga bisa nahan — Komedian dapet poin!`
-      : `${seriousName} ga kuat nahan — Komedian dapet poin!`;
-    // Show punishment sometimes
-    if (Math.random() > 0.5) {
-      const pun = PUNISHMENTS[Math.floor(Math.random() * PUNISHMENTS.length)];
-      document.getElementById('pun-text').textContent = pun;
-      document.getElementById('pun-card').style.display = 'block';
-    } else {
-      document.getElementById('pun-card').style.display = 'none';
-    }
-    if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
+  if (laughed) {
+    if (!G.fastest || held < G.fastest.t) G.fastest = { t: held, who: s };
+    vib([100, 50, 200]);
+    setText('rr-icon', waterMode ? '💦' : '😂');
+    setText('rr-title', `${NAMES[s]} Ketawa!`);
+    setText('rr-sub', `${waterMode ? 'Basaaah! ' : ''}Cuma tahan ${held} detik — ${NAMES[k]} dapet +1 🎉`);
+    setText('rr-pun-label', `⚡ Hukuman buat ${NAMES[s]}`);
+    setHTML('rr-pun', fill(draw('pl', PUN_LAUGH), { w: NAMES[k] }) + (waterMode ? WATER_EXTRA : ''));
   } else {
-    document.getElementById('round-icon').textContent = '😤';
-    document.getElementById('round-title').textContent = `${seriousName} Bertahan!`;
-    document.getElementById('round-sub').textContent = `Muka batu level dewa! ${seriousName} dapet poin!`;
-    document.getElementById('pun-card').style.display = 'none';
+    setText('rr-icon', '🗿');
+    setText('rr-title', `${NAMES[s]} Bertahan!`);
+    setText('rr-sub', `Muka batu level dewa selama ${CFG.dur} detik — ${NAMES[s]} dapet +1 😤`);
+    setText('rr-pun-label', `😆 Hukuman garing buat ${NAMES[k]}`);
+    setHTML('rr-pun', fill(draw('pg', PUN_GARING), { k: NAMES[k], s: NAMES[s] }));
   }
+  if ([2, 3, 5].includes(G.streak[winner])) { toast(`🔥 ${NAMES[winner]} menang ${G.streak[winner]}x beruntun!`); confetti(20); }
 
+  setText('rr-badge', `Hasil Ronde ${G.round} dari ${CFG.rounds}`);
+  setText('rr-r', G.scores.razan); setText('rr-d', G.scores.dara);
+  setText('rr-next', G.round >= CFG.rounds ? 'Lihat Hasil 🏆' : `Ronde ${G.round + 1} → ${NAMES[k]} jadi Serius`);
   showScreen('s-round');
 }
 
 function nextRound() {
-  currentRound++;
-  // Swap roles
-  seriousPlayer = seriousPlayer === 'razan' ? 'dara' : 'razan';
-  if (waterMode) {
-    showWaterScreen();
-  } else {
-    startCountdown();
-  }
+  if (!G || G.phase !== 'end') return;
+  if (G.round >= CFG.rounds) { showFinal(); return; }
+  G.round++;
+  G.serious = other(G.serious);
+  showPre();
 }
 
-function showFinalResult() {
-  const r = scores.razan, d = scores.dara;
-  const tie = r === d;
-  const winner = r > d ? 'Razan' : 'Dara';
-  const loser = r > d ? 'Dara' : 'Razan';
+function exitGame() {
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  stopAll(); G = null;
+  showScreen('s-intro');
+}
 
-  document.getElementById('end-icon').textContent = tie ? '🤝' : '🏆';
-  document.getElementById('end-title').textContent = tie ? 'Seri!' : `${winner} Menang!`;
-  document.getElementById('end-sub').textContent = tie
-    ? 'Sama kuat — dua-duanya susah dibikin ketawa!'
-    : `${winner} paling tahan banting hari ini!`;
-  document.getElementById('end-r').textContent = r;
-  document.getElementById('end-d').textContent = d;
+// ═════════ FINAL ═════════
+function showFinal() {
+  if (!G) return;
+  G.phase = 'final';
+  const r = G.scores.razan, d = G.scores.dara, tie = r === d;
+  const w = r > d ? 'Razan' : 'Dara', l = r > d ? 'Dara' : 'Razan';
+  const hi = Math.max(r, d), lo = Math.min(r, d);
+  setText('fn-icon', tie ? '🤝' : '🏆');
+  setText('fn-title', tie ? 'Seri!' : `${w} Menang!`);
+  setText('fn-sub', tie ? 'Sama kuat — sama-sama lucu, sama-sama muka tembok!' : `${w} paling jago: bikin ketawa + nahan ketawa!`);
+  setText('fn-r', r); setText('fn-d', d);
+  setText('fn-best-r', G.best.razan); setText('fn-best-d', G.best.dara);
+  setText('fn-fast', G.fastest ? `${G.fastest.t}s` : '—');
 
-  let verdict;
-  if (tie) {
-    verdict = `Seri ${r}-${d}! Dua-duanya sama kuat — muka tembok level sama 😄`;
-  } else if (Math.abs(r-d) <= 2) {
-    verdict = `<strong>${winner}</strong> menang tipis ${r>d?r:d}-${r>d?d:r}. Hampir imbang — ${loser} hampir bisa ngalahin!`;
-  } else {
-    verdict = `<strong>${winner}</strong> menang telak ${r>d?r:d}-${r>d?d:r}! ${loser} kelewat gampang ketawa — terlalu lucu lawannya 😄`;
-  }
+  let v;
+  if (tie) v = `Seri ${r}-${d}! Dua-duanya sama kuat — muka tembok level sama 😄`;
+  else if (hi - lo <= 2) v = `<strong>${w}</strong> menang tipis ${hi}-${lo}. Hampir imbang — ${l} tinggal dikit lagi!`;
+  else v = `<strong>${w}</strong> menang telak ${hi}-${lo}! ${l} gampang banget dibikin ketawa 😄`;
+  if (G.fastest) v += `<br>⚡ Rekor ketawa tercepat: <strong>${NAMES[G.fastest.who]}</strong> (${G.fastest.t} detik) 😂`;
+  setHTML('fn-verdict', v);
 
-  document.getElementById('end-verdict').innerHTML = verdict;
+  setText('fn-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
+  setHTML('fn-demand', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
   showScreen('s-result');
-  if (!tie) confetti(60);
+  confetti(tie ? 30 : 60);
 }
 
 function confetti(n) {
   const colors = ['#ffd54f','#ffb300','#c17a6f','#fff','#b5c4b1'];
-  for (let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
