@@ -10,181 +10,159 @@
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
     --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --blue:#3a5cb5;--green:#4caf50;--red:#e57373;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
   html,body{height:100%;overflow:hidden;background:var(--cream)}
-  body::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),
-    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.15),transparent 60%);
-    pointer-events:none;z-index:0}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.15),transparent 60%);pointer-events:none;z-index:0}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:var(--cream)}
-  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center}
+  .dark{background:var(--ink)}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
-  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.4rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
+  @keyframes idbounce{from{transform:scale(.3) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
+  @keyframes fadein{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
 
-  /* ── PICK ── */
-  #s-pick{background:var(--cream)}
-  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .pick-sub{font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
-  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  /* INTRO */
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .intro-title span{color:var(--rose)}
+  .intro-sub{font-size:12px;color:var(--muted);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+  .pill.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:var(--ink)}
+  .rule-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .btn-main:active{transform:scale(.97);background:var(--deep)}
+  .btn-main.gold{background:var(--gold);color:var(--ink);box-shadow:0 4px 16px rgba(201,169,110,.4)}
+  .btn-ghost{width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;margin-top:.5rem}
+  .dark .btn-ghost{border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.5)}
+
+  /* PICK & CAT */
+  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:var(--muted);margin:.3rem auto 1.1rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);text-align:left}
   .pick-btn:active{transform:scale(.97);background:var(--warm)}
   .pick-icon{font-size:2rem;flex-shrink:0}
   .pick-name{font-size:14px;font-weight:700;color:var(--ink);display:block}
   .pick-sub2{font-size:11px;color:var(--muted);margin-top:.1rem;display:block}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;width:100%}
+  .cat-btn{padding:.9rem .5rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  .cat-btn:active{transform:scale(.96);background:var(--warm)}
+  .cat-btn.full{grid-column:1/-1;background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(193,122,111,.1))}
+  .cat-btn-icon{font-size:2rem;display:block;margin-bottom:.2rem}
+  .cat-btn-name{font-size:13.5px;font-weight:700;color:var(--ink);display:block}
+  .cat-btn-sub{font-size:10px;color:var(--muted);display:block;margin-top:.1rem}
+  .round-chip{font-size:10.5px;color:var(--muted);margin-bottom:.8rem}
+  .round-chip b{color:var(--rose)}
 
-  /* ── CATEGORY ── */
-  #s-cat{background:var(--cream)}
-  .cat-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .cat-sub{font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
-  .cat-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .cat-btn{padding:1.1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;text-align:center;box-shadow:0 2px 8px rgba(193,122,111,.06)}
-  .cat-btn:active{transform:scale(.97);background:var(--warm)}
-  .cat-btn-icon{font-size:2.5rem;display:block;margin-bottom:.35rem}
-  .cat-btn-name{font-size:15px;font-weight:700;color:var(--ink);display:block}
-  .cat-btn-sub{font-size:11px;color:var(--muted);margin-top:.15rem;display:block}
-
-  /* ── IDENTITY ── */
-  #s-identity{background:var(--ink);padding:1.5rem}
-  .id-warning{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block;margin-bottom:1.25rem;position:relative;z-index:1}
-  .id-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:1.75rem 1.5rem;width:100%;max-width:340px;margin-bottom:1.5rem;position:relative;z-index:1}
-  .id-label{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.75rem}
-  .id-emoji{font-size:5rem;display:block;margin-bottom:.6rem;animation:idbounce .6s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes idbounce{from{transform:scale(.3) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .id-name{font-size:clamp(1.4rem,6vw,2rem);font-weight:700;color:#fff;display:block;margin-bottom:.35rem}
+  /* IDENTITY / PASS (dark) */
+  .id-warning{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:1rem}
+  .id-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:1.5rem 1.3rem;width:100%;margin-bottom:1rem}
+  .id-label{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .id-emoji{font-size:4.5rem;display:block;margin-bottom:.4rem;animation:idbounce .6s cubic-bezier(.34,1.5,.64,1)}
+  .id-name{font-size:clamp(1.4rem,6vw,1.9rem);font-weight:700;color:#fff;display:block;margin-bottom:.3rem}
   .id-cat{font-size:11px;color:rgba(255,255,255,.4);display:block}
-  .id-hint{font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.65;max-width:280px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
-  .id-ready-btn{width:100%;max-width:340px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .2s;position:relative;z-index:1}
-  .id-ready-btn:active{transform:scale(.97);background:var(--deep)}
+  .id-hint{font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.6;margin:0 auto 1rem}
+  .reroll-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:11.5px;border-radius:50px;padding:.35rem .9rem;cursor:pointer;margin-bottom:1rem}
+  .reroll-btn:disabled{opacity:.3}
+  .pass-icon{font-size:3.6rem;display:block;margin-bottom:.8rem;animation:float 3s ease-in-out infinite}
+  .pass-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+  .pass-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6;margin:.3rem auto 1.2rem}
 
-  /* ── PASS ── */
-  #s-pass{background:var(--ink);padding:1.5rem}
-  .pass-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
-  .pass-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
-  .pass-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.5rem;position:relative;z-index:1}
-  .pass-ready-btn{width:100%;max-width:320px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--gold);color:var(--ink);box-shadow:0 4px 18px rgba(201,169,110,.4);transition:all .2s;position:relative;z-index:1}
-  .pass-ready-btn:active{transform:scale(.97)}
-
-  /* ── GAME ── */
-  #s-game{background:var(--cream);padding:0;justify-content:flex-start}
-
-  /* Header */
-  .game-header{position:sticky;top:0;z-index:20;background:rgba(250,246,240,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.65rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;width:100%}
-  .gh-info{font-size:11px;color:var(--muted)}
+  /* GAME */
+  #s-game{padding:0}
+  .game-wrap{width:100%;max-width:420px;height:100%;display:flex;flex-direction:column;margin:0 auto}
+  .game-header{background:rgba(250,246,240,.96);border-bottom:1px solid rgba(193,122,111,.1);padding:.55rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-shrink:0}
+  .gh-info{font-size:11px;color:var(--muted);text-align:left}
   .gh-info b{color:var(--rose);font-size:14px}
-  .gh-score{display:flex;gap:.75rem;align-items:center}
+  .gh-cat{font-size:10.5px;color:var(--gold);font-weight:600;display:block}
+  .gh-score{display:flex;gap:.6rem;align-items:center}
   .gh-sc{text-align:center}
-  .gh-sc-val{font-size:1.1rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .gh-sc-val{font-size:1.05rem;font-weight:700;display:block;line-height:1}
+  .gh-sc-val.r{color:var(--blue)}.gh-sc-val.d{color:var(--rose)}
   .gh-sc-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-
-  /* Timer */
-  .timer-wrap{flex-shrink:0;background:rgba(250,246,240,.95);padding:.5rem 1rem;display:flex;align-items:center;gap:.75rem;width:100%}
+  .gh-exit{background:#fff;border:1.5px solid var(--blush);border-radius:50px;padding:.2rem .6rem;font-size:10.5px;color:var(--muted);cursor:pointer}
+  .timer-wrap{flex-shrink:0;padding:.4rem 1rem;display:flex;align-items:center;gap:.6rem}
+  .timer-wrap.hidden{display:none}
   .timer-bar-bg{flex:1;height:6px;background:var(--blush);border-radius:3px;overflow:hidden}
-  .timer-bar-fill{height:100%;background:var(--rose);border-radius:3px;transition:width .1s linear,background .3s}
+  .timer-bar-fill{height:100%;background:var(--rose);border-radius:3px;width:100%}
   .timer-num-label{font-size:12px;font-weight:700;color:var(--rose);min-width:28px;text-align:right}
+  .pts-hint{flex-shrink:0;font-size:10.5px;color:var(--muted);padding:0 1rem .3rem}
+  .pts-hint b{color:var(--gold)}
+  .qa-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.6rem 1rem}
+  .qa-empty{font-size:12px;color:var(--muted);padding:1.5rem .5rem;line-height:1.6}
+  .qa-item{margin-bottom:.6rem;display:flex;flex-direction:column;animation:fadein .25s ease}
+  .qa-question{align-self:flex-start;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px 14px 14px 4px;padding:.55rem .85rem;font-size:13px;color:var(--ink);max-width:85%;text-align:left;box-shadow:0 1px 4px rgba(193,122,111,.06);overflow-wrap:anywhere}
+  .qa-num{font-size:9.5px;color:var(--muted);font-weight:600;margin-right:.25rem}
+  .qa-answer{align-self:flex-end;margin-top:.25rem;border-radius:14px 14px 4px 14px;padding:.4rem .85rem;font-size:12.5px;font-weight:700;color:#fff}
+  .qa-answer.ya{background:var(--green)}.qa-answer.tidak{background:var(--red)}.qa-answer.mungkin{background:var(--gold);color:var(--ink)}
+  .qa-answer.wait{background:var(--blush);color:var(--muted);font-weight:500}
+  .qa-guess{align-self:center;background:rgba(201,169,110,.1);border:1.5px solid rgba(201,169,110,.3);border-radius:14px;padding:.5rem .9rem;font-size:12.5px;color:var(--ink);font-style:italic;overflow-wrap:anywhere}
+  .qa-note{align-self:center;font-size:11px;font-weight:600}
+  .qa-note.wrong{color:var(--rose)}.qa-note.correct{color:var(--green)}.qa-note.time{color:var(--muted)}
 
-  /* Q counter */
-  .q-counter{flex-shrink:0;padding:.35rem 1rem;background:rgba(250,246,240,.9);text-align:center;width:100%;font-size:11px;color:var(--muted)}
-  .q-counter b{color:var(--rose);font-size:13px}
-
-  /* Identity hint bar */
-  .cat-hint-bar{flex-shrink:0;padding:.4rem 1rem;background:rgba(201,169,110,.08);border-bottom:1px solid rgba(201,169,110,.15);text-align:center;width:100%}
-  .cat-hint-bar span{font-size:11px;color:var(--gold);font-weight:600}
-
-  /* Q&A scroll */
-  .qa-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.75rem 1rem;width:100%}
-
-  /* Question input */
-  .ask-area{flex-shrink:0;padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom));background:rgba(250,246,240,.97);border-top:1px solid rgba(193,122,111,.1);width:100%}
-  .ask-turn{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:.4rem;text-align:center}
-  .ask-input-row{display:flex;gap:.5rem;align-items:flex-end}
-  .ask-input{flex:1;padding:.75rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s;resize:none;max-height:80px}
-  .ask-input:focus{border-color:var(--rose)}
-  .ask-send-btn{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;background:var(--rose);color:#fff;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;box-shadow:0 3px 10px rgba(193,122,111,.35)}
-  .ask-send-btn:active{transform:scale(.9);background:var(--deep)}
-
-  /* Answer buttons */
-  .answer-btns{display:flex;gap:.5rem;margin-top:.5rem}
-  .ans-btn{flex:1;padding:.6rem .5rem;border-radius:12px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s}
-  .ans-btn.ya{background:rgba(129,199,132,.15);color:#2e7d32;border:1.5px solid rgba(129,199,132,.35)}
-  .ans-btn.tidak{background:rgba(229,115,115,.1);color:#c62828;border:1.5px solid rgba(229,115,115,.25)}
-  .ans-btn.mungkin{background:rgba(201,169,110,.1);color:#a67c00;border:1.5px solid rgba(201,169,110,.25)}
+  .ask-area{flex-shrink:0;padding:.65rem 1rem calc(.7rem + env(safe-area-inset-bottom));background:rgba(250,246,240,.98);border-top:1px solid rgba(193,122,111,.1)}
+  .ask-turn{font-size:11px;font-weight:600;display:block;margin-bottom:.4rem;text-align:center}
+  .ask-turn.razan{color:var(--blue)}.ask-turn.dara{color:var(--rose)}
+  .row{display:flex;gap:.45rem;align-items:stretch}
+  .text-in{flex:1;min-width:0;padding:.7rem .9rem;border:1.5px solid var(--blush);border-radius:14px;font-size:13.5px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s}
+  .text-in:focus{border-color:var(--rose)}
+  .send-btn{width:44px;border-radius:14px;border:none;cursor:pointer;background:var(--rose);color:#fff;font-size:1.1rem;flex-shrink:0}
+  .send-btn:active{transform:scale(.92)}
+  .guess-btn{padding:0 .9rem;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),#e8b870);color:var(--ink);font-size:12px;font-weight:700;white-space:nowrap}
+  .guess-btn:active{transform:scale(.95)}
+  .answer-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+  .ans-btn{padding:.7rem .3rem;border-radius:12px;cursor:pointer;font-size:13px;font-weight:700;border:1.5px solid}
   .ans-btn:active{transform:scale(.95)}
+  .ans-btn.ya{background:rgba(129,199,132,.15);color:#2e7d32;border-color:rgba(129,199,132,.4)}
+  .ans-btn.tidak{background:rgba(229,115,115,.1);color:#c62828;border-color:rgba(229,115,115,.3)}
+  .ans-btn.mungkin{background:rgba(201,169,110,.12);color:#8a6a00;border-color:rgba(201,169,110,.35)}
+  .peek-btn{margin-top:.5rem;width:100%;padding:.5rem;border-radius:50px;border:1px dashed rgba(193,122,111,.35);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;-webkit-user-select:none;user-select:none}
+  .peek-btn.on{background:var(--ink);color:#fff;border-style:solid}
+  .verify-text{font-size:12.5px;color:var(--ink);margin-bottom:.55rem;line-height:1.5}
+  .verify-text b{color:var(--gold)}
+  .verify-btns{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
 
-  /* Guess area */
-  .guess-area{display:flex;gap:.5rem;margin-top:.5rem}
-  .guess-area-input{flex:1;padding:.65rem .85rem;border:1.5px solid var(--blush);border-radius:12px;font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s}
-  .guess-area-input:focus{border-color:var(--gold)}
-  .guess-area-btn{padding:.65rem 1rem;border-radius:12px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),#e8b870);color:var(--ink);font-size:12px;font-weight:700;font-family:'Poppins',sans-serif;white-space:nowrap;transition:all .15s}
-  .guess-area-btn:active{transform:scale(.95)}
-
-  /* QA bubbles */
-  .qa-item{margin-bottom:.75rem}
-  .qa-question{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px 14px 14px 4px;padding:.65rem .9rem;font-size:13px;color:var(--ink);display:inline-block;max-width:85%;text-align:left;box-shadow:0 1px 4px rgba(193,122,111,.06);margin-bottom:.3rem}
-  .qa-question-meta{font-size:10px;color:var(--muted);display:block;margin-bottom:.25rem}
-  .qa-answer{background:var(--rose);border-radius:14px 14px 4px 14px;padding:.5rem .85rem;font-size:13px;font-weight:700;color:#fff;display:inline-block;float:right;clear:both;box-shadow:0 2px 8px rgba(193,122,111,.2)}
-  .qa-answer.ya-ans{background:#4caf50}
-  .qa-answer.tidak-ans{background:#e57373}
-  .qa-answer.mungkin-ans{background:var(--gold);color:var(--ink)}
-  .qa-guess-bubble{background:rgba(201,169,110,.1);border:1.5px solid rgba(201,169,110,.25);border-radius:14px;padding:.65rem .9rem;font-size:13px;color:var(--ink);text-align:center;margin:.25rem 0;font-style:italic}
-  .qa-guess-result{text-align:center;font-size:11px;font-weight:600;margin-bottom:.5rem}
-  .qa-guess-result.wrong{color:var(--rose)}
-  .qa-guess-result.correct{color:#4caf50}
-  .clearfix{clear:both}
-
-  /* ── ROUND RESULT ── */
-  #s-round-result{background:var(--cream);padding:1.5rem}
-  .rr-icon{font-size:4rem;display:block;margin-bottom:.75rem;position:relative;z-index:1;animation:idbounce .5s cubic-bezier(.34,1.5,.64,1)}
-  .rr-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .rr-sub{font-size:13px;color:var(--muted);line-height:1.65;max-width:280px;margin:.35rem auto 1rem;position:relative;z-index:1}
-  .reveal-identity{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1rem 1.25rem;text-align:center;margin-bottom:1rem;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 2px 10px rgba(193,122,111,.06)}
-  .ri-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
-  .ri-emoji{font-size:2.5rem;display:block;margin-bottom:.25rem}
+  /* ROUND RESULT & FINAL */
+  .rr-icon{font-size:3.6rem;display:block;margin-bottom:.6rem;animation:idbounce .5s cubic-bezier(.34,1.5,.64,1)}
+  .rr-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .rr-sub{font-size:12.5px;color:var(--muted);line-height:1.6;margin:.3rem auto .9rem}
+  .reveal-identity{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:.9rem 1.1rem;margin-bottom:.75rem;width:100%;box-shadow:0 2px 10px rgba(193,122,111,.06)}
+  .ri-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
+  .ri-emoji{font-size:2.4rem;display:block;margin-bottom:.15rem}
   .ri-name{font-size:1.1rem;font-weight:700;color:var(--ink)}
-  .score-row-rr{display:flex;align-items:center;justify-content:center;gap:1.25rem;margin-bottom:1rem;position:relative;z-index:1}
-  .srr-item{text-align:center}
-  .srr-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.2rem}
-  .srr-score{font-size:2rem;font-weight:700;color:var(--rose);display:block}
-  .srr-vs{color:var(--blush)}
-  .hadiah-card-rr{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.2);border-radius:14px;padding:.85rem 1.1rem;margin-bottom:1rem;width:100%;max-width:360px;text-align:center;position:relative;z-index:1}
-  .hc-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
-  .hc-text{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.55}
-  .next-rr-btn{width:100%;max-width:360px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35);transition:all .15s;position:relative;z-index:1}
-  .next-rr-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* ── FINAL RESULT ── */
-  #s-result{background:var(--cream)}
-  .end-icon{font-size:4rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
-  .end-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.35rem auto 1rem;position:relative;z-index:1}
-  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.25rem;margin-bottom:1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 4px 20px rgba(193,122,111,.08)}
-  .es-av{font-size:1.5rem;display:block;margin-bottom:.2rem}
-  .es-nm{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
-  .es-sc{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
-  .es-vs{color:var(--blush)}
-  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.25rem;width:100%;max-width:360px;position:relative;z-index:1}
+  .score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:.9rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;width:100%;box-shadow:0 4px 20px rgba(193,122,111,.06)}
+  .sc-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sc-v{font-size:2rem;font-weight:700;display:block;line-height:1.1}
+  .sc-v.r{color:var(--blue)}.sc-v.d{color:var(--rose)}
+  .sc-vs{color:var(--blush)}
+  .demand{background:linear-gradient(135deg,rgba(201,169,110,.16),rgba(193,122,111,.1));border:1px solid rgba(201,169,110,.45);border-radius:16px;padding:.85rem 1rem;font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:.9rem;text-align:left;width:100%}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem}
+  .demand b{color:var(--rose)}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;margin-bottom:.75rem}
+  .stat{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:12px;padding:.55rem .3rem}
+  .stat-v{font-size:1rem;font-weight:700;color:var(--ink);display:block}
+  .stat-l{font-size:9.5px;color:var(--muted);line-height:1.3;display:block}
+  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:var(--ink);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
   .end-verdict strong{color:var(--rose)}
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .end-btns{display:flex;gap:.6rem;width:100%}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s}
   .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
   .end-btn-p:active{background:var(--deep);transform:scale(.97)}
   .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
 
-  /* Confetti */
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -193,516 +171,612 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🕵️</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Aku <span>Adalah...</span></h1>
-  <p class="intro-sub">Satu orang dapat identitas rahasia — lawan harus nebak lewat pertanyaan ya/tidak! 🤫</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot"></span>Satu orang dapat identitas rahasia — misal 🐱 Kucing</div>
-    <div class="rule"><span class="rule-dot"></span>Lawan tanya pertanyaan — cuma boleh dijawab YA / TIDAK / MUNGKIN</div>
-    <div class="rule"><span class="rule-dot"></span>Tebak dalam 20 pertanyaan — makin cepat makin banyak poin!</div>
-    <div class="rule"><span class="rule-dot"></span>Timer 60 detik per pertanyaan — jangan sampai kehabisan waktu!</div>
+  <div class="screen-inner">
+    <span class="intro-icon">🕵️</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Aku <span>Adalah...</span></h1>
+    <p class="intro-sub">Satu orang dapet identitas rahasia — pasangannya harus nebak lewat pertanyaan YA / TIDAK! 🤫</p>
+
+    <div class="panel">
+      <span class="panel-title">Ronde per Orang</span>
+      <div class="pills" id="round-pills">
+        <button class="pill" data-n="1">1<small>2 ronde</small></button>
+        <button class="pill on" data-n="2">2<small>4 ronde</small></button>
+        <button class="pill" data-n="3">3<small>6 ronde</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Batas Pertanyaan</span>
+      <div class="pills" id="max-pills">
+        <button class="pill" data-n="10">10<small>susah</small></button>
+        <button class="pill" data-n="15">15<small>sedang</small></button>
+        <button class="pill on" data-n="20">20<small>klasik</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Timer per Pertanyaan</span>
+      <div class="pills" id="timer-pills">
+        <button class="pill" data-n="30">30s</button>
+        <button class="pill on" data-n="60">60s</button>
+        <button class="pill" data-n="0">Tanpa</button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>Pemegang identitas cuma boleh jawab <b>YA / TIDAK / MUNGKIN</b></div>
+      <div class="rule"><span class="rule-dot"></span>Makin cepat ketebak makin banyak poin: <b>3 · 2 · 1</b></div>
+      <div class="rule"><span class="rule-dot"></span>Nggak ketebak sampai batas → pemegang identitas <b>+2</b></div>
+      <div class="rule"><span class="rule-dot"></span>Tebakan mirip tapi beda tulisan? Pemegang identitas yang mutusin ✓</div>
+      <div class="rule"><span class="rule-dot"></span>Tebak salah atau waktu habis = 1 pertanyaan kepake</div>
+    </div>
+    <button class="btn-main" onclick="showScreen('s-pick')">Mulai! 🕵️</button>
   </div>
-  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 🕵️</button>
 </div>
 
-<!-- PICK WHO HAS IDENTITY -->
+<!-- PICK -->
 <div id="s-pick" class="screen">
-  <span style="font-size:2.5rem;display:block;margin-bottom:1rem;position:relative;z-index:1">🕵️</span>
-  <p class="pick-title">Siapa yang dapat identitas?</p>
-  <p class="pick-sub">Yang dapat identitas harus jaga rahasia — lawan yang nebak!</p>
-  <div class="pick-btns">
-    <div class="pick-btn" onclick="pickIdentityHolder('razan')">
-      <span class="pick-icon">🧑</span>
-      <div>
-        <span class="pick-name">Razan dapat identitas</span>
-        <span class="pick-sub2">Dara yang akan nebak dengan pertanyaan</span>
-      </div>
+  <div class="screen-inner">
+    <span style="font-size:2.3rem;display:block;margin-bottom:.8rem">🕵️</span>
+    <p class="pick-title">Siapa yang dapet identitas duluan?</p>
+    <p class="pick-sub">Yang dapet identitas harus jaga rahasia — pasangannya yang nebak!</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="startGame('razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan dapet identitas</span><span class="pick-sub2">Dara yang nebak duluan</span></div></div>
+      <div class="pick-btn" onclick="startGame('dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara dapet identitas</span><span class="pick-sub2">Razan yang nebak duluan</span></div></div>
     </div>
-    <div class="pick-btn" onclick="pickIdentityHolder('dara')">
-      <span class="pick-icon">👧</span>
-      <div>
-        <span class="pick-name">Dara dapat identitas</span>
-        <span class="pick-sub2">Razan yang akan nebak dengan pertanyaan</span>
-      </div>
-    </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- CATEGORY -->
 <div id="s-cat" class="screen">
-  <span style="font-size:2rem;display:block;margin-bottom:.75rem;position:relative;z-index:1">🎯</span>
-  <p class="cat-title" id="cat-title">Pilih Kategori</p>
-  <p class="cat-sub">Identitas rahasia akan diambil dari kategori ini</p>
-  <div class="cat-btns">
-    <div class="cat-btn" onclick="pickCategory('hewan')">
-      <span class="cat-btn-icon">🐾</span>
-      <span class="cat-btn-name">Hewan</span>
-      <span class="cat-btn-sub">Kucing, Gajah, Penguin, dll</span>
-    </div>
-    <div class="cat-btn" onclick="pickCategory('makanan')">
-      <span class="cat-btn-icon">🍔</span>
-      <span class="cat-btn-name">Makanan</span>
-      <span class="cat-btn-sub">Bakso, Pizza, Durian, dll</span>
-    </div>
+  <div class="screen-inner">
+    <p class="round-chip" id="cat-round">Ronde <b>1</b> dari 4</p>
+    <p class="pick-title" id="cat-title">Razan pilih kategori</p>
+    <p class="pick-sub" id="cat-sub">Dara jangan liat layar dulu ya 🙈</p>
+    <div class="cat-grid" id="cat-grid"></div>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>
   </div>
 </div>
 
-<!-- IDENTITY REVEAL (for holder) -->
-<div id="s-identity" class="screen">
-  <span class="id-warning" id="id-warning">Hanya untuk Razan — jangan liat kalau bukan kamu!</span>
-  <div class="id-card">
-    <span class="id-label">Identitas Rahasiamu</span>
-    <span class="id-emoji" id="id-emoji">🐱</span>
-    <span class="id-name" id="id-name">KUCING</span>
-    <span class="id-cat" id="id-cat">Kategori: Hewan</span>
+<!-- IDENTITY -->
+<div id="s-identity" class="screen dark">
+  <div class="screen-inner">
+    <span class="id-warning" id="id-warning">Cuma buat Razan — Dara jangan liat!</span>
+    <div class="id-card">
+      <span class="id-label">Identitas Rahasiamu</span>
+      <span class="id-emoji" id="id-emoji">🐱</span>
+      <span class="id-name" id="id-name">KUCING</span>
+      <span class="id-cat" id="id-cat">Kategori: Hewan</span>
+    </div>
+    <button class="reroll-btn" id="reroll-btn" onclick="rerollIdentity()">🔄 Ganti identitas (1x)</button>
+    <p class="id-hint">Hafalin ya — nanti bisa intip lagi pakai tombol 👁️. Jawab cuma pakai YA, TIDAK, atau MUNGKIN 🤫</p>
+    <button class="btn-main" onclick="toPass()">Hafal! Oper HP 📱</button>
   </div>
-  <p class="id-hint">Hafalin identitasmu — jangan sampai ketahuan! Jawab pertanyaan lawan hanya dengan YA, TIDAK, atau MUNGKIN 🤫</p>
-  <button class="id-ready-btn" onclick="showScreen('s-pass')">Siap! Kasih HP ke Lawan 📱</button>
 </div>
 
 <!-- PASS -->
-<div id="s-pass" class="screen">
-  <span class="pass-icon" id="pass-icon">📱</span>
-  <p class="pass-title" id="pass-title">Kasih HP ke Dara!</p>
-  <p class="pass-sub" id="pass-sub">Identitas sudah dikunci — kasih HP ke lawan. Jangan kasih tau identitasnya! 🙈</p>
-  <button class="pass-ready-btn" id="pass-ready-btn" onclick="startRound()">Aku Udah Pegang HP! 🕵️</button>
+<div id="s-pass" class="screen dark">
+  <div class="screen-inner">
+    <span class="pass-icon" id="pass-icon">👧</span>
+    <p class="pass-title" id="pass-title">Dara, giliran kamu nebak!</p>
+    <p class="pass-sub" id="pass-sub">Identitas udah dikunci. Taruh HP di tengah biar dua-duanya bisa liat.</p>
+    <button class="btn-main gold" id="pass-btn" onclick="beginRound()">Mulai nebak 🕵️</button>
+  </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="game-header">
-    <div class="gh-info">Pertanyaan <b id="q-count">0</b>/20</div>
-    <div class="gh-score">
-      <div class="gh-sc"><span class="gh-sc-val" id="score-r">0</span><span class="gh-sc-label">Razan</span></div>
-      <div class="gh-sc"><span class="gh-sc-val" id="score-d">0</span><span class="gh-sc-label">Dara</span></div>
+  <div class="game-wrap">
+    <div class="game-header">
+      <div class="gh-info">Pertanyaan <b id="q-count">0</b>/<span id="q-max">20</span><span class="gh-cat" id="gh-cat">🐾 Hewan</span></div>
+      <div class="gh-score">
+        <div class="gh-sc"><span class="gh-sc-val r" id="score-r">0</span><span class="gh-sc-label">Razan</span></div>
+        <div class="gh-sc"><span class="gh-sc-val d" id="score-d">0</span><span class="gh-sc-label">Dara</span></div>
+        <button class="gh-exit" onclick="exitGame()">✕</button>
+      </div>
     </div>
-  </div>
-
-  <div class="timer-wrap">
-    <div class="timer-bar-bg"><div class="timer-bar-fill" id="timer-bar" style="width:100%"></div></div>
-    <span class="timer-num-label" id="timer-label">60</span>
-  </div>
-
-  <div class="cat-hint-bar">
-    <span id="cat-hint-text">Kategori: 🐾 Hewan</span>
-  </div>
-
-  <div class="qa-scroll" id="qa-scroll">
-    <div id="qa-list"></div>
-  </div>
-
-  <!-- Ask area (for guesser) -->
-  <div class="ask-area" id="ask-area">
-    <span class="ask-turn" id="ask-turn">👧 Dara — tanya sekarang!</span>
-    <div class="ask-input-row">
-      <textarea class="ask-input" id="ask-input" placeholder="Ketik pertanyaan..." rows="1" oninput="autoResize(this)"></textarea>
-      <button class="ask-send-btn" onclick="sendQuestion()">➤</button>
+    <div class="timer-wrap" id="timer-wrap">
+      <div class="timer-bar-bg"><div class="timer-bar-fill" id="timer-bar"></div></div>
+      <span class="timer-num-label" id="timer-label">60</span>
     </div>
-    <div class="guess-area" style="margin-top:.5rem">
-      <input type="text" class="guess-area-input" id="guess-direct" placeholder="Atau langsung tebak...">
-      <button class="guess-area-btn" onclick="makeGuess()">Tebak! 🎯</button>
-    </div>
-  </div>
+    <div class="pts-hint" id="pts-hint"></div>
 
-  <!-- Answer area (for holder) -->
-  <div class="ask-area" id="answer-area" style="display:none">
-    <span class="ask-turn" id="answer-turn">🧑 Razan — jawab pertanyaan lawan!</span>
-    <div class="answer-btns">
-      <button class="ans-btn ya" onclick="sendAnswer('YA')">✓ YA</button>
-      <button class="ans-btn tidak" onclick="sendAnswer('TIDAK')">✗ TIDAK</button>
-      <button class="ans-btn mungkin" onclick="sendAnswer('MUNGKIN')">~ MUNGKIN</button>
+    <div class="qa-scroll" id="qa-scroll"><div id="qa-list"></div></div>
+
+    <!-- Penebak -->
+    <div class="ask-area" id="ask-area">
+      <span class="ask-turn" id="ask-turn">👧 Dara — tanya sekarang!</span>
+      <div class="row">
+        <input type="text" class="text-in" id="ask-input" placeholder="Pertanyaan ya/tidak..." maxlength="120" autocomplete="off">
+        <button class="send-btn" onclick="sendQuestion()">➤</button>
+      </div>
+      <div class="row" style="margin-top:.45rem">
+        <input type="text" class="text-in" id="guess-input" placeholder="Atau langsung tebak..." maxlength="40" autocomplete="off">
+        <button class="guess-btn" onclick="makeGuess()">Tebak! 🎯</button>
+      </div>
+    </div>
+
+    <!-- Pemegang identitas -->
+    <div class="ask-area" id="answer-area" style="display:none">
+      <span class="ask-turn" id="answer-turn">🧑 Razan — jawab!</span>
+      <div class="answer-btns">
+        <button class="ans-btn ya" onclick="sendAnswer('YA')">✓ YA</button>
+        <button class="ans-btn tidak" onclick="sendAnswer('TIDAK')">✗ TIDAK</button>
+        <button class="ans-btn mungkin" onclick="sendAnswer('MUNGKIN')">~ MUNGKIN</button>
+      </div>
+      <button class="peek-btn" id="peek-btn">👁️ Tahan buat intip identitas</button>
+    </div>
+
+    <!-- Verifikasi tebakan -->
+    <div class="ask-area" id="verify-area" style="display:none">
+      <span class="ask-turn" id="verify-turn">🧑 Razan — tebakannya bener?</span>
+      <p class="verify-text" id="verify-text">...</p>
+      <div class="verify-btns">
+        <button class="ans-btn tidak" onclick="verifyGuess(false)">✗ Salah</button>
+        <button class="ans-btn ya" onclick="verifyGuess(true)">✓ Itu bener!</button>
+      </div>
+      <button class="peek-btn" id="peek-btn-2">👁️ Tahan buat intip identitas</button>
     </div>
   </div>
 </div>
 
 <!-- ROUND RESULT -->
-<div id="s-round-result" class="screen">
-  <span class="rr-icon" id="rr-icon">🎉</span>
-  <h2 class="rr-title" id="rr-title">Berhasil!</h2>
-  <p class="rr-sub" id="rr-sub">...</p>
-  <div class="reveal-identity">
-    <span class="ri-label">Identitas Rahasianya</span>
-    <span class="ri-emoji" id="ri-emoji">🐱</span>
-    <span class="ri-name" id="ri-name">Kucing</span>
+<div id="s-round" class="screen">
+  <div class="screen-inner">
+    <span class="rr-icon" id="rr-icon">🎉</span>
+    <h2 class="rr-title" id="rr-title">...</h2>
+    <p class="rr-sub" id="rr-sub">...</p>
+    <div class="reveal-identity">
+      <span class="ri-label">Identitas Rahasianya</span>
+      <span class="ri-emoji" id="ri-emoji">🐱</span>
+      <span class="ri-name" id="ri-name">Kucing</span>
+    </div>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r" id="rr-r">0</span></div>
+      <span class="sc-vs">🕵️</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d" id="rr-d">0</span></div>
+    </div>
+    <div class="demand">
+      <span class="demand-tag" id="rr-tag">🎁 Hadiah</span>
+      <div id="rr-demand">...</div>
+    </div>
+    <button class="btn-main" id="rr-next" onclick="nextRound()">Gantian →</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>
   </div>
-  <div class="score-row-rr">
-    <div class="srr-item"><span class="srr-name">🧑 Razan</span><span class="srr-score" id="rr-r">0</span></div>
-    <span class="srr-vs">🕵️</span>
-    <div class="srr-item"><span class="srr-name">Dara 👧</span><span class="srr-score" id="rr-d">0</span></div>
-  </div>
-  <div class="hadiah-card-rr" id="hadiah-rr" style="display:none">
-    <span class="hc-label">🎁 Hadiah!</span>
-    <p class="hc-text" id="hadiah-rr-text">...</p>
-  </div>
-  <button class="next-rr-btn" id="next-rr-btn" onclick="nextRound()">Main Lagi — Gantian! 🔄</button>
 </div>
 
-<!-- FINAL RESULT -->
+<!-- FINAL -->
 <div id="s-result" class="screen">
-  <span class="end-icon" id="end-icon">🕵️</span>
-  <h2 class="end-title" id="end-title">...</h2>
-  <p class="end-sub" id="end-sub">...</p>
-  <div class="end-score-card">
-    <div><span class="es-av">🧑</span><span class="es-nm">Razan</span><span class="es-sc" id="end-r">0</span></div>
-    <span class="es-vs">🕵️</span>
-    <div><span class="es-av">👧</span><span class="es-nm">Dara</span><span class="es-sc" id="end-d">0</span></div>
-  </div>
-  <div class="end-verdict" id="end-verdict">...</div>
-  <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  <div class="screen-inner">
+    <span class="rr-icon" id="end-icon">🏆</span>
+    <h2 class="rr-title" id="end-title">...</h2>
+    <p class="rr-sub" id="end-sub">...</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r" id="end-r">0</span></div>
+      <span class="sc-vs">🕵️</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d" id="end-d">0</span></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-v" id="st-best-r">0</span><span class="stat-l">🔥 Streak detektif Razan</span></div>
+      <div class="stat"><span class="stat-v" id="st-fast">—</span><span class="stat-l">⚡ Tebakan tercepat</span></div>
+      <div class="stat"><span class="stat-v" id="st-best-d">0</span><span class="stat-l">🔥 Streak detektif Dara</span></div>
+    </div>
+    <div class="end-verdict" id="end-verdict">...</div>
+    <div class="demand">
+      <span class="demand-tag" id="fd-tag">👑 Tantangan Final</span>
+      <div id="fd-text">...</div>
+    </div>
+    <div class="end-btns">
+      <button class="end-btn end-btn-p" onclick="playAgain()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+// ═════════ DATA ═════════
+const CATS = {
+  hewan:   { icon:'🐾', label:'Hewan',   sub:'Kucing, Gajah, Penguin...' },
+  makanan: { icon:'🍔', label:'Makanan', sub:'Bakso, Pizza, Mochi...' },
+  benda:   { icon:'🔑', label:'Benda',   sub:'Payung, Gitar, Cermin...' },
+  tempat:  { icon:'📍', label:'Tempat',  sub:'Pantai, Bandara, Pasar...' },
+  profesi: { icon:'👷', label:'Profesi', sub:'Dokter, Pilot, Koki...' },
+};
 const IDENTITIES = {
   hewan: [
-    {emoji:'🐱',name:'Kucing'},{emoji:'🐶',name:'Anjing'},{emoji:'🐘',name:'Gajah'},
-    {emoji:'🦁',name:'Singa'},{emoji:'🐯',name:'Harimau'},{emoji:'🐻',name:'Beruang'},
-    {emoji:'🐼',name:'Panda'},{emoji:'🦊',name:'Rubah'},{emoji:'🐺',name:'Serigala'},
-    {emoji:'🐸',name:'Katak'},{emoji:'🐧',name:'Penguin'},{emoji:'🦒',name:'Jerapah'},
-    {emoji:'🦓',name:'Zebra'},{emoji:'🦏',name:'Badak'},{emoji:'🐊',name:'Buaya'},
-    {emoji:'🦅',name:'Elang'},{emoji:'🦜',name:'Beo'},{emoji:'🐬',name:'Lumba-lumba'},
-    {emoji:'🦈',name:'Hiu'},{emoji:'🐙',name:'Gurita'},{emoji:'🦋',name:'Kupu-kupu'},
-    {emoji:'🐌',name:'Siput'},{emoji:'🦔',name:'Landak'},{emoji:'🐿️',name:'Tupai'},
-    {emoji:'🦘',name:'Kanguru'},{emoji:'🦙',name:'Llama'},{emoji:'🐪',name:'Unta'},
-    {emoji:'🦦',name:'Berang-berang'},{emoji:'🦥',name:'Koala'},{emoji:'🐢',name:'Kura-kura'},
+    ['🐱','Kucing'],['🐶','Anjing'],['🐘','Gajah'],['🦁','Singa'],['🐯','Harimau'],['🐻','Beruang'],['🐼','Panda'],['🦊','Rubah'],
+    ['🐺','Serigala'],['🐸','Katak'],['🐧','Penguin'],['🦒','Jerapah'],['🦓','Zebra'],['🦏','Badak'],['🐊','Buaya'],['🦅','Elang'],
+    ['🦜','Beo'],['🐬','Lumba-lumba'],['🦈','Hiu'],['🐙','Gurita'],['🦋','Kupu-kupu'],['🐌','Siput'],['🦔','Landak'],['🐿️','Tupai'],
+    ['🦘','Kanguru'],['🦙','Llama'],['🐪','Unta'],['🦦','Berang-berang'],['🐨','Koala'],['🐢','Kura-kura'],
   ],
   makanan: [
-    {emoji:'🍜',name:'Mie Goreng'},{emoji:'🍚',name:'Nasi Putih'},{emoji:'🍣',name:'Sushi'},
-    {emoji:'🍕',name:'Pizza'},{emoji:'🍔',name:'Burger'},{emoji:'🌮',name:'Taco'},
-    {emoji:'🍦',name:'Es Krim'},{emoji:'🎂',name:'Kue Ulang Tahun'},{emoji:'🍩',name:'Donat'},
-    {emoji:'🍜',name:'Bakso'},{emoji:'🥘',name:'Soto'},{emoji:'🍛',name:'Nasi Goreng'},
-    {emoji:'🥩',name:'Sate'},{emoji:'🥚',name:'Telur Dadar'},{emoji:'🫕',name:'Rendang'},
-    {emoji:'🥐',name:'Croissant'},{emoji:'🍱',name:'Bento'},{emoji:'🥗',name:'Salad'},
-    {emoji:'🍟',name:'Kentang Goreng'},{emoji:'🌯',name:'Kebab'},{emoji:'🥞',name:'Pancake'},
-    {emoji:'🍰',name:'Tiramisu'},{emoji:'🧆',name:'Falafel'},{emoji:'🥙',name:'Pita'},
-    {emoji:'🍝',name:'Spaghetti'},{emoji:'🥪',name:'Sandwich'},{emoji:'🫔',name:'Dimsum'},
-    {emoji:'🍤',name:'Udang Goreng'},{emoji:'🥟',name:'Pangsit'},{emoji:'🍡',name:'Mochi'},
-  ]
+    ['🍜','Mie Goreng',['mi goreng']],['🍚','Nasi Putih'],['🍣','Sushi'],['🍕','Pizza'],['🍔','Burger'],['🍦','Es Krim'],
+    ['🎂','Kue Ulang Tahun'],['🍩','Donat'],['🍲','Bakso'],['🥣','Soto'],['🍛','Nasi Goreng'],['🍢','Sate'],['🍳','Telur Dadar'],
+    ['🥘','Rendang'],['🥐','Croissant'],['🥗','Salad'],['🍟','Kentang Goreng',['french fries']],['🌯','Kebab'],['🥞','Pancake'],
+    ['🍝','Spaghetti',['spageti']],['🥪','Sandwich',['roti isi']],['🍤','Udang Goreng'],['🥟','Pangsit'],['🍡','Mochi'],
+    ['🫓','Martabak'],['🍿','Popcorn',['berondong']],['🍫','Cokelat',['coklat']],['🍉','Semangka'],['🍈','Durian'],
+  ],
+  benda: [
+    ['🪑','Kursi'],['☂️','Payung'],['🔑','Kunci'],['🕰️','Jam Dinding'],['🎸','Gitar'],['👓','Kacamata'],['👟','Sepatu'],
+    ['🛏️','Kasur',['tempat tidur']],['💡','Lampu'],['✂️','Gunting'],['🪥','Sikat Gigi'],['🪞','Cermin',['kaca']],
+    ['📱','HP',['handphone','hape','ponsel']],['💻','Laptop'],['📷','Kamera'],['👜','Tas'],['🧢','Topi'],['🎈','Balon'],
+    ['📖','Buku'],['✏️','Pensil'],['🧊','Kulkas',['lemari es']],['📺','Televisi',['tv']],['🧹','Sapu'],['🪣','Ember'],['🕯️','Lilin'],
+  ],
+  tempat: [
+    ['🏖️','Pantai'],['⛰️','Gunung'],['🏥','Rumah Sakit'],['🏫','Sekolah'],['✈️','Bandara'],['🚉','Stasiun'],['🎬','Bioskop'],
+    ['🛍️','Mall',['mal']],['🦁','Kebun Binatang'],['🕌','Masjid'],['🛒','Pasar'],['🏊','Kolam Renang'],['📚','Perpustakaan'],
+    ['☕','Kafe',['cafe','kedai kopi','coffee shop']],['🚓','Kantor Polisi'],['🎡','Taman Bermain'],['🍳','Dapur'],
+    ['🛁','Kamar Mandi',['wc','toilet']],['⛽','Pom Bensin',['spbu']],['🏨','Hotel'],
+  ],
+  profesi: [
+    ['🩺','Dokter'],['👩‍🏫','Guru'],['👮','Polisi'],['🚒','Pemadam Kebakaran',['damkar']],['🧑‍✈️','Pilot'],['🧑‍🍳','Koki',['chef']],
+    ['🧑‍🌾','Petani'],['🧑‍🚀','Astronot'],['💈','Tukang Cukur',['barber']],['📹','Youtuber',['konten kreator']],['🎤','Penyanyi'],
+    ['🔧','Montir',['mekanik']],['💂','Satpam',['security']],['🎣','Nelayan'],['📸','Fotografer'],['🦷','Dokter Gigi'],
+    ['📦','Kurir'],['🎨','Pelukis'],['🏅','Atlet'],['☕','Barista'],
+  ],
 };
 
-const HADIAH = [
-  'Kasih pelukan ke lawan sekarang — tahan sampai kamu yang minta lepas! 🤗',
-  'Lawan bilang 3 hal yang dia suka dari kamu sekarang! 🥺',
-  'Lawan traktir jajan — bisa ditagih kapanpun! 🍦',
-  'Lawan kasih pujian paling manis yang bisa dia pikirin! 💬',
-  'Lawan kirim pesan paling romantis ke chat kamu sekarang! 💌',
-  'Lawan boleh diminta apapun — 1 hal kecil sekarang! 😏',
-  'Lawan nyanyi lagu sayang ke kamu 10 detik! 🎤',
-  'Lawan kasih ciuman di pipi sekarang! 😘',
+const DEMAND_GUESSED = [
+  '<b>{h}</b> peluk <b>{g}</b> — tahan sampai <b>{g}</b> yang minta lepas 🤗',
+  '<b>{h}</b> bilang 3 hal yang dia suka dari <b>{g}</b> 🥺',
+  '<b>{h}</b> kasih pujian paling manis buat detektif <b>{g}</b> 💬',
+  '<b>{g}</b> boleh minta 1 hal kecil ke <b>{h}</b> 😏',
+  '<b>{h}</b> kirim chat paling romantis ke <b>{g}</b> sekarang 💌',
+  '<b>{h}</b> nyanyiin lagu sayang ke <b>{g}</b> 10 detik 🎤',
+  '<b>{h}</b> kasih ciuman di pipi <b>{g}</b> 😘',
+];
+const DEMAND_HIDDEN = [
+  '<b>{g}</b> tiruin identitas rahasia tadi selama 10 detik 😂',
+  '<b>{g}</b> kasih <b>{h}</b> 3 pujian karena jago sembunyi 👏',
+  '<b>{g}</b> pijitin bahu <b>{h}</b> 30 detik 💆',
+  '<b>{g}</b> sebut 1 kemiripan <b>{h}</b> sama identitas tadi 🤭',
+  '<b>{g}</b> bilang "kamu terlalu misterius" dengan nada drama 🎭',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> jajanan favorit minggu ini 🍡',
+  '<b>{w}</b> boleh minta <b>{l}</b> nurutin 1 permintaan kecil hari ini 😏',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+  '<b>{w}</b> pilih 1 identitas tadi — <b>{l}</b> peragain 20 detik tanpa ngomong 🎭',
+  '<b>{l}</b> kasih <b>{w}</b> gelar "Detektif Terbaik" + pelukan kemenangan 🕵️🤗',
+];
+const FINAL_TIE = [
+  'Seri! Main 1 ronde tambahan — kali ini pakai identitas pilihan pasangan 😏',
+  'Seri! Pelukan 10 detik — sama-sama detektif handal 🤗',
+  'Seri! Masing-masing peragain identitas favorit tadi barengan 😂',
 ];
 
-const MAX_Q = 20;
-const TIMER_DURATION = 60;
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+const ICON = { razan:'🧑', dara:'👧' };
+let CFG = { per:2, max:20, timer:60 };
+let G = null;
+let tick = null, token = 0;
+const decks = {};
 
-let identityHolder = 'razan';
-let guesser = 'dara';
-let category = 'hewan';
-let currentIdentity = null;
-let qCount = 0;
-let scores = { razan: 0, dara: 0 };
-let totalRounds = 0;
-let gameState = 'asking'; // asking | answering
-let pendingQuestion = '';
-let timerInterval = null;
-let timeLeft = TIMER_DURATION;
-
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function show(id, on) { const e = $(id); if (e) e.style.display = on ? '' : 'none'; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(key, pool) { if (!decks[key] || !decks[key].length) decks[key] = shuffle(pool.map((_, i) => i)); return pool[decks[key].pop()]; }
+function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, ''); }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
 }
+let toastT = null;
+function toast(msg) { const t = $('toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
+function bindPills(id, key) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); const n = parseInt(p.dataset.n); CFG[key] = isNaN(n) ? CFG[key] : n;
+  }));
+}
+bindPills('round-pills', 'per');
+bindPills('max-pills', 'max');
+bindPills('timer-pills', 'timer');
+function stopTimer() { token++; clearInterval(tick); tick = null; }
 
-function pickIdentityHolder(player) {
-  identityHolder = player;
-  guesser = player === 'razan' ? 'dara' : 'razan';
-  const holderName = player === 'razan' ? 'Razan' : 'Dara';
-  document.getElementById('cat-title').textContent = `${holderName} pilih kategori`;
+// ═════════ FLOW ═════════
+function startGame(firstHolder) {
+  stopTimer();
+  const h = firstHolder === 'dara' ? 'dara' : 'razan';
+  G = {
+    firstHolder: h, holder: h, round: 1, total: CFG.per * 2,
+    scores: { razan:0, dara:0 }, streak: { razan:0, dara:0 }, best: { razan:0, dara:0 },
+    fastest: null, phase: 'cat',
+  };
+  showCat();
+}
+function playAgain() { startGame(G ? other(G.firstHolder) : 'razan'); }
+
+function showCat() {
+  if (!G) return;
+  G.phase = 'cat';
+  const h = G.holder, g = other(h);
+  setHTML('cat-round', `Ronde <b>${G.round}</b> dari ${G.total}`);
+  setText('cat-title', `${ICON[h]} ${NAMES[h]} pilih kategori`);
+  setText('cat-sub', `${NAMES[g]} jangan liat layar dulu ya 🙈`);
+  setHTML('cat-grid', Object.entries(CATS).map(([k, c]) =>
+    `<div class="cat-btn" onclick="pickCategory('${k}')"><span class="cat-btn-icon">${c.icon}</span><span class="cat-btn-name">${c.label}</span><span class="cat-btn-sub">${c.sub}</span></div>`).join('') +
+    `<div class="cat-btn full" onclick="pickCategory('acak')"><span class="cat-btn-icon">🎲</span><span class="cat-btn-name">Acak</span><span class="cat-btn-sub">Kategori dirahasiain juga — makin susah!</span></div>`);
   showScreen('s-cat');
 }
 
-function pickCategory(cat) {
-  category = cat;
-  // Pick random identity
-  const list = IDENTITIES[cat];
-  currentIdentity = list[Math.floor(Math.random() * list.length)];
+function drawIdentity(cat) {
+  const [emoji, name, alt] = draw('id-' + cat, IDENTITIES[cat]);
+  return { emoji, name, alt: alt || [], cat };
+}
 
-  const holderName = identityHolder === 'razan' ? 'Razan' : 'Dara';
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-
-  document.getElementById('id-warning').textContent = `Hanya untuk ${holderName} — ${guesserName} jangan liat!`;
-  document.getElementById('id-emoji').textContent = currentIdentity.emoji;
-  document.getElementById('id-name').textContent = currentIdentity.name.toUpperCase();
-  document.getElementById('id-cat').textContent = `Kategori: ${cat === 'hewan' ? '🐾 Hewan' : '🍔 Makanan'}`;
+function pickCategory(c) {
+  if (!G || G.phase !== 'cat') return;
+  G.secretCat = c === 'acak';
+  const cat = G.secretCat ? shuffle(Object.keys(CATS))[0] : c;
+  G.identity = drawIdentity(cat);
+  G.rerolled = false;
+  G.phase = 'identity';
+  renderIdentity();
+  const rb = $('reroll-btn'); if (rb) rb.disabled = false;
   showScreen('s-identity');
 }
 
-function startRound() {
-  qCount = 0;
-  gameState = 'asking';
-  pendingQuestion = '';
-
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-  const holderName = identityHolder === 'razan' ? 'Razan' : 'Dara';
-
-  document.getElementById('q-count').textContent = '0';
-  document.getElementById('score-r').textContent = scores.razan;
-  document.getElementById('score-d').textContent = scores.dara;
-  document.getElementById('cat-hint-text').textContent = `Kategori: ${category === 'hewan' ? '🐾 Hewan' : '🍔 Makanan'}`;
-  document.getElementById('ask-turn').textContent = `${guesser === 'razan' ? '🧑' : '👧'} ${guesserName} — tanya sekarang!`;
-  document.getElementById('answer-turn').textContent = `${identityHolder === 'razan' ? '🧑' : '👧'} ${holderName} — jawab pertanyaan lawan!`;
-  document.getElementById('qa-list').innerHTML = '';
-  document.getElementById('ask-input').value = '';
-  document.getElementById('guess-direct').value = '';
-
-  document.getElementById('ask-area').style.display = 'block';
-  document.getElementById('answer-area').style.display = 'none';
-
-  const passIcon = guesser === 'razan' ? '🧑' : '👧';
-  document.getElementById('pass-icon').textContent = passIcon;
-  document.getElementById('pass-title').textContent = `Kasih HP ke ${guesserName}!`;
-  document.getElementById('pass-sub').textContent = `Identitas sudah dikunci — kasih HP ke ${guesserName} biar bisa mulai tanya! 🙈`;
-  document.getElementById('pass-ready-btn').textContent = `${guesser === 'razan' ? '🧑' : '👧'} ${guesserName} Udah Pegang HP! 🕵️`;
-
-  showScreen('s-game');
-  startTimer();
-  setTimeout(() => document.getElementById('ask-input').focus(), 200);
+function renderIdentity() {
+  const h = G.holder, g = other(h), id = G.identity;
+  setText('id-warning', `Cuma buat ${NAMES[h]} — ${NAMES[g]} jangan liat!`);
+  setText('id-emoji', id.emoji);
+  setText('id-name', id.name.toUpperCase());
+  setText('id-cat', `Kategori: ${CATS[id.cat].icon} ${CATS[id.cat].label}${G.secretCat ? ' (dirahasiain 🎲)' : ''}`);
 }
 
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = TIMER_DURATION;
-  updateTimer();
-  timerInterval = setInterval(() => {
-    timeLeft -= 0.1;
-    timeLeft = Math.round(timeLeft * 10) / 10;
-    updateTimer();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      if (gameState === 'asking') {
-        // Time up for guesser - skip question penalty
-        addQAItem('', null, null, '⏰ Waktu habis! Pertanyaan terlewat.');
-        qCount++;
-        document.getElementById('q-count').textContent = qCount;
-        if (qCount >= MAX_Q) { endRound(false); return; }
-        gameState = 'asking';
-        startTimer();
-        scrollToBottom();
-      }
+function rerollIdentity() {
+  if (!G || G.phase !== 'identity' || G.rerolled) return;
+  G.rerolled = true;
+  G.identity = drawIdentity(G.identity.cat);
+  renderIdentity();
+  const rb = $('reroll-btn'); if (rb) rb.disabled = true;
+  const e = $('id-emoji'); if (e) { e.style.animation = 'none'; void e.offsetWidth; e.style.animation = ''; }
+}
+
+function toPass() {
+  if (!G || G.phase !== 'identity') return;
+  G.phase = 'pass';
+  const g = other(G.holder);
+  setText('pass-icon', ICON[g]);
+  setText('pass-title', `${NAMES[g]}, giliran kamu nebak!`);
+  setText('pass-sub', `Identitas ${NAMES[G.holder]} udah dikunci. Taruh HP di tengah biar dua-duanya bisa liat 🕵️`);
+  setText('pass-btn', `${ICON[g]} Mulai nebak 🕵️`);
+  showScreen('s-pass');
+}
+
+function ptsFor(q) { return q <= Math.ceil(CFG.max * .25) ? 3 : q <= Math.ceil(CFG.max * .5) ? 2 : 1; }
+
+function beginRound() {
+  if (!G || G.phase !== 'pass') return;
+  G.q = 0; G.items = []; G.pendingGuess = '';
+  const h = G.holder, g = other(h);
+  setText('q-max', CFG.max);
+  setText('gh-cat', G.secretCat ? '🎲 Kategori rahasia' : `${CATS[G.identity.cat].icon} ${CATS[G.identity.cat].label}`);
+  const at = $('ask-turn'); if (at) { at.textContent = `${ICON[g]} ${NAMES[g]} — tanya atau tebak!`; at.className = 'ask-turn ' + g; }
+  const an = $('answer-turn'); if (an) { an.textContent = `${ICON[h]} ${NAMES[h]} — jawab jujur!`; an.className = 'ask-turn ' + h; }
+  const vt = $('verify-turn'); if (vt) { vt.textContent = `${ICON[h]} ${NAMES[h]} — tebakannya bener?`; vt.className = 'ask-turn ' + h; }
+  ['ask-input', 'guess-input'].forEach(id => { const e = $(id); if (e) e.value = ''; });
+  const tw = $('timer-wrap'); if (tw) tw.classList.toggle('hidden', !CFG.timer);
+  updateHud();
+  renderQA();
+  showScreen('s-game');
+  setPhase('asking');
+}
+
+function updateHud() {
+  setText('q-count', G.q);
+  setText('score-r', G.scores.razan); setText('score-d', G.scores.dara);
+  const next = G.q + 1;
+  setHTML('pts-hint', next <= CFG.max ? `Ketebak di pertanyaan ke-${next} = <b>+${ptsFor(next)} poin</b>` : '');
+}
+
+function setPhase(ph) {
+  G.phase = ph;
+  show('ask-area', ph === 'asking');
+  show('answer-area', ph === 'answering');
+  show('verify-area', ph === 'verify');
+  if (ph === 'asking') runTimer(); else stopTimer();
+}
+
+function runTimer() {
+  stopTimer();
+  if (!CFG.timer) return;
+  const my = token, start = Date.now(), bar = $('timer-bar');
+  const paint = left => {
+    const pct = left / CFG.timer * 100;
+    if (bar) { bar.style.width = pct + '%'; bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : 'var(--rose)'; }
+    setText('timer-label', Math.ceil(left));
+  };
+  paint(CFG.timer);
+  tick = setInterval(() => {
+    if (my !== token || !G || G.phase !== 'asking') return;
+    const left = Math.max(0, CFG.timer - (Date.now() - start) / 1000);
+    paint(left);
+    if (left <= 0) {
+      stopTimer();
+      G.items.push({ type:'note', cls:'time', text:'⏰ Waktu habis — 1 pertanyaan hangus' });
+      useQuestion();
     }
   }, 100);
 }
 
-function updateTimer() {
-  const pct = Math.max(0, (timeLeft / TIMER_DURATION) * 100);
-  const bar = document.getElementById('timer-bar');
-  bar.style.width = pct + '%';
-  bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : 'var(--rose)';
-  document.getElementById('timer-label').textContent = Math.ceil(timeLeft);
+// Pakai 1 jatah pertanyaan, cek batas
+function useQuestion() {
+  G.q++;
+  updateHud(); renderQA();
+  if (G.q >= CFG.max) { endRound(false); return; }
+  setPhase('asking');
 }
 
 function sendQuestion() {
-  const q = document.getElementById('ask-input').value.trim();
-  if (!q) { document.getElementById('ask-input').focus(); return; }
-  if (gameState !== 'asking') return;
-
-  pendingQuestion = q;
-  gameState = 'answering';
-  clearInterval(timerInterval);
-
-  document.getElementById('ask-area').style.display = 'none';
-  document.getElementById('answer-area').style.display = 'block';
-  document.getElementById('ask-input').value = '';
-
-  // Show question bubble
-  const holderName = identityHolder === 'razan' ? 'Razan' : 'Dara';
-  addQAItem(q, null, null, null);
-  scrollToBottom();
-
-  // Restart timer for answerer
-  startTimer();
+  if (!G || G.phase !== 'asking') return;
+  const inp = $('ask-input'); if (!inp) return;
+  const q = inp.value.trim().replace(/\s+/g, ' ');
+  if (!q) { inp.focus(); return; }
+  inp.value = ''; inp.blur();
+  G.items.push({ type:'q', text:q, ans:null, n: G.q + 1 });
+  renderQA();
+  setPhase('answering');
 }
 
 function sendAnswer(ans) {
-  if (gameState !== 'answering') return;
-  clearInterval(timerInterval);
-
-  gameState = 'asking';
-  qCount++;
-  document.getElementById('q-count').textContent = qCount;
-
-  // Update last QA item with answer
-  updateLastAnswer(ans);
-  scrollToBottom();
-
-  document.getElementById('ask-area').style.display = 'block';
-  document.getElementById('answer-area').style.display = 'none';
-
-  if (qCount >= MAX_Q) { endRound(false); return; }
-  startTimer();
-  setTimeout(() => document.getElementById('ask-input').focus(), 200);
+  if (!G || G.phase !== 'answering') return;
+  const last = [...G.items].reverse().find(i => i.type === 'q' && !i.ans);
+  if (last) last.ans = ans;
+  useQuestion();
 }
 
 function makeGuess() {
-  const guess = document.getElementById('guess-direct').value.trim();
-  if (!guess) { document.getElementById('guess-direct').focus(); return; }
-  clearInterval(timerInterval);
+  if (!G || G.phase !== 'asking') return;
+  const inp = $('guess-input'); if (!inp) return;
+  const guess = inp.value.trim().replace(/\s+/g, ' ');
+  if (!guess) { inp.focus(); return; }
+  inp.value = ''; inp.blur();
+  const id = G.identity;
+  const hit = [id.name, ...id.alt].some(n => norm(n) === norm(guess));
+  G.items.push({ type:'guess', text:guess });
+  if (hit) { G.q++; G.items.push({ type:'note', cls:'correct', text:'✓ BENAR!' }); renderQA(); endRound(true); return; }
+  // Nggak cocok persis → pemegang identitas yang mutusin
+  G.pendingGuess = guess;
+  setHTML('verify-text', `Tebakan: <b>"${esc(guess)}"</b> — mirip sama identitasmu nggak?`);
+  renderQA();
+  setPhase('verify');
+}
 
-  const isCorrect = guess.toLowerCase().replace(/\s/g,'') === currentIdentity.name.toLowerCase().replace(/\s/g,'');
+function verifyGuess(ok) {
+  if (!G || G.phase !== 'verify') return;
+  if (ok) { G.q++; G.items.push({ type:'note', cls:'correct', text:'✓ BENAR! (dikonfirmasi)' }); renderQA(); endRound(true); return; }
+  G.items.push({ type:'note', cls:'wrong', text:'✗ Salah — 1 pertanyaan kepake' });
+  useQuestion();
+}
 
-  addGuessItem(guess, isCorrect);
-  scrollToBottom();
-
-  if (isCorrect) {
-    qCount++; // count this as a question used
-    endRound(true);
+function renderQA() {
+  const list = $('qa-list'); if (!list) return;
+  if (!G.items.length) {
+    list.innerHTML = `<p class="qa-empty">Mulai tanya pertanyaan ya/tidak, misal:<br>"Apakah kamu bisa dimakan?" · "Apakah kamu lebih besar dari kucing?" 🤔</p>`;
   } else {
-    qCount++;
-    document.getElementById('q-count').textContent = qCount;
-    document.getElementById('guess-direct').value = '';
-    if (qCount >= MAX_Q) { endRound(false); return; }
-    startTimer();
+    list.innerHTML = G.items.map(i => {
+      if (i.type === 'q') return `<div class="qa-item"><div class="qa-question"><span class="qa-num">#${i.n}</span>${esc(i.text)}</div>${
+        i.ans ? `<div class="qa-answer ${i.ans.toLowerCase()}">${i.ans}</div>` : `<div class="qa-answer wait">nunggu jawaban...</div>`}</div>`;
+      if (i.type === 'guess') return `<div class="qa-item"><div class="qa-guess">🎯 Tebakan: "${esc(i.text)}"</div></div>`;
+      return `<div class="qa-item"><div class="qa-note ${i.cls}">${esc(i.text)}</div></div>`;
+    }).join('');
   }
+  setTimeout(() => { const s = $('qa-scroll'); if (s) s.scrollTop = s.scrollHeight; }, 50);
 }
 
-function addQAItem(question, answer, ansClass, note) {
-  const list = document.getElementById('qa-list');
-  const div = document.createElement('div');
-  div.className = 'qa-item';
-  div.id = 'qa-' + qCount;
-  if (note) {
-    div.innerHTML = `<div class="qa-guess-result wrong">${note}</div>`;
-  } else {
-    div.innerHTML = `<div class="qa-question">${question}</div><div class="clearfix"></div>`;
-  }
-  list.appendChild(div);
+// Tahan buat intip identitas (buat pemegang identitas)
+function bindPeek(id) {
+  const b = $(id); if (!b) return;
+  const on = e => { if (e) e.preventDefault(); if (!G || !G.identity) return; b.classList.add('on'); b.textContent = `${G.identity.emoji} ${G.identity.name}`; };
+  const off = () => { b.classList.remove('on'); b.textContent = '👁️ Tahan buat intip identitas'; };
+  b.addEventListener('pointerdown', on);
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, off));
 }
+bindPeek('peek-btn'); bindPeek('peek-btn-2');
 
-function updateLastAnswer(ans) {
-  const div = document.getElementById('qa-' + (qCount));
-  if (!div) return;
-  const ansClass = ans === 'YA' ? 'ya-ans' : ans === 'TIDAK' ? 'tidak-ans' : 'mungkin-ans';
-  div.innerHTML += `<div class="qa-answer ${ansClass}">${ans}</div><div class="clearfix"></div>`;
-}
-
-function addGuessItem(guess, isCorrect) {
-  const list = document.getElementById('qa-list');
-  const div = document.createElement('div');
-  div.className = 'qa-item';
-  div.innerHTML = `
-    <div class="qa-guess-bubble">🎯 Tebakan: "${guess}"</div>
-    <div class="qa-guess-result ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ BENAR!' : '✗ Salah, coba lagi!'}</div>`;
-  list.appendChild(div);
-}
-
-function scrollToBottom() {
-  const scroll = document.getElementById('qa-scroll');
-  setTimeout(() => scroll.scrollTop = scroll.scrollHeight, 100);
-}
-
+// ═════════ AKHIR RONDE ═════════
 function endRound(guessed) {
-  clearInterval(timerInterval);
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-  const holderName = identityHolder === 'razan' ? 'Razan' : 'Dara';
-
-  document.getElementById('ri-emoji').textContent = currentIdentity.emoji;
-  document.getElementById('ri-name').textContent = currentIdentity.name;
+  if (!G) return;
+  stopTimer();
+  G.phase = 'end';
+  const h = G.holder, g = other(h);
+  setText('ri-emoji', G.identity.emoji);
+  setText('ri-name', G.identity.name);
 
   if (guessed) {
-    // Points based on how fast
-    const pts = qCount <= 10 ? 2 : 1;
-    scores[guesser] += pts;
-    document.getElementById('rr-icon').textContent = '🎉';
-    document.getElementById('rr-title').textContent = `${guesserName} Berhasil!`;
-    document.getElementById('rr-sub').textContent = `Ketebak dalam ${qCount} pertanyaan! +${pts} poin untuk ${guesserName}!`;
-
-    const hadiah = HADIAH[Math.floor(Math.random() * HADIAH.length)];
-    document.getElementById('hadiah-rr-text').textContent = hadiah;
-    document.getElementById('hadiah-rr').style.display = 'block';
-    confetti(60);
+    const pts = ptsFor(G.q);
+    G.scores[g] += pts;
+    G.streak[g]++; G.best[g] = Math.max(G.best[g], G.streak[g]);
+    if (!G.fastest || G.q < G.fastest.q) G.fastest = { q: G.q, who: g };
+    setText('rr-icon', '🎉');
+    setText('rr-title', `${NAMES[g]} Berhasil Nebak!`);
+    setText('rr-sub', `Ketebak di pertanyaan ke-${G.q} — +${pts} poin buat ${NAMES[g]}!` + (G.streak[g] >= 2 ? ` 🔥 ${G.streak[g]}x beruntun` : ''));
+    setText('rr-tag', `🎁 Hadiah buat ${NAMES[g]}`);
+    setHTML('rr-demand', fill(draw('dg', DEMAND_GUESSED), { h: NAMES[h], g: NAMES[g] }));
+    confetti(55); vib([100, 50, 200]);
+    if ([2, 3].includes(G.streak[g])) toast(`🔥 ${NAMES[g]} nebak ${G.streak[g]}x beruntun!`);
   } else {
-    scores[identityHolder]++;
-    document.getElementById('rr-icon').textContent = '🛡️';
-    document.getElementById('rr-title').textContent = `${holderName} Berhasil Sembunyi!`;
-    document.getElementById('rr-sub').textContent = `${guesserName} ga bisa nebak dalam 20 pertanyaan! +1 poin untuk ${holderName}!`;
-    document.getElementById('hadiah-rr').style.display = 'none';
+    G.scores[h] += 2;
+    G.streak[g] = 0;
+    setText('rr-icon', '🛡️');
+    setText('rr-title', `${NAMES[h]} Berhasil Sembunyi!`);
+    setText('rr-sub', `${NAMES[g]} nggak bisa nebak dalam ${CFG.max} pertanyaan — +2 poin buat ${NAMES[h]}!`);
+    setText('rr-tag', `😈 Hukuman buat ${NAMES[g]}`);
+    setHTML('rr-demand', fill(draw('dh', DEMAND_HIDDEN), { h: NAMES[h], g: NAMES[g] }));
   }
-
-  document.getElementById('rr-r').textContent = scores.razan;
-  document.getElementById('rr-d').textContent = scores.dara;
-  totalRounds++;
-
-  const isLast = totalRounds >= 4;
-  document.getElementById('next-rr-btn').textContent = isLast ? 'Lihat Hasil 🕵️' : 'Gantian! →';
-  document.getElementById('next-rr-btn').onclick = isLast ? showFinalResult : nextRound;
-
-  showScreen('s-round-result');
+  setText('rr-r', G.scores.razan); setText('rr-d', G.scores.dara);
+  setText('rr-next', G.round >= G.total ? 'Lihat Hasil 🕵️' : `Ronde ${G.round + 1} → ${NAMES[g]} dapet identitas`);
+  showScreen('s-round');
 }
 
 function nextRound() {
-  // Swap roles
-  const tmp = identityHolder;
-  identityHolder = guesser;
-  guesser = tmp;
-
-  const holderName = identityHolder === 'razan' ? 'Razan' : 'Dara';
-  document.getElementById('cat-title').textContent = `${holderName} pilih kategori`;
-  showScreen('s-cat');
+  if (!G || G.phase !== 'end') return;
+  if (G.round >= G.total) { showFinal(); return; }
+  G.round++;
+  G.holder = other(G.holder);
+  showCat();
 }
 
-function showFinalResult() {
-  const r = scores.razan, d = scores.dara;
-  const tie = r === d;
-  const winner = r > d ? 'Razan' : 'Dara';
-  const loser = r > d ? 'Dara' : 'Razan';
+function exitGame() {
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  stopTimer(); G = null;
+  showScreen('s-intro');
+}
 
-  document.getElementById('end-icon').textContent = tie ? '🤝' : '🏆';
-  document.getElementById('end-title').textContent = tie ? 'Seri!' : `${winner} Menang!`;
-  document.getElementById('end-sub').textContent = tie
-    ? 'Sama kuat — dua-duanya jago nebak dan sembunyi!'
-    : `${winner} paling jago main detektif!`;
-  document.getElementById('end-r').textContent = r;
-  document.getElementById('end-d').textContent = d;
+// ═════════ FINAL ═════════
+function showFinal() {
+  if (!G) return;
+  G.phase = 'final';
+  const r = G.scores.razan, d = G.scores.dara, tie = r === d;
+  const w = r > d ? 'Razan' : 'Dara', l = r > d ? 'Dara' : 'Razan';
+  setText('end-icon', tie ? '🤝' : '🏆');
+  setText('end-title', tie ? 'Seri!' : `${w} Menang!`);
+  setText('end-sub', tie ? 'Sama kuat — dua-duanya jago nebak dan sembunyi!' : `${w} paling jago main detektif!`);
+  setText('end-r', r); setText('end-d', d);
+  setText('st-best-r', G.best.razan); setText('st-best-d', G.best.dara);
+  setText('st-fast', G.fastest ? `${G.fastest.q} tanya` : '—');
 
-  let verdict;
-  if (tie) {
-    verdict = `Seri ${r}-${d}! Dua-duanya sama jago — mau main lagi buat tentukan pemenangnya?`;
-  } else if (Math.abs(r-d) === 1) {
-    verdict = `<strong>${winner}</strong> menang tipis ${r>d?r:d}-${r>d?d:r}. Hampir imbang — ${loser} hampir bisa ngalahin!`;
-  } else {
-    verdict = `<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}! ${winner} paling jago jadi detektif — ${loser} harus latihan lagi 🕵️`;
-  }
+  let v;
+  if (tie) v = `Seri ${r}-${d}! Dua-duanya sama jago — mau main lagi buat nentuin pemenangnya?`;
+  else if (Math.abs(r - d) <= 2) v = `<strong>${w}</strong> menang tipis ${Math.max(r, d)}-${Math.min(r, d)}. ${l} hampir bisa ngalahin!`;
+  else v = `<strong>${w}</strong> menang ${Math.max(r, d)}-${Math.min(r, d)}! ${w} paling jago jadi detektif — ${l} harus latihan lagi 🕵️`;
+  if (G.fastest) v += `<br>⚡ Tebakan tercepat: <strong>${NAMES[G.fastest.who]}</strong> cuma butuh ${G.fastest.q} pertanyaan!`;
+  setHTML('end-verdict', v);
 
-  document.getElementById('end-verdict').innerHTML = verdict;
+  setText('fd-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
+  setHTML('fd-text', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
   showScreen('s-result');
-  confetti(50);
+  confetti(tie ? 30 : 60);
 }
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('ask-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuestion(); }
-  });
-  document.getElementById('guess-direct').addEventListener('keydown', e => {
-    if (e.key === 'Enter') makeGuess();
-  });
-});
+// ═════════ INPUT ═════════
+(function bindKeys() {
+  const a = $('ask-input'), g = $('guess-input');
+  if (a) a.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); sendQuestion(); } });
+  if (g) g.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); makeGuess(); } });
+})();
 
 function confetti(n) {
-  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#faf6f0'];
-  for (let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#3a5cb5'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
