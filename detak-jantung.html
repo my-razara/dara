@@ -9,169 +9,205 @@
   :root{
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
-    --gold:#c9a96e;--muted:#9a8070;
-    --blue:#4a7cc7;--blue-l:rgba(74,124,199,.15);
-    --rose-l:rgba(193,122,111,.15);
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --blue:#4a7cc7;--red:#e57373;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#0a0a14}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.5rem 1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#0a0a14,#12081e)}
   .screen.active{display:flex}
+  .screen::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 30% 30%,rgba(74,124,199,.14),transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.14),transparent 55%)}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+
+  @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.2)}28%{transform:scale(1)}42%{transform:scale(1.15)}70%{transform:scale(1)}}
+  @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
 
   /* ── INTRO ── */
-  #s-intro{background:linear-gradient(160deg,#0a0a14,#12081e)}
-  #s-intro::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse at 30% 30%,rgba(74,124,199,.15),transparent 55%),
-    radial-gradient(ellipse at 70% 70%,rgba(193,122,111,.15),transparent 55%);
-    pointer-events:none}
-  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:heartbeat 1s ease-in-out infinite;position:relative;z-index:1}
-  @keyframes heartbeat{0%,100%{transform:scale(1)}14%{transform:scale(1.2)}28%{transform:scale(1)}42%{transform:scale(1.15)}70%{transform:scale(1)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title span{color:#e57373}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
-  .rules-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.4rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
-  .rule-dot.blue{background:var(--blue)}
-  .rule-dot.rose{background:var(--rose)}
-  .rule-dot.gold{background:var(--gold)}
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#e57373,#c17a6f);color:#fff;box-shadow:0 4px 18px rgba(229,115,115,.4);transition:all .2s;position:relative;z-index:1;animation:btnpulse 2s ease-in-out infinite}
-  @keyframes btnpulse{0%,100%{box-shadow:0 4px 18px rgba(229,115,115,.4)}50%{box-shadow:0 4px 28px rgba(229,115,115,.7)}}
-  .start-btn:active{transform:scale(.97)}
+  .intro-icon{font-size:3.4rem;display:block;margin-bottom:.75rem;animation:heartbeat 1s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:#fff;margin-bottom:.25rem}
+  .intro-title span{color:var(--red)}
+  .intro-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.55);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,var(--red),var(--rose));border-color:transparent;color:#fff}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+  .rule-dot.blue{background:var(--blue)}.rule-dot.rose{background:var(--rose)}.rule-dot.gold{background:var(--gold)}
+  .btn-main{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--red),var(--rose));color:#fff;box-shadow:0 4px 18px rgba(229,115,115,.4);transition:transform .15s}
+  .btn-main:active{transform:scale(.97)}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
+  .btn-row{display:flex;gap:.55rem;width:100%}
+  .btn-row .btn-ghost{margin-top:0}
+
+  /* ── PRE-ROUND ── */
+  .round-badge{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block}
+  .round-dots{display:flex;gap:5px;justify-content:center;margin-bottom:1rem}
+  .rd{width:22px;height:4px;border-radius:2px;background:rgba(255,255,255,.1)}
+  .rd.done{background:var(--rose)}
+  .rd.cur{background:#fff}
+  .act-card{width:100%;background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(229,115,115,.1));border:1px solid rgba(201,169,110,.4);border-radius:20px;padding:1.4rem 1.2rem;margin-bottom:1rem}
+  .act-icon{font-size:2.6rem;display:block;margin-bottom:.5rem}
+  .act-tag{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.35rem}
+  .act-text{font-size:15px;font-weight:600;color:#fff;line-height:1.55}
+  .act-text b{color:var(--red)}
+  .act-note{font-size:11px;color:rgba(255,255,255,.4);margin-top:.6rem}
+  .streak-chip{display:inline-block;font-size:11px;font-weight:700;color:#ff9f43;background:rgba(255,159,67,.12);border-radius:50px;padding:.25rem .75rem;margin-bottom:.8rem}
 
   /* ── GAME ── */
-  #s-game{padding:0;background:#0a0a14}
-
-  /* EKG background */
-  .ekg-bg{position:fixed;inset:0;z-index:0;opacity:.06;pointer-events:none}
-
-  /* Header */
-  .game-header{position:fixed;top:0;left:0;right:0;z-index:20;
-    background:rgba(10,10,20,.8);backdrop-filter:blur(8px);
-    padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between}
-  .gh-player{text-align:center}
+  #s-game{padding:0}
+  #s-game::before{display:none}
+  .ekg-bg{position:fixed;inset:0;z-index:0;opacity:.06;pointer-events:none;width:100%;height:100%}
+  .game-header{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(10,10,20,.85);padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between}
+  .gh-player{text-align:center;min-width:70px}
   .gh-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block}
-  .gh-name.blue{color:rgba(74,124,199,.8)}
-  .gh-name.rose{color:rgba(193,122,111,.8)}
-  .gh-bpm{font-size:1.4rem;font-weight:700;color:#fff;display:block;line-height:1}
+  .gh-name.blue{color:rgba(126,179,245,.85)}
+  .gh-name.rose{color:rgba(232,160,144,.85)}
+  .gh-bpm{font-size:1.4rem;font-weight:700;color:#fff;display:block;line-height:1.1}
   .gh-bpm-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase}
   .gh-mid{text-align:center}
+  .gh-round{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;display:block}
   .gh-timer{font-size:1.8rem;font-weight:700;color:#fff;display:block;line-height:1}
+  .gh-timer.low{color:var(--red)}
   .gh-timer-label{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase}
-
-  /* Waveform canvas */
-  .wave-area{position:fixed;top:60px;left:0;right:0;height:120px;z-index:5;pointer-events:none}
-  #wave-canvas{width:100%;height:100%}
-
-  /* Split tap area */
-  .tap-area{position:fixed;inset:0;top:180px;bottom:0;display:flex;z-index:10}
-  .tap-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;position:relative;overflow:hidden}
+  .wave-area{position:fixed;top:64px;left:0;right:0;height:110px;z-index:5;pointer-events:none}
+  #wave-canvas{width:100%;height:100%;display:block}
+  .tap-area{position:fixed;left:0;right:0;top:174px;bottom:0;display:flex;z-index:10;touch-action:none}
+  .tap-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;touch-action:none}
   .tap-side.left{border-right:1px solid rgba(255,255,255,.06)}
-
-  /* Ripple */
-  .ripple{position:absolute;border-radius:50%;animation:rippleout .6s ease-out forwards;pointer-events:none}
+  .ripple{position:absolute;width:80px;height:80px;border-radius:50%;animation:rippleout .6s ease-out forwards;pointer-events:none}
   @keyframes rippleout{0%{transform:scale(0);opacity:.8}100%{transform:scale(4);opacity:0}}
   .ripple.blue{background:rgba(74,124,199,.4)}
   .ripple.rose{background:rgba(193,122,111,.4)}
-
-  /* Tap button */
-  .tap-btn{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;position:relative;z-index:1;transition:transform .1s}
+  .tap-btn{width:120px;height:120px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;position:relative;z-index:1;transition:transform .1s;pointer-events:none}
   .tap-btn.blue{background:rgba(74,124,199,.12);border:2px solid rgba(74,124,199,.3)}
   .tap-btn.rose{background:rgba(193,122,111,.12);border:2px solid rgba(193,122,111,.3)}
-  .tap-btn.pressed{transform:scale(.88)!important}
+  .tap-btn.pressed{transform:scale(.88)}
   .tap-icon{font-size:2.2rem;display:block}
   .tap-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em}
   .tap-hint{font-size:10px;color:rgba(255,255,255,.3)}
-
-  /* Pulse ring */
-  .pulse-ring{position:absolute;width:120px;height:120px;border-radius:50%;animation:none;pointer-events:none}
+  .tap-count{position:absolute;bottom:1.2rem;font-size:10px;color:rgba(255,255,255,.3)}
+  .pulse-ring{position:absolute;width:120px;height:120px;border-radius:50%;pointer-events:none;opacity:0}
   .pulse-ring.blue{border:2px solid rgba(74,124,199,.5)}
   .pulse-ring.rose{border:2px solid rgba(193,122,111,.5)}
   .pulse-ring.animate{animation:pulseRing .6s ease-out forwards}
   @keyframes pulseRing{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.5);opacity:0}}
 
-  /* Countdown overlay */
-  #countdown-overlay{position:fixed;inset:0;z-index:100;background:rgba(10,10,20,.95);display:flex;align-items:center;justify-content:center;flex-direction:column}
-  .cd-num{font-size:6rem;font-weight:700;color:#fff;animation:cdpop .8s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes cdpop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
-  .cd-label{font-size:14px;color:rgba(255,255,255,.4);margin-top:.5rem}
+  #countdown-overlay{position:fixed;inset:0;z-index:100;background:rgba(10,10,20,.95);display:none;align-items:center;justify-content:center;flex-direction:column}
+  #countdown-overlay.show{display:flex}
+  .cd-num{font-size:6rem;font-weight:700;color:#fff}
+  .cd-num.anim{animation:pop .7s cubic-bezier(.34,1.5,.64,1)}
+  .cd-label{font-size:13px;color:rgba(255,255,255,.4);margin-top:.5rem;max-width:280px;line-height:1.5}
 
-  /* ── RESULT ── */
-  #s-result{background:linear-gradient(160deg,#0a0a14,#12081e);padding:1rem 1.25rem}
-  #s-result::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse at 50% 30%,rgba(229,115,115,.15),transparent 60%);
-    pointer-events:none}
-  .result-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:heartbeat 1s ease-in-out infinite;position:relative;z-index:1}
-  .result-title{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:.25rem;position:relative;z-index:1}
-  .result-score{font-size:3.5rem;font-weight:700;color:#e57373;display:block;margin-bottom:.25rem;animation:scorepop .5s cubic-bezier(.34,1.5,.64,1) .2s both;position:relative;z-index:1}
-  @keyframes scorepop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-  .result-score-label{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;position:relative;z-index:1}
+  /* ── ROUND RESULT & FINAL ── */
+  .big-icon{font-size:3.2rem;display:block;margin-bottom:.5rem;animation:heartbeat 1s ease-in-out infinite}
+  .big-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.2rem}
+  .big-score{font-size:3.3rem;font-weight:700;color:var(--red);display:block;line-height:1.1;animation:pop .5s cubic-bezier(.34,1.5,.64,1) .1s both}
+  .big-label{font-size:10.5px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;display:block}
+  .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:.9rem 1rem;margin-bottom:.75rem;width:100%}
+  .card-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:.6rem;text-align:left}
+  .graph{width:100%;height:100px;display:block;border-radius:10px}
+  .stats-row{display:flex;gap:.5rem;width:100%;margin-bottom:.75rem}
+  .stat-card{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem}
+  .stat-val{font-size:1.25rem;font-weight:700;display:block;color:#fff}
+  .stat-val.blue{color:#7eb3f5}.stat-val.rose{color:#e8a090}.stat-val.red{color:var(--red)}
+  .stat-label{font-size:9.5px;color:rgba(255,255,255,.4);margin-top:.15rem;display:block;line-height:1.3}
+  .note-card{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.22);border-radius:16px;padding:.85rem 1.1rem;margin-bottom:.75rem;width:100%;font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.65;text-align:left}
+  .note-card strong,.note-card b{color:var(--red)}
+  .final-demand{background:linear-gradient(135deg,rgba(201,169,110,.2),rgba(229,115,115,.12));border:1px solid rgba(201,169,110,.45);border-radius:16px;padding:.9rem 1.1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .fd-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.3rem}
+  .fd-text{font-size:13.5px;color:#fff;line-height:1.55;font-weight:500}
+  .fd-text b{color:var(--gold)}
+  .round-list{display:flex;flex-direction:column;gap:.45rem}
+  .rl-item{display:flex;align-items:center;gap:.6rem;text-align:left}
+  .rl-num{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);font-size:10px;font-weight:700;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .rl-body{flex:1;min-width:0}
+  .rl-act{font-size:11px;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rl-bar{height:5px;background:rgba(255,255,255,.07);border-radius:3px;margin-top:.25rem;overflow:hidden}
+  .rl-fill{height:100%;background:linear-gradient(to right,var(--blue),var(--red));border-radius:3px}
+  .rl-bpm{font-size:9.5px;color:rgba(255,255,255,.35);margin-top:.15rem}
+  .rl-pct{font-size:13px;font-weight:700;color:#fff;min-width:40px;text-align:right}
 
-  /* Graph */
-  .graph-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1rem;margin-bottom:1rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .graph-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:.75rem}
-  #result-canvas{width:100%;border-radius:10px}
-
-  /* Stats */
-  .stats-row{display:flex;gap:.6rem;width:100%;max-width:380px;margin-bottom:1rem;position:relative;z-index:1}
-  .stat-card{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.85rem .6rem;text-align:center}
-  .stat-val{font-size:1.4rem;font-weight:700;display:block}
-  .stat-val.blue{color:#7eb3f5}
-  .stat-val.rose{color:#e8a090}
-  .stat-label{font-size:10px;color:rgba(255,255,255,.35);margin-top:.2rem;display:block}
-
-  /* Verdict */
-  .verdict-card{background:rgba(229,115,115,.08);border:1px solid rgba(229,115,115,.2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .verdict-text{font-size:13px;color:rgba(255,255,255,.85);line-height:1.65;font-weight:500}
-  .verdict-text strong{color:#e57373}
-
-  /* Buttons */
-  .result-btns{display:flex;gap:.6rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .result-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
-  .result-btn-p{background:linear-gradient(135deg,#e57373,#c17a6f);color:#fff}
-  .result-btn-p:active{transform:scale(.97)}
-  .result-btn-o{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-
-  /* Confetti */
+  .toast{position:fixed;top:4.8rem;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(255,159,67,.95);color:#1a0d1a;font-size:12px;font-weight:700;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  @media(max-height:640px){
+    .wave-area{height:80px}.tap-area{top:144px}
+    .tap-btn,.pulse-ring{width:100px;height:100px}
+  }
 </style>
 </head>
 <body>
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🫀</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Detak <span>Jantung</span></h1>
-  <p class="intro-sub">Tap layar ngikutin detak jantungmu masing-masing — lihat seberapa sinkron kalian! 💓</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot blue"></span>Razan tap sisi kiri ngikutin detak jantungnya</div>
-    <div class="rule"><span class="rule-dot rose"></span>Dara tap sisi kanan ngikutin detak jantungnya</div>
-    <div class="rule"><span class="rule-dot gold"></span>Timer 30 detik — tap natural, jangan dibuat-buat!</div>
-    <div class="rule"><span class="rule-dot gold"></span>Selesai → lihat seberapa sinkron detak kalian 🫀</div>
+  <div class="screen-inner">
+    <span class="intro-icon">🫀</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Detak <span>Jantung</span></h1>
+    <p class="intro-sub">Tap ngikutin detak jantung masing-masing — tiap ronde ada aktivitas yang bikin deg-degan. Seberapa sinkron kalian? 💓</p>
+
+    <div class="panel">
+      <span class="panel-title">Jumlah Ronde</span>
+      <div class="pills" id="round-pills">
+        <button class="pill" data-n="3">3<small>singkat</small></button>
+        <button class="pill on" data-n="5">5<small>normal</small></button>
+        <button class="pill" data-n="7">7<small>panjang</small></button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="panel-title">Durasi per Ronde</span>
+      <div class="pills" id="dur-pills">
+        <button class="pill" data-n="10">10s</button>
+        <button class="pill on" data-n="15">15s</button>
+        <button class="pill" data-n="20">20s</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot gold"></span>Tiap ronde ada <b>aktivitas</b> dulu (tatap mata, pegangan, dll)</div>
+      <div class="rule"><span class="rule-dot blue"></span>Razan tap sisi kiri ngikutin detak jantungnya</div>
+      <div class="rule"><span class="rule-dot rose"></span>Dara tap sisi kanan ngikutin detak jantungnya</div>
+      <div class="rule"><span class="rule-dot gold"></span>Sinkron ≥70% = <b>kompak</b> — kejar streak 🔥</div>
+      <div class="rule"><span class="rule-dot gold"></span>Akhir game: yang paling deg-degan dapet tantangan 😏</div>
+    </div>
+
+    <button class="btn-main" onclick="startGame()">Mulai! 🫀</button>
   </div>
-  <button class="start-btn" onclick="startCountdown()">Mulai! 🫀</button>
 </div>
 
-<!-- COUNTDOWN -->
-<div id="countdown-overlay" style="display:none">
-  <span class="cd-num" id="cd-num">3</span>
-  <span class="cd-label">Siapkan jarimu!</span>
+<!-- PRE-ROUND -->
+<div id="s-pre" class="screen">
+  <div class="screen-inner">
+    <span class="round-badge" id="pre-badge">Ronde 1 dari 5</span>
+    <div class="round-dots" id="pre-dots"></div>
+    <span class="streak-chip" id="pre-streak" style="display:none"></span>
+    <div class="act-card">
+      <span class="act-icon" id="act-icon">👀</span>
+      <span class="act-tag">Sebelum tap, lakuin ini dulu</span>
+      <p class="act-text" id="act-text">...</p>
+      <p class="act-note">Udah? Langsung pencet mulai biar detaknya masih kerasa 💓</p>
+    </div>
+    <button class="btn-main" onclick="startCountdown()">Siap, Mulai Ronde! 🫀</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar ke menu</button>
+  </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <!-- EKG bg -->
   <svg class="ekg-bg" viewBox="0 0 400 100" preserveAspectRatio="none">
     <polyline points="0,50 40,50 55,20 65,80 75,50 120,50 135,15 145,85 155,50 200,50 215,20 225,80 235,50 280,50 295,15 305,85 315,50 360,50 375,20 385,80 395,50 400,50" fill="none" stroke="white" stroke-width="1.5"/>
   </svg>
 
-  <!-- Header -->
   <div class="game-header">
     <div class="gh-player">
       <span class="gh-name blue">🧑 Razan</span>
@@ -179,7 +215,8 @@
       <span class="gh-bpm-label">BPM</span>
     </div>
     <div class="gh-mid">
-      <span class="gh-timer" id="game-timer">30</span>
+      <span class="gh-round" id="gh-round">Ronde 1/5</span>
+      <span class="gh-timer" id="game-timer">15</span>
       <span class="gh-timer-label">detik</span>
     </div>
     <div class="gh-player">
@@ -189,335 +226,468 @@
     </div>
   </div>
 
-  <!-- Waveform -->
-  <div class="wave-area">
-    <canvas id="wave-canvas"></canvas>
-  </div>
+  <div class="wave-area"><canvas id="wave-canvas"></canvas></div>
 
-  <!-- Tap areas -->
   <div class="tap-area">
-    <div class="tap-side left" id="tap-razan" ontouchstart="handleTap('razan',event)" onclick="handleTap('razan',event)">
+    <div class="tap-side left" id="tap-razan">
       <div class="pulse-ring blue" id="ring-razan"></div>
       <div class="tap-btn blue" id="btn-razan">
         <span class="tap-icon">💙</span>
         <span class="tap-name">Razan</span>
         <span class="tap-hint">Tap ikutin detak</span>
       </div>
+      <span class="tap-count" id="count-razan">0 tap</span>
     </div>
-    <div class="tap-side right" id="tap-dara" ontouchstart="handleTap('dara',event)" onclick="handleTap('dara',event)">
+    <div class="tap-side right" id="tap-dara">
       <div class="pulse-ring rose" id="ring-dara"></div>
       <div class="tap-btn rose" id="btn-dara">
         <span class="tap-icon">🩷</span>
         <span class="tap-name">Dara</span>
         <span class="tap-hint">Tap ikutin detak</span>
       </div>
+      <span class="tap-count" id="count-dara">0 tap</span>
     </div>
   </div>
 </div>
 
-<!-- RESULT -->
+<div id="countdown-overlay">
+  <span class="cd-num" id="cd-num">3</span>
+  <span class="cd-label">Taruh jari di sisi masing-masing — rasain detaknya 💓</span>
+</div>
+
+<!-- ROUND RESULT -->
+<div id="s-round" class="screen">
+  <div class="screen-inner">
+    <span class="round-badge" id="rr-badge">Hasil Ronde 1</span>
+    <span class="big-icon" id="rr-icon">💓</span>
+    <span class="big-score" id="rr-score">0%</span>
+    <span class="big-label">Sinkron ronde ini</span>
+    <div class="card">
+      <span class="card-title">Grafik Detak — Biru: Razan · Merah: Dara</span>
+      <canvas class="graph" id="rr-canvas"></canvas>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><span class="stat-val blue" id="rr-bpm-r">—</span><span class="stat-label">BPM Razan</span></div>
+      <div class="stat-card"><span class="stat-val red" id="rr-streak">0</span><span class="stat-label">🔥 Streak kompak</span></div>
+      <div class="stat-card"><span class="stat-val rose" id="rr-bpm-d">—</span><span class="stat-label">BPM Dara</span></div>
+    </div>
+    <div class="note-card" id="rr-note">...</div>
+    <button class="btn-main" id="rr-next" onclick="nextRound()">Ronde Berikutnya →</button>
+    <div class="btn-row" style="margin-top:.55rem">
+      <button class="btn-ghost" onclick="retryRound()">🔁 Ulangi ronde</button>
+      <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL RESULT -->
 <div id="s-result" class="screen">
-  <span class="result-icon" id="result-icon">🫀</span>
-  <h2 class="result-title">Sinkronisasi Detak Kalian</h2>
-  <span class="result-score" id="result-score">0%</span>
-  <span class="result-score-label">Tingkat Kecocokan</span>
-
-  <div class="graph-card">
-    <span class="graph-title">Grafik Detak — Biru: Razan · Merah: Dara</span>
-    <canvas id="result-canvas" height="100"></canvas>
-  </div>
-
-  <div class="stats-row">
-    <div class="stat-card">
-      <span class="stat-val blue" id="stat-bpm-r">—</span>
-      <span class="stat-label">BPM Razan</span>
+  <div class="screen-inner">
+    <span class="big-icon" id="fr-icon">🫀</span>
+    <h2 class="big-title">Sinkronisasi Detak Kalian</h2>
+    <span class="big-score" id="fr-score">0%</span>
+    <span class="big-label">Rata-rata kecocokan</span>
+    <div class="stats-row">
+      <div class="stat-card"><span class="stat-val blue" id="fr-bpm-r">—</span><span class="stat-label">Rata BPM Razan</span></div>
+      <div class="stat-card"><span class="stat-val red" id="fr-streak">0</span><span class="stat-label">🔥 Streak kompak terbaik</span></div>
+      <div class="stat-card"><span class="stat-val rose" id="fr-bpm-d">—</span><span class="stat-label">Rata BPM Dara</span></div>
     </div>
-    <div class="stat-card">
-      <span class="stat-val" id="stat-sync" style="color:#e57373">—</span>
-      <span class="stat-label">Sinkronisasi</span>
+    <div class="card">
+      <span class="card-title">Per Ronde</span>
+      <div class="round-list" id="fr-list"></div>
     </div>
-    <div class="stat-card">
-      <span class="stat-val rose" id="stat-bpm-d">—</span>
-      <span class="stat-label">BPM Dara</span>
+    <div class="note-card" id="fr-verdict">...</div>
+    <div class="final-demand">
+      <span class="fd-tag" id="fd-tag">👑 Tantangan Final</span>
+      <p class="fd-text" id="fd-text">...</p>
     </div>
-  </div>
-
-  <div class="verdict-card">
-    <p class="verdict-text" id="verdict-text">...</p>
-  </div>
-
-  <div class="result-btns">
-    <button class="result-btn result-btn-p" onclick="startCountdown()">Coba Lagi 🔄</button>
-    <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    <button class="btn-main" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Menu</button>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const DURATION = 30;
-let taps = { razan: [], dara: [] };
-let gameTimer = null;
-let timeLeft = DURATION;
-let waveCtx, waveCanvas;
-let waveData = { razan: [], dara: [] };
-let waveAnim = null;
+// ═════════ DATA ═════════
+const ACTIVITIES = [
+  { icon:'😌', text:'Tarik napas dalam 3x, santai dulu — ini detak <b>normal</b> kalian' },
+  { icon:'👀', text:'<b>Tatap mata</b> 10 detik, nggak boleh ketawa' },
+  { icon:'🤝', text:'<b>Pegangan tangan</b> pakai tangan satunya selama tap' },
+  { icon:'😏', text:'<b>{a}</b> gombalin <b>{b}</b> 1 kalimat dulu' },
+  { icon:'🏃', text:'Dua-duanya <b>lompat 10x</b> dulu, terus langsung tap!' },
+  { icon:'🤫', text:'<b>Bisikin</b> 1 hal yang kamu suka dari pasangan' },
+  { icon:'😄', text:'<b>Senyum</b> ke satu sama lain 10 detik tanpa ketawa' },
+  { icon:'🌙', text:'Pejamkan mata, <b>bayangin kencan pertama</b> kalian' },
+  { icon:'🤗', text:'<b>Pelukan</b> 5 detik dulu' },
+  { icon:'💬', text:'<b>{a}</b> sebut 3 hal yang bikin deg-degan soal <b>{b}</b>' },
+  { icon:'🎤', text:'<b>{a}</b> nyanyiin 1 baris lagu buat <b>{b}</b>' },
+  { icon:'🙈', text:'<b>{a}</b> ceritain momen paling malu di depan <b>{b}</b>' },
+];
 
+const FINAL_HIGH = [
+  'Kalian satu frekuensi! Rayain pakai <b>pelukan 10 detik</b> 🤗',
+  'Sinkron banget — <b>foto berdua</b> sekarang buat kenang-kenangan 📸',
+  'Jantung kalian kompak — rencanain <b>1 date kecil</b> minggu ini 💞',
+];
+const FINAL_DEG = [
+  '<b>{h}</b> paling deg-degan! Ngaku: apa yang bikin deg-degan tadi? 👀',
+  '<b>{c}</b> yang paling kalem boleh minta <b>1 pelukan</b> dari <b>{h}</b> 🤗',
+  '<b>{h}</b> tulis 1 kalimat manis buat <b>{c}</b> sekarang juga ✍️',
+  '<b>{h}</b> traktir <b>{c}</b> minuman favorit 🧋',
+  '<b>{c}</b> boleh pegang dada <b>{h}</b> — cek masih deg-degan nggak 😏',
+];
+
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+const MIN_IV = 0.25, MAX_IV = 2.0; // interval tap valid (detik): 30–240 BPM
+let CFG = { rounds:5, dur:15 };
+let G = null;       // state game
+let R = null;       // state ronde yang lagi jalan
+let phase = 'idle'; // idle | pre | countdown | playing | roundEnd | final
+let cdToken = 0, rafId = null;
+const lastPick = {};
+
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function fill(tpl, map) { return tpl.replace(/\{(\w)\}/g, (_, k) => map[k] || ''); }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pick(pool, key) {
+  if (!pool.length) return '';
+  let i = Math.floor(Math.random() * pool.length);
+  if (pool.length > 1 && i === lastPick[key]) i = (i + 1) % pool.length;
+  lastPick[key] = i; return pool[i];
+}
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
+}
+let toastT = null;
+function toast(msg) {
+  const t = $('toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function bindPills(id, key) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on');
+    CFG[key] = parseInt(p.dataset.n) || CFG[key];
+  }));
+}
+bindPills('round-pills', 'rounds');
+bindPills('dur-pills', 'dur');
+
+// ═════════ ANALISA DETAK ═════════
+function intervals(ts) {
+  const a = [];
+  for (let i = 1; i < ts.length; i++) { const d = ts[i] - ts[i - 1]; if (d >= MIN_IV && d <= MAX_IV) a.push(d); }
+  return a;
+}
+function median(a) { const s = [...a].sort((x, y) => x - y), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+function analyze(ts) {
+  const iv = intervals(ts);
+  if (iv.length < 2) return null;
+  const mean = iv.reduce((x, y) => x + y, 0) / iv.length;
+  const sd = Math.sqrt(iv.reduce((x, y) => x + (y - mean) ** 2, 0) / iv.length);
+  return { bpm: Math.round(60 / median(iv)), cv: sd / mean };
+}
+// Sinkron = kemiripan tempo (75%) + seberapa stabil ritme keduanya (25%)
+function calcSync(a, b) {
+  if (!a || !b) return 0;
+  const diff = Math.abs(a.bpm - b.bpm) / Math.max(a.bpm, b.bpm);
+  const tempo = clamp(100 - diff * 180, 0, 100);
+  const steady = clamp(100 - ((a.cv + b.cv) / 2) * 200, 0, 100);
+  return Math.round(tempo * 0.75 + steady * 0.25);
+}
+function liveBPM(ts) {
+  const iv = intervals(ts.slice(-6));
+  return iv.length ? Math.round(60 / median(iv)) : null;
 }
 
-// ── COUNTDOWN ──
-function startCountdown() {
-  taps = { razan: [], dara: [] };
-  waveData = { razan: [], dara: [] };
-  document.getElementById('bpm-razan').textContent = '—';
-  document.getElementById('bpm-dara').textContent = '—';
-  document.getElementById('game-timer').textContent = DURATION;
-  showScreen('s-game');
-  document.getElementById('countdown-overlay').style.display = 'flex';
-
-  let count = 3;
-  const cdEl = document.getElementById('cd-num');
-  cdEl.textContent = count;
-
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      document.getElementById('countdown-overlay').style.display = 'none';
-      startGame();
-    } else {
-      cdEl.style.animation = 'none';
-      void cdEl.offsetWidth;
-      cdEl.style.animation = 'cdpop .8s cubic-bezier(.34,1.5,.64,1)';
-      cdEl.textContent = count;
-    }
-  }, 800);
-}
-
-// ── GAME ──
+// ═════════ FLOW ═════════
 function startGame() {
-  timeLeft = DURATION;
-  setupWave();
-  startWaveAnim();
-
-  gameTimer = setInterval(() => {
-    timeLeft--;
-    document.getElementById('game-timer').textContent = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(gameTimer);
-      cancelAnimationFrame(waveAnim);
-      setTimeout(showResult, 400);
-    }
-  }, 1000);
+  cdToken++; cancelAnimationFrame(rafId);
+  G = { round: 0, results: [], streak: 0, best: 0, prev: null, actDeck: shuffle(ACTIVITIES), act: null };
+  newActivity();
+  showPre();
 }
 
-function handleTap(player, e) {
-  if (e.type === 'touchstart') e.preventDefault();
-  if (timeLeft <= 0 || timeLeft === DURATION) return;
-
-  const now = Date.now();
-  taps[player].push(now);
-  waveData[player].push({ t: DURATION - timeLeft, v: 1 });
-
-  // Ripple
-  const side = document.getElementById('tap-' + player);
-  const rect = side.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  const rip = document.createElement('div');
-  rip.className = 'ripple ' + (player === 'razan' ? 'blue' : 'rose');
-  const size = 80;
-  rip.style.cssText = `width:${size}px;height:${size}px;left:${clientX-rect.left-size/2}px;top:${clientY-rect.top-size/2}px`;
-  side.appendChild(rip);
-  setTimeout(() => rip.remove(), 600);
-
-  // Pulse ring
-  const ring = document.getElementById('ring-' + player);
-  ring.classList.remove('animate');
-  void ring.offsetWidth;
-  ring.classList.add('animate');
-
-  // Btn press
-  const btn = document.getElementById('btn-' + player);
-  btn.classList.add('pressed');
-  setTimeout(() => btn.classList.remove('pressed'), 100);
-
-  // Update BPM
-  updateBPM(player);
+function newActivity() {
+  if (!G) return;
+  if (!G.actDeck.length) G.actDeck = shuffle(ACTIVITIES);
+  const a = G.actDeck.pop();
+  const giver = Math.random() < .5 ? 'razan' : 'dara';
+  G.act = { icon: a.icon, html: fill(a.text, { a: NAMES[giver], b: NAMES[other(giver)] }) };
 }
 
-function updateBPM(player) {
-  const t = taps[player];
-  if (t.length < 2) return;
-  const recent = t.slice(-4);
-  if (recent.length < 2) return;
-  const intervals = [];
-  for (let i = 1; i < recent.length; i++) intervals.push(recent[i] - recent[i-1]);
-  const avg = intervals.reduce((a,b)=>a+b) / intervals.length;
-  const bpm = Math.round(60000 / avg);
-  document.getElementById('bpm-' + player).textContent = Math.min(200, Math.max(30, bpm));
+function showPre() {
+  if (!G) return;
+  phase = 'pre';
+  setText('pre-badge', `Ronde ${G.round + 1} dari ${CFG.rounds}`);
+  setHTML('pre-dots', Array.from({ length: CFG.rounds }, (_, i) =>
+    `<div class="rd ${i < G.round ? 'done' : i === G.round ? 'cur' : ''}"></div>`).join(''));
+  const sc = $('pre-streak');
+  if (sc) { sc.style.display = G.streak >= 2 ? 'inline-block' : 'none'; sc.textContent = `🔥 ${G.streak}x kompak beruntun`; }
+  setText('act-icon', G.act ? G.act.icon : '💓');
+  setHTML('act-text', G.act ? G.act.html : '');
+  showScreen('s-pre');
 }
 
-// ── WAVEFORM ──
-function setupWave() {
-  waveCanvas = document.getElementById('wave-canvas');
-  waveCanvas.width = waveCanvas.offsetWidth * window.devicePixelRatio;
-  waveCanvas.height = waveCanvas.offsetHeight * window.devicePixelRatio;
-  waveCtx = waveCanvas.getContext('2d');
-  waveCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
-}
+function startCountdown() {
+  if (phase !== 'pre' || !G) return; // cegah dobel start
+  phase = 'countdown';
+  const token = ++cdToken;
 
-function startWaveAnim() {
-  const W = waveCanvas.offsetWidth;
-  const H = waveCanvas.offsetHeight;
-  const elapsed = () => DURATION - timeLeft;
+  setText('bpm-razan', '—'); setText('bpm-dara', '—');
+  setText('count-razan', '0 tap'); setText('count-dara', '0 tap');
+  setText('game-timer', CFG.dur);
+  setText('gh-round', `Ronde ${G.round + 1}/${CFG.rounds}`);
+  const gt = $('game-timer'); if (gt) gt.classList.remove('low');
+  showScreen('s-game');
+  clearWave();
 
-  function draw() {
-    waveCtx.clearRect(0, 0, W, H);
-    ['razan','dara'].forEach(p => {
-      const color = p === 'razan' ? '#4a7cc7' : '#c17a6f';
-      waveCtx.beginPath();
-      waveCtx.strokeStyle = color;
-      waveCtx.lineWidth = 1.5;
-      waveCtx.globalAlpha = 0.7;
-      const el = elapsed() || 1;
-      waveData[p].forEach((pt, i) => {
-        const x = (pt.t / DURATION) * W;
-        const y = H / 2;
-        if (i === 0) { waveCtx.moveTo(x, y); return; }
-        // Draw spike
-        waveCtx.lineTo(x - 4, y);
-        waveCtx.lineTo(x - 2, y - H*0.35);
-        waveCtx.lineTo(x, y + H*0.2);
-        waveCtx.lineTo(x + 2, y - H*0.1);
-        waveCtx.lineTo(x + 4, y);
-      });
-      // Draw to current position
-      const curX = (el / DURATION) * W;
-      waveCtx.lineTo(curX, H/2);
-      waveCtx.stroke();
-      waveCtx.globalAlpha = 1;
-    });
-    waveAnim = requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// ── RESULT ──
-function calcBPM(tapArr) {
-  if (tapArr.length < 2) return 0;
-  const intervals = [];
-  for (let i = 1; i < tapArr.length; i++) intervals.push(tapArr[i] - tapArr[i-1]);
-  const avg = intervals.reduce((a,b)=>a+b) / intervals.length;
-  return Math.round(60000 / avg);
-}
-
-function calcSync() {
-  const r = taps.razan, d = taps.dara;
-  if (r.length < 2 || d.length < 2) return 0;
-
-  // Compare intervals
-  const getIntervals = arr => {
-    const ints = [];
-    for (let i=1;i<arr.length;i++) ints.push(arr[i]-arr[i-1]);
-    return ints;
+  const ov = $('countdown-overlay'), num = $('cd-num');
+  if (ov) ov.classList.add('show');
+  let n = 3;
+  const step = () => {
+    if (token !== cdToken) return;
+    if (n <= 0) { if (ov) ov.classList.remove('show'); beginRound(); return; }
+    if (num) { num.textContent = n; num.classList.remove('anim'); void num.offsetWidth; num.classList.add('anim'); }
+    n--; setTimeout(step, 800);
   };
-  const ri = getIntervals(r);
-  const di = getIntervals(d);
-  const avgR = ri.reduce((a,b)=>a+b,0)/ri.length;
-  const avgD = di.reduce((a,b)=>a+b,0)/di.length;
-
-  // BPM difference score
-  const bpmDiff = Math.abs(avgR - avgD);
-  const bpmScore = Math.max(0, 100 - (bpmDiff / avgR) * 100);
-
-  // Tap count similarity
-  const countDiff = Math.abs(r.length - d.length);
-  const countScore = Math.max(0, 100 - countDiff * 5);
-
-  return Math.round((bpmScore * 0.7 + countScore * 0.3));
+  step();
 }
 
-function showResult() {
-  const bpmR = calcBPM(taps.razan);
-  const bpmD = calcBPM(taps.dara);
-  const sync = calcSync();
+function beginRound() {
+  R = { taps: { razan: [], dara: [] }, start: performance.now() };
+  phase = 'playing';
+  setupWave();
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(loop);
+}
 
-  document.getElementById('result-score').textContent = sync + '%';
-  document.getElementById('stat-bpm-r').textContent = bpmR || '—';
-  document.getElementById('stat-bpm-d').textContent = bpmD || '—';
-  document.getElementById('stat-sync').textContent = sync + '%';
+// Satu loop buat timer + gelombang, berbasis waktu nyata
+function loop() {
+  if (phase !== 'playing' || !R) return;
+  const el = (performance.now() - R.start) / 1000;
+  const left = Math.max(0, CFG.dur - el);
+  setText('game-timer', Math.ceil(left));
+  const gt = $('game-timer'); if (gt) gt.classList.toggle('low', left <= 3);
+  drawWave(el);
+  if (left <= 0) { endRound(); return; }
+  rafId = requestAnimationFrame(loop);
+}
 
-  // Icon
-  let icon, verdict;
-  if (sync >= 85) {
-    icon = '💞';
-    verdict = `<strong>Luar biasa! ${sync}% sinkron.</strong> Detak jantung kalian udah satu frekuensi — kayak udah terhubung tanpa perlu ngomong. Ini bukan kebetulan 🤍`;
-  } else if (sync >= 70) {
-    icon = '💓';
-    verdict = `<strong>Keren! ${sync}% sinkron.</strong> Ritme kalian mirip banget — ada koneksi yang kuat antara Razan dan Dara. Makin lama bareng, makin sinkron 💕`;
-  } else if (sync >= 50) {
-    icon = '💗';
-    verdict = `<strong>Lumayan! ${sync}% sinkron.</strong> Kalian punya ritme yang beda tapi saling melengkapi — kayak musik duet yang justru bagus karena kontrasnya 🎵`;
-  } else if (sync >= 30) {
-    icon = '💛';
-    verdict = `<strong>${sync}% sinkron.</strong> Salah satu dari kalian kayaknya lagi excited banget hari ini 😄 Coba lagi waktu sama-sama santai — siapa tau hasilnya lebih tinggi!`;
-  } else {
-    icon = '🤍';
-    verdict = `<strong>${sync}% sinkron.</strong> Detak kalian beda jauh hari ini! Mungkin salah satu lagi deg-degan ketemu yang satunya 👀 Atau emang beda ritme — tetep lucu kok 😄`;
+function handleTap(p, e) {
+  if (e && e.cancelable) e.preventDefault();
+  if (phase !== 'playing' || !R) return;
+  const t = (performance.now() - R.start) / 1000;
+  if (t > CFG.dur) return;
+  R.taps[p].push(t);
+
+  const side = $('tap-' + p);
+  if (side && e) {
+    const rect = side.getBoundingClientRect();
+    const rip = document.createElement('div');
+    rip.className = 'ripple ' + (p === 'razan' ? 'blue' : 'rose');
+    rip.style.left = (e.clientX - rect.left - 40) + 'px';
+    rip.style.top = (e.clientY - rect.top - 40) + 'px';
+    side.appendChild(rip);
+    setTimeout(() => rip.remove(), 600);
   }
+  const ring = $('ring-' + p);
+  if (ring) { ring.classList.remove('animate'); void ring.offsetWidth; ring.classList.add('animate'); }
+  const btn = $('btn-' + p);
+  if (btn) { btn.classList.add('pressed'); setTimeout(() => btn.classList.remove('pressed'), 100); }
 
-  document.getElementById('result-icon').textContent = icon;
-  document.getElementById('verdict-text').innerHTML = verdict;
+  const bpm = liveBPM(R.taps[p]);
+  if (bpm) setText('bpm-' + p, clamp(bpm, 30, 240));
+  setText('count-' + p, R.taps[p].length + ' tap');
+}
+// pointerdown: tiap jari kebaca sendiri (multi-touch aman), nggak ada dobel touch+click
+['razan', 'dara'].forEach(p => {
+  const el = $('tap-' + p);
+  if (el) el.addEventListener('pointerdown', e => handleTap(p, e));
+});
 
-  // Draw result graph
-  drawResultGraph();
-  showScreen('s-result');
-  if (sync >= 70) confetti(60);
+function endRound() {
+  if (phase !== 'playing' || !R || !G) return;
+  phase = 'roundEnd';
+  cancelAnimationFrame(rafId);
+
+  const a = analyze(R.taps.razan), b = analyze(R.taps.dara);
+  const valid = !!(a && b);
+  const sync = calcSync(a, b);
+
+  G.prev = { streak: G.streak, best: G.best };
+  if (valid && sync >= 70) { G.streak++; G.best = Math.max(G.best, G.streak); }
+  else G.streak = 0;
+
+  G.results.push({ act: G.act, sync, valid, bpmR: a ? a.bpm : null, bpmD: b ? b.bpm : null, taps: R.taps });
+  setTimeout(showRoundResult, 350);
 }
 
-function drawResultGraph() {
-  const canvas = document.getElementById('result-canvas');
-  const W = canvas.offsetWidth;
-  const H = 100;
+function showRoundResult() {
+  if (!G) return;
+  const res = G.results[G.results.length - 1]; if (!res) return;
+  const s = res.sync;
+  const icon = !res.valid ? '😅' : s >= 85 ? '💞' : s >= 70 ? '💓' : s >= 50 ? '💗' : '💛';
+
+  setText('rr-badge', `Hasil Ronde ${G.round + 1} dari ${CFG.rounds}`);
+  setText('rr-icon', icon);
+  setText('rr-score', res.valid ? s + '%' : '—');
+  setText('rr-bpm-r', res.bpmR || '—');
+  setText('rr-bpm-d', res.bpmD || '—');
+  setText('rr-streak', G.streak);
+
+  let note;
+  if (!res.valid) {
+    const miss = !res.bpmR && !res.bpmD ? 'Dua-duanya' : !res.bpmR ? 'Razan' : 'Dara';
+    note = `<b>${miss}</b> kurang tap nih 😅 Minimal 3 tap yang stabil. Ronde ini nggak dihitung — mending <b>ulangi</b>!`;
+  } else {
+    const diff = Math.abs(res.bpmR - res.bpmD);
+    const h = res.bpmR > res.bpmD ? 'Razan' : 'Dara';
+    const base = s >= 85 ? 'Sinkron banget! Jantung kalian satu irama 🤍'
+               : s >= 70 ? 'Kompak! Ritme kalian mirip 💕'
+               : s >= 50 ? 'Lumayan — beda dikit tapi saling melengkapi 🎵'
+               : 'Beda jauh ronde ini 😄';
+    note = base + (diff >= 5 ? `<br>💓 Paling deg-degan: <b>${h}</b> (+${diff} BPM)` : '<br>💓 Deg-degannya sama rata!');
+    if (G.streak >= 2) note += `<br>🔥 ${G.streak}x kompak beruntun!`;
+  }
+  setHTML('rr-note', note);
+
+  const nb = $('rr-next');
+  if (nb) nb.textContent = G.round >= CFG.rounds - 1 ? 'Lihat Hasil Akhir 🏆' : 'Ronde Berikutnya →';
+
+  showScreen('s-round');
+  drawGraph($('rr-canvas'), res.taps);
+  if (res.valid && s >= 85) confetti(30);
+  if (res.valid && [2, 3, 5].includes(G.streak)) toast(`🔥 ${G.streak}x kompak beruntun!`);
+}
+
+function retryRound() {
+  if (!G || phase !== 'roundEnd') return;
+  G.results.pop();
+  if (G.prev) { G.streak = G.prev.streak; G.best = G.prev.best; }
+  showPre(); // aktivitas sama, ronde sama
+}
+
+function nextRound() {
+  if (!G || phase !== 'roundEnd') return;
+  G.round++;
+  if (G.round >= CFG.rounds) { showFinal(); return; }
+  newActivity();
+  showPre();
+}
+
+function exitGame() {
+  if (!confirm('Keluar dari game? Progress ronde hilang.')) return;
+  cdToken++; cancelAnimationFrame(rafId);
+  const ov = $('countdown-overlay'); if (ov) ov.classList.remove('show');
+  G = null; R = null; phase = 'idle';
+  showScreen('s-intro');
+}
+
+// ═════════ FINAL ═════════
+function showFinal() {
+  if (!G) return;
+  phase = 'final';
+  const valid = G.results.filter(r => r.valid);
+  const avg = arr => arr.length ? Math.round(arr.reduce((x, y) => x + y, 0) / arr.length) : 0;
+  const avgSync = avg(valid.map(r => r.sync));
+  const avgR = avg(valid.map(r => r.bpmR)), avgD = avg(valid.map(r => r.bpmD));
+
+  setText('fr-score', valid.length ? avgSync + '%' : '—');
+  setText('fr-bpm-r', avgR || '—');
+  setText('fr-bpm-d', avgD || '—');
+  setText('fr-streak', G.best);
+  setText('fr-icon', avgSync >= 85 ? '💞' : avgSync >= 70 ? '💓' : avgSync >= 50 ? '💗' : avgSync >= 30 ? '💛' : '🤍');
+
+  setHTML('fr-list', G.results.map((r, i) => {
+    const act = r.act ? r.act.html.replace(/<[^>]+>/g, '') : '';
+    return `<div class="rl-item">
+      <span class="rl-num">${i + 1}</span>
+      <div class="rl-body">
+        <div class="rl-act">${r.act ? r.act.icon : ''} ${act}</div>
+        <div class="rl-bar"><div class="rl-fill" style="width:${r.valid ? r.sync : 0}%"></div></div>
+        <div class="rl-bpm">💙 ${r.bpmR || '—'} · 🩷 ${r.bpmD || '—'} BPM</div>
+      </div>
+      <span class="rl-pct">${r.valid ? r.sync + '%' : '—'}</span>
+    </div>`;
+  }).join(''));
+
+  let verdict;
+  if (!valid.length) verdict = '<strong>Belum ada ronde yang valid</strong> — kayaknya kalian lupa tap 😅 Coba lagi ya!';
+  else if (avgSync >= 85) verdict = `<strong>Luar biasa! ${avgSync}% sinkron.</strong> Detak kalian udah satu frekuensi — kayak terhubung tanpa perlu ngomong 🤍`;
+  else if (avgSync >= 70) verdict = `<strong>Keren! ${avgSync}% sinkron.</strong> Ritme kalian mirip banget — makin lama bareng, makin sinkron 💕`;
+  else if (avgSync >= 50) verdict = `<strong>Lumayan! ${avgSync}% sinkron.</strong> Ritme beda tapi saling melengkapi — kayak duet yang bagus karena kontrasnya 🎵`;
+  else if (avgSync >= 30) verdict = `<strong>${avgSync}% sinkron.</strong> Salah satu kayaknya lagi excited banget 😄 Coba lagi pas sama-sama santai!`;
+  else verdict = `<strong>${avgSync}% sinkron.</strong> Detak kalian beda jauh — mungkin ada yang deg-degan ketemu yang satunya 👀`;
+  setHTML('fr-verdict', verdict);
+
+  let fd, tag;
+  if (valid.length && (avgSync >= 80 || Math.abs(avgR - avgD) < 3)) {
+    tag = '💞 Hadiah Kekompakan'; fd = pick(FINAL_HIGH, 'fhigh');
+  } else {
+    const h = avgR >= avgD ? 'Razan' : 'Dara', c = h === 'Razan' ? 'Dara' : 'Razan';
+    tag = `👑 Tantangan buat ${h}`; fd = fill(pick(FINAL_DEG, 'fdeg'), { h, c });
+  }
+  setText('fd-tag', tag);
+  setHTML('fd-text', fd);
+
+  showScreen('s-result');
+  if (avgSync >= 70) confetti(60);
+}
+
+// ═════════ CANVAS ═════════
+let waveCtx = null, waveW = 0, waveH = 0;
+function setupWave() {
+  const c = $('wave-canvas'); if (!c) return;
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-
-  ctx.fillStyle = 'rgba(255,255,255,.03)';
-  ctx.fillRect(0, 0, W, H);
-
-  // Draw baseline
-  ctx.strokeStyle = 'rgba(255,255,255,.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, H/2);
-  ctx.lineTo(W, H/2);
-  ctx.stroke();
-
-  ['razan','dara'].forEach(p => {
-    const color = p === 'razan' ? '#7eb3f5' : '#e8a090';
-    const offset = p === 'razan' ? -18 : 18;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    ctx.moveTo(0, H/2 + offset);
-    waveData[p].forEach(pt => {
-      const x = (pt.t / DURATION) * W;
-      ctx.lineTo(x - 3, H/2 + offset);
-      ctx.lineTo(x - 1, H/2 + offset - 28);
-      ctx.lineTo(x + 1, H/2 + offset + 16);
-      ctx.lineTo(x + 3, H/2 + offset - 8);
-      ctx.lineTo(x + 5, H/2 + offset);
-    });
-    ctx.lineTo(W, H/2 + offset);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
+  waveW = c.offsetWidth; waveH = c.offsetHeight;
+  c.width = waveW * dpr; c.height = waveH * dpr;
+  waveCtx = c.getContext('2d');
+  waveCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function clearWave() { if (waveCtx) waveCtx.clearRect(0, 0, waveW, waveH); }
+function traceLine(ctx, ts, W, baseY, spike, endX) {
+  ctx.beginPath(); ctx.moveTo(0, baseY);
+  ts.forEach(t => {
+    const x = (t / CFG.dur) * W;
+    ctx.lineTo(x - 4, baseY); ctx.lineTo(x - 2, baseY - spike); ctx.lineTo(x, baseY + spike * .55);
+    ctx.lineTo(x + 2, baseY - spike * .3); ctx.lineTo(x + 4, baseY);
   });
+  ctx.lineTo(endX, baseY); ctx.stroke();
+}
+function drawWave(el) {
+  if (!waveCtx || !R) return;
+  waveCtx.clearRect(0, 0, waveW, waveH);
+  const curX = Math.min(1, el / CFG.dur) * waveW;
+  [['razan', '#7eb3f5', waveH * .35], ['dara', '#e8a090', waveH * .65]].forEach(([p, col, y]) => {
+    waveCtx.strokeStyle = col; waveCtx.lineWidth = 1.6; waveCtx.globalAlpha = .8;
+    traceLine(waveCtx, R.taps[p], waveW, y, waveH * .22, curX);
+  });
+  waveCtx.globalAlpha = 1;
+  waveCtx.fillStyle = 'rgba(255,255,255,.35)';
+  waveCtx.fillRect(curX - 1, 0, 2, waveH);
+}
+function drawGraph(canvas, taps) {
+  if (!canvas || !taps) return;
+  const W = canvas.offsetWidth || 300, H = 100, dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = 'rgba(255,255,255,.03)'; ctx.fillRect(0, 0, W, H);
+  [['razan', '#7eb3f5', H * .32], ['dara', '#e8a090', H * .7]].forEach(([p, col, y]) => {
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.globalAlpha = .9;
+    traceLine(ctx, taps[p] || [], W, y, 22, W);
+  });
+  ctx.globalAlpha = 1;
 }
 
 function confetti(n) {
