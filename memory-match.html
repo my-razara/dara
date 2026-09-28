@@ -9,109 +9,120 @@
   :root{
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
-    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--blue:#3a5cb5;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:var(--cream)}
-  body::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),
-    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.15),transparent 60%);
-    pointer-events:none;z-index:0}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.15),transparent 60%);pointer-events:none;z-index:0}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:var(--cream)}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.4rem,5.5vw,1.9rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  @keyframes pop{from{transform:scale(.5) rotate(-5deg);opacity:0}to{transform:none;opacity:1}}
+
+  /* INTRO */
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.7rem;animation:float 3s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.4rem,5.5vw,1.9rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem;position:relative;z-index:1}
-  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
+  .intro-sub{font-size:12px;color:var(--muted);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .pills{display:flex;gap:.4rem;flex-wrap:wrap}
+  .pill{flex:1;min-width:70px;padding:.55rem 0;border-radius:12px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+  .pill.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:var(--ink)}
+  .rule-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .btn-main:active{transform:scale(.97);background:var(--deep)}
+  .btn-ghost{width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;margin-top:.5rem}
+  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:var(--muted);margin:.3rem auto 1.1rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);text-align:left}
+  .pick-btn:active{transform:scale(.97);background:var(--warm)}
+  .pick-icon{font-size:2rem;flex-shrink:0}
+  .pick-name{font-size:14px;font-weight:700;color:var(--ink);display:block}
+  .pick-sub2{font-size:11px;color:var(--muted);margin-top:.1rem;display:block}
 
-  /* Size picker */
-  .size-row{display:flex;gap:.6rem;width:100%;max-width:380px;margin-bottom:1.25rem;position:relative;z-index:1}
-  .size-btn{flex:1;padding:.75rem .5rem;border-radius:14px;border:1.5px solid rgba(193,122,111,.2);background:#fff;cursor:pointer;font-family:'Poppins',sans-serif;text-align:center;transition:all .15s}
-  .size-btn:active{transform:scale(.95)}
-  .size-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.08)}
-  .size-btn-name{font-size:13px;font-weight:700;color:var(--ink);display:block}
-  .size-btn-sub{font-size:10px;color:var(--muted)}
-
-  .start-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* ── GAME ── */
-  #s-game{background:var(--cream);padding:0;justify-content:flex-start}
-
-  /* Header */
-  .game-header{position:sticky;top:0;z-index:20;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;width:100%}
-  .gh-player{text-align:center;min-width:80px}
+  /* GAME */
+  #s-game{padding:0}
+  .game-wrap{width:100%;height:100%;display:flex;flex-direction:column}
+  .game-header{background:rgba(250,246,240,.97);border-bottom:1px solid rgba(193,122,111,.1);padding:.45rem .75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .gh-player{text-align:center;min-width:76px;padding:.2rem .3rem;border-radius:12px;transition:background .3s}
+  .gh-player.active{background:rgba(193,122,111,.08)}
+  .gh-player.razan.active{background:rgba(74,124,199,.1)}
   .gh-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block}
-  .gh-score{font-size:1.4rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .gh-coin{font-size:10px;color:var(--gold)}
+  .gh-score{font-size:1.35rem;font-weight:700;display:block;line-height:1.05}
+  .gh-player.razan .gh-score{color:var(--blue)}.gh-player.dara .gh-score{color:var(--rose)}
+  .gh-sub{font-size:9.5px;color:var(--gold);display:block}
   .gh-mid{text-align:center;flex:1}
-  .gh-turn{font-size:11px;font-weight:700;padding:.28rem .85rem;border-radius:50px;display:inline-block;transition:all .3s}
-  .gh-turn.razan{background:rgba(74,124,199,.1);color:#3a5cb5}
+  .gh-turn{font-size:11px;font-weight:700;padding:.25rem .8rem;border-radius:50px;display:inline-block;transition:all .3s}
+  .gh-turn.razan{background:rgba(74,124,199,.1);color:var(--blue)}
   .gh-turn.dara{background:rgba(193,122,111,.1);color:var(--rose)}
-  .gh-pairs{font-size:9px;color:var(--muted);display:block;margin-top:.15rem}
+  .gh-info{font-size:9.5px;color:var(--muted);display:block;margin-top:.15rem}
+  .gh-combo{color:#e67e22;font-weight:700}
+  .gh-exit{background:none;border:1px solid var(--blush);border-radius:50px;color:var(--muted);font-size:9.5px;padding:.05rem .45rem;margin-top:.2rem;cursor:pointer}
+  .turn-timer{height:4px;background:var(--blush);flex-shrink:0;display:none}
+  .turn-timer.show{display:block}
+  .turn-fill{height:100%;width:100%;background:var(--rose)}
+  .board-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:.5rem}
+  .board{display:grid;gap:clamp(5px,1.4vw,8px);width:100%}
 
-  /* Board */
-  .board-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:.5rem;width:100%;overflow:hidden}
-  .board{display:grid;gap:clamp(5px,1.5vw,8px);width:100%;max-width:420px}
-  .board.g4x4{grid-template-columns:repeat(4,1fr)}
-  .board.g4x6{grid-template-columns:repeat(4,1fr)}
+  .card{aspect-ratio:1;border-radius:clamp(8px,2vw,14px);cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+  .card.flipped{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;border-radius:inherit;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .back{background:#fff;border:2px solid rgba(193,122,111,.15);box-shadow:0 2px 8px rgba(193,122,111,.08)}
+  .back span{font-size:clamp(.8rem,3vw,1.15rem);opacity:.3}
+  .front{transform:rotateY(180deg);background:linear-gradient(135deg,var(--warm),#fff);border:2px solid rgba(193,122,111,.25);box-shadow:0 3px 12px rgba(193,122,111,.12);font-size:clamp(1.1rem,5vw,1.9rem)}
+  .card.special .front{background:linear-gradient(135deg,rgba(255,182,193,.35),#fff);border-color:#e57373}
+  .card.m-razan .front{border-color:var(--blue);background:rgba(74,124,199,.1)}
+  .card.m-dara .front{border-color:var(--rose);background:rgba(193,122,111,.12)}
+  .card.matched{cursor:default}
+  .card.matched .front::after{content:attr(data-o);position:absolute;bottom:2px;right:5px;font-size:8px;font-weight:700;opacity:.7}
+  .card.m-razan .front::after{color:var(--blue)}.card.m-dara .front::after{color:var(--rose)}
+  .card.shake{animation:shake .35s ease}
+  @keyframes shake{0%,100%{transform:rotateY(180deg) translateX(0)}25%{transform:rotateY(180deg) translateX(-5px)}75%{transform:rotateY(180deg) translateX(5px)}}
 
-  /* Card */
-  .card{aspect-ratio:1;border-radius:clamp(8px,2vw,14px);cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .4s cubic-bezier(.4,0,.2,1);user-select:none}
-  .card.flipped,.card.matched{transform:rotateY(180deg)}
-  .card-front,.card-back{position:absolute;inset:0;border-radius:inherit;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-  .card-back{background:#fff;border:2px solid rgba(193,122,111,.15);box-shadow:0 2px 8px rgba(193,122,111,.08);font-size:clamp(.9rem,3.5vw,1.4rem)}
-  .card-front{transform:rotateY(180deg);background:linear-gradient(135deg,var(--warm),#fff);border:2px solid rgba(193,122,111,.25);box-shadow:0 3px 12px rgba(193,122,111,.12);font-size:clamp(1.1rem,4.5vw,1.8rem)}
-  .card-back-inner{font-size:clamp(.85rem,3vw,1.2rem);opacity:.35}
+  .popup{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;pointer-events:none;padding:1rem}
+  .popup.show{display:flex}
+  .popup.modal{pointer-events:auto;background:rgba(45,31,26,.35)}
+  .pop-card{background:rgba(250,246,240,.97);border:2px solid rgba(193,122,111,.2);border-radius:20px;padding:1rem 1.4rem;text-align:center;animation:pop .35s cubic-bezier(.34,1.5,.64,1);box-shadow:0 8px 30px rgba(193,122,111,.18);max-width:320px}
+  .pop-icon{font-size:2.4rem;display:block;margin-bottom:.25rem}
+  .pop-text{font-size:14px;font-weight:700;color:var(--ink)}
+  .pop-sub{font-size:12px;color:var(--gold);font-weight:600;margin-top:.15rem;display:block}
+  .pop-demand{font-size:13px;color:var(--ink);line-height:1.55;margin:.6rem 0 .8rem;background:var(--warm);border-radius:12px;padding:.6rem .8rem;text-align:left}
+  .pop-demand b{color:var(--rose)}
 
-  /* Matched state */
-  .card.matched .card-front{background:linear-gradient(135deg,rgba(193,122,111,.12),rgba(201,169,110,.1));border-color:var(--rose)}
-  .card.matched-razan .card-front{border-color:#3a5cb5;background:rgba(74,124,199,.08)}
-  .card.matched-dara .card-front{border-color:var(--rose);background:rgba(193,122,111,.08)}
+  /* RESULT */
+  .badge{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block}
+  .end-icon{font-size:3.4rem;display:block;margin-bottom:.5rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .end-sub{font-size:12.5px;color:var(--muted);line-height:1.6;margin:.25rem auto .9rem}
+  .score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%;box-shadow:0 4px 20px rgba(193,122,111,.08)}
+  .sc-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sc-v{font-size:2.1rem;font-weight:700;display:block;line-height:1.1}
+  .sc-v.r{color:var(--blue)}.sc-v.d{color:var(--rose)}
+  .sc-sub{font-size:9.5px;color:var(--gold);display:block}
+  .sc-vs{color:var(--blush)}
+  .stat-table{width:100%;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.6rem .8rem;margin-bottom:.75rem;font-size:11.5px;color:var(--muted);text-align:left}
+  .stat-table .row{display:grid;grid-template-columns:1.5fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(193,122,111,.08)}
+  .stat-table .row:last-child{border-bottom:none}
+  .stat-table .head{font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .stat-table b{color:var(--ink)}
+  .verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:var(--ink);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .verdict strong{color:var(--rose)}
+  .demand{background:linear-gradient(135deg,rgba(201,169,110,.16),rgba(193,122,111,.1));border:1px solid rgba(201,169,110,.45);border-radius:16px;padding:.85rem 1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem}
+  .demand-text{font-size:13px;color:var(--ink);line-height:1.6;font-weight:500}
+  .demand-text b{color:var(--rose)}
 
-  /* Who matched badge */
-  .card.matched::after{content:attr(data-owner);position:absolute;bottom:2px;right:4px;font-size:7px;font-weight:700;z-index:5;transform:rotateY(180deg);opacity:.6}
-  .card.matched-razan::after{color:#3a5cb5}
-  .card.matched-dara::after{color:var(--rose)}
-
-  /* Pair flash overlay */
-  #pair-overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;pointer-events:none}
-  .pair-popup{background:rgba(250,246,240,.95);border:2px solid rgba(193,122,111,.2);border-radius:20px;padding:1rem 1.5rem;text-align:center;animation:poppop .4s cubic-bezier(.34,1.5,.64,1);box-shadow:0 8px 30px rgba(193,122,111,.15)}
-  @keyframes poppop{from{transform:scale(.5) rotate(-5deg);opacity:0}to{transform:none;opacity:1}}
-  .pair-icon{font-size:2.5rem;display:block;margin-bottom:.3rem}
-  .pair-text{font-size:14px;font-weight:700;color:var(--ink)}
-  .pair-pts{font-size:12px;color:var(--gold);font-weight:600;margin-top:.15rem;display:block}
-
-  /* ── RESULT ── */
-  #s-result{background:var(--cream)}
-  .end-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
-  .end-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .end-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.25rem auto .9rem;position:relative;z-index:1}
-  .score-final{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.1rem;margin-bottom:.9rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 4px 20px rgba(193,122,111,.08)}
-  .sf-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
-  .sf-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
-  .sf-sc{font-size:2.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .sf-coin{font-size:11px;color:var(--gold);margin-top:.1rem;display:block}
-  .sf-vs{color:var(--blush);font-size:1.2rem}
-  .verdict-card{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1.1rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1rem;width:100%;max-width:360px;position:relative;z-index:1}
-  .verdict-card strong{color:var(--rose)}
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px;position:relative;z-index:1}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
-  .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
-  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
-  .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
-
-  /* Confetti */
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -120,314 +131,439 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🧩</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Memory <span>Match!</span></h1>
-  <p class="intro-sub">Ingat posisi kartu — temukan pasangannya! Siapa yang paling banyak match menang 🧩</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot"></span>Gantian buka 2 kartu — kalau cocok, poin kamu!</div>
-    <div class="rule"><span class="rule-dot"></span>Kalau cocok → giliran lanjut ke kamu lagi</div>
-    <div class="rule"><span class="rule-dot"></span>Kalau ga cocok → giliran pindah ke lawan</div>
-    <div class="rule"><span class="rule-dot"></span>Semua kartu habis → siapa paling banyak match menang! 🧩</div>
-  </div>
+  <div class="screen-inner">
+    <span class="intro-icon">🧩</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Memory <span>Match!</span></h1>
+    <p class="intro-sub">Inget posisi kartu — temukan pasangannya! Ada <b>💘 Kartu Cinta</b> tersembunyi di tiap papan 😏</p>
 
-  <!-- Size picker -->
-  <div class="size-row">
-    <div class="size-btn selected" data-size="4x4" onclick="selectSize(this)">
-      <span class="size-btn-name">4×4</span>
-      <span class="size-btn-sub">16 kartu · Cepat</span>
+    <div class="panel">
+      <span class="panel-title">Tema Kartu</span>
+      <div class="pills" id="theme-pills">
+        <button class="pill on" data-v="romantis">💝<small>Romantis</small></button>
+        <button class="pill" data-v="makanan">🍕<small>Makanan</small></button>
+        <button class="pill" data-v="hewan">🐶<small>Hewan</small></button>
+        <button class="pill" data-v="campur">🎲<small>Campur</small></button>
+      </div>
     </div>
-    <div class="size-btn" data-size="4x5" onclick="selectSize(this)">
-      <span class="size-btn-name">4×5</span>
-      <span class="size-btn-sub">20 kartu · Sedang</span>
+    <div class="panel">
+      <span class="panel-title">Ukuran Papan</span>
+      <div class="pills" id="size-pills">
+        <button class="pill on" data-v="4x4">4×4<small>16 kartu</small></button>
+        <button class="pill" data-v="4x5">4×5<small>20 kartu</small></button>
+        <button class="pill" data-v="4x6">4×6<small>24 kartu</small></button>
+      </div>
     </div>
-    <div class="size-btn" data-size="4x6" onclick="selectSize(this)">
-      <span class="size-btn-name">4×6</span>
-      <span class="size-btn-sub">24 kartu · Susah</span>
+    <div class="panel">
+      <span class="panel-title">Target Menang</span>
+      <div class="pills" id="need-pills">
+        <button class="pill on" data-v="1">1<small>sekali main</small></button>
+        <button class="pill" data-v="2">2<small>best of 3</small></button>
+        <button class="pill" data-v="3">3<small>best of 5</small></button>
+      </div>
     </div>
+    <div class="panel">
+      <span class="panel-title">Timer Giliran</span>
+      <div class="pills" id="timer-pills">
+        <button class="pill on" data-v="0">😌<small>santai</small></button>
+        <button class="pill" data-v="10">⏱️ 10s<small>tegang</small></button>
+        <button class="pill" data-v="6">⚡ 6s<small>kilat</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>Gantian buka 2 kartu — cocok = <b>+10</b> & lanjut main</div>
+      <div class="rule"><span class="rule-dot"></span>Cocok beruntun = <b>combo</b>, tiap combo tambah <b>+5</b> 🔥</div>
+      <div class="rule"><span class="rule-dot"></span>Nemu <b>💘 Kartu Cinta</b> = +20 & pasangan wajib kasih hadiah manis</div>
+      <div class="rule"><span class="rule-dot"></span>Nggak cocok → gantian. Skor terbanyak menang ronde!</div>
+    </div>
+    <button class="btn-main" onclick="showScreen('s-pick')">Mulai! 🧩</button>
   </div>
-
-  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 🧩</button>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <span style="font-size:3rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite">🧩</span>
-  <p style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1">Siapa yang mulai duluan?</p>
-  <p style="font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1">Yang mulai duluan buka kartu pertama!</p>
-  <div style="display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1">
-    <div onclick="startGame('razan')" style="padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);transition:all .15s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <span style="font-size:2rem;flex-shrink:0">🧑</span>
-      <div style="text-align:left">
-        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan duluan</span>
-        <span style="font-size:11px;color:var(--muted);display:block;margin-top:.1rem">Razan buka kartu pertama</span>
-      </div>
+  <div class="screen-inner">
+    <span style="font-size:2.8rem;display:block;margin-bottom:.8rem;animation:float 3s ease-in-out infinite">🧩</span>
+    <p class="pick-title">Siapa yang mulai duluan?</p>
+    <p class="pick-sub">Ronde berikutnya yang kalah mulai duluan.</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="startMatch('razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Razan buka kartu pertama</span></div></div>
+      <div class="pick-btn" onclick="startMatch('dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Dara buka kartu pertama</span></div></div>
     </div>
-    <div onclick="startGame('dara')" style="padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);transition:all .15s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <span style="font-size:2rem;flex-shrink:0">👧</span>
-      <div style="text-align:left">
-        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara duluan</span>
-        <span style="font-size:11px;color:var(--muted);display:block;margin-top:.1rem">Dara buka kartu pertama</span>
-      </div>
-    </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="game-header">
-    <div class="gh-player">
-      <span class="gh-name">🧑 Razan</span>
-      <span class="gh-score" id="score-r">0</span>
-      <span class="gh-coin" id="coin-r">🧩 0 pasang</span>
+  <div class="game-wrap">
+    <div class="game-header">
+      <div class="gh-player razan" id="gp-razan"><span class="gh-name">🧑 Razan</span><span class="gh-score" id="score-razan">0</span><span class="gh-sub" id="pairs-razan">🧩 0</span></div>
+      <div class="gh-mid">
+        <span class="gh-turn razan" id="gh-turn">Giliran Razan</span>
+        <span class="gh-info" id="gh-info">Sisa 8 pasang</span>
+        <button class="gh-exit" onclick="exitGame()">✕ Keluar</button>
+      </div>
+      <div class="gh-player dara" id="gp-dara"><span class="gh-name">👧 Dara</span><span class="gh-score" id="score-dara">0</span><span class="gh-sub" id="pairs-dara">🧩 0</span></div>
     </div>
-    <div class="gh-mid">
-      <span class="gh-turn razan" id="gh-turn">Giliran Razan</span>
-      <span class="gh-pairs" id="gh-pairs">Sisa 0 pasang</span>
-    </div>
-    <div class="gh-player">
-      <span class="gh-name">Dara 👧</span>
-      <span class="gh-score" id="score-d">0</span>
-      <span class="gh-coin" id="coin-d">🧩 0 pasang</span>
-    </div>
-  </div>
-
-  <div class="board-wrap">
-    <div class="board" id="board"></div>
+    <div class="turn-timer" id="turn-timer"><div class="turn-fill" id="turn-fill"></div></div>
+    <div class="board-wrap" id="board-wrap"><div class="board" id="board"></div></div>
   </div>
 </div>
 
-<!-- PAIR OVERLAY -->
-<div id="pair-overlay">
-  <div class="pair-popup">
-    <span class="pair-icon" id="pair-icon">🧩</span>
-    <p class="pair-text" id="pair-text">Match!</p>
-    <span class="pair-pts" id="pair-pts">+1 pasang</span>
+<!-- POPUP -->
+<div class="popup" id="popup">
+  <div class="pop-card">
+    <span class="pop-icon" id="pop-icon">🧩</span>
+    <p class="pop-text" id="pop-text">Match!</p>
+    <span class="pop-sub" id="pop-sub">+10</span>
+    <div id="pop-extra"></div>
   </div>
 </div>
 
 <!-- RESULT -->
 <div id="s-result" class="screen">
-  <span class="end-icon" id="end-icon">🧩</span>
-  <h2 class="end-title" id="end-title">...</h2>
-  <p class="end-sub" id="end-sub">...</p>
-  <div class="score-final">
-    <div>
-      <span class="sf-av">🧑</span>
-      <span class="sf-nm">Razan</span>
-      <span class="sf-sc" id="end-r">0</span>
-      <span class="sf-coin" id="end-r-coin">🧩 0 pasang</span>
-    </div>
-    <span class="sf-vs">🧩</span>
-    <div>
-      <span class="sf-av">👧</span>
-      <span class="sf-nm">Dara</span>
-      <span class="sf-sc" id="end-d">0</span>
-      <span class="sf-coin" id="end-d-coin">🧩 0 pasang</span>
-    </div>
-  </div>
-  <div class="verdict-card" id="verdict-card">...</div>
-  <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
-  </div>
+  <div class="screen-inner" id="result-inner"></div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-const CARDS = [
-  '💝','💌','💍','☕','🍦','🌸','🌙','⭐',
-  '🎀','🕯️','🧸','🎁','🌹','💐','🍓','🍰',
-  '🎶','🌈','💫','🦋','🪷','🫶','🤍','✨',
+// ═════════ DATA ═════════
+const THEMES = {
+  romantis: ['💝','💌','💍','☕','🍦','🌸','🌙','⭐','🎀','🕯️','🧸','🎁','🌹','💐','🍓','🍰','🎶','🌈','💫','🦋','🪷','🫶','🤍','✨'],
+  makanan:  ['🍕','🍔','🍟','🌭','🍿','🍩','🍪','🍰','🍫','🍬','🍭','🍉','🍓','🍜','🍣','🍤','🥟','🍦','🥐','🧋'],
+  hewan:    ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐧','🐤','🦄','🐙','🐢'],
+};
+THEMES.campur = [...new Set([...THEMES.romantis, ...THEMES.makanan, ...THEMES.hewan])];
+const SPECIAL = '💘';
+
+const LOVE_DEMANDS = [
+  '<b>{o}</b> kasih pelukan 5 detik ke <b>{p}</b> 🤗',
+  '<b>{o}</b> bilang 1 hal yang dia suka dari <b>{p}</b> 🥰',
+  '<b>{o}</b> kasih kecupan jauh ke <b>{p}</b> 😘',
+  '<b>{o}</b> gombalin <b>{p}</b> 1 kalimat 😏',
+  '<b>{o}</b> pijitin bahu <b>{p}</b> 10 detik 💆',
+];
+const ROUND_LOSE = [
+  '<b>{l}</b> kasih <b>{w}</b> 3 pujian soal ingatannya 🧠',
+  '<b>{l}</b> ambilin minum buat <b>{w}</b> 🥤',
+  '<b>{l}</b> sebutin 5 kartu yang diinget dari papan tadi — salah 1, ulang 😂',
+  '<b>{l}</b> kasih <b>{w}</b> high five paling semangat ✋',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> jajanan favorit minggu ini 🍡',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+  '<b>{w}</b> boleh minta 1 hal kecil ke <b>{l}</b> — nggak boleh ditolak 😏',
+  '<b>{l}</b> ceritain 3 momen favorit bareng <b>{w}</b> — detail ya, biar ingatannya dilatih 🧠💞',
+];
+const FINAL_TIE = [
+  'Seri! Pelukan 10 detik — ingatan kalian sama tajamnya 🤗',
+  'Seri! Main 1 ronde tambahan papan 4×4 buat nentuin 😤',
 ];
 
-let selectedSize = '4x4';
-let currentPlayer = 'razan';
-let scores = { razan: 0, dara: 0 };
-let pairs = { razan: 0, dara: 0 };
-let cards = [];
-let flipped = [];
-let matched = [];
-let canFlip = true;
-let totalPairs = 0;
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+let CFG = { theme:'romantis', size:'4x4', need:1, timer:0 };
+let M = null, R = null;
+let turnTick = null, token = 0, popT = null;
+const decks = {};
 
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
 }
-
-function selectSize(btn) {
-  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selectedSize = btn.dataset.size;
-}
-
-function startGame(firstPlayer) {
-  const [cols, rows] = selectedSize.split('x').map(Number);
-  const numPairs = (cols * rows) / 2;
-  totalPairs = numPairs;
-  currentPlayer = firstPlayer || 'razan';
-  scores = { razan: 0, dara: 0 };
-  pairs = { razan: 0, dara: 0 };
-  flipped = [];
-  matched = [];
-  canFlip = true;
-
-  // Build card deck
-  const pool = [...CARDS].sort(() => Math.random() - .5).slice(0, numPairs);
-  cards = [...pool, ...pool].sort(() => Math.random() - .5).map((emoji, i) => ({
-    id: i, emoji, isFlipped: false, isMatched: false, owner: null
+let toastT = null;
+function toast(m) { const t = $('toast'); if (!t) return; t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600); }
+function bindPills(id, key, num) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = num ? (parseInt(p.dataset.v) || 0) : p.dataset.v;
   }));
-
-  showScreen('s-game');
-
-  const board = document.getElementById('board');
-  board.className = 'board ' + (selectedSize === '4x6' ? 'g4x6' : selectedSize === '4x5' ? 'g4x6' : 'g4x4');
-  board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-  renderBoard();
-  updateHeader();
 }
+bindPills('theme-pills', 'theme');
+bindPills('size-pills', 'size');
+bindPills('need-pills', 'need', true);
+bindPills('timer-pills', 'timer', true);
+function stopTurnTimer() { token++; clearInterval(turnTick); turnTick = null; }
+
+// ═════════ MATCH ═════════
+function startMatch(first) {
+  const f = first === 'dara' ? 'dara' : 'razan';
+  M = { first: f, need: CFG.need, wins: { razan:0, dara:0 }, round: 0,
+        tot: { razan:{ score:0, pairs:0, best:0, lupa:0 }, dara:{ score:0, pairs:0, best:0, lupa:0 } } };
+  startRound(f);
+}
+
+function startRound(starter) {
+  stopTurnTimer();
+  M.round++;
+  const [cols, rows] = CFG.size.split('x').map(Number);
+  const nPairs = cols * rows / 2;
+  const pool = shuffle(THEMES[CFG.theme] || THEMES.romantis).slice(0, nPairs - 1).concat(SPECIAL);
+  R = {
+    cols, rows, nPairs, cur: starter, phase: 'play',
+    cards: shuffle([...pool, ...pool]).map((e, i) => ({ id: i, e, up: false, done: false, owner: null })),
+    flipped: [], seen: new Set(), combo: 0,
+    score: { razan:0, dara:0 }, pairs: { razan:0, dara:0 }, best: { razan:0, dara:0 }, lupa: { razan:0, dara:0 },
+  };
+  const tt = $('turn-timer'); if (tt) tt.classList.toggle('show', !!CFG.timer);
+  showScreen('s-game');
+  renderBoard();
+  updateHud();
+  startTurnTimer();
+}
+
+function fitBoard() {
+  const wrap = $('board-wrap'), board = $('board'); if (!wrap || !board || !R) return;
+  const gap = 8;
+  const maxW = Math.min(wrap.clientWidth - 12, 440);
+  const byH = ((wrap.clientHeight - 12 - gap * (R.rows - 1)) / R.rows) * R.cols + gap * (R.cols - 1);
+  board.style.width = Math.max(200, Math.min(maxW, byH)) + 'px';
+}
+window.addEventListener('resize', fitBoard);
 
 function renderBoard() {
-  const board = document.getElementById('board');
-  board.innerHTML = cards.map(c => `
-    <div class="card ${c.isFlipped || c.isMatched ? 'flipped' : ''} ${c.isMatched ? 'matched matched-' + c.owner : ''}"
-      id="card-${c.id}" data-id="${c.id}" data-owner="${c.owner || ''}"
-      onclick="flipCard(${c.id})">
-      <div class="card-back"><span class="card-back-inner">🧩</span></div>
-      <div class="card-front">${c.emoji}</div>
-    </div>`).join('');
+  const board = $('board'); if (!board) return;
+  board.style.gridTemplateColumns = `repeat(${R.cols},1fr)`;
+  board.innerHTML = '';
+  R.cards.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'card' + (c.e === SPECIAL ? ' special' : '');
+    el.id = 'card-' + c.id;
+    el.innerHTML = `<div class="face back"><span>🧩</span></div><div class="face front">${c.e}</div>`;
+    el.addEventListener('click', () => flipCard(c.id));
+    board.appendChild(el);
+  });
+  requestAnimationFrame(fitBoard);
+}
+
+function updateHud() {
+  if (!R) return;
+  ['razan', 'dara'].forEach(p => {
+    setText('score-' + p, R.score[p]);
+    setText('pairs-' + p, `🧩 ${R.pairs[p]}` + (M.need > 1 ? ` · ${'⭐'.repeat(M.wins[p])}` : ''));
+    const gp = $('gp-' + p); if (gp) gp.classList.toggle('active', R.cur === p);
+  });
+  const t = $('gh-turn'); if (t) { t.textContent = `Giliran ${NAMES[R.cur]}`; t.className = 'gh-turn ' + R.cur; }
+  const left = R.nPairs - R.pairs.razan - R.pairs.dara;
+  const info = $('gh-info');
+  if (info) info.innerHTML = `${M.need > 1 ? `Ronde ${M.round} · ` : ''}Sisa ${left} pasang` + (R.combo >= 2 ? ` · <span class="gh-combo">🔥x${R.combo}</span>` : '');
+}
+
+// Timer giliran (opsional): habis = giliran pindah
+function startTurnTimer() {
+  stopTurnTimer();
+  if (!CFG.timer || !R || R.phase !== 'play') return;
+  const my = token, start = Date.now(), f = $('turn-fill');
+  turnTick = setInterval(() => {
+    if (my !== token || !R || R.phase !== 'play') return;
+    const left = Math.max(0, CFG.timer - (Date.now() - start) / 1000);
+    if (f) { const pct = left / CFG.timer * 100; f.style.width = pct + '%'; f.style.background = pct < 35 ? '#e57373' : 'var(--rose)'; }
+    if (left <= 0) { stopTurnTimer(); timeOut(); }
+  }, 100);
+}
+function timeOut() {
+  if (!R || R.phase !== 'play') return;
+  R.phase = 'lock';
+  toast(`⏰ Waktu ${NAMES[R.cur]} habis!`);
+  R.flipped.forEach(id => { R.cards[id].up = false; const el = $('card-' + id); if (el) el.classList.remove('flipped'); });
+  R.flipped = [];
+  setTimeout(() => { if (!R) return; R.phase = 'play'; passTurn(); }, 500);
 }
 
 function flipCard(id) {
-  if (!canFlip) return;
-  const card = cards[id];
-  if (card.isMatched || card.isFlipped) return;
-  if (flipped.length >= 2) return;
-
-  card.isFlipped = true;
-  flipped.push(id);
-
-  const el = document.getElementById('card-' + id);
-  el.classList.add('flipped');
-
-  if (flipped.length === 2) {
-    canFlip = false;
-    setTimeout(checkMatch, 700);
-  }
+  if (!R || R.phase !== 'play') return;
+  const c = R.cards[id];
+  if (!c || c.done || c.up || R.flipped.length >= 2) return;
+  c.up = true; R.flipped.push(id);
+  const el = $('card-' + id); if (el) el.classList.add('flipped');
+  if (R.flipped.length === 2) { R.phase = 'lock'; stopTurnTimer(); setTimeout(checkMatch, 650); }
 }
 
 function checkMatch() {
-  const [a, b] = flipped;
-  const cardA = cards[a], cardB = cards[b];
-
-  if (cardA.emoji === cardB.emoji) {
-    // Match!
-    cardA.isMatched = true; cardB.isMatched = true;
-    cardA.owner = currentPlayer; cardB.owner = currentPlayer;
-    pairs[currentPlayer]++;
-    scores[currentPlayer] += 10;
-    matched.push(a, b);
-
-    const elA = document.getElementById('card-' + a);
-    const elB = document.getElementById('card-' + b);
-    elA.classList.add('matched', 'matched-' + currentPlayer);
-    elA.setAttribute('data-owner', currentPlayer === 'razan' ? 'R' : 'D');
-    elB.classList.add('matched', 'matched-' + currentPlayer);
-    elB.setAttribute('data-owner', currentPlayer === 'razan' ? 'R' : 'D');
-
-    showPairPopup(cardA.emoji, currentPlayer);
-    if (navigator.vibrate) navigator.vibrate([50, 30, 100]);
-
-    flipped = [];
-    canFlip = true;
-    updateHeader();
-
-    if (matched.length === cards.length) {
-      setTimeout(endGame, 600);
-    }
-  } else {
-    // No match — flip back
-    setTimeout(() => {
-      cardA.isFlipped = false; cardB.isFlipped = false;
-      document.getElementById('card-' + a).classList.remove('flipped');
-      document.getElementById('card-' + b).classList.remove('flipped');
-      flipped = [];
-      canFlip = true;
-      currentPlayer = currentPlayer === 'razan' ? 'dara' : 'razan';
-      updateHeader();
-      if (navigator.vibrate) navigator.vibrate(60);
-    }, 600);
-  }
-}
-
-function showPairPopup(emoji, player) {
-  const name = player === 'razan' ? 'Razan' : 'Dara';
-  document.getElementById('pair-icon').textContent = emoji + emoji;
-  document.getElementById('pair-text').textContent = `${name} dapat pasangan!`;
-  document.getElementById('pair-pts').textContent = `+10 poin 🧩 +1 pasang`;
-  const overlay = document.getElementById('pair-overlay');
-  overlay.style.display = 'flex';
-  setTimeout(() => overlay.style.display = 'none', 1000);
-}
-
-function updateHeader() {
-  document.getElementById('score-r').textContent = scores.razan;
-  document.getElementById('score-d').textContent = scores.dara;
-  document.getElementById('coin-r').textContent = `🧩 ${pairs.razan} pasang`;
-  document.getElementById('coin-d').textContent = `🧩 ${pairs.dara} pasang`;
-  const name = currentPlayer === 'razan' ? 'Razan' : 'Dara';
-  const turn = document.getElementById('gh-turn');
-  turn.textContent = `Giliran ${name}`;
-  turn.className = 'gh-turn ' + currentPlayer;
-  const remaining = (totalPairs - matched.length / 2);
-  document.getElementById('gh-pairs').textContent = `Sisa ${remaining} pasang`;
-}
-
-function endGame() {
-  const r = scores.razan, d = scores.dara;
-  const tie = r === d;
-  const winner = r > d ? 'Razan' : 'Dara';
-  const loser = r > d ? 'Dara' : 'Razan';
-
-  document.getElementById('end-r').textContent = r;
-  document.getElementById('end-d').textContent = d;
-  document.getElementById('end-r-coin').textContent = `🧩 ${pairs.razan} pasang`;
-  document.getElementById('end-d-coin').textContent = `🧩 ${pairs.dara} pasang`;
-
-  let icon, title, sub, verdict;
-  if (tie) {
-    icon = '🤝'; title = 'Seri!'; sub = 'Sama-sama jago ingatan!';
-    verdict = `Seri ${pairs.razan}-${pairs.dara} pasang! Ingatan kalian sama kuatnya — dua-duanya master memory 🧩`;
-  } else {
-    icon = '🏆'; title = `${winner} Menang!`; sub = `${winner} punya ingatan lebih kuat hari ini!`;
-    const diff = Math.abs(pairs.razan - pairs.dara);
-    if (diff <= 2) {
-      verdict = `<strong>${winner}</strong> menang tipis ${r>d?pairs.razan:pairs.dara}-${r>d?pairs.dara:pairs.razan} pasang. Hampir imbang — ${loser} hampir bisa ngalahin!`;
+  if (!R) return;
+  const [a, b] = R.flipped, A = R.cards[a], B = R.cards[b], p = R.cur;
+  if (A.e === B.e) {
+    A.done = B.done = true; A.owner = B.owner = p;
+    R.combo++;
+    const special = A.e === SPECIAL;
+    const pts = (special ? 20 : 10) + (R.combo > 1 ? (R.combo - 1) * 5 : 0);
+    R.score[p] += pts; R.pairs[p]++;
+    R.best[p] = Math.max(R.best[p], R.combo);
+    [a, b].forEach(id => { const el = $('card-' + id); if (el) { el.classList.add('matched', 'm-' + p); el.querySelector('.front').dataset.o = p === 'razan' ? 'R' : 'D'; } });
+    R.flipped = [];
+    vib([50, 30, 100]);
+    updateHud();
+    const done = R.pairs.razan + R.pairs.dara >= R.nPairs;
+    if (special) {
+      showPopup('💘💘', `${NAMES[p]} nemu Kartu Cinta!`, `+${pts} poin`, fill(draw('love', LOVE_DEMANDS), { p: NAMES[p], o: NAMES[other(p)] }), () => afterMatch(done));
+      confetti(25);
     } else {
-      verdict = `<strong>${winner}</strong> menang ${r>d?pairs.razan:pairs.dara}-${r>d?pairs.dara:pairs.razan} pasang! Ingatan ${winner} lebih tajam hari ini 🧠 ${loser} harus latihan lagi! 😄`;
+      showPopup(A.e + A.e, R.combo > 1 ? `🔥 Combo x${R.combo}!` : `${NAMES[p]} dapet pasangan!`, `+${pts} poin`, null, null);
+      afterMatch(done);
     }
+  } else {
+    // "Lupa": salah satu kartu sebenernya udah pernah kebuka, tapi pasangannya juga pernah kebuka & nggak dipilih
+    const forgot = [A, B].some(C => R.cards.some(x => x.id !== C.id && x.e === C.e && R.seen.has(x.id) && !x.done));
+    if (forgot) R.lupa[p]++;
+    R.seen.add(a); R.seen.add(b);
+    [a, b].forEach(id => { const el = $('card-' + id); if (el) el.classList.add('shake'); });
+    setTimeout(() => {
+      if (!R) return;
+      [a, b].forEach(id => { R.cards[id].up = false; const el = $('card-' + id); if (el) el.classList.remove('flipped', 'shake'); });
+      R.flipped = [];
+      vib(60);
+      passTurn();
+    }, 650);
   }
+  R.seen.add(a); R.seen.add(b);
+}
 
-  document.getElementById('end-icon').textContent = icon;
-  document.getElementById('end-title').textContent = title;
-  document.getElementById('end-sub').textContent = sub;
-  document.getElementById('verdict-card').innerHTML = verdict;
+function afterMatch(done) {
+  if (!R) return;
+  if (done) { R.phase = 'end'; setTimeout(endRound, 700); return; }
+  R.phase = 'play';
+  startTurnTimer(); // cocok → lanjut main, timer reset
+}
 
+function passTurn() {
+  if (!R) return;
+  R.combo = 0;
+  R.cur = other(R.cur);
+  R.phase = 'play';
+  updateHud();
+  startTurnTimer();
+}
+
+function showPopup(icon, text, sub, demandHTML, onClose) {
+  clearTimeout(popT);
+  const pop = $('popup'); if (!pop) return;
+  setText('pop-icon', icon); setText('pop-text', text); setText('pop-sub', sub);
+  const ex = $('pop-extra');
+  if (demandHTML) {
+    // Kartu Cinta: game di-pause sampai hadiahnya dijalanin
+    R.phase = 'lock';
+    if (ex) ex.innerHTML = `<div class="pop-demand">💘 ${demandHTML}</div><button class="btn-main" id="pop-ok">Udah dikasih! 💞</button>`;
+    pop.classList.add('show', 'modal');
+    const ok = $('pop-ok');
+    if (ok) ok.addEventListener('click', () => { pop.classList.remove('show', 'modal'); if (onClose) onClose(); }, { once: true });
+  } else {
+    if (ex) ex.innerHTML = '';
+    pop.classList.remove('modal'); pop.classList.add('show');
+    popT = setTimeout(() => pop.classList.remove('show'), 900);
+  }
+}
+
+function exitGame() {
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  stopTurnTimer(); clearTimeout(popT);
+  const pop = $('popup'); if (pop) pop.classList.remove('show', 'modal');
+  M = null; R = null;
+  showScreen('s-intro');
+}
+
+// ═════════ HASIL ═════════
+function statTable(src) {
+  const row = (lbl, k) => `<div class="row"><span>${lbl}</span><b>${src.razan[k]}</b><b>${src.dara[k]}</b></div>`;
+  return `<div class="stat-table">
+    <div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    ${row('🧩 Pasangan', 'pairs')}${row('⭐ Skor', 'score')}${row('🔥 Combo terbaik', 'best')}${row('🤦 Lupa posisi', 'lupa')}
+  </div>`;
+}
+
+function endRound() {
+  if (!R || !M) return;
+  stopTurnTimer();
+  const pop = $('popup'); if (pop) pop.classList.remove('show', 'modal');
+  ['razan', 'dara'].forEach(p => {
+    const t = M.tot[p];
+    t.score += R.score[p]; t.pairs += R.pairs[p]; t.lupa += R.lupa[p]; t.best = Math.max(t.best, R.best[p]);
+  });
+  const rs = R.score.razan, ds = R.score.dara;
+  let winner = null;
+  if (rs !== ds) { winner = rs > ds ? 'razan' : 'dara'; M.wins[winner]++; }
+  const done = M.wins.razan >= M.need || M.wins.dara >= M.need;
+  if (done) { showFinal(); return; }
+
+  const src = { razan:{ pairs:R.pairs.razan, score:rs, best:R.best.razan, lupa:R.lupa.razan }, dara:{ pairs:R.pairs.dara, score:ds, best:R.best.dara, lupa:R.lupa.dara } };
+  const w = winner ? NAMES[winner] : null, l = winner ? NAMES[other(winner)] : null;
+  const nextStarter = winner ? other(winner) : other(R.cur);
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="badge">Hasil Ronde ${M.round}</span>
+    <span class="end-icon">${winner ? '🏆' : '🤝'}</span>
+    <h2 class="end-title">${winner ? `${w} Menang Ronde!` : 'Seri!'}</h2>
+    <p class="end-sub">${winner ? `Skor ${Math.max(rs, ds)}-${Math.min(rs, ds)}` : 'Skor sama persis — ronde ini nggak dihitung'}</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r">${M.wins.razan}</span><span class="sc-sub">menang ronde</span></div>
+      <span class="sc-vs">🧩</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d">${M.wins.dara}</span><span class="sc-sub">menang ronde</span></div>
+    </div>
+    ${statTable(src)}
+    <div class="demand"><span class="demand-tag">${winner ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span>
+      <p class="demand-text">${winner ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — ingatan kalian sama tajamnya! ✋'}</p></div>
+    <button class="btn-main" onclick="startRound('${nextStarter}')">Ronde ${M.round + 1} → ${NAMES[nextStarter]} mulai</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`;
   showScreen('s-result');
-  confetti(tie ? 40 : 70);
+  if (winner) confetti(35);
+}
+
+function showFinal() {
+  const t = M.tot;
+  let wp;
+  if (M.need > 1) wp = M.wins.razan > M.wins.dara ? 'razan' : 'dara';
+  else wp = t.razan.score === t.dara.score ? null : (t.razan.score > t.dara.score ? 'razan' : 'dara');
+  const tie = !wp;
+  const w = wp ? NAMES[wp] : '', l = wp ? NAMES[other(wp)] : '';
+  let v;
+  if (tie) v = `Seri! Ingatan kalian sama kuat — dua-duanya master memory 🧩`;
+  else {
+    v = `<strong>${w}</strong> punya ingatan paling tajam hari ini 🧠`;
+    if (t[wp].best >= 3) v += ` Combo terbaiknya ${t[wp].best}x beruntun 🔥`;
+  }
+  const lupaMax = t.razan.lupa === t.dara.lupa ? null : (t.razan.lupa > t.dara.lupa ? 'razan' : 'dara');
+  if (lupaMax && t[lupaMax].lupa >= 2) v += `<br>🤦 Rekor "lupa posisi": <strong>${NAMES[lupaMax]}</strong> (${t[lupaMax].lupa}x) — padahal kartunya udah pernah kebuka 😂`;
+
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="badge">Hasil Akhir</span>
+    <span class="end-icon">${tie ? '🤝' : '🏆'}</span>
+    <h2 class="end-title">${tie ? 'Seri!' : `${w} Menang!`}</h2>
+    <p class="end-sub">${M.need > 1 ? `Menang ${M.wins[wp]}-${M.wins[other(wp)]} dalam ${M.round} ronde` : `Skor ${t.razan.score} vs ${t.dara.score}`}</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r">${M.need > 1 ? M.wins.razan : t.razan.score}</span><span class="sc-sub">${M.need > 1 ? `${t.razan.score} poin` : `🧩 ${t.razan.pairs} pasang`}</span></div>
+      <span class="sc-vs">🧩</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d">${M.need > 1 ? M.wins.dara : t.dara.score}</span><span class="sc-sub">${M.need > 1 ? `${t.dara.score} poin` : `🧩 ${t.dara.pairs} pasang`}</span></div>
+    </div>
+    ${statTable(t)}
+    <div class="verdict">${v}</div>
+    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn-main" onclick="startMatch(M ? other(M.first) : 'razan')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`;
+  showScreen('s-result');
+  confetti(tie ? 35 : 70);
 }
 
 function confetti(n) {
-  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#faf6f0'];
-  for (let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#3a5cb5'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
