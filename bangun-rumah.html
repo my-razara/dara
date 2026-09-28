@@ -10,122 +10,175 @@
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
     --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
-    --sky:#87ceeb;--grass:#7ec850;
+    --sky:#87ceeb;--grass:#7ec850;--blue:#3a5cb5;
+    --c-rom:#e57373;--c-fun:#ffa726;--c-hem:#66bb6a;--c-aes:#ab47bc;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
   html,body{height:100%;overflow:hidden;background:var(--cream)}
-  body::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(135,206,235,.2),transparent 60%),
-    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(126,200,80,.1),transparent 60%);
-    pointer-events:none;z-index:0}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(135,206,235,.2),transparent 60%),radial-gradient(ellipse 50% 50% at 80% 90%,rgba(126,200,80,.1),transparent 60%);pointer-events:none;z-index:0}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:var(--cream)}
-  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center}
+  .dark{background:var(--ink)}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+  @keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+
+  /* INTRO */
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem;position:relative;z-index:1}
-  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.4rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
+  .intro-sub{font-size:12px;color:var(--muted);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+  .pill.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:var(--ink)}
+  .rule-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .btn-main:active{transform:scale(.97);background:var(--deep)}
+  .btn-main.gold{background:var(--gold);color:var(--ink)}
+  .btn-ghost{width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;margin-top:.5rem}
+  .dark .btn-ghost{border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.5)}
 
-  /* ── SHOP ── */
-  #s-shop{background:var(--cream);padding:0;justify-content:flex-start}
+  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:var(--muted);margin:.3rem auto 1.1rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);text-align:left}
+  .pick-btn:active{transform:scale(.97);background:var(--warm)}
+  .pick-icon{font-size:2rem;flex-shrink:0}
+  .pick-name{font-size:14px;font-weight:700;color:var(--ink);display:block}
+  .pick-sub2{font-size:11px;color:var(--muted);margin-top:.1rem;display:block}
 
-  /* Header */
-  .shop-header{position:sticky;top:0;z-index:20;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.6rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;width:100%}
-  .sh-budget{font-size:1.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .sh-budget-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-  .sh-turn{font-size:11px;font-weight:600;padding:.25rem .75rem;border-radius:50px;display:inline-block}
-  .sh-turn.razan{background:rgba(74,124,199,.1);color:#3a5cb5}
-  .sh-turn.dara{background:rgba(193,122,111,.1);color:var(--rose)}
-  .sh-round{font-size:10px;color:var(--muted);text-align:right}
-  .sh-round b{color:var(--rose);font-size:13px}
+  /* SECRET */
+  .sec-warn{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:.9rem}
+  .sec-title{font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+  .sec-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:1.1rem}
+  .sec-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:1.4rem 1.2rem;width:100%;margin-bottom:1rem;display:none}
+  .sec-card.show{display:block;animation:pop .4s cubic-bezier(.34,1.5,.64,1)}
+  .sec-icon{font-size:3.5rem;display:block;margin-bottom:.3rem}
+  .sec-name{font-size:1.4rem;font-weight:700;display:block;margin-bottom:.3rem}
+  .sec-desc{font-size:12px;color:rgba(255,255,255,.6);line-height:1.6}
 
-  /* House preview */
-  .house-preview{flex-shrink:0;width:100%;background:linear-gradient(to bottom,var(--sky) 60%,var(--grass) 60%);padding:.75rem;display:flex;flex-direction:column;align-items:center;min-height:140px;position:relative;overflow:hidden}
-  .hp-house{font-size:2.5rem;display:block;position:relative;z-index:2}
-  .hp-items{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-top:.35rem;position:relative;z-index:2}
-  .hp-item{font-size:1.3rem;animation:itembounce .4s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes itembounce{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .hp-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.8);background:rgba(0,0,0,.2);border-radius:50px;padding:.15rem .6rem;position:absolute;top:.5rem;left:.75rem}
-
-  /* Shop body */
-  .shop-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.75rem 1rem 1.5rem;width:100%}
-
-  /* Category sections */
-  .cat-section{margin-bottom:1.25rem}
-  .cat-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+  /* SHOP */
+  #s-shop{padding:0}
+  .shop-wrap{width:100%;max-width:440px;height:100%;display:flex;flex-direction:column;margin:0 auto}
+  .shop-header{background:rgba(250,246,240,.97);border-bottom:1px solid rgba(193,122,111,.1);padding:.55rem .9rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-shrink:0}
+  .sh-budget{font-size:1.15rem;font-weight:700;color:var(--rose);display:block;line-height:1;text-align:left}
+  .sh-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;text-align:left}
+  .sh-turn{font-size:11px;font-weight:700;padding:.25rem .7rem;border-radius:50px;display:inline-block}
+  .sh-turn.razan{background:rgba(74,124,199,.1);color:var(--blue)}
+  .sh-turn.dara{background:rgba(193,122,111,.12);color:var(--rose)}
+  .sh-right{text-align:right;font-size:10px;color:var(--muted);line-height:1.4}
+  .sh-right b{color:var(--rose)}
+  .sh-exit{background:#fff;border:1.5px solid var(--blush);border-radius:50px;padding:.15rem .55rem;font-size:10px;color:var(--muted);cursor:pointer;margin-top:.15rem}
+  .house-preview{flex-shrink:0;background:linear-gradient(to bottom,var(--sky) 58%,var(--grass) 58%);padding:.55rem .75rem;display:flex;flex-direction:column;align-items:center;min-height:110px;position:relative}
+  .hp-house{font-size:2.3rem;display:block}
+  .hp-items{display:flex;flex-wrap:wrap;gap:.2rem;justify-content:center;margin-top:.2rem;max-width:340px}
+  .hp-item{font-size:1.15rem;animation:pop .4s cubic-bezier(.34,1.5,.64,1);border-bottom:2px solid transparent;line-height:1.2}
+  .hp-item.razan{border-color:#7eb3f5}.hp-item.dara{border-color:var(--rose)}.hp-item.gift{border-color:var(--gold)}
+  .hp-label{font-size:10px;font-weight:600;color:#fff;background:rgba(0,0,0,.2);border-radius:50px;padding:.12rem .55rem;position:absolute;top:.4rem;left:.6rem}
+  .hp-disc{position:absolute;top:.4rem;right:.6rem;font-size:10px;font-weight:700;color:#fff;background:rgba(229,115,115,.85);border-radius:50px;padding:.12rem .55rem;display:none}
+  .hp-disc.show{display:block}
+  .shop-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.7rem .9rem 1rem}
+  .cat-section{margin-bottom:1rem}
+  .cat-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
   .cat-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+  .item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+  .item-card{background:#fff;border:1.5px solid rgba(193,122,111,.12);border-radius:14px;padding:.6rem .4rem;display:flex;flex-direction:column;align-items:center;gap:.2rem;cursor:pointer;transition:all .15s;position:relative;box-shadow:0 2px 8px rgba(193,122,111,.05)}
+  .item-card:active{transform:scale(.94);background:var(--warm)}
+  .item-card.owned{border-color:rgba(129,199,132,.4);background:rgba(129,199,132,.06);cursor:default;opacity:.6}
+  .item-card.cant{cursor:not-allowed;opacity:.4}
+  .item-emoji{font-size:1.6rem;display:block}
+  .item-name{font-size:9.5px;font-weight:600;color:var(--ink);line-height:1.2}
+  .item-price{font-size:10.5px;font-weight:700;color:var(--rose)}
+  .item-tag{font-size:9px;color:var(--muted)}
+  .owned-badge{position:absolute;top:-1px;right:-1px;font-size:10px;padding:1px 5px;border-radius:0 12px 0 8px;background:#4caf50;color:#fff}
+  .bottom-bar{flex-shrink:0;padding:.6rem .9rem calc(.6rem + env(safe-area-inset-bottom));background:rgba(250,246,240,.98);border-top:1px solid rgba(193,122,111,.1);display:flex;gap:.5rem}
+  .skip-btn{flex:1;padding:.7rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer}
+  .done-btn{flex:1;padding:.7rem;border-radius:50px;border:none;background:var(--rose);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer}
 
-  /* Item grid */
-  .item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
-  .item-card{background:#fff;border:1.5px solid rgba(193,122,111,.12);border-radius:16px;padding:.75rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.3rem;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(193,122,111,.05)}
-  .item-card:active{transform:scale(.93);background:var(--warm)}
-  .item-card.owned{border-color:rgba(129,199,132,.4);background:rgba(129,199,132,.06);cursor:default;opacity:.7}
-  .item-card.cantafford{border-color:rgba(229,115,115,.2);background:rgba(229,115,115,.04);cursor:not-allowed;opacity:.5}
-  .item-emoji{font-size:1.8rem;display:block}
-  .item-name{font-size:10px;font-weight:600;color:var(--ink);text-align:center;line-height:1.2}
-  .item-price{font-size:11px;font-weight:700;color:var(--rose)}
-  .item-price.free{color:#4caf50}
-  .item-owned-badge{position:absolute;top:-1px;right:-1px;background:#4caf50;color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:0 0 0 8px}
+  /* SHEET (konfirmasi & veto) */
+  .overlay{position:fixed;inset:0;z-index:60;background:rgba(45,31,26,.5);display:none;align-items:flex-end;justify-content:center;padding:.75rem}
+  .overlay.show{display:flex}
+  .overlay.center{align-items:center}
+  .sheet{background:var(--cream);border-radius:24px;padding:1.2rem 1.2rem 1.4rem;width:100%;max-width:400px;animation:slideup .3s cubic-bezier(.34,1.2,.64,1);text-align:center;max-height:90vh;overflow-y:auto}
+  .overlay.center .sheet{animation:pop .35s cubic-bezier(.34,1.5,.64,1)}
+  .s-emoji{font-size:3rem;display:block}
+  .s-name{font-size:1.05rem;font-weight:700;color:var(--ink)}
+  .s-price{font-size:13px;font-weight:700;color:var(--rose);margin-bottom:.7rem}
+  .s-price s{color:var(--muted);font-weight:500;margin-right:.3rem}
+  .attr{display:grid;grid-template-columns:78px 1fr 30px;align-items:center;gap:.5rem;font-size:11px;color:var(--muted);margin-bottom:.3rem;text-align:left}
+  .attr-bar{height:6px;background:var(--warm);border-radius:3px;overflow:hidden}
+  .attr-fill{height:100%;border-radius:3px}
+  .attr b{color:var(--ink);text-align:right}
+  .s-ask{font-size:12.5px;font-weight:600;color:var(--ink);margin:.8rem 0 .6rem;line-height:1.5}
+  .s-ask b{color:var(--rose)}
+  .s-btns{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .s-btn{padding:.8rem .4rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700}
+  .s-btn.ok{background:var(--rose);color:#fff}
+  .s-btn.veto{background:#fff;color:var(--c-rom);border:1.5px solid rgba(229,115,115,.45)}
+  .s-btn.veto:disabled{opacity:.35}
+  .s-btn.cancel{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .s-full{grid-column:1/-1}
+  .ev-icon{font-size:3rem;display:block;margin-bottom:.3rem}
+  .ev-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .ev-sub{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:.9rem}
+  .ev-sub b{color:var(--rose)}
 
-  /* Pass/skip btn */
-  .pass-area{flex-shrink:0;padding:.75rem 1rem;background:rgba(250,246,240,.97);border-top:1px solid rgba(193,122,111,.1);width:100%;display:flex;gap:.6rem}
-  .pass-btn{flex:1;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
-  .pass-btn:active{background:var(--warm)}
-  .done-btn{flex:1;padding:.75rem;border-radius:50px;border:none;background:var(--rose);color:#fff;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:0 3px 12px rgba(193,122,111,.3)}
-  .done-btn:active{background:var(--deep);transform:scale(.97)}
-
-  /* ── RESULT ── */
-  #s-result{background:var(--cream);padding:0;justify-content:flex-start}
-  .result-house-banner{flex-shrink:0;width:100%;background:linear-gradient(to bottom,var(--sky) 55%,var(--grass) 55%);padding:1.25rem;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;min-height:180px}
-  .rhb-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.8);background:rgba(0,0,0,.2);border-radius:50px;padding:.2rem .75rem;margin-bottom:.5rem;position:relative;z-index:2}
-  .rhb-house{font-size:3rem;display:block;position:relative;z-index:2;margin-bottom:.35rem}
-  .rhb-items{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;position:relative;z-index:2;max-width:300px}
-  .rhb-item{font-size:1.5rem}
-
-  .result-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem;width:100%}
-
-  /* Score cards */
-  .score-title{font-size:1.1rem;font-weight:700;color:var(--ink);text-align:center;margin-bottom:.25rem}
-  .score-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:1rem;line-height:1.55}
-  .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem}
-  .score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem .75rem;text-align:center;box-shadow:0 2px 8px rgba(193,122,111,.06)}
-  .sc-icon{font-size:1.5rem;display:block;margin-bottom:.3rem}
+  /* RESULT */
+  #s-result{padding:0}
+  .result-wrap{width:100%;max-width:420px;margin:0 auto}
+  .result-banner{background:linear-gradient(to bottom,var(--sky) 55%,var(--grass) 55%);padding:1rem;display:flex;flex-direction:column;align-items:center;min-height:170px}
+  .rb-title{font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.2);border-radius:50px;padding:.2rem .75rem;margin-bottom:.4rem}
+  .rb-house{font-size:2.8rem;display:block;margin-bottom:.3rem}
+  .rb-items{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;max-width:320px}
+  .rb-item{font-size:1.4rem}
+  .result-body{padding:1rem 1rem 1.5rem}
+  .r-title{font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .r-sub{font-size:12px;color:var(--muted);margin-bottom:.9rem;line-height:1.55}
+  .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem}
+  .score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.8rem .6rem;box-shadow:0 2px 8px rgba(193,122,111,.05)}
   .sc-label{font-size:11px;color:var(--muted);display:block;margin-bottom:.3rem}
-  .sc-bar{height:8px;background:var(--blush);border-radius:4px;overflow:hidden;margin-bottom:.3rem}
-  .sc-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.34,1,.64,1)}
-  .sc-val{font-size:1.2rem;font-weight:700;display:block}
-
-  /* Items bought list */
-  .items-list-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(193,122,111,.06)}
-  .il-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .il-grid{display:flex;flex-wrap:wrap;gap:.4rem}
-  .il-item{background:var(--warm);border-radius:8px;padding:.3rem .6rem;font-size:12px;color:var(--ink);display:flex;align-items:center;gap:.3rem}
-
-  .verdict-card{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.25rem}
-  .verdict-card strong{color:var(--rose)}
-
+  .sc-bar{height:8px;background:var(--blush);border-radius:4px;overflow:hidden;margin-bottom:.25rem}
+  .sc-fill{height:100%;border-radius:4px;width:0;transition:width 1.1s cubic-bezier(.34,1,.64,1)}
+  .sc-val{font-size:1.15rem;font-weight:700}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1rem;margin-bottom:.8rem;box-shadow:0 2px 8px rgba(193,122,111,.05);text-align:left}
+  .card-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.55rem}
+  .sat-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .sat{border-radius:12px;padding:.65rem .5rem;text-align:center}
+  .sat.razan{background:rgba(74,124,199,.08)}.sat.dara{background:rgba(193,122,111,.1)}
+  .sat-nm{font-size:11px;font-weight:700;display:block}
+  .sat.razan .sat-nm{color:var(--blue)}.sat.dara .sat-nm{color:var(--rose)}
+  .sat-pri{font-size:10.5px;color:var(--muted);display:block;margin:.1rem 0 .2rem}
+  .sat-v{font-size:1.5rem;font-weight:700;color:var(--ink)}
+  .stat-table{font-size:11.5px;color:var(--muted)}
+  .stat-table .row{display:grid;grid-template-columns:1.4fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(193,122,111,.08)}
+  .stat-table .row:last-child{border-bottom:none}
+  .stat-table .head{font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .stat-table b{color:var(--ink)}
+  .il-grid{display:flex;flex-wrap:wrap;gap:.35rem}
+  .il-item{background:var(--warm);border-radius:8px;padding:.25rem .55rem;font-size:11.5px;color:var(--ink);display:flex;align-items:center;gap:.3rem;border-left:3px solid transparent}
+  .il-item.razan{border-left-color:#7eb3f5}.il-item.dara{border-left-color:var(--rose)}.il-item.gift{border-left-color:var(--gold)}
+  .verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1rem;font-size:12.5px;color:var(--ink);line-height:1.7;margin-bottom:.8rem;text-align:left}
+  .verdict strong{color:var(--rose)}
+  .demand{background:linear-gradient(135deg,rgba(201,169,110,.16),rgba(193,122,111,.1));border:1px solid rgba(201,169,110,.45);border-radius:16px;padding:.85rem 1rem;margin-bottom:.9rem;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem}
+  .demand-text{font-size:13px;color:var(--ink);line-height:1.6}
+  .demand-text b{color:var(--rose)}
   .result-btns{display:flex;gap:.6rem}
-  .result-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
+  .result-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700}
   .result-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
-  .result-btn-p:active{background:var(--deep);transform:scale(.97)}
   .result-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
 
-  /* Purchase flash */
-  @keyframes purchaseflash{0%,100%{background:#fff}50%{background:rgba(129,199,132,.2)}}
-  .purchase-flash{animation:purchaseflash .4s ease}
-
-  /* Confetti */
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -134,419 +187,537 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🏠</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Bangun <span>Rumah Impian</span></h1>
-  <p class="intro-sub">Kalian dapat budget terbatas — belanja bergantian buat mengisi rumah impian kalian berdua! 🛋️</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot"></span>Kalian dapat budget awal Rp 10.000.000 bersama</div>
-    <div class="rule"><span class="rule-dot"></span>Gantian beli item — Razan dulu, terus Dara, dst</div>
-    <div class="rule"><span class="rule-dot"></span>Tiap item punya efek beda (Romantis, Fun, Hemat, Aesthetic)</div>
-    <div class="rule"><span class="rule-dot"></span>Setelah semua giliran — rumah kalian dinilai! 🏆</div>
+  <div class="screen-inner">
+    <span class="intro-icon">🏠</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Bangun <span>Rumah Impian</span></h1>
+    <p class="intro-sub">Budget bareng, belanja gantian — tapi masing-masing punya <b>prioritas rahasia</b>. Siapa yang paling puas sama rumahnya? 🛋️</p>
+
+    <div class="panel">
+      <span class="panel-title">Budget</span>
+      <div class="pills" id="budget-pills">
+        <button class="pill" data-v="5000000">5jt<small>ngirit</small></button>
+        <button class="pill on" data-v="10000000">10jt<small>normal</small></button>
+        <button class="pill" data-v="15000000">15jt<small>sultan</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Giliran per Orang</span>
+      <div class="pills" id="turn-pills">
+        <button class="pill" data-v="4">4<small>cepat</small></button>
+        <button class="pill on" data-v="6">6<small>normal</small></button>
+        <button class="pill" data-v="8">8<small>panjang</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>Masing-masing dapet <b>prioritas rahasia</b>: Romantis, Fun, Hemat, atau Aesthetic</div>
+      <div class="rule"><span class="rule-dot"></span>Gantian beli 1 item per giliran — pasangan harus <b>setuju</b></div>
+      <div class="rule"><span class="rule-dot"></span>Nggak setuju? Pakai <b>🙅 Veto</b> (cuma 1x per orang!)</div>
+      <div class="rule"><span class="rule-dot"></span>Tiap 3 giliran ada <b>kejadian acak</b>: bonus, tagihan, diskon, hadiah 🎲</div>
+      <div class="rule"><span class="rule-dot"></span>Akhirnya rumah dinilai + ketahuan siapa yang paling puas 🏆</div>
+    </div>
+    <button class="btn-main" onclick="showScreen('s-pick')">Bangun Rumah! 🏠</button>
   </div>
-  <button class="start-btn" onclick="showScreen('s-pick')">Bangun Rumah! 🏠</button>
 </div>
 
-<!-- PICK WHO GOES FIRST -->
+<!-- PICK -->
 <div id="s-pick" class="screen">
-  <span style="font-size:3.5rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite">🏠</span>
-  <p style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1">Siapa yang rencanain duluan?</p>
-  <p style="font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1">Yang pertama beli item duluan — gantian setelahnya sampai budget habis!</p>
-  <div style="display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1">
-    <div onclick="startGame('razan')" style="padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);transition:all .15s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <span style="font-size:2rem;flex-shrink:0">🧑</span>
-      <div>
-        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan duluan</span>
-        <span style="font-size:11px;color:var(--muted);margin-top:.1rem;display:block">Razan yang pilih item pertama</span>
-      </div>
+  <div class="screen-inner">
+    <span style="font-size:3rem;display:block;margin-bottom:.8rem;animation:float 3s ease-in-out infinite">🏠</span>
+    <p class="pick-title">Siapa yang belanja duluan?</p>
+    <p class="pick-sub">Sebelum mulai, masing-masing liat prioritas rahasianya dulu 🤫</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="startGame('razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Razan belanja item pertama</span></div></div>
+      <div class="pick-btn" onclick="startGame('dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Dara belanja item pertama</span></div></div>
     </div>
-    <div onclick="startGame('dara')" style="padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);transition:all .15s" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform=''">
-      <span style="font-size:2rem;flex-shrink:0">👧</span>
-      <div>
-        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara duluan</span>
-        <span style="font-size:11px;color:var(--muted);margin-top:.1rem;display:block">Dara yang pilih item pertama</span>
-      </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
+  </div>
+</div>
+
+<!-- SECRET -->
+<div id="s-secret" class="screen dark">
+  <div class="screen-inner">
+    <span class="sec-warn" id="sec-warn">Cuma buat Razan — Dara tutup mata!</span>
+    <p class="sec-title" id="sec-title">Razan, pegang HP-nya</p>
+    <p class="sec-sub" id="sec-sub">Tap buat liat prioritas rahasiamu. Jangan kasih tau pasangan ya 🤫</p>
+    <div class="sec-card" id="sec-card">
+      <span class="sec-icon" id="sec-icon">❤️</span>
+      <span class="sec-name" id="sec-name">Romantis</span>
+      <p class="sec-desc" id="sec-desc">...</p>
     </div>
+    <button class="btn-main gold" id="sec-btn" onclick="secretNext()">👀 Liat prioritasku</button>
   </div>
 </div>
 
 <!-- SHOP -->
 <div id="s-shop" class="screen">
-  <div class="shop-header">
-    <div>
-      <span class="sh-budget" id="sh-budget">Rp5.000.000</span>
-      <span class="sh-budget-label">Budget Tersisa</span>
+  <div class="shop-wrap">
+    <div class="shop-header">
+      <div><span class="sh-budget" id="sh-budget">Rp10jt</span><span class="sh-label">Budget bareng</span></div>
+      <span class="sh-turn razan" id="sh-turn">🧑 Giliran Razan</span>
+      <div class="sh-right">Sisa giliran <b id="sh-left">12</b><br><button class="sh-exit" onclick="exitGame()">✕ Keluar</button></div>
     </div>
-    <div>
-      <span class="sh-turn" id="sh-turn">🧑 Giliran Razan</span>
+    <div class="house-preview">
+      <span class="hp-label">🏠 Rumah Kalian</span>
+      <span class="hp-disc" id="hp-disc">🏷️ Diskon 50%!</span>
+      <span class="hp-house">🏠</span>
+      <div class="hp-items" id="hp-items"></div>
     </div>
-    <div>
-      <span class="sh-round" style="font-size:10px;color:var(--muted)">Item dibeli: <b id="sh-round">0</b></span>
+    <div class="shop-body" id="shop-body"></div>
+    <div class="bottom-bar">
+      <button class="skip-btn" onclick="skipTurn()">Lewati giliran →</button>
+      <button class="done-btn" onclick="finishEarly()">Selesai & Nilai 🏆</button>
     </div>
   </div>
+</div>
 
-  <!-- House preview -->
-  <div class="house-preview">
-    <span class="hp-label">🏠 Rumah Kalian</span>
-    <span class="hp-house">🏠</span>
-    <div class="hp-items" id="hp-items"></div>
+<!-- SHEET: konfirmasi beli -->
+<div class="overlay" id="buy-overlay">
+  <div class="sheet">
+    <span class="s-emoji" id="b-emoji">🛋️</span>
+    <p class="s-name" id="b-name">Sofa</p>
+    <p class="s-price" id="b-price">Rp1,2jt</p>
+    <div id="b-attrs"></div>
+    <p class="s-ask" id="b-ask">...</p>
+    <div class="s-btns" id="b-btns"></div>
   </div>
+</div>
 
-  <!-- Shop body -->
-  <div class="shop-body" id="shop-body"></div>
-
-  <!-- Pass/done -->
-  <div class="pass-area">
-    <button class="pass-btn" onclick="passRound()">Lewati Giliran →</button>
-    <button class="done-btn" onclick="finishGame()">Selesai! Nilai Rumah 🏆</button>
+<!-- EVENT -->
+<div class="overlay center" id="ev-overlay">
+  <div class="sheet">
+    <span class="ev-icon" id="ev-icon">💸</span>
+    <p class="ev-title" id="ev-title">...</p>
+    <p class="ev-sub" id="ev-sub">...</p>
+    <button class="btn-main" onclick="closeEvent()">Oke! 👍</button>
   </div>
 </div>
 
 <!-- RESULT -->
 <div id="s-result" class="screen">
-  <div class="result-house-banner">
-    <span class="rhb-title">🏠 Rumah Razan & Dara</span>
-    <span class="rhb-house">🏠</span>
-    <div class="rhb-items" id="rhb-items"></div>
-  </div>
-
-  <div class="result-body">
-    <p class="score-title" id="res-title">Rumah Kalian Dinilai!</p>
-    <p class="score-sub" id="res-sub">Ini hasil penilaian rumah impian kalian...</p>
-
-    <div class="score-grid">
-      <div class="score-card">
-        <span class="sc-icon">❤️</span>
-        <span class="sc-label">Romantis</span>
-        <div class="sc-bar"><div class="sc-fill" id="sc-romantic" style="width:0%;background:#e57373"></div></div>
-        <span class="sc-val" id="sv-romantic" style="color:#e57373">0</span>
-      </div>
-      <div class="score-card">
-        <span class="sc-icon">😂</span>
-        <span class="sc-label">Fun</span>
-        <div class="sc-bar"><div class="sc-fill" id="sc-fun" style="width:0%;background:#ffa726"></div></div>
-        <span class="sc-val" id="sv-fun" style="color:#ffa726">0</span>
-      </div>
-      <div class="score-card">
-        <span class="sc-icon">💰</span>
-        <span class="sc-label">Hemat</span>
-        <div class="sc-bar"><div class="sc-fill" id="sc-hemat" style="width:0%;background:#66bb6a"></div></div>
-        <span class="sc-val" id="sv-hemat" style="color:#66bb6a">0</span>
-      </div>
-      <div class="score-card">
-        <span class="sc-icon">✨</span>
-        <span class="sc-label">Aesthetic</span>
-        <div class="sc-bar"><div class="sc-fill" id="sc-aesthetic" style="width:0%;background:#ab47bc"></div></div>
-        <span class="sc-val" id="sv-aesthetic" style="color:#ab47bc">0</span>
-      </div>
+  <div class="result-wrap">
+    <div class="result-banner">
+      <span class="rb-title">🏠 Rumah Razan & Dara</span>
+      <span class="rb-house">🏠</span>
+      <div class="rb-items" id="rb-items"></div>
     </div>
-
-    <div class="items-list-card">
-      <span class="il-title">Item yang Dibeli</span>
-      <div class="il-grid" id="il-grid"></div>
-    </div>
-
-    <div class="verdict-card" id="verdict-card">...</div>
-
-    <div class="result-btns">
-      <button class="result-btn result-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-      <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
-    </div>
+    <div class="result-body" id="result-body"></div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// ── ITEMS ──
+// ═════════ DATA ═════════
+const ATTRS = {
+  romantic:  { icon:'❤️', label:'Romantis',  color:'#e57373', desc:'Kamu pengen rumah yang hangat & bikin makin sayang — lampu temaram, sudut berdua, momen manis.' },
+  fun:       { icon:'😂', label:'Fun',       color:'#ffa726', desc:'Kamu pengen rumah yang seru — banyak hiburan, rame, nggak pernah bosen.' },
+  hemat:     { icon:'💰', label:'Hemat',     color:'#66bb6a', desc:'Kamu pengen rumah yang bijak — barang fungsional, murah meriah, budget sisa banyak.' },
+  aesthetic: { icon:'✨', label:'Aesthetic', color:'#ab47bc', desc:'Kamu pengen rumah yang cakep — estetik, rapi, instagramable.' },
+};
+const I = (id, emoji, name, price, cat, r, f, h, a) => ({ id, emoji, name, price, cat, romantic:r, fun:f, hemat:h, aesthetic:a });
 const SHOP_ITEMS = [
-  // Furnitur
-  {id:'sofa',       emoji:'🛋️', name:'Sofa 3 Dudukan',    price:1200000, cat:'Furnitur',    romantic:15, fun:10, hemat:5,  aesthetic:20},
-  {id:'sofa2',      emoji:'🪑', name:'Kursi Santai',       price:400000,  cat:'Furnitur',    romantic:10, fun:10, hemat:15, aesthetic:15},
-  {id:'kasur',      emoji:'🛏️', name:'Kasur Spring Bed',   price:1500000, cat:'Furnitur',    romantic:25, fun:5,  hemat:0,  aesthetic:15},
-  {id:'kasur2',     emoji:'🛌', name:'Kasur Lipat',        price:350000,  cat:'Furnitur',    romantic:5,  fun:10, hemat:30, aesthetic:5},
-  {id:'meja',       emoji:'🍽️', name:'Meja Makan',         price:600000,  cat:'Furnitur',    romantic:15, fun:15, hemat:10, aesthetic:15},
-  {id:'mejakecil',  emoji:'☕', name:'Meja Kopi',          price:250000,  cat:'Furnitur',    romantic:20, fun:10, hemat:20, aesthetic:20},
-  {id:'lemari',     emoji:'🪞', name:'Lemari Pakaian',     price:800000,  cat:'Furnitur',    romantic:5,  fun:5,  hemat:10, aesthetic:20},
-  {id:'rak',        emoji:'📚', name:'Rak Buku',           price:300000,  cat:'Furnitur',    romantic:10, fun:10, hemat:20, aesthetic:25},
-  {id:'karpet',     emoji:'🟤', name:'Karpet Bulu',        price:350000,  cat:'Furnitur',    romantic:10, fun:15, hemat:15, aesthetic:25},
-  {id:'gorden',     emoji:'🪟', name:'Gorden Aesthetic',   price:200000,  cat:'Furnitur',    romantic:10, fun:5,  hemat:20, aesthetic:30},
-  {id:'lampu',      emoji:'💡', name:'Lampu Hias',         price:150000,  cat:'Furnitur',    romantic:25, fun:5,  hemat:25, aesthetic:30},
-  {id:'cermin',     emoji:'🪞', name:'Cermin Besar',       price:300000,  cat:'Furnitur',    romantic:5,  fun:10, hemat:15, aesthetic:35},
-
-  // Elektronik
-  {id:'tv',         emoji:'📺', name:'Smart TV 55"',       price:2000000, cat:'Elektronik',  romantic:5,  fun:35, hemat:-5, aesthetic:15},
-  {id:'tv2',        emoji:'🖥️', name:'TV 32"',             price:800000,  cat:'Elektronik',  romantic:5,  fun:25, hemat:10, aesthetic:10},
-  {id:'speaker',    emoji:'🔊', name:'Speaker Bluetooth',  price:500000,  cat:'Elektronik',  romantic:20, fun:25, hemat:10, aesthetic:15},
-  {id:'ac',         emoji:'❄️', name:'AC 1 PK',            price:1500000, cat:'Elektronik',  romantic:5,  fun:10, hemat:-5, aesthetic:5},
-  {id:'ac2',        emoji:'🌬️', name:'Kipas Angin',        price:150000,  cat:'Elektronik',  romantic:5,  fun:10, hemat:30, aesthetic:5},
-  {id:'kulkas',     emoji:'🧊', name:'Kulkas 2 Pintu',     price:900000,  cat:'Elektronik',  romantic:10, fun:20, hemat:10, aesthetic:10},
-  {id:'mesinair',   emoji:'🚿', name:'Water Heater',       price:600000,  cat:'Elektronik',  romantic:5,  fun:10, hemat:0,  aesthetic:5},
-  {id:'wifi',       emoji:'📡', name:'WiFi Router',        price:300000,  cat:'Elektronik',  romantic:5,  fun:30, hemat:10, aesthetic:5},
-  {id:'kamera',     emoji:'📸', name:'Kamera Polaroid',    price:400000,  cat:'Elektronik',  romantic:30, fun:20, hemat:10, aesthetic:25},
-  {id:'proyektor',  emoji:'🎥', name:'Proyektor Mini',     price:700000,  cat:'Elektronik',  romantic:25, fun:30, hemat:5,  aesthetic:20},
-
-  // Dapur
-  {id:'kompor',     emoji:'🍳', name:'Kompor Gas',         price:400000,  cat:'Dapur',       romantic:20, fun:25, hemat:15, aesthetic:10},
-  {id:'microwave',  emoji:'📻', name:'Microwave',          price:500000,  cat:'Dapur',       romantic:5,  fun:15, hemat:10, aesthetic:10},
-  {id:'blender',    emoji:'🥤', name:'Blender',            price:200000,  cat:'Dapur',       romantic:10, fun:20, hemat:15, aesthetic:10},
-  {id:'dispenser',  emoji:'💧', name:'Dispenser Air',      price:250000,  cat:'Dapur',       romantic:5,  fun:5,  hemat:20, aesthetic:5},
-  {id:'peralatan',  emoji:'🍴', name:'Set Peralatan Masak',price:300000,  cat:'Dapur',       romantic:15, fun:20, hemat:15, aesthetic:10},
-
-  // Taman & Outdoor
-  {id:'pohon',      emoji:'🌳', name:'Pohon Rindang',      price:200000,  cat:'Taman',       romantic:15, fun:10, hemat:30, aesthetic:25},
-  {id:'bunga',      emoji:'🌸', name:'Taman Bunga',        price:150000,  cat:'Taman',       romantic:25, fun:10, hemat:30, aesthetic:35},
-  {id:'kaktus',     emoji:'🌵', name:'Kaktus Hias',        price:50000,   cat:'Taman',       romantic:5,  fun:15, hemat:40, aesthetic:20},
-  {id:'kolam',      emoji:'🏊', name:'Kolam Renang',       price:3000000, cat:'Taman',       romantic:20, fun:40, hemat:-20,aesthetic:30},
-  {id:'kolam2',     emoji:'🛁', name:'Kolam Kecil',        price:500000,  cat:'Taman',       romantic:15, fun:25, hemat:10, aesthetic:20},
-  {id:'ayunan',     emoji:'🪑', name:'Ayunan',             price:200000,  cat:'Taman',       romantic:20, fun:30, hemat:20, aesthetic:20},
-  {id:'hammock',    emoji:'🛺', name:'Hammock',            price:250000,  cat:'Taman',       romantic:35, fun:25, hemat:20, aesthetic:25},
-  {id:'bbq',        emoji:'🔥', name:'Grill BBQ',          price:400000,  cat:'Taman',       romantic:20, fun:35, hemat:10, aesthetic:15},
-  {id:'gazebo',     emoji:'⛺', name:'Gazebo Mini',        price:800000,  cat:'Taman',       romantic:30, fun:20, hemat:5,  aesthetic:30},
-  {id:'trampolin',  emoji:'🤸', name:'Trampolin',          price:600000,  cat:'Taman',       romantic:5,  fun:40, hemat:5,  aesthetic:10},
-
-  // Hewan
-  {id:'kucing',     emoji:'🐱', name:'Kucing Peliharaan',  price:100000,  cat:'Hewan',       romantic:25, fun:30, hemat:15, aesthetic:15},
-  {id:'anjing',     emoji:'🐶', name:'Anjing Lucu',        price:200000,  cat:'Hewan',       romantic:20, fun:35, hemat:10, aesthetic:10},
-  {id:'ikan',       emoji:'🐠', name:'Akuarium Ikan',      price:300000,  cat:'Hewan',       romantic:15, fun:15, hemat:15, aesthetic:35},
-  {id:'hamster',    emoji:'🐹', name:'Hamster',            price:80000,   cat:'Hewan',       romantic:15, fun:25, hemat:25, aesthetic:10},
-  {id:'burung',     emoji:'🦜', name:'Burung Peliharaan',  price:150000,  cat:'Hewan',       romantic:15, fun:20, hemat:20, aesthetic:20},
-
-  // Kendaraan
-  {id:'mobil',      emoji:'🚗', name:'Mobil Keluarga',     price:2500000, cat:'Kendaraan',   romantic:10, fun:25, hemat:-10,aesthetic:20},
-  {id:'motor',      emoji:'🛵', name:'Motor',              price:800000,  cat:'Kendaraan',   romantic:5,  fun:20, hemat:10, aesthetic:10},
-  {id:'sepeda',     emoji:'🚲', name:'Sepeda Berdua',      price:300000,  cat:'Kendaraan',   romantic:30, fun:25, hemat:25, aesthetic:15},
-
-  // Spesial & Romantis
-  {id:'teleskop',   emoji:'🔭', name:'Teleskop Bintang',   price:500000,  cat:'Spesial',     romantic:40, fun:20, hemat:10, aesthetic:20},
-  {id:'piano',      emoji:'🎹', name:'Piano Mini',         price:1200000, cat:'Spesial',     romantic:35, fun:25, hemat:0,  aesthetic:35},
-  {id:'gitar',      emoji:'🎸', name:'Gitar Akustik',      price:400000,  cat:'Spesial',     romantic:30, fun:25, hemat:15, aesthetic:20},
-  {id:'perpustakaan',emoji:'📖',name:'Sudut Baca',         price:200000,  cat:'Spesial',     romantic:25, fun:15, hemat:20, aesthetic:30},
-  {id:'bioskop',    emoji:'🎬', name:'Home Theater',       price:1500000, cat:'Spesial',     romantic:30, fun:40, hemat:-5, aesthetic:25},
-  {id:'gym',        emoji:'🏋️', name:'Alat Gym',          price:700000,  cat:'Spesial',     romantic:5,  fun:30, hemat:5,  aesthetic:15},
-  {id:'dapur_cafe', emoji:'☕', name:'Sudut Kafe Mini',    price:600000,  cat:'Spesial',     romantic:35, fun:20, hemat:10, aesthetic:40},
+  I('sofa','🛋️','Sofa 3 Dudukan',1200000,'Furnitur',15,10,5,20),
+  I('kursi','🪑','Kursi Santai',400000,'Furnitur',10,10,15,15),
+  I('kasur','🛏️','Kasur Spring Bed',1500000,'Furnitur',25,5,0,15),
+  I('kasur2','🛌','Kasur Lipat',350000,'Furnitur',5,10,30,5),
+  I('meja','🍽️','Meja Makan',600000,'Furnitur',15,15,10,15),
+  I('mejakopi','☕','Meja Kopi',250000,'Furnitur',20,10,20,20),
+  I('lemari','🚪','Lemari Pakaian',800000,'Furnitur',5,5,10,20),
+  I('rak','📚','Rak Buku',300000,'Furnitur',10,10,20,25),
+  I('karpet','🧶','Karpet Bulu',350000,'Furnitur',10,15,15,25),
+  I('gorden','🪟','Gorden Aesthetic',200000,'Furnitur',10,5,20,30),
+  I('lampu','💡','Lampu Hias',150000,'Furnitur',25,5,25,30),
+  I('cermin','🪞','Cermin Besar',300000,'Furnitur',5,10,15,35),
+  I('tv','📺','Smart TV 55"',2000000,'Elektronik',5,35,-5,15),
+  I('tv2','🖥️','TV 32"',800000,'Elektronik',5,25,10,10),
+  I('speaker','🔊','Speaker Bluetooth',500000,'Elektronik',20,25,10,15),
+  I('ac','❄️','AC 1 PK',1500000,'Elektronik',5,10,-5,5),
+  I('kipas','🌬️','Kipas Angin',150000,'Elektronik',5,10,30,5),
+  I('kulkas','🧊','Kulkas 2 Pintu',900000,'Elektronik',10,20,10,10),
+  I('heater','🚿','Water Heater',600000,'Elektronik',10,10,0,5),
+  I('wifi','📡','WiFi Router',300000,'Elektronik',5,30,10,5),
+  I('polaroid','📸','Kamera Polaroid',400000,'Elektronik',30,20,10,25),
+  I('proyektor','🎥','Proyektor Mini',700000,'Elektronik',25,30,5,20),
+  I('kompor','🍳','Kompor Gas',400000,'Dapur',20,25,15,10),
+  I('microwave','⏲️','Microwave',500000,'Dapur',5,15,10,10),
+  I('blender','🥤','Blender',200000,'Dapur',10,20,15,10),
+  I('dispenser','💧','Dispenser Air',250000,'Dapur',5,5,20,5),
+  I('alatmasak','🍴','Set Alat Masak',300000,'Dapur',15,20,15,10),
+  I('pohon','🌳','Pohon Rindang',200000,'Taman',15,10,30,25),
+  I('bunga','🌸','Taman Bunga',150000,'Taman',25,10,30,35),
+  I('kaktus','🌵','Kaktus Hias',50000,'Taman',5,15,40,20),
+  I('kolam','🏊','Kolam Renang',3000000,'Taman',20,40,-20,30),
+  I('bathtub','🛁','Bathtub Aesthetic',500000,'Taman',15,25,10,20),
+  I('ayunan','🎠','Ayunan',200000,'Taman',20,30,20,20),
+  I('hammock','🌴','Hammock',250000,'Taman',35,25,20,25),
+  I('bbq','🔥','Grill BBQ',400000,'Taman',20,35,10,15),
+  I('gazebo','⛺','Gazebo Mini',800000,'Taman',30,20,5,30),
+  I('trampolin','🤸','Trampolin',600000,'Taman',5,40,5,10),
+  I('kucing','🐱','Kucing',100000,'Hewan',25,30,15,15),
+  I('anjing','🐶','Anjing',200000,'Hewan',20,35,10,10),
+  I('ikan','🐠','Akuarium',300000,'Hewan',15,15,15,35),
+  I('hamster','🐹','Hamster',80000,'Hewan',15,25,25,10),
+  I('burung','🦜','Burung',150000,'Hewan',15,20,20,20),
+  I('mobil','🚗','Mobil Keluarga',2500000,'Kendaraan',10,25,-10,20),
+  I('motor','🛵','Motor',800000,'Kendaraan',5,20,10,10),
+  I('sepeda','🚲','Sepeda Berdua',300000,'Kendaraan',30,25,25,15),
+  I('teleskop','🔭','Teleskop Bintang',500000,'Spesial',40,20,10,20),
+  I('piano','🎹','Piano Mini',1200000,'Spesial',35,25,0,35),
+  I('gitar','🎸','Gitar Akustik',400000,'Spesial',30,25,15,20),
+  I('sudutbaca','📖','Sudut Baca',200000,'Spesial',25,15,20,30),
+  I('theater','🎬','Home Theater',1500000,'Spesial',30,40,-5,25),
+  I('gym','🏋️','Alat Gym',700000,'Spesial',5,30,5,15),
+  I('kafe','🧋','Sudut Kafe Mini',600000,'Spesial',35,20,10,40),
+];
+const EVENTS = [
+  { icon:'💸', title:'Bonus gajian cair!', delta: 500000 },
+  { icon:'🧧', title:'Angpau dari keluarga!', delta: 300000 },
+  { icon:'🔧', title:'Genteng bocor — harus dibenerin', delta: -300000 },
+  { icon:'⚡', title:'Tagihan listrik bengkak', delta: -200000 },
+  { icon:'🎁', title:'Dapet hadiah dari tetangga!', gift: true },
+  { icon:'🏷️', title:'Promo payday!', discount: .5 },
+];
+const VETO_LINES = [
+  '<b>{v}</b> wajib kasih 1 alasan manis kenapa nge-veto 😤',
+  '<b>{b}</b> boleh cemberut 5 detik, terus <b>{v}</b> harus bujuk 🥺',
+  '<b>{v}</b> kasih 1 pujian buat selera <b>{b}</b> biar nggak ngambek 😅',
+];
+const FINAL_SAT = [
+  '<b>{m}</b> paling puas — traktir <b>{l}</b> sesuatu yang dia pengen minggu ini 🎁',
+  '<b>{m}</b> pijitin <b>{l}</b> 5 menit sebagai kompensasi rumah impiannya 😂',
+  '<b>{l}</b> boleh nentuin 1 hal buat rumah beneran kalian nanti 🏡',
+  '<b>{m}</b> bikinin <b>{l}</b> minuman favoritnya ☕',
+];
+const FINAL_TIE = [
+  'Sama-sama puas! Rencanain 1 barang beneran buat dibeli bareng 🛍️',
+  'Kompak banget — pelukan 10 detik, calon rumah tangga harmonis 🤗',
 ];
 
-const BUDGET_START = 10000000;
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+const ICON = { razan:'🧑', dara:'👧' };
+let CFG = { budget:10000000, turns:6 };
+let G = null;
+const decks = {};
 
-let budget = BUDGET_START;
-let boughtItems = [];
-let currentTurn = 'razan';
-let round = 0;
-let passCount = 0;
-
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function fmtRp(n) {
+  const neg = n < 0; n = Math.abs(n);
+  const s = n >= 1000000 ? (n / 1000000).toFixed(1).replace(/\.0$/, '').replace('.', ',') + 'jt' : n >= 1000 ? Math.round(n / 1000) + 'rb' : String(n);
+  return (neg ? '−' : '') + 'Rp' + s;
+}
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
+}
+let toastT = null;
+function toast(m) { const t = $('toast'); if (!t) return; t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1900); }
+function bindPills(id, key) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = parseInt(p.dataset.v) || CFG[key];
+  }));
+}
+bindPills('budget-pills', 'budget');
+bindPills('turn-pills', 'turns');
+function priceOf(it) { return G && G.discount ? Math.round(it.price * (1 - G.discount)) : it.price; }
+function owned(id) { return G.bought.some(b => b.item.id === id); }
+
+// ═════════ FLOW ═════════
+function startGame(first) {
+  const f = first === 'dara' ? 'dara' : 'razan';
+  const pri = shuffle(Object.keys(ATTRS));
+  G = {
+    first: f, turn: f, budget: CFG.budget, start: CFG.budget,
+    turnsLeft: CFG.turns * 2, turnsDone: 0,
+    bought: [], vetoes: { razan:1, dara:1 }, discount: 0,
+    pri: { [f]: pri[0], [other(f)]: pri[1] },
+    st: { razan:{ items:0, spent:0, skips:0, vetoUsed:0 }, dara:{ items:0, spent:0, skips:0, vetoUsed:0 } },
+    agree: 0, bestAgree: 0, secretStep: 0, phase: 'secret', pending: null,
+  };
+  showSecret();
 }
 
-function startGame(firstPlayer) {
-  budget = BUDGET_START;
-  boughtItems = [];
-  currentTurn = firstPlayer || 'razan';
-  round = 0;
-  passCount = 0;
+// Urutan: Razan liat → tutup → Dara liat → tutup → mulai (urutan sesuai yang duluan)
+function secretOrder() { return [G.first, other(G.first)]; }
+function showSecret() {
+  const step = G.secretStep, order = secretOrder();
+  const p = order[Math.floor(step / 2)], revealed = step % 2 === 1;
+  const card = $('sec-card');
+  setText('sec-warn', `Cuma buat ${NAMES[p]} — ${NAMES[other(p)]} tutup mata!`);
+  setText('sec-title', revealed ? `Prioritas rahasia ${NAMES[p]}` : `${ICON[p]} ${NAMES[p]}, pegang HP-nya`);
+  setText('sec-sub', revealed ? 'Hafalin ya — pilih item yang cocok sama prioritasmu. Pasangan nggak boleh tau!' : 'Tap buat liat prioritas rahasiamu 🤫');
+  if (revealed) {
+    const a = ATTRS[G.pri[p]];
+    setText('sec-icon', a.icon); setText('sec-name', a.label); setText('sec-desc', a.desc);
+    const n = $('sec-name'); if (n) n.style.color = a.color;
+    if (card) card.classList.add('show');
+  } else if (card) card.classList.remove('show');
+  setText('sec-btn', revealed ? (Math.floor(step / 2) === 0 ? `Udah hafal — oper ke ${NAMES[other(p)]} 📱` : 'Udah hafal — mulai belanja! 🛍️') : '👀 Liat prioritasku');
+  showScreen('s-secret');
+}
+function secretNext() {
+  if (!G || G.phase !== 'secret') return;
+  G.secretStep++;
+  if (G.secretStep >= 4) { G.phase = 'shop'; openShop(); return; }
+  showSecret();
+}
+
+function openShop() {
+  updateHeader(); renderShop(); renderHouse();
   showScreen('s-shop');
-  renderShop();
-  updateHeader();
-  updateHousePreview();
-}
-
-function fmtRp(n) {
-  if (n >= 1000000) return 'Rp' + (n/1000000).toFixed(1).replace(/\.0$/,'') + 'jt';
-  if (n >= 1000) return 'Rp' + Math.round(n/1000) + 'rb';
-  return 'Rp' + n;
 }
 
 function updateHeader() {
-  document.getElementById('sh-budget').textContent = fmtRp(budget);
-  const name = currentTurn === 'razan' ? 'Razan' : 'Dara';
-  const icon = currentTurn === 'razan' ? '🧑' : '👧';
-  const el = document.getElementById('sh-turn');
-  el.textContent = `${icon} Giliran ${name}`;
-  el.className = 'sh-turn ' + currentTurn;
-  document.getElementById('sh-round').textContent = boughtItems.length;
+  setText('sh-budget', fmtRp(G.budget));
+  const t = $('sh-turn'); if (t) { t.textContent = `${ICON[G.turn]} Giliran ${NAMES[G.turn]}`; t.className = 'sh-turn ' + G.turn; }
+  setText('sh-left', G.turnsLeft);
+  const d = $('hp-disc'); if (d) d.classList.toggle('show', !!G.discount);
 }
 
-function updateHousePreview() {
-  const el = document.getElementById('hp-items');
-  el.innerHTML = boughtItems.map(it => `<span class="hp-item">${it.emoji}</span>`).join('');
+function renderHouse() {
+  setHTML('hp-items', G.bought.map(b => `<span class="hp-item ${b.by}">${b.item.emoji}</span>`).join(''));
 }
+
+function topAttr(it) { return Object.keys(ATTRS).reduce((best, k) => it[k] > it[best] ? k : best, 'romantic'); }
 
 function renderShop() {
   const cats = [...new Set(SHOP_ITEMS.map(i => i.cat))];
-  const body = document.getElementById('shop-body');
-  body.innerHTML = cats.map(cat => {
-    const items = SHOP_ITEMS.filter(i => i.cat === cat);
-    return `<div class="cat-section">
-      <div class="cat-label">${cat}</div>
-      <div class="item-grid">
-        ${items.map(item => {
-          const owned = boughtItems.some(b => b.id === item.id);
-          const cantAfford = item.price > budget;
-          let cls = 'item-card';
-          if (owned) cls += ' owned';
-          else if (cantAfford) cls += ' cantafford';
-          return `<div class="${cls}" id="item-${item.id}" onclick="${owned || cantAfford ? '' : `buyItem('${item.id}')`}">
-            ${owned ? '<span class="item-owned-badge">✓</span>' : ''}
-            <span class="item-emoji">${item.emoji}</span>
-            <span class="item-name">${item.name}</span>
-            <span class="item-price ${item.price === 0 ? 'free' : ''}">${fmtRp(item.price)}</span>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  const body = $('shop-body'); if (!body) return;
+  body.innerHTML = cats.map(cat => `<div class="cat-section"><div class="cat-label">${cat}</div><div class="item-grid">${
+    SHOP_ITEMS.filter(i => i.cat === cat).map(it => {
+      const own = owned(it.id), price = priceOf(it), cant = !own && price > G.budget;
+      return `<div class="item-card${own ? ' owned' : cant ? ' cant' : ''}" data-id="${it.id}">
+        ${own ? '<span class="owned-badge">✓</span>' : ''}
+        <span class="item-emoji">${it.emoji}</span>
+        <span class="item-name">${it.name}</span>
+        <span class="item-price">${fmtRp(price)}</span>
+        <span class="item-tag">${ATTRS[topAttr(it)].icon} ${ATTRS[topAttr(it)].label}</span>
+      </div>`;
+    }).join('')}</div></div>`).join('');
+  body.querySelectorAll('.item-card').forEach(c => c.addEventListener('click', () => openBuy(c.dataset.id)));
 }
 
-function buyItem(id) {
-  const item = SHOP_ITEMS.find(i => i.id === id);
-  if (!item || item.price > budget || boughtItems.some(b => b.id === id)) return;
-
-  budget -= item.price;
-  boughtItems.push(item);
-
-  // Flash effect
-  const el = document.getElementById('item-' + id);
-  if (el) {
-    el.classList.add('purchase-flash');
-    setTimeout(() => el.classList.remove('purchase-flash'), 400);
-  }
-
-  if (navigator.vibrate) navigator.vibrate(40);
-
-  nextTurn();
+// ═════════ BELI + PERSETUJUAN ═════════
+function openBuy(id) {
+  if (!G || G.phase !== 'shop') return;
+  const it = SHOP_ITEMS.find(i => i.id === id); if (!it) return;
+  if (owned(id)) { toast('Udah punya item ini ✓'); return; }
+  const price = priceOf(it);
+  if (price > G.budget) { toast('Budget nggak cukup 😅'); return; }
+  G.pending = { it, price, step: 'buyer' };
+  setText('b-emoji', it.emoji); setText('b-name', it.name);
+  setHTML('b-price', G.discount ? `<s>${fmtRp(it.price)}</s>${fmtRp(price)}` : fmtRp(price));
+  setHTML('b-attrs', Object.entries(ATTRS).map(([k, a]) => {
+    const v = it[k], w = clamp((v + 20) / 60 * 100, 0, 100);
+    return `<div class="attr"><span>${a.icon} ${a.label}</span><div class="attr-bar"><div class="attr-fill" style="width:${w}%;background:${a.color}"></div></div><b>${v > 0 ? '+' : ''}${v}</b></div>`;
+  }).join(''));
+  renderBuyStep();
+  const o = $('buy-overlay'); if (o) o.classList.add('show');
 }
 
-function passRound() {
-  passCount++;
-  nextTurn();
-}
-
-function nextTurn() {
-  round++;
-  currentTurn = currentTurn === 'razan' ? 'dara' : 'razan';
-  updateHeader();
-  renderShop();
-  updateHousePreview();
-
-  // Auto finish if can't afford anything
-  const remaining = SHOP_ITEMS.filter(i => !boughtItems.some(b => b.id === i.id));
-  if (remaining.length === 0 || budget < Math.min(...remaining.map(i => i.price))) {
-    finishGame();
-  }
-}
-
-function finishGame() {
-  if (boughtItems.length === 0) {
-    alert('Beli minimal 1 item dulu ya! 🏠');
-    return;
-  }
-  calculateAndShowResult();
-}
-
-function calculateAndShowResult() {
-  // Calculate scores
-  let romantic = 0, fun = 0, hemat = 0, aesthetic = 0;
-  boughtItems.forEach(item => {
-    romantic += item.romantic;
-    fun += item.fun;
-    hemat += item.hemat;
-    aesthetic += item.aesthetic;
-  });
-
-  // Normalize to 0-100 based on items bought
-  // Max per item is ~40 pts per category, but avg is ~18
-  // Use avg-based normalization for fairer scoring
-  const avgPerItem = { romantic: 18, fun: 20, hemat: 14, aesthetic: 18 };
-  const norm = (v, cat) => {
-    const max = avgPerItem[cat] * Math.max(boughtItems.length, 1) * 1.5;
-    return Math.min(100, Math.max(0, Math.round((v / max) * 100)));
-  };
-
-  romantic  = norm(romantic,  'romantic');
-  fun       = norm(fun,       'fun');
-  aesthetic = norm(aesthetic, 'aesthetic');
-
-  // Hemat: based on budget saved + items hemat score
-  const savedPct = budget / BUDGET_START;
-  const hematBase = norm(hemat, 'hemat');
-  hemat = Math.min(100, Math.round(hematBase * 0.6 + savedPct * 40));
-
-  // House preview
-  document.getElementById('rhb-items').innerHTML = boughtItems.map(i => `<span class="rhb-item">${i.emoji}</span>`).join('');
-
-  // Items list
-  document.getElementById('il-grid').innerHTML = boughtItems.map(i =>
-    `<div class="il-item"><span>${i.emoji}</span><span>${i.name}</span></div>`).join('');
-
-  // Animate scores
-  showScreen('s-result');
-  setTimeout(() => {
-    animateScore('sc-romantic','sv-romantic', romantic);
-    animateScore('sc-fun','sv-fun', fun);
-    animateScore('sc-hemat','sv-hemat', hemat);
-    animateScore('sc-aesthetic','sv-aesthetic', aesthetic);
-  }, 300);
-
-  // Title & verdict
-  const avg = Math.round((romantic + fun + hemat + aesthetic) / 4);
-  const dominant = [
-    {label:'Romantis ❤️', val:romantic},
-    {label:'Fun 😂', val:fun},
-    {label:'Hemat 💰', val:hemat},
-    {label:'Aesthetic ✨', val:aesthetic},
-  ].sort((a,b) => b.val - a.val)[0];
-
-  let title, sub, verdict;
-  if (avg >= 75) {
-    title = '🏆 Rumah Impian Sempurna!';
-    sub = 'Hampir semua kategori tinggi — kalian tim yang solid!';
-    verdict = `<strong>Skor rata-rata ${avg}/100!</strong> Rumah kalian dominan di ${dominant.label} — pilihan yang matang dan serasi. Kapan pindah ke rumah beneran? 😄🤍`;
-    confetti(80);
-  } else if (avg >= 55) {
-    title = '😊 Rumah yang Nyaman!';
-    sub = 'Cukup seimbang — ada beberapa hal yang bisa ditambah!';
-    verdict = `<strong>Skor rata-rata ${avg}/100.</strong> Rumah kalian paling kuat di ${dominant.label}. Beberapa kategori masih bisa ditingkatkan — main lagi buat strategi yang lebih baik! 🏠`;
-    confetti(50);
+function renderBuyStep() {
+  const P = G.pending, b = G.turn, p = other(b);
+  if (P.step === 'buyer') {
+    setHTML('b-ask', `${ICON[b]} <b>${NAMES[b]}</b>, mau beli ini buat rumah kalian?`);
+    setHTML('b-btns', `<button class="s-btn cancel" onclick="closeBuy()">Batal</button><button class="s-btn ok" onclick="askPartner()">Mau! 🛒</button>`);
   } else {
-    title = '🤔 Rumah Sederhana';
-    sub = 'Budget habis terlalu cepat, atau pilihan kurang seimbang!';
-    verdict = `<strong>Skor rata-rata ${avg}/100.</strong> Hmm, rumah kalian agak sepi nih. ${boughtItems.length < 3 ? 'Beli lebih banyak item buat skor lebih tinggi!' : `Coba diversifikasi pilihan — jangan fokus satu kategori aja!`} 😄`;
+    const v = G.vetoes[p];
+    setHTML('b-ask', `${ICON[p]} <b>${NAMES[p]}</b>, setuju ${NAMES[b]} beli <b>${P.it.name}</b>?`);
+    setHTML('b-btns', `<button class="s-btn veto" onclick="veto()" ${v ? '' : 'disabled'}>🙅 Veto ${v ? '(sisa 1)' : '(habis)'}</button><button class="s-btn ok" onclick="approve()">👍 Setuju</button>`);
   }
-
-  document.getElementById('res-title').textContent = title;
-  document.getElementById('res-sub').textContent = sub;
-  document.getElementById('verdict-card').innerHTML = verdict;
-
-  // Budget sisa
-  const budgetLeft = document.createElement('p');
-  budgetLeft.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;margin-top:-.5rem;margin-bottom:1rem';
-  budgetLeft.textContent = `Sisa budget: ${fmtRp(budget)} dari ${fmtRp(BUDGET_START)}`;
-  document.getElementById('verdict-card').after(budgetLeft);
+}
+function closeBuy() { const o = $('buy-overlay'); if (o) o.classList.remove('show'); if (G) G.pending = null; }
+function askPartner() {
+  if (!G || !G.pending || G.pending.step !== 'buyer') return;
+  G.pending.step = 'partner'; renderBuyStep();
 }
 
-function animateScore(barId, valId, target) {
-  const bar = document.getElementById(barId);
-  const val = document.getElementById(valId);
-  let cur = 0;
-  const step = target / 40;
-  const interval = setInterval(() => {
-    cur = Math.min(cur + step, target);
-    bar.style.width = cur + '%';
-    val.textContent = Math.round(cur);
-    if (cur >= target) clearInterval(interval);
-  }, 25);
+function approve() {
+  if (!G || !G.pending || G.pending.step !== 'partner') return;
+  const { it, price } = G.pending, b = G.turn;
+  G.budget -= price;
+  G.bought.push({ item: it, by: b, price });
+  G.st[b].items++; G.st[b].spent += price;
+  if (G.discount) { G.discount = 0; toast('🏷️ Diskon kepake!'); }
+  G.agree++; G.bestAgree = Math.max(G.bestAgree, G.agree);
+  if ([3, 5, 8].includes(G.agree)) toast(`🤝 ${G.agree}x kompak beruntun!`);
+  vib(40);
+  closeBuy();
+  endTurn();
+}
+
+function veto() {
+  if (!G || !G.pending || G.pending.step !== 'partner') return;
+  const b = G.turn, v = other(b);
+  if (!G.vetoes[v]) return;
+  G.vetoes[v]--; G.st[v].vetoUsed++; G.agree = 0;
+  const it = G.pending.it;
+  closeBuy();
+  vib([80, 40, 80]);
+  showEvent('🙅', `${NAMES[v]} nge-veto ${it.emoji} ${it.name}!`, `Giliran ${NAMES[b]} hangus 😆<br>${fill(draw('veto', VETO_LINES), { v: NAMES[v], b: NAMES[b] })}`, () => endTurn());
+}
+
+function skipTurn() {
+  if (!G || G.phase !== 'shop') return;
+  G.st[G.turn].skips++;
+  toast(`${NAMES[G.turn]} lewat — nabung dulu 💰`);
+  endTurn();
+}
+
+function endTurn() {
+  G.turnsLeft--; G.turnsDone++;
+  G.turn = other(G.turn);
+  renderHouse();
+  const remaining = SHOP_ITEMS.filter(i => !owned(i.id));
+  const cheapest = remaining.length ? Math.min(...remaining.map(priceOf)) : Infinity;
+  if (G.turnsLeft <= 0) { showResult(); return; }
+  if (!remaining.length || G.budget < Math.min(cheapest, ...remaining.map(i => i.price))) {
+    toast('Budget udah nggak cukup buat apa-apa 🏁'); setTimeout(showResult, 900); G.phase = 'done'; return;
+  }
+  updateHeader(); renderShop();
+  if (G.turnsDone % 3 === 0) randomEvent();
+}
+
+// ═════════ EVENT ═════════
+let evThen = null;
+function showEvent(icon, title, sub, then) {
+  G.phase = 'event';
+  setText('ev-icon', icon); setText('ev-title', title); setHTML('ev-sub', sub);
+  evThen = then || null;
+  const o = $('ev-overlay'); if (o) o.classList.add('show');
+}
+function closeEvent() {
+  const o = $('ev-overlay'); if (o) o.classList.remove('show');
+  if (!G) return;
+  G.phase = 'shop';
+  const t = evThen; evThen = null;
+  if (t) t(); else { updateHeader(); renderShop(); renderHouse(); }
+}
+function randomEvent() {
+  const e = draw('ev', EVENTS);
+  if (e.delta) {
+    G.budget = Math.max(0, G.budget + e.delta);
+    showEvent(e.icon, e.title, `Budget ${e.delta > 0 ? 'nambah' : 'berkurang'} <b>${fmtRp(Math.abs(e.delta))}</b>`);
+  } else if (e.gift) {
+    const pool = SHOP_ITEMS.filter(i => !owned(i.id) && i.price <= 400000);
+    const it = pool[Math.floor(Math.random() * pool.length)];
+    if (it) { G.bought.push({ item: it, by: 'gift', price: 0 }); showEvent(e.icon, e.title, `Gratis: <b>${it.emoji} ${it.name}</b> masuk rumah! 🎉`); }
+    else showEvent('💸', 'Bonus gajian cair!', `Budget nambah <b>${fmtRp(300000)}</b>`), G.budget += 300000;
+  } else if (e.discount) {
+    G.discount = e.discount;
+    showEvent(e.icon, e.title, `Item berikutnya yang dibeli dapet <b>diskon 50%</b>! 🏷️`);
+  }
+}
+
+function finishEarly() {
+  if (!G || G.phase !== 'shop') return;
+  if (!G.bought.length) { toast('Beli minimal 1 item dulu ya 🏠'); return; }
+  if (!confirm('Selesai belanja sekarang dan nilai rumah?')) return;
+  showResult();
+}
+function exitGame() {
+  if (!confirm('Keluar dari game? Rumah kalian hilang 😢')) return;
+  closeBuy(); const o = $('ev-overlay'); if (o) o.classList.remove('show');
+  G = null; showScreen('s-intro');
+}
+
+// ═════════ PENILAIAN ═════════
+function scoreHouse() {
+  const items = G.bought.map(b => b.item);
+  const sum = k => items.reduce((a, it) => a + it[k], 0);
+  // Romantis/Fun/Aesthetic: total poin dibanding "rumah ideal" (±150 poin)
+  const s = {
+    romantic:  clamp(Math.round(sum('romantic')  / 150 * 100), 0, 100),
+    fun:       clamp(Math.round(sum('fun')       / 150 * 100), 0, 100),
+    aesthetic: clamp(Math.round(sum('aesthetic') / 150 * 100), 0, 100),
+  };
+  // Hemat: rata-rata nilai hemat item (−20..40 → 0..60) + sisa budget (0..40)
+  const avgH = items.length ? sum('hemat') / items.length : 0;
+  s.hemat = clamp(Math.round((avgH + 20) / 60 * 60 + (G.budget / G.start) * 40), 0, 100);
+  return s;
+}
+
+function showResult() {
+  if (!G) return;
+  G.phase = 'result';
+  closeBuy();
+  const s = scoreHouse();
+  const avg = Math.round((s.romantic + s.fun + s.hemat + s.aesthetic) / 4);
+  const sat = { razan: s[G.pri.razan], dara: s[G.pri.dara] };
+  const dom = Object.keys(s).reduce((a, k) => s[k] > s[a] ? k : a, 'romantic');
+
+  setHTML('rb-items', G.bought.map(b => `<span class="rb-item">${b.item.emoji}</span>`).join(''));
+
+  let title, sub;
+  if (avg >= 70) { title = '🏆 Rumah Impian Sempurna!'; sub = 'Hampir semua aspek tinggi — kalian tim yang solid!'; }
+  else if (avg >= 50) { title = '😊 Rumah yang Nyaman!'; sub = 'Cukup seimbang — ada yang masih bisa ditambah.'; }
+  else { title = '🤔 Rumah Sederhana'; sub = 'Masih sepi — tapi rumah sederhana juga bisa hangat 🤍'; }
+
+  let verdict = `<strong>Skor rumah ${avg}/100.</strong> Paling kuat di ${ATTRS[dom].icon} ${ATTRS[dom].label}. `;
+  const diff = Math.abs(sat.razan - sat.dara);
+  verdict += diff <= 10 ? 'Kalian berhasil kompromi dengan adil — dua-duanya puas! 💞'
+    : `${NAMES[sat.razan > sat.dara ? 'razan' : 'dara']} lebih "menang" soal selera nih 😏`;
+  if (avg >= 70) verdict += ' Kapan pindahan beneran? 😄';
+
+  const tie = diff <= 5, m = sat.razan >= sat.dara ? 'razan' : 'dara', l = other(m);
+  const R = G.st.razan, D = G.st.dara;
+  const scoreCard = k => `<div class="score-card"><span class="sc-label">${ATTRS[k].icon} ${ATTRS[k].label}</span>
+    <div class="sc-bar"><div class="sc-fill" data-w="${s[k]}" style="background:${ATTRS[k].color}"></div></div>
+    <span class="sc-val" style="color:${ATTRS[k].color}">${s[k]}</span></div>`;
+
+  setHTML('result-body', `
+    <p class="r-title">${title}</p>
+    <p class="r-sub">${sub}</p>
+    <div class="score-grid">${['romantic', 'fun', 'hemat', 'aesthetic'].map(scoreCard).join('')}</div>
+    <div class="card"><span class="card-title">🤫 Prioritas Rahasia Terungkap</span>
+      <div class="sat-row">
+        ${['razan', 'dara'].map(p => `<div class="sat ${p}"><span class="sat-nm">${ICON[p]} ${NAMES[p]}</span>
+          <span class="sat-pri">${ATTRS[G.pri[p]].icon} ${ATTRS[G.pri[p]].label}</span>
+          <span class="sat-v">${sat[p]}%</span><span class="sat-pri">tingkat puas</span></div>`).join('')}
+      </div></div>
+    <div class="card stat-table"><span class="card-title">📊 Statistik Belanja</span>
+      <div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+      <div class="row"><span>🛒 Item dibeli</span><b>${R.items}</b><b>${D.items}</b></div>
+      <div class="row"><span>💸 Uang dipakai</span><b>${fmtRp(R.spent)}</b><b>${fmtRp(D.spent)}</b></div>
+      <div class="row"><span>🙅 Veto dipakai</span><b>${R.vetoUsed}</b><b>${D.vetoUsed}</b></div>
+      <div class="row"><span>⏭️ Lewati giliran</span><b>${R.skips}</b><b>${D.skips}</b></div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin:-.3rem 0 .8rem">Sisa budget ${fmtRp(G.budget)} dari ${fmtRp(G.start)} · 🤝 kompak terbaik ${G.bestAgree}x beruntun</p>
+    <div class="card"><span class="card-title">🛋️ Isi Rumah (🔵 Razan · 🔴 Dara · 🟡 Hadiah)</span>
+      <div class="il-grid">${G.bought.map(b => `<div class="il-item ${b.by}"><span>${b.item.emoji}</span><span>${b.item.name}</span></div>`).join('') || '<span style="font-size:12px;color:var(--muted)">Kosong melompong 😂</span>'}</div></div>
+    <div class="verdict">${verdict}</div>
+    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final' : `👑 Tantangan Final — ${NAMES[m]} paling puas`}</span>
+      <p class="demand-text">${tie ? draw('ftie', FINAL_TIE) : fill(draw('fsat', FINAL_SAT), { m: NAMES[m], l: NAMES[l] })}</p></div>
+    <div class="result-btns">
+      <button class="result-btn result-btn-p" onclick="startGame(G ? other(G.first) : 'razan')">Main Lagi 🔄</button>
+      <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>`);
+  showScreen('s-result');
+  setTimeout(() => document.querySelectorAll('.sc-fill').forEach(f => f.style.width = f.dataset.w + '%'), 250);
+  if (avg >= 50) confetti(avg >= 70 ? 80 : 45);
 }
 
 function confetti(n) {
   const colors = ['#c17a6f','#c9a96e','#e8c4b0','#7ec850','#87ceeb','#fff'];
-  for (let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
