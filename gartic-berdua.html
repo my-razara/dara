@@ -4,192 +4,167 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Gartic Berdua 🎨</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
-    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
-    --blue:#4a7cc7;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--blue:#4a7cc7;
+    --green:#4caf50;--red:#e57373;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
   html,body{height:100%;overflow:hidden;background:var(--cream)}
-  body::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.3),transparent 60%),
-    radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.12),transparent 60%);
-    pointer-events:none;z-index:0}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.3),transparent 60%),radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.12),transparent 60%);pointer-events:none;z-index:0}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  #s-intro{background:var(--cream)}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center}
+  .dark{background:var(--ink)}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem;position:relative;z-index:1}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem;position:relative;z-index:1}
+  @keyframes pop{from{transform:scale(.4) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+
+  /* INTRO */
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.7rem;animation:float 3s ease-in-out infinite}
+  .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.25rem;position:relative;z-index:1}
-  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.25rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left;position:relative;z-index:1}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
-  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
-  .start-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* ── PICK ── */
-  #s-pick{background:var(--cream)}
-  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .pick-sub{font-size:12px;color:var(--muted);max-width:280px;margin:.35rem auto 1.5rem;line-height:1.65;position:relative;z-index:1}
-  .pick-btns{display:flex;flex-direction:column;gap:.65rem;width:100%;max-width:380px;position:relative;z-index:1}
-  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06)}
+  .intro-sub{font-size:12px;color:var(--muted);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+  .cat-btn{padding:.5rem .2rem;border-radius:12px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;font-size:1.15rem;text-align:center;transition:all .15s}
+  .cat-btn span{display:block;font-size:9.5px;font-weight:600;color:var(--muted);margin-top:.1rem}
+  .cat-btn.on{border-color:var(--rose);background:rgba(193,122,111,.1)}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:13.5px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+  .pill.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:var(--ink)}
+  .rule-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .btn-main:active{transform:scale(.97);background:var(--deep)}
+  .btn-main.gold{background:var(--gold);color:var(--ink)}
+  .btn-ghost{width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;margin-top:.5rem}
+  .dark .btn-ghost{border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.5)}
+  .pick-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .pick-sub{font-size:12px;color:var(--muted);margin:.3rem auto 1.1rem;line-height:1.6}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:.85rem;box-shadow:0 2px 8px rgba(193,122,111,.06);text-align:left}
   .pick-btn:active{transform:scale(.97);background:var(--warm)}
+  .pick-icon{font-size:2rem;flex-shrink:0}
+  .pick-name{font-size:14px;font-weight:700;color:var(--ink);display:block}
+  .pick-sub2{font-size:11px;color:var(--muted);margin-top:.1rem;display:block}
 
-  /* ── PASS ── */
-  #s-pass{background:var(--ink);padding:1.5rem}
-  .pass-icon{font-size:4rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite}
-  .pass-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.35rem;position:relative;z-index:1}
-  .pass-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;max-width:280px;margin:.35rem auto 1.5rem;position:relative;z-index:1}
-  .pass-ready-btn{width:100%;max-width:320px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--gold);color:var(--ink);box-shadow:0 4px 18px rgba(201,169,110,.4);transition:all .2s;position:relative;z-index:1}
-  .pass-ready-btn:active{transform:scale(.97)}
+  /* WORD / PASS (dark) */
+  .d-warn{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);display:block;margin-bottom:.8rem}
+  .d-badge{font-size:11px;font-weight:700;padding:.25rem .8rem;border-radius:50px;display:inline-block;margin-bottom:.8rem}
+  .d-badge.razan{background:rgba(74,124,199,.25);color:#9ec0f5}
+  .d-badge.dara{background:rgba(193,122,111,.25);color:#f0b3a8}
+  .word-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:1.3rem 1rem;width:100%;margin-bottom:.8rem;cursor:pointer;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .word-big{font-size:clamp(1.5rem,6vw,2.1rem);font-weight:700;color:#fff;line-height:1.2}
+  .word-big.anim{animation:pop .45s cubic-bezier(.34,1.5,.64,1)}
+  .word-sub{font-size:11.5px;color:rgba(255,255,255,.45);margin-top:.35rem;line-height:1.5}
+  .word-hint{font-size:11.5px;color:var(--gold);margin-top:.4rem;font-style:italic}
+  .mini-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);font-size:11.5px;border-radius:50px;padding:.35rem .9rem;cursor:pointer;margin-bottom:.9rem}
+  .mini-btn:disabled{opacity:.3}
+  .pass-icon{font-size:3.5rem;display:block;margin-bottom:.8rem;animation:float 3s ease-in-out infinite}
+  .pass-title{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+  .pass-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6;margin:.3rem auto 1.2rem}
 
-  /* ── WORD REVEAL ── */
-  #s-word{background:var(--cream);padding:1.5rem}
-  .word-header{text-align:center;margin-bottom:1.25rem;position:relative;z-index:1;width:100%;max-width:400px}
-  .word-player{font-size:11px;font-weight:700;padding:.28rem .85rem;border-radius:50px;display:inline-block;margin-bottom:.75rem}
-  .word-player.razan{background:rgba(74,124,199,.1);color:var(--blue)}
-  .word-player.dara{background:rgba(193,122,111,.1);color:var(--rose)}
-  .word-label{font-size:12px;color:var(--muted);display:block;margin-bottom:.5rem}
-  .word-display{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:700;color:var(--ink);display:block;line-height:1.3;margin-bottom:.35rem}
-  .word-hint{font-size:12px;color:var(--muted);font-style:italic;line-height:1.6;display:block}
-  .word-ready-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s;position:relative;z-index:1}
-  .word-ready-btn:active{transform:scale(.97);background:var(--deep)}
-  .word-sub-note{font-size:11px;color:var(--muted);margin-top:.75rem;display:block;position:relative;z-index:1;font-style:italic}
+  /* DRAW */
+  #s-draw,#s-guess{padding:0}
+  .col{width:100%;height:100%;display:flex;flex-direction:column}
+  .topbar{flex-shrink:0;background:rgba(250,246,240,.97);border-bottom:1px solid rgba(193,122,111,.1);padding:.45rem .75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .chip{background:rgba(193,122,111,.1);border:1px solid rgba(193,122,111,.2);border-radius:50px;padding:.3rem .8rem;font-size:12px;font-weight:700;color:var(--rose);max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip.razan{background:rgba(74,124,199,.1);color:var(--blue);border-color:rgba(74,124,199,.25)}
+  .timer{font-size:1.2rem;font-weight:700;display:block;line-height:1;color:var(--ink)}
+  .timer.warn{color:var(--red);animation:warn .5s ease-in-out infinite}
+  @keyframes warn{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+  .timer-lbl{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block}
+  .done-btn{padding:.4rem .9rem;border-radius:50px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:var(--rose);color:#fff;white-space:nowrap}
+  .tbar{height:3px;background:rgba(193,122,111,.15);flex-shrink:0}
+  .tbar-fill{height:100%;background:var(--rose);width:100%}
+  .canvas-wrap{flex:1;min-height:0;position:relative;background:#fff;overflow:hidden}
+  .canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+  .toolbar{flex-shrink:0;background:rgba(250,246,240,.97);border-top:1px solid rgba(193,122,111,.1);padding:.45rem .6rem calc(.45rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.4rem}
+  .tb-row{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+  .colors{display:flex;gap:.32rem;flex-wrap:wrap}
+  .cdot{width:25px;height:25px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+  .cdot.on{border-color:var(--ink);transform:scale(1.18)}
+  .brushes{display:flex;gap:.3rem}
+  .bbtn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .bbtn.on{border-color:var(--rose);background:rgba(193,122,111,.1)}
+  .bdot{border-radius:50%;background:var(--ink)}
+  .tools{display:flex;gap:.3rem}
+  .tool{padding:.35rem .6rem;border-radius:9px;border:1.5px solid var(--blush);background:#fff;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted)}
+  .tool.on{border-color:var(--rose);color:var(--rose);background:rgba(193,122,111,.08)}
+  .tool:disabled{opacity:.35}
 
-  /* ── DRAW ── */
-  #s-draw{background:var(--cream);padding:0;justify-content:flex-start}
-  .draw-topbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.45rem .75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
-  .draw-word-chip{background:rgba(193,122,111,.1);border:1px solid rgba(193,122,111,.2);border-radius:50px;padding:.3rem .85rem;font-size:12px;font-weight:700;color:var(--rose);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .draw-timer{font-size:1.2rem;font-weight:700;display:block;line-height:1;transition:color .3s}
-  .draw-timer.warn{color:#e57373;animation:timerwarn .5s ease-in-out infinite}
-  @keyframes timerwarn{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-  .draw-timer-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block}
-  .draw-done-btn{padding:.4rem .9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;background:var(--rose);color:#fff;transition:all .15s;white-space:nowrap}
-  .draw-done-btn:active{background:var(--deep);transform:scale(.97)}
+  /* GUESS */
+  .guess-area{flex-shrink:0;padding:.6rem .9rem calc(.6rem + env(safe-area-inset-bottom));background:rgba(250,246,240,.98);border-top:1px solid rgba(193,122,111,.1)}
+  .g-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;font-size:11px;color:var(--muted)}
+  .g-meta b{color:var(--rose)}
+  .pattern{font-size:15px;font-weight:700;letter-spacing:.2rem;color:var(--ink);margin-bottom:.3rem;display:none;word-break:break-word}
+  .pattern.show{display:block}
+  .hint-text{font-size:12px;color:var(--gold);font-style:italic;margin-bottom:.3rem;display:none}
+  .hint-text.show{display:block}
+  .history{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem;max-height:52px;overflow-y:auto}
+  .hchip{font-size:10.5px;font-weight:600;padding:.15rem .5rem;border-radius:6px}
+  .hchip.no{background:rgba(229,115,115,.1);color:var(--red);border:1px solid rgba(229,115,115,.2)}
+  .hchip.near{background:rgba(255,159,67,.12);color:#e67e22;border:1px solid rgba(255,159,67,.35)}
+  .near-box{display:none;background:rgba(255,159,67,.1);border:1px solid rgba(255,159,67,.35);border-radius:12px;padding:.45rem .6rem;margin-bottom:.45rem;font-size:11.5px;color:var(--ink);align-items:center;justify-content:space-between;gap:.5rem}
+  .near-box.show{display:flex}
+  .near-box button{padding:.35rem .7rem;border-radius:50px;border:none;background:var(--green);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .g-row{display:flex;gap:.45rem}
+  .g-in{flex:1;min-width:0;padding:.7rem .9rem;border:1.5px solid var(--blush);border-radius:14px;font-size:15px;color:var(--ink);background:#fff;outline:none}
+  .g-in:focus{border-color:var(--rose)}
+  .g-btn{padding:.7rem .95rem;border-radius:14px;border:none;cursor:pointer;background:var(--rose);color:#fff;font-size:13px;font-weight:700;white-space:nowrap}
+  .g-tools{display:flex;gap:.4rem;margin-top:.45rem}
+  .g-tool{flex:1;padding:.45rem .3rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer}
+  .g-tool:disabled{opacity:.35}
+  .g-tool.giveup{border-color:rgba(229,115,115,.35);color:var(--red)}
 
-  /* Timer bar */
-  .timer-bar-wrap{height:3px;background:rgba(193,122,111,.15);flex-shrink:0;width:100%}
-  .timer-bar-fill{height:100%;background:var(--rose);transition:width .1s linear,background .3s}
+  /* RESULT */
+  .badge{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;display:block}
+  .rr-icon{font-size:3.2rem;display:block;margin-bottom:.4rem;animation:pop .5s cubic-bezier(.34,1.5,.64,1)}
+  .rr-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .rr-sub{font-size:12.5px;color:var(--muted);line-height:1.6;margin:.2rem auto .8rem}
+  .ans-row{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;width:100%;margin-bottom:.7rem}
+  .ans{border-radius:14px;padding:.6rem .8rem;text-align:left}
+  .ans.ok{background:rgba(129,199,132,.1);border:1.5px solid rgba(129,199,132,.3)}
+  .ans.g{background:#fff;border:1.5px solid rgba(193,122,111,.15)}
+  .ans-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block;color:var(--muted)}
+  .ans-w{font-size:1rem;font-weight:700;color:var(--ink);overflow-wrap:anywhere}
+  .preview{width:100%;border-radius:14px;overflow:hidden;border:1.5px solid rgba(193,122,111,.15);margin-bottom:.7rem;background:#fff}
+  .preview canvas{width:100%;display:block}
+  .score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:.9rem;margin-bottom:.7rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%;box-shadow:0 4px 20px rgba(193,122,111,.08)}
+  .sc-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sc-v{font-size:2rem;font-weight:700;display:block;line-height:1.1}
+  .sc-v.r{color:var(--blue)}.sc-v.d{color:var(--rose)}
+  .sc-plus{font-size:10.5px;color:var(--green);font-weight:700;display:block;min-height:14px}
+  .sc-vs{color:var(--blush)}
+  .demand{background:linear-gradient(135deg,rgba(201,169,110,.16),rgba(193,122,111,.1));border:1px solid rgba(201,169,110,.45);border-radius:16px;padding:.8rem 1rem;margin-bottom:.9rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem}
+  .demand-text{font-size:13px;color:var(--ink);line-height:1.6;font-weight:500}
+  .demand-text b{color:var(--rose)}
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;width:100%;margin-bottom:.8rem}
+  .g-item{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;overflow:hidden}
+  .g-item canvas{width:100%;display:block}
+  .g-lbl{padding:.35rem .55rem;font-size:10px;color:var(--muted);border-top:1px solid rgba(193,122,111,.08);display:flex;justify-content:space-between;gap:.3rem;text-align:left}
+  .g-lbl b{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stat-table{width:100%;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.6rem .8rem;margin-bottom:.75rem;font-size:11.5px;color:var(--muted);text-align:left}
+  .stat-table .row{display:grid;grid-template-columns:1.5fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(193,122,111,.08)}
+  .stat-table .row:last-child{border-bottom:none}
+  .stat-table .head{font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .stat-table b{color:var(--ink)}
+  .verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:var(--ink);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .verdict strong{color:var(--rose)}
+  .sec-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;width:100%;text-align:left;margin-bottom:.4rem}
 
-  /* Canvas */
-  .draw-canvas-wrap{flex:1;position:relative;width:100%;overflow:hidden;background:#fff;border-bottom:1px solid rgba(193,122,111,.08);touch-action:none}
-  canvas.main-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-
-  /* Draw toolbar */
-  .draw-toolbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-top:1px solid rgba(193,122,111,.1);padding:.45rem .6rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem}
-  .color-strip{display:flex;gap:.35rem;align-items:center}
-  .color-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
-  .color-dot.active{border-color:var(--ink);transform:scale(1.2)}
-  .brush-row{display:flex;gap:.3rem;align-items:center}
-  .brush-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-  .brush-btn.active{border-color:var(--rose);background:rgba(193,122,111,.1)}
-  .brush-dot{border-radius:50%;background:var(--ink)}
-  .tool-btns{display:flex;gap:.35rem}
-  .tool-btn{padding:.32rem .55rem;border-radius:8px;border:1.5px solid var(--blush);background:#fff;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);transition:all .15s;font-family:'Poppins',sans-serif}
-  .tool-btn.active{border-color:var(--rose);color:var(--rose);background:rgba(193,122,111,.08)}
-  .tool-btn:active{transform:scale(.9)}
-
-  /* ── GUESS ── */
-  #s-guess{background:var(--cream);padding:0;justify-content:flex-start}
-  .guess-topbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between}
-  .guess-player-badge{font-size:11px;font-weight:700;padding:.25rem .75rem;border-radius:50px}
-  .guess-player-badge.razan{background:rgba(74,124,199,.1);color:var(--blue)}
-  .guess-player-badge.dara{background:rgba(193,122,111,.1);color:var(--rose)}
-  .guess-round{font-size:10px;color:var(--muted)}
-
-  .guess-drawing-wrap{flex:1;position:relative;width:100%;background:#fff;border-bottom:1px solid rgba(193,122,111,.08);overflow:hidden}
-  canvas.guess-canvas{position:absolute;inset:0;width:100%;height:100%}
-
-  .guess-input-area{flex-shrink:0;padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom));width:100%;background:rgba(250,246,240,.97);border-top:1px solid rgba(193,122,111,.1)}
-  .guess-label{font-size:11px;color:var(--muted);display:block;margin-bottom:.4rem;text-align:center;font-style:italic}
-  .guess-input-row{display:flex;gap:.5rem}
-  .guess-input{flex:1;padding:.75rem 1rem;border:1.5px solid var(--blush);border-radius:14px;font-family:'Poppins',sans-serif;font-size:15px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s}
-  .guess-input:focus{border-color:var(--rose)}
-  .guess-submit-btn{padding:.75rem 1rem;border-radius:14px;border:none;cursor:pointer;background:var(--rose);color:#fff;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s;white-space:nowrap}
-  .guess-submit-btn:active{transform:scale(.95);background:var(--deep)}
-
-  /* ── ROUND RESULT ── */
-  #s-round-result{background:var(--cream);padding:1.5rem}
-  .rr-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:popin .5s cubic-bezier(.34,1.5,.64,1);position:relative;z-index:1}
-  @keyframes popin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:none;opacity:1}}
-  .rr-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
-  .rr-sub{font-size:13px;color:var(--muted);line-height:1.65;max-width:280px;margin:.25rem auto .85rem;position:relative;z-index:1}
-
-  .answer-compare{width:100%;max-width:380px;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.85rem;position:relative;z-index:1}
-  .answer-box{border-radius:14px;padding:.85rem 1.1rem;text-align:left}
-  .answer-box.correct-ans{background:rgba(129,199,132,.1);border:1.5px solid rgba(129,199,132,.3)}
-  .answer-box.guess-ans{background:#fff;border:1.5px solid rgba(193,122,111,.15)}
-  .ab-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:.25rem}
-  .ab-label.green{color:#4caf50}
-  .ab-label.rose{color:var(--rose)}
-  .ab-word{font-size:clamp(1rem,4vw,1.3rem);font-weight:700;color:var(--ink)}
-
-  /* Mini drawing preview */
-  .mini-drawing{width:100%;max-width:380px;border-radius:14px;overflow:hidden;border:1.5px solid rgba(193,122,111,.15);margin-bottom:.85rem;background:#fff;position:relative;z-index:1}
-  canvas.mini-canvas{width:100%;display:block}
-
-  .score-row-rr{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:.85rem;position:relative;z-index:1}
-  .srr-item{text-align:center}
-  .srr-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.2rem}
-  .srr-score{font-size:2rem;font-weight:700;color:var(--rose);display:block}
-  .srr-vs{color:var(--blush)}
-
-  .next-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35);transition:all .15s;position:relative;z-index:1}
-  .next-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* ── FINAL RESULT ── */
-  #s-final{background:var(--cream);padding:0;justify-content:flex-start}
-  .final-topbar{flex-shrink:0;width:100%;background:rgba(250,246,240,.97);backdrop-filter:blur(10px);border-bottom:1px solid rgba(193,122,111,.1);padding:.6rem 1rem;text-align:center}
-  .final-topbar-title{font-size:13px;font-weight:700;color:var(--ink)}
-  .final-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.85rem;width:100%}
-
-  .final-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%;max-width:380px;box-shadow:0 4px 20px rgba(193,122,111,.08)}
-  .fsc-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
-  .fsc-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
-  .fsc-sc{font-size:2.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .fsc-vs{color:var(--blush)}
-
-  .gallery-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;width:100%;max-width:380px;text-align:left;margin-bottom:.1rem}
-  .gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;width:100%;max-width:380px}
-  .gallery-item{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(193,122,111,.06)}
-  .gallery-item canvas{width:100%;display:block}
-  .gallery-label{padding:.4rem .65rem;font-size:10px;color:var(--muted);border-top:1px solid rgba(193,122,111,.08);display:flex;justify-content:space-between;align-items:center}
-  .gallery-word{font-weight:600;color:var(--ink);font-size:10px}
-  .gallery-correct{font-size:9px;color:#4caf50;font-weight:600}
-  .gallery-wrong{font-size:9px;color:#e57373;font-weight:600}
-
-  .verdict-card{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.85rem 1.1rem;font-size:13px;color:var(--ink);line-height:1.75;width:100%;max-width:380px}
-  .verdict-card strong{color:var(--rose)}
-
-  .final-btns{display:flex;gap:.6rem;width:100%;max-width:380px;padding-bottom:1rem}
-  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;font-family:'Poppins',sans-serif}
-  .final-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
-  .final-btn-p:active{background:var(--deep);transform:scale(.97)}
-  .final-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
-
-  /* Slot machine */
-  @keyframes slotroll{0%{transform:translateY(-4px);opacity:.5}50%{transform:translateY(2px);opacity:1}100%{transform:translateY(-4px);opacity:.5}}
-  .slot-rolling{animation:slotroll .12s ease-in-out infinite}
-  @keyframes wordreveal{from{transform:scale(.85) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
-  .word-revealed{animation:wordreveal .4s cubic-bezier(.34,1.5,.64,1)!important}
-
-  /* Category picker */
-  .cat-pick-btn{padding:.6rem .35rem;border-radius:12px;border:1.5px solid rgba(193,122,111,.15);background:#fff;cursor:pointer;font-size:1.1rem;text-align:center;transition:all .15s;color:var(--ink);box-shadow:0 2px 6px rgba(193,122,111,.05)}
-  .cat-pick-btn span{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-top:.2rem;font-family:'Poppins',sans-serif}
-  .cat-pick-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.08)}
-  .cat-pick-btn:active{transform:scale(.93)}
-
-  /* Confetti */
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -198,783 +173,681 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🎨</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Gartic <span>Berdua!</span></h1>
-  <p class="intro-sub">Gambar kata rahasia — lawan tebak! Gantian sampai 5 ronde. Mirip Gartic.io tapi berdua! 🖌️</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rule"><span class="rule-dot"></span>Dapat kata rahasia → gambar dalam 60 detik</div>
-    <div class="rule"><span class="rule-dot"></span>Kasih HP ke lawan → lawan tebak gambarmu</div>
-    <div class="rule"><span class="rule-dot"></span>Bener → +2 poin untuk penebak & +1 untuk pemain!</div>
-    <div class="rule"><span class="rule-dot"></span>5 ronde total — siapa yang paling banyak poin menang! 🏆</div>
-  </div>
-  <!-- Category picker -->
-  <div style="width:100%;max-width:380px;margin-bottom:1.25rem;position:relative;z-index:1">
-    <p style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Pilih Kategori Kata</p>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem" id="cat-grid">
-      <div class="cat-pick-btn selected" data-cat="campuran" onclick="selectCat(this)">🎲<br><span>Campuran</span></div>
-      <div class="cat-pick-btn" data-cat="romantis" onclick="selectCat(this)">💕<br><span>Romantis</span></div>
-      <div class="cat-pick-btn" data-cat="hewan" onclick="selectCat(this)">🐾<br><span>Hewan</span></div>
-      <div class="cat-pick-btn" data-cat="makanan" onclick="selectCat(this)">🍔<br><span>Makanan</span></div>
-      <div class="cat-pick-btn" data-cat="tempat" onclick="selectCat(this)">🌍<br><span>Tempat</span></div>
-      <div class="cat-pick-btn" data-cat="absurd" onclick="selectCat(this)">🤪<br><span>Absurd</span></div>
+  <div class="screen-inner">
+    <span class="intro-icon">🎨</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Gartic <span>Berdua!</span></h1>
+    <p class="intro-sub">Gambar kata rahasia — pasangan tebak! Gantian gambar & nebak, terus simpan galerinya buat kenang-kenangan 🖌️</p>
+
+    <div class="panel">
+      <span class="panel-title">Kategori Kata</span>
+      <div class="cat-grid" id="cat-grid"></div>
     </div>
+    <div class="panel">
+      <span class="panel-title">Gambar per Orang</span>
+      <div class="pills" id="round-pills">
+        <button class="pill" data-v="2">2<small>4 ronde</small></button>
+        <button class="pill on" data-v="3">3<small>6 ronde</small></button>
+        <button class="pill" data-v="4">4<small>8 ronde</small></button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Waktu Gambar</span>
+      <div class="pills" id="time-pills">
+        <button class="pill" data-v="45">45s</button>
+        <button class="pill on" data-v="60">60s</button>
+        <button class="pill" data-v="90">90s</button>
+      </div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>Pelukis dapet kata rahasia (boleh ganti 1x) → gambar sebelum waktu habis</div>
+      <div class="rule"><span class="rule-dot"></span>Penebak punya <b>10 kesempatan</b>. Cepet ketebak = poin gede: <b>3 · 2 · 1</b></div>
+      <div class="rule"><span class="rule-dot"></span>Boleh minta <b>💡 hint</b>, tapi poin penebak −1 per hint</div>
+      <div class="rule"><span class="rule-dot"></span>Tebakan mirip? Pelukis boleh <b>✓ terima</b>. Ketebak → pelukis <b>+2</b></div>
+    </div>
+    <button class="btn-main" onclick="showScreen('s-pick')">Mulai! 🎨</button>
   </div>
-  <button class="start-btn" onclick="showScreen('s-pick')">Mulai! 🎨</button>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <span style="font-size:3rem;display:block;margin-bottom:1rem;position:relative;z-index:1;animation:float 3s ease-in-out infinite">🎨</span>
-  <p class="pick-title">Siapa yang gambar duluan?</p>
-  <p class="pick-sub">Gantian tiap ronde — 5 ronde total</p>
-  <div class="pick-btns">
-    <div class="pick-btn" onclick="initGame('razan')">
-      <span style="font-size:2rem;flex-shrink:0">🧑</span>
-      <div style="text-align:left">
-        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan gambar duluan</span>
-        <span style="font-size:11px;color:var(--muted);display:block;margin-top:.1rem">Dara yang nebak</span>
-      </div>
+  <div class="screen-inner">
+    <span style="font-size:2.8rem;display:block;margin-bottom:.8rem;animation:float 3s ease-in-out infinite">🎨</span>
+    <p class="pick-title">Siapa yang gambar duluan?</p>
+    <p class="pick-sub" id="pick-sub">Gantian tiap ronde — masing-masing gambar 3x</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan gambar duluan</span><span class="pick-sub2">Dara yang nebak</span></div></div>
+      <div class="pick-btn" onclick="initGame('dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara gambar duluan</span><span class="pick-sub2">Razan yang nebak</span></div></div>
     </div>
-    <div class="pick-btn" onclick="initGame('dara')">
-      <span style="font-size:2rem;flex-shrink:0">👧</span>
-      <div style="text-align:left">
-        <span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara gambar duluan</span>
-        <span style="font-size:11px;color:var(--muted);display:block;margin-top:.1rem">Razan yang nebak</span>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
+  </div>
+</div>
+
+<!-- WORD -->
+<div id="s-word" class="screen dark">
+  <div class="screen-inner">
+    <span class="d-warn" id="w-warn">Cuma buat Razan — Dara jangan liat!</span>
+    <span class="d-badge razan" id="w-badge">🧑 Razan menggambar · Ronde 1/6</span>
+    <div class="word-card" id="word-card" onclick="revealWord()">
+      <span class="word-big" id="w-big">🔒 Tap buat buka</span>
+      <span class="word-sub" id="w-sub">Pastiin pasangan nggak ngintip 👀</span>
+      <span class="word-hint" id="w-hint"></span>
+    </div>
+    <button class="mini-btn" id="w-swap" onclick="swapWord()" style="display:none">🔄 Ganti kata (1x)</button>
+    <button class="btn-main" id="w-go" onclick="startDraw()" style="display:none">Siap! Mulai Gambar 🎨</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>
+  </div>
+</div>
+
+<!-- DRAW -->
+<div id="s-draw" class="screen">
+  <div class="col">
+    <div class="topbar">
+      <span class="chip" id="d-chip">Kucing</span>
+      <div style="text-align:center"><span class="timer" id="d-timer">60</span><span class="timer-lbl">detik</span></div>
+      <button class="done-btn" onclick="finishDraw()">Selesai ✓</button>
+    </div>
+    <div class="tbar"><div class="tbar-fill" id="d-bar"></div></div>
+    <div class="canvas-wrap" id="d-wrap"><canvas id="d-canvas"></canvas></div>
+    <div class="toolbar">
+      <div class="tb-row"><div class="colors" id="d-colors"></div></div>
+      <div class="tb-row">
+        <div class="brushes" id="d-brushes"></div>
+        <div class="tools">
+          <button class="tool" id="t-undo" onclick="undo()">↩️</button>
+          <button class="tool" id="t-eraser" onclick="toggleEraser()">🧽</button>
+          <button class="tool" onclick="clearAll()">🗑️</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- PASS -->
-<div id="s-pass" class="screen">
-  <span class="pass-icon" id="pass-icon">📱</span>
-  <p class="pass-title" id="pass-title">Kasih HP!</p>
-  <p class="pass-sub" id="pass-sub">Jangan kasih tau kata rahasianya! 🙈</p>
-  <button class="pass-ready-btn" id="pass-ready-btn" onclick="afterPass()">Aku Udah Pegang HP! 👋</button>
-</div>
-
-<!-- WORD REVEAL -->
-<div id="s-word" class="screen">
-  <div class="word-header">
-    <span class="word-player razan" id="word-player-badge">🧑 Razan</span>
-    <span class="word-label" id="word-label">Tap untuk lihat kata rahasiamu</span>
-    <div id="word-slot-wrap" style="position:relative;z-index:1;width:100%;max-width:340px;margin:.5rem auto">
-      <div id="word-slot" onclick="revealWord()" style="
-        background:#fff;border:2px solid rgba(193,122,111,.2);border-radius:16px;
-        padding:1.1rem 1rem;cursor:pointer;transition:all .2s;
-        box-shadow:0 4px 16px rgba(193,122,111,.1);min-height:70px;
-        display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.35rem">
-        <span id="word-slot-text" style="font-size:clamp(1.4rem,5vw,2rem);font-weight:700;color:var(--ink);display:block;line-height:1.2;text-align:center">
-          🔒 Tap untuk buka
-        </span>
-        <span id="word-slot-sub" style="font-size:11px;color:var(--muted);font-style:italic">Pastiin lawan ga ngintip!</span>
-      </div>
-    </div>
-    <span class="word-hint" id="word-hint" style="display:none">Gambar ini dalam 60 detik!</span>
-  </div>
-  <button class="word-ready-btn" id="word-ready-btn" onclick="startDraw()" style="display:none">Siap! Mulai Gambar 🎨</button>
-  <span class="word-sub-note" id="word-sub-note">Pastiin lawan udah noleh dulu sebelum tap! 👀</span>
-</div>
-
-<!-- DRAW -->
-<div id="s-draw" class="screen">
-  <div class="draw-topbar">
-    <div class="draw-word-chip" id="draw-word-chip">Kucing</div>
-    <div style="text-align:center">
-      <span class="draw-timer" id="draw-timer">60</span>
-      <span class="draw-timer-label">detik</span>
-    </div>
-    <button class="draw-done-btn" onclick="finishDraw()">Selesai ✓</button>
-  </div>
-  <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timer-bar" style="width:100%"></div></div>
-
-  <div class="draw-canvas-wrap" id="draw-canvas-wrap">
-    <canvas class="main-canvas" id="draw-canvas"></canvas>
-  </div>
-
-  <div class="draw-toolbar">
-    <div class="color-strip" id="draw-color-strip"></div>
-    <div class="brush-row" id="draw-brush-row"></div>
-    <div class="tool-btns">
-      <button class="tool-btn" id="eraser-btn" onclick="toggleEraser()">⬜</button>
-      <button class="tool-btn" onclick="clearCanvas()">🗑️</button>
-    </div>
+<div id="s-pass" class="screen dark">
+  <div class="screen-inner">
+    <span class="pass-icon" id="p-icon">👧</span>
+    <p class="pass-title" id="p-title">Kasih HP ke Dara!</p>
+    <p class="pass-sub" id="p-sub">Tebak gambar Razan ya. Jangan kasih tau katanya! 🙈</p>
+    <button class="btn-main gold" id="p-btn" onclick="startGuess()">Udah pegang HP 👀</button>
   </div>
 </div>
 
 <!-- GUESS -->
 <div id="s-guess" class="screen">
-  <div class="guess-topbar">
-    <span class="guess-player-badge razan" id="guess-player-badge">👧 Dara nebak</span>
-    <span class="guess-round" id="guess-round">Ronde 1/5</span>
-  </div>
-  <div class="guess-drawing-wrap" id="guess-drawing-wrap">
-    <canvas class="guess-canvas" id="guess-canvas"></canvas>
-  </div>
-  <div class="guess-input-area">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
-      <span class="guess-label" style="margin-bottom:0">Gambar apa ini?</span>
-      <span id="guess-attempts" style="font-size:11px;font-weight:700;color:var(--rose)">Sisa 10 tebakan</span>
+  <div class="col">
+    <div class="topbar">
+      <span class="chip" id="g-chip">👧 Dara nebak</span>
+      <span style="font-size:10.5px;color:var(--muted)" id="g-round">Ronde 1/6</span>
+      <button class="done-btn" style="background:var(--muted)" onclick="exitGame()">✕</button>
     </div>
-    <div id="guess-history" style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem"></div>
-    <div class="guess-input-row">
-      <input type="text" class="guess-input" id="guess-input" placeholder="Tulis tebakanmu..." autocomplete="off" autocorrect="off">
-      <button class="guess-submit-btn" onclick="submitGuess()">Tebak! 🎯</button>
-    </div>
-    <button onclick="giveUp()" style="width:100%;margin-top:.4rem;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:underline">Menyerah (lihat jawaban)</button>
-  </div>
-</div>
-
-<!-- ROUND RESULT -->
-<div id="s-round-result" class="screen">
-  <span class="rr-icon" id="rr-icon">🎉</span>
-  <h2 class="rr-title" id="rr-title">Bener!</h2>
-  <p class="rr-sub" id="rr-sub">...</p>
-
-  <div class="answer-compare">
-    <div class="answer-box correct-ans">
-      <span class="ab-label green">✓ Kata yang benar</span>
-      <span class="ab-word" id="rr-correct-word">...</span>
-    </div>
-    <div class="answer-box guess-ans">
-      <span class="ab-label rose" id="rr-guess-label">Tebakan Dara</span>
-      <span class="ab-word" id="rr-guess-word">...</span>
-    </div>
-  </div>
-
-  <div class="mini-drawing">
-    <canvas class="mini-canvas" id="mini-canvas" height="160"></canvas>
-  </div>
-
-  <div class="score-row-rr">
-    <div class="srr-item"><span class="srr-name">🧑 Razan</span><span class="srr-score" id="rr-score-r">0</span></div>
-    <span class="srr-vs">🎨</span>
-    <div class="srr-item"><span class="srr-name">Dara 👧</span><span class="srr-score" id="rr-score-d">0</span></div>
-  </div>
-
-  <button class="next-btn" id="next-btn" onclick="nextRound()">Ronde Berikutnya →</button>
-</div>
-
-<!-- FINAL RESULT -->
-<div id="s-final" class="screen">
-  <div class="final-topbar">
-    <span class="final-topbar-title">🏆 Hasil Akhir — Gartic Berdua</span>
-  </div>
-  <div class="final-scroll">
-    <div class="final-score-card">
-      <div><span class="fsc-av">🧑</span><span class="fsc-nm">Razan</span><span class="fsc-sc" id="final-r">0</span></div>
-      <span class="fsc-vs">🎨</span>
-      <div><span class="fsc-av">👧</span><span class="fsc-nm">Dara</span><span class="fsc-sc" id="final-d">0</span></div>
-    </div>
-
-    <span class="gallery-title">🖼️ Galeri Gambar</span>
-    <div class="gallery-grid" id="gallery-grid"></div>
-
-    <div class="verdict-card" id="final-verdict">...</div>
-
-    <div class="final-btns">
-      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    <div class="canvas-wrap" id="g-wrap"><canvas id="g-canvas"></canvas></div>
+    <div class="guess-area">
+      <div class="g-meta"><span>Gambar apa ini? 🤔</span><span>Sisa <b id="g-left">10</b> · poin <b id="g-pts">3</b></span></div>
+      <div class="pattern" id="g-pattern"></div>
+      <div class="hint-text" id="g-hinttext"></div>
+      <div class="history" id="g-history"></div>
+      <div class="near-box" id="g-near"><span id="g-near-text">🔥 Hampir!</span><button onclick="acceptNear()">✓ Pelukis terima</button></div>
+      <div class="g-row">
+        <input class="g-in" id="g-in" placeholder="Tulis tebakanmu..." autocomplete="off" autocorrect="off" autocapitalize="off" maxlength="40">
+        <button class="g-btn" onclick="submitGuess()">Tebak 🎯</button>
+      </div>
+      <div class="g-tools">
+        <button class="g-tool" id="h1" onclick="useHint(1)">💡 Pola huruf (−1)</button>
+        <button class="g-tool" id="h2" onclick="useHint(2)">💡 Petunjuk (−1)</button>
+        <button class="g-tool giveup" onclick="giveUp()">🏳️ Nyerah</button>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- ROUND RESULT / FINAL -->
+<div id="s-result" class="screen">
+  <div class="screen-inner" id="result-inner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// ── WORD BANK ──
-const WORD_BANK = {
+// ═════════ KATA ═════════
+const W = (w, hint, alt = []) => ({ w, hint, alt });
+const CATS = {
+  campuran: { icon:'🎲', label:'Campur' },
+  romantis: { icon:'💕', label:'Romantis' },
+  kita:     { icon:'💑', label:'Kita' },
+  hewan:    { icon:'🐾', label:'Hewan' },
+  makanan:  { icon:'🍔', label:'Makanan' },
+  tempat:   { icon:'🌍', label:'Tempat' },
+  benda:    { icon:'🔑', label:'Benda' },
+  absurd:   { icon:'🤪', label:'Absurd' },
+};
+const BANK = {
   romantis: [
-    {word:'Pelukan',hint:'Sesuatu yang hangat dari orang tersayang'},
-    {word:'Ciuman',hint:'Sentuhan bibir'},
-    {word:'Kencan',hint:'Pergi berdua ke tempat spesial'},
-    {word:'Bunga Mawar',hint:'Bunga merah identik cinta'},
-    {word:'Cincin',hint:'Perhiasan lingkaran untuk jari'},
-    {word:'Jantung',hint:'Berdegup kencang saat jatuh cinta'},
-    {word:'Lilin Romantis',hint:'Cahaya kecil bikin suasana intim'},
-    {word:'Surat Cinta',hint:'Pesan tertulis untuk tersayang'},
-    {word:'Sunset Berdua',hint:'Melihat matahari terbenam bersama'},
-    {word:'Genggam Tangan',hint:'Jari-jari yang saling mengunci'},
-    {word:'Stargazing',hint:'Melihat bintang bersama malam hari'},
-    {word:'Piknik Romantis',hint:'Makan di taman beralaskan tikar'},
+    W('Pelukan','Sesuatu yang hangat dari orang tersayang',['peluk']), W('Ciuman','Sentuhan bibir',['cium','kiss']),
+    W('Kencan','Pergi berdua ke tempat spesial',['date']), W('Bunga Mawar','Bunga merah lambang cinta',['mawar']),
+    W('Cincin','Perhiasan lingkaran di jari',['cincin tunangan']), W('Hati','Lambang cinta',['love','jantung']),
+    W('Surat Cinta','Pesan tertulis buat tersayang',['surat']), W('Sunset Berdua','Liat matahari terbenam bareng',['sunset','matahari terbenam']),
+    W('Pegangan Tangan','Jari-jari saling mengunci',['gandengan','genggam tangan']), W('Liat Bintang','Malam-malam liat langit',['stargazing','bintang']),
+    W('Piknik','Makan di taman beralaskan tikar',[]), W('Candle Light Dinner','Makan malam pakai lilin',['dinner','makan malam romantis']),
+  ],
+  kita: [
+    W('Video Call','Ngobrol pakai kamera HP',['vc']), W('Ngambek','Cemberut, diem, nggak mau ngomong',['marah','cemberut']),
+    W('Boncengan Motor','Berdua naik motor',['boncengan','naik motor']), W('Nonton Bioskop','Liat film di layar gede',['bioskop','nonton']),
+    W('Foto Couple','Pose berdua depan kamera',['foto berdua','selfie']), W('Hujan-hujanan','Basah-basahan di bawah langit',['hujan']),
+    W('Nunggu Balasan Chat','Liatin HP terus',['nunggu chat','chat']), W('Kado','Hadiah dibungkus pita',['hadiah']),
+    W('Anniversary','Rayain hari jadian',['hari jadi']), W('Makan Berdua','Satu meja, dua orang',['makan bareng']),
   ],
   hewan: [
-    {word:'Kucing Tidur',hint:'Hewan berbulu yang lagi istirahat'},
-    {word:'Anjing Berlari',hint:'Hewan peliharaan yang lagi sprint'},
-    {word:'Gajah',hint:'Hewan darat terbesar dengan belalai'},
-    {word:'Penguin',hint:'Burung hitam putih yang tidak bisa terbang'},
-    {word:'Hiu',hint:'Predator laut dengan gigi tajam'},
-    {word:'Lumba-lumba',hint:'Mamalia laut yang suka melompat'},
-    {word:'Jerapah',hint:'Hewan dengan leher paling panjang'},
-    {word:'Koala',hint:'Hewan Australia yang suka pohon eukaliptus'},
-    {word:'Gurita',hint:'Makhluk laut dengan 8 tentakel'},
-    {word:'Kura-kura',hint:'Hewan lambat dengan cangkang'},
-    {word:'Flamingo',hint:'Burung merah muda yang berdiri satu kaki'},
-    {word:'Beruang Kutub',hint:'Hewan putih yang hidup di es'},
+    W('Kucing Tidur','Kucing lagi rebahan',[]), W('Gajah','Hewan besar berbelalai',[]), W('Penguin','Burung hitam putih di es',[]),
+    W('Hiu','Predator laut bergigi tajam',[]), W('Lumba-lumba','Mamalia laut suka lompat',[]), W('Jerapah','Leher paling panjang',[]),
+    W('Gurita','8 tentakel',[]), W('Kura-kura','Lambat bercangkang',['penyu']), W('Flamingo','Burung pink berdiri satu kaki',[]),
+    W('Ular','Panjang tanpa kaki',[]), W('Kupu-kupu','Serangga bersayap warna-warni',[]), W('Siput','Bawa rumah di punggung',['bekicot']),
   ],
   makanan: [
-    {word:'Pizza',hint:'Makanan bulat Italia dengan topping'},
-    {word:'Bakso',hint:'Bola daging dalam kuah'},
-    {word:'Sushi',hint:'Nasi gulung ala Jepang'},
-    {word:'Es Krim',hint:'Makanan manis dingin di cone'},
-    {word:'Ramen',hint:'Mie kuah panas ala Jepang'},
-    {word:'Burger',hint:'Roti bulat berisi daging'},
-    {word:'Donat',hint:'Roti manis berbentuk cincin'},
-    {word:'Taco',hint:'Tortilla isi daging ala Meksiko'},
-    {word:'Martabak',hint:'Kue tebal manis-asin khas Indonesia'},
-    {word:'Croissant',hint:'Roti bulan sabit ala Prancis'},
-    {word:'Rendang',hint:'Daging berbumbu khas Padang'},
-    {word:'Pancake',hint:'Kue tipis yang ditumpuk'},
+    W('Pizza','Bulat Italia dengan topping',[]), W('Bakso','Bola daging dalam kuah',[]), W('Sushi','Nasi gulung Jepang',[]),
+    W('Es Krim','Manis dingin di cone',['eskrim','ice cream']), W('Ramen','Mie kuah Jepang',['mie']), W('Burger','Roti bulat isi daging',[]),
+    W('Donat','Roti manis berbentuk cincin',['donut']), W('Martabak','Kue tebal manis khas Indonesia',[]), W('Sate','Daging tusuk dibakar',[]),
+    W('Nasi Goreng','Nasi dimasak di wajan',['nasgor']), W('Semangka','Buah merah berbiji hitam',[]), W('Kentang Goreng','Stik kuning renyah',['french fries']),
   ],
   tempat: [
-    {word:'Pantai',hint:'Pinggir laut dengan pasir'},
-    {word:'Cafe Cozy',hint:'Tempat minum kopi yang nyaman'},
-    {word:'Gunung Berapi',hint:'Gunung yang bisa meletus'},
-    {word:'Menara Eiffel',hint:'Menara besi terkenal di Paris'},
-    {word:'Bawah Laut',hint:'Dunia di kedalaman samudra'},
-    {word:'Hutan Hujan',hint:'Hutan lebat dengan hujan deras'},
-    {word:'Istana',hint:'Tempat tinggal raja dan ratu'},
-    {word:'Taman Bermain',hint:'Tempat anak-anak bersenang-senang'},
-    {word:'Perpustakaan',hint:'Gedung penuh buku'},
-    {word:'Pulau Terpencil',hint:'Pulau kecil di tengah lautan'},
-    {word:'Pasar Malam',hint:'Pasar yang buka saat gelap'},
-    {word:'Rooftop',hint:'Atap gedung tinggi dengan pemandangan'},
+    W('Pantai','Pinggir laut berpasir',[]), W('Gunung Berapi','Gunung yang bisa meletus',['gunung meletus']), W('Menara Eiffel','Menara besi di Paris',['eiffel']),
+    W('Bawah Laut','Dunia di dasar samudra',['laut']), W('Istana','Rumah raja & ratu',['kastil']), W('Taman Bermain','Tempat main anak-anak',['playground']),
+    W('Perpustakaan','Gedung penuh buku',[]), W('Pulau','Daratan di tengah laut',['pulau terpencil']), W('Pasar Malam','Pasar yang buka pas gelap',['bianglala']),
+    W('Rumah Sakit','Tempat orang dirawat',['rs']), W('Kolam Renang','Tempat berenang',[]), W('Kafe','Tempat ngopi',['cafe','coffee shop']),
+  ],
+  benda: [
+    W('Payung','Pelindung dari hujan',[]), W('Gitar','Alat musik petik',[]), W('Kacamata','Dipakai di mata',[]), W('Jam Weker','Bunyi di pagi hari',['jam','alarm']),
+    W('Lampu','Bikin terang',['bohlam']), W('Sepeda','Kendaraan dua roda dikayuh',[]), W('Kamera','Buat foto',[]), W('Balon','Ditiup, bisa terbang',[]),
+    W('Kulkas','Lemari dingin',['lemari es']), W('Sikat Gigi','Dipakai pagi & malam',[]), W('Headphone','Dengerin musik di kepala',['headset']), W('Kunci','Buka pintu',[]),
   ],
   absurd: [
-    {word:'Astronot Makan Bakso',hint:'Orang di luar angkasa yang lagi slurp'},
-    {word:'Kucing Jadi Presiden',hint:'Hewan berbulu yang mimpin negara'},
-    {word:'Robot Masak Rendang',hint:'Mesin yang lagi bikin masakan Padang'},
-    {word:'Dinosaurus Main HP',hint:'Hewan purba yang lagi scrolling'},
-    {word:'Naga Minum Kopi',hint:'Makhluk api yang butuh kafein'},
-    {word:'Penyihir Naik Ojol',hint:'Orang bertongkat pakai helm'},
-    {word:'Ikan Terbang Ke Bulan',hint:'Makhluk air yang jadi astronot'},
-    {word:'Gurita DJ',hint:'8 tangan yang lagi putar musik'},
-    {word:'Gajah Balerina',hint:'Hewan besar yang lagi ballet'},
-    {word:'Zombie Makan Salad',hint:'Makhluk hidup lagi diet'},
-    {word:'Duyung Naik Motor',hint:'Setengah ikan yang ugal-ugalan'},
-    {word:'Beruang Yoga',hint:'Hewan besar yang lagi meditasi'},
+    W('Astronot Makan Bakso','Orang luar angkasa lagi slurp',[]), W('Kucing Jadi Presiden','Hewan berbulu mimpin negara',[]),
+    W('Dinosaurus Main HP','Hewan purba lagi scrolling',[]), W('Naga Minum Kopi','Makhluk api butuh kafein',[]),
+    W('Penyihir Naik Ojol','Orang bertongkat pakai helm',[]), W('Gurita DJ','8 tangan puter musik',[]),
+    W('Gajah Balerina','Hewan besar lagi ballet',[]), W('Zombie Diet','Makhluk seram makan salad',[]),
+    W('Duyung Naik Motor','Setengah ikan ngebut',[]), W('Beruang Yoga','Hewan besar lagi meditasi',[]),
   ],
-  campuran: [] // filled dynamically
 };
+BANK.campuran = Object.entries(BANK).flatMap(([k, a]) => a);
 
-// Build campuran from all categories
-Object.keys(WORD_BANK).forEach(k => {
-  if (k !== 'campuran') WORD_BANK.campuran.push(...WORD_BANK[k]);
-});
+const ROUND_OK = [
+  '<b>{g}</b> kasih pujian buat karya seni <b>{d}</b> — kayak kurator museum 🖼️',
+  '<b>{d}</b> & <b>{g}</b> tos! Telepati gambar jalan ✋',
+  '<b>{g}</b> kasih <b>{d}</b> 1 kecupan jauh sebagai tanda apresiasi 😘',
+];
+const ROUND_FAIL = [
+  '<b>{d}</b> jelasin gambarnya dengan gaya presenter museum 🎙️🖼️',
+  '<b>{d}</b> peragain katanya tanpa suara 10 detik 😂',
+  '<b>{g}</b> tebak ulang sambil tutup mata — <b>{d}</b> boleh kasih clue suara 🙈',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> gambar potret <b>{w}</b> — 60 detik, harus mirip! 🎨',
+  '<b>{l}</b> traktir <b>{w}</b> jajanan favorit minggu ini 🍡',
+  '<b>{w}</b> boleh minta 1 hal kecil ke <b>{l}</b> 😏',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+];
+const FINAL_TIE = [
+  'Seri! Gambar berdua 1 kanvas: "kita 5 tahun lagi" 🎨💑',
+  'Seri! Pelukan 10 detik — duo seniman kompak 🤗',
+];
 
-let WORDS = WORD_BANK.campuran; // default
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+const ICON = { razan:'🧑', dara:'👧' };
+const COLORS = ['#2d1f1a','#c17a6f','#4a7cc7','#4caf50','#e57373','#ffb74d','#ba68c8','#8d6e63','#ffeb3b','#90caf9'];
+const BRUSH = [3, 7, 14];
+const MAX_TRY = 10;
+let CFG = { cat:'campuran', per:3, time:60 };
+let G = null;
+let tick = null, token = 0;
+const decks = {};
+const used = new Set();
 
-const TOTAL_ROUNDS = 5;
-const DRAW_TIME = 60;
-const COLORS = ['#2d1f1a','#c17a6f','#4a7cc7','#81c784','#e57373','#ffb74d','#ba68c8','#ffffff'];
-const BRUSH_SIZES = [3, 8, 16];
-
-let drawer = 'razan';
-let guesser = 'dara';
-let currentRound = 0;
-let scores = { razan: 0, dara: 0 };
-let currentWord = null;
-let usedWords = [];
-let rounds = []; // {word, guess, correct, drawerImageData, drawer, guesser}
-let drawTimer = null;
-let timeLeft = DRAW_TIME;
-let isErasing = false;
-let currentColor = '#c17a6f';
-let currentBrush = 8;
-let isDrawing = false;
-let lastX = 0, lastY = 0;
-let drawCtx = null;
-let savedDrawing = null; // ImageData of current drawing
-
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
+function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, ''); }
+function lev(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) { const cur = [i]; for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = cur; }
+  return prev[n];
+}
 function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
+}
+let toastT = null;
+function toast(m) { const t = $('toast'); if (!t) return; t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1700); }
+function stopTimer() { token++; clearInterval(tick); tick = null; }
+
+// ═════════ SETUP ═════════
+(function renderCats() {
+  const g = $('cat-grid'); if (!g) return;
+  g.innerHTML = Object.entries(CATS).map(([k, c]) => `<div class="cat-btn ${k === CFG.cat ? 'on' : ''}" data-cat="${k}">${c.icon}<span>${c.label}</span></div>`).join('');
+  g.querySelectorAll('.cat-btn').forEach(b => b.addEventListener('click', () => {
+    g.querySelectorAll('.cat-btn').forEach(x => x.classList.remove('on')); b.classList.add('on'); CFG.cat = b.dataset.cat;
+  }));
+})();
+function bindPills(id, key, after) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = parseInt(p.dataset.v); if (after) after();
+  }));
+}
+bindPills('round-pills', 'per', () => setText('pick-sub', `Gantian tiap ronde — masing-masing gambar ${CFG.per}x`));
+bindPills('time-pills', 'time');
+
+function nextWord() {
+  const pool = BANK[CFG.cat] || BANK.campuran;
+  let fresh = pool.filter(x => !used.has(x.w));
+  if (!fresh.length) { pool.forEach(x => used.delete(x.w)); fresh = pool; }
+  const w = fresh[Math.floor(Math.random() * fresh.length)];
+  used.add(w.w);
+  return w;
 }
 
-function initGame(firstDrawer) {
-  drawer = firstDrawer;
-  guesser = firstDrawer === 'razan' ? 'dara' : 'razan';
-  currentRound = 0;
-  scores = { razan: 0, dara: 0 };
-  usedWords = [];
-  rounds = [];
+// ═════════ GAME FLOW ═════════
+function initGame(first) {
+  stopTimer();
+  const f = first === 'dara' ? 'dara' : 'razan';
+  G = { first: f, drawer: f, round: 0, total: CFG.per * 2,
+        scores: { razan:0, dara:0 }, rounds: [], streak: 0, bestStreak: 0,
+        st: { razan:{ guessed:0, tries:0, hints:0, drawnOk:0 }, dara:{ guessed:0, tries:0, hints:0, drawnOk:0 } } };
   startRound();
 }
 
 function startRound() {
-  currentRound++;
-  currentWord = getRandomWord();
-  savedDrawing = null;
-  isErasing = false;
-
-  // Show word to drawer
-  const drawerName = drawer === 'razan' ? 'Razan' : 'Dara';
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-  const badge = document.getElementById('word-player-badge');
-  if (badge) {
-    badge.textContent = `${drawer==='razan'?'🧑':'👧'} ${drawerName} menggambar`;
-    badge.className = 'word-player ' + drawer;
-  }
-  // Reset word reveal slot
-  const slot = document.getElementById('word-slot');
-  if (slot) {
-    slot.dataset.revealed = '0';
-    slot.style.background = '#fff';
-    slot.style.borderColor = 'rgba(193,122,111,.2)';
-    slot.style.cursor = 'pointer';
-    document.getElementById('word-slot-text').textContent = '🔒 Tap untuk buka';
-    document.getElementById('word-slot-text').classList.remove('word-revealed','slot-rolling');
-    document.getElementById('word-slot-sub').textContent = 'Pastiin lawan ga ngintip!';
-    document.getElementById('word-label').textContent = 'Tap untuk lihat kata rahasiamu';
-    document.getElementById('word-hint').style.display = 'none';
-    document.getElementById('word-ready-btn').style.display = 'none';
-    document.getElementById('word-sub-note').textContent = 'Pastiin lawan udah noleh dulu sebelum tap! 👀';
-  }
-
+  G.round++;
+  G.word = nextWord(); G.swapped = false; G.revealed = false;
+  const d = G.drawer, g = other(d);
+  setText('w-warn', `Cuma buat ${NAMES[d]} — ${NAMES[g]} jangan liat!`);
+  const b = $('w-badge'); if (b) { b.textContent = `${ICON[d]} ${NAMES[d]} menggambar · Ronde ${G.round}/${G.total}`; b.className = 'd-badge ' + d; }
+  setText('w-big', '🔒 Tap buat buka'); setText('w-sub', 'Pastiin pasangan nggak ngintip 👀'); setText('w-hint', '');
+  ['w-swap', 'w-go'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
   showScreen('s-word');
 }
 
-function getRandomWord() {
-  const available = WORDS.filter(w => !usedWords.includes(w.word));
-  const pool = available.length ? available : WORDS;
-  const w = pool[Math.floor(Math.random() * pool.length)];
-  usedWords.push(w.word);
-  return w;
-}
-
 function revealWord() {
-  const slot = document.getElementById('word-slot');
-  const slotText = document.getElementById('word-slot-text');
-  const slotSub = document.getElementById('word-slot-sub');
-
-  // Already revealed
-  if (slot.dataset.revealed === '1') return;
-
-  // Rolling animation - show random words fast
-  const fakeWords = ['🍕 Pizza','🐱 Kucing','🌈 Pelangi','🎸 Gitar','🏔️ Gunung',
-    '🦋 Kupu','🌊 Ombak','🎨 Lukisan','⚡ Petir','🌸 Bunga',
-    '🚀 Roket','🎭 Topeng','🦊 Rubah','🍦 Es Krim','🌙 Bulan'];
-
-  slotText.classList.add('slot-rolling');
-  slotSub.textContent = 'Loading...';
-  slot.style.cursor = 'default';
-  slot.style.borderColor = 'rgba(193,122,111,.4)';
-
-  let rollCount = 0;
-  const totalRolls = 18;
-  // Varying speed: fast at start, slow at end
-  const getDelay = (count) => count < 8 ? 80 : count < 14 ? 140 : 220;
-
-  const runRoll = () => {
-    rollCount++;
-    // Guard against null if screen switched
-    const st = document.getElementById('word-slot-text');
-    const ss = document.getElementById('word-slot-sub');
-    const sl = document.getElementById('word-slot');
-    if (!st || !sl) return;
-
-    const fake = fakeWords[Math.floor(Math.random() * fakeWords.length)];
-    st.textContent = fake;
-
-    if (rollCount >= totalRolls) {
-      // Final reveal
-      st.classList.remove('slot-rolling');
-      st.classList.add('word-revealed');
-      st.textContent = currentWord.word;
-      if (ss) ss.textContent = '';
-      sl.style.background = 'rgba(193,122,111,.06)';
-      sl.style.borderColor = 'var(--rose)';
-      sl.dataset.revealed = '1';
-
-      const wl = document.getElementById('word-label');
-      const wh = document.getElementById('word-hint');
-      const wr = document.getElementById('word-ready-btn');
-      const wn = document.getElementById('word-sub-note');
-      if (wl) wl.textContent = 'Kata rahasiamu:';
-      if (wh) { wh.style.display = 'block'; wh.textContent = '💡 Hint: ' + currentWord.hint; }
-      if (wr) wr.style.display = 'block';
-      if (wn) wn.textContent = 'Jangan tunjukkan kata ini ke lawan ya! 🤫';
-
-      if (navigator.vibrate) navigator.vibrate([50, 30, 100]);
-    } else {
-      setTimeout(runRoll, getDelay(rollCount));
-    }
-  };
-  setTimeout(runRoll, 80);
+  if (!G || G.revealed) return;
+  G.revealed = true;
+  const el = $('w-big');
+  if (el) { el.textContent = G.word.w; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
+  setText('w-sub', 'Kata rahasiamu — jangan kasih tau ya 🤫');
+  setText('w-hint', '💡 ' + G.word.hint);
+  const s = $('w-swap'); if (s) { s.style.display = ''; s.disabled = G.swapped; }
+  const go = $('w-go'); if (go) go.style.display = '';
+  vib([40, 30, 80]);
 }
+function swapWord() {
+  if (!G || !G.revealed || G.swapped) return;
+  G.swapped = true; G.word = nextWord(); G.revealed = false; revealWord();
+  const s = $('w-swap'); if (s) s.disabled = true;
+}
+
+// ═════════ CANVAS (disimpan sebagai garis, bukan pixel — bisa undo & nggak gepeng) ═════════
+const pad = { strokes: [], cur: null, color: '#2d1f1a', size: 7, erase: false, W: 0, H: 0, ctx: null, dpr: 1 };
+
+function setupCanvas() {
+  const wrap = $('d-wrap'), c = $('d-canvas'); if (!wrap || !c) return;
+  pad.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  pad.W = wrap.clientWidth; pad.H = wrap.clientHeight;
+  c.width = Math.round(pad.W * pad.dpr); c.height = Math.round(pad.H * pad.dpr);
+  pad.ctx = c.getContext('2d');
+  pad.ctx.setTransform(pad.dpr, 0, 0, pad.dpr, 0, 0);
+  redrawPad();
+}
+function redrawPad() {
+  const ctx = pad.ctx; if (!ctx) return;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, pad.W, pad.H);
+  pad.strokes.forEach(s => drawStroke(ctx, s, 1, 0, 0));
+  const u = $('t-undo'); if (u) u.disabled = !pad.strokes.length;
+}
+function drawStroke(ctx, s, k, ox, oy) {
+  ctx.strokeStyle = s.erase ? '#fff' : s.color;
+  ctx.fillStyle = ctx.strokeStyle;
+  ctx.lineWidth = s.size * k; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const p = s.pts;
+  if (p.length === 1) { ctx.beginPath(); ctx.arc(ox + p[0][0] * k, oy + p[0][1] * k, s.size * k / 2, 0, Math.PI * 2); ctx.fill(); return; }
+  ctx.beginPath(); ctx.moveTo(ox + p[0][0] * k, oy + p[0][1] * k);
+  for (let i = 1; i < p.length; i++) ctx.lineTo(ox + p[i][0] * k, oy + p[i][1] * k);
+  ctx.stroke();
+}
+// Render gambar ke kanvas lain dengan rasio tetap (contain)
+function renderTo(canvas, rd, cssW, cssH) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(cssW * dpr); canvas.height = Math.round(cssH * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cssW, cssH);
+  if (!rd || !rd.W) return;
+  const k = Math.min(cssW / rd.W, cssH / rd.H);
+  const ox = (cssW - rd.W * k) / 2, oy = (cssH - rd.H * k) / 2;
+  rd.strokes.forEach(s => drawStroke(ctx, s, k, ox, oy));
+}
+
+(function bindPad() {
+  const c = $('d-canvas'); if (!c) return;
+  const pos = e => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  c.addEventListener('pointerdown', e => {
+    if (!G || G.phase !== 'draw') return;
+    e.preventDefault(); try { c.setPointerCapture(e.pointerId); } catch {}
+    pad.cur = { color: pad.color, size: pad.erase ? pad.size * 2.5 : pad.size, erase: pad.erase, pts: [pos(e)] };
+    pad.strokes.push(pad.cur);
+    drawStroke(pad.ctx, pad.cur, 1, 0, 0);
+  });
+  c.addEventListener('pointermove', e => {
+    if (!pad.cur) return; e.preventDefault();
+    const p = pos(e), last = pad.cur.pts[pad.cur.pts.length - 1];
+    if (Math.abs(p[0] - last[0]) + Math.abs(p[1] - last[1]) < 1.5) return;
+    pad.cur.pts.push(p);
+    const ctx = pad.ctx;
+    ctx.strokeStyle = pad.cur.erase ? '#fff' : pad.cur.color; ctx.lineWidth = pad.cur.size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(p[0], p[1]); ctx.stroke();
+  });
+  const end = () => { if (pad.cur) { pad.cur = null; const u = $('t-undo'); if (u) u.disabled = false; } };
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => c.addEventListener(ev, end));
+})();
+
+function buildToolbar() {
+  const cs = $('d-colors'), bs = $('d-brushes'); if (!cs || !bs) return;
+  cs.innerHTML = ''; bs.innerHTML = '';
+  COLORS.forEach(col => {
+    const d = document.createElement('div');
+    d.className = 'cdot' + (col === pad.color && !pad.erase ? ' on' : ''); d.style.background = col;
+    d.addEventListener('click', () => { pad.color = col; pad.erase = false; buildToolbar(); });
+    cs.appendChild(d);
+  });
+  BRUSH.forEach(sz => {
+    const b = document.createElement('div');
+    b.className = 'bbtn' + (sz === pad.size ? ' on' : '');
+    b.innerHTML = `<div class="bdot" style="width:${sz + 2}px;height:${sz + 2}px"></div>`;
+    b.addEventListener('click', () => { pad.size = sz; buildToolbar(); });
+    bs.appendChild(b);
+  });
+  const er = $('t-eraser'); if (er) er.classList.toggle('on', pad.erase);
+  const u = $('t-undo'); if (u) u.disabled = !pad.strokes.length;
+}
+function toggleEraser() { pad.erase = !pad.erase; buildToolbar(); }
+function undo() { if (!pad.strokes.length) return; pad.strokes.pop(); redrawPad(); }
+function clearAll() { if (!pad.strokes.length) return; if (!confirm('Hapus semua gambar?')) return; pad.strokes = []; redrawPad(); }
 
 function startDraw() {
+  if (!G || !G.revealed) return;
+  G.phase = 'draw';
+  pad.strokes = []; pad.cur = null; pad.erase = false; pad.size = 7;
+  pad.color = G.drawer === 'razan' ? '#4a7cc7' : '#c17a6f';
+  const chip = $('d-chip'); if (chip) { chip.textContent = '✏️ ' + G.word.w; chip.className = 'chip ' + G.drawer; }
   showScreen('s-draw');
-  document.getElementById('draw-word-chip').textContent = currentWord.word;
-  currentColor = drawer === 'razan' ? '#4a7cc7' : '#c17a6f';
-  currentBrush = 8;
-  isErasing = false;
-  setupDrawToolbar();
-  setTimeout(() => {
-    initDrawCanvas();
-    startDrawTimer();
+  buildToolbar();
+  requestAnimationFrame(() => { setupCanvas(); runDrawTimer(); });
+}
+
+function runDrawTimer() {
+  stopTimer();
+  const my = token, start = Date.now(), bar = $('d-bar'), tEl = $('d-timer');
+  let lastSec = -1;
+  tick = setInterval(() => {
+    if (my !== token || !G || G.phase !== 'draw') return;
+    const left = Math.max(0, CFG.time - (Date.now() - start) / 1000);
+    const pct = left / CFG.time * 100;
+    if (bar) { bar.style.width = pct + '%'; bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : 'var(--rose)'; }
+    const sec = Math.ceil(left);
+    if (tEl) { tEl.textContent = sec; tEl.className = 'timer' + (left <= 10 ? ' warn' : ''); }
+    if (sec !== lastSec && sec <= 5 && sec > 0) vib(30);
+    lastSec = sec;
+    if (left <= 0) { toast('⏰ Waktu habis!'); finishDraw(); }
   }, 100);
-}
-
-function initDrawCanvas() {
-  const wrap = document.getElementById('draw-canvas-wrap');
-  const canvas = document.getElementById('draw-canvas');
-  canvas.width = wrap.clientWidth;
-  canvas.height = wrap.clientHeight;
-  drawCtx = canvas.getContext('2d');
-  drawCtx.fillStyle = '#fff';
-  drawCtx.fillRect(0, 0, canvas.width, canvas.height);
-  setupDrawEvents(canvas);
-}
-
-function setupDrawToolbar() {
-  const strip = document.getElementById('draw-color-strip');
-  strip.innerHTML = '';
-  COLORS.forEach(c => {
-    const dot = document.createElement('div');
-    dot.className = 'color-dot' + (c===currentColor?' active':'');
-    dot.style.background = c;
-    if(c==='#ffffff') dot.style.border='2px solid #e8c4b0';
-    dot.onclick = () => {
-      currentColor = c; isErasing = false;
-      document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
-      dot.classList.add('active');
-      document.getElementById('eraser-btn').classList.remove('active');
-    };
-    strip.appendChild(dot);
-  });
-  const brushRow = document.getElementById('draw-brush-row');
-  brushRow.innerHTML = '';
-  BRUSH_SIZES.forEach(size => {
-    const btn = document.createElement('div');
-    btn.className = 'brush-btn' + (size===currentBrush?' active':'');
-    btn.innerHTML = `<div class="brush-dot" style="width:${Math.min(size,18)}px;height:${Math.min(size,18)}px"></div>`;
-    btn.onclick = () => {
-      currentBrush = size;
-      document.querySelectorAll('.brush-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-    };
-    brushRow.appendChild(btn);
-  });
-}
-
-function setupDrawEvents(canvas) {
-  const getPos = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const sx = canvas.width / rect.width;
-    const sy = canvas.height / rect.height;
-    const t = e.touches ? e.touches[0] : e;
-    return { x: (t.clientX - rect.left) * sx, y: (t.clientY - rect.top) * sy };
-  };
-  const start = (e) => {
-    e.preventDefault(); isDrawing = true;
-    const p = getPos(e); lastX = p.x; lastY = p.y;
-    drawCtx.beginPath(); drawCtx.moveTo(lastX, lastY);
-  };
-  const move = (e) => {
-    e.preventDefault(); if (!isDrawing) return;
-    const p = getPos(e);
-    drawCtx.globalCompositeOperation = isErasing ? 'destination-out' : 'source-over';
-    drawCtx.strokeStyle = isErasing ? 'rgba(0,0,0,1)' : currentColor;
-    drawCtx.lineWidth = isErasing ? currentBrush * 2 : currentBrush;
-    drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
-    drawCtx.lineTo(p.x, p.y); drawCtx.stroke();
-    drawCtx.beginPath(); drawCtx.moveTo(p.x, p.y);
-    lastX = p.x; lastY = p.y;
-  };
-  const end = (e) => { e.preventDefault(); isDrawing = false; drawCtx.beginPath(); };
-  canvas.addEventListener('touchstart', start, {passive:false});
-  canvas.addEventListener('touchmove', move, {passive:false});
-  canvas.addEventListener('touchend', end, {passive:false});
-  canvas.addEventListener('mousedown', start);
-  canvas.addEventListener('mousemove', move);
-  canvas.addEventListener('mouseup', end);
-  canvas.addEventListener('mouseleave', end);
-}
-
-function toggleEraser() {
-  isErasing = !isErasing;
-  document.getElementById('eraser-btn').classList.toggle('active', isErasing);
-}
-
-function clearCanvas() {
-  const c = document.getElementById('draw-canvas');
-  drawCtx.fillStyle = '#fff';
-  drawCtx.fillRect(0, 0, c.width, c.height);
-}
-
-function startDrawTimer() {
-  timeLeft = DRAW_TIME;
-  updateTimerBar();
-  clearInterval(drawTimer);
-  drawTimer = setInterval(() => {
-    timeLeft -= 0.1;
-    timeLeft = Math.round(timeLeft * 10) / 10;
-    updateTimerBar();
-    const timerEl = document.getElementById('draw-timer');
-    timerEl.textContent = Math.ceil(timeLeft);
-    timerEl.className = 'draw-timer' + (timeLeft <= 10 ? ' warn' : '');
-    if (navigator.vibrate && timeLeft <= 10 && Math.round(timeLeft) === timeLeft) navigator.vibrate(30);
-    if (timeLeft <= 0) { clearInterval(drawTimer); finishDraw(); }
-  }, 100);
-}
-
-function updateTimerBar() {
-  const pct = Math.max(0, (timeLeft / DRAW_TIME) * 100);
-  const bar = document.getElementById('timer-bar');
-  bar.style.width = pct + '%';
-  bar.style.background = pct < 30 ? '#e57373' : pct < 60 ? '#ffb300' : 'var(--rose)';
 }
 
 function finishDraw() {
-  clearInterval(drawTimer);
-  const canvas = document.getElementById('draw-canvas');
-  savedDrawing = drawCtx.getImageData(0, 0, canvas.width, canvas.height);
-
-  // Pass to guesser
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-  document.getElementById('pass-icon').textContent = guesser === 'razan' ? '🧑' : '👧';
-  document.getElementById('pass-title').textContent = `Kasih HP ke ${guesserName}!`;
-  document.getElementById('pass-sub').textContent = `${guesserName} harus nebak gambar tadi. Jangan kasih tau kata rahasianya! 🙈`;
-  document.getElementById('pass-ready-btn').textContent = `${guesser==='razan'?'🧑':'👧'} ${guesserName} Udah Pegang HP! 👀`;
+  if (!G || G.phase !== 'draw') return;
+  stopTimer();
+  pad.cur = null;
+  G.drawing = { strokes: pad.strokes.slice(), W: pad.W, H: pad.H };
+  G.phase = 'pass';
+  const g = other(G.drawer);
+  setText('p-icon', ICON[g]);
+  setText('p-title', `Kasih HP ke ${NAMES[g]}!`);
+  setText('p-sub', `Tebak gambar ${NAMES[G.drawer]} ya. ${NAMES[G.drawer]} jangan kasih tau katanya! 🙈`);
+  setText('p-btn', `${ICON[g]} ${NAMES[g]} udah pegang HP 👀`);
   showScreen('s-pass');
 }
 
-function afterPass() {
-  // Reset attempts
-  guessAttempts = 0;
-  guessHistory = [];
-  const hist = document.getElementById('guess-history');
-  if (hist) hist.innerHTML = '';
-  const attEl = document.getElementById('guess-attempts');
-  if (attEl) attEl.textContent = 'Sisa 10 tebakan';
+// ═════════ TEBAK ═════════
+function potential() { const t = G.tries; const base = t <= 2 ? 3 : t <= 5 ? 2 : 1; return Math.max(1, base - G.hints); }
 
-  // Show guess screen
-  const badge = document.getElementById('guess-player-badge');
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-  badge.textContent = `${guesser==='razan'?'🧑':'👧'} ${guesserName} nebak`;
-  badge.className = 'guess-player-badge ' + guesser;
-  document.getElementById('guess-round').textContent = `Ronde ${currentRound}/${TOTAL_ROUNDS}`;
-  document.getElementById('guess-input').value = '';
+function startGuess() {
+  if (!G || G.phase !== 'pass') return;
+  G.phase = 'guess'; G.tries = 0; G.hints = 0; G.hist = []; G.nearGuess = null;
+  const g = other(G.drawer);
+  const chip = $('g-chip'); if (chip) { chip.textContent = `${ICON[g]} ${NAMES[g]} nebak`; chip.className = 'chip ' + g; }
+  setText('g-round', `Ronde ${G.round}/${G.total}`);
+  ['g-pattern', 'g-hinttext', 'g-near'].forEach(id => { const e = $(id); if (e) e.classList.remove('show'); });
+  ['h1', 'h2'].forEach(id => { const e = $(id); if (e) e.disabled = false; });
+  setHTML('g-history', ''); const inp = $('g-in'); if (inp) inp.value = '';
+  updateGuessMeta();
   showScreen('s-guess');
-
-  // Render drawing on guess canvas
-  setTimeout(() => {
-    const wrap = document.getElementById('guess-drawing-wrap');
-    const gc = document.getElementById('guess-canvas');
-    gc.width = wrap.clientWidth;
-    gc.height = wrap.clientHeight;
-    const gCtx = gc.getContext('2d');
-    gCtx.fillStyle = '#fff';
-    gCtx.fillRect(0, 0, gc.width, gc.height);
-
-    if (savedDrawing) {
-      // Scale drawing to fit guess canvas
-      const tmpCanvas = document.createElement('canvas');
-      tmpCanvas.width = savedDrawing.width;
-      tmpCanvas.height = savedDrawing.height;
-      tmpCanvas.getContext('2d').putImageData(savedDrawing, 0, 0);
-      gCtx.drawImage(tmpCanvas, 0, 0, gc.width, gc.height);
-    }
-
-    setTimeout(() => document.getElementById('guess-input').focus(), 300);
-  }, 100);
-}
-
-let guessAttempts = 0;
-const MAX_ATTEMPTS = 10;
-let guessHistory = [];
-
-function selectCat(btn) {
-  document.querySelectorAll('.cat-pick-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  WORDS = WORD_BANK[btn.dataset.cat];
-  usedWords = [];
-}
-
-function giveUp() {
-  // Count as wrong, show answer
-  const lastGuess = guessHistory.length ? guessHistory[guessHistory.length-1] : '(menyerah)';
-  rounds.push({
-    word: currentWord.word,
-    guess: '(menyerah)',
-    correct: false,
-    imageData: savedDrawing,
-    imgWidth: document.getElementById('draw-canvas')?.width || 300,
-    imgHeight: document.getElementById('draw-canvas')?.height || 300,
-    drawer, guesser,
+  requestAnimationFrame(() => {
+    const wrap = $('g-wrap'), c = $('g-canvas');
+    if (wrap && c) renderTo(c, G.drawing, wrap.clientWidth, wrap.clientHeight);
   });
-  showRoundResult(false, '(menyerah)');
+}
+function updateGuessMeta() { setText('g-left', MAX_TRY - G.tries); setText('g-pts', potential()); }
+
+function useHint(n) {
+  if (!G || G.phase !== 'guess') return;
+  const btn = $('h' + n); if (!btn || btn.disabled) return;
+  btn.disabled = true; G.hints++;
+  if (n === 1) {
+    const pat = G.word.w.split('').map((ch, i) => /[\s]/.test(ch) ? '  ' : /[-]/.test(ch) ? '-' : i === 0 ? ch.toUpperCase() : '_').join(' ');
+    setText('g-pattern', pat); $('g-pattern').classList.add('show');
+  } else { setText('g-hinttext', '💡 ' + G.word.hint); $('g-hinttext').classList.add('show'); }
+  updateGuessMeta();
+}
+
+function isExact(guess) {
+  const g = norm(guess); if (!g) return false;
+  return [G.word.w, ...G.word.alt].some(t => norm(t) === g) || (g.length >= norm(G.word.w).length && g.includes(norm(G.word.w)));
+}
+function isNear(guess) {
+  const g = norm(guess), t = norm(G.word.w);
+  if (g.length < 3) return false;
+  if (lev(g, t) <= (t.length >= 8 ? 2 : 1)) return true;
+  const words = G.word.w.toLowerCase().split(/\s+/).map(norm).filter(w => w.length >= 4);
+  return words.some(w => g.includes(w) || lev(g, w) <= 1);
 }
 
 function submitGuess() {
-  const input = document.getElementById('guess-input');
-  const guess = input.value.trim();
-  if (!guess) { input.focus(); return; }
-
-  input.value = '';
-  input.focus();
-  guessAttempts++;
-  guessHistory.push(guess);
-
-  const correct = guess.toLowerCase().trim() === currentWord.word.toLowerCase().trim();
-
-  // Add to history display
-  const hist = document.getElementById('guess-history');
-  if (hist) {
-    const tag = document.createElement('span');
-    tag.style.cssText = `font-size:10px;font-weight:600;padding:.2rem .5rem;border-radius:6px;background:${correct?'rgba(129,199,132,.15)':'rgba(229,115,115,.1)'};color:${correct?'#4caf50':'#e57373'};border:1px solid ${correct?'rgba(129,199,132,.3)':'rgba(229,115,115,.2)'}`;
-    tag.textContent = (correct ? '✓ ' : '✗ ') + guess;
-    hist.appendChild(tag);
-  }
-
-  // Update attempts counter
-  const attEl = document.getElementById('guess-attempts');
-  if (attEl) {
-    const left = MAX_ATTEMPTS - guessAttempts;
-    attEl.textContent = left > 0 ? `Sisa ${left} tebakan` : 'Tebakan habis!';
-    attEl.style.color = left <= 3 ? '#e57373' : 'var(--rose)';
-  }
-
-  if (correct) {
-    scores[guesser] += 2;
-    scores[drawer] += 1;
-    rounds.push({
-      word: currentWord.word, guess, correct: true,
-      imageData: savedDrawing,
-      imgWidth: document.getElementById('draw-canvas')?.width || 300,
-      imgHeight: document.getElementById('draw-canvas')?.height || 300,
-      drawer, guesser,
-    });
-    showRoundResult(true, guess);
-    return;
-  }
-
-  if (guessAttempts >= MAX_ATTEMPTS) {
-    rounds.push({
-      word: currentWord.word, guess, correct: false,
-      imageData: savedDrawing,
-      imgWidth: document.getElementById('draw-canvas')?.width || 300,
-      imgHeight: document.getElementById('draw-canvas')?.height || 300,
-      drawer, guesser,
-    });
-    showRoundResult(false, guess);
-  }
+  if (!G || G.phase !== 'guess') return;
+  const inp = $('g-in'); if (!inp) return;
+  const guess = inp.value.trim().replace(/\s+/g, ' ');
+  if (!guess) { inp.focus(); return; }
+  inp.value = '';
+  if (G.hist.some(h => norm(h) === norm(guess))) { toast('Udah ditebak tadi 😅'); return; }
+  G.tries++; G.hist.push(guess); G.st[other(G.drawer)].tries++;
+  if (isExact(guess)) { endGuess(true, guess); return; }
+  const near = isNear(guess);
+  const chip = document.createElement('span');
+  chip.className = 'hchip ' + (near ? 'near' : 'no'); chip.textContent = (near ? '🔥 ' : '✗ ') + guess;
+  const h = $('g-history'); if (h) { h.appendChild(chip); h.scrollTop = h.scrollHeight; }
+  const nb = $('g-near');
+  if (near) { G.nearGuess = guess; setText('g-near-text', `🔥 "${guess}" hampir! ${NAMES[G.drawer]} boleh terima`); if (nb) nb.classList.add('show'); vib(60); }
+  else { G.nearGuess = null; if (nb) nb.classList.remove('show'); vib([80, 40, 80]); }
+  updateGuessMeta();
+  if (G.tries >= MAX_TRY) { toast('Kesempatan habis!'); setTimeout(() => endGuess(false, guess), 500); }
 }
 
-function showRoundResult(correct, guess) {
-  const guesserName = guesser === 'razan' ? 'Razan' : 'Dara';
-  const drawerName = drawer === 'razan' ? 'Razan' : 'Dara';
+function acceptNear() {
+  if (!G || G.phase !== 'guess' || !G.nearGuess) return;
+  endGuess(true, G.nearGuess, true);
+}
+function giveUp() {
+  if (!G || G.phase !== 'guess') return;
+  if (!confirm('Nyerah dan liat jawabannya?')) return;
+  endGuess(false, G.hist.length ? G.hist[G.hist.length - 1] : '(nyerah)');
+}
 
-  document.getElementById('rr-icon').textContent = correct ? '🎉' : '😅';
-  document.getElementById('rr-title').textContent = correct ? `${guesserName} Bener!` : 'Belum Pas...';
-  document.getElementById('rr-sub').textContent = correct
-    ? `${guesserName} berhasil nebak! +2 poin untuk ${guesserName}, +1 untuk ${drawerName}!`
-    : `Jawabannya "${currentWord.word}" — belum ketebak kali ini!`;
+function endGuess(ok, guess, accepted) {
+  if (!G || G.phase !== 'guess') return;
+  G.phase = 'result';
+  const d = G.drawer, g = other(d);
+  let gp = 0, dp = 0;
+  if (ok) {
+    gp = potential(); dp = 2;
+    G.scores[g] += gp; G.scores[d] += dp;
+    G.st[g].guessed++; G.st[d].drawnOk++;
+    G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+  } else G.streak = 0;
+  G.st[g].hints += G.hints;
+  G.rounds.push({ word: G.word.w, guess, ok, drawer: d, tries: G.tries, drawing: G.drawing });
+  showRoundResult(ok, guess, gp, dp, accepted);
+}
 
-  document.getElementById('rr-correct-word').textContent = currentWord.word;
-  document.getElementById('rr-guess-label').textContent = `Tebakan ${guesserName}`;
-  document.getElementById('rr-guess-word').textContent = guess;
-  document.getElementById('rr-guess-word').style.color = correct ? '#4caf50' : '#e57373';
-  document.getElementById('rr-score-r').textContent = scores.razan;
-  document.getElementById('rr-score-d').textContent = scores.dara;
-
-  // Mini canvas
-  const mini = document.getElementById('mini-canvas');
-  const mCtx = mini.getContext('2d');
-  mini.width = mini.parentElement.clientWidth;
-  mini.height = 160;
-  mCtx.fillStyle = '#fff';
-  mCtx.fillRect(0, 0, mini.width, 160);
-  if (savedDrawing) {
-    const tmp = document.createElement('canvas');
-    tmp.width = savedDrawing.width; tmp.height = savedDrawing.height;
-    tmp.getContext('2d').putImageData(savedDrawing, 0, 0);
-    mCtx.drawImage(tmp, 0, 0, mini.width, 160);
-  }
-
-  const isLast = currentRound >= TOTAL_ROUNDS;
-  document.getElementById('next-btn').textContent = isLast ? 'Lihat Hasil Akhir 🏆' : 'Ronde Berikutnya →';
-  document.getElementById('next-btn').onclick = isLast ? showFinalResult : nextRound;
-
-  showScreen('s-round-result');
-  if (correct) confetti(50);
-  if (navigator.vibrate) navigator.vibrate(correct ? [100,50,200] : [200,100,200]);
+function showRoundResult(ok, guess, gp, dp, accepted) {
+  const d = G.drawer, g = other(d), last = G.round >= G.total;
+  const demand = fill(draw(ok ? 'ok' : 'fail', ok ? ROUND_OK : ROUND_FAIL), { d: NAMES[d], g: NAMES[g] });
+  const plus = p => (p === g && gp) ? `+${gp}` : (p === d && dp) ? `+${dp}` : '';
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="badge">Ronde ${G.round} dari ${G.total}</span>
+    <span class="rr-icon">${ok ? '🎉' : '😅'}</span>
+    <h2 class="rr-title">${ok ? `${NAMES[g]} Bener!` : 'Belum Ketebak...'}</h2>
+    <p class="rr-sub">${ok ? `Ketebak di percobaan ke-${G.tries}${G.hints ? ` pakai ${G.hints} hint` : ''}${accepted ? ' (diterima pelukis)' : ''}` : `${NAMES[g]} belum berhasil kali ini`}${G.streak >= 2 ? ` · 🔥 nyambung ${G.streak}x!` : ''}</p>
+    <div class="ans-row">
+      <div class="ans ok"><span class="ans-lbl">✓ Katanya</span><span class="ans-w">${esc(G.word.w)}</span></div>
+      <div class="ans g"><span class="ans-lbl">Tebakan ${NAMES[g]}</span><span class="ans-w" style="color:${ok ? 'var(--green)' : 'var(--red)'}">${esc(guess)}</span></div>
+    </div>
+    <div class="preview"><canvas id="rr-canvas"></canvas></div>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r">${G.scores.razan}</span><span class="sc-plus">${plus('razan')}</span></div>
+      <span class="sc-vs">🎨</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d">${G.scores.dara}</span><span class="sc-plus">${plus('dara')}</span></div>
+    </div>
+    <div class="demand"><span class="demand-tag">${ok ? '🎁 Bonus Ronde' : '😈 Tantangan Ronde'}</span><p class="demand-text">${demand}</p></div>
+    <button class="btn-main" onclick="nextRound()">${last ? 'Lihat Hasil Akhir 🏆' : `Ronde ${G.round + 1} → ${NAMES[g]} gambar 🎨`}</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`;
+  showScreen('s-result');
+  requestAnimationFrame(() => { const c = $('rr-canvas'); if (c) { const w = c.parentElement.clientWidth; renderTo(c, G.drawing, w, Math.round(w * .6)); } });
+  if (ok) confetti(40);
+  vib(ok ? [100, 50, 200] : [200, 100, 200]);
 }
 
 function nextRound() {
-  // Swap roles
-  const tmp = drawer;
-  drawer = guesser;
-  guesser = tmp;
+  if (!G) return;
+  if (G.round >= G.total) { showFinal(); return; }
+  G.drawer = other(G.drawer);
   startRound();
 }
 
-function showFinalResult() {
-  const r = scores.razan, d = scores.dara;
-  document.getElementById('final-r').textContent = r;
-  document.getElementById('final-d').textContent = d;
-
-  // Gallery
-  const gallery = document.getElementById('gallery-grid');
-  gallery.innerHTML = '';
-  rounds.forEach(round => {
-    const item = document.createElement('div');
-    item.className = 'gallery-item';
-    const c = document.createElement('canvas');
-    c.style.width = '100%';
-    const w = Math.floor(gallery.clientWidth / 2) - 10;
-    c.width = w; c.height = 100;
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, w, 100);
-    if (round.imageData) {
-      const tmp = document.createElement('canvas');
-      tmp.width = round.imageData.width; tmp.height = round.imageData.height;
-      tmp.getContext('2d').putImageData(round.imageData, 0, 0);
-      ctx.drawImage(tmp, 0, 0, w, 100);
-    }
-    const drawerName = round.drawer === 'razan' ? 'Razan' : 'Dara';
-    item.innerHTML = `
-      <div class="gallery-label">
-        <span class="gallery-word">${round.word}</span>
-        <span class="${round.correct ? 'gallery-correct' : 'gallery-wrong'}">${round.correct ? '✓' : '✗'}</span>
-      </div>`;
-    item.insertBefore(c, item.firstChild);
-    gallery.appendChild(item);
-  });
-
-  // Verdict
-  const tie = r === d;
-  const winner = r > d ? 'Razan' : 'Dara';
-  const loser = r > d ? 'Dara' : 'Razan';
-  const correctCount = rounds.filter(r=>r.correct).length;
-  let verdict;
-  if (tie) verdict = `Seri ${r}-${d}! Dua-duanya sama jago — baik menggambar maupun menebak! 🎨`;
-  else if (correctCount === TOTAL_ROUNDS) verdict = `<strong>Sempurna!</strong> Semua ${TOTAL_ROUNDS} kata ketebak! Kalian beneran bisa baca pikiran satu sama lain 🧠🤍`;
-  else if (correctCount >= 3) verdict = `<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}! ${correctCount} dari ${TOTAL_ROUNDS} kata berhasil ditebak — komunikasi kalian bagus!`;
-  else verdict = `<strong>${winner}</strong> menang ${r>d?r:d}-${r>d?d:r}. ${TOTAL_ROUNDS - correctCount} kata ga ketebak — gambarnya terlalu abstrak, atau tebakannya terlalu kreatif 😂`;
-
-  document.getElementById('final-verdict').innerHTML = verdict;
-  showScreen('s-final');
-  if (correctCount >= 3 || !tie) confetti(70);
+function exitGame() {
+  if (!confirm('Keluar dari game? Gambar & skor hilang.')) return;
+  stopTimer(); G = null; showScreen('s-intro');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('guess-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitGuess();
+// ═════════ FINAL ═════════
+function showFinal() {
+  const r = G.scores.razan, d = G.scores.dara, tie = r === d;
+  const wp = r > d ? 'razan' : 'dara', w = NAMES[wp], l = NAMES[other(wp)];
+  const okCount = G.rounds.filter(x => x.ok).length;
+  let v = tie ? `<strong>Seri ${r}-${d}!</strong> Duo seniman & detektif yang seimbang 🎨` : `<strong>${w}</strong> menang ${Math.max(r, d)}-${Math.min(r, d)}! `;
+  if (okCount === G.total) v += ` Semua ${G.total} gambar ketebak — kalian bisa baca pikiran satu sama lain 🧠🤍`;
+  else if (!tie) v += `${okCount} dari ${G.total} gambar ketebak${okCount < G.total / 2 ? ' — gambarnya terlalu abstrak atau tebakannya terlalu kreatif 😂' : ' — komunikasi kalian oke!'}`;
+  if (G.bestStreak >= 3) v += `<br>🔥 Rekor nyambung: ${G.bestStreak} ronde beruntun!`;
+  const S = G.st;
+  const inner = $('result-inner'); if (!inner) return;
+  inner.innerHTML = `
+    <span class="badge">Hasil Akhir</span>
+    <span class="rr-icon">${tie ? '🤝' : '🏆'}</span>
+    <h2 class="rr-title">${tie ? 'Seri!' : `${w} Menang!`}</h2>
+    <p class="rr-sub">${G.total} ronde · ${okCount} ketebak</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r">${r}</span></div>
+      <span class="sc-vs">🎨</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d">${d}</span></div>
+    </div>
+    <div class="stat-table">
+      <div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+      <div class="row"><span>🎯 Berhasil nebak</span><b>${S.razan.guessed}/${CFG.per}</b><b>${S.dara.guessed}/${CFG.per}</b></div>
+      <div class="row"><span>🖌️ Gambar ketebak</span><b>${S.razan.drawnOk}/${CFG.per}</b><b>${S.dara.drawnOk}/${CFG.per}</b></div>
+      <div class="row"><span>✍️ Total tebakan</span><b>${S.razan.tries}</b><b>${S.dara.tries}</b></div>
+      <div class="row"><span>💡 Hint dipakai</span><b>${S.razan.hints}</b><b>${S.dara.hints}</b></div>
+    </div>
+    <span class="sec-title">🖼️ Galeri Gambar</span>
+    <div class="gallery" id="gallery"></div>
+    <div class="verdict">${v}</div>
+    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn-main gold" onclick="saveGallery()">💾 Simpan Galeri (PNG)</button>
+    <button class="btn-main" style="margin-top:.5rem" onclick="initGame(G ? other(G.first) : 'razan')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`;
+  showScreen('s-result');
+  requestAnimationFrame(() => {
+    const gal = $('gallery'); if (!gal) return;
+    G.rounds.forEach(rd => {
+      const item = document.createElement('div'); item.className = 'g-item';
+      const c = document.createElement('canvas'); item.appendChild(c);
+      item.insertAdjacentHTML('beforeend', `<div class="g-lbl"><b>${esc(rd.word)}</b><span>${ICON[rd.drawer]} ${rd.ok ? '✅' : '❌'}</span></div>`);
+      gal.appendChild(item);
+      const w = item.clientWidth || 160; renderTo(c, rd.drawing, w, Math.round(w * .75));
+    });
   });
-});
+  confetti(tie ? 35 : 70);
+}
+
+function saveGallery() {
+  if (!G || !G.rounds.length) return;
+  const cols = 2, cw = 360, ch = 270, lh = 44, gap = 16, head = 70;
+  const rows = Math.ceil(G.rounds.length / cols);
+  const c = document.createElement('canvas');
+  c.width = cols * cw + (cols + 1) * gap; c.height = head + rows * (ch + lh + gap) + gap;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#faf6f0'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.fillStyle = '#2d1f1a'; ctx.font = '700 26px Poppins, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('🎨 Galeri Gartic Razan & Dara', c.width / 2, 44);
+  G.rounds.forEach((rd, i) => {
+    const x = gap + (i % cols) * (cw + gap), y = head + Math.floor(i / cols) * (ch + lh + gap);
+    const tmp = document.createElement('canvas'); renderTo(tmp, rd.drawing, cw, ch);
+    ctx.drawImage(tmp, x, y, cw, ch);
+    ctx.strokeStyle = '#e8c4b0'; ctx.lineWidth = 2; ctx.strokeRect(x, y, cw, ch + lh);
+    ctx.fillStyle = '#fff'; ctx.fillRect(x + 1, y + ch, cw - 2, lh - 1);
+    ctx.fillStyle = '#2d1f1a'; ctx.font = '600 17px Poppins, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(`${rd.word}`, x + 12, y + ch + 28);
+    ctx.textAlign = 'right'; ctx.fillStyle = rd.ok ? '#4caf50' : '#e57373';
+    ctx.fillText(`${NAMES[rd.drawer]} ${rd.ok ? '✓' : '✗'}`, x + cw - 12, y + ch + 28);
+  });
+  try {
+    const a = document.createElement('a');
+    a.href = c.toDataURL('image/png');
+    a.download = `gartic-razan-dara-${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('💾 Galeri disimpan!');
+  } catch { toast('Gagal nyimpen 😢'); }
+}
+
+(function bindKeys() {
+  const i = $('g-in');
+  if (i) i.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); submitGuess(); } });
+})();
+window.addEventListener('resize', () => { if (G && G.phase === 'draw') setupCanvas(); });
 
 function confetti(n) {
-  const colors=['#c17a6f','#c9a96e','#e8c4b0','#4a7cc7','#81c784','#fff'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#4a7cc7','#81c784','#fff'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
