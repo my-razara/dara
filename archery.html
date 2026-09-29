@@ -6,1028 +6,556 @@
 <title>Archery Duel 🏹</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none;user-select:none}
+  :root{--blue:#7eb3f5;--pink:#f0a39a;--gold:#ffd54f;--dgold:#5a3a00;--green:#81c784;--red:#e57373}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation}
   html,body{height:100%;overflow:hidden;background:#0a1a0a}
-
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-  .screen.active{display:flex}
-
-  /* TREES BG */
-  #bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-
-  /* INTRO */
-  #s-intro{background:transparent;padding:1.5rem;text-align:center}
-  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
-  .intro-title span{color:#ffd54f}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
-  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:340px}
-  .how-item{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:.7rem .4rem;text-align:center}
-  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
-  .how-text{font-size:10px;color:rgba(255,255,255,.45);line-height:1.4}
-  .rounds-row{display:flex;gap:.5rem;width:100%;max-width:340px;margin-bottom:1.25rem}
-  .round-opt{flex:1;padding:.65rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);cursor:pointer;text-align:center;transition:all .15s}
-  .round-opt.sel{border-color:#ffd54f;background:rgba(255,213,79,.1)}
-  .round-opt:active{transform:scale(.95)}
-  .ro-num{font-size:1.2rem;font-weight:900;color:#ffd54f;display:block}
-  .ro-label{font-size:9px;color:rgba(255,255,255,.4)}
-  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#5a3a00,#ffd54f);color:#1a1000;box-shadow:0 6px 20px rgba(255,213,79,.3)}
-  .intro-btn:active{transform:scale(.97)}
+  @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 
-  /* PICK */
-  #s-pick{background:transparent;padding:1.5rem;text-align:center}
-  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
-  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
-  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);margin:.25rem auto 1.4rem;max-width:260px;line-height:1.6}
-  .pick-btns{display:flex;gap:.6rem;width:100%}
-  .pick-btn{flex:1;padding:1.1rem .5rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:all .15s}
-  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.4rem 1.2rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;background:radial-gradient(ellipse at 50% 20%,#15301a,#0a1a0a 70%)}
+  .screen.active{display:flex}
+  .inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center}
+  .icon{font-size:3.3rem;display:block;margin-bottom:.6rem;animation:float 3s ease-in-out infinite}
+  .label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.25rem}
+  .title span{color:var(--gold)}
+  .sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.3rem auto 1rem}
+  .sub b{color:#fff}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,213,79,.18);border-radius:16px;padding:.85rem 1rem;margin-bottom:.7rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.55rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(255,213,79,.25);background:transparent;color:rgba(255,255,255,.55);font-size:13.5px;font-weight:700;cursor:pointer}
+  .pill small{display:block;font-size:9px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,var(--dgold),var(--gold));border-color:transparent;color:#1a1000}
+  .rule{display:flex;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:#fff}
+  .dotc{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.4rem}
+  .btn{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--dgold),var(--gold));color:#1a1000;box-shadow:0 6px 20px rgba(255,213,79,.25)}
+  .btn:active{transform:scale(.97)}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left}
+  .pick-btn:active{transform:scale(.97)}
+  .pick-icon{font-size:2rem}
+  .pick-name{font-size:14px;font-weight:700;color:#fff;display:block}
+  .pick-sub2{font-size:11px;color:rgba(255,255,255,.4);display:block}
+  #s-cd{justify-content:center}
+  .cd-num{font-size:7rem;font-weight:900;color:#fff;line-height:1}
+  .cd-num.anim{animation:pop .5s cubic-bezier(.34,1.5,.64,1)}
+  .cd-sub{font-size:13.5px;color:rgba(255,255,255,.6);margin-top:.5rem;line-height:1.5}
 
   /* GAME */
-  #s-game{background:transparent;flex-direction:column;padding:0;justify-content:flex-start}
+  #s-game{padding:0;background:#0a1a0a}
+  .gw{width:100%;height:100%;display:flex;flex-direction:column}
+  .hdr{flex-shrink:0;background:rgba(10,26,10,.94);border-bottom:1px solid rgba(255,255,255,.06);padding:.4rem .8rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+  .who{font-size:11px;font-weight:700;padding:.2rem .7rem;border-radius:50px}
+  .who.r{background:rgba(126,179,245,.15);color:var(--blue)}.who.d{background:rgba(240,163,154,.15);color:var(--pink)}
+  .hm{text-align:center;font-size:10px;color:rgba(255,255,255,.5);line-height:1.35}
+  .hm b{color:var(--gold);font-size:11.5px}
+  .arrows{letter-spacing:1px}
+  .hs{display:flex;gap:.55rem;align-items:center}
+  .hs-i{text-align:center}
+  .hs-n{font-size:8.5px;color:rgba(255,255,255,.4);display:block}
+  .hs-v{font-size:1.15rem;font-weight:900;line-height:1}
+  .hs-v.r{color:var(--blue)}.hs-v.d{color:var(--pink)}
+  .x-btn{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:9.5px;border-radius:50px;padding:.05rem .4rem;cursor:pointer}
+  #range{flex:1;min-height:0;width:100%;display:block;touch-action:none}
+  .banner{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:40;text-align:center;pointer-events:none;display:none}
+  .banner.show{display:block;animation:pop .35s cubic-bezier(.34,1.5,.64,1)}
+  .banner b{display:block;font-size:2rem;font-weight:900;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.8)}
+  .banner span{display:block;font-size:13px;font-weight:600;color:rgba(255,255,255,.85);text-shadow:0 2px 10px rgba(0,0,0,.8)}
 
-  /* Header */
-  .g-header{flex-shrink:0;width:100%;background:rgba(10,26,10,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:.45rem .85rem;display:flex;align-items:center;justify-content:space-between;z-index:10}
-  .gh-player{text-align:center}
-  .gh-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;display:block}
-  .gh-score{font-size:1.5rem;font-weight:900;display:block;line-height:1}
-  .gh-score.razan{color:#7eb3f5}
-  .gh-score.dara{color:#e8a090}
-  .gh-mid{text-align:center}
-  .gh-round{font-size:11px;font-weight:700;color:#ffd54f;display:block}
-  .gh-arrows{font-size:9px;color:rgba(255,255,255,.3);display:block;margin-top:.1rem}
-
-  /* Arena - 2 columns */
-  .arena{flex:1;display:flex;width:100%;overflow:hidden;position:relative;z-index:1}
-  .lane{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;overflow:hidden;border-right:1px solid rgba(255,255,255,.05)}
-  .lane:last-child{border-right:none}
-
-  /* Lane bg gradient */
-  .lane.razan-lane{background:linear-gradient(to bottom,#0a1a0a,#0d2010)}
-  .lane.dara-lane{background:linear-gradient(to bottom,#0a1a0a,#1a0d10)}
-
-  /* Lane label */
-  .lane-label{position:absolute;top:.5rem;left:0;right:0;text-align:center;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.5;z-index:5;pointer-events:none}
-  .lane-label.razan{color:#7eb3f5}
-  .lane-label.dara{color:#e8a090}
-
-  /* Target */
-  .target-wrap{position:absolute;z-index:5;transition:none;pointer-events:none}
-  .target-svg{display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
-
-  /* Arrow hit effect */
-  .hit-effect{position:absolute;pointer-events:none;z-index:6;animation:hitpop .5s ease forwards}
-  @keyframes hitpop{0%{transform:translate(-50%,-50%) scale(.5);opacity:1}100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}}
-
-  /* Score popup */
-  .score-pop{position:absolute;pointer-events:none;z-index:7;font-size:1.1rem;font-weight:900;animation:scorepop .8s ease forwards;text-shadow:0 2px 6px rgba(0,0,0,.5)}
-  @keyframes scorepop{0%{transform:translate(-50%,-100%) scale(.8);opacity:1}100%{transform:translate(-50%,-200%) scale(1.1);opacity:0}}
-
-  /* Bow & arrow area */
-  .bow-area{position:absolute;bottom:0;left:0;right:0;height:160px;display:flex;align-items:center;justify-content:center;z-index:8;touch-action:none}
-  .bow-canvas{display:block;touch-action:none}
-
-  /* Pull indicator */
-  .pull-ring{position:absolute;border-radius:50%;border:2px dashed rgba(255,255,255,.3);pointer-events:none;transition:all .1s;display:none}
-
-  /* Countdown overlay */
-  #s-cd{background:rgba(10,26,10,.95);backdrop-filter:blur(12px);text-align:center}
-  .cd-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
-  .cd-player{font-size:.9rem;color:rgba(255,255,255,.5);margin-bottom:.5rem}
-  .cd-num{font-size:8rem;font-weight:900;color:#fff;line-height:1;animation:cdpop .5s cubic-bezier(.34,1.5,.64,1)}
-  @keyframes cdpop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
-  .cd-sub{font-size:13px;color:rgba(255,255,255,.4);margin-top:.5rem}
-
-  /* Pass screen */
-  #s-pass{background:rgba(10,26,10,.97);backdrop-filter:blur(12px);text-align:center;padding:1.5rem}
-  .pass-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px;gap:.75rem}
-  .pass-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
-  .pass-title{font-size:1.1rem;font-weight:700;color:#fff}
-  .pass-score-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.85rem 1.25rem;width:100%}
-  .psc-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0}
-  .psc-name{font-size:11px;color:rgba(255,255,255,.4)}
-  .psc-val{font-size:1.1rem;font-weight:900}
-  .psc-val.razan{color:#7eb3f5}
-  .psc-val.dara{color:#e8a090}
-  .pass-sub{font-size:12px;color:rgba(255,255,255,.35);line-height:1.65;max-width:260px;font-style:italic}
-  .pass-btn{width:100%;max-width:280px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#5a3a00,#ffd54f);color:#1a1000}
-  .pass-btn:active{transform:scale(.97)}
-
-  /* FINAL */
-  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
-  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
-  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
-  .final-title{font-size:1.3rem;font-weight:900;color:#fff}
-  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
-  .final-score{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%}
-  .fs-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
-  .fs-nm{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
-  .fs-sc{font-size:2.5rem;font-weight:900;display:block;line-height:1}
-  .fs-sc.razan{color:#7eb3f5}
-  .fs-sc.dara{color:#e8a090}
-  .fs-vs{color:rgba(255,255,255,.15)}
-  .rounds-recap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:.85rem 1rem;width:100%}
-  .rr-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.5rem}
-  .rr-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
-  .rr-row:last-child{border-bottom:none}
-  .rr-label{color:rgba(255,255,255,.35)}
-  .rr-vals{display:flex;gap:.75rem}
-  .rr-val{font-weight:700}
-  .rr-val.razan{color:#7eb3f5}
-  .rr-val.dara{color:#e8a090}
-  .verdict{background:rgba(255,213,79,.05);border:1px solid rgba(255,213,79,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;width:100%}
-  .verdict strong{color:#ffd54f;font-style:normal}
-  .final-btns{display:flex;gap:.6rem;width:100%}
-  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
-  .final-btn-p{background:linear-gradient(135deg,#5a3a00,#ffd54f);color:#1a1000}
-  .final-btn-p:active{transform:scale(.97)}
-  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
-
-  /* Arrow stuck in board */
-  .stuck-arrow{position:absolute;pointer-events:none;z-index:6;font-size:1.2rem;transform-origin:center;animation:stickin .15s ease forwards}
-  @keyframes stickin{from{transform:translate(-50%,-50%) scale(1.5)}to{transform:translate(-50%,-50%) scale(1)}}
-
-  /* Miss text */
-  .miss-pop{position:absolute;pointer-events:none;z-index:7;font-size:1rem;font-weight:900;color:rgba(255,100,100,.9);text-shadow:0 2px 8px rgba(0,0,0,.6);animation:misspop .9s ease forwards;white-space:nowrap}
-  @keyframes misspop{0%{transform:translate(-50%,-50%) scale(.7);opacity:1}60%{transform:translate(-50%,-120%) scale(1.1);opacity:1}100%{transform:translate(-50%,-180%) scale(1);opacity:0}}
-
-  /* Hit flash overlay */
-  .hit-flash{position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:0;animation:flashin .35s ease forwards}
-  @keyframes flashin{0%{opacity:.35}100%{opacity:0}}
-
-  /* Arrow trail dot */
-  .trail-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,213,79,.6);transform:translate(-50%,-50%);pointer-events:none;z-index:5;animation:trailfade .5s ease forwards}
-  @keyframes trailfade{from{opacity:.7;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(.2)}}
-
-  /* Confetti */
+  .card{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.8rem 1rem;margin-bottom:.75rem;text-align:left}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;color:rgba(255,255,255,.55)}
+  .row:last-child{border-bottom:none}
+  .row b{color:#fff;font-size:13px}
+  .shots{display:flex;gap:.35rem;justify-content:center;margin:.2rem 0 .8rem;flex-wrap:wrap}
+  .shot{min-width:34px;padding:.3rem .45rem;border-radius:10px;font-weight:800;font-size:13px;background:rgba(255,255,255,.07);color:#fff}
+  .shot.b{background:rgba(229,57,53,.3);color:#ffcdd2}.shot.m{background:rgba(255,255,255,.04);color:rgba(255,255,255,.35)}
+  .score-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,213,79,.2);border-radius:20px;padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%}
+  .sc-nm{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block}
+  .sc-nm.r{color:var(--blue)}.sc-nm.d{color:var(--pink)}
+  .sc-v{font-size:2.1rem;font-weight:900;color:#fff;display:block;line-height:1.1}
+  .sc-s{font-size:9.5px;color:rgba(255,255,255,.4);display:block}
+  .sc-vs{color:rgba(255,255,255,.25)}
+  .tbl{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.6rem .8rem;margin-bottom:.75rem;font-size:11.5px;color:rgba(255,255,255,.6);text-align:left}
+  .tbl .tr{display:grid;grid-template-columns:1.4fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .tbl .tr:last-child{border-bottom:none}
+  .tbl .head{color:rgba(255,255,255,.35);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .tbl b{color:#fff}.tbl b.win{color:var(--gold)}
+  .verdict{background:rgba(255,213,79,.06);border:1px solid rgba(255,213,79,.2);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .verdict strong{color:var(--gold)}
+  .demand{background:linear-gradient(135deg,rgba(255,213,79,.14),rgba(240,163,154,.1));border:1px solid rgba(255,213,79,.35);border-radius:16px;padding:.85rem 1.1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.3rem}
+  .demand-text{font-size:13.5px;font-weight:600;color:#fff;line-height:1.55}
+  .demand-text b{color:var(--gold)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
 
-<!-- BG trees -->
-<div id="bg"></div>
-
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <div class="intro-wrap">
-    <span class="intro-icon">🏹</span>
-    <h1 class="intro-title">Archery <span>Duel!</span></h1>
-    <p class="intro-sub">Tarik busur, bidik target, lepas! Tiap ronde masing-masing dapat giliran memanah — skor tertinggi menang!</p>
-    <div class="how-row">
-      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Drag busur ke bawah untuk tarik</span></div>
-      <div class="how-item"><span class="how-emoji">🎯</span><span class="how-text">Target muncul random di arena</span></div>
-      <div class="how-item"><span class="how-emoji">🏹</span><span class="how-text">Lepas jari untuk lepas anak panah</span></div>
+  <div class="inner">
+    <span class="icon">🏹</span>
+    <span class="label">Game Berdua</span>
+    <h1 class="title">Archery <span>Duel!</span></h1>
+    <p class="sub">Tarik busur ke belakang, bidik, lepas! Target & angin tiap ronde <b>sama persis</b> buat berdua — murni adu jago 🎯</p>
+    <div class="panel">
+      <span class="panel-title">Jumlah Ronde</span>
+      <div class="pills" id="round-pills">
+        <button class="pill on" data-v="3">3<small>singkat</small></button>
+        <button class="pill" data-v="4">4<small>normal</small></button>
+        <button class="pill" data-v="5">5<small>panjang</small></button>
+      </div>
     </div>
-    <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:.75rem">Pilih jumlah ronde:</div>
-    <div class="rounds-row">
-      <div class="round-opt sel" id="opt-3" onclick="selRounds(3)"><span class="ro-num">3</span><span class="ro-label">Ronde</span></div>
-      <div class="round-opt" id="opt-5" onclick="selRounds(5)"><span class="ro-num">5</span><span class="ro-label">Ronde</span></div>
-      <div class="round-opt" id="opt-7" onclick="selRounds(7)"><span class="ro-num">7</span><span class="ro-label">Ronde</span></div>
+    <div class="panel">
+      <span class="panel-title">Panah per Giliran</span>
+      <div class="pills" id="arrow-pills">
+        <button class="pill on" data-v="3">3</button>
+        <button class="pill" data-v="5">5</button>
+      </div>
     </div>
-    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai Duel! 🏹</button>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="dotc" style="background:var(--gold)"></span><b>Sentuh</b> di mana aja, <b>tarik ke bawah</b> (miring = arah), <b>lepas</b> buat nembak — kayak ketapel</div>
+      <div class="rule"><span class="dotc" style="background:#fff"></span>Tarik makin jauh = makin kenceng. Panah nancep di <b>titik puncak</b> lintasannya — atur kekuatan biar puncaknya pas di target</div>
+      <div class="rule"><span class="dotc" style="background:#90caf9"></span>Ronde 2+: ada <b>💨 angin</b>. Ronde 3+: target <b>gerak</b> 🎯↔️</div>
+      <div class="rule"><span class="dotc" style="background:var(--red)"></span>Skor ring: <b>10</b> · 8 · 6 · 4 · 2</div>
+    </div>
+    <button class="btn" onclick="showScreen('s-pick')">Mulai Duel! 🏹</button>
   </div>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <div class="pick-wrap">
-    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🏹</span>
-    <p class="pick-title" style="color:#fff">Siapa yang memanah duluan?</p>
-    <p class="pick-sub">Gantian tiap ronde — masing-masing dapat arrow yang sama</p>
+  <div class="inner">
+    <span class="icon">🏹</span>
+    <p class="title" style="font-size:1.15rem">Siapa yang memanah duluan?</p>
+    <p class="sub">Tiap ronde gantian yang duluan. Kondisi ronde sama buat berdua</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="initGame('razan')">
-        <span style="font-size:2rem">🧑</span>
-        <span style="font-size:13px;font-weight:700;color:#fff">Razan dulu</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35)">Razan memanah ronde 1</span>
-      </div>
-      <div class="pick-btn" onclick="initGame('dara')">
-        <span style="font-size:2rem">👧</span>
-        <span style="font-size:13px;font-weight:700;color:#fff">Dara dulu</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35)">Dara memanah ronde 1</span>
-      </div>
+      <div class="pick-btn" onclick="newMatch('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Busur biru</span></div></div>
+      <div class="pick-btn" onclick="newMatch('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Busur pink</span></div></div>
     </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- COUNTDOWN -->
 <div id="s-cd" class="screen">
-  <div class="cd-wrap">
-    <p class="cd-player" id="cd-player">Razan siap!</p>
-    <span class="cd-num" id="cd-num">3</span>
-    <span class="cd-sub" id="cd-sub">Bersiap...</span>
-  </div>
+  <span class="cd-num" id="cd-num">3</span>
+  <span class="cd-sub" id="cd-sub"></span>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="g-header">
-    <div class="gh-player">
-      <span class="gh-name">🧑 Razan</span>
-      <span class="gh-score razan" id="gh-sc-r">0</span>
+  <div class="gw">
+    <div class="hdr">
+      <span class="who r" id="who">🧑 Razan</span>
+      <div class="hm" id="hm"><b>Ronde 1/3</b><br><span class="arrows">🏹🏹🏹</span></div>
+      <div class="hs">
+        <div class="hs-i"><span class="hs-n">Razan</span><span class="hs-v r" id="tot-r">0</span></div>
+        <div class="hs-i"><span class="hs-n">Dara</span><span class="hs-v d" id="tot-d">0</span></div>
+        <button class="x-btn" onclick="exitGame()">✕</button>
+      </div>
     </div>
-    <div class="gh-mid">
-      <span class="gh-round" id="gh-round">Ronde 1</span>
-      <span class="gh-arrows" id="gh-arrows">🏹🏹🏹</span>
-    </div>
-    <div class="gh-player">
-      <span class="gh-name">Dara 👧</span>
-      <span class="gh-score dara" id="gh-sc-d">0</span>
-    </div>
-  </div>
-  <div class="arena" id="arena">
-    <!-- Left lane: Razan -->
-    <div class="lane razan-lane" id="lane-razan">
-      <span class="lane-label razan" id="lane-label-razan">🧑 Razan</span>
-      <div style="position:absolute;bottom:75px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,.2);pointer-events:none;z-index:4" id="hint-razan">Drag busur ke bawah lalu lepas ↑</div>
-      <!-- targets and effects rendered here -->
-      <canvas class="bow-canvas" id="bow-razan"></canvas>
-    </div>
-    <!-- Right lane: Dara -->
-    <div class="lane dara-lane" id="lane-dara">
-      <span class="lane-label dara" id="lane-label-dara">Dara 👧</span>
-      <div style="position:absolute;bottom:75px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,.2);pointer-events:none;z-index:4" id="hint-dara">Drag busur ke bawah lalu lepas ↑</div>
-      <canvas class="bow-canvas" id="bow-dara"></canvas>
-    </div>
+    <canvas id="range"></canvas>
   </div>
 </div>
+<div class="banner" id="banner"><b id="ban-b"></b><span id="ban-s"></span></div>
 
-<!-- PASS -->
-<div id="s-pass" class="screen">
-  <div class="pass-wrap">
-    <span class="pass-icon" id="pass-icon">🧑</span>
-    <h2 class="pass-title" id="pass-title">Razan selesai!</h2>
-    <div class="pass-score-card" id="pass-score-card"></div>
-    <p class="pass-sub" id="pass-sub">Kasih HP ke Dara — giliran Dara memanah sekarang!</p>
-    <button class="pass-btn" id="pass-btn" onclick="startNextPlayer()">Aku Siap! 🏹</button>
-  </div>
-</div>
-
-<!-- FINAL -->
-<div id="s-final" class="screen">
-  <div class="final-wrap">
-    <span class="final-icon" id="final-icon">🏆</span>
-    <h2 class="final-title" id="final-title">Razan Menang!</h2>
-    <p class="final-sub" id="final-sub">Pemanah terbaik hari ini!</p>
-    <div class="final-score">
-      <div><span class="fs-av">🧑</span><span class="fs-nm">Razan</span><span class="fs-sc razan" id="end-r">0</span></div>
-      <span class="fs-vs">🏹</span>
-      <div><span class="fs-av">👧</span><span class="fs-nm">Dara</span><span class="fs-sc dara" id="end-d">0</span></div>
-    </div>
-    <div class="rounds-recap">
-      <span class="rr-title">📋 Recap Per Ronde</span>
-      <div id="rr-list"></div>
-    </div>
-    <div class="verdict" id="verdict">...</div>
-    <div class="final-btns">
-      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
-    </div>
-  </div>
-</div>
+<!-- RESULT -->
+<div id="s-result" class="screen"><div class="inner" id="result-inner"></div></div>
 
 <script>
-// ── CONFIG ──
-const ARROWS_PER_ROUND = 8;        // more arrows
-const TARGET_DURATION  = 5000;     // targets stay longer (5s)
-const TARGET_COUNT     = 5;        // targets per round
+// ═════════ DATA ═════════
+const NAMES = { r:'Razan', d:'Dara' };
+const ICON = { r:'🧑', d:'👧' };
+const BOWC = { r:'#7eb3f5', d:'#f0a39a' };
+const RINGS = [ { f:.2, pts:10, c:'#ffd54f' }, { f:.4, pts:8, c:'#e53935' }, { f:.6, pts:6, c:'#42a5f5' }, { f:.8, pts:4, c:'#263238' }, { f:1, pts:2, c:'#f5f5f5' } ];
+const ROUND_LOSE = [
+  '<b>{l}</b> kasih <b>{w}</b> tepuk tangan + gelar "Robin Hood" 🏹👏',
+  '<b>{l}</b> pijitin bahu <b>{w}</b> yang abis narik busur 💆',
+  '<b>{l}</b> peragain pose pemanah paling keren 5 detik 😂',
+  '<b>{l}</b> kasih <b>{w}</b> 2 pujian soal fokusnya 🎯',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> jajanan favorit minggu ini 🍡',
+  '<b>{w}</b> "nembak" <b>{l}</b> pakai panah cinta — <b>{l}</b> wajib pura-pura kena & jatuh dramatis 💘😂',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+  '<b>{w}</b> boleh minta 1 hal kecil ke <b>{l}</b> 😏',
+];
 
-const RING_SCORES = [10, 7, 4, 1]; // bull → outer
-const RING_COLORS = ['#e53935','#ff7043','#ffd54f','#aaa'];
-const RING_RATIOS = [.18, .38, .60, .85]; // bigger rings = easier to hit
+// ═════════ STATE ═════════
+let CFG = { rounds: 3, arrows: 3 };
+let M = null, T = null;
+let canvas = document.getElementById('range'), ctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1, S = 1;
+let raf = null, token = 0;
+const decks = {};
 
-// ── STATE ──
-let totalRounds = 3;
-let firstPlayer = 'razan';
-let currentPlayer = 'razan';
-let roundIdx = 0;
-let subTurn = 0; // 0=first player, 1=second player
-let scores = {razan:0, dara:0};
-let roundScores = []; // [{razan,dara}]
-let arrowsLeft = ARROWS_PER_ROUND;
-let roundScore = 0; // score for current player this round
-let gameActive = false;
-let targets = []; // active targets on screen
-let targetTimers = [];
-
-// Bow state per lane
-const bowState = {
-  razan: {pulling:false,pullX:0,pullY:0,baseX:0,baseY:0,ctx:null,canvas:null},
-  dara:  {pulling:false,pullX:0,pullY:0,baseX:0,baseY:0,ctx:null,canvas:null},
-};
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el) el.classList.add('active');
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'r' ? 'd' : 'r'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function rnd(a, b) { return a + Math.random() * (b - a); }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; } }
+function bindPills(id, key) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = parseInt(p.dataset.v);
+  }));
+}
+bindPills('round-pills', 'rounds'); bindPills('arrow-pills', 'arrows');
+let banT = null;
+function banner(b, s, ms) {
+  setText('ban-b', b); setText('ban-s', s || '');
+  const e = $('banner'); e.classList.remove('show'); void e.offsetWidth; e.classList.add('show');
+  clearTimeout(banT); banT = setTimeout(() => e.classList.remove('show'), ms || 1100);
 }
 
-function selRounds(n){
-  totalRounds=n;
-  [3,5,7].forEach(x=>{
-    const el=document.getElementById('opt-'+x);
-    if(el) el.classList.toggle('sel',x===n);
-  });
-}
-
-// ── BG TREES ──
-function drawBgTrees(){
-  const bg=document.getElementById('bg');
-  bg.innerHTML='';
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
-  svg.style.cssText='position:absolute;inset:0';
-  const W=window.innerWidth, H=window.innerHeight;
-  // Draw forest silhouette
-  let path='M0,'+H;
-  const treeCount=18;
-  for(let i=0;i<=treeCount;i++){
-    const x=(i/treeCount)*W;
-    const treeH=H*.15+Math.sin(i*2.3)*H*.08+Math.random()*H*.08;
-    const w=W*.04+Math.random()*W*.02;
-    path+=` L${x-w/2},${H-treeH} L${x},${H-treeH-w*.8} L${x+w/2},${H-treeH}`;
-  }
-  path+=` L${W},${H} Z`;
-  const treePath=document.createElementNS('http://www.w3.org/2000/svg','path');
-  treePath.setAttribute('d',path);
-  treePath.setAttribute('fill','rgba(0,60,0,.6)');
-  svg.appendChild(treePath);
-  // Stars
-  for(let i=0;i<40;i++){
-    const star=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    star.setAttribute('cx',Math.random()*W+'');
-    star.setAttribute('cy',Math.random()*H*.5+'');
-    star.setAttribute('r',(Math.random()*1.5+.5)+'');
-    star.setAttribute('fill',`rgba(255,255,255,${.2+Math.random()*.5})`);
-    svg.appendChild(star);
-  }
-  bg.appendChild(svg);
-}
-drawBgTrees();
-
-// ── INIT GAME ──
-function initGame(first){
-  firstPlayer=first;
-  currentPlayer=first;
-  roundIdx=0; subTurn=0;
-  scores={razan:0,dara:0};
-  roundScores=[];
-  showScreen('s-game');
-  setTimeout(()=>{
-    setupLanes();
-    updateHUD();
-    startCountdown(()=>startRound());
-  },80);
-}
-
-function setupLanes(){
-  ['razan','dara'].forEach(p=>{
-    const laneEl=document.getElementById('lane-'+p);
-    const bowCanvas=document.getElementById('bow-'+p);
-    if(!laneEl||!bowCanvas) return;
-    const lW=laneEl.offsetWidth, lH=laneEl.offsetHeight;
-    bowCanvas.width=lW; bowCanvas.height=lH;
-    bowCanvas.style.position='absolute';
-    bowCanvas.style.inset='0';
-    bowCanvas.style.width=lW+'px';
-    bowCanvas.style.height=lH+'px';
-    const bctx=bowCanvas.getContext('2d');
-    bowState[p].ctx=bctx;
-    bowState[p].canvas=bowCanvas;
-    bowState[p].baseX=lW/2;
-    bowState[p].baseY=lH-70; // higher bow position
-    bowState[p].pulling=false;
-    drawBow(p);
-  });
-  setupInput();
-}
-
-// ── INPUT ──
-function setupInput(){
-  const arena=document.getElementById('arena');
-  if(!arena) return;
-  // Remove old listeners by cloning
-  const newArena=arena.cloneNode(false);
-  // Move children
-  while(arena.firstChild) newArena.appendChild(arena.firstChild);
-  arena.parentNode.replaceChild(newArena,arena);
-  // Re-get references after DOM change
-  const a=document.getElementById('arena')||newArena;
-
-  a.addEventListener('touchstart',onTouchStart,{passive:false});
-  a.addEventListener('touchmove',onTouchMove,{passive:false});
-  a.addEventListener('touchend',onTouchEnd,{passive:false});
-  a.addEventListener('mousedown',onMouseDown);
-  window.addEventListener('mousemove',onMouseMove);
-  window.addEventListener('mouseup',onMouseUp);
-}
-
-function getLanePlayer(clientX){
-  const arena=document.getElementById('arena');
-  if(!arena) return null;
-  const rect=arena.getBoundingClientRect();
-  const relX=clientX-rect.left;
-  return relX<rect.width/2?'razan':'dara';
-}
-
-function getRelPos(clientX,clientY,player){
-  const lane=document.getElementById('lane-'+player);
-  if(!lane) return{x:0,y:0};
-  const rect=lane.getBoundingClientRect();
-  return{x:clientX-rect.left,y:clientY-rect.top};
-}
-
-let mousePlayer=null;
-function onMouseDown(e){
-  if(!gameActive) return;
-  const p=getLanePlayer(e.clientX);
-  if(p!==currentPlayer) return;
-  mousePlayer=p;
-  startPull(p,e.clientX,e.clientY);
-}
-function onMouseMove(e){
-  if(!mousePlayer||!gameActive) return;
-  updatePull(mousePlayer,e.clientX,e.clientY);
-}
-function onMouseUp(e){
-  if(!mousePlayer||!gameActive) return;
-  releasePull(mousePlayer);
-  mousePlayer=null;
-}
-
-function onTouchStart(e){
-  e.preventDefault();
-  if(!gameActive) return;
-  Array.from(e.changedTouches).forEach(t=>{
-    const p=getLanePlayer(t.clientX);
-    if(p!==currentPlayer) return;
-    startPull(p,t.clientX,t.clientY);
-  });
-}
-function onTouchMove(e){
-  e.preventDefault();
-  if(!gameActive) return;
-  Array.from(e.changedTouches).forEach(t=>{
-    const p=getLanePlayer(t.clientX);
-    if(p===currentPlayer&&bowState[p].pulling) updatePull(p,t.clientX,t.clientY);
-  });
-}
-function onTouchEnd(e){
-  e.preventDefault();
-  if(!gameActive) return;
-  Array.from(e.changedTouches).forEach(t=>{
-    const p=getLanePlayer(t.clientX);
-    if(p===currentPlayer&&bowState[p].pulling) releasePull(p);
-  });
-}
-
-function startPull(player,cx,cy){
-  const pos=getRelPos(cx,cy,player);
-  const bs=bowState[player];
-  bs.pulling=true;
-  bs.pullX=pos.x; bs.pullY=pos.y;
-  if(navigator.vibrate) navigator.vibrate(15);
-  // Hide hint once player starts pulling
-  const hint=document.getElementById('hint-'+player);
-  if(hint) hint.style.display='none';
-  drawBow(player);
-}
-
-function updatePull(player,cx,cy){
-  const pos=getRelPos(cx,cy,player);
-  const bs=bowState[player];
-  if(!bs.pulling) return;
-  // Clamp pull — max pull distance
-  const dx=pos.x-bs.baseX, dy=pos.y-bs.baseY;
-  const dist=Math.sqrt(dx*dx+dy*dy);
-  const maxPull=80;
-  if(dist>maxPull){
-    bs.pullX=bs.baseX+dx/dist*maxPull;
-    bs.pullY=bs.baseY+dy/dist*maxPull;
-  } else {
-    bs.pullX=pos.x; bs.pullY=pos.y;
-  }
-  drawBow(player);
-}
-
-function releasePull(player){
-  const bs=bowState[player];
-  if(!bs.pulling) return;
-  bs.pulling=false;
-  const dx=bs.pullX-bs.baseX, dy=bs.pullY-bs.baseY;
-  const power=Math.sqrt(dx*dx+dy*dy);
-  // Direction: arrow goes opposite of pull direction
-  // Normalize direction only, power controls speed separately
-  const norm=Math.sqrt(dx*dx+dy*dy)||1;
-  const vx=-dx/norm, vy=-dy/norm;
-  fireArrow(player,bs.baseX,bs.baseY,vx,vy,Math.min(power,100));
-  drawBow(player);
-}
-
-// ── BOW DRAWING ──
-function drawBow(player){
-  const bs=bowState[player];
-  const ctx=bs.ctx;
-  if(!ctx) return;
-  const laneEl=document.getElementById('lane-'+player);
-  if(!laneEl) return;
-  const W=laneEl.offsetWidth, H=laneEl.offsetHeight;
-  ctx.clearRect(0,0,W,H);
-
-  const bx=bs.baseX, by=bs.baseY;
-  const isR=player==='razan';
-  const bowColor=isR?'#7eb3f5':'#e8a090';
-  const stringColor='rgba(255,255,255,.7)';
-
-  // Bow arc
-  const bowH=60, bowW=18;
-  ctx.beginPath();
-  ctx.arc(bx,by-bowH/2,bowH/2,Math.PI*.7,Math.PI*1.3);
-  ctx.strokeStyle=bowColor;
-  ctx.lineWidth=5;
-  ctx.lineCap='round';
-  ctx.stroke();
-
-  // Bow string
-  const pullX=bs.pulling?bs.pullX:bx;
-  const pullY=bs.pulling?bs.pullY:by;
-  const topStr={x:bx,y:by-bowH};
-  const botStr={x:bx,y:by};
-
-  ctx.beginPath();
-  ctx.moveTo(topStr.x,topStr.y);
-  ctx.lineTo(pullX,pullY);
-  ctx.lineTo(botStr.x,botStr.y);
-  ctx.strokeStyle=stringColor;
-  ctx.lineWidth=1.5;
-  ctx.stroke();
-
-  // Arrow on string when pulling
-  if(bs.pulling){
-    const dx=bx-pullX, dy=by-bowH/2-pullY;
-    const len=Math.sqrt(dx*dx+dy*dy);
-    if(len>5){
-      const nx=dx/len, ny=dy/len;
-      const arrowLen=50;
-      // Arrow shaft
-      ctx.beginPath();
-      ctx.moveTo(pullX,pullY);
-      ctx.lineTo(pullX+nx*arrowLen,pullY+ny*arrowLen);
-      ctx.strokeStyle='#c9a96e';
-      ctx.lineWidth=2.5;
-      ctx.stroke();
-      // Arrowhead
-      const tipX=pullX+nx*arrowLen, tipY=pullY+ny*arrowLen;
-      const perpX=-ny, perpY=nx;
-      ctx.beginPath();
-      ctx.moveTo(tipX+nx*8,tipY+ny*8);
-      ctx.lineTo(tipX+perpX*4,tipY+perpY*4);
-      ctx.lineTo(tipX-perpX*4,tipY-perpY*4);
-      ctx.fillStyle='#e57373';
-      ctx.fill();
-      // Fletching
-      ctx.beginPath();
-      ctx.moveTo(pullX-nx*5,pullY-ny*5);
-      ctx.lineTo(pullX+perpX*6-nx*2,pullY+perpY*6-ny*2);
-      ctx.moveTo(pullX-nx*5,pullY-ny*5);
-      ctx.lineTo(pullX-perpX*6-nx*2,pullY-perpY*6-ny*2);
-      ctx.strokeStyle='#e53935';
-      ctx.lineWidth=2;
-      ctx.stroke();
-    }
-    // Pull strength indicator
-    const pullDist=Math.sqrt((bs.pullX-bx)**2+(bs.pullY-(by-bowH/2))**2);
-    const pct=Math.min(pullDist/80,1);
-    ctx.beginPath();
-    ctx.arc(pullX,pullY,8*pct+4,0,Math.PI*2);
-    ctx.strokeStyle=`rgba(255,213,79,${pct*.8})`;
-    ctx.lineWidth=2;
-    ctx.stroke();
-  }
-
-  // Bow grip
-  ctx.beginPath();
-  ctx.arc(bx,by-bowH/2,5,0,Math.PI*2);
-  ctx.fillStyle=bowColor;
-  ctx.fill();
-}
-
-// ── FIRE ARROW (animated) ──
-function fireArrow(player,startX,startY,vx,vy,power){
-  if(arrowsLeft<=0) return;
-  arrowsLeft--;
-  updateHUD();
-  if(navigator.vibrate) navigator.vibrate([20,10,40]);
-
-  const lane=document.getElementById('lane-'+player);
-  if(!lane) return;
-  const lW=lane.offsetWidth, lH=lane.offsetHeight;
-
-  const speed=(power/100)*12+6;
-  let ax=startX, ay=startY;
-  let avx=vx*speed, avy=vy*speed;
-  let frame=0;
-  const maxFrames=80;
-  let hit=false;
-  let trailTimer=0;
-
-  const anim=setInterval(()=>{
-    frame++;
-    ax+=avx*.7; ay+=avy*.7;
-    avy+=.08;
-
-    // Draw trail dots every 4 frames
-    trailTimer++;
-    if(trailTimer%4===0){
-      const dot=document.createElement('div');
-      dot.className='trail-dot';
-      dot.style.left=ax+'px';
-      dot.style.top=ay+'px';
-      lane.appendChild(dot);
-      setTimeout(()=>dot.parentNode&&dot.parentNode.removeChild(dot),500);
-    }
-
-    // Check hit on targets
-    for(let i=0;i<targets.length;i++){
-      const t=targets[i];
-      if(t.player!==player||t.hit) continue;
-      const dx=ax-t.x, dy=ay-t.y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      const r=t.radius;
-      if(dist<r*1.15){
-        hit=true;
-        t.hit=true;
-        // Determine score ring
-        let pts=1;
-        for(let ri=0;ri<RING_RATIOS.length;ri++){
-          if(dist<r*RING_RATIOS[ri]){pts=RING_SCORES[ri];break;}
-        }
-        roundScore+=pts;
-        scores[player]+=pts;
-        showHitEffect(player,t.x,t.y,pts,RING_COLORS[RING_SCORES.indexOf(pts)]||'#fff');
-        // Stick arrow into target
-        showStuckArrow(player,ax,ay,vx,vy);
-        removeTarget(t);
-        updateHUD();
-        clearInterval(anim);
-        checkRoundEnd();
-        return;
-      }
-    }
-
-    // Out of bounds — show miss
-    if(frame>=maxFrames||ay<-30||ax<-10||ax>lW+10){
-      clearInterval(anim);
-      if(!hit){
-        showMiss(player,Math.max(10,Math.min(lW-10,ax)),Math.max(10,Math.min(lH-100,ay)));
-        // Stick arrow where it landed on wall/ground
-        showStuckArrow(player,Math.max(15,Math.min(lW-15,ax)),Math.min(lH*0.7,Math.max(20,ay)),vx,vy);
-      }
-      checkRoundEnd();
-    }
-  },16);
-}
-
-function showStuckArrow(player,x,y,vx,vy){
-  const lane=document.getElementById('lane-'+player);
-  if(!lane) return;
-  // Angle of arrow
-  const angle=Math.atan2(vy,vx)*180/Math.PI;
-  const el=document.createElement('div');
-  el.className='stuck-arrow';
-  el.style.cssText=`left:${x}px;top:${y}px;transform:translate(-50%,-50%) rotate(${angle+90}deg)`;
-  el.textContent='🏹';
-  lane.appendChild(el);
-  // Fade out after 2s
-  setTimeout(()=>{
-    el.style.transition='opacity .5s';
-    el.style.opacity='0';
-    setTimeout(()=>el.parentNode&&el.parentNode.removeChild(el),500);
-  },2000);
-}
-
-function showMiss(player,x,y){
-  const lane=document.getElementById('lane-'+player);
-  if(!lane) return;
-  // Miss text
-  const pop=document.createElement('div');
-  pop.className='miss-pop';
-  pop.style.cssText=`left:${Math.max(40,Math.min(lane.offsetWidth-40,x))}px;top:${Math.max(60,Math.min(lane.offsetHeight-60,y))}px`;
-  pop.textContent='💨 Miss!';
-  lane.appendChild(pop);
-  setTimeout(()=>pop.parentNode&&pop.parentNode.removeChild(pop),900);
-  // Lane flash red
-  const flash=document.createElement('div');
-  flash.className='hit-flash';
-  flash.style.background='rgba(255,0,0,.15)';
-  lane.appendChild(flash);
-  setTimeout(()=>flash.parentNode&&flash.parentNode.removeChild(flash),350);
-  if(navigator.vibrate) navigator.vibrate([60,20,60]);
-}
-
-// ── TARGETS ──
-function spawnTarget(player){
-  const lane=document.getElementById('lane-'+player);
-  if(!lane) return;
-  const lW=lane.offsetWidth, lH=lane.offsetHeight;
-  const r=Math.min(lW*.2,52); // bigger targets
-  const margin=r+10;
-  const x=margin+Math.random()*(lW-margin*2);
-  const y=margin+Math.random()*(lH*.58); // avoid bow area
-
-  const t={player,x,y,radius:r,hit:false,id:Date.now()+Math.random(),el:null,timerEl:null};
-
-  // Create target element
-  const wrap=document.createElement('div');
-  wrap.className='target-wrap';
-  wrap.style.left=x+'px'; wrap.style.top=y+'px';
-  wrap.style.transform='translate(-50%,-50%)';
-  wrap.style.transition='opacity .3s';
-  wrap.dataset.tid=t.id;
-
-  // Draw target rings as SVG
-  const svgSize=r*2+4;
-  const svg=`<svg width="${svgSize}" height="${svgSize}" class="target-svg">
-    <circle cx="${svgSize/2}" cy="${svgSize/2}" r="${r}" fill="#333" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
-    ${RING_RATIOS.slice().reverse().map((ratio,i)=>{
-      const ri=RING_RATIOS.length-1-i;
-      return `<circle cx="${svgSize/2}" cy="${svgSize/2}" r="${r*ratio*2}" fill="${RING_COLORS[ri]}" opacity=".85"/>`;
-    }).join('')}
-    <circle cx="${svgSize/2}" cy="${svgSize/2}" r="${r*RING_RATIOS[0]*2}" fill="#e53935"/>
-    <circle cx="${svgSize/2}" cy="${svgSize/2}" r="3" fill="#fff"/>
-  </svg>`;
-  wrap.innerHTML=svg;
-
-  // Timer ring (shrinking border)
-  const timerRing=document.createElement('div');
-  timerRing.style.cssText=`position:absolute;inset:-4px;border-radius:50%;border:3px solid rgba(255,213,79,.7);animation:timershrink ${TARGET_DURATION}ms linear forwards`;
-  wrap.appendChild(timerRing);
-
-  lane.appendChild(wrap);
-  t.el=wrap;
-  targets.push(t);
-
-  // Auto remove after duration
-  const timer=setTimeout(()=>{
-    if(!t.hit) removeTarget(t);
-    checkRoundEnd();
-  },TARGET_DURATION);
-  t.timer=timer;
-}
-
-function removeTarget(t){
-  if(t.el){
-    t.el.style.opacity='0';
-    setTimeout(()=>{if(t.el&&t.el.parentNode) t.el.parentNode.removeChild(t.el);},300);
-  }
-  clearTimeout(t.timer);
-  targets=targets.filter(x=>x!==t);
-}
-
-function clearAllTargets(){
-  targets.forEach(t=>{
-    clearTimeout(t.timer);
-    if(t.el&&t.el.parentNode) t.el.parentNode.removeChild(t.el);
-  });
-  targets=[];
-  targetTimers.forEach(clearTimeout);
-  targetTimers=[];
-  // Clear stuck arrows and effects from both lanes
-  ['razan','dara'].forEach(p=>{
-    const lane=document.getElementById('lane-'+p);
-    if(!lane) return;
-    lane.querySelectorAll('.stuck-arrow,.miss-pop,.hit-effect,.score-pop,.trail-dot,.hit-flash').forEach(el=>el.remove());
-  });
-}
-
-// ── HIT EFFECT ──
-function showHitEffect(player,x,y,pts,color){
-  const lane=document.getElementById('lane-'+player);
-  if(!lane) return;
-
-  // Big burst circle
-  const hitEl=document.createElement('div');
-  hitEl.className='hit-effect';
-  hitEl.style.cssText=`left:${x}px;top:${y}px;width:60px;height:60px;border-radius:50%;background:${color};margin:-30px;border:3px solid rgba(255,255,255,.6)`;
-  lane.appendChild(hitEl);
-  setTimeout(()=>hitEl.parentNode&&hitEl.parentNode.removeChild(hitEl),500);
-
-  // Score popup — big and bold
-  const pop=document.createElement('div');
-  pop.className='score-pop';
-  const label=pts===10?'🎯 BULL! +10':pts===7?'⭐ Nice! +7':pts===4?'👍 +4':'· +1';
-  pop.style.cssText=`left:${x}px;top:${y}px;color:${color};font-size:${pts>=7?'1.4rem':'1rem'}`;
-  pop.textContent=label;
-  lane.appendChild(pop);
-  setTimeout(()=>pop.parentNode&&pop.parentNode.removeChild(pop),900);
-
-  // Lane flash green
-  const flash=document.createElement('div');
-  flash.className='hit-flash';
-  flash.style.background=pts===10?'rgba(255,213,79,.2)':'rgba(100,255,100,.12)';
-  lane.appendChild(flash);
-  setTimeout(()=>flash.parentNode&&flash.parentNode.removeChild(flash),350);
-
-  if(navigator.vibrate) navigator.vibrate(pts===10?[40,20,80,20,120]:pts>=7?[30,10,60]:[20]);
-}
-
-// ── ROUND LOGIC ──
-function startRound(){
-  clearAllTargets();
-  arrowsLeft=ARROWS_PER_ROUND;
-  roundScore=0;
-  gameActive=true;
-  updateHUD();
-
-  // Spawn targets periodically for current player
-  let spawned=0;
-  function spawnNext(){
-    if(spawned>=TARGET_COUNT||!gameActive) return;
-    spawnTarget(currentPlayer);
-    spawned++;
-    if(spawned<TARGET_COUNT){
-      // Spawn new target when previous one disappears
-      const delay=spawned===1?200:1200+Math.random()*600;
-      const t=setTimeout(spawnNext,delay);
-      targetTimers.push(t);
-    }
-  }
-  spawnNext();
-}
-
-let roundEndTriggered=false;
-function checkRoundEnd(){
-  if(!gameActive) return;
-  if(arrowsLeft>0) return;
-  // All arrows used — wait a bit for last arrow animation
-  setTimeout(()=>{
-    if(!gameActive) return;
-    endTurn();
-  },800);
-}
-
-function endTurn(){
-  gameActive=false;
-  clearAllTargets();
-
-  // Store round score for current player
-  if(subTurn===0){
-    // First player done
-    const rEntry={};
-    rEntry[currentPlayer]=roundScore;
-    roundScores[roundIdx]=rEntry;
-    // Show pass screen
-    showPassScreen(()=>{
-      subTurn=1;
-      const second=currentPlayer===firstPlayer?(firstPlayer==='razan'?'dara':'razan'):'razan';
-      currentPlayer=second;
-      updateHUD();
-      startCountdown(()=>startRound());
-    });
-  } else {
-    // Second player done
-    if(roundScores[roundIdx]) roundScores[roundIdx][currentPlayer]=roundScore;
-    else roundScores[roundIdx]={[currentPlayer]:roundScore};
-    roundIdx++;
-    subTurn=0;
-    currentPlayer=firstPlayer;
-    if(roundIdx>=totalRounds){
-      showFinal();
-    } else {
-      updateHUD();
-      startCountdown(()=>startRound());
-    }
-  }
-}
-
-function showPassScreen(cb){
-  const second=firstPlayer==='razan'?'dara':'razan';
-  const secName=second==='razan'?'Razan':'Dara';
-  const curName=currentPlayer==='razan'?'Razan':'Dara';
-
-  const pi=document.getElementById('pass-icon');
-  const pt=document.getElementById('pass-title');
-  const ps=document.getElementById('pass-sub');
-  const pb=document.getElementById('pass-btn');
-  const psc=document.getElementById('pass-score-card');
-
-  if(pi) pi.textContent=currentPlayer==='razan'?'🧑':'👧';
-  if(pt) pt.textContent=`${curName} selesai ronde ${roundIdx+1}!`;
-  if(ps) ps.textContent=`Kasih HP ke ${secName} — sekarang giliran ${secName} memanah!`;
-  if(pb) pb.textContent=`${second==='razan'?'🧑':'👧'} ${secName} Siap! 🏹`;
-  if(psc){
-    psc.innerHTML=`
-      <div class="psc-row"><span class="psc-name">Skor ${curName} ronde ini</span><span class="psc-val ${currentPlayer}">${roundScore} poin</span></div>
-      <div class="psc-row"><span class="psc-name">Total ${curName}</span><span class="psc-val ${currentPlayer}">${scores[currentPlayer]} poin</span></div>`;
-  }
-
-  window._passCallback=cb;
-  showScreen('s-pass');
-}
-
-function startNextPlayer(){
-  const cb=window._passCallback;
-  window._passCallback=null;
-  if(cb) cb();
-}
-
-function startCountdown(cb){
-  showScreen('s-cd');
-  const name=currentPlayer==='razan'?'Razan':'Dara';
-  const cp=document.getElementById('cd-player');
-  const cn=document.getElementById('cd-num');
-  const cs=document.getElementById('cd-sub');
-  if(cp) cp.textContent=`${currentPlayer==='razan'?'🧑':'👧'} ${name} — Ronde ${roundIdx+1}`;
-  let n=3;
-  const tick=()=>{
-    if(cn){cn.style.animation='none';void cn.offsetWidth;cn.style.animation='cdpop .5s cubic-bezier(.34,1.5,.64,1)';}
-    if(cn) cn.textContent=n;
-    if(cs) cs.textContent=n===3?'Bersiap...':n===2?'Siap busurmu!':'Bidik!';
-    if(navigator.vibrate) navigator.vibrate(30);
-    n--;
-    if(n<0){
-      if(cn) cn.textContent='GO!';
-      if(cs) cs.textContent='Tembak targetnya! 🏹';
-      setTimeout(()=>{showScreen('s-game');setupLanes();cb();},600);
-    } else {
-      setTimeout(tick,900);
-    }
+// ═════════ KONDISI RONDE (sama buat berdua) ═════════
+function makeRound(i, n) {
+  const f = n > 1 ? i / (n - 1) : 0;   // 0 → 1 makin susah
+  return {
+    tx: rnd(.25, .75),                 // posisi target (proporsi lebar)
+    ty: rnd(.14, .3),                  // proporsi tinggi
+    size: 1 - f * .3,                  // target makin kecil
+    wind: i === 0 ? 0 : rnd(.4, 1) * (Math.random() < .5 ? -1 : 1) * (.5 + f * .7),
+    move: i >= 2 ? { amp: rnd(.12, .2) * (.6 + f * .6), period: rnd(2600, 3600) - f * 700, phase: rnd(0, Math.PI * 2) } : null,
   };
-  tick();
 }
 
-// ── HUD ──
-function updateHUD(){
-  const scr=document.getElementById('gh-sc-r');
-  const scd=document.getElementById('gh-sc-d');
-  const gr=document.getElementById('gh-round');
-  const ga=document.getElementById('gh-arrows');
-  if(scr) scr.textContent=scores.razan;
-  if(scd) scd.textContent=scores.dara;
-  if(gr) gr.textContent=`Ronde ${Math.min(roundIdx+1,totalRounds)}/${totalRounds}`;
-  if(ga) ga.textContent='🏹'.repeat(arrowsLeft)+(arrowsLeft===0?'':'')||'—';
+// ═════════ MATCH FLOW ═════════
+function newMatch(first) {
+  M = { first: first === 'd' ? 'd' : 'r', rounds: CFG.rounds, arrows: CFG.arrows, round: 0, sub: 0,
+        conds: Array.from({ length: CFG.rounds }, (_, i) => makeRound(i, CFG.rounds)),
+        res: [], tot: { r:0, d:0 }, st: { r:{ bulls:0, misses:0, best:0 }, d:{ bulls:0, misses:0, best:0 } } };
+  countdown();
+}
+function starter() { return M.round % 2 === 0 ? M.first : other(M.first); }
+function cur() { return M.sub === 0 ? starter() : other(starter()); }
 
-  // Lane labels
-  const llr=document.getElementById('lane-label-razan');
-  const lld=document.getElementById('lane-label-dara');
-  if(llr) llr.style.opacity=currentPlayer==='razan'?'1':'.3';
-  if(lld) lld.style.opacity=currentPlayer==='dara'?'1':'.3';
+function countdown() {
+  const p = cur(), c = M.conds[M.round];
+  const my = ++token;
+  showScreen('s-cd');
+  const el = $('cd-num'), sub = $('cd-sub');
+  const prev = M.res[M.round] && M.res[M.round][other(p)];
+  let n = 3;
+  const step = () => {
+    if (my !== token) return;
+    if (n === 0) { startTurn(p); return; }
+    el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim');
+    if (n === 3) sub.innerHTML = `${ICON[p]} <b style="color:${BOWC[p]}">${NAMES[p]}</b> pegang HP · Ronde ${M.round + 1}/${M.rounds}<br>${c.wind ? `💨 Angin ${c.wind > 0 ? '➡️' : '⬅️'} ` : '🍃 Tanpa angin '}${c.move ? '· 🎯 target gerak' : ''}${prev ? `<br>Target skor: <b style="color:#ffd54f">${prev.total}</b>` : ''}`;
+    vib(30); n--; setTimeout(step, 850);
+  };
+  step();
 }
 
-// ── FINAL ──
-function showFinal(){
-  const r=scores.razan, d=scores.dara;
-  const tie=r===d;
-  const winner=r>d?'razan':'dara';
-  const wName=winner==='razan'?'Razan':'Dara';
+function layout() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  S = clamp(Math.min(W / 400, H / 640), .7, 1.4);
+}
+function bowPos() { return { x: W / 2, y: H - 70 * S }; }
+function target(t) {
+  const c = M.conds[M.round];
+  const r = Math.min(W * .15, 58 * S) * c.size;
+  let x = c.tx * W;
+  if (c.move) x += Math.sin((t / c.move.period) * Math.PI * 2 + c.move.phase) * c.move.amp * W;
+  return { x: clamp(x, r + 6, W - r - 6), y: c.ty * H + r, r };
+}
 
-  const fi=document.getElementById('final-icon');
-  if(fi) fi.textContent=tie?'🤝':'🏆';
-  const ft=document.getElementById('final-title');
-  if(ft) ft.textContent=tie?'Seri!':`${winner==='razan'?'🧑':'👧'} ${wName} Menang!`;
-  const fs=document.getElementById('final-sub');
-  if(fs) fs.textContent=tie?'Sama-sama jago memanah!':'Pemanah terbaik hari ini!';
-  const er=document.getElementById('end-r');if(er) er.textContent=r;
-  const ed=document.getElementById('end-d');if(ed) ed.textContent=d;
+function startTurn(p) {
+  showScreen('s-game');
+  requestAnimationFrame(() => {
+    layout();
+    T = { p, left: M.arrows, shots: [], arrow: null, pull: null, stuck: [], t0: performance.now(), phase: 'aim', particles: [] };
+    updateHud();
+    const my = token; let last = performance.now();
+    const loop = now => { if (my !== token || !T) return; const k = Math.min(2.5, (now - last) / 16.67); last = now; step(k, now); render(now); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+  });
+}
 
-  // Rounds recap
-  const rrl=document.getElementById('rr-list');
-  if(rrl){
-    rrl.innerHTML='';
-    roundScores.forEach((rs,i)=>{
-      const row=document.createElement('div');row.className='rr-row';
-      row.innerHTML=`<span class="rr-label">Ronde ${i+1}</span><div class="rr-vals"><span class="rr-val razan">${rs.razan||0}</span><span style="color:rgba(255,255,255,.2)">vs</span><span class="rr-val dara">${rs.dara||0}</span></div>`;
-      rrl.appendChild(row);
-    });
+function updateHud() {
+  const w = $('who'); w.textContent = `${ICON[T.p]} ${NAMES[T.p]}`; w.className = 'who ' + T.p;
+  const c = M.conds[M.round];
+  setHTML('hm', `<b>Ronde ${M.round + 1}/${M.rounds}</b> ${c.wind ? (c.wind > 0 ? '💨➡️' : '⬅️💨') : ''}<br><span class="arrows">${'🏹'.repeat(T.left)}${'·'.repeat(M.arrows - T.left)}</span>`);
+  const sub = T.shots.reduce((s, x) => s + x.pts, 0);
+  setText('tot-r', M.tot.r + (T.p === 'r' ? sub : 0)); setText('tot-d', M.tot.d + (T.p === 'd' ? sub : 0));
+}
+
+// ═════════ INPUT (dipasang sekali) ═════════
+function lp(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+canvas.addEventListener('pointerdown', e => {
+  if (!T || T.phase !== 'aim' || T.arrow || T.left <= 0) return;
+  e.preventDefault(); try { canvas.setPointerCapture(e.pointerId); } catch {}
+  const q = lp(e); T.pull = { id: e.pointerId, sx: q.x, sy: q.y, x: q.x, y: q.y }; vib(10);
+});
+canvas.addEventListener('pointermove', e => { if (T && T.pull && T.pull.id === e.pointerId) { const p = lp(e); T.pull.x = p.x; T.pull.y = p.y; } });
+const release = e => {
+  if (!T || !T.pull || T.pull.id !== e.pointerId) return;
+  const v = pullVec(); T.pull = null;
+  if (!v || v.len < 18 * S) return; // tarikan terlalu pendek → batal
+  fire(v);
+};
+canvas.addEventListener('pointerup', release);
+canvas.addEventListener('pointercancel', e => { if (T) T.pull = null; });
+
+const MAXPULL = () => 150 * S;
+function pullVec() {
+  if (!T.pull) return null;
+  let dx = T.pull.sx - T.pull.x, dy = T.pull.sy - T.pull.y;   // ketapel: arah tembak = kebalikan tarikan
+  if (dy > -6) return null;                                     // harus nembak ke atas
+  let len = Math.hypot(dx, dy); const m = MAXPULL();
+  if (len > m) { dx *= m / len; dy *= m / len; len = m; }
+  return { dx, dy, len };
+}
+function launchVel(v) {
+  // tarikan → tinggi puncak (linear, biar kontrolnya enak); arah miring → geser kiri/kanan
+  const h = (v.len / MAXPULL()) * (H - 60 * S) * .95;
+  const vy = -Math.sqrt(2 * G_ACC() * h);
+  return { vx: -vy * (v.dx / Math.max(6, -v.dy)), vy };
+}
+const G_ACC = () => .2 * S;
+const WIND_ACC = () => M.conds[M.round].wind * .035 * S;
+
+function fire(v) {
+  const b = bowPos(), vel = launchVel(v);
+  T.arrow = { x: b.x, y: b.y - 30 * S, vx: vel.vx, vy: vel.vy, trail: [] };
+  T.left--; vib([15, 10, 30]); updateHud();
+}
+
+// ═════════ SIMULASI ═════════
+function step(k, now) {
+  T.particles.forEach(p => { p.x += p.vx * k; p.y += p.vy * k; p.vy += .15 * k; p.life -= .03 * k; });
+  T.particles = T.particles.filter(p => p.life > 0);
+  const a = T.arrow; if (!a) return;
+  const sub = 3, tg = target(now - T.t0);
+  for (let i = 0; i < sub; i++) {
+    const kk = k / sub;
+    a.vy += G_ACC() * kk; a.vx += WIND_ACC() * kk;
+    const px = a.x, py = a.y;
+    a.x += a.vx * kk; a.y += a.vy * kk;
+    // panah "masuk ke layar": titik puncak lintasan = titik nancep di bidang target
+    if (a.vy >= 0) {
+      const d = Math.hypot(a.x - tg.x, a.y - tg.y);
+      return d <= tg.r ? hit(a, tg, d) : miss(a);
+    }
+    if (a.y < -30 || a.x < -30 || a.x > W + 30) return miss(a);
   }
-
-  const vd=document.getElementById('verdict');
-  if(vd){
-    let txt=tie?`Seri ${r}-${d}! Aim kalian sama tajamnya — rematch?`:`<strong>${wName}</strong> menang ${r>d?r:d}-${r>d?d:r}! Bidikan ${wName} hari ini tidak bisa dibendung. 🏹`;
-    vd.innerHTML=txt;
-  }
-
-  showScreen('s-final');
-  if(!tie) confetti(80); else confetti(40);
+  a.trail.push({ x: a.x, y: a.y }); if (a.trail.length > 10) a.trail.shift();
 }
 
-// CSS animation for timer ring
-const style=document.createElement('style');
-style.textContent=`@keyframes timershrink{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(0)}}`;
-document.head.appendChild(style);
+function hit(a, tg, d) {
+  const ring = RINGS.find(r => d <= tg.r * r.f) || RINGS[RINGS.length - 1];
+  const pts = ring.pts;
+  T.shots.push({ pts });
+  T.stuck.push({ rx: a.x - tg.x, ry: a.y - tg.y, ang: -Math.PI / 2 + clamp(a.vx * .04, -.5, .5) });
+  T.arrow = null;
+  const st = M.st[T.p];
+  if (pts === 10) { st.bulls++; banner('🎯 BULLSEYE!', '+10', 1300); confetti(30); vib([40, 20, 80, 20, 140]); }
+  else { banner(`+${pts}`, pts >= 8 ? 'Mantap!' : pts >= 6 ? 'Bagus!' : 'Kena!', 900); vib(pts >= 8 ? [30, 15, 60] : 30); }
+  for (let i = 0; i < 16; i++) T.particles.push({ x: a.x, y: a.y, vx: rnd(-3, 3), vy: rnd(-4, 1), life: 1, c: ring.c });
+  updateHud(); afterShot();
+}
+function miss(a) {
+  T.shots.push({ pts: 0 }); T.arrow = null; M.st[T.p].misses++;
+  banner('💨 Meleset!', '', 800); vib([60, 20, 60]);
+  updateHud(); afterShot();
+}
+function afterShot() {
+  if (T.left > 0) return;
+  T.phase = 'done';
+  const my = token;
+  setTimeout(() => { if (my === token) endTurn(); }, 1200);
+}
 
-function confetti(n){
-  const colors=['#ffd54f','#7eb3f5','#e8a090','#81c784','#fff','#c17a6f'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+function endTurn() {
+  token++; cancelAnimationFrame(raf);
+  const p = T.p, total = T.shots.reduce((s, x) => s + x.pts, 0);
+  if (!M.res[M.round]) M.res[M.round] = {};
+  M.res[M.round][p] = { total, shots: T.shots.map(x => x.pts) };
+  M.tot[p] += total;
+  M.st[p].best = Math.max(M.st[p].best, total);
+  const shotsHTML = x => `<div class="shots">${x.shots.map(v => `<span class="shot ${v === 10 ? 'b' : v === 0 ? 'm' : ''}">${v === 10 ? '🎯10' : v || '✗'}</span>`).join('')}</div>`;
+  if (M.sub === 0) {
+    M.sub = 1; const nx = cur();
+    setHTML('result-inner', `
+      <span class="label">Ronde ${M.round + 1}/${M.rounds}</span>
+      <span class="icon">${ICON[p]}</span>
+      <h2 class="title" style="font-size:1.3rem">${NAMES[p]} dapet ${total} poin</h2>
+      ${shotsHTML(M.res[M.round][p])}
+      <p class="sub">Kasih HP ke <b>${NAMES[nx]}</b> — target & angin sama persis. Kalahin <b style="color:#ffd54f">${total}</b>! 🏹</p>
+      <button class="btn" onclick="countdown()">${ICON[nx]} ${NAMES[nx]} siap!</button>
+      <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
+    showScreen('s-result');
+  } else roundResult();
+}
+
+function roundResult() {
+  const R = M.res[M.round], a = R.r.total, b = R.d.total;
+  const wp = a === b ? null : (a > b ? 'r' : 'd');
+  const w = wp ? NAMES[wp] : '', l = wp ? NAMES[other(wp)] : '';
+  const last = M.round + 1 >= M.rounds;
+  const shots = p => R[p].shots.map(v => v === 10 ? '🎯' : v || '✗').join(' · ');
+  setHTML('result-inner', `
+    <span class="label">Hasil Ronde ${M.round + 1}</span>
+    <span class="icon">${wp ? '🏆' : '🤝'}</span>
+    <h2 class="title" style="font-size:1.3rem">${wp ? `${w} Menang Ronde!` : 'Seri!'}</h2>
+    <div class="card">
+      <div class="row"><span>🧑 Razan <small style="opacity:.6">${shots('r')}</small></span><b>${a}</b></div>
+      <div class="row"><span>👧 Dara <small style="opacity:.6">${shots('d')}</small></span><b>${b}</b></div>
+      <div class="row"><span>Total sementara</span><b>${M.tot.r} – ${M.tot.d}</b></div>
+    </div>
+    <div class="demand"><span class="demand-tag">${wp ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span><p class="demand-text">${wp ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — bidikan kalian sama tajam ✋🏹'}</p></div>
+    <button class="btn" onclick="${last ? 'showFinal()' : 'nextRound()'}">${last ? 'Lihat Juara 🏆' : `Ronde ${M.round + 2} →`}</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
+  showScreen('s-result');
+  if (wp) confetti(25);
+}
+function nextRound() { M.round++; M.sub = 0; countdown(); }
+
+function showFinal() {
+  const r = M.tot.r, d = M.tot.d, tie = r === d, wp = r > d ? 'r' : 'd', w = NAMES[wp], l = NAMES[other(wp)];
+  const rows = M.res.map((x, i) => `<div class="tr"><span>Ronde ${i + 1}${M.conds[i].move ? ' 🎯↔️' : M.conds[i].wind ? ' 💨' : ''}</span><b class="${x.r.total > x.d.total ? 'win' : ''}">${x.r.total}</b><b class="${x.d.total > x.r.total ? 'win' : ''}">${x.d.total}</b></div>`).join('');
+  const S2 = M.st, maxPer = M.arrows * 10;
+  let v = tie ? `Seri ${r}-${d}! Bidikan kalian sama tajamnya 🎯` : `<strong>${w}</strong> menang ${Math.max(r, d)}-${Math.min(r, d)}! Pemanah terbaik hari ini 🏹`;
+  const bulls = S2.r.bulls + S2.d.bulls; if (bulls) v += `<br>🎯 Total bullseye: ${bulls}x`;
+  if (S2.r.best === maxPer || S2.d.best === maxPer) v += `<br>🔥 Ada giliran SEMPURNA (${maxPer} poin)!`;
+  setHTML('result-inner', `
+    <span class="label">Hasil Akhir</span>
+    <span class="icon">${tie ? '🤝' : '🏆'}</span>
+    <h2 class="title" style="font-size:1.5rem">${tie ? 'Seri!' : `${w} Menang!`}</h2>
+    <p class="sub">${M.rounds} ronde · ${M.arrows} panah per giliran</p>
+    <div class="score-card">
+      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${r}</span><span class="sc-s">maks ${M.rounds * maxPer}</span></div>
+      <span class="sc-vs">🏹</span>
+      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${d}</span><span class="sc-s">maks ${M.rounds * maxPer}</span></div>
+    </div>
+    <div class="tbl"><div class="tr head"><span>Ronde</span><span>🧑 Razan</span><span>👧 Dara</span></div>${rows}
+      <div class="tr"><span>🎯 Bullseye</span><b>${S2.r.bulls}</b><b>${S2.d.bulls}</b></div>
+      <div class="tr"><span>💨 Meleset</span><b>${S2.r.misses}</b><b>${S2.d.misses}</b></div></div>
+    <div class="verdict">${v}</div>
+    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? 'Seri! Pose "panah cinta" berdua buat foto 💘📸' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn" onclick="newMatch(M ? other(M.first) : 'r')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
+  showScreen('s-result');
+  confetti(tie ? 40 : 70);
+}
+
+function exitGame() {
+  if (!M) { showScreen('s-intro'); return; }
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  token++; cancelAnimationFrame(raf); M = null; T = null; showScreen('s-intro');
+}
+window.addEventListener('resize', () => { if (T) layout(); });
+
+// ═════════ RENDER ═════════
+function render(now) {
+  ctx.clearRect(0, 0, W, H);
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#16341c'); sky.addColorStop(.6, '#0f2414'); sky.addColorStop(1, '#0a1a0a');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+  // pohon latar
+  ctx.fillStyle = 'rgba(0,50,10,.55)';
+  for (let i = 0; i < 9; i++) { const x = i * W / 8, h = H * (.18 + (i % 3) * .05); ctx.beginPath(); ctx.moveTo(x - 30, H * .55); ctx.lineTo(x, H * .55 - h); ctx.lineTo(x + 30, H * .55); ctx.fill(); }
+  ctx.fillStyle = '#12301a'; ctx.fillRect(0, H * .55, W, H * .45);
+  // angin
+  const c = M.conds[M.round];
+  if (c.wind) {
+    ctx.strokeStyle = 'rgba(144,202,249,.25)'; ctx.lineWidth = 2;
+    for (let i = 0; i < 6; i++) {
+      const y = H * (.1 + i * .08), off = ((now / 8 * Math.abs(c.wind)) + i * 90) % (W + 100) - 50;
+      const x = c.wind > 0 ? off : W - off;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 26 * Math.sign(c.wind), y); ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(144,202,249,.85)'; ctx.font = `700 ${Math.round(12 * S)}px Poppins, sans-serif`; ctx.textAlign = 'center';
+    ctx.fillText(`💨 angin ${c.wind > 0 ? '➡️' : '⬅️'} ${'▮'.repeat(Math.max(1, Math.round(Math.abs(c.wind) * 3)))}`, W / 2, 18 * S);
+  }
+  // target
+  const tg = target(now - T.t0);
+  ctx.fillStyle = 'rgba(80,50,20,.9)'; ctx.fillRect(tg.x - 3, tg.y + tg.r - 4, 6, Math.max(10, H * .55 - (tg.y + tg.r) + 14));
+  for (let i = RINGS.length - 1; i >= 0; i--) { ctx.beginPath(); ctx.arc(tg.x, tg.y, tg.r * RINGS[i].f, 0, Math.PI * 2); ctx.fillStyle = RINGS[i].c; ctx.fill(); ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 1; ctx.stroke(); }
+  ctx.beginPath(); ctx.arc(tg.x, tg.y, 2, 0, Math.PI * 2); ctx.fillStyle = '#000'; ctx.fill();
+  // panah nancep (ikut target yang gerak)
+  T.stuck.forEach(s => drawArrow(tg.x + s.rx, tg.y + s.ry, s.ang, 26 * S, true));
+  // partikel
+  T.particles.forEach(p => { ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; });
+  // panah terbang
+  if (T.arrow) {
+    T.arrow.trail.forEach((t, i) => { ctx.fillStyle = `rgba(255,213,79,${i / 20})`; ctx.beginPath(); ctx.arc(t.x, t.y, 2, 0, Math.PI * 2); ctx.fill(); });
+    drawArrow(T.arrow.x, T.arrow.y, Math.atan2(T.arrow.vy, T.arrow.vx), 30 * S * clamp(Math.abs(T.arrow.vy) / 14 + .45, .45, 1), false);
+  }
+  drawBow();
+}
+
+function drawArrow(x, y, ang, len, stuck) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+  ctx.strokeStyle = '#c9a96e'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(-len, 0); ctx.lineTo(stuck ? 0 : 0, 0); ctx.stroke();
+  if (!stuck) { ctx.fillStyle = '#cfd8dc'; ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-2, -4); ctx.lineTo(-2, 4); ctx.fill(); }
+  ctx.fillStyle = BOWC[T.p]; ctx.beginPath(); ctx.moveTo(-len, 0); ctx.lineTo(-len - 7, -5); ctx.lineTo(-len + 4, 0); ctx.lineTo(-len - 7, 5); ctx.fill();
+  ctx.restore();
+}
+
+function drawBow() {
+  const b = bowPos(), col = BOWC[T.p], v = pullVec();
+  const ang = v ? Math.atan2(v.dy, v.dx) : -Math.PI / 2;
+  // lintasan bidik (cuma awal jalur biar tetap butuh skill)
+  if (v && v.len >= 18 * S) {
+    const vel = launchVel(v); let x = b.x, y = b.y - 30 * S, vx = vel.vx, vy = vel.vy;
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    for (let i = 0; i < 8; i++) {
+      for (let s = 0; s < 2; s++) { vy += G_ACC(); vx += WIND_ACC(); x += vx; y += vy; }
+      if (i % 2 === 0) { ctx.globalAlpha = 1 - i / 9; ctx.beginPath(); ctx.arc(x, y, 2.4, 0, Math.PI * 2); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+    // indikator power
+    const pw = v.len / MAXPULL();
+    ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(W / 2 - 50 * S, H - 16 * S, 100 * S, 6);
+    ctx.fillStyle = pw > .92 ? '#e57373' : '#ffd54f'; ctx.fillRect(W / 2 - 50 * S, H - 16 * S, 100 * S * pw, 6);
+  }
+  ctx.save(); ctx.translate(b.x, b.y - 30 * S); ctx.rotate(ang + Math.PI / 2);
+  const bh = 44 * S;
+  ctx.strokeStyle = col; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(0, 18 * S, bh, Math.PI * 1.22, Math.PI * 1.78); ctx.stroke();
+  const tipY = 18 * S - bh * Math.cos(Math.PI * .22), tipX = bh * Math.sin(Math.PI * .22);
+  const pullD = v ? v.len * .55 : 0;
+  ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(-tipX, tipY); ctx.lineTo(0, tipY + pullD); ctx.lineTo(tipX, tipY); ctx.stroke();
+  if (T.left > 0 && !T.arrow) {
+    ctx.strokeStyle = '#c9a96e'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, tipY + pullD); ctx.lineTo(0, tipY + pullD - 50 * S); ctx.stroke();
+    ctx.fillStyle = '#cfd8dc'; ctx.beginPath(); ctx.moveTo(0, tipY + pullD - 56 * S); ctx.lineTo(-4, tipY + pullD - 48 * S); ctx.lineTo(4, tipY + pullD - 48 * S); ctx.fill();
+  }
+  ctx.restore();
+  if (!v && T.left > 0 && !T.arrow && T.phase === 'aim') {
+    ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.font = `600 ${Math.round(11 * S)}px Poppins, sans-serif`; ctx.textAlign = 'center';
+    ctx.fillText('👇 sentuh di mana aja, tarik ke bawah, lepas!', W / 2, H - 8 * S);
+  }
+}
+
+function confetti(n) {
+  const colors = ['#ffd54f','#7eb3f5','#f0a39a','#81c784','#fff','#c17a6f'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*18);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 18);
 }
 </script>
 </body>
