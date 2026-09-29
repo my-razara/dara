@@ -4,557 +4,363 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mind Reader 🧠</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  :root{--rose:#c17a6f;--gold:#c9a96e;--ink:#2d1f1a;--muted:#9a8070;}
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  :root{--rose:#c17a6f;--gold:#c9a96e;--ink:#2d1f1a;--muted:#9a8070;--violet:#6a0dad;--lilac:#d4a8ff}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#050510}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem 1rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .screen.active{display:flex}
+  .inner{width:100%;max-width:400px;margin:auto 0;display:flex;flex-direction:column;align-items:center;gap:1rem;position:relative;z-index:1}
 
-  /* Starfield bg */
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
   .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
   @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+  @keyframes pop{from{transform:scale(0) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
+  @keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-  /* ── INTRO ── */
-  #s-intro{background:transparent}
-  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2rem 1.5rem;max-width:380px}
-  .brain-icon{font-size:5rem;display:block;margin-bottom:1.25rem;animation:brainpulse 2s ease-in-out infinite}
+  /* INTRO */
+  .brain-icon{font-size:5rem;display:block;animation:brainpulse 2s ease-in-out infinite}
   @keyframes brainpulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.3) drop-shadow(0 0 20px rgba(193,122,111,.6))}}
-  .intro-eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.5rem}
-  .intro-title{font-size:clamp(1.8rem,7vw,2.5rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.75rem}
-  .intro-title em{font-style:normal;color:var(--rose)}
-  .intro-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.85;margin-bottom:2rem;max-width:290px}
-  .intro-btn{padding:1rem 2.5rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:linear-gradient(135deg,#6a0dad,var(--rose));color:#fff;box-shadow:0 6px 24px rgba(106,13,173,.4);animation:btnglow 2s ease-in-out infinite}
-  @keyframes btnglow{0%,100%{box-shadow:0 6px 24px rgba(106,13,173,.4)}50%{box-shadow:0 6px 32px rgba(106,13,173,.7)}}
-  .intro-btn:active{transform:scale(.97)}
+  .eyebrow{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.35);display:block}
+  .title{font-size:clamp(1.8rem,7vw,2.5rem);font-weight:700;color:#fff;line-height:1.15}
+  .title em{font-style:normal;color:var(--rose)}
+  .desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.85;max-width:300px}
+  .btn{padding:1rem 2.2rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--violet),var(--rose));color:#fff;box-shadow:0 6px 24px rgba(106,13,173,.4);width:100%;max-width:320px}
+  .btn:active{transform:scale(.97)}
+  .btn.glow{animation:btnglow 2s ease-in-out infinite}
+  @keyframes btnglow{0%,100%{box-shadow:0 6px 24px rgba(106,13,173,.4)}50%{box-shadow:0 6px 32px rgba(106,13,173,.75)}}
+  .btn-ghost{padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);width:100%;max-width:320px}
 
-  /* ── TRICK SCREEN ── */
-  #s-trick{background:transparent}
-  .trick-wrap{position:relative;z-index:1;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:1rem;padding:.5rem}
+  /* MENU */
+  .menu{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;width:100%}
+  .trick-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:18px;padding:1rem .7rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.3rem;position:relative}
+  .trick-card:active{transform:scale(.96);border-color:var(--rose)}
+  .tc-ico{font-size:2rem}
+  .tc-name{font-size:13px;font-weight:700;color:#fff}
+  .tc-sub{font-size:10.5px;color:rgba(255,255,255,.45);line-height:1.4}
+  .tc-done{position:absolute;top:.4rem;right:.5rem;font-size:.8rem}
 
-  /* Step header */
-  .step-header{text-align:center;width:100%}
-  .step-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.4rem}
-  .step-instruction{font-size:clamp(1rem,4vw,1.35rem);font-weight:600;color:#fff;line-height:1.45;max-width:320px;margin:0 auto}
-  .step-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:.3rem;font-style:italic}
-
-  /* Grid options */
-  .options-grid{display:grid;gap:.55rem;width:100%}
-  .options-grid.col3{grid-template-columns:repeat(3,1fr)}
-  .options-grid.col2{grid-template-columns:repeat(2,1fr)}
-  .options-grid.col4{grid-template-columns:repeat(4,1fr)}
-  .opt{padding:.85rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;font-family:'Poppins',sans-serif;font-size:clamp(1rem,4vw,1.4rem);font-weight:700;color:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.25rem}
-  .opt:active{transform:scale(.9);background:rgba(193,122,111,.2);border-color:var(--rose)}
-  .opt.selected{border-color:rgba(106,13,173,.8);background:rgba(106,13,173,.2)}
-  .opt-sub{font-size:9px;color:rgba(255,255,255,.35);font-weight:400}
-
-  /* Progress dots */
-  .progress-dots{display:flex;gap:.4rem;justify-content:center}
+  /* STEP */
+  .dots{display:flex;gap:.4rem;justify-content:center}
   .pdot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);transition:all .3s}
   .pdot.done{background:var(--rose)}
   .pdot.active{background:#fff;width:18px;border-radius:3px}
+  .step-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+  .step-ins{font-size:clamp(1rem,4.2vw,1.3rem);font-weight:600;color:#fff;line-height:1.45;max-width:340px;animation:fadeup .35s ease}
+  .step-sub{font-size:12px;color:rgba(255,255,255,.45);font-style:italic;line-height:1.6;max-width:320px}
+  .stage{width:100%;display:flex;flex-direction:column;align-items:center;gap:.7rem;animation:fadeup .35s ease}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;width:100%}
+  .opt{padding:1rem .5rem;border-radius:16px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-size:1.05rem;font-weight:700;color:#fff}
+  .opt:active{transform:scale(.94)}
+  .opt.yes{border-color:rgba(129,199,132,.5);background:rgba(129,199,132,.12)}
+  .opt.no{border-color:rgba(229,115,115,.45);background:rgba(229,115,115,.1)}
+  .opt.wide{width:100%}
+  .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;max-width:300px}
+  .numpad .opt{padding:.8rem 0;font-size:1.2rem}
 
-  /* ── READING ── */
-  #s-reading{background:transparent}
-  .reading-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.25rem;padding:1rem}
+  /* kartu angka */
+  .num-card{width:100%;background:linear-gradient(145deg,rgba(106,13,173,.25),rgba(193,122,111,.18));border:1.5px solid rgba(212,168,255,.35);border-radius:18px;padding:.8rem;display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem}
+  .num-card span{background:rgba(255,255,255,.07);border-radius:9px;padding:.45rem 0;font-size:1.05rem;font-weight:700;color:#fff}
+  .card-tag{font-size:10.5px;color:var(--lilac);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+
+  /* kartu remi */
+  .pcard{width:52px;height:74px;border-radius:8px;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;flex-shrink:0}
+  .pcard .r{font-size:1.1rem;font-weight:700}
+  .pcard .s{font-size:1.2rem}
+  .pcard.red{color:#d32f2f}.pcard.black{color:#1a1a1a}
+  .pcard.big{width:110px;height:156px;border-radius:14px}
+  .pcard.big .r{font-size:2.4rem}.pcard.big .s{font-size:2.6rem}
+  .pcard.court{background:linear-gradient(160deg,#fff,#f5ecff)}
+  .cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%}
+  .col{border:1.5px solid rgba(255,255,255,.12);border-radius:16px;padding:.5rem .25rem;display:flex;flex-direction:column;align-items:center;gap:.3rem;cursor:pointer;background:rgba(255,255,255,.03)}
+  .col:active{transform:scale(.96);border-color:var(--rose)}
+  .col .pcard{width:46px;height:30px;flex-direction:row;gap:.2rem;border-radius:6px}
+  .col .pcard .r,.col .pcard .s{font-size:.9rem}
+  .col-btn{font-size:11px;font-weight:700;color:var(--lilac);margin-top:.2rem}
+  .fan{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;max-width:340px}
+
+  /* READING */
   .reading-brain{font-size:4rem;display:block;animation:scan 1.5s ease-in-out infinite}
-  @keyframes scan{0%{transform:translateY(0) rotate(-3deg);filter:hue-rotate(0deg)}50%{transform:translateY(-8px) rotate(3deg);filter:hue-rotate(30deg)}100%{transform:translateY(0) rotate(-3deg);filter:hue-rotate(0deg)}}
+  @keyframes scan{0%,100%{transform:translateY(0) rotate(-3deg);filter:hue-rotate(0deg)}50%{transform:translateY(-8px) rotate(3deg);filter:hue-rotate(30deg)}}
   .reading-bar{width:220px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-  .reading-fill{height:100%;background:linear-gradient(to right,#6a0dad,var(--rose));border-radius:2px;animation:barfill 2.5s ease-in-out forwards}
-  @keyframes barfill{0%{width:0%}60%{width:75%}80%{width:85%}100%{width:100%}}
-  .reading-text{font-size:13px;color:rgba(255,255,255,.45);font-style:italic;animation:textcycle 2.5s ease-in-out}
+  .reading-fill{height:100%;width:0;background:linear-gradient(to right,var(--violet),var(--rose));border-radius:2px}
+  .reading-fill.go{animation:barfill 2.6s ease-in-out forwards}
+  @keyframes barfill{0%{width:0}60%{width:75%}80%{width:85%}100%{width:100%}}
+  .reading-text{font-size:13px;color:rgba(255,255,255,.5);font-style:italic;min-height:20px}
 
-  /* ── REVEAL ── */
-  #s-reveal{background:transparent}
-  .reveal-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.1rem;padding:1rem;max-width:380px}
-  .reveal-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)}
-  .reveal-said{font-size:14px;color:rgba(255,255,255,.5);font-style:italic}
-  .reveal-number{font-size:clamp(5rem,20vw,8rem);font-weight:700;color:#fff;line-height:1;animation:numpop .6s cubic-bezier(.34,1.5,.64,1) .3s both;text-shadow:0 0 60px rgba(193,122,111,.6)}
-  @keyframes numpop{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:none;opacity:1}}
-  .reveal-emoji{font-size:2rem;animation:numpop .6s cubic-bezier(.34,1.5,.64,1) .5s both;display:block}
-  .reveal-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1.1rem 1.5rem;width:100%;text-align:center}
-  .reveal-comment{font-size:13px;color:rgba(255,255,255,.7);line-height:1.75;font-style:italic}
-  .reveal-comment strong{color:var(--rose);font-style:normal}
-  .reveal-trick-hint{font-size:10.5px;color:rgba(255,255,255,.2);margin-top:.5rem;display:block;line-height:1.55}
+  /* REVEAL */
+  .reveal-big{font-size:clamp(4.5rem,20vw,7.5rem);font-weight:700;color:#fff;line-height:1;animation:pop .6s cubic-bezier(.34,1.5,.64,1) .2s both;text-shadow:0 0 60px rgba(193,122,111,.6)}
+  .reveal-mid{animation:pop .6s cubic-bezier(.34,1.5,.64,1) .2s both}
+  .reveal-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:1rem 1.25rem;width:100%}
+  .reveal-comment{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.75}
+  .reveal-comment strong{color:var(--rose)}
+  .secret-btn{background:none;border:1px dashed rgba(255,255,255,.2);color:rgba(255,255,255,.45);font-size:11.5px;border-radius:50px;padding:.4rem 1rem;cursor:pointer}
+  .secret{display:none;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.65;background:rgba(212,168,255,.07);border:1px solid rgba(212,168,255,.2);border-radius:14px;padding:.75rem 1rem;text-align:left;width:100%}
+  .secret.show{display:block;animation:fadeup .3s ease}
+  .secret b{color:var(--lilac)}
+  .btns{display:flex;gap:.6rem;width:100%}
+  .btns .btn,.btns .btn-ghost{flex:1;padding:.85rem;font-size:13px}
 
-  /* Again btn */
-  .again-btns{display:flex;gap:.6rem;width:100%}
-  .again-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;transition:all .15s}
-  .again-btn-p{background:linear-gradient(135deg,#6a0dad,var(--rose));color:#fff}
-  .again-btn-p:active{transform:scale(.97)}
-  .again-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
-
-  /* Confetti */
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
-
-<!-- STARFIELD -->
 <div id="stars"></div>
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <div class="intro-wrap">
+  <div class="inner">
     <span class="brain-icon">🧠</span>
-    <span class="intro-eyebrow">Hadiah dari Razan</span>
-    <h1 class="intro-title">Mind<br><em>Reader</em></h1>
-    <p class="intro-desc">Pikirkan sesuatu di dalam kepalamu...<br>dan biarkan aku membacanya. 😏</p>
-    <button class="intro-btn" onclick="startTrick()">Aku Siap Dibaca 👁️</button>
+    <span class="eyebrow">Hadiah dari Razan</span>
+    <h1 class="title">Mind<br><em>Reader</em></h1>
+    <p class="desc">Pikirkan sesuatu di dalam kepalamu...<br>dan biarkan aku membacanya. 😏</p>
+    <button class="btn glow" onclick="showMenu()">Aku Siap Dibaca 👁️</button>
   </div>
 </div>
 
-<!-- TRICK -->
-<div id="s-trick" class="screen">
-  <div class="trick-wrap">
-    <div class="progress-dots" id="progress-dots"></div>
-    <div class="step-header">
-      <span class="step-eyebrow" id="step-eyebrow">Langkah 1</span>
-      <p class="step-instruction" id="step-instruction">...</p>
-      <p class="step-sub" id="step-sub"></p>
-    </div>
-    <div class="options-grid col3" id="options-grid"></div>
+<!-- MENU -->
+<div id="s-menu" class="screen">
+  <div class="inner">
+    <span class="eyebrow">Pilih Trik</span>
+    <h2 class="title" style="font-size:1.5rem">Mau dibaca <em>pakai apa?</em></h2>
+    <div class="menu" id="menu"></div>
+    <button class="btn" onclick="randomTrick()">🎲 Terserah Kamu Aja</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
+  </div>
+</div>
+
+<!-- STEP -->
+<div id="s-step" class="screen">
+  <div class="inner">
+    <div class="dots" id="dots"></div>
+    <span class="step-eyebrow" id="step-eyebrow"></span>
+    <p class="step-ins" id="step-ins"></p>
+    <p class="step-sub" id="step-sub"></p>
+    <div class="stage" id="stage"></div>
   </div>
 </div>
 
 <!-- READING -->
 <div id="s-reading" class="screen">
-  <div class="reading-wrap">
+  <div class="inner">
     <span class="reading-brain">🧠</span>
-    <div class="reading-bar"><div class="reading-fill"></div></div>
-    <p class="reading-text" id="reading-text">Membaca gelombang pikiranmu...</p>
+    <div class="reading-bar"><div class="reading-fill" id="reading-fill"></div></div>
+    <p class="reading-text" id="reading-text"></p>
   </div>
 </div>
 
 <!-- REVEAL -->
 <div id="s-reveal" class="screen">
-  <div class="reveal-wrap">
-    <span class="reveal-eyebrow">🧠 Pikiranmu...</span>
-    <p class="reveal-said">Kamu memilih...</p>
-    <span class="reveal-number" id="reveal-number">7</span>
-    <span class="reveal-emoji" id="reveal-emoji">😏</span>
-    <div class="reveal-card">
-      <p class="reveal-comment" id="reveal-comment">...</p>
-      <span class="reveal-trick-hint" id="reveal-hint"></span>
-    </div>
-    <div class="again-btns">
-      <button class="again-btn again-btn-p" onclick="startTrick()">Coba Lagi! 🔄</button>
-      <button class="again-btn again-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  <div class="inner">
+    <span class="eyebrow" id="rv-eyebrow">🧠 Pikiranmu...</span>
+    <p class="step-sub" id="rv-said"></p>
+    <div id="rv-main"></div>
+    <div class="reveal-card"><p class="reveal-comment" id="rv-comment"></p></div>
+    <button class="secret-btn" id="secret-btn" onclick="toggleSecret()">🔬 Kok bisa? (rahasia pesulap)</button>
+    <div class="secret" id="rv-secret"></div>
+    <div class="btns">
+      <button class="btn" onclick="startTrick(cur.id)">Ulangi 🔄</button>
+      <button class="btn-ghost" onclick="showMenu()">Trik Lain</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── STARFIELD ──
-(function(){
-  const stars = document.getElementById('stars');
-  for(let i=0;i<60;i++){
-    const s=document.createElement('div');
-    s.className='star';
-    const size=1+Math.random()*2.5;
-    s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:-${Math.random()*4}s`;
-    stars.appendChild(s);
+// ═════════ BINTANG ═════════
+(function () {
+  const st = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div'); s.className = 'star';
+    const z = 1 + Math.random() * 2.5;
+    s.style.cssText = `width:${z}px;height:${z}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 4}s;animation-delay:-${Math.random() * 4}s`;
+    st.appendChild(s);
   }
 })();
 
-// ── TRICKS ──
-// Each trick uses mathematical certainty to "guess" the chosen number
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const el = $(id); el.classList.add('active'); el.scrollTop = 0; }
+const RED = s => s === '♥' || s === '♦';
+function cardHTML(c, extra = '') { return `<div class="pcard ${RED(c.s) ? 'red' : 'black'} ${'JQK'.includes(c.r) ? 'court' : ''} ${extra}"><span class="r">${c.r}</span><span class="s">${c.s}</span></div>`; }
+function cardName(c) { const r = { A: 'As', J: 'Jack', Q: 'Queen', K: 'King' }[c.r] || c.r; const s = { '♠': 'Sekop', '♥': 'Hati', '♦': 'Wajik', '♣': 'Keriting' }[c.s]; return `${r} ${s}`; }
+const done = new Set();
+
+// ═════════ DAFTAR TRIK ═════════
+// setiap trik: steps() → array langkah; langkah = { eyebrow, ins, sub, render(stage, next) }
 const TRICKS = [
-
-  // TRICK 1: Classic "think of 1-10, pick the row it's in" binary elimination
-  // User picks 1-9, we use binary sets to determine their number
   {
-    id: 'binary9',
-    totalSteps: 3,
+    id: 'kartu-angka', ico: '🔢', name: 'Kartu Angka Ajaib', sub: 'Pikirin angka 1–31, aku tebak persis',
+    init() { this.ans = 0; this.cards = [0, 1, 2, 3, 4].map(b => shuffle(Array.from({ length: 31 }, (_, i) => i + 1).filter(n => n & (1 << b)))); this.order = shuffle([0, 1, 2, 3, 4]); },
+    steps() {
+      const first = { eyebrow: 'Persiapan', ins: 'Pikirkan satu angka dari 1 sampai 31.', sub: 'Tanggal jadian, tanggal lahir, angka favorit — terserah. Jangan bilang ya 🤫',
+        render: (st, next) => { st.innerHTML = `<button class="opt wide" id="go">✓ Udah kepikiran</button>`; $('go').onclick = () => next(); } };
+      const cardsSteps = this.order.map((b, i) => ({
+        eyebrow: `Kartu ${i + 1} dari 5`, ins: 'Ada angkamu di kartu ini?', sub: 'Cari pelan-pelan, jujur ya 🧐',
+        render: (st, next) => {
+          st.innerHTML = `<span class="card-tag">✦ Kartu ${'ABCDE'[i]} ✦</span><div class="num-card">${this.cards[b].map(n => `<span>${n}</span>`).join('')}</div>
+            <div class="row2"><button class="opt yes" id="y">✓ ADA</button><button class="opt no" id="n">✗ NGGAK</button></div>`;
+          $('y').onclick = () => { this.ans += 1 << b; next(); };
+          $('n').onclick = () => next();
+        } }));
+      return [first, ...cardsSteps];
+    },
+    reveal() {
+      const n = this.ans;
+      if (!n) return { said: 'Hmm...', main: `<div class="reveal-big">?</div>`, comment: 'Angkamu nggak ada di kartu manapun... kamu lagi mikirin <strong>aku</strong> ya, bukan angka? 😏 Coba lagi deh!', secret: 'Kalau semua jawaban NGGAK, berarti angkanya 0 — nggak ada di rentang 1–31.' };
+      const sweet = n === 18 ? ' Eh — tanggal lahir kamu kan? 🎂' : n === 26 ? ' Tanggal gajian aku tuh 😆' : '';
+      return { said: 'Angka yang kamu pikirin...', main: `<div class="reveal-big">${n}</div>`,
+        comment: `Angkamu <strong>${n}</strong>. Aku nggak perlu nanya langsung — pikiranmu gampang dibaca kok 😏${sweet}`,
+        secret: 'Tiap kartu mewakili satu "bit" biner: <b>1, 2, 4, 8, 16</b>. Tiap angka punya kombinasi kartu yang unik. Tinggal jumlahin nilai kartu yang kamu jawab ADA — hasilnya pasti angkamu. Coba sendiri: angka paling kecil di tiap kartu yang kamu jawab ADA, dijumlahin = angkamu!' };
+    },
+  },
+  {
+    id: 'selalu-sama', ico: '➗', name: 'Hitungan Rahasia', sub: 'Pikirin angka, hitung, aku tebak angka awalmu',
+    init() { this.a = 1 + Math.floor(Math.random() * 9); this.b = 1 + Math.floor(Math.random() * 9); this.input = ''; },
+    steps() {
+      const c = (eyebrow, ins, sub) => ({ eyebrow, ins, sub, render: (st, next) => { st.innerHTML = `<button class="opt wide" id="go">✓ Udah, lanjut</button>`; $('go').onclick = () => next(); } });
+      return [
+        c('Langkah 1 dari 6', 'Pikirkan satu angka dari 1 sampai 10.', 'Rahasiain ya — jangan diketik di mana-mana 🤫'),
+        c('Langkah 2 dari 6', 'Kalikan angkamu dengan 2.', 'Ingat hasilnya'),
+        c('Langkah 3 dari 6', `Tambahkan ${this.a}.`, 'Pelan-pelan aja 🤍'),
+        c('Langkah 4 dari 6', 'Kalikan hasilnya dengan 5.', 'Boleh pakai jari atau kertas 😆'),
+        c('Langkah 5 dari 6', `Kurangi ${this.b}.`, 'Ini angka terakhirmu'),
+        { eyebrow: 'Langkah 6 dari 6', ins: 'Ketik hasil akhirnya di sini.', sub: 'Dari angka ini aku bakal nemuin angka awal yang kamu pikirin 👁️',
+          render: (st, next) => {
+            const draw = () => {
+              st.innerHTML = `<div class="num-card" style="grid-template-columns:1fr;padding:.6rem"><span style="font-size:2rem;min-height:3rem;display:flex;align-items:center;justify-content:center">${this.input || '—'}</span></div>
+                <div class="numpad">${[1,2,3,4,5,6,7,8,9,'⌫',0,'✓'].map(k => `<button class="opt np" data-k="${k}">${k}</button>`).join('')}</div>`;
+              st.querySelectorAll('.np').forEach(el => el.onclick = () => {
+                const k = el.dataset.k;
+                if (k === '⌫') this.input = this.input.slice(0, -1);
+                else if (k === '✓') { if (this.input) next(); return; }
+                else if (this.input.length < 3) this.input = (this.input + k).replace(/^0+(?=\d)/, '');
+                draw();
+              });
+            };
+            draw();
+          } },
+      ];
+    },
+    reveal() {
+      const R = parseInt(this.input, 10), n = (R - 5 * this.a + this.b) / 10;
+      if (!Number.isInteger(n) || n < 1 || n > 10) return { said: 'Hmm... sinyalnya putus-putus 😵', main: `<div class="reveal-big">?</div>`,
+        comment: `Kayaknya ada yang kelewat pas ngitung — hasil <strong>${isNaN(R) ? '—' : R}</strong> nggak cocok sama angka 1–10 manapun. Coba ulang pelan-pelan ya, aku tunggu 😆`,
+        secret: `Rumusnya: ((n × 2) + ${this.a}) × 5 − ${this.b} = 10n + ${5 * this.a - this.b}. Kalau hasilnya nggak "pas", biasanya ada langkah yang kelewat.` };
+      const sweet = n === 1 ? ' Satu — kayak kamu, satu-satunya 🤍' : n === 7 ? ' Angka hoki ya? 🍀' : n === 10 ? ' Sempurna, kayak kamu 😏' : '';
+      return { said: 'Angka yang kamu pikirin dari awal...', main: `<div class="reveal-big">${n}</div>`,
+        comment: `Angka awalmu <strong>${n}</strong>! Kamu cuma kasih hasil akhirnya, tapi pikiranmu tetap kebaca 😏${sweet}`,
+        secret: `Misal angkamu <b>n</b>: ((n × 2) + ${this.a}) × 5 − ${this.b} = <b>10n + ${5 * this.a - this.b}</b>. Jadi hasil akhirmu (${R}) dikurang ${5 * this.a - this.b}, terus dibagi 10 = angka awalmu. Tiap main, angka tambah & kurangnya aku ganti biar rumusnya nggak ketebak 😉` };
+    },
+  },
+  {
+    id: '21-kartu', ico: '🃏', name: '21 Kartu', sub: 'Pilih 1 kartu dalam hati, aku temukan',
     init() {
-      this.num = null;
-      // Sets A, B, C encode numbers 1-9 in binary
-      this.sets = [
-        [1,3,5,7,9],   // bit 0
-        [2,3,6,7],     // bit 1
-        [4,5,6,7],     // bit 2  -- this gives 1-7, extend to 9
-      ];
-      // Actually use simpler: 3 yes/no questions via sets
-      this.setA = [1,2,3,4,5]; // upper half
-      this.setB = [1,2,6,7,8]; // mixed
-      this.setC = [1,3,5,7,9]; // odd
-      this.answers = [];
+      const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'], suits = ['♠', '♥', '♦', '♣'];
+      this.deck = shuffle(suits.flatMap(s => ranks.map(r => ({ r, s })))).slice(0, 21);
     },
-    getStep(step) {
-      if(step===0) return {
-        eyebrow:'Langkah 1 dari 3',
-        instruction:'Pikirkan satu angka dari 1 sampai 9.',
-        sub:'Udah? Jangan bilang ke siapapun ya! 🤫',
-        gridCols:'col3',
-        options: [
-          {label:'1',val:1},{label:'2',val:2},{label:'3',val:3},
-          {label:'4',val:4},{label:'5',val:5},{label:'6',val:6},
-          {label:'7',val:7},{label:'8',val:8},{label:'9',val:9},
-        ],
-        instruction2: 'Apakah angkamu ada di sini?',
-        highlight: [1,2,3,4,5],
-        question: 'Ada ga angkamu di antara yang berwarna?',
-        type: 'yesno_set',
-        set: [1,2,3,4,5]
-      };
-      if(step===1) return {
-        eyebrow:'Langkah 2 dari 3',
-        instruction:'Apakah angkamu ada di antara angka-angka ini?',
-        sub:'Pilih YA atau TIDAK — jujur ya! 🧠',
-        gridCols:'col3',
-        highlight:[1,2,6,7,8],
-        type:'yesno_set',
-        set:[1,2,6,7,8]
-      };
-      if(step===2) return {
-        eyebrow:'Langkah 3 dari 3 — yang terakhir!',
-        instruction:'Satu pertanyaan terakhir...',
-        sub:'Apakah angkamu GANJIL?',
-        gridCols:'col2',
-        type:'yesno_odd'
-      };
+    columns() { const c = [[], [], []]; this.deck.forEach((card, i) => c[i % 3].push(card)); return c; },
+    gather(ch) { const c = this.columns(), o = [0, 1, 2].filter(i => i !== ch); this.deck = [...c[o[0]], ...c[ch], ...c[o[1]]]; },
+    steps() {
+      const pickCol = (i) => ({
+        eyebrow: `Langkah ${i + 1} dari 3`, ins: i === 0 ? 'Pilih SATU kartu dalam hati. Terus tap kolom tempat kartumu.' : 'Kartunya aku kocok. Kartumu sekarang di kolom mana?',
+        sub: i === 0 ? 'Jangan ditap kartunya — cukup ingat aja 🤫' : 'Cari pelan-pelan ya 🔍',
+        render: (st, next) => {
+          const c = this.columns();
+          st.innerHTML = `<div class="cols3">${c.map((col, ci) => `<div class="col" data-c="${ci}">${col.map(x => cardHTML(x)).join('')}<span class="col-btn">Kolom ${ci + 1}</span></div>`).join('')}</div>`;
+          st.querySelectorAll('.col').forEach(el => el.onclick = () => { this.gather(parseInt(el.dataset.c)); vib(15); next(); });
+        } });
+      return [pickCol(0), pickCol(1), pickCol(2)];
     },
-    compute(answers) {
-      // answers[0]: in [1,2,3,4,5]?
-      // answers[1]: in [1,2,6,7,8]?
-      // answers[2]: is odd?
-      const inA = answers[0]; // 1=yes,0=no
-      const inB = answers[1];
-      const isOdd = answers[2];
-      // Enumerate 1-9 and find match
-      for(let n=1;n<=9;n++){
-        const a = [1,2,3,4,5].includes(n)?1:0;
-        const b = [1,2,6,7,8].includes(n)?1:0;
-        const c = n%2===1?1:0;
-        if(a===inA && b===inB && c===isOdd) return n;
-      }
-      return 7; // fallback
-    }
+    reveal() {
+      const c = this.deck[10];
+      return { said: 'Kartu yang kamu simpan di hati...', main: `<div class="reveal-mid">${cardHTML(c, 'big')}</div>`,
+        comment: `<strong>${cardName(c)}</strong>! Dari 21 kartu, cuma satu yang kamu pilih — dan aku nemu. Sama kayak aku nemu kamu 🤍`,
+        secret: 'Tiap kamu nunjuk kolom, kolom itu aku taruh di <b>tengah</b> tumpukan waktu dikumpulin. Setelah 3 kali, kartumu pasti "tergiring" ke posisi <b>ke-11</b> (tepat di tengah 21 kartu). Murni matematika, bukan hoki!' };
+    },
   },
-
-  // TRICK 2: Think of 1-10, do math, result always deterministic
-  // "Pick a number 1-10. Double it. Add 10. Halve it. Subtract your original."
-  // Result is always 5! Classic math trick.
   {
-    id: 'always5',
-    totalSteps: 4,
-    init() { this.steps_done = 0; },
-    getStep(step) {
-      const steps = [
-        {eyebrow:'Langkah 1 dari 4',instruction:'Pikirkan satu angka dari 1 sampai 10.',sub:'Ingat baik-baik — jangan lupa! 🤫',type:'confirm'},
-        {eyebrow:'Langkah 2 dari 4',instruction:'Kalikan angkamu dengan 2.',sub:'Sudah? Ingat hasilnya!',type:'confirm'},
-        {eyebrow:'Langkah 3 dari 4',instruction:'Tambahkan 10 ke hasilnya.',sub:'Lalu bagi 2. Ingat angka baru ini.',type:'confirm'},
-        {eyebrow:'Langkah 4 dari 4 — terakhir!',instruction:'Kurangi dengan angka awalmu.',sub:'Berapa hasilnya sekarang?',type:'confirm_final'},
+    id: 'kartu-hilang', ico: '👑', name: 'Kartu Hilang', sub: 'Aku ambil kartu yang kamu pilih',
+    init() {
+      this.first = shuffle([{ r: 'K', s: '♥' }, { r: 'Q', s: '♠' }, { r: 'J', s: '♦' }, { r: 'K', s: '♣' }, { r: 'Q', s: '♦' }, { r: 'J', s: '♥' }]);
+      this.second = shuffle([{ r: 'K', s: '♠' }, { r: 'Q', s: '♥' }, { r: 'J', s: '♣' }, { r: 'K', s: '♦' }, { r: 'Q', s: '♣' }]);
+    },
+    steps() {
+      return [
+        { eyebrow: 'Langkah 1 dari 2', ins: 'Pilih SATU kartu dalam hati — jangan ditap!', sub: 'Tatap kartunya, ingat baik-baik rupa & gambarnya 👀',
+          render: (st, next) => { st.innerHTML = `<div class="fan">${this.first.map(c => cardHTML(c)).join('')}</div><button class="opt wide" id="go">✓ Udah aku ingat</button>`; $('go').onclick = () => next(); } },
+        { eyebrow: 'Langkah 2 dari 2', ins: 'Sekarang tutup mata 3 detik, bayangin kartunya...', sub: 'Aku bakal "narik" kartu itu keluar dari pikiranmu 🌀',
+          render: (st, next) => { st.innerHTML = `<button class="opt wide" id="go">😌 Udah merem & bayangin</button>`; $('go').onclick = () => next(); } },
       ];
-      return steps[step];
     },
-    compute() { return 5; }
-  },
-
-  // TRICK 3: Color trick - "think of a color" - statistically 70% pick red
-  // But we use elimination: show 7 colors, ask them to mentally cross out 3
-  // Then from remaining 4, pick 2... always leads to predetermined
-  {
-    id: 'color_force',
-    totalSteps: 3,
-    init() { this.eliminations = []; },
-    getStep(step) {
-      if(step===0) return {
-        eyebrow:'Langkah 1 dari 3',
-        instruction:'Pilih DUA warna yang ingin kamu HILANGKAN.',
-        sub:'Hapus dari pikiranmu — pilih dua sekarang',
-        gridCols:'col3',
-        type:'pick2_eliminate',
-        options:[
-          {label:'🔴',val:'red',sub:'Merah'},
-          {label:'🔵',val:'blue',sub:'Biru'},
-          {label:'🟡',val:'yellow',sub:'Kuning'},
-          {label:'🟢',val:'green',sub:'Hijau'},
-          {label:'🟠',val:'orange',sub:'Oranye'},
-          {label:'🟣',val:'purple',sub:'Ungu'},
-        ]
-      };
-      if(step===1) return {
-        eyebrow:'Langkah 2 dari 3',
-        instruction:'Dari yang tersisa, pilih satu lagi yang dihilangkan.',
-        sub:'Terus kurangi sampai tinggal yang paling terasa',
-        gridCols:'col2',
-        type:'pick1_from_remaining',
-      };
-      if(step===2) return {
-        eyebrow:'Langkah 3 dari 3',
-        instruction:'Sekarang fokus pada warna yang tersisa di pikiranmu.',
-        sub:'Rasakan — mana yang paling kuat?',
-        gridCols:'col2',
-        type:'pick1_final_color',
-      };
+    reveal() {
+      return { said: 'Aku ambil kartumu...', main: `<div class="reveal-mid fan">${this.second.map(c => cardHTML(c)).join('')}</div>`,
+        comment: 'Kartumu <strong>udah nggak ada</strong> kan? 😏 Tinggal 5 — yang kamu pilih aku simpan. Kayak hati kamu yang juga udah aku simpan 🤍',
+        secret: 'Lihat lagi baik-baik: <b>semua</b> kartu di sini beda dari 6 kartu pertama! Otak kita cuma fokus ingat 1 kartu, jadi nggak sadar kartu lainnya juga diganti. Makanya kartu pilihanmu (apa pun itu) pasti "hilang" 😆' };
     },
-    compute(answers, state) {
-      // The remaining color after eliminations IS their chosen color
-      return state.remaining || 'Merah';
-    }
-  },
-
-  // TRICK 4: Number always 3 via algebra
-  // Pick 1-10. Add next number. Add 9. Divide by 2. Subtract original. = Always 5? No...
-  // Better: pick number, subtract from 10, multiply by 9, add digits = 9 always
-  // OR: pick odd number 1-9, do operations → always get their number back (identity trick)
-  {
-    id: 'magic3',
-    totalSteps: 4,
-    init() {},
-    getStep(step) {
-      const steps = [
-        {eyebrow:'Langkah 1 dari 4',instruction:'Pikirkan angka GANJIL dari 1 sampai 9.',sub:'Hanya angka ganjil ya: 1, 3, 5, 7, atau 9 🤫',type:'confirm'},
-        {eyebrow:'Langkah 2 dari 4',instruction:'Kalikan angkamu dengan 3.',sub:'Ingat hasilnya!',type:'confirm'},
-        {eyebrow:'Langkah 3 dari 4',instruction:'Tambahkan 3 ke hasilnya.',sub:'Lalu bagi 3 lagi. Ingat angka barunya.',type:'confirm'},
-        {eyebrow:'Langkah 4 dari 4',instruction:'Kurangi 1 dari hasilnya.',sub:'Berapa sekarang? Fokus ke angka itu...',type:'confirm_final'},
-      ];
-      return steps[step];
-    },
-    // (n*3+3)/3 - 1 = n+1-1 = n. Always returns their number! But we don't know it.
-    // So this one uses a different approach: always ends at a fixed point via different ops
-    // Pick odd n: n*3 = 3n, +3 = 3n+3, /3 = n+1, -1 = n. So result = n (unchanged!)
-    // We can't know n without asking... so let's use a SET-based trick
-    // Actually: pick any n 1-9, multiply by 2, add 4, divide by 2, subtract n = 2. Always 2!
-    compute() { return 2; }
   },
 ];
 
-// COMMENTS per result
-const COMMENTS = {
-  binary9: (n) => ({
-    comment: `Angkamu adalah <strong>${n}</strong>. Kamu pikir aku tidak bisa baca pikiranmu? 😏`,
-    hint: `🔬 Trik: Tiga pertanyaan ya/tidak cukup untuk mengidentifikasi angka 1-9 secara unik — sama seperti cara komputer bekerja dengan binary!`
-  }),
-  always5: () => ({
-    comment: `Apapun angka yang kamu pilih tadi, hasilnya selalu <strong>5</strong>. Matematika tidak bisa dibohongi! 😏`,
-    hint: `🔬 Trik: (n × 2 + 10) ÷ 2 - n = 5. Selalu. Untuk angka berapapun yang kamu pilih.`
-  }),
-  color_force: (color) => ({
-    comment: `Warnamu adalah <strong>${color}</strong>. Aku tidak membaca pikiranmu — kamu yang memilihnya sendiri... tanpa sadar. 😈`,
-    hint: `🔬 Trik: Proses eliminasi yang terlihat bebas sebenarnya diarahkan — pilihan yang tersisa sudah diperhitungkan dari awal.`
-  }),
-  magic3: () => ({
-    comment: `Hasilnya adalah <strong>2</strong> — dan itu bukan keberuntungan. Angka selalu mengarah ke sana. 😏`,
-    hint: `🔬 Trik: (n × 2 + 4) ÷ 2 - n = 2. Berlaku untuk angka berapapun yang kamu pilih!`
-  }),
-};
-
-const RESULT_EMOJIS = ['😏','👁️','🔮','✨','🧿','😈','🌀'];
-
-let currentTrick = null;
-let trickStep = 0;
-let trickAnswers = [];
-let trickState = {};
-let selectedOpts = [];
-let trickIdx = 0;
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+// ═════════ ALUR ═════════
+let cur = null, steps = [], si = 0;
+function showMenu() {
+  $('menu').innerHTML = TRICKS.map(t => `<div class="trick-card" onclick="startTrick('${t.id}')">${done.has(t.id) ? '<span class="tc-done">✅</span>' : ''}<span class="tc-ico">${t.ico}</span><span class="tc-name">${t.name}</span><span class="tc-sub">${t.sub}</span></div>`).join('');
+  showScreen('s-menu');
 }
-
-function startTrick() {
-  // Cycle through tricks
-  currentTrick = TRICKS[trickIdx % TRICKS.length];
-  trickIdx++;
-  trickStep = 0;
-  trickAnswers = [];
-  trickState = {};
-  selectedOpts = [];
-  currentTrick.init();
-  showScreen('s-trick');
-  renderStep();
+function randomTrick() { const left = TRICKS.filter(t => !done.has(t.id)); startTrick(pick(left.length ? left : TRICKS).id); }
+function startTrick(id) {
+  cur = TRICKS.find(t => t.id === id); cur.init(); steps = cur.steps(); si = 0;
+  showScreen('s-step'); renderStep();
 }
-
 function renderStep() {
-  const step = currentTrick.getStep(trickStep);
-  if (!step) return;
-
-  // Progress dots
-  const dots = document.getElementById('progress-dots');
-  dots.innerHTML = Array(currentTrick.totalSteps).fill(0).map((_,i)=>`
-    <div class="pdot ${i<trickStep?'done':i===trickStep?'active':''}"></div>`).join('');
-
-  document.getElementById('step-eyebrow').textContent = step.eyebrow||'';
-  document.getElementById('step-instruction').textContent = step.instruction||'';
-  document.getElementById('step-sub').textContent = step.sub||'';
-
-  const grid = document.getElementById('options-grid');
-  grid.innerHTML = '';
-  grid.className = 'options-grid ' + (step.gridCols||'col3');
-  selectedOpts = [];
-
-  if (step.type === 'yesno_set' || step.type === 'yesno_odd') {
-    // Yes/No buttons
-    grid.className = 'options-grid col2';
-    ['YA ✓','TIDAK ✗'].forEach((label, i) => {
-      const btn = document.createElement('div');
-      btn.className = 'opt';
-      btn.style.fontSize = '1.1rem';
-      btn.innerHTML = `<span>${label}</span>`;
-      btn.style.padding = '1.1rem';
-      btn.onclick = () => {
-        document.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
-        btn.classList.add('selected');
-        const val = i===0?1:0;
-        setTimeout(() => advanceStep(val), 400);
-      };
-      grid.appendChild(btn);
-    });
-
-  } else if (step.type === 'confirm' || step.type === 'confirm_final') {
-    // Big confirm button
-    grid.className = 'options-grid col1';
-    grid.style.gridTemplateColumns = '1fr';
-    const btn = document.createElement('div');
-    btn.className = 'opt';
-    btn.style.cssText = 'font-size:1rem;padding:1.1rem;letter-spacing:.02em';
-    btn.innerHTML = step.type==='confirm_final' ? '<span>✓ Sudah — baca pikiranku!</span>' : '<span>✓ Sudah, lanjut</span>';
-    btn.onclick = () => { btn.classList.add('selected'); setTimeout(()=>advanceStep(1), 300); };
-    grid.appendChild(btn);
-
-  } else if (step.type === 'pick2_eliminate') {
-    // Pick 2 to eliminate
-    trickState.remaining = ['🔴 Merah','🔵 Biru','🟡 Kuning','🟢 Hijau','🟠 Oranye','🟣 Ungu'];
-    trickState.eliminated = [];
-    step.options.forEach(opt => {
-      const btn = document.createElement('div');
-      btn.className = 'opt';
-      btn.innerHTML = `<span style="font-size:1.8rem">${opt.label}</span><span class="opt-sub">${opt.sub}</span>`;
-      btn.dataset.val = opt.val;
-      btn.dataset.name = opt.sub;
-      btn.onclick = () => {
-        if (btn.classList.contains('selected')) {
-          btn.classList.remove('selected');
-          trickState.eliminated = trickState.eliminated.filter(v=>v!==opt.sub);
-        } else if (trickState.eliminated.length < 2) {
-          btn.classList.add('selected');
-          trickState.eliminated.push(opt.sub);
-        }
-        if (trickState.eliminated.length === 2) {
-          trickState.remaining = ['Merah','Biru','Kuning','Hijau','Oranye','Ungu'].filter(c=>!trickState.eliminated.includes(c));
-          setTimeout(()=>advanceStep(1), 600);
-        }
-      };
-      grid.appendChild(btn);
-    });
-
-  } else if (step.type === 'pick1_from_remaining') {
-    // Pick 1 more to eliminate from remaining 4
-    trickState.remaining.forEach(color => {
-      const btn = document.createElement('div');
-      btn.className = 'opt';
-      btn.style.fontSize = '1rem';
-      btn.innerHTML = `<span>${color}</span>`;
-      btn.onclick = () => {
-        trickState.remaining = trickState.remaining.filter(c=>c!==color);
-        btn.classList.add('selected');
-        setTimeout(()=>advanceStep(1), 500);
-      };
-      grid.appendChild(btn);
-    });
-
-  } else if (step.type === 'pick1_final_color') {
-    // Pick final color from remaining 3 → that's their chosen color
-    trickState.remaining.forEach(color => {
-      const btn = document.createElement('div');
-      btn.className = 'opt';
-      btn.style.fontSize = '1rem';
-      btn.innerHTML = `<span>${color}</span>`;
-      btn.onclick = () => {
-        trickState.finalColor = color;
-        btn.classList.add('selected');
-        setTimeout(()=>advanceStep(1), 400);
-      };
-      grid.appendChild(btn);
-    });
-
-  } else if (step.options) {
-    step.options.forEach(opt => {
-      const btn = document.createElement('div');
-      btn.className = 'opt';
-      btn.innerHTML = `<span>${opt.label}</span>${opt.sub?`<span class="opt-sub">${opt.sub}</span>`:''}`;
-      btn.onclick = () => {
-        document.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
-        btn.classList.add('selected');
-        setTimeout(()=>advanceStep(opt.val), 300);
-      };
-      grid.appendChild(btn);
-    });
-  }
-
-  // Scroll to top
-  document.getElementById('s-trick').scrollTop = 0;
+  const s = steps[si];
+  $('dots').innerHTML = steps.map((_, i) => `<div class="pdot ${i < si ? 'done' : i === si ? 'active' : ''}"></div>`).join('');
+  $('step-eyebrow').textContent = s.eyebrow; $('step-ins').textContent = s.ins; $('step-sub').textContent = s.sub || '';
+  const ins = $('step-ins'); ins.style.animation = 'none'; void ins.offsetWidth; ins.style.animation = '';
+  const st = $('stage'); st.style.animation = 'none'; void st.offsetWidth; st.style.animation = '';
+  s.render(st, next);
+  $('s-step').scrollTop = 0;
 }
+function next() { vib(10); si++; if (si >= steps.length) reading(); else renderStep(); }
 
-function advanceStep(val) {
-  trickAnswers.push(val);
-  trickStep++;
-  if (trickStep >= currentTrick.totalSteps) {
-    showReading();
-  } else {
-    renderStep();
-  }
-}
-
-function showReading() {
+function reading() {
   showScreen('s-reading');
-  const texts = [
-    'Membaca gelombang pikiranmu...',
-    'Menganalisis pola frekuensi...',
-    'Menghubungkan sinyal...',
-    'Hampir...',
-  ];
-  let ti = 0;
-  const iv = setInterval(()=>{
-    ti++;
-    if(ti<texts.length) document.getElementById('reading-text').textContent=texts[ti];
-  }, 600);
-  setTimeout(()=>{ clearInterval(iv); showReveal(); }, 2600);
+  const texts = ['Membaca gelombang pikiranmu...', 'Menganalisis pola frekuensi...', 'Menghubungkan sinyal hati...', 'Hampir ketemu...'];
+  const fill = $('reading-fill'); fill.classList.remove('go'); void fill.offsetWidth; fill.classList.add('go');
+  let ti = 0; $('reading-text').textContent = texts[0];
+  const iv = setInterval(() => { ti++; if (ti < texts.length) $('reading-text').textContent = texts[ti]; }, 650);
+  setTimeout(() => { clearInterval(iv); reveal(); }, 2700);
 }
 
-function showReveal() {
-  let result, commentData;
-
-  if (currentTrick.id === 'binary9') {
-    result = currentTrick.compute(trickAnswers);
-    commentData = COMMENTS.binary9(result);
-  } else if (currentTrick.id === 'always5') {
-    result = 5;
-    commentData = COMMENTS.always5();
-  } else if (currentTrick.id === 'color_force') {
-    result = trickState.finalColor || trickState.remaining?.[0] || 'Merah';
-    commentData = COMMENTS.color_force(result);
-  } else if (currentTrick.id === 'magic3') {
-    result = 2;
-    commentData = COMMENTS.magic3();
-  }
-
-  document.getElementById('reveal-number').textContent = result;
-  document.getElementById('reveal-emoji').textContent = RESULT_EMOJIS[Math.floor(Math.random()*RESULT_EMOJIS.length)];
-  document.getElementById('reveal-comment').innerHTML = commentData.comment;
-  document.getElementById('reveal-hint').textContent = commentData.hint;
-
+function reveal() {
+  const r = cur.reveal();
+  $('rv-said').textContent = r.said;
+  $('rv-main').innerHTML = r.main;
+  $('rv-comment').innerHTML = r.comment;
+  $('rv-secret').innerHTML = r.secret; $('rv-secret').classList.remove('show');
+  $('secret-btn').textContent = '🔬 Kok bisa? (rahasia pesulap)';
+  done.add(cur.id);
   showScreen('s-reveal');
-  confetti(50);
-  if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
+  confetti(50); vib([100, 50, 100, 50, 200]);
+}
+function toggleSecret() {
+  const s = $('rv-secret'), show = !s.classList.contains('show');
+  s.classList.toggle('show', show);
+  $('secret-btn').textContent = show ? '🙈 Tutup rahasianya' : '🔬 Kok bisa? (rahasia pesulap)';
 }
 
 function confetti(n) {
-  const colors=['#c17a6f','#c9a96e','#6a0dad','#fff','#d4a8ff'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*20);
+  const colors = ['#c17a6f', '#c9a96e', '#6a0dad', '#fff', '#d4a8ff'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
 </script>
 </body>
