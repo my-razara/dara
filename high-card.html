@@ -6,153 +6,140 @@
 <title>High Card Draw ♠️</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
+  :root{--blue:#7eb3f5;--pink:#f0a39a;--gold:#ffd54f;--rose:#c17a6f;--purple:#ce93d8;--green:#81c784;--red:#e57373}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;-webkit-user-select:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#06060f}
-
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-  .screen.active{display:flex}
-
-  /* STARS */
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
-  @keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.6}}
-
-  /* ── INTRO ── */
-  #s-intro{background:transparent;padding:1.5rem;text-align:center}
-  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:tw linear infinite}
+  @keyframes tw{0%,100%{opacity:.1}50%{opacity:.6}}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
-  .intro-title span{color:#ffd54f}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
-  .how-row{display:flex;gap:.5rem;margin-bottom:1.5rem;width:100%;max-width:340px}
-  .how-item{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
-  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
-  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
-  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#4a1a1a,#c17a6f);color:#fff;box-shadow:0 6px 20px rgba(193,122,111,.35)}
-  .intro-btn:active{transform:scale(.97)}
+  @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 
-  /* ── PICK ── */
-  #s-pick{background:transparent;padding:1.5rem;text-align:center}
-  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
-  .pick-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.25rem}
-  .pick-sub{font-size:12px;color:rgba(255,255,255,.35);margin:.25rem auto 1.4rem;max-width:260px;line-height:1.6}
-  .pick-btns{display:flex;flex-direction:column;gap:.55rem;width:100%}
-  .pick-btn{padding:.95rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:all .15s}
-  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.4rem 1.2rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .screen.active{display:flex}
+  .inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+  .icon{font-size:3.3rem;display:block;margin-bottom:.6rem;animation:float 3s ease-in-out infinite}
+  .label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
+  .title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.25rem}
+  .title span{color:var(--gold)}
+  .sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.3rem auto 1rem}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(193,122,111,.25);border-radius:16px;padding:.85rem 1rem;margin-bottom:.7rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.55rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(193,122,111,.35);background:transparent;color:rgba(255,255,255,.55);font-size:13px;font-weight:700;cursor:pointer;line-height:1.3}
+  .pill small{display:block;font-size:9px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,#4a1a1a,var(--rose));border-color:transparent;color:#fff}
+  .toggle{display:flex;align-items:center;gap:.7rem;cursor:pointer;margin-bottom:.5rem}
+  .toggle:last-child{margin-bottom:0}
+  .tg-info{flex:1}
+  .tg-t{font-size:12.5px;font-weight:600;color:#fff;display:block}
+  .tg-s{font-size:10.5px;color:rgba(255,255,255,.45);display:block;line-height:1.4}
+  .tg-c{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:transparent;flex-shrink:0}
+  .toggle.on .tg-c{background:var(--rose);border-color:var(--rose);color:#fff}
+  .rule{display:flex;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:#fff}
+  .dotc{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.4rem}
+  .btn{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#4a1a1a,var(--rose));color:#fff;box-shadow:0 6px 20px rgba(193,122,111,.3)}
+  .btn:active{transform:scale(.97)}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left}
+  .pick-btn:active{transform:scale(.97)}
+  .pick-icon{font-size:2rem}
+  .pick-name{font-size:14px;font-weight:700;color:#fff;display:block}
+  .pick-sub2{font-size:11px;color:rgba(255,255,255,.4);display:block}
 
-  /* ── GAME SCREEN ── */
-  #s-game{background:transparent;padding:0;justify-content:flex-start}
+  /* GAME */
+  #s-game{padding:0}
+  .gw{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;margin:0 auto;position:relative;z-index:1}
+  .hdr{flex-shrink:0;background:rgba(6,6,15,.92);border-bottom:1px solid rgba(255,255,255,.06);padding:.45rem .8rem;display:flex;align-items:center;justify-content:space-between}
+  .hp{text-align:center;min-width:86px}
+  .hp-n{font-size:10px;font-weight:700;letter-spacing:.06em;display:block}
+  .hp.r .hp-n{color:var(--blue)}.hp.d .hp-n{color:var(--pink)}
+  .hp-s{font-size:1.6rem;font-weight:900;color:#fff;display:block;line-height:1.05}
+  .tokens{font-size:10px;color:rgba(255,255,255,.55);display:flex;gap:.3rem;justify-content:center;min-height:14px}
+  .tokens .used{opacity:.25;text-decoration:line-through}
+  .hm{text-align:center;flex:1}
+  .hm b{display:block;font-size:12px;color:#fff}
+  .hm span{font-size:9.5px;color:rgba(255,255,255,.4)}
+  .x-btn{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:9.5px;border-radius:50px;padding:.05rem .45rem;margin-top:.15rem;cursor:pointer}
+  .pips{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:.3rem;padding:.4rem;background:rgba(6,6,15,.6);flex-wrap:wrap}
+  .pip{width:11px;height:11px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15)}
+  .pip.r{background:var(--blue);border-color:var(--blue)}.pip.d{background:var(--pink);border-color:var(--pink)}
+  .pip-sep{width:1px;height:14px;background:rgba(255,255,255,.12);margin:0 .3rem}
+  .body{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.8rem;gap:.7rem}
+  .turn{font-size:12px;font-weight:700;padding:.25rem .85rem;border-radius:50px}
+  .turn.r{background:rgba(126,179,245,.15);color:var(--blue)}.turn.d{background:rgba(240,163,154,.15);color:var(--pink)}
+  .double-flag{font-size:11px;font-weight:800;color:var(--gold);min-height:16px}
+  .table{display:flex;gap:clamp(.6rem,4vw,1.4rem);align-items:center;justify-content:center}
+  .slot{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+  .slot-n{font-size:10px;font-weight:700}
+  .slot.r .slot-n{color:var(--blue)}.slot.d .slot-n{color:var(--pink)}
+  .card{width:min(118px,31vw);aspect-ratio:.7;perspective:700px}
+  .card-in{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.34,1.2,.64,1)}
+  .card.up .card-in{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .back{background:linear-gradient(145deg,#1a0a3a,#2a1050);border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+  .back i{width:80%;height:80%;border:1.5px solid rgba(255,255,255,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:1.5rem;background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,transparent 2px 8px)}
+  .front{background:#fff;transform:rotateY(180deg);box-shadow:0 8px 28px rgba(0,0,0,.45);display:flex;flex-direction:column;justify-content:space-between;padding:.35rem .45rem;border:2px solid rgba(0,0,0,.06)}
+  .front.joker{background:linear-gradient(145deg,#f3e5f5,#e1bee7)}
+  .corner{display:flex;flex-direction:column;align-items:flex-start;line-height:1;font-weight:900}
+  .corner.bot{transform:rotate(180deg)}
+  .c-rank{font-size:clamp(1rem,4.2vw,1.3rem)}
+  .c-suit{font-size:clamp(.8rem,3.4vw,1rem)}
+  .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(2rem,9vw,3rem)}
+  .red{color:#d32f2f}.black{color:#1a1a1a}.purple{color:#8e24aa}
+  .card.win .front{box-shadow:0 0 0 3px var(--gold),0 0 28px rgba(255,213,79,.55)}
+  .card.lose{opacity:.55}
+  .deck{width:min(80px,21vw);aspect-ratio:.7;border-radius:10px;background:linear-gradient(145deg,#2a1050,#3a1870);border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:3px 3px 0 #1a0a3a,6px 6px 0 #120730;transition:transform .12s}
+  .deck:active{transform:scale(.93)}
+  .deck.off{opacity:.3;pointer-events:none}
+  .deck.pulse{animation:dpulse 1.2s ease-in-out infinite}
+  @keyframes dpulse{0%,100%{box-shadow:3px 3px 0 #1a0a3a,6px 6px 0 #120730,0 0 0 0 rgba(255,213,79,.0)}50%{box-shadow:3px 3px 0 #1a0a3a,6px 6px 0 #120730,0 0 0 6px rgba(255,213,79,.25)}}
+  .deck-lbl{font-size:9.5px;color:rgba(255,255,255,.4)}
+  .actions{display:flex;gap:.5rem;width:100%;max-width:360px;justify-content:center;min-height:46px}
+  .act{flex:1;padding:.7rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;line-height:1.25}
+  .act small{display:block;font-size:9.5px;font-weight:500;color:rgba(255,255,255,.5)}
+  .act.keep{background:rgba(129,199,132,.15);border-color:rgba(129,199,132,.4)}
+  .act.redraw{border-color:rgba(206,147,216,.45)}
+  .act.dbl{border-color:rgba(255,213,79,.45)}
+  .act.dbl.on{background:rgba(255,213,79,.22);color:var(--gold)}
+  .act.next{background:linear-gradient(135deg,#4a1a1a,var(--rose));border:none}
+  .flash{font-size:14px;font-weight:800;padding:.4rem 1rem;border-radius:50px;display:none;animation:pop .35s cubic-bezier(.34,1.5,.64,1)}
+  .flash.show{display:inline-block}
+  .flash.r{background:rgba(126,179,245,.15);color:var(--blue);border:1px solid rgba(126,179,245,.35)}
+  .flash.d{background:rgba(240,163,154,.15);color:var(--pink);border:1px solid rgba(240,163,154,.35)}
+  .flash.t{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+  .mini-demand{display:none;width:100%;max-width:360px;background:linear-gradient(135deg,rgba(255,213,79,.12),rgba(193,122,111,.12));border:1px solid rgba(255,213,79,.35);border-radius:14px;padding:.6rem .8rem;font-size:12.5px;color:#fff;line-height:1.5;text-align:left}
+  .mini-demand.show{display:block;animation:pop .35s ease}
+  .mini-demand span{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block}
+  .mini-demand b{color:var(--gold)}
 
-  /* Score header */
-  .score-header{flex-shrink:0;width:100%;background:rgba(6,6,15,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:.45rem .85rem;display:flex;align-items:center;justify-content:space-between}
-  .sh-player{text-align:center;flex:1}
-  .sh-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;display:block}
-  .sh-score{font-size:1.6rem;font-weight:900;display:block;line-height:1}
-  .sh-score.razan{color:#7eb3f5}
-  .sh-score.dara{color:#e8a090}
-  .sh-mid{text-align:center;flex:.8}
-  .round-badge{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);display:block}
-  .round-sub{font-size:9px;color:rgba(255,255,255,.2);display:block;margin-top:.1rem}
-
-  /* Win pips */
-  .win-pips{flex-shrink:0;width:100%;padding:.4rem .85rem;background:rgba(6,6,15,.7);border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;gap:.4rem}
-  .pip{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);transition:all .3s}
-  .pip.razan{background:#7eb3f5;border-color:#7eb3f5;box-shadow:0 0 6px rgba(126,179,245,.5)}
-  .pip.dara{background:#e8a090;border-color:#e8a090;box-shadow:0 0 6px rgba(232,160,144,.5)}
-  .pip-sep{width:1px;height:16px;background:rgba(255,255,255,.1);margin:0 .25rem}
-
-  /* Game body */
-  .g-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1rem;gap:1rem;position:relative;z-index:1}
-
-  /* Turn label */
-  .turn-label{font-size:11px;font-weight:700;padding:.25rem .85rem;border-radius:50px;display:inline-block}
-  .turn-label.razan{background:rgba(126,179,245,.15);color:#7eb3f5}
-  .turn-label.dara{background:rgba(232,160,144,.15);color:#e8a090}
-
-  /* Cards area */
-  .cards-row{display:flex;gap:1.5rem;align-items:center;justify-content:center}
-
-  /* Card */
-  .card{width:min(130px,36vw);aspect-ratio:.7;border-radius:12px;cursor:pointer;transition:all .3s;position:relative;perspective:600px}
-  .card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.34,1.2,.64,1)}
-  .card.flipped .card-inner{transform:rotateY(180deg)}
-  .card-back,.card-front{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-
-  /* Card back */
-  .card-back{background:linear-gradient(145deg,#1a0a3a,#2a1050);border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}
-  .card-back-pattern{width:80%;height:80%;border:1.5px solid rgba(255,255,255,.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 2px,transparent 2px,transparent 8px)}
-
-  /* Card front */
-  .card-front{background:#fff;border:2px solid rgba(0,0,0,.08);transform:rotateY(180deg);display:flex;flex-direction:column;padding:.4rem;box-shadow:0 8px 32px rgba(0,0,0,.4)}
-  .cf-top{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
-  .cf-bot{display:flex;flex-direction:column;align-items:flex-end;line-height:1;margin-top:auto;transform:rotate(180deg)}
-  .cf-rank{font-size:clamp(1rem,4vw,1.3rem);font-weight:900;line-height:1}
-  .cf-suit{font-size:clamp(.85rem,3.5vw,1.1rem);line-height:1}
-  .cf-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(2rem,8vw,3rem)}
-  .red{color:#d32f2f}
-  .black{color:#1a1a1a}
-
-  /* Draw button */
-  .draw-btn{padding:.9rem 2rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;transition:all .2s}
-  .draw-btn.razan{background:linear-gradient(135deg,#1a4a8a,#7eb3f5);color:#fff;box-shadow:0 4px 18px rgba(126,179,245,.3)}
-  .draw-btn.dara{background:linear-gradient(135deg,#6a2a20,#e8a090);color:#fff;box-shadow:0 4px 18px rgba(232,160,144,.3)}
-  .draw-btn:active{transform:scale(.95)}
-  .draw-btn:disabled{opacity:.35;pointer-events:none}
-
-  /* VS badge */
-  .vs-badge{font-size:1rem;font-weight:900;color:rgba(255,255,255,.2)}
-
-  /* Result flash */
-  .result-flash{font-size:1rem;font-weight:700;padding:.4rem 1.1rem;border-radius:50px;display:none;animation:popbounce .4s cubic-bezier(.34,1.5,.64,1)}
-  .result-flash.show{display:inline-block}
-  @keyframes popbounce{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
-  .result-flash.win-r{background:rgba(126,179,245,.15);color:#7eb3f5;border:1px solid rgba(126,179,245,.3)}
-  .result-flash.win-d{background:rgba(232,160,144,.15);color:#e8a090;border:1px solid rgba(232,160,144,.3)}
-  .result-flash.tie{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1)}
-
-  /* Next round btn */
-  .next-btn{padding:.8rem 1.75rem;border-radius:50px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-size:13px;font-weight:700;cursor:pointer;display:none;transition:all .15s}
-  .next-btn.show{display:inline-block}
-  .next-btn:active{background:rgba(255,255,255,.12);transform:scale(.97)}
-
-  /* ── FINAL ── */
-  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
-  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
-  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
-  .final-title{font-size:1.3rem;font-weight:900;color:#fff}
-  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
-  .final-score{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%}
-  .fs-av{font-size:1.5rem;display:block;margin-bottom:.2rem}
-  .fs-nm{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
-  .fs-sc{font-size:2.5rem;font-weight:900;display:block;line-height:1}
-  .fs-sc.razan{color:#7eb3f5}
-  .fs-sc.dara{color:#e8a090}
-  .fs-vs{color:rgba(255,255,255,.15);font-size:1rem}
-
-  /* Round history recap */
-  .recap-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:.85rem 1rem;width:100%}
-  .recap-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.55rem}
-  .recap-rounds{display:flex;flex-direction:column;gap:.3rem}
-  .recap-round{display:flex;align-items:center;gap:.5rem;font-size:12px}
-  .rr-num{font-size:9px;color:rgba(255,255,255,.25);min-width:48px}
-  .rr-cards{flex:1;display:flex;align-items:center;gap:.35rem}
-  .rr-mini{font-size:.85rem;font-weight:700}
-  .rr-winner{font-size:10px;font-weight:700;padding:.1rem .5rem;border-radius:50px}
-  .rr-winner.razan{background:rgba(126,179,245,.12);color:#7eb3f5}
-  .rr-winner.dara{background:rgba(232,160,144,.12);color:#e8a090}
-  .rr-winner.tie{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3)}
-
-  .verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;width:100%}
-  .verdict strong{color:#e8a090;font-style:normal}
-
-  .final-btns{display:flex;gap:.6rem;width:100%}
-  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
-  .final-btn-p{background:linear-gradient(135deg,#4a1a1a,#c17a6f);color:#fff}
-  .final-btn-p:active{transform:scale(.97)}
-  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
-
-  /* Confetti */
+  /* FINAL */
+  .score-card{background:rgba(255,255,255,.05);border:1px solid rgba(193,122,111,.3);border-radius:20px;padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%}
+  .sc-nm{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block}
+  .sc-nm.r{color:var(--blue)}.sc-nm.d{color:var(--pink)}
+  .sc-v{font-size:2.2rem;font-weight:900;color:#fff;display:block;line-height:1.1}
+  .sc-vs{color:rgba(255,255,255,.25)}
+  .recap{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.6rem .8rem;margin-bottom:.75rem;text-align:left;max-height:220px;overflow-y:auto}
+  .rc-row{display:grid;grid-template-columns:3.2rem 1fr auto;align-items:center;gap:.4rem;padding:.25rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+  .rc-row:last-child{border-bottom:none}
+  .rc-n{font-size:9.5px;color:rgba(255,255,255,.35)}
+  .rc-c{font-weight:800}
+  .rc-w{font-size:10px;font-weight:700;padding:.1rem .5rem;border-radius:50px}
+  .rc-w.r{background:rgba(126,179,245,.15);color:var(--blue)}.rc-w.d{background:rgba(240,163,154,.15);color:var(--pink)}.rc-w.t{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+  .tbl{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.6rem .8rem;margin-bottom:.75rem;font-size:11.5px;color:rgba(255,255,255,.6);text-align:left}
+  .tbl .tr{display:grid;grid-template-columns:1.4fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .tbl .tr:last-child{border-bottom:none}
+  .tbl .head{color:rgba(255,255,255,.35);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .tbl b{color:#fff}
+  .verdict{background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.25);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .verdict strong{color:var(--pink)}
+  .demand{background:linear-gradient(135deg,rgba(255,213,79,.14),rgba(193,122,111,.12));border:1px solid rgba(255,213,79,.35);border-radius:16px;padding:.85rem 1.1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.3rem}
+  .demand-text{font-size:13.5px;font-weight:600;color:#fff;line-height:1.55}
+  .demand-text b{color:var(--gold)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -162,514 +149,333 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <div class="intro-wrap">
-    <span class="intro-icon">♠️</span>
-    <h1 class="intro-title">High Card <span>Draw!</span></h1>
-    <p class="intro-sub">Gantian tarik kartu — kartu tertinggi menang tiap ronde. Best of 5! Ace tertinggi — tapi awas ada <strong style="color:#ce93d8">♠️ Joker</strong> yang ngalahin semua!</p>
-    <div class="how-row">
-      <div class="how-item"><span class="how-emoji">♠️</span><span class="how-text">Tap deck untuk tarik kartu</span></div>
-      <div class="how-item"><span class="how-emoji">⚔️</span><span class="how-text">Kartu tertinggi menang ronde</span></div>
-      <div class="how-item"><span class="how-emoji">🏆</span><span class="how-text">Pertama capai 3 menang!</span></div>
+  <div class="inner">
+    <span class="icon">♠️</span>
+    <span class="label">Game Berdua</span>
+    <h1 class="title">High Card <span>Draw!</span></h1>
+    <p class="sub">Tarik kartu, yang paling tinggi menang. Tapi ada <b style="color:#ce93d8">🃏 Joker</b>, token <b style="color:#ce93d8">🔄 Tarik Ulang</b> & <b style="color:#ffd54f">💥 Double</b> — hoki dicampur nyali!</p>
+    <div class="panel">
+      <span class="panel-title">Poin Menang</span>
+      <div class="pills" id="target-pills">
+        <button class="pill on" data-v="3">3<small>cepat</small></button>
+        <button class="pill" data-v="5">5<small>normal</small></button>
+        <button class="pill" data-v="7">7<small>panjang</small></button>
+      </div>
     </div>
-    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai! ♠️</button>
+    <div class="panel">
+      <div class="toggle on" id="tg-suit" onclick="tog('suit')"><div class="tg-info"><span class="tg-t">♠️ Tiebreak Jenis Kartu</span><span class="tg-s">Angka sama? ♠ &gt; ♥ &gt; ♦ &gt; ♣</span></div><div class="tg-c">✓</div></div>
+      <div class="toggle on" id="tg-dare" onclick="tog('dare')"><div class="tg-info"><span class="tg-t">💌 Hadiah Tiap Ronde</span><span class="tg-s">Jenis kartu pemenang nentuin hadiahnya</span></div><div class="tg-c">✓</div></div>
+    </div>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="dotc" style="background:#fff"></span>Gantian tarik kartu. <b>A</b> tertinggi, <b>🃏 Joker</b> ngalahin semua</div>
+      <div class="rule"><span class="dotc" style="background:var(--purple)"></span><b>🔄 Tarik Ulang</b> (1x per game): nggak suka kartumu? buang & tarik lagi</div>
+      <div class="rule"><span class="dotc" style="background:var(--gold)"></span><b>💥 Double</b> (1x per game): nyatain sebelum narik — ronde ini bernilai 2 poin buat pemenangnya (siapapun!)</div>
+      <div class="rule"><span class="dotc" style="background:var(--pink)"></span>Hadiah: ♥ romantis · ♦ traktiran · ♣ pujian · ♠ tantangan · 🃏 bebas minta</div>
+    </div>
+    <button class="btn" onclick="showScreen('s-pick')">Mulai! ♠️</button>
   </div>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <div class="pick-wrap">
-    <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">♠️</span>
-    <p class="pick-title" style="color:#fff">Siapa yang tarik duluan?</p>
-    <p class="pick-sub">Gantian tarik kartu tiap ronde — urutan bergantian</p>
+  <div class="inner">
+    <span class="icon">🃏</span>
+    <p class="title" style="font-size:1.15rem">Siapa yang tarik duluan?</p>
+    <p class="sub">Tiap ronde gantian yang duluan — yang kedua bisa liat kartu lawan dulu</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="initGame('razan')">
-        <span style="font-size:2rem;flex-shrink:0">🧑</span>
-        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Razan tarik duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Ronde 1: Razan dulu</span></div>
-      </div>
-      <div class="pick-btn" onclick="initGame('dara')">
-        <span style="font-size:2rem;flex-shrink:0">👧</span>
-        <div style="text-align:left"><span style="font-size:14px;font-weight:700;color:#fff;display:block">Dara tarik duluan</span><span style="font-size:11px;color:rgba(255,255,255,.35);display:block;margin-top:.1rem">Ronde 1: Dara dulu</span></div>
-      </div>
+      <div class="pick-btn" onclick="initGame('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Ronde 1: Razan tarik pertama</span></div></div>
+      <div class="pick-btn" onclick="initGame('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Ronde 1: Dara tarik pertama</span></div></div>
     </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="score-header">
-    <div class="sh-player">
-      <span class="sh-name">🧑 RAZAN</span>
-      <span class="sh-score razan" id="sc-r">0</span>
+  <div class="gw">
+    <div class="hdr">
+      <div class="hp r"><span class="hp-n">🧑 RAZAN</span><span class="hp-s" id="sc-r">0</span><div class="tokens" id="tk-r"></div></div>
+      <div class="hm"><b id="round-lbl">Ronde 1</b><span id="target-lbl">first to 3</span><br><button class="x-btn" onclick="exitGame()">✕ Keluar</button></div>
+      <div class="hp d"><span class="hp-n">👧 DARA</span><span class="hp-s" id="sc-d">0</span><div class="tokens" id="tk-d"></div></div>
     </div>
-    <div class="sh-mid">
-      <span class="round-badge" id="round-badge">Ronde 1</span>
-      <span class="round-sub">Best of 5</span>
-    </div>
-    <div class="sh-player">
-      <span class="sh-name">DARA 👧</span>
-      <span class="sh-score dara" id="sc-d">0</span>
-    </div>
-  </div>
-  <div class="win-pips" id="win-pips"></div>
-  <div class="g-body">
-    <span class="turn-label razan" id="turn-label">Giliran Razan</span>
-
-    <div class="cards-row">
-      <!-- Razan drawn card (left slot) -->
-      <div class="card" id="card-razan" style="cursor:default">
-        <div class="card-inner" id="ci-razan">
-          <div class="card-back">
-            <div class="card-back-pattern" id="cbp-razan">🧑</div>
-          </div>
-          <div class="card-front" id="cf-razan">
-            <div class="cf-top"><span class="cf-rank" id="cr-rank-r">A</span><span class="cf-suit" id="cr-suit-r">♠</span></div>
-            <div class="cf-center" id="cr-center-r">♠</div>
-            <div class="cf-bot"><span class="cf-rank" id="cb-rank-r">A</span><span class="cf-suit" id="cb-suit-r">♠</span></div>
-          </div>
-        </div>
+    <div class="pips" id="pips"></div>
+    <div class="body">
+      <span class="turn r" id="turn">🧑 Razan — giliran tarik</span>
+      <span class="double-flag" id="dbl-flag"></span>
+      <div class="table">
+        <div class="slot r"><div class="card" id="card-r"><div class="card-in"><div class="face back"><i>🧑</i></div><div class="face front" id="front-r"></div></div></div><span class="slot-n">Razan</span></div>
+        <div class="slot"><div class="deck pulse" id="deck" onclick="drawCard()">🂠</div><span class="deck-lbl" id="deck-lbl">Tap buat tarik</span></div>
+        <div class="slot d"><div class="card" id="card-d"><div class="card-in"><div class="face back"><i>👧</i></div><div class="face front" id="front-d"></div></div></div><span class="slot-n">Dara</span></div>
       </div>
-
-      <!-- CENTER DECK — tap to draw -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
-        <div class="card" id="deck-card" onclick="drawFromDeck()" style="width:min(90px,25vw)">
-          <div class="card-inner">
-            <div class="card-back" style="background:linear-gradient(145deg,#2a1050,#3a1870)">
-              <div class="card-back-pattern" id="deck-pattern">♠️</div>
-            </div>
-            <div class="card-front">
-              <div class="cf-center">♠️</div>
-            </div>
-          </div>
-        </div>
-        <span style="font-size:9px;color:rgba(255,255,255,.3);text-align:center" id="deck-label">Tap untuk tarik</span>
-        <span style="font-size:9px;color:rgba(255,255,255,.2)" id="deck-count"></span>
-      </div>
-
-      <!-- Dara drawn card (right slot) -->
-      <div class="card" id="card-dara" style="cursor:default">
-        <div class="card-inner" id="ci-dara">
-          <div class="card-back">
-            <div class="card-back-pattern" id="cbp-dara">👧</div>
-          </div>
-          <div class="card-front" id="cf-dara">
-            <div class="cf-top"><span class="cf-rank" id="cr-rank-d">A</span><span class="cf-suit" id="cr-suit-d">♥</span></div>
-            <div class="cf-center" id="cr-center-d">♥</div>
-            <div class="cf-bot"><span class="cf-rank" id="cb-rank-d">A</span><span class="cf-suit" id="cb-suit-d">♥</span></div>
-          </div>
-        </div>
-      </div>
+      <span class="flash" id="flash"></span>
+      <div class="mini-demand" id="mini-demand"></div>
+      <div class="actions" id="actions"></div>
     </div>
-
-    <span class="result-flash" id="result-flash">Razan menang ronde ini!</span>
-    <button class="next-btn" id="next-btn" onclick="nextRound()">Ronde Berikutnya →</button>
   </div>
 </div>
 
 <!-- FINAL -->
-<div id="s-final" class="screen">
-  <div class="final-wrap">
-    <span class="final-icon" id="final-icon">🏆</span>
-    <h2 class="final-title" id="final-title">Razan Menang!</h2>
-    <p class="final-sub" id="final-sub">Best of 5 selesai!</p>
-    <div class="final-score">
-      <div><span class="fs-av">🧑</span><span class="fs-nm">Razan</span><span class="fs-sc razan" id="end-r">0</span></div>
-      <span class="fs-vs">♠️</span>
-      <div><span class="fs-av">👧</span><span class="fs-nm">Dara</span><span class="fs-sc dara" id="end-d">0</span></div>
-    </div>
-    <div class="recap-card">
-      <span class="recap-title">📋 Recap Semua Ronde</span>
-      <div class="recap-rounds" id="recap-rounds"></div>
-    </div>
-    <div class="verdict" id="verdict">...</div>
-    <div class="final-btns">
-      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
-    </div>
-  </div>
-</div>
+<div id="s-final" class="screen"><div class="inner" id="final-inner"></div></div>
 
 <script>
-// ── DECK ──
+// ═════════ DATA ═════════
 const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const SUITS = ['♠','♥','♦','♣'];
-const RANK_VAL = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
-const RED_SUITS = ['♥','♦'];
+const SUIT_VAL = { '♠':4, '♥':3, '♦':2, '♣':1 };
+const NAMES = { r:'Razan', d:'Dara' };
+const ICON = { r:'🧑', d:'👧' };
+const SUIT_DARES = {
+  '♥': ['<b>{l}</b> kasih <b>{w}</b> pelukan 5 detik 🤗', '<b>{l}</b> kasih kecupan jauh ke <b>{w}</b> 😘', '<b>{l}</b> bilang "aku sayang kamu" dengan gaya paling lebay ke <b>{w}</b> 💕'],
+  '♦': ['<b>{l}</b> utang 1 jajanan kecil ke <b>{w}</b> 🍬', '<b>{l}</b> ambilin minum buat <b>{w}</b> 🥤', '<b>{l}</b> traktir es teh <b>{w}</b> next time 🧋'],
+  '♣': ['<b>{l}</b> kasih 2 pujian tulus ke <b>{w}</b> 🥰', '<b>{l}</b> sebut 1 hal yang bikin kangen dari <b>{w}</b> 💭', '<b>{l}</b> puji senyum <b>{w}</b> 😊'],
+  '♠': ['<b>{l}</b> tiruin gaya selebrasi <b>{w}</b> 😂', '<b>{l}</b> push-up/squat 5x 💪', '<b>{l}</b> ngomong pakai logat daerah 1 kalimat 🗣️'],
+  '🃏': ['<b>{w}</b> boleh minta APA AJA (yang kecil & wajar) ke <b>{l}</b> — Joker berkuasa! 🃏👑'],
+};
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> jajanan favorit minggu ini 🍡',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+  '<b>{w}</b> boleh minta 1 hal kecil ke <b>{l}</b> — nggak boleh ditolak 😏',
+  '<b>{l}</b> tulis "kartu ucapan" beneran buat <b>{w}</b> 💌',
+];
 
-function makeDeck(){
-  const deck=[];
-  SUITS.forEach(s=>RANKS.forEach(r=>deck.push({rank:r,suit:s,val:RANK_VAL[r]})));
-  // Tambah 2 Joker — ngalahin semua kartu!
-  deck.push({rank:'♠️',suit:'',val:15,isJoker:true});
-  deck.push({rank:'♠️',suit:'',val:15,isJoker:true});
-  return shuffle(deck);
+// ═════════ STATE ═════════
+let CFG = { target: 3, suit: true, dare: true };
+let G = null;
+const decks = {};
+
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'r' ? 'd' : 'r'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; } }
+document.querySelectorAll('#target-pills .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('#target-pills .pill').forEach(x => x.classList.remove('on'));
+  p.classList.add('on'); CFG.target = parseInt(p.dataset.v);
+}));
+function tog(k) { CFG[k] = !CFG[k]; $('tg-' + k).classList.toggle('on', CFG[k]); }
+(function stars() { const s = $('stars'); for (let i = 0; i < 60; i++) { const el = document.createElement('div'); el.className = 'star'; const z = 1 + Math.random() * 2; el.style.cssText = `width:${z}px;height:${z}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:-${Math.random() * 5}s`; s.appendChild(el); } })();
+
+function makeDeck() {
+  const d = [];
+  SUITS.forEach(s => RANKS.forEach((r, i) => d.push({ rank: r, suit: s, val: i + 2 })));
+  d.push({ rank: 'JOKER', suit: '🃏', val: 15, joker: true }, { rank: 'JOKER', suit: '🃏', val: 15, joker: true });
+  return shuffle(d);
 }
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
-  return arr;
-}
+function cardStr(c) { return c.joker ? '🃏' : c.rank + c.suit; }
+function cardColor(c) { return c.joker ? '#ce93d8' : (c.suit === '♥' || c.suit === '♦') ? '#e57373' : '#e0e0e0'; }
 
-// ── STATE ──
-let deck=[];
-let scores={razan:0,dara:0};
-let round=1;
-const BEST_OF=5;
-const WIN_NEEDED=3;
-let firstDrawer='razan'; // who draws first this round
-let currentDrawer='razan';
-let drawnCards={razan:null,dara:null};
-let roundHistory=[]; // [{razan:{rank,suit}, dara:{rank,suit}, winner}]
-let gamePhase='draw'; // 'draw' | 'reveal' | 'done'
-
-// ── STARS ──
-(function(){
-  const s=document.getElementById('stars');
-  for(let i=0;i<60;i++){
-    const el=document.createElement('div');
-    el.className='star';
-    const sz=1+Math.random()*2;
-    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s`;
-    s.appendChild(el);
-  }
-})();
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el) el.classList.add('active');
-}
-
-// ── INIT ──
-function initGame(first){
-  firstDrawer=first;
-  currentDrawer=first;
-  scores={razan:0,dara:0};
-  round=1;
-  roundHistory=[];
-  deck=makeDeck();
-  gamePhase='draw';
-  drawnCards={razan:null,dara:null};
-  resetCardVisuals();
-  updateHUD();
-  renderPips();
+// ═════════ GAME ═════════
+function initGame(first) {
+  const f = first === 'd' ? 'd' : 'r';
+  G = { first: f, target: CFG.target, scores: { r:0, d:0 }, round: 1, starter: f, cur: f,
+        drawn: { r:null, d:null }, tok: { r:{ redraw:1, double:1 }, d:{ redraw:1, double:1 } },
+        dbl: null, phase: 'draw', deck: makeDeck(), hist: [],
+        st: { r:{ jokers:0, redraws:0, doubles:0, dblWon:0, best:null }, d:{ jokers:0, redraws:0, doubles:0, dblWon:0, best:null } } };
+  setupRound();
   showScreen('s-game');
 }
 
-function resetCardVisuals(){
-  ['razan','dara'].forEach(p=>{
-    const card=document.getElementById('card-'+p);
-    if(card) card.classList.remove('flipped');
+function setupRound() {
+  G.drawn = { r:null, d:null }; G.dbl = null; G.phase = 'draw'; G.cur = G.starter; G.pendingDbl = false;
+  if (G.deck.length < 6) { G.deck = makeDeck(); }
+  ['r', 'd'].forEach(p => { const c = $('card-' + p); c.classList.remove('up', 'win', 'lose'); });
+  $('flash').className = 'flash'; $('mini-demand').className = 'mini-demand';
+  setText('dbl-flag', '');
+  updateHud(); renderTurn();
+}
+
+function updateHud() {
+  setText('sc-r', G.scores.r); setText('sc-d', G.scores.d);
+  setText('round-lbl', `Ronde ${G.round}`); setText('target-lbl', `first to ${G.target}`);
+  ['r', 'd'].forEach(p => setHTML('tk-' + p, `<span class="${G.tok[p].redraw ? '' : 'used'}">🔄</span><span class="${G.tok[p].double ? '' : 'used'}">💥</span>`));
+  let h = '';
+  for (let i = 0; i < G.target; i++) h += `<div class="pip ${i < G.scores.r ? 'r' : ''}"></div>`;
+  h += '<div class="pip-sep"></div>';
+  for (let i = 0; i < G.target; i++) h += `<div class="pip ${i < G.scores.d ? 'd' : ''}"></div>`;
+  setHTML('pips', h);
+}
+
+function renderTurn() {
+  const p = G.cur, t = $('turn');
+  const deck = $('deck');
+  if (G.phase === 'draw') {
+    t.textContent = `${ICON[p]} ${NAMES[p]} — giliran tarik`; t.className = 'turn ' + p;
+    deck.classList.remove('off'); deck.classList.add('pulse');
+    setText('deck-lbl', `${G.deck.length} kartu · tap buat tarik`);
+    const canDbl = G.tok[p].double && !G.dbl;
+    setHTML('actions', canDbl ? `<button class="act dbl ${G.pendingDbl ? 'on' : ''}" onclick="toggleDouble()">💥 Double<small>${G.pendingDbl ? 'aktif — tarik sekarang!' : 'ronde ini = 2 poin (1x)'}</small></button>` : '');
+  } else if (G.phase === 'decide') {
+    t.textContent = `${ICON[p]} ${NAMES[p]} — simpan atau tarik ulang?`; t.className = 'turn ' + p;
+    deck.classList.add('off'); deck.classList.remove('pulse');
+    setHTML('actions', `<button class="act keep" onclick="keepCard()">✅ Simpan</button><button class="act redraw" onclick="redraw()">🔄 Tarik Ulang<small>1x per game</small></button>`);
+  } else if (G.phase === 'done') {
+    deck.classList.add('off'); deck.classList.remove('pulse');
+  }
+}
+
+function toggleDouble() {
+  if (G.phase !== 'draw' || !G.tok[G.cur].double || G.dbl) return;
+  G.pendingDbl = !G.pendingDbl; vib(20); renderTurn();
+}
+
+function faceHTML(c) {
+  if (c.joker) return `<div class="corner purple"><span class="c-rank">J</span><span class="c-suit">★</span></div><div class="center">🃏</div><div class="corner bot purple"><span class="c-rank">J</span><span class="c-suit">★</span></div>`;
+  const col = (c.suit === '♥' || c.suit === '♦') ? 'red' : 'black';
+  return `<div class="corner ${col}"><span class="c-rank">${c.rank}</span><span class="c-suit">${c.suit}</span></div><div class="center ${col}">${c.suit}</div><div class="corner bot ${col}"><span class="c-rank">${c.rank}</span><span class="c-suit">${c.suit}</span></div>`;
+}
+
+function showCard(p, c) {
+  const front = $('front-' + p);
+  front.className = 'face front' + (c.joker ? ' joker' : '');
+  front.innerHTML = faceHTML(c);
+  const card = $('card-' + p);
+  card.classList.remove('up'); void card.offsetWidth; card.classList.add('up');
+}
+
+function drawCard() {
+  if (!G || G.phase !== 'draw') return;
+  const p = G.cur;
+  if (G.pendingDbl) { G.dbl = p; G.tok[p].double = 0; G.st[p].doubles++; G.pendingDbl = false; setText('dbl-flag', `💥 DOUBLE oleh ${NAMES[p]} — ronde ini 2 poin!`); vib([40, 30, 80]); updateHud(); }
+  const c = G.deck.pop();
+  G.drawn[p] = c;
+  showCard(p, c);
+  vib(c.joker ? [60, 30, 120] : 25);
+  if (c.joker) { burst(); }
+  // Tawarin tarik ulang kalau token masih ada & bukan Joker
+  if (G.tok[p].redraw && !c.joker) { G.phase = 'decide'; renderTurn(); }
+  else afterKeep();
+}
+
+function keepCard() { if (G.phase !== 'decide') return; afterKeep(); }
+function redraw() {
+  if (G.phase !== 'decide') return;
+  const p = G.cur;
+  G.tok[p].redraw = 0; G.st[p].redraws++;
+  const c = G.deck.pop();
+  G.drawn[p] = c;
+  showCard(p, c);
+  vib(c.joker ? [60, 30, 120] : 25);
+  if (c.joker) burst();
+  updateHud();
+  afterKeep();
+}
+
+function afterKeep() {
+  const p = G.cur, o = other(p);
+  if (!G.drawn[o]) { G.cur = o; G.phase = 'draw'; setTimeout(renderTurn, 250); renderTurn(); return; }
+  G.phase = 'done'; renderTurn(); setHTML('actions', '');
+  setTimeout(reveal, 650);
+}
+
+function compare(a, b) { // >0: a menang
+  if (a.val !== b.val) return a.val - b.val;
+  if (a.joker && b.joker) return 0;
+  if (CFG.suit) return SUIT_VAL[a.suit] - SUIT_VAL[b.suit];
+  return 0;
+}
+
+function reveal() {
+  const a = G.drawn.r, b = G.drawn.d;
+  const cmp = compare(a, b);
+  const w = cmp > 0 ? 'r' : cmp < 0 ? 'd' : null;
+  const pts = G.dbl ? 2 : 1;
+  ['r', 'd'].forEach(p => {
+    const c = G.drawn[p];
+    if (c.joker) G.st[p].jokers++;
+    if (!G.st[p].best || compare(c, G.st[p].best) > 0) G.st[p].best = c;
   });
-  // Reset deck card
-  const deckCard=document.getElementById('deck-card');
-  if(deckCard) deckCard.style.opacity='1';
-  const dl=document.getElementById('deck-label');
-  if(dl) dl.textContent='Tap untuk tarik';
-  const dc=document.getElementById('deck-count');
-  if(dc) dc.textContent=deck.length+' kartu tersisa';
-
-  const rf=document.getElementById('result-flash');
-  if(rf){rf.className='result-flash';rf.textContent='';}
-  const nb=document.getElementById('next-btn');
-  if(nb) nb.className='next-btn';
-  const tl=document.getElementById('turn-label');
-  if(tl){
-    const name=currentDrawer==='razan'?'Razan':'Dara';
-    tl.textContent=`${currentDrawer==='razan'?'🧑':'👧'} ${name} tarik duluan`;
-    tl.className='turn-label '+currentDrawer;
+  let txt, cls;
+  if (w) {
+    G.scores[w] += pts;
+    if (G.dbl && G.dbl === w) G.st[w].dblWon++;
+    $('card-' + w).classList.add('win'); $('card-' + other(w)).classList.add('lose');
+    const byJoker = G.drawn[w].joker, bySuit = a.val === b.val;
+    txt = `${ICON[w]} ${NAMES[w]} +${pts}${byJoker ? ' — 🃏 JOKER!' : bySuit ? ` — menang jenis kartu ${G.drawn[w].suit}` : ''}`;
+    cls = w;
+    vib([40, 20, 80]);
+    if (pts === 2) confetti(30);
+  } else { txt = a.joker && b.joker ? '🃏🃏 Dua Joker — seri epik!' : '🤝 Seri — nggak ada poin'; cls = 't'; }
+  const fl = $('flash'); fl.textContent = txt; fl.className = 'flash show ' + cls;
+  G.hist.push({ r: a, d: b, w, pts, dbl: G.dbl });
+  updateHud();
+  // hadiah sesuai jenis kartu pemenang
+  if (w && CFG.dare) {
+    const suit = G.drawn[w].joker ? '🃏' : G.drawn[w].suit;
+    const md = $('mini-demand');
+    md.innerHTML = `<span>${suit} Hadiah ronde</span>${fill(draw('s' + suit, SUIT_DARES[suit]), { w: NAMES[w], l: NAMES[other(w)] })}`;
+    md.className = 'mini-demand show';
   }
+  const over = G.scores.r >= G.target || G.scores.d >= G.target;
+  setHTML('actions', `<button class="act next" onclick="${over ? 'showFinal()' : 'nextRound()'}">${over ? 'Lihat Juara 🏆' : `Ronde ${G.round + 1} →`}</button>`);
 }
 
-// ── DRAW ──
-function drawFromDeck(){
-  if(gamePhase!=='draw') return;
-  if(deck.length===0) deck=makeDeck();
+function nextRound() { G.round++; G.starter = other(G.starter); setupRound(); }
 
-  const player=currentDrawer;
-  if(drawnCards[player]) return;
-
-  const card=deck.pop();
-  drawnCards[player]=card;
-
-  // Fill card face
-  fillCardFace(player,card);
-
-  // Flip the player's slot card
-  const cardEl=document.getElementById('card-'+player);
-  if(cardEl) cardEl.classList.add('flipped');
-  if(navigator.vibrate) navigator.vibrate(30);
-
-  // Update deck count
-  const dc=document.getElementById('deck-count');
-  if(dc) dc.textContent=deck.length+' kartu tersisa';
-
-  // Switch or reveal
-  const other=player==='razan'?'dara':'razan';
-  if(!drawnCards[other]){
-    // Switch to other player
-    currentDrawer=other;
-    const tl=document.getElementById('turn-label');
-    if(tl){
-      const name=other==='razan'?'Razan':'Dara';
-      tl.textContent=`${other==='razan'?'🧑':'👧'} ${name} giliran tarik!`;
-      tl.className='turn-label '+other;
-    }
-    // Animate deck
-    const dp=document.getElementById('deck-pattern');
-    if(dp) dp.textContent='♠️';
-  } else {
-    // Both drawn — reveal result
-    const dl=document.getElementById('deck-label');
-    if(dl) dl.textContent='Kedua kartu terbuka!';
-    const deckCard=document.getElementById('deck-card');
-    if(deckCard) deckCard.style.opacity='0.3';
-    setTimeout(()=>revealResult(),400);
-  }
+function exitGame() {
+  if (!G) { showScreen('s-intro'); return; }
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  G = null; showScreen('s-intro');
 }
 
-function fillCardFace(player,card){
-  const ids=player==='razan'?
-    {tr:'cr-rank-r',ts:'cr-suit-r',c:'cr-center-r',br:'cb-rank-r',bs:'cb-suit-r'}:
-    {tr:'cr-rank-d',ts:'cr-suit-d',c:'cr-center-d',br:'cb-rank-d',bs:'cb-suit-d'};
-
-  if(card.isJoker){
-    // Special Joker display
-    ['tr','ts','c','br','bs'].forEach(k=>{
-      const el=document.getElementById(ids[k]);
-      if(!el) return;
-      el.style.color='#9c27b0';
-      if(k==='c') el.textContent='♠️';
-      else if(k==='tr'||k==='br') el.textContent='J';
-      else el.textContent='★';
-    });
-    // Make card front purple
-    const cf=document.getElementById('cf-'+player);
-    if(cf) cf.style.background='linear-gradient(145deg,#f3e5f5,#e1bee7)';
-    return;
-  }
-
-  // Reset card bg in case previous was joker
-  const cf=document.getElementById('cf-'+player);
-  if(cf) cf.style.background='';
-
-  const isRed=RED_SUITS.includes(card.suit);
-  const cls=isRed?'red':'black';
-  ['tr','ts','c','br','bs'].forEach(k=>{
-    const el=document.getElementById(ids[k]);
-    if(!el) return;
-    el.className=cls;
-    el.style.color='';
-    if(k==='c') el.textContent=card.suit;
-    else if(k==='tr'||k==='br') el.textContent=card.rank;
-    else el.textContent=card.suit;
-  });
-}
-
-// ── REVEAL ──
-function revealResult(){
-  gamePhase='reveal';
-  const rc=drawnCards.razan;
-  const dc=drawnCards.dara;
-  if(!rc||!dc) return;
-
-  let winner=null;
-  let flashText='', flashCls='';
-
-  // Joker announcement
-  const rJoker=rc.isJoker, dJoker=dc.isJoker;
-  if(rJoker&&dJoker){
-    // Both joker = epic tie
-    winner='tie';
-    flashText='♠️♠️ DUA JOKER — Seri epik!';
-    flashCls='tie';
-    if(navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
-    showJokerEffect('both');
-  } else if(rJoker){
-    winner='razan';
-    scores.razan++;
-    flashText='♠️ JOKER! Razan ngalahin semua!';
-    flashCls='win-r';
-    if(navigator.vibrate) navigator.vibrate([80,30,150]);
-    showJokerEffect('razan');
-  } else if(dJoker){
-    winner='dara';
-    scores.dara++;
-    flashText='♠️ JOKER! Dara ngalahin semua!';
-    flashCls='win-d';
-    if(navigator.vibrate) navigator.vibrate([80,30,150]);
-    showJokerEffect('dara');
-  } else if(rc.val>dc.val){
-    winner='razan';
-    scores.razan++;
-    flashText='🧑 Razan menang ronde ini!';
-    flashCls='win-r';
-    if(navigator.vibrate) navigator.vibrate([40,20,80]);
-  } else if(dc.val>rc.val){
-    winner='dara';
-    scores.dara++;
-    flashText='👧 Dara menang ronde ini!';
-    flashCls='win-d';
-    if(navigator.vibrate) navigator.vibrate([40,20,80]);
-  } else {
-    winner='tie';
-    flashText='🤝 Seri — tidak ada poin!';
-    flashCls='tie';
-    if(navigator.vibrate) navigator.vibrate(30);
-  }
-
-  roundHistory.push({razan:rc, dara:dc, winner});
-
-  // Flash result
-  const rf=document.getElementById('result-flash');
-  if(rf){rf.className='result-flash '+flashCls+' show';rf.textContent=flashText;}
-
-  updateHUD();
-  renderPips();
-
-  // Check game over
-  const gameOver=scores.razan>=WIN_NEEDED||scores.dara>=WIN_NEEDED||round>=BEST_OF;
-
-  const nb=document.getElementById('next-btn');
-  if(nb){
-    nb.className='next-btn show';
-    nb.textContent=gameOver?'Lihat Hasil Akhir 🏆':'Ronde Berikutnya →';
-  }
-  gamePhase='done';
-}
-
-function nextRound(){
-  const gameOver=scores.razan>=WIN_NEEDED||scores.dara>=WIN_NEEDED||round>=BEST_OF;
-  if(gameOver){showFinal();return;}
-  round++;
-  // Alternate who draws first
-  firstDrawer=firstDrawer==='razan'?'dara':'razan';
-  currentDrawer=firstDrawer;
-  drawnCards={razan:null,dara:null};
-  gamePhase='draw';
-  if(deck.length<10) deck=makeDeck(); // reshuffle if low
-  resetCardVisuals();
-  updateHUD();
-}
-
-// ── HUD ──
-function updateHUD(){
-  const el_r=document.getElementById('sc-r');
-  const el_d=document.getElementById('sc-d');
-  if(el_r) el_r.textContent=scores.razan;
-  if(el_d) el_d.textContent=scores.dara;
-  const rb=document.getElementById('round-badge');
-  if(rb) rb.textContent=`Ronde ${Math.min(round,BEST_OF)}`;
-}
-
-function renderPips(){
-  const el=document.getElementById('win-pips');
-  if(!el) return;
-  el.innerHTML='';
-  for(let i=0;i<WIN_NEEDED;i++){
-    const pip=document.createElement('div');
-    pip.className='pip'+(i<scores.razan?' razan':'');
-    el.appendChild(pip);
-  }
-  const sep=document.createElement('div');
-  sep.className='pip-sep';
-  el.appendChild(sep);
-  for(let i=0;i<WIN_NEEDED;i++){
-    const pip=document.createElement('div');
-    pip.className='pip'+(i<scores.dara?' dara':'');
-    el.appendChild(pip);
-  }
-}
-
-// ── FINAL ──
-function showFinal(){
-  const r=scores.razan,d=scores.dara;
-  const tie=r===d;
-  const winner=r>d?'razan':'dara';
-  const wName=winner==='razan'?'Razan':'Dara';
-
-  const fi=document.getElementById('final-icon');
-  if(fi) fi.textContent=tie?'🤝':'🏆';
-  const ft=document.getElementById('final-title');
-  if(ft) ft.textContent=tie?'Seri!':`${winner==='razan'?'🧑':'👧'} ${wName} Menang!`;
-  const fs=document.getElementById('final-sub');
-  if(fs) fs.textContent=tie?`${r}-${d} seri — kartu hari ini sama kuat!`:`${wName} menang ${r>d?r:d}-${r>d?d:r}!`;
-
-  const er=document.getElementById('end-r');
-  const ed=document.getElementById('end-d');
-  if(er) er.textContent=r;
-  if(ed) ed.textContent=d;
-
-  // Recap
-  const recap=document.getElementById('recap-rounds');
-  if(recap){
-    recap.innerHTML='';
-    roundHistory.forEach((rnd,i)=>{
-      const isRedR=RED_SUITS.includes(rnd.razan.suit);
-      const isRedD=RED_SUITS.includes(rnd.dara.suit);
-      const item=document.createElement('div');
-      item.className='recap-round';
-      const winnerLabel=rnd.winner==='tie'?'Seri':rnd.winner==='razan'?'Razan':'Dara';
-      const winnerCls=rnd.winner;
-      const rCardStr=rnd.razan.isJoker?'♠️':''+rnd.razan.rank+rnd.razan.suit;
-      const dCardStr=rnd.dara.isJoker?'♠️':''+rnd.dara.rank+rnd.dara.suit;
-      const rColor=rnd.razan.isJoker?'#ce93d8':isRedR?'#e57373':'#ddd';
-      const dColor=rnd.dara.isJoker?'#ce93d8':isRedD?'#e57373':'#ddd';
-      item.innerHTML=`
-        <span class="rr-num">Ronde ${i+1}</span>
-        <span class="rr-cards">
-          <span class="rr-mini" style="color:${rColor}">${rCardStr}</span>
-          <span style="color:rgba(255,255,255,.2);font-size:.75rem">vs</span>
-          <span class="rr-mini" style="color:${dColor}">${dCardStr}</span>
-        </span>
-        <span class="rr-winner ${winnerCls}">${winnerLabel}</span>`;
-      recap.appendChild(item);
-    });
-  }
-
-  // Verdict
-  const vd=document.getElementById('verdict');
-  if(vd){
-    let txt='';
-    if(tie) txt=`Seri ${r}-${d}! Keberuntungan hari ini setara — kartu tidak bisa bohong. Rematch?`;
-    else txt=`<strong>${wName}</strong> menang ${r>d?r:d}-${r>d?d:r}! Keberuntungan memihak ${wName} hari ini. Semoga ronde berikutnya berimbang. ♠️`;
-    vd.innerHTML=txt;
-  }
-
+// ═════════ FINAL ═════════
+function showFinal() {
+  const wp = G.scores.r > G.scores.d ? 'r' : 'd', w = NAMES[wp], l = NAMES[other(wp)];
+  const S = G.st;
+  const rows = G.hist.map((h, i) => `<div class="rc-row"><span class="rc-n">Ronde ${i + 1}${h.dbl ? ' 💥' : ''}</span>
+    <span class="rc-c"><span style="color:${cardColor(h.r)}">${cardStr(h.r)}</span> <span style="color:rgba(255,255,255,.3);font-weight:400">vs</span> <span style="color:${cardColor(h.d)}">${cardStr(h.d)}</span></span>
+    <span class="rc-w ${h.w || 't'}">${h.w ? `${NAMES[h.w]} +${h.pts}` : 'Seri'}</span></div>`).join('');
+  const row = (lbl, f) => `<div class="tr"><span>${lbl}</span><b>${f('r')}</b><b>${f('d')}</b></div>`;
+  let v = `<strong>${w}</strong> menang ${G.scores[wp]}-${G.scores[other(wp)]} dalam ${G.round} ronde! `;
+  const jk = S.r.jokers + S.d.jokers;
+  if (jk) v += `🃏 Joker keluar ${jk}x. `;
+  const dw = ['r', 'd'].filter(p => S[p].dblWon);
+  if (dw.length) v += `💥 Double sukses: ${dw.map(p => NAMES[p]).join(' & ')} — nyalinya kebayar!`;
+  else if (S.r.doubles + S.d.doubles) v += `💥 Double-nya malah jadi senjata makan tuan 😂`;
+  setHTML('final-inner', `
+    <span class="label">Hasil Akhir</span>
+    <span class="icon">🏆</span>
+    <h2 class="title" style="font-size:1.5rem">${w} Menang!</h2>
+    <p class="sub">First to ${G.target}</p>
+    <div class="score-card">
+      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${G.scores.r}</span></div>
+      <span class="sc-vs">♠️</span>
+      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${G.scores.d}</span></div>
+    </div>
+    <div class="recap">${rows}</div>
+    <div class="tbl"><div class="tr head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+      ${row('🏅 Kartu terbaik', p => S[p].best ? `<span style="color:${cardColor(S[p].best)}">${cardStr(S[p].best)}</span>` : '—')}
+      ${row('🃏 Joker', p => S[p].jokers)}${row('🔄 Tarik ulang', p => S[p].redraws)}${row('💥 Double (menang)', p => `${S[p].doubles} (${S[p].dblWon})`)}</div>
+    <div class="verdict">${v}</div>
+    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn" onclick="initGame(G ? other(G.first) : 'r')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-final');
-  if(!tie) confetti(80);
-  else confetti(40);
+  confetti(70);
 }
 
-function showJokerEffect(who){
-  // Purple particle burst
-  const colors=['#ce93d8','#9c27b0','#e1bee7','#fff','#ffd54f'];
-  for(let i=0;i<50;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${20+Math.random()*60}vw;top:30vh;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1+Math.random()*1.5}s;animation-delay:${Math.random()*.3}s;width:${8+Math.random()*10}px;height:${8+Math.random()*10}px;border-radius:50%`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),3000);
-  },i*15);
-
-  // Flash the card purple
-  if(who==='both'||who==='razan'){
-    const c=document.getElementById('card-razan');
-    if(c){c.style.boxShadow='0 0 30px rgba(156,39,176,.8)';setTimeout(()=>{c.style.boxShadow='';},1500);}
-  }
-  if(who==='both'||who==='dara'){
-    const c=document.getElementById('card-dara');
-    if(c){c.style.boxShadow='0 0 30px rgba(156,39,176,.8)';setTimeout(()=>{c.style.boxShadow='';},1500);}
-  }
+function burst() {
+  const colors = ['#ce93d8','#9c27b0','#e1bee7','#fff','#ffd54f'];
+  for (let i = 0; i < 40; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${20 + Math.random() * 60}vw;top:30vh;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1 + Math.random() * 1.5}s;width:${8 + Math.random() * 8}px;height:${8 + Math.random() * 8}px;border-radius:50%`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 3000);
+  }, i * 15);
 }
-
-function confetti(n){
-  const colors=['#c17a6f','#c9a96e','#e8c4b0','#fff','#7eb3f5','#ffd54f'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+function confetti(n) {
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#fff','#7eb3f5','#ffd54f'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*18);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 18);
 }
 </script>
 </body>
