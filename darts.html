@@ -6,137 +6,98 @@
 <title>Darts Duel 🎯</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
+  :root{--blue:#7eb3f5;--pink:#f0a39a;--gold:#ffd54f;--red:#ff6b6b;--dred:#7a1a1a;--green:#81c784}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;-webkit-user-select:none;user-select:none;touch-action:manipulation}
   html,body{height:100%;overflow:hidden;background:#0e0e1a}
-
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center}
-  .screen.active{display:flex}
-
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
-  @keyframes twinkle{0%,100%{opacity:.08}50%{opacity:.5}}
-
-  /* ── INTRO ── */
-  #s-intro{background:transparent;padding:1.5rem;text-align:center}
-  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
+  .star{position:absolute;border-radius:50%;background:#fff;animation:tw linear infinite}
+  @keyframes tw{0%,100%{opacity:.08}50%{opacity:.5}}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-  .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
-  .intro-title span{color:#ff6b6b}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.3rem auto 1.1rem}
-  .how-row{display:flex;gap:.5rem;margin-bottom:1rem;width:100%;max-width:340px}
-  .how-item{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
-  .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
-  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
+  @keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 
-  /* round selector */
-  .round-opts{display:flex;gap:.45rem;width:100%;max-width:340px;margin-bottom:1.2rem}
-  .round-opt{flex:1;padding:.6rem .3rem;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;text-align:center;transition:all .15s}
-  .round-opt.sel{border-color:#ff6b6b;background:rgba(255,107,107,.1)}
-  .round-opt:active{transform:scale(.95)}
-  .ro-num{font-size:1.1rem;font-weight:900;color:#ff6b6b;display:block}
-  .ro-lbl{font-size:9px;color:rgba(255,255,255,.35)}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.4rem 1.2rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .screen.active{display:flex}
+  .inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+  .icon{font-size:3.3rem;display:block;margin-bottom:.6rem;animation:float 3s ease-in-out infinite}
+  .label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:.35rem}
+  .title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.25rem}
+  .title span{color:var(--red)}
+  .sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;margin:.3rem auto 1rem}
+  .sub b{color:#fff}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,107,107,.2);border-radius:16px;padding:.85rem 1rem;margin-bottom:.7rem;width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:.55rem}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(255,107,107,.3);background:transparent;color:rgba(255,255,255,.55);font-size:13px;font-weight:700;cursor:pointer;line-height:1.3}
+  .pill small{display:block;font-size:9px;font-weight:500;opacity:.75}
+  .pill.on{background:linear-gradient(135deg,var(--dred),var(--red));border-color:transparent;color:#fff}
+  .rule{display:flex;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule b{color:#fff}
+  .dotc{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.4rem}
+  .btn{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--dred),var(--red));color:#fff;box-shadow:0 6px 20px rgba(255,107,107,.3)}
+  .btn:active{transform:scale(.97)}
+  .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
+  .pick-btns{display:flex;flex-direction:column;gap:.6rem;width:100%}
+  .pick-btn{padding:1rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;align-items:center;gap:.85rem;text-align:left}
+  .pick-btn:active{transform:scale(.97)}
+  .pick-icon{font-size:2rem}
+  .pick-name{font-size:14px;font-weight:700;color:#fff;display:block}
+  .pick-sub2{font-size:11px;color:rgba(255,255,255,.4);display:block}
 
-  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#7a1a1a,#ff6b6b);color:#fff;box-shadow:0 6px 20px rgba(255,107,107,.3)}
-  .intro-btn:active{transform:scale(.97)}
+  /* GAME */
+  #s-game{padding:0;background:#0e0e1a}
+  .gw{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;margin:0 auto;position:relative;z-index:1}
+  .hdr{flex-shrink:0;background:rgba(14,14,26,.95);border-bottom:1px solid rgba(255,255,255,.06);padding:.4rem .8rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+  .hp{text-align:center;min-width:72px;padding:.1rem .3rem;border-radius:12px}
+  .hp.on.r{background:rgba(126,179,245,.12)}.hp.on.d{background:rgba(240,163,154,.14)}
+  .hp-n{font-size:9.5px;font-weight:700;letter-spacing:.06em;display:block}
+  .hp.r .hp-n{color:var(--blue)}.hp.d .hp-n{color:var(--pink)}
+  .hp-v{font-size:1.5rem;font-weight:900;color:#fff;display:block;line-height:1.05}
+  .hm{text-align:center;flex:1;line-height:1.35}
+  .hm b{font-size:11.5px;color:var(--red)}
+  .hm span{font-size:10px;color:rgba(255,255,255,.45);display:block}
+  .x-btn{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:9.5px;border-radius:50px;padding:.05rem .45rem;margin-top:.15rem;cursor:pointer}
+  .visit{flex-shrink:0;display:flex;gap:.4rem;justify-content:center;padding:.45rem;background:rgba(14,14,26,.7)}
+  .vd{min-width:54px;padding:.25rem .5rem;border-radius:10px;border:1px dashed rgba(255,255,255,.15);font-size:13px;font-weight:800;color:rgba(255,255,255,.3)}
+  .vd.done{border-style:solid;color:#fff;background:rgba(255,255,255,.06)}
+  .vd.t{color:var(--green);border-color:rgba(129,199,132,.5)}.vd.db{color:var(--red);border-color:rgba(255,107,107,.5)}.vd.b{color:var(--gold);border-color:rgba(255,213,79,.6)}
+  .vd.cur{border-color:var(--gold);color:var(--gold)}
+  #board{flex:1;min-height:0;width:100%;display:block;touch-action:none;cursor:pointer}
+  .bottom{flex-shrink:0;padding:.55rem .8rem calc(.7rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:.3rem;background:rgba(14,14,26,.9);border-top:1px solid rgba(255,255,255,.06)}
+  .phase{font-size:12px;color:rgba(255,255,255,.65)}
+  .phase b{color:var(--gold)}
+  .tap-btn{width:min(300px,82vw);padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:1rem;font-weight:900;background:linear-gradient(135deg,var(--dred),var(--red));color:#fff;box-shadow:0 6px 24px rgba(255,107,107,.35)}
+  .tap-btn:active{transform:scale(.95)}
+  .tap-btn:disabled{opacity:.35}
+  .banner{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:40;text-align:center;pointer-events:none;display:none}
+  .banner.show{display:block;animation:pop .35s cubic-bezier(.34,1.5,.64,1)}
+  .banner b{display:block;font-size:2rem;font-weight:900;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.85)}
+  .banner span{display:block;font-size:13px;font-weight:600;color:rgba(255,255,255,.85);text-shadow:0 2px 10px rgba(0,0,0,.85);max-width:80vw;margin:.2rem auto 0;line-height:1.45}
+  .banner span b{display:inline;font-size:inherit;color:var(--gold)}
 
-  /* ── PICK ── */
-  #s-pick{background:transparent;padding:1.5rem;text-align:center}
-  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
-  .pick-btns{display:flex;gap:.6rem;width:100%;margin-top:1.25rem}
-  .pick-btn{flex:1;padding:1rem .5rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:all .15s}
-  .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
-
-  /* ── GAME ── */
-  #s-game{background:#0e0e1a;padding:0;justify-content:flex-start;overflow:hidden}
-
-  .g-header{flex-shrink:0;width:100%;background:rgba(14,14,26,.95);border-bottom:1px solid rgba(255,255,255,.06);padding:.4rem .85rem;display:flex;align-items:center;justify-content:space-between;z-index:10}
-  .gh-player{text-align:center;flex:1}
-  .gh-name{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;display:block}
-  .gh-score{font-size:1.8rem;font-weight:900;display:block;line-height:1}
-  .gh-score.razan{color:#7eb3f5}
-  .gh-score.dara{color:#e8a090}
-  .gh-mid{text-align:center;flex:.8}
-  .gh-round{font-size:11px;font-weight:700;color:#ff6b6b;display:block}
-  .gh-turn{font-size:9px;color:rgba(255,255,255,.3);display:block;margin-top:.1rem}
-
-  /* arena */
-  .arena{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;width:100%;overflow:hidden}
-
-  /* board */
-  .board-wrap{position:relative;display:flex;align-items:center;justify-content:center}
-  #board-canvas{display:block;border-radius:50%;box-shadow:0 0 40px rgba(255,107,107,.15)}
-
-  /* ring overlay — the shrinking circle */
-  #ring-canvas{position:absolute;top:0;left:0;pointer-events:none;border-radius:50%}
-
-  /* tap btn */
-  .tap-btn{margin-top:1.1rem;width:min(260px,75vw);padding:1.1rem;border-radius:50px;border:none;cursor:pointer;font-size:1rem;font-weight:900;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#7a1a1a,#ff6b6b);color:#fff;box-shadow:0 6px 24px rgba(255,107,107,.35);transition:all .1s;position:relative;z-index:5;letter-spacing:.03em}
-  .tap-btn:active{transform:scale(.93)}
-  .tap-btn:disabled{opacity:.3;pointer-events:none}
-
-  .tap-hint{font-size:11px;color:rgba(255,255,255,.25);margin-top:.5rem;font-style:italic;position:relative;z-index:5}
-
-  /* score flash */
-  .score-flash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2rem;font-weight:900;pointer-events:none;z-index:20;animation:scorepop .8s cubic-bezier(.34,1.5,.64,1) forwards;text-shadow:0 3px 12px rgba(0,0,0,.6)}
-  @keyframes scorepop{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}60%{transform:translate(-50%,-80%) scale(1.15);opacity:1}100%{transform:translate(-50%,-130%) scale(1);opacity:0}}
-
-  /* miss flash */
-  .miss-overlay{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:15;animation:missflash .4s ease forwards}
-  @keyframes missflash{0%{background:rgba(255,50,50,.4)}100%{background:transparent}}
-
-  /* hit overlay */
-  .hit-overlay{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:15;animation:hitflash .4s ease forwards}
-  @keyframes hitflash{0%{background:rgba(255,220,100,.3)}100%{background:transparent}}
-
-  /* dart stuck */
-  .dart-stuck{position:absolute;pointer-events:none;z-index:16;font-size:1.1rem;animation:dartin .2s ease forwards}
-  @keyframes dartin{from{transform:translate(-50%,-50%) scale(1.6)}to{transform:translate(-50%,-50%) scale(1)}}
-
-  /* ── PASS ── */
-  #s-pass{background:rgba(14,14,26,.97);backdrop-filter:blur(12px);text-align:center;padding:1.5rem}
-  .pass-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:340px;gap:.85rem}
-  .pass-icon{font-size:3.5rem;animation:float 3s ease-in-out infinite;display:block}
-  .pass-title{font-size:1.1rem;font-weight:700;color:#fff}
-  .pass-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:.85rem 1.25rem;width:100%}
-  .pc-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;font-size:12px}
-  .pc-label{color:rgba(255,255,255,.4)}
-  .pc-val{font-weight:700;font-size:1rem}
-  .pc-val.razan{color:#7eb3f5}
-  .pc-val.dara{color:#e8a090}
-  .pass-sub{font-size:12px;color:rgba(255,255,255,.35);line-height:1.7;max-width:260px;font-style:italic}
-  .pass-btn{width:100%;max-width:280px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#7a1a1a,#ff6b6b);color:#fff}
-  .pass-btn:active{transform:scale(.97)}
-
-  /* ── FINAL ── */
-  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
-  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
-  .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
-  .final-title{font-size:1.3rem;font-weight:900;color:#fff}
-  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
-  .final-scoreboard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%}
-  .fsb-av{font-size:1.4rem;display:block;margin-bottom:.15rem}
-  .fsb-nm{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;display:block}
-  .fsb-sc{font-size:2.5rem;font-weight:900;display:block;line-height:1}
-  .fsb-sc.razan{color:#7eb3f5}
-  .fsb-sc.dara{color:#e8a090}
-  .recap-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:.85rem 1rem;width:100%}
-  .rc-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.55rem}
-  .rc-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:.22rem 0;border-bottom:1px solid rgba(255,255,255,.04)}
-  .rc-row:last-child{border-bottom:none}
-  .rc-lbl{color:rgba(255,255,255,.35)}
-  .rc-vals{display:flex;gap:.75rem}
-  .rc-val{font-weight:700}
-  .rc-val.razan{color:#7eb3f5}
-  .rc-val.dara{color:#e8a090}
-  .verdict{background:rgba(255,107,107,.05);border:1px solid rgba(255,107,107,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;width:100%}
-  .verdict strong{color:#ff6b6b;font-style:normal}
-  .final-btns{display:flex;gap:.6rem;width:100%}
-  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
-  .final-btn-p{background:linear-gradient(135deg,#7a1a1a,#ff6b6b);color:#fff}
-  .final-btn-p:active{transform:scale(.97)}
-  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
-
+  .card{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:.8rem 1rem;margin-bottom:.75rem;text-align:left}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;color:rgba(255,255,255,.55)}
+  .row:last-child{border-bottom:none}
+  .row b{color:#fff;font-size:13px}
+  .shots{display:flex;gap:.35rem;justify-content:center;margin:.2rem 0 .8rem;flex-wrap:wrap}
+  .shot{min-width:44px;padding:.3rem .45rem;border-radius:10px;font-weight:800;font-size:13px;background:rgba(255,255,255,.07);color:#fff}
+  .score-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,107,107,.25);border-radius:20px;padding:1rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;width:100%}
+  .sc-nm{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block}
+  .sc-nm.r{color:var(--blue)}.sc-nm.d{color:var(--pink)}
+  .sc-v{font-size:2.1rem;font-weight:900;color:#fff;display:block;line-height:1.1}
+  .sc-s{font-size:9.5px;color:rgba(255,255,255,.4);display:block}
+  .sc-vs{color:rgba(255,255,255,.25)}
+  .tbl{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.6rem .8rem;margin-bottom:.75rem;font-size:11.5px;color:rgba(255,255,255,.6);text-align:left;max-height:260px;overflow-y:auto}
+  .tbl .tr{display:grid;grid-template-columns:1.2fr 1fr 1fr;padding:.25rem 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .tbl .tr:last-child{border-bottom:none}
+  .tbl .head{color:rgba(255,255,255,.35);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  .tbl b{color:#fff}.tbl b.win{color:var(--gold)}
+  .verdict{background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.2);border-radius:14px;padding:.85rem 1.1rem;font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.7;margin-bottom:.75rem;width:100%;text-align:left}
+  .verdict strong{color:var(--red)}
+  .demand{background:linear-gradient(135deg,rgba(255,213,79,.14),rgba(255,107,107,.1));border:1px solid rgba(255,213,79,.35);border-radius:16px;padding:.85rem 1.1rem;margin-bottom:1rem;width:100%;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.3rem}
+  .demand-text{font-size:13.5px;font-weight:600;color:#fff;line-height:1.55}
+  .demand-text b{color:var(--gold)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -146,560 +107,411 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <div class="intro-wrap">
-    <span class="intro-icon">🎯</span>
-    <h1 class="intro-title">Darts <span>Duel!</span></h1>
-    <p class="intro-sub">Circle mengecil ke bullseye — tap tepat saat circle sekecil mungkin! Makin kecil circle saat tap = makin banyak poin!</p>
-    <div class="how-row">
-      <div class="how-item"><span class="how-emoji">⭕</span><span class="how-text">Circle mengecil ke tengah otomatis</span></div>
-      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Tap saat circle paling kecil!</span></div>
-      <div class="how-item"><span class="how-emoji">🎯</span><span class="how-text">Bullseye = 50 poin! Miss = 0</span></div>
+  <div class="inner">
+    <span class="icon">🎯</span>
+    <span class="label">Game Berdua</span>
+    <h1 class="title">Darts <span>Duel!</span></h1>
+    <p class="sub">Papan dart asli — angka 1–20, <b>double</b>, <b>triple</b>, dan <b>bullseye</b>. Bidik 2 tahap: kunci horizontal, lalu vertikal. Incer T20! 🔥</p>
+    <div class="panel">
+      <span class="panel-title">Mode</span>
+      <div class="pills" id="mode-pills">
+        <button class="pill on" data-v="high">🏆 Skor Tertinggi<small>total poin</small></button>
+        <button class="pill" data-v="301">⬇️ 301<small>habisin pas 0</small></button>
+      </div>
     </div>
-    <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:.6rem">Jumlah dart per giliran:</div>
-    <div class="round-opts">
-      <div class="round-opt" id="opt-3" onclick="selDarts(3)"><span class="ro-num">3</span><span class="ro-lbl">dart</span></div>
-      <div class="round-opt sel" id="opt-5" onclick="selDarts(5)"><span class="ro-num">5</span><span class="ro-lbl">dart</span></div>
-      <div class="round-opt" id="opt-7" onclick="selDarts(7)"><span class="ro-num">7</span><span class="ro-lbl">dart</span></div>
+    <div class="panel" id="round-panel">
+      <span class="panel-title">Jumlah Ronde (3 dart per ronde)</span>
+      <div class="pills" id="round-pills">
+        <button class="pill" data-v="3">3</button>
+        <button class="pill on" data-v="5">5</button>
+        <button class="pill" data-v="8">8</button>
+      </div>
     </div>
-    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai Duel! 🎯</button>
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="dotc" style="background:var(--gold)"></span>Bidikan geser <b>kiri-kanan</b> → tap buat kunci. Lalu geser <b>atas-bawah</b> → tap lagi buat lempar</div>
+      <div class="rule"><span class="dotc" style="background:var(--green)"></span>Cincin tipis dalam = <b>Triple (×3)</b>, cincin luar = <b>Double (×2)</b></div>
+      <div class="rule"><span class="dotc" style="background:var(--red)"></span>Tengah: <b>Bull 25</b> & <b>Bullseye 50</b>. Makin ronde akhir bidikan makin cepet!</div>
+      <div class="rule" id="rule-301" style="display:none"><span class="dotc" style="background:#fff"></span>Mode 301: kurangin skor sampai <b>tepat 0</b>. Lewat dari 0 = <b>BUST</b>, skor giliran itu hangus</div>
+    </div>
+    <button class="btn" onclick="showScreen('s-pick')">Mulai Duel! 🎯</button>
   </div>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
-  <div class="pick-wrap">
-    <span style="font-size:3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🎯</span>
-    <p style="font-size:1.1rem;font-weight:700;color:#fff">Siapa yang lempar duluan?</p>
-    <p style="font-size:12px;color:rgba(255,255,255,.35);margin-top:.25rem;line-height:1.6;max-width:260px;margin-left:auto;margin-right:auto">Gantian setelah semua dart habis</p>
+  <div class="inner">
+    <span class="icon">🎯</span>
+    <p class="title" style="font-size:1.15rem">Siapa yang lempar duluan?</p>
+    <p class="sub">Tiap ronde: 3 dart per orang, gantian pegang HP</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="initGame('razan')">
-        <span style="font-size:2rem">🧑</span>
-        <span style="font-size:13px;font-weight:700;color:#fff">Razan dulu</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35)">Dara giliran berikutnya</span>
-      </div>
-      <div class="pick-btn" onclick="initGame('dara')">
-        <span style="font-size:2rem">👧</span>
-        <span style="font-size:13px;font-weight:700;color:#fff">Dara dulu</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35)">Razan giliran berikutnya</span>
-      </div>
+      <div class="pick-btn" onclick="newMatch('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Dart biru</span></div></div>
+      <div class="pick-btn" onclick="newMatch('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Dart pink</span></div></div>
     </div>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="g-header">
-    <div class="gh-player">
-      <span class="gh-name">🧑 RAZAN</span>
-      <span class="gh-score razan" id="gh-sc-r">0</span>
+  <div class="gw">
+    <div class="hdr">
+      <div class="hp r" id="hp-r"><span class="hp-n">🧑 RAZAN</span><span class="hp-v" id="sc-r">0</span></div>
+      <div class="hm"><b id="round-lbl">Ronde 1/5</b><span id="mode-lbl">Skor tertinggi</span><button class="x-btn" onclick="exitGame()">✕ Keluar</button></div>
+      <div class="hp d" id="hp-d"><span class="hp-n">👧 DARA</span><span class="hp-v" id="sc-d">0</span></div>
     </div>
-    <div class="gh-mid">
-      <span class="gh-round" id="gh-round">Giliran 1</span>
-      <span class="gh-turn" id="gh-turn">🎯🎯🎯🎯🎯</span>
+    <div class="visit" id="visit"></div>
+    <canvas id="board"></canvas>
+    <div class="bottom">
+      <span class="phase" id="phase">Tap buat <b>kunci horizontal</b> ↔️</span>
+      <button class="tap-btn" id="tap-btn">🎯 KUNCI</button>
     </div>
-    <div class="gh-player">
-      <span class="gh-name">DARA 👧</span>
-      <span class="gh-score dara" id="gh-sc-d">0</span>
-    </div>
-  </div>
-  <div class="arena" id="arena">
-    <div class="board-wrap" id="board-wrap">
-      <canvas id="board-canvas"></canvas>
-      <canvas id="ring-canvas"></canvas>
-    </div>
-    <button class="tap-btn" id="tap-btn" onclick="tapDart()">🎯 LEMPAR!</button>
-    <span class="tap-hint" id="tap-hint">Tap saat circle sekecil mungkin!</span>
   </div>
 </div>
+<div class="banner" id="banner"><b id="ban-b"></b><span id="ban-s"></span></div>
 
-<!-- PASS -->
-<div id="s-pass" class="screen">
-  <div class="pass-wrap">
-    <span class="pass-icon" id="pass-icon">🧑</span>
-    <h2 class="pass-title" id="pass-title">Razan selesai!</h2>
-    <div class="pass-card" id="pass-card"></div>
-    <p class="pass-sub" id="pass-sub">Kasih HP ke Dara — giliran Dara lempar sekarang!</p>
-    <button class="pass-btn" id="pass-btn" onclick="startNextTurn()">Aku Siap! 🎯</button>
-  </div>
-</div>
-
-<!-- FINAL -->
-<div id="s-final" class="screen">
-  <div class="final-wrap">
-    <span class="final-icon" id="final-icon">🏆</span>
-    <h2 class="final-title" id="final-title">Razan Menang!</h2>
-    <p class="final-sub" id="final-sub">Aim paling tajam!</p>
-    <div class="final-scoreboard">
-      <div><span class="fsb-av">🧑</span><span class="fsb-nm">Razan</span><span class="fsb-sc razan" id="end-r">0</span></div>
-      <span style="color:rgba(255,255,255,.15)">🎯</span>
-      <div><span class="fsb-av">👧</span><span class="fsb-nm">Dara</span><span class="fsb-sc dara" id="end-d">0</span></div>
-    </div>
-    <div class="recap-card">
-      <span class="rc-title">📋 Recap Per Throw</span>
-      <div id="rc-list"></div>
-    </div>
-    <div class="verdict" id="verdict">...</div>
-    <div class="final-btns">
-      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
-      <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
-    </div>
-  </div>
-</div>
+<!-- RESULT -->
+<div id="s-result" class="screen"><div class="inner" id="result-inner"></div></div>
 
 <script>
-// ── STARS ──
-(function(){
-  const s=document.getElementById('stars');
-  for(let i=0;i<55;i++){
-    const el=document.createElement('div');el.className='star';
-    const sz=1+Math.random()*2;
-    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s`;
-    s.appendChild(el);
-  }
-})();
-
-// ── SCORING ZONES ──
-// ratio of board radius → points
-const ZONES=[
-  {ratio:.08, pts:50, label:'BULLSEYE!', color:'#ff1744'},
-  {ratio:.16, pts:25, label:'Bull!',     color:'#ff6b6b'},
-  {ratio:.30, pts:15, label:'Inner!',    color:'#ffd54f'},
-  {ratio:.50, pts:10, label:'Mid',       color:'#81c784'},
-  {ratio:.72, pts:5,  label:'Outer',     color:'#64b5f6'},
-  {ratio:1.0, pts:1,  label:'Edge',      color:'#aaa'},
+// ═════════ DATA ═════════
+const ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+// radius relatif (1 = tepi luar double). Triple & double sedikit dilebarin biar playable
+const RAD = { bull: .05, obull: .11, tIn: .54, tOut: .62, dIn: .9, dOut: 1 };
+const NAMES = { r:'Razan', d:'Dara' };
+const ICON = { r:'🧑', d:'👧' };
+const DARTC = { r:'#7eb3f5', d:'#f0a39a' };
+const BULL_DARES = [
+  '<b>{o}</b> wajib teriak "BULLSEYE!" sambil tos <b>{p}</b> ✋',
+  '<b>{o}</b> kasih <b>{p}</b> kecupan jauh 😘',
+  '<b>{o}</b> puji mata <b>{p}</b> yang tajam 👀🥰',
+];
+const ROUND_LOSE = [
+  '<b>{l}</b> kasih <b>{w}</b> tepuk tangan meriah 👏',
+  '<b>{l}</b> pijitin pergelangan tangan <b>{w}</b> 20 detik 💆',
+  '<b>{l}</b> tirukan gaya lempar <b>{w}</b> 😂',
+  '<b>{l}</b> kasih 1 pujian soal fokus <b>{w}</b> 🎯',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> minuman favorit 🧋',
+  '<b>{w}</b> dapet gelar "Sniper Cinta" — <b>{l}</b> wajib manggil gitu seharian 🎯💘',
+  '<b>{l}</b> pijitin <b>{w}</b> 10 menit 💆',
+  '<b>{w}</b> boleh minta 1 hal kecil ke <b>{l}</b> 😏',
 ];
 
-// ── STATE ──
-let dartsPerTurn=5;
-let firstPlayer='razan';
-let currentPlayer='razan';
-let scores={razan:0,dara:0};
-let turnScores={razan:[],dara:[]};  // per-dart scores
-let dartsLeft=5;
-let turnScore=0;
-let subTurn=0; // 0=first,1=second
-let gamePhase='idle'; // idle|shrinking|result
+// ═════════ STATE ═════════
+let CFG = { mode: 'high', rounds: 5 };
+let M = null, T = null;
+let canvas = document.getElementById('board'), ctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1, R = 100, CX = 0, CY = 0;
+let raf = null, token = 0;
+const decks = {};
 
-// Ring animation
-let ringR=0;      // current ring radius as fraction (1=full board)
-let ringDir=-1;   // shrinking
-let ringSpeed=0;
-let ringAF=null;
-let boardR=0;     // px radius of board
-let throwCount=0; // throws done this turn (speed increases each throw)
-let cdGen=0;      // countdown generation — cancels stale tick() calls
-let boardCanvas,ringCanvas,bctx,rctx;
-
-// Dart positions shown on board
-let dartHits=[];  // [{x,y,pts,player}] normalized -1..1
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el) el.classList.add('active');
-  if(id==='s-game') requestAnimationFrame(()=>requestAnimationFrame(setupGame));
+// ═════════ HELPERS ═════════
+const $ = id => document.getElementById(id);
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'r' ? 'd' : 'r'; }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(pool.map((_, i) => i)); return pool[decks[k].pop()]; }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function gauss() { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; } }
+function bindPills(id, key, num, cb) {
+  document.querySelectorAll(`#${id} .pill`).forEach(p => p.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .pill`).forEach(x => x.classList.remove('on'));
+    p.classList.add('on'); CFG[key] = num ? parseInt(p.dataset.v) : p.dataset.v; if (cb) cb();
+  }));
+}
+bindPills('mode-pills', 'mode', false, () => { $('round-panel').style.display = CFG.mode === '301' ? 'none' : ''; $('rule-301').style.display = CFG.mode === '301' ? '' : 'none'; });
+bindPills('round-pills', 'rounds', true);
+(function stars() { const s = $('stars'); for (let i = 0; i < 55; i++) { const el = document.createElement('div'); el.className = 'star'; const z = 1 + Math.random() * 2; el.style.cssText = `width:${z}px;height:${z}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:-${Math.random() * 5}s`; s.appendChild(el); } })();
+let banT = null;
+function banner(b, s, ms) {
+  setText('ban-b', b); setHTML('ban-s', s || '');
+  const e = $('banner'); e.classList.remove('show'); void e.offsetWidth; e.classList.add('show');
+  clearTimeout(banT); banT = setTimeout(() => e.classList.remove('show'), ms || 1100);
 }
 
-function selDarts(n){
-  dartsPerTurn=n;
-  [3,5,7].forEach(x=>{
-    const el=document.getElementById('opt-'+x);
-    if(el) el.classList.toggle('sel',x===n);
-  });
+// ═════════ SKOR PAPAN ═════════
+function scoreAt(nx, ny) { // nx, ny relatif R (y ke bawah positif)
+  const r = Math.hypot(nx, ny);
+  if (r <= RAD.bull) return { pts: 50, label: 'BULL', kind: 'b' };
+  if (r <= RAD.obull) return { pts: 25, label: '25', kind: 'b' };
+  if (r > RAD.dOut) return { pts: 0, label: 'Miss', kind: 'm' };
+  let a = Math.atan2(nx, -ny) * 180 / Math.PI;       // 0 = atas, searah jarum jam
+  const idx = Math.floor(((a + 360 + 9) % 360) / 18);
+  const n = ORDER[idx];
+  if (r >= RAD.tIn && r <= RAD.tOut) return { pts: n * 3, label: 'T' + n, kind: 't', n };
+  if (r >= RAD.dIn) return { pts: n * 2, label: 'D' + n, kind: 'd', n };
+  return { pts: n, label: String(n), kind: 's', n };
 }
 
-// ── INIT ──
-function initGame(first){
-  firstPlayer=first;
-  currentPlayer=first;
-  scores={razan:0,dara:0};
-  turnScores={razan:[],dara:[]};
-  subTurn=0;
-  throwCount=0;
-  ringGen=0;
-  cdGen=0;
+// ═════════ MATCH ═════════
+function newMatch(first) {
+  const f = first === 'd' ? 'd' : 'r';
+  M = { first: f, mode: CFG.mode, rounds: CFG.mode === '301' ? 15 : CFG.rounds, round: 0, sub: 0,
+        score: CFG.mode === '301' ? { r:301, d:301 } : { r:0, d:0 }, visits: [],
+        st: { r:{ bulls:0, triples:0, doubles:0, misses:0, bestVisit:0, busts:0 }, d:{ bulls:0, triples:0, doubles:0, misses:0, bestVisit:0, busts:0 } } };
+  startVisit();
+}
+function starter() { return M.round % 2 === 0 ? M.first : other(M.first); }
+function cur() { return M.sub === 0 ? starter() : other(starter()); }
+
+function layout() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  R = Math.min(W, H) / 2 - 22; CX = W / 2; CY = H / 2;
+}
+
+function startVisit() {
   showScreen('s-game');
-}
-
-function setupGame(){
-  boardCanvas=document.getElementById('board-canvas');
-  ringCanvas=document.getElementById('ring-canvas');
-  if(!boardCanvas||!ringCanvas) return;
-
-  const arena=document.getElementById('arena');
-  const hdrH=document.querySelector('.g-header')?.offsetHeight||44;
-  const btnH=80;
-  const available=Math.min(arena.offsetWidth,arena.offsetHeight)-20;
-  boardR=Math.min(available/2,180);
-  const size=boardR*2;
-
-  [boardCanvas,ringCanvas].forEach(c=>{
-    c.width=size; c.height=size;
-    c.style.width=size+'px'; c.style.height=size+'px';
-  });
-
-  bctx=boardCanvas.getContext('2d');
-  rctx=ringCanvas.getContext('2d');
-
-  dartHits=[];
-  drawBoard();
-  startTurn();
-}
-
-// ── DRAW BOARD ──
-function drawBoard(){
-  if(!bctx) return;
-  const sz=boardR*2;
-  bctx.clearRect(0,0,sz,sz);
-  const cx=boardR,cy=boardR;
-
-  // Outer glow
-  const glow=bctx.createRadialGradient(cx,cy,boardR*.7,cx,cy,boardR*1.1);
-  glow.addColorStop(0,'rgba(255,107,107,.0)');
-  glow.addColorStop(1,'rgba(255,107,107,.15)');
-  bctx.beginPath();bctx.arc(cx,cy,boardR,0,Math.PI*2);
-  bctx.fillStyle=glow;bctx.fill();
-
-  // Draw zones from outer to inner
-  [...ZONES].reverse().forEach(z=>{
-    bctx.beginPath();
-    bctx.arc(cx,cy,boardR*z.ratio,0,Math.PI*2);
-    bctx.fillStyle=z.color+'33';
-    bctx.fill();
-    bctx.strokeStyle=z.color+'66';
-    bctx.lineWidth=1;
-    bctx.stroke();
-  });
-
-  // Zone labels (subtle)
-  bctx.textAlign='center';bctx.textBaseline='middle';
-  ZONES.forEach((z,i)=>{
-    if(i===0||i===1) return; // too small
-    const prevR=i>0?ZONES[i-1].ratio:0;
-    const midR=(prevR+z.ratio)/2*boardR;
-    bctx.fillStyle='rgba(255,255,255,.3)';
-    bctx.font=`600 ${Math.max(8,boardR*.06)}px Poppins,sans-serif`;
-    bctx.fillText(z.pts,cx+midR,cy);
-  });
-
-  // Center cross
-  bctx.strokeStyle='rgba(255,255,255,.2)';
-  bctx.lineWidth=.5;
-  bctx.beginPath();bctx.moveTo(cx-boardR,cy);bctx.lineTo(cx+boardR,cy);bctx.stroke();
-  bctx.beginPath();bctx.moveTo(cx,cy-boardR);bctx.lineTo(cx,cy+boardR);bctx.stroke();
-
-  // Draw stuck darts
-  dartHits.forEach(d=>{
-    const px=cx+d.x*boardR, py=cy+d.y*boardR;
-    bctx.font=`${boardR*.12}px serif`;
-    bctx.textAlign='center';bctx.textBaseline='middle';
-    bctx.fillText('🎯',px,py);
-    // small score label
-    bctx.font=`700 ${Math.max(8,boardR*.07)}px Poppins,sans-serif`;
-    bctx.fillStyle=d.player==='razan'?'#7eb3f5':'#e8a090';
-    bctx.fillText(d.pts,px,py-boardR*.1);
+  requestAnimationFrame(() => {
+    layout();
+    const p = cur();
+    const f = M.mode === '301' ? Math.min(1, M.round / 8) : (M.rounds > 1 ? M.round / (M.rounds - 1) : 0);
+    T = { p, darts: [], phase: 'x', t0: performance.now(), lockX: 0, lockY: 0,
+          period: 1700 - f * 650, off: Math.random() * Math.PI * 2, startScore: M.score[p], bust: false, busy: false };
+    updateHud(); renderVisit();
+    token++; const my = token;
+    const loop = now => { if (my !== token || !T) return; render(now); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    const prev = M.visits[M.round] && M.visits[M.round][other(p)];
+    banner(`${ICON[p]} ${NAMES[p]}`, `Ronde ${M.round + 1}${M.mode === 'high' ? '/' + M.rounds : ''}${prev && M.mode === 'high' ? ` · kalahin <b>${prev.total}</b>` : M.mode === '301' ? ` · sisa <b>${M.score[p]}</b>` : ''}`, 1300);
   });
 }
 
-// ── RING ANIMATION ──
-function startShrink(){
-  gamePhase='shrinking';
-  ringR=1.0;
-  // Base speed + increase per throw + small random variation
-  // throw 1: slow, throw 2: faster, throw 3: faster, ...
-  const baseSpeed=0.005;
-  const increment=0.003; // gets faster each throw
-  const jitter=Math.random()*0.003; // small unpredictable variation
-  ringSpeed=baseSpeed+(throwCount*increment)+jitter;
-  throwCount++;
-  animRing(ringGen);
+function updateHud() {
+  setText('sc-r', M.score.r); setText('sc-d', M.score.d);
+  $('hp-r').classList.toggle('on', T && T.p === 'r'); $('hp-d').classList.toggle('on', T && T.p === 'd');
+  setText('round-lbl', M.mode === '301' ? `Ronde ${M.round + 1}` : `Ronde ${M.round + 1}/${M.rounds}`);
+  setText('mode-lbl', M.mode === '301' ? '301 · habisin pas 0' : 'Skor tertinggi');
+  setHTML('phase', T.phase === 'x' ? 'Tap buat <b>kunci horizontal</b> ↔️' : T.phase === 'y' ? 'Tap buat <b>lempar!</b> ↕️' : '...');
+  $('tap-btn').textContent = T.phase === 'y' ? '🎯 LEMPAR!' : '↔️ KUNCI';
+  $('tap-btn').disabled = T.phase !== 'x' && T.phase !== 'y';
 }
-
-function animRing(gen){
-  if(!rctx||gen!==ringGen) return;
-  const sz=boardR*2;
-  rctx.clearRect(0,0,sz,sz);
-
-  const cx=boardR,cy=boardR;
-  const r=ringR*boardR;
-
-  // Glow ring
-  const grd=rctx.createRadialGradient(cx,cy,Math.max(0,r-8),cx,cy,r+4);
-  grd.addColorStop(0,'rgba(255,255,255,0)');
-  grd.addColorStop(0.5,'rgba(255,220,80,.85)');
-  grd.addColorStop(1,'rgba(255,220,80,0)');
-  rctx.beginPath();rctx.arc(cx,cy,r,0,Math.PI*2);
-  rctx.strokeStyle=grd;
-  rctx.lineWidth=Math.max(2,boardR*.04);
-  rctx.stroke();
-
-  // Inner glow pulse
-  const pulse=Math.sin(Date.now()*.008)*0.15+0.85;
-  rctx.beginPath();rctx.arc(cx,cy,r,0,Math.PI*2);
-  rctx.strokeStyle=`rgba(255,200,50,${.5*pulse})`;
-  rctx.lineWidth=Math.max(1,boardR*.015);
-  rctx.stroke();
-
-  // Size indicator text inside ring
-  const pct=Math.round((1-ringR)*100);
-  if(ringR<0.6){
-    rctx.font=`700 ${Math.max(10,boardR*.09)}px Poppins,sans-serif`;
-    rctx.fillStyle=`rgba(255,220,80,${Math.min(1,1-ringR+.2)})`;
-    rctx.textAlign='center';rctx.textBaseline='middle';
-    rctx.fillText(pct+'%',cx,cy+boardR*.4);
+function renderVisit() {
+  let h = '';
+  for (let i = 0; i < 3; i++) {
+    const d = T.darts[i];
+    if (d) h += `<span class="vd done ${d.kind === 't' ? 't' : d.kind === 'd' ? 'db' : d.kind === 'b' ? 'b' : ''}">${d.label === 'Miss' ? '✗' : d.label}</span>`;
+    else h += `<span class="vd ${i === T.darts.length ? 'cur' : ''}">🎯</span>`;
   }
+  const tot = T.darts.reduce((s, d) => s + d.pts, 0);
+  h += `<span class="vd done" style="min-width:60px">${T.bust ? 'BUST' : 'Σ ' + tot}</span>`;
+  setHTML('visit', h);
+}
 
-  // Shrink
-  ringR-=ringSpeed;
-  if(ringR<=0.04){
-    // Passed bullseye — ring disappears, auto miss
-    rctx.clearRect(0,0,sz,sz);
-    gamePhase='result';
-    handleTap(0); // missed — 0 pts
-    return;
+// posisi bidikan (relatif R)
+function aimPos(now) {
+  const t = (now - T.t0) / T.period * Math.PI * 2 + T.off;
+  if (T.phase === 'x') return { x: Math.sin(t) * .95, y: 0 };
+  if (T.phase === 'y') return { x: T.lockX, y: Math.sin(t) * .95 };
+  return { x: T.lockX, y: T.lockY };
+}
+
+// ═════════ INPUT ═════════
+function tap() {
+  if (!T || T.busy) return;
+  const now = performance.now(), a = aimPos(now);
+  if (T.phase === 'x') { T.lockX = a.x; T.phase = 'y'; T.t0 = now; T.off = Math.random() * Math.PI * 2; vib(15); updateHud(); return; }
+  if (T.phase === 'y') { T.lockY = a.y; throwDart(); }
+}
+$('tap-btn').addEventListener('click', tap);
+canvas.addEventListener('pointerdown', e => { e.preventDefault(); tap(); });
+document.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && $('s-game').classList.contains('active')) { e.preventDefault(); tap(); } });
+
+function throwDart() {
+  T.phase = 'fly'; T.busy = true; updateHud();
+  const sigma = .03;                                 // goyangan tangan dikit
+  const x = T.lockX + gauss() * sigma, y = T.lockY + gauss() * sigma;
+  const s = scoreAt(x, y);
+  const st = M.st[T.p];
+  const d = { x, y, ...s, p: T.p };
+  T.darts.push(d);
+  if (s.pts === 50) st.bulls++; if (s.kind === 't') st.triples++; if (s.kind === 'd') st.doubles++; if (s.kind === 'm') st.misses++;
+  // efek
+  let msg = null;
+  if (M.mode === '301') {
+    const visitSum = T.darts.reduce((a, b) => a + b.pts, 0);
+    const rem = T.startScore - visitSum;
+    if (rem < 0) { T.bust = true; st.busts++; M.score[T.p] = T.startScore; banner('💥 BUST!', `Lewat dari 0 — skor balik ke ${T.startScore}`, 1600); vib([100, 50, 100]); }
+    else { M.score[T.p] = rem; if (rem === 0) { banner('🏁 CHECKOUT!', `${NAMES[T.p]} habisin pas 0!`, 1800); confetti(60); vib([60, 30, 120, 30, 200]); } }
+  } else M.score[T.p] += s.pts;
+  if (!T.bust && !(M.mode === '301' && M.score[T.p] === 0)) {
+    if (s.pts === 50) { msg = ['🎯 BULLSEYE! +50', fill(draw('bull', BULL_DARES), { p: NAMES[T.p], o: NAMES[other(T.p)] })]; confetti(40); vib([40, 20, 80, 20, 140]); }
+    else if (s.kind === 't') { banner(`${s.label}! +${s.pts}`, s.n === 20 ? '🔥 Triple 20!' : 'Triple!', 1000); vib([30, 15, 60]); }
+    else if (s.kind === 'd') { banner(`${s.label} +${s.pts}`, 'Double!', 900); vib([25, 15, 40]); }
+    else if (s.kind === 'm') { banner('💨 Meleset!', '', 800); vib([60, 20, 60]); }
+    else { banner(`+${s.pts}`, s.pts === 25 ? 'Bull!' : '', 700); vib(20); }
+    if (msg) banner(msg[0], msg[1], 2200);
   }
+  updateScoresOnly(); renderVisit();
+  const my = token;
+  setTimeout(() => {
+    if (my !== token || !T) return;
+    const over301 = M.mode === '301' && (T.bust || M.score[T.p] === 0);
+    if (T.darts.length >= 3 || over301) endVisit();
+    else { T.phase = 'x'; T.busy = false; T.t0 = performance.now(); T.off = Math.random() * Math.PI * 2; updateHud(); renderVisit(); }
+  }, msg ? 1600 : 900);
+}
+function updateScoresOnly() { setText('sc-r', M.score.r); setText('sc-d', M.score.d); }
 
-  ringAF=requestAnimationFrame(()=>animRing(gen));
+function endVisit() {
+  token++; cancelAnimationFrame(raf);
+  const p = T.p, total = T.bust ? 0 : T.darts.reduce((s, d) => s + d.pts, 0);
+  if (!M.visits[M.round]) M.visits[M.round] = {};
+  M.visits[M.round][p] = { total, darts: T.darts.map(d => d.label), bust: T.bust };
+  M.st[p].bestVisit = Math.max(M.st[p].bestVisit, total);
+  const labels = T.darts.map(d => `<span class="shot">${d.label === 'Miss' ? '✗' : d.label}</span>`).join('');
+  // 301: menang langsung
+  if (M.mode === '301' && M.score[p] === 0) { showFinal(p); return; }
+  if (M.sub === 0) {
+    M.sub = 1; const nx = cur();
+    setHTML('result-inner', `
+      <span class="label">Ronde ${M.round + 1}</span>
+      <span class="icon">${ICON[p]}</span>
+      <h2 class="title" style="font-size:1.3rem">${T.bust ? `${NAMES[p]} BUST 💥` : `${NAMES[p]} dapet ${total}`}</h2>
+      <div class="shots">${labels}</div>
+      <p class="sub">${M.mode === '301' ? `Sisa ${NAMES[p]}: <b>${M.score[p]}</b> · Sisa ${NAMES[nx]}: <b>${M.score[nx]}</b>` : `Total ${NAMES[p]}: <b>${M.score[p]}</b>`}<br>Kasih HP ke <b>${NAMES[nx]}</b> 🎯</p>
+      <button class="btn" onclick="startVisit()">${ICON[nx]} ${NAMES[nx]} siap!</button>
+      <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
+    showScreen('s-result');
+  } else roundResult();
 }
 
-function stopRing(){
-  ringGen++;  // invalidate any running animRing loop
-  if(ringAF){cancelAnimationFrame(ringAF);ringAF=null;}
-  if(rctx) rctx.clearRect(0,0,boardR*2,boardR*2);
+function roundResult() {
+  const V = M.visits[M.round], a = V.r.total, b = V.d.total;
+  const wp = a === b ? null : (a > b ? 'r' : 'd'), w = wp ? NAMES[wp] : '', l = wp ? NAMES[other(wp)] : '';
+  const last = M.mode === 'high' ? M.round + 1 >= M.rounds : M.round + 1 >= M.rounds;
+  const line = p => `${V[p].darts.map(x => x === 'Miss' ? '✗' : x).join(' · ')}${V[p].bust ? ' 💥' : ''}`;
+  setHTML('result-inner', `
+    <span class="label">Hasil Ronde ${M.round + 1}</span>
+    <span class="icon">${wp ? '🏆' : '🤝'}</span>
+    <h2 class="title" style="font-size:1.3rem">${wp ? `${w} Menang Ronde!` : 'Seri!'}</h2>
+    <div class="card">
+      <div class="row"><span>🧑 Razan <small style="opacity:.6">${line('r')}</small></span><b>${a}</b></div>
+      <div class="row"><span>👧 Dara <small style="opacity:.6">${line('d')}</small></span><b>${b}</b></div>
+      <div class="row"><span>${M.mode === '301' ? 'Sisa poin' : 'Total'}</span><b>${M.score.r} – ${M.score.d}</b></div>
+    </div>
+    <div class="demand"><span class="demand-tag">${wp ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span><p class="demand-text">${wp ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — tangan kalian sama mantapnya ✋🎯'}</p></div>
+    <button class="btn" onclick="${last ? 'showFinal()' : 'nextRound()'}">${last ? 'Lihat Juara 🏆' : `Ronde ${M.round + 2} →`}</button>
+    <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
+  showScreen('s-result');
+  if (wp) confetti(25);
+}
+function nextRound() { M.round++; M.sub = 0; startVisit(); }
+
+function showFinal(checkoutBy) {
+  let wp, tie = false;
+  if (M.mode === '301') {
+    if (checkoutBy) wp = checkoutBy;
+    else { tie = M.score.r === M.score.d; wp = M.score.r < M.score.d ? 'r' : 'd'; }
+  } else { tie = M.score.r === M.score.d; wp = M.score.r > M.score.d ? 'r' : 'd'; }
+  const w = NAMES[wp], l = NAMES[other(wp)], S = M.st;
+  const rows = M.visits.map((x, i) => {
+    const a = x.r ? x.r.total : '—', b = x.d ? x.d.total : '—';
+    return `<div class="tr"><span>Ronde ${i + 1}</span><b class="${x.r && x.d && a > b ? 'win' : ''}">${x.r && x.r.bust ? '💥' : a}</b><b class="${x.r && x.d && b > a ? 'win' : ''}">${x.d && x.d.bust ? '💥' : b}</b></div>`;
+  }).join('');
+  const stat = (lbl, k) => `<div class="tr"><span>${lbl}</span><b>${S.r[k]}</b><b>${S.d[k]}</b></div>`;
+  let v = M.mode === '301'
+    ? (checkoutBy ? `<strong>${w}</strong> checkout duluan — habisin 301 pas 0! 🏁` : tie ? 'Batas ronde habis & sisa poin sama — seri!' : `Batas ronde habis — <strong>${w}</strong> sisa poinnya lebih sedikit`)
+    : (tie ? `Seri ${M.score.r}-${M.score.d}! Sama tajamnya 🎯` : `<strong>${w}</strong> menang ${Math.max(M.score.r, M.score.d)}-${Math.min(M.score.r, M.score.d)}! Tangan paling stabil hari ini 🎯`);
+  const bv = Math.max(S.r.bestVisit, S.d.bestVisit);
+  if (bv >= 100) v += `<br>💯 Ada lemparan ${bv} dalam 1 ronde — mantap!`;
+  setHTML('result-inner', `
+    <span class="label">Hasil Akhir</span>
+    <span class="icon">${tie ? '🤝' : '🏆'}</span>
+    <h2 class="title" style="font-size:1.5rem">${tie ? 'Seri!' : `${w} Menang!`}</h2>
+    <p class="sub">${M.mode === '301' ? 'Mode 301' : `${M.rounds} ronde · skor tertinggi`}</p>
+    <div class="score-card">
+      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${M.score.r}</span><span class="sc-s">${M.mode === '301' ? 'sisa' : 'poin'}</span></div>
+      <span class="sc-vs">🎯</span>
+      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${M.score.d}</span><span class="sc-s">${M.mode === '301' ? 'sisa' : 'poin'}</span></div>
+    </div>
+    <div class="tbl"><div class="tr head"><span>Ronde</span><span>🧑 Razan</span><span>👧 Dara</span></div>${rows}
+      ${stat('🎯 Bullseye', 'bulls')}${stat('🟢 Triple', 'triples')}${stat('🔴 Double', 'doubles')}${stat('💨 Meleset', 'misses')}${M.mode === '301' ? stat('💥 Bust', 'busts') : ''}${stat('💯 Ronde terbaik', 'bestVisit')}</div>
+    <div class="verdict">${v}</div>
+    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? 'Seri! Lempar 1 dart lagi masing-masing — yang paling deket bull boleh minta peluk 🤗' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn" onclick="newMatch(M ? other(M.first) : 'r')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
+  showScreen('s-result');
+  confetti(tie ? 40 : 70);
 }
 
-// ── TAP ──
-function tapDart(){
-  if(gamePhase!=='shrinking') return;
-  if(dartsLeft<=0) return;
-  gamePhase='result';
-  stopRing();
-
-  // Calculate score from ring size
-  let pts=0;
-  let zone=null;
-  for(let i=0;i<ZONES.length;i++){
-    if(ringR<=ZONES[i].ratio){pts=ZONES[i].pts;zone=ZONES[i];break;}
-  }
-  if(!zone){pts=0;}
-
-  handleTap(pts,zone);
+function exitGame() {
+  if (!M) { showScreen('s-intro'); return; }
+  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  token++; cancelAnimationFrame(raf); M = null; T = null; showScreen('s-intro');
 }
+window.addEventListener('resize', () => { if (T) layout(); });
 
-function handleTap(pts,zone){
-  if(dartsLeft<0) return;
-  dartsLeft=Math.max(0,dartsLeft-1);
-  turnScore+=pts;
-  scores[currentPlayer]+=pts;
-
-  // Place dart on board at a random spot within the ring
-  const angle=Math.random()*Math.PI*2;
-  const dist=ringR>0?ringR*(0.3+Math.random()*0.5):0.95;
-  const nx=Math.cos(angle)*dist;
-  const ny=Math.sin(angle)*dist;
-  if(pts>0){
-    dartHits.push({x:nx,y:ny,pts,player:currentPlayer});
-  }
-  drawBoard();
-
-  // Visual feedback
-  showFeedback(pts,zone);
-  updateHUD();
-
-  // Next dart or end turn
-  setTimeout(()=>{
-    if(dartsLeft<=0){
-      endTurn();
-    } else {
-      gamePhase='idle';
-      startShrink();
-    }
-  },900);
-}
-
-function showFeedback(pts,zone){
-  const bw=document.getElementById('board-wrap');
-  if(!bw) return;
-
-  if(pts===0){
-    // Miss
-    const mo=document.createElement('div');
-    mo.className='miss-overlay';
-    bw.appendChild(mo);
-    setTimeout(()=>mo.parentNode&&mo.parentNode.removeChild(mo),400);
-
-    const pop=document.createElement('div');
-    pop.className='score-flash';
-    pop.style.color='#ff4444';
-    pop.textContent='💨 Miss!';
-    bw.appendChild(pop);
-    setTimeout(()=>pop.parentNode&&pop.parentNode.removeChild(pop),800);
-    if(navigator.vibrate) navigator.vibrate([60,20,60]);
-  } else {
-    // Hit
-    const ho=document.createElement('div');
-    ho.className='hit-overlay';
-    bw.appendChild(ho);
-    setTimeout(()=>ho.parentNode&&ho.parentNode.removeChild(ho),400);
-
-    const pop=document.createElement('div');
-    pop.className='score-flash';
-    const isBull=pts>=25;
-    pop.style.color=zone?zone.color:'#ffd54f';
-    pop.style.fontSize=isBull?'2.2rem':'1.6rem';
-    pop.textContent=pts===50?'🎯 BULLSEYE! +50':pts===25?'🔴 Bull! +25':`${zone?zone.label:''} +${pts}`;
-    bw.appendChild(pop);
-    setTimeout(()=>pop.parentNode&&pop.parentNode.removeChild(pop),800);
-    if(navigator.vibrate) navigator.vibrate(pts===50?[40,20,80,20,120]:pts===25?[30,10,60]:[20]);
-  }
-
-  // Update tap btn hint
-  const hint=document.getElementById('tap-hint');
-  if(hint) hint.textContent=dartsLeft>1?`${dartsLeft-1} dart tersisa`:'Dart terakhir!';
-}
-
-// ── TURN MANAGEMENT ──
-function startTurn(){
-  dartsLeft=dartsPerTurn;
-  turnScore=0;
-  dartHits=[];
-  throwCount=0; // reset speed for new turn
-  gamePhase='idle';
-  drawBoard();
-  updateHUD();
-
-  cdGen++; // invalidate any previous countdown
-  const myCdGen=cdGen;
-
-  const btn=document.getElementById('tap-btn');
-  const hint=document.getElementById('tap-hint');
-  if(btn) btn.disabled=true;
-  if(hint) hint.textContent='Bersiap...';
-
-  let n=3;
-  const tick=()=>{
-    if(myCdGen!==cdGen) return; // stale countdown — stop
-    if(hint) hint.textContent=n>0?`${n}...`:'TAP saat circle kecil!';
-    if(n<=0){
-      if(myCdGen!==cdGen) return; // check again before launching
-      if(btn) btn.disabled=false;
-      startShrink();
-      return;
-    }
-    n--;
-    setTimeout(tick,700);
-  };
-  setTimeout(tick,300);
-}
-
-function endTurn(){
-  stopRing();
-  gamePhase='idle';
-
-  // Save turn scores
-  if(!turnScores[currentPlayer]) turnScores[currentPlayer]=[];
-  turnScores[currentPlayer].push(turnScore);
-
-  const curName=currentPlayer==='razan'?'Razan':'Dara';
-  const otherPlayer=currentPlayer==='razan'?'dara':'razan';
-  const otherName=otherPlayer==='razan'?'Razan':'Dara';
-
-  if(subTurn===0){
-    // Show pass screen
-    const pi=document.getElementById('pass-icon');
-    const pt=document.getElementById('pass-title');
-    const pc=document.getElementById('pass-card');
-    const ps=document.getElementById('pass-sub');
-    const pb=document.getElementById('pass-btn');
-    if(pi) pi.textContent=currentPlayer==='razan'?'🧑':'👧';
-    if(pt) pt.textContent=`${curName} selesai!`;
-    if(pc) pc.innerHTML=`
-      <div class="pc-row"><span class="pc-label">Skor giliran ini</span><span class="pc-val ${currentPlayer}">${turnScore} poin</span></div>
-      <div class="pc-row"><span class="pc-label">Total ${curName}</span><span class="pc-val ${currentPlayer}">${scores[currentPlayer]} poin</span></div>`;
-    if(ps) ps.textContent=`Kasih HP ke ${otherName} — sekarang giliran ${otherName} lempar!`;
-    if(pb) pb.textContent=`${otherPlayer==='razan'?'🧑':'👧'} ${otherName} Siap! 🎯`;
-    window._nextTurnCb=()=>{
-      subTurn=1;
-      currentPlayer=otherPlayer;
-      showScreen('s-game');
-      // Don't re-init canvas, just start the turn fresh
-      requestAnimationFrame(()=>{
-        stopRing();
-        updateHUD();
-        startTurn();
-      });
-    };
-    showScreen('s-pass');
-  } else {
-    // Both done — show final
-    showFinal();
+// ═════════ RENDER ═════════
+function render(now) {
+  ctx.clearRect(0, 0, W, H);
+  drawBoardFace();
+  // dart yang udah nancep di ronde ini
+  T.darts.forEach(d => drawDart(CX + d.x * R, CY + d.y * R, DARTC[d.p]));
+  // bidikan
+  if (T.phase === 'x' || T.phase === 'y') {
+    const a = aimPos(now), ax = CX + a.x * R, ay = CY + a.y * R;
+    ctx.strokeStyle = 'rgba(255,213,79,.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 6]);
+    if (T.phase === 'x') { ctx.beginPath(); ctx.moveTo(ax, CY - R - 10); ctx.lineTo(ax, CY + R + 10); ctx.stroke(); }
+    else { ctx.beginPath(); ctx.moveTo(CX + T.lockX * R, CY - R - 10); ctx.lineTo(CX + T.lockX * R, CY + R + 10); ctx.stroke(); ctx.beginPath(); ctx.moveTo(CX - R - 10, ay); ctx.lineTo(CX + R + 10, ay); ctx.stroke(); }
+    ctx.setLineDash([]);
+    ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(ax, ay, 11, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax - 16, ay); ctx.lineTo(ax - 5, ay); ctx.moveTo(ax + 5, ay); ctx.lineTo(ax + 16, ay); ctx.moveTo(ax, ay - 16); ctx.lineTo(ax, ay - 5); ctx.moveTo(ax, ay + 5); ctx.lineTo(ax, ay + 16); ctx.stroke();
+    // tebakan skor di bawah bidikan (cuma saat fase vertikal)
+    if (T.phase === 'y') { const s = scoreAt(a.x, a.y); ctx.fillStyle = 'rgba(255,213,79,.9)'; ctx.font = '700 12px Poppins, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(s.label, ax, ay - 20); }
   }
 }
 
-function startNextTurn(){
-  const cb=window._nextTurnCb;
-  window._nextTurnCb=null;
-  if(cb) cb();
-}
-
-// ── HUD ──
-function updateHUD(){
-  const sr=document.getElementById('gh-sc-r');
-  const sd=document.getElementById('gh-sc-d');
-  const gr=document.getElementById('gh-round');
-  const gt=document.getElementById('gh-turn');
-  if(sr) sr.textContent=scores.razan;
-  if(sd) sd.textContent=scores.dara;
-  if(gr) gr.textContent=currentPlayer==='razan'?'🧑 Giliran Razan':'👧 Giliran Dara';
-  if(gt) gt.textContent='🎯'.repeat(Math.max(0,dartsLeft))+'○'.repeat(Math.max(0,dartsPerTurn-dartsLeft));
-}
-
-// ── FINAL ──
-function showFinal(){
-  const r=scores.razan,d=scores.dara;
-  const tie=r===d;
-  const winner=r>d?'razan':'dara';
-  const wName=winner==='razan'?'Razan':'Dara';
-
-  const fi=document.getElementById('final-icon');if(fi) fi.textContent=tie?'🤝':'🏆';
-  const ft=document.getElementById('final-title');if(ft) ft.textContent=tie?'Seri!':`${winner==='razan'?'🧑':'👧'} ${wName} Menang!`;
-  const fs=document.getElementById('final-sub');if(fs) fs.textContent=tie?'Sama-sama jago main darts!':'Aim paling tajam hari ini!';
-  const er=document.getElementById('end-r');if(er) er.textContent=r;
-  const ed=document.getElementById('end-d');if(ed) ed.textContent=d;
-
-  // Recap
-  const rcl=document.getElementById('rc-list');
-  if(rcl){
-    rcl.innerHTML='';
-    const maxLen=Math.max((turnScores.razan||[]).length,(turnScores.dara||[]).length);
-    for(let i=0;i<maxLen;i++){
-      const row=document.createElement('div');row.className='rc-row';
-      const rv=(turnScores.razan||[])[i]??'-';
-      const dv=(turnScores.dara||[])[i]??'-';
-      row.innerHTML=`<span class="rc-lbl">Giliran ${i+1}</span><div class="rc-vals"><span class="rc-val razan">${rv}</span><span style="color:rgba(255,255,255,.2)">vs</span><span class="rc-val dara">${dv}</span></div>`;
-      rcl.appendChild(row);
-    }
+function drawBoardFace() {
+  // bingkai
+  ctx.beginPath(); ctx.arc(CX, CY, R * 1.13, 0, Math.PI * 2); ctx.fillStyle = '#1b1b1b'; ctx.fill();
+  for (let i = 0; i < 20; i++) {
+    const a0 = (-90 - 9 + i * 18) * Math.PI / 180, a1 = a0 + 18 * Math.PI / 180;
+    const dark = i % 2 === 0;
+    const base = dark ? '#1c1c1c' : '#efe3c8', ring = dark ? '#d32f2f' : '#2e7d32';
+    seg(a0, a1, RAD.obull, RAD.tIn, base); seg(a0, a1, RAD.tIn, RAD.tOut, ring);
+    seg(a0, a1, RAD.tOut, RAD.dIn, base); seg(a0, a1, RAD.dIn, RAD.dOut, ring);
+    // angka
+    const am = (a0 + a1) / 2, tr = R * 1.065;
+    ctx.fillStyle = '#fff'; ctx.font = `700 ${Math.max(10, Math.round(R * .075))}px Poppins, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(ORDER[i], CX + Math.cos(am) * tr, CY + Math.sin(am) * tr);
   }
-
-  const vd=document.getElementById('verdict');
-  if(vd){
-    const diff=Math.abs(r-d);
-    const txt=tie?`Seri ${r}-${d}! Sama-sama tajam! Rematch?`:`<strong>${wName}</strong> menang ${Math.max(r,d)}-${Math.min(r,d)}! Selisih ${diff} poin — ${diff<5?'mepet banget!':'cukup jauh!'}`;
-    vd.innerHTML=txt;
-  }
-
-  showScreen('s-final');
-  if(!tie) confetti(80); else confetti(40);
+  ctx.beginPath(); ctx.arc(CX, CY, R * RAD.obull, 0, Math.PI * 2); ctx.fillStyle = '#2e7d32'; ctx.fill();
+  ctx.beginPath(); ctx.arc(CX, CY, R * RAD.bull, 0, Math.PI * 2); ctx.fillStyle = '#d32f2f'; ctx.fill();
+  ctx.strokeStyle = 'rgba(200,200,200,.35)'; ctx.lineWidth = 1;
+  [RAD.obull, RAD.tIn, RAD.tOut, RAD.dIn, RAD.dOut].forEach(r => { ctx.beginPath(); ctx.arc(CX, CY, R * r, 0, Math.PI * 2); ctx.stroke(); });
+  ctx.textBaseline = 'alphabetic';
+}
+function seg(a0, a1, r0, r1, col) {
+  ctx.beginPath(); ctx.arc(CX, CY, R * r1, a0, a1); ctx.arc(CX, CY, R * r0, a1, a0, true); ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+}
+function drawDart(x, y, col) {
+  ctx.save(); ctx.translate(x, y);
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.beginPath(); ctx.ellipse(4, 5, 5, 2.5, .5, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#bbb'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(10, 14); ctx.stroke();
+  ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(10, 14); ctx.lineTo(20, 16); ctx.lineTo(13, 24); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.restore();
 }
 
-function confetti(n){
-  const colors=['#ff6b6b','#ffd54f','#7eb3f5','#e8a090','#fff','#81c784'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+function confetti(n) {
+  const colors = ['#ff6b6b','#ffd54f','#7eb3f5','#f0a39a','#fff','#81c784'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
     document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*18);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 18);
 }
 </script>
 </body>
