@@ -6,169 +6,146 @@
 <title>Word Search — Razan & Dara 🔍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;}
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--blue:#7eb3f5;--pink:#f0a39a}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
   html,body{min-height:100%;background:var(--cream);overflow-x:hidden}
   body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 15%,rgba(232,196,176,.3),transparent 65%),radial-gradient(ellipse 50% 60% at 80% 85%,rgba(193,122,111,.15),transparent 65%);pointer-events:none;z-index:0}
-
-  .screen{display:none;min-height:100vh;position:relative;z-index:1}
+  .screen{display:none;min-height:100vh;position:relative;z-index:1;animation:fade .3s ease}
   .screen.active{display:block}
-
-  /* Page container — responsive max-width */
-  .page{max-width:520px;margin:0 auto;padding:0 1rem 4rem}
-
-  /* ── DESKTOP GAME LAYOUT ── */
-  .game-layout{display:flex;flex-direction:column;gap:1rem}
-
-  @media(min-width:700px){
-    .page{max-width:680px;padding:0 1.5rem 4rem}
-  }
-
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .page{max-width:520px;margin:0 auto;padding:0 1rem 3rem}
+  .game-layout{display:flex;flex-direction:column;gap:.85rem}
+  @media(min-width:700px){.page{max-width:680px;padding:0 1.5rem 3rem}}
   @media(min-width:1024px){
-    .page{max-width:1100px;padding:0 2rem 4rem}
-
-    /* Two-column game layout on desktop */
-    .game-layout{
-      flex-direction:row;
-      align-items:flex-start;
-      gap:1.5rem;
-    }
-    .game-col-left{
-      flex:1;
-      min-width:0;
-    }
-    .game-col-right{
-      width:280px;
-      flex-shrink:0;
-      position:sticky;
-      top:1rem;
-    }
-
-    /* Intro & cat screens wider */
-    #s-intro .intro-wrap{max-width:560px}
-    .mode-cards{flex-direction:row!important}
-    .mode-card{flex:1}
-    .cat-grid{grid-template-columns:repeat(4,1fr)!important;max-width:680px!important}
-
-    /* Game header wider */
-    .g-top{padding:.75rem 0}
+    .page{max-width:1100px;padding:0 2rem 3rem}
+    .game-layout{flex-direction:row;align-items:flex-start;gap:1.5rem}
+    .game-col-left{flex:1;min-width:0}
+    .game-col-right{width:280px;flex-shrink:0;position:sticky;top:1rem}
+    .mode-cards{flex-direction:row!important}.mode-card{flex:1}
+    .game-col-right .word-list{flex-direction:column;gap:.3rem}
   }
 
-  /* ── INTRO ── */
-  #s-intro.active{display:flex!important;align-items:center;justify-content:center;padding:2rem 1rem;min-height:100vh}
+  /* INTRO */
+  #s-intro.active{display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
   .intro-wrap{max-width:420px;width:100%;text-align:center}
-  .intro-icon{font-size:4rem;display:block;margin-bottom:1.25rem;animation:float 3s ease-in-out infinite}
+  @media(min-width:1024px){.intro-wrap{max-width:720px!important}}
+  .intro-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
-  .intro-title{font-size:clamp(1.8rem,6vw,2.5rem);font-weight:700;color:var(--ink);margin-bottom:.75rem}
+  .intro-title{font-size:clamp(1.8rem,6vw,2.5rem);font-weight:700;color:var(--ink);margin-bottom:.75rem;line-height:1.15}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:13.5px;color:var(--muted);line-height:1.8;margin-bottom:2rem;max-width:340px;margin-left:auto;margin-right:auto}
-
-  /* Mode cards */
-  .mode-cards{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem}
-  .mode-card{background:#fff;border:2px solid var(--blush);border-radius:16px;padding:1rem 1.25rem;cursor:pointer;display:flex;align-items:center;gap:1rem;text-align:left;transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.06);user-select:none}
+  .intro-sub{font-size:13.5px;color:var(--muted);line-height:1.8;margin:0 auto 1.5rem;max-width:340px}
+  .mode-cards{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem}
+  .mode-card{background:#fff;border:2px solid var(--blush);border-radius:16px;padding:1rem 1.2rem;cursor:pointer;display:flex;align-items:center;gap:1rem;text-align:left;transition:transform .15s;box-shadow:0 2px 8px rgba(193,122,111,.06);user-select:none}
   .mode-card:active{transform:scale(.97);border-color:var(--rose)}
   .mc-icon{font-size:2rem;flex-shrink:0;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center}
-  .mc-icon.easy{background:rgba(181,196,177,.2)}
-  .mc-icon.normal{background:rgba(201,169,110,.15)}
-  .mc-icon.hard{background:rgba(193,122,111,.12)}
+  .mc-icon.easy{background:rgba(181,196,177,.2)}.mc-icon.normal{background:rgba(201,169,110,.15)}.mc-icon.hard{background:rgba(193,122,111,.12)}
   .mc-title{font-size:14px;font-weight:700;color:var(--ink);display:block;margin-bottom:.1rem}
   .mc-desc{font-size:11px;color:var(--muted);display:block;line-height:1.5}
   .mc-badge{font-size:9px;font-weight:700;padding:.15rem .55rem;border-radius:50px;display:inline-block;margin-top:.3rem}
-  .mc-badge.easy{background:rgba(76,175,80,.1);color:#2a7a2a}
-  .mc-badge.normal{background:rgba(201,169,110,.15);color:#7a5000}
-  .mc-badge.hard{background:rgba(193,122,111,.12);color:#7a1a1a}
+  .mc-badge.easy{background:rgba(76,175,80,.1);color:#2a7a2a}.mc-badge.normal{background:rgba(201,169,110,.15);color:#7a5000}.mc-badge.hard{background:rgba(193,122,111,.12);color:#7a1a1a}
+  .duo-toggle{display:flex;align-items:center;gap:.7rem;background:#fff;border:1.5px solid var(--blush);border-radius:14px;padding:.75rem 1rem;cursor:pointer;text-align:left;user-select:none}
+  .duo-toggle .t{flex:1}
+  .duo-toggle b{font-size:13px;color:var(--ink);display:block}
+  .duo-toggle small{font-size:10.5px;color:var(--muted);line-height:1.4;display:block}
+  .chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--blush);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:transparent;flex-shrink:0}
+  .duo-toggle.on .chk{background:var(--rose);border-color:var(--rose);color:#fff}
 
-  /* ── CATEGORY SELECT ── */
-  #s-cat{padding:2rem 1rem;min-height:100vh}
-  .cat-header{text-align:center;margin-bottom:1.5rem}
+  /* CATEGORY */
+  #s-cat{padding:1.5rem 1rem}
+  .cat-header{text-align:center;margin-bottom:1.2rem}
   .cat-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
   .cat-sub{font-size:12px;color:var(--muted);line-height:1.6}
-  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;max-width:420px;margin:0 auto 1.5rem}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;max-width:420px;margin:0 auto 1.3rem}
   @media(min-width:600px){.cat-grid{grid-template-columns:repeat(3,1fr);max-width:560px}}
   @media(min-width:1024px){.cat-grid{grid-template-columns:repeat(4,1fr);max-width:680px}}
-  .cat-card{background:#fff;border:2px solid var(--blush);border-radius:14px;padding:.85rem .75rem;cursor:pointer;text-align:center;transition:all .15s;box-shadow:0 2px 8px rgba(193,122,111,.05)}
-  .cat-card:active{transform:scale(.95);border-color:var(--rose)}
-  .cat-card.sel{border-color:var(--rose);background:rgba(193,122,111,.04)}
-  .cc-emoji{font-size:1.6rem;display:block;margin-bottom:.25rem}
+  .cat-card{background:#fff;border:2px solid var(--blush);border-radius:14px;padding:.8rem .6rem;cursor:pointer;text-align:center;transition:transform .15s;box-shadow:0 2px 8px rgba(193,122,111,.05)}
+  .cat-card:active{transform:scale(.95)}
+  .cat-card.sel{border-color:var(--rose);background:rgba(193,122,111,.05)}
+  .cc-emoji{font-size:1.6rem;display:block;margin-bottom:.2rem}
   .cc-label{font-size:11px;font-weight:600;color:var(--ink);display:block}
-  .cc-count{font-size:9px;color:var(--muted)}
-  .start-btn{width:100%;max-width:420px;display:block;margin:0 auto;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .cc-best{font-size:9px;color:var(--muted)}
+  .start-btn{width:100%;max-width:420px;display:block;margin:0 auto;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4)}
   .start-btn:active{transform:scale(.97);background:var(--deep)}
-  .back-btn{display:block;margin:.75rem auto 0;text-align:center;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Poppins',sans-serif}
+  .back-btn{display:block;margin:.75rem auto 0;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer}
 
-  /* ── GAME ── */
-  #s-game .page{padding-top:1rem}
-  .g-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-  .g-top-left{display:flex;flex-direction:column}
+  /* GAME */
+  #s-game .page{padding-top:.8rem}
+  .g-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;gap:.5rem}
+  .g-top-left{display:flex;flex-direction:column;min-width:0}
   .g-mode-badge{font-size:9px;font-weight:700;padding:.15rem .55rem;border-radius:50px;display:inline-block;width:fit-content;margin-bottom:.2rem}
-  .g-mode-badge.easy{background:rgba(76,175,80,.1);color:#2a7a2a}
-  .g-mode-badge.normal{background:rgba(201,169,110,.15);color:#7a5000}
-  .g-mode-badge.hard{background:rgba(193,122,111,.12);color:#7a1a1a}
-  .g-cat-label{font-size:12px;font-weight:600;color:var(--ink)}
-  .stats-row{display:flex;gap:1.25rem;align-items:center}
+  .g-mode-badge.easy{background:rgba(76,175,80,.1);color:#2a7a2a}.g-mode-badge.normal{background:rgba(201,169,110,.15);color:#7a5000}.g-mode-badge.hard{background:rgba(193,122,111,.12);color:#7a1a1a}
+  .g-cat-label{font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stats-row{display:flex;gap:1rem;align-items:center}
   .stat{text-align:center}
-  .stat-num{font-size:1.3rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .stat-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .timer-stat .stat-num{font-size:1rem;font-weight:700;color:var(--ink)}
-  .timer-stat .stat-num.warn{color:#e53935;animation:pulse .5s ease infinite alternate}
+  .stat-num{font-size:1.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
+  .stat-num.time{font-size:1rem;color:var(--ink)}
+  .stat-num.warn{color:#e53935;animation:pulse .5s ease infinite alternate}
   @keyframes pulse{from{opacity:1}to{opacity:.4}}
-
-  /* Grid */
-  .grid-wrap{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1rem;margin-bottom:.85rem;box-shadow:0 2px 16px rgba(45,31,26,.06);overflow:hidden;touch-action:none;width:100%}
-  #word-grid{display:grid;gap:2px;width:100%;margin:0 auto;touch-action:none;user-select:none}
-  .cell{display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--ink);border-radius:6px;cursor:pointer;transition:background .08s,color .08s;text-transform:uppercase;border:1px solid transparent;aspect-ratio:1}
-  .cell.selecting{background:rgba(193,122,111,.25);color:var(--deep)}
+  .stat-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .duo-bar{display:none;gap:.5rem;margin-bottom:.7rem}
+  .duo-bar.show{display:flex}
+  .duo-p{flex:1;background:#fff;border:1.5px solid var(--blush);border-radius:12px;padding:.4rem .6rem;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600}
+  .duo-p.r{color:#3a6aa8}.duo-p.d{color:#b0544a}
+  .duo-p b{font-size:1.1rem}
+  .grid-wrap{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:.7rem;box-shadow:0 2px 16px rgba(45,31,26,.06);touch-action:none;position:relative}
+  .grid-wrap.over #word-grid{opacity:.5;pointer-events:none}
+  #word-grid{display:grid;gap:2px;width:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+  .cell{display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--ink);border-radius:6px;cursor:pointer;transition:background .08s,color .08s;aspect-ratio:1;text-transform:uppercase}
+  .cell.selecting{background:rgba(193,122,111,.3);color:var(--deep)}
   .cell.found{color:#fff}
-
-  /* Word list */
-  .word-list-wrap{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:1rem 1.25rem;margin-bottom:.85rem;box-shadow:0 2px 12px rgba(45,31,26,.05)}
-  .wl-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;display:block}
+  .cell.hint{box-shadow:inset 0 0 0 2.5px var(--gold);animation:hintp .6s ease infinite alternate}
+  @keyframes hintp{from{background:rgba(201,169,110,.1)}to{background:rgba(201,169,110,.4)}}
+  .sel-preview{position:absolute;top:.3rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:700;letter-spacing:.1em;padding:.15rem .7rem;border-radius:50px;pointer-events:none;display:none;z-index:3}
+  .sel-preview.show{display:block}
+  .word-list-wrap{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:16px;padding:.9rem 1.1rem;box-shadow:0 2px 12px rgba(45,31,26,.05)}
+  .wl-title{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;display:block}
   .word-list{display:flex;flex-wrap:wrap;gap:.4rem}
-  @media(min-width:1024px){
-    .game-col-right .word-list-wrap{max-height:calc(100vh - 120px);overflow-y:auto;margin-bottom:0}
-    .game-col-right .word-list{flex-direction:column;gap:.3rem}
-    .game-col-right .word-chip{text-align:left}
-  }
-  .word-chip{padding:.28rem .75rem;border-radius:50px;font-size:11px;font-weight:500;background:var(--warm);color:var(--muted);border:1px solid var(--blush);text-transform:uppercase;letter-spacing:.04em;transition:all .2s}
-  .word-chip.found{color:#fff;border-color:transparent;text-decoration:line-through;opacity:.8}
-
-  /* btn */
-  .btn-row{display:flex;gap:.6rem;max-width:420px;margin:0 auto}
-  .btn{flex:1;padding:.75rem;border-radius:50px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;transition:all .2s;text-align:center}
+  .word-chip{padding:.26rem .7rem;border-radius:50px;font-size:11px;font-weight:500;background:var(--warm);color:var(--muted);border:1px solid var(--blush);letter-spacing:.04em;transition:all .2s}
+  .word-chip.found{color:#fff;border-color:transparent;text-decoration:line-through;opacity:.85}
+  .word-chip small{font-size:9px;margin-left:.2rem;text-decoration:none;display:inline-block}
+  .tools{display:flex;gap:.5rem;margin:.85rem 0}
+  .btn{flex:1;padding:.7rem;border-radius:50px;border:none;cursor:pointer;font-size:12.5px;font-weight:600;text-align:center}
   .btn-primary{background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.3)}
-  .btn-primary:active{background:var(--deep);transform:scale(.97)}
-  .btn-outline{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
-  .btn-outline:active{border-color:var(--rose);color:var(--rose)}
+  .btn-outline{background:#fff;color:var(--muted);border:1.5px solid var(--blush)}
+  .btn-gold{background:#fff;color:#7a5000;border:1.5px solid rgba(201,169,110,.6)}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.4}
 
-  /* Win */
-  #win-screen{display:none;text-align:center;background:#fff;border:1px solid rgba(193,122,111,.2);border-radius:16px;padding:2rem 1.5rem;margin-bottom:1.25rem;box-shadow:0 4px 24px rgba(193,122,111,.12)}
+  /* sheet siapa yang nemu */
+  .who-sheet{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);z-index:60;background:#fff;border:1.5px solid var(--blush);border-radius:18px;padding:.8rem;box-shadow:0 8px 30px rgba(45,31,26,.2);width:min(92vw,360px);display:none;text-align:center}
+  .who-sheet.show{display:block;animation:up .25s ease}
+  @keyframes up{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+  .who-sheet p{font-size:12.5px;color:var(--ink);margin-bottom:.55rem}
+  .who-sheet p b{color:var(--rose)}
+  .who-row{display:flex;gap:.5rem}
+  .who-row button{flex:1;padding:.65rem;border-radius:12px;border:none;font-size:13px;font-weight:700;cursor:pointer}
+  .who-row .r{background:rgba(126,179,245,.18);color:#2a5a98}.who-row .d{background:rgba(240,163,154,.22);color:#9a3a30}.who-row .b{background:var(--warm);color:var(--muted);flex:.7}
+
+  /* RESULT */
+  #win-screen{display:none;text-align:center;background:#fff;border:1px solid rgba(193,122,111,.2);border-radius:18px;padding:1.6rem 1.3rem;margin-bottom:1rem;box-shadow:0 4px 24px rgba(193,122,111,.12)}
   #win-screen.show{display:block;animation:popin .4s cubic-bezier(.34,1.56,.64,1)}
   @keyframes popin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-  .win-emoji{font-size:3.5rem;display:block;margin-bottom:.75rem}
-  .win-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.5rem}
-  .win-msg{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:1.25rem}
-  .win-stat{font-size:1.5rem;font-weight:700;color:var(--rose);display:block;margin:.25rem 0}
-  .win-stat-label{font-size:10px;color:var(--muted)}
-
+  .win-emoji{font-size:3.3rem;display:block;margin-bottom:.6rem}
+  .win-title{font-size:1.35rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+  .win-msg{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:1rem}
+  .win-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem}
+  .ws{background:var(--warm);border-radius:12px;padding:.55rem .3rem}
+  .ws b{display:block;font-size:1.15rem;color:var(--rose)}
+  .ws span{font-size:9.5px;color:var(--muted)}
+  .missed{font-size:11.5px;color:var(--muted);margin-bottom:1rem;line-height:1.7}
+  .missed b{color:var(--ink);letter-spacing:.04em}
+  .duo-result{background:linear-gradient(135deg,rgba(126,179,245,.12),rgba(240,163,154,.14));border-radius:14px;padding:.8rem;margin-bottom:1rem;font-size:12.5px;color:var(--ink);line-height:1.6}
+  .duo-result b{color:var(--rose)}
+  .btn-row{display:flex;gap:.6rem}
+  .pause-ov{position:fixed;inset:0;z-index:70;background:rgba(250,246,240,.92);backdrop-filter:blur(6px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;padding:2rem;text-align:center}
+  .pause-ov.show{display:flex}
+  .pause-ov h2{font-size:1.3rem;color:var(--ink)}
+  .pause-ov p{font-size:12.5px;color:var(--muted)}
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:50px;padding:.45rem 1.1rem;font-size:12px;z-index:999;white-space:nowrap;pointer-events:none;animation:tin .25s ease}
+  @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%)}}
   .confetti-piece{position:fixed;border-radius:2px;animation:confetti-fall linear forwards;pointer-events:none;z-index:9999}
   @keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-
-  /* Fade transition — no position:fixed, use display+opacity */
-  .screen{
-    display:none;
-    opacity:0;
-    transition:opacity .3s ease;
-  }
-  .screen.visible{
-    display:block;
-    pointer-events:none;
-  }
-  .screen.active{
-    display:block;
-    opacity:1;
-    pointer-events:auto;
-  }
 </style>
 </head>
 <body>
@@ -180,42 +157,22 @@
     <span class="intro-label">Mini Game Berdua</span>
     <h1 class="intro-title">Word Search<br><span>Razan & Dara</span></h1>
     <p class="intro-sub">Cari kata-kata tersembunyi di grid — tentang kita, tentang cinta, tentang hidup! Ada 3 mode dan banyak kategori kata.</p>
-    <div class="mode-cards" style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem">
-      <div class="mode-card" onclick="selectMode('easy')">
-        <div class="mc-icon easy">🌸</div>
-        <div>
-          <span class="mc-title">Mudah</span>
-          <span class="mc-desc">Grid 8×8 · 8 kata · 6 menit · kata kanan & bawah saja</span>
-          <span class="mc-badge easy">Santai</span>
-        </div>
-      </div>
-      <div class="mode-card" onclick="selectMode('normal')">
-        <div class="mc-icon normal">✨</div>
-        <div>
-          <span class="mc-title">Normal</span>
-          <span class="mc-desc">Grid 11×11 · 12 kata · 5 menit · semua arah</span>
-          <span class="mc-badge normal">Seru</span>
-        </div>
-      </div>
-      <div class="mode-card" onclick="selectMode('hard')">
-        <div class="mc-icon hard">🔥</div>
-        <div>
-          <span class="mc-title">Susah</span>
-          <span class="mc-desc">Grid 14×14 · 18 kata · 4 menit · termasuk diagonal balik</span>
-          <span class="mc-badge hard">Tantangan</span>
-        </div>
-      </div>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="selectMode('easy')"><div class="mc-icon easy">🌸</div><div><span class="mc-title">Mudah</span><span class="mc-desc">Grid 8×8 · 8 kata · 6 menit · kata kanan & bawah saja</span><span class="mc-badge easy">Santai</span></div></div>
+      <div class="mode-card" onclick="selectMode('normal')"><div class="mc-icon normal">✨</div><div><span class="mc-title">Normal</span><span class="mc-desc">Grid 11×11 · 12 kata · 5 menit · semua arah</span><span class="mc-badge normal">Seru</span></div></div>
+      <div class="mode-card" onclick="selectMode('hard')"><div class="mc-icon hard">🔥</div><div><span class="mc-title">Susah</span><span class="mc-desc">Grid 14×14 · 18 kata · 4 menit · termasuk diagonal balik</span><span class="mc-badge hard">Tantangan</span></div></div>
+    </div>
+    <div class="duo-toggle" id="duo-toggle" onclick="toggleDuo()">
+      <div class="t"><b>👫 Main berdua — catat siapa yang nemu</b><small>Tiap kata ketemu, pilih Razan atau Dara. Di akhir ketahuan siapa yang lebih jeli 👀</small></div>
+      <div class="chk">✓</div>
     </div>
   </div>
 </div>
 
-<!-- CATEGORY SELECT -->
+<!-- CATEGORY -->
 <div id="s-cat" class="screen">
   <div class="page">
-    <div class="cat-header" style="padding-top:1.5rem">
-      <p class="cat-title">Pilih Kategori Kata</p>
-      <p class="cat-sub">Kata-kata yang harus kamu cari di grid</p>
-    </div>
+    <div class="cat-header" style="padding-top:1rem"><p class="cat-title">Pilih Kategori Kata</p><p class="cat-sub">Kata-kata yang harus kamu cari di grid</p></div>
     <div class="cat-grid" id="cat-grid"></div>
     <button class="start-btn" onclick="startGame()">Mulai! 🔍</button>
     <button class="back-btn" onclick="showScreen('s-intro')">← Ganti mode</button>
@@ -226,559 +183,266 @@
 <div id="s-game" class="screen">
   <div class="page">
     <div class="g-top">
-      <div class="g-top-left">
-        <span class="g-mode-badge" id="g-mode-badge">Normal</span>
-        <span class="g-cat-label" id="g-cat-label">Kata Cinta</span>
-      </div>
+      <div class="g-top-left"><span class="g-mode-badge" id="g-mode-badge">Normal</span><span class="g-cat-label" id="g-cat-label">Kata Cinta</span></div>
       <div class="stats-row">
-        <div class="stat">
-          <span class="stat-num" id="found-count">0</span>
-          <span class="stat-label">Kata</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num" id="total-count">12</span>
-          <span class="stat-label">Total</span>
-        </div>
-        <div class="stat timer-stat">
-          <span class="stat-num" id="timer-display">05:00</span>
-          <span class="stat-label">Waktu</span>
-        </div>
+        <div class="stat"><span class="stat-num" id="found-count">0</span><span class="stat-label">/ <span id="total-count">12</span> Kata</span></div>
+        <div class="stat"><span class="stat-num time" id="timer-display">05:00</span><span class="stat-label">Waktu</span></div>
       </div>
     </div>
-
-    <div class="game-layout">
-      <div class="game-col-left">
-        <div class="grid-wrap">
-          <div id="word-grid"></div>
-        </div>
-      </div>
-      <div class="game-col-right">
-        <div class="word-list-wrap">
-          <span class="wl-title">Kata yang dicari</span>
-          <div class="word-list" id="word-list"></div>
-        </div>
-      </div>
-    </div>
+    <div class="duo-bar" id="duo-bar"><div class="duo-p r">🧑 Razan <b id="sc-r">0</b></div><div class="duo-p d">👧 Dara <b id="sc-d">0</b></div></div>
 
     <div id="win-screen">
       <span class="win-emoji" id="win-emoji">🎉</span>
       <h2 class="win-title" id="win-title">Semua kata ditemukan!</h2>
-      <p class="win-msg" id="win-msg">Hebat banget! 🤍</p>
-      <span class="win-stat-label">Kata ditemukan</span>
-      <span class="win-stat" id="win-score">0/12</span>
-      <span class="win-stat-label">Waktu terpakai</span>
-      <span class="win-stat" id="win-time" style="font-size:1.1rem;color:var(--muted)">00:00</span>
-      <div class="btn-row" style="margin-top:1.25rem">
-        <button class="btn btn-primary" onclick="playAgain()">Main Lagi 🔄</button>
-        <button class="btn btn-outline" onclick="showScreen('s-intro')">Menu</button>
-      </div>
+      <p class="win-msg" id="win-msg"></p>
+      <div class="win-stats"><div class="ws"><b id="win-score">0/12</b><span>Kata</span></div><div class="ws"><b id="win-time">00:00</b><span>Waktu</span></div><div class="ws"><b id="win-best">—</b><span>Rekor</span></div></div>
+      <div id="duo-result"></div>
+      <p class="missed" id="missed"></p>
+      <div class="btn-row"><button class="btn btn-primary" onclick="playAgain()">Main Lagi 🔄</button><button class="btn btn-outline" onclick="goMenu('s-cat')">Kategori</button></div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="playAgain()">Reset</button>
-      <button class="btn btn-outline" onclick="showScreen('s-cat')">Kategori</button>
+    <div class="game-layout">
+      <div class="game-col-left"><div class="grid-wrap" id="grid-wrap"><span class="sel-preview" id="sel-preview"></span><div id="word-grid"></div></div></div>
+      <div class="game-col-right"><div class="word-list-wrap"><span class="wl-title">Kata yang dicari</span><div class="word-list" id="word-list"></div></div></div>
+    </div>
+    <div class="tools">
+      <button class="btn btn-gold" id="hint-btn" onclick="useHint()">💡 Hint (+15 dtk)</button>
+      <button class="btn btn-outline" onclick="playAgain()">🔄 Acak Ulang</button>
+      <button class="btn btn-outline" onclick="goMenu('s-cat')">Kategori</button>
     </div>
   </div>
 </div>
 
+<div class="who-sheet" id="who-sheet"><p>Nemu <b id="who-word">KATA</b>! Siapa yang nemu? 👀</p><div class="who-row"><button class="r" onclick="credit('r')">🧑 Razan</button><button class="b" onclick="credit('b')">Bareng</button><button class="d" onclick="credit('d')">👧 Dara</button></div></div>
+<div class="pause-ov" id="pause-ov"><h2>⏸️ Dijeda</h2><p>Waktu berhenti dulu. Lanjut kalau udah siap 🤍</p><button class="start-btn" style="max-width:260px" onclick="resume()">Lanjut 🔍</button></div>
+
 <script>
 // ── WORD BANKS ──
 const CATEGORIES = [
-  {
-    id:'cinta', label:'Kata Cinta', emoji:'💌', color:'#c17a6f',
-    words:['SAYANG','CINTA','RINDU','PELUK','CIUMAN','SETIA','MANIS','HANGAT','MESRA','BAHAGIA','ABADI','TULUS','IKHLAS','ROMANTIS','MANJA','SPECIAL','KAGUM','PERHATIAN','KASIH','RASA','INDAH','MULIA','SELAMANYA','BERSAMA','INTIM']
-  },
-  {
-    id:'kita', label:'Tentang Kita', emoji:'🤍', color:'#c9a96e',
-    words:['RAZAN','DARA','RAZARA','CONDET','JAKARTA','HUBUNGAN','PACARAN','KENANGAN','CERITA','MOMEN','FOTO','SELFIE','JANJIAN','NGOBROL','KETAWA','NONTON','MAKAN','JALAN','BARENG','SAMA','BERDUA','DEKAT','PERCAYA','SETIA','NYAMAN']
-  },
-  {
-    id:'perasaan', label:'Perasaan', emoji:'💭', color:'#b5c4b1',
-    words:['SENANG','SEDIH','KANGEN','KHAWATIR','BANGGA','KAGUM','LEGA','TENANG','GEMBIRA','GIRANG','MALU','GROGI','BAPER','GALAU','SUSAH','KAGET','HERAN','TERHARU','SYUKUR','DAMAI','AMAN','NYAMAN','PERCAYA','YAKIN','BERANI']
-  },
-  {
-    id:'tempat', label:'Tempat Kita', emoji:'🗺️', color:'#9ab0c4',
-    words:['JAKARTA','CONDET','KAFE','RESTO','MALL','TAMAN','PANTAI','GUNUNG','BIOSKOP','RUMAH','KAMAR','ANGKOT','BUSWAY','GRABCAR','GOJEK','STASIUN','WARUNG','MINIMARKET','JALAN','LORONG','GANG','KAMPUS','KANTOR','SEKOLAH','MASJID']
-  },
-  {
-    id:'aktivitas', label:'Aktivitas', emoji:'⭐', color:'#c4a0a8',
-    words:['MASAK','MAKAN','NONTON','GAMING','JALAN','MANDI','TIDUR','KERJA','BELAJAR','IBADAH','OLAHRAGA','BELANJA','FOTO','NGOBROL','BECANDA','MAIN','KETAWA','NYANYI','DENGERIN','PELUKAN','PEGANGAN','NEMENIN','BANTUIN','NUNGGUIN','CURHAT']
-  },
-  {
-    id:'harapan', label:'Harapan & Doa', emoji:'🌟', color:'#c9a96e',
-    words:['NIKAH','MENIKAH','KELUARGA','RUMAH','ANAK','BAHAGIA','SEHAT','SUKSES','REZEKI','BERKAH','DHUHA','TAHAJUD','SABAR','SYUKUR','IKHLAS','TAWAKKAL','MAJU','JAGA','LINDUNGI','RIDHO','SURGA','TULUS','ABADI','SETIA','DOAKAN']
-  },
-  {
-    id:'sifat', label:'Sifat Dara', emoji:'👧', color:'#c4b0b8',
-    words:['CANTIK','IMUT','LUCU','MANIS','PINTAR','RAJIN','SABAR','PERHATIAN','BAIK','LEMBUT','HANGAT','MANJA','CEREWET','RECEH','UNIK','KREATIF','MANDIRI','KUAT','TANGGUH','SETIA','JUJUR','TULUS','POLOS','ASIK','SERU']
-  },
-  {
-    id:'anniversary', label:'Kata Istimewa', emoji:'🎊', color:'#c17a6f',
-    words:['ULANG','TAHUN','SPESIAL','HADIAH','KEJUTAN','BUNGA','KADO','COKLAT','SELAMAT','TERIMA','KASIH','MAAF','JANJI','SUMPAH','KOMITMEN','DUKUNGAN','SEMANGAT','IKHLAS','BERKAH','RASA','SYUKUR','TULUS','ABADI','SETIA','SABAR','BANGGA','BAHAGIA','RINDU','CINTA','SAYANG']
-  },
+  { id:'cinta', label:'Kata Cinta', emoji:'💌', words:['SAYANG','CINTA','RINDU','PELUK','CIUMAN','SETIA','MANIS','HANGAT','MESRA','BAHAGIA','ABADI','TULUS','IKHLAS','ROMANTIS','MANJA','SPECIAL','KAGUM','PERHATIAN','KASIH','RASA','INDAH','MULIA','SELAMANYA','BERSAMA','INTIM'] },
+  { id:'kita', label:'Tentang Kita', emoji:'🤍', words:['RAZAN','DARA','RAZARA','CONDET','JAKARTA','HUBUNGAN','PACARAN','KENANGAN','CERITA','MOMEN','FOTO','SELFIE','JANJIAN','NGOBROL','KETAWA','NONTON','MAKAN','JALAN','BARENG','SAMA','BERDUA','DEKAT','PERCAYA','SETIA','NYAMAN'] },
+  { id:'perasaan', label:'Perasaan', emoji:'💭', words:['SENANG','SEDIH','KANGEN','KHAWATIR','BANGGA','KAGUM','LEGA','TENANG','GEMBIRA','GIRANG','MALU','GROGI','BAPER','GALAU','SUSAH','KAGET','HERAN','TERHARU','SYUKUR','DAMAI','AMAN','NYAMAN','PERCAYA','YAKIN','BERANI'] },
+  { id:'tempat', label:'Tempat Kita', emoji:'🗺️', words:['JAKARTA','CONDET','KAFE','RESTO','MALL','TAMAN','PANTAI','GUNUNG','BIOSKOP','RUMAH','KAMAR','ANGKOT','BUSWAY','GRABCAR','GOJEK','STASIUN','WARUNG','MINIMARKET','JALAN','LORONG','GANG','KAMPUS','KANTOR','SEKOLAH','MASJID'] },
+  { id:'aktivitas', label:'Aktivitas', emoji:'⭐', words:['MASAK','MAKAN','NONTON','GAMING','JALAN','MANDI','TIDUR','KERJA','BELAJAR','IBADAH','OLAHRAGA','BELANJA','FOTO','NGOBROL','BECANDA','MAIN','KETAWA','NYANYI','DENGERIN','PELUKAN','PEGANGAN','NEMENIN','BANTUIN','NUNGGUIN','CURHAT'] },
+  { id:'harapan', label:'Harapan & Doa', emoji:'🌟', words:['NIKAH','MENIKAH','KELUARGA','RUMAH','ANAK','BAHAGIA','SEHAT','SUKSES','REZEKI','BERKAH','DHUHA','TAHAJUD','SABAR','SYUKUR','IKHLAS','TAWAKKAL','MAJU','JAGA','LINDUNGI','RIDHO','SURGA','TULUS','ABADI','SETIA','DOAKAN'] },
+  { id:'sifat', label:'Sifat Dara', emoji:'👧', words:['CANTIK','IMUT','LUCU','MANIS','PINTAR','RAJIN','SABAR','PERHATIAN','BAIK','LEMBUT','HANGAT','MANJA','CEREWET','RECEH','UNIK','KREATIF','MANDIRI','KUAT','TANGGUH','SETIA','JUJUR','TULUS','POLOS','ASIK','SERU'] },
+  { id:'anniversary', label:'Kata Istimewa', emoji:'🎊', words:['ULANG','TAHUN','SPESIAL','HADIAH','KEJUTAN','BUNGA','KADO','COKLAT','SELAMAT','TERIMA','KASIH','MAAF','JANJI','SUMPAH','KOMITMEN','DUKUNGAN','SEMANGAT','IKHLAS','BERKAH','RASA','SYUKUR','TULUS','ABADI','SETIA','SABAR','BANGGA','BAHAGIA','RINDU','CINTA','SAYANG'] },
 ];
-
-// ── MODE CONFIG ──
 const MODES = {
-  easy:   {size:8,  wordCount:8,  time:360, dirs:[[0,1],[1,0]], label:'Mudah'},
-  normal: {size:11, wordCount:12, time:300, dirs:[[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1]], label:'Normal'},
-  hard:   {size:14, wordCount:18, time:240, dirs:[[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]], label:'Susah'},
+  easy:   { size: 8,  wordCount: 8,  time: 360, dirs: [[0,1],[1,0]], label: 'Mudah' },
+  normal: { size: 11, wordCount: 12, time: 300, dirs: [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1]], label: 'Normal' },
+  hard:   { size: 14, wordCount: 18, time: 240, dirs: [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]], label: 'Susah' },
 };
-
-const FOUND_COLORS = [
-  '#c17a6f','#b5a090','#c9a96e','#b5c4b1','#c4a0a8','#9ab0c4','#c4b0a0','#a0b4c4',
-  '#c4a0b4','#b4c4a0','#c4b4a0','#a0c4b4','#c4a8a0','#a8b0c4','#c4b0b8','#b0c4a8',
-  '#c4a0a0','#a0a8c4','#c4b8a0','#a8c4a0',
-];
+const FOUND_COLORS = ['#c17a6f','#b5a090','#c9a96e','#9fb59b','#c4a0a8','#8fa8c4','#c4a890','#98adc4','#c49ab4','#a8bc94','#c4b090','#90c0ac','#c4a098','#a0a8c4','#bca0b0','#a8c09c','#c49898','#9aa0c4'];
+const HINT_COST = 15;
 
 // ── STATE ──
-let currentMode='normal';
-let selectedCatId='cinta';
-let grid=[], placed=[], foundWords=[];
-let selecting=false, startCell=null, currentSel=[];
-let timerInterval=null, seconds=0, timeLimit=300;
-let activeWords=[];
+let currentMode = 'normal', selectedCatId = 'cinta', duo = false;
+let grid = [], placed = [], foundWords = [], activeWords = [], credits = {}, hintsUsed = 0;
+let seconds = 0, timerIv = null, over = true, paused = false, pendingCredit = null;
+let sel = null; // { id, start, cells }
+const $ = id => document.getElementById(id);
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
+function toast(m) { document.querySelectorAll('.toast').forEach(e => e.remove()); const el = document.createElement('div'); el.className = 'toast'; el.textContent = m; document.body.appendChild(el); setTimeout(() => el.remove(), 1800); }
+function fmt(s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+function bestKey() { return `ws-best-${currentMode}-${selectedCatId}`; }
+function getBest(mode, cat) { const v = parseInt(localStorage.getItem(`ws-best-${mode}-${cat}`) || '0', 10); return v || null; }
 
-function showScreen(id){
-  const current=document.querySelector('.screen.active');
-  const next=document.getElementById(id);
-  if(!next||next===current) return;
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0, 0); }
+function goMenu(id) { stopTimer(); over = true; hideWho(); showScreen(id); if (id === 's-cat') buildCatGrid(); }
+function toggleDuo() { duo = !duo; $('duo-toggle').classList.toggle('on', duo); }
 
-  if(current){
-    // Fade out current
-    current.classList.remove('active');
-    setTimeout(()=>{
-      current.classList.remove('visible');
-      // Fade in next
-      next.classList.add('visible');
-      window.scrollTo(0,0);
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>{
-          next.classList.add('active');
-        });
-      });
-    },300);
-  } else {
-    // First show — no fade
-    next.classList.add('visible','active');
-    window.scrollTo(0,0);
-  }
+// ── MODE & KATEGORI ──
+function selectMode(mode) { currentMode = mode; buildCatGrid(); showScreen('s-cat'); }
+function buildCatGrid() {
+  $('cat-grid').innerHTML = CATEGORIES.map(c => { const b = getBest(currentMode, c.id);
+    return `<div class="cat-card ${c.id === selectedCatId ? 'sel' : ''}" data-id="${c.id}"><span class="cc-emoji">${c.emoji}</span><span class="cc-label">${c.label}</span><span class="cc-best">${b ? '🏆 ' + fmt(b) : MODES[currentMode].wordCount + ' kata'}</span></div>`; }).join('');
+  $('cat-grid').querySelectorAll('.cat-card').forEach(el => el.onclick = () => { selectedCatId = el.dataset.id; buildCatGrid(); });
 }
 
-// ── INTRO → MODE SELECT ──
-function selectMode(mode){
-  currentMode=mode;
-  buildCatGrid();
-  showScreen('s-cat');
+// ── MULAI ──
+function startGame() { showScreen('s-game'); newRound(); }
+function playAgain() { newRound(); }
+function newRound() {
+  stopTimer(); hideWho();
+  const mode = MODES[currentMode], cat = CATEGORIES.find(c => c.id === selectedCatId) || CATEGORIES[0];
+  seconds = 0; foundWords = []; credits = {}; hintsUsed = 0; over = false; paused = false;
+  const pool = [...new Set(cat.words)].filter(w => w.length <= mode.size).sort(() => Math.random() - .5);
+  activeWords = pool.slice(0, mode.wordCount);
+  $('g-mode-badge').textContent = mode.label; $('g-mode-badge').className = 'g-mode-badge ' + currentMode;
+  $('g-cat-label').textContent = cat.label + ' ' + cat.emoji;
+  $('win-screen').classList.remove('show'); $('grid-wrap').classList.remove('over');
+  $('duo-bar').classList.toggle('show', duo);
+  $('hint-btn').disabled = false;
+  buildGrid(mode);
+  renderGrid(mode.size); renderWordList(); updateScores(); updateTimer();
+  startTimer();
 }
 
-function buildCatGrid(){
-  const cg=document.getElementById('cat-grid');
-  if(!cg) return;
-  cg.innerHTML='';
-  CATEGORIES.forEach(cat=>{
-    const card=document.createElement('div');
-    card.className='cat-card'+(cat.id===selectedCatId?' sel':'');
-    card.innerHTML=`<span class="cc-emoji">${cat.emoji}</span><span class="cc-label">${cat.label}</span><span class="cc-count">${MODES[currentMode].wordCount} kata</span>`;
-    card.onclick=()=>{
-      selectedCatId=cat.id;
-      document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('sel'));
-      card.classList.add('sel');
-    };
-    cg.appendChild(card);
-  });
-}
-
-// ── GAME START ──
-function startGame(){
-  stopTimer();
-  seconds=0;
-  foundWords=[];
-
-  const mode=MODES[currentMode];
-  const cat=CATEGORIES.find(c=>c.id===selectedCatId)||CATEGORIES[0];
-  timeLimit=mode.time;
-
-  // Pick words — filter by grid size first, then shuffle and take wordCount
-  const fittingWords=cat.words.filter(w=>w.length<=mode.size);
-  const shuffled=[...fittingWords].sort(()=>Math.random()-.5);
-  activeWords=shuffled.slice(0,mode.wordCount);
-
-  // HUD
-  const mb=document.getElementById('g-mode-badge');
-  if(mb){mb.textContent=mode.label;mb.className='g-mode-badge '+currentMode;}
-  const cl=document.getElementById('g-cat-label');
-  if(cl) cl.textContent=cat.label+' '+cat.emoji;
-
-  document.getElementById('found-count').textContent='0';
-  document.getElementById('total-count').textContent=activeWords.length;
-  document.getElementById('win-screen').classList.remove('show');
-  updateTimerDisplay();
-
-  showScreen('s-game');
-  // Render grid after screen is visible so offsetWidth is correct
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      const SIZE=MODES[currentMode].size;
-      initGrid(SIZE);
-      renderGrid(SIZE);
-      renderWordList();
-      startTimer();
-    });
-  });
-}
-
-// ── GRID GENERATION ──
-function initGrid(SIZE){
-  grid=Array.from({length:SIZE},()=>Array(SIZE).fill(''));
-  placed=[];
-  const mode=MODES[currentMode];
-  const dirs=mode.dirs;
-  const sorted=[...activeWords].sort((a,b)=>b.length-a.length);
-
-  for(const word of sorted){
-    let ok=false, attempts=0;
-    while(!ok&&attempts<300){
-      attempts++;
-      const dir=dirs[Math.floor(Math.random()*dirs.length)];
-      const r=Math.floor(Math.random()*SIZE);
-      const c=Math.floor(Math.random()*SIZE);
-      if(canPlace(word,r,c,dir,SIZE)){
-        placeWord(word,r,c,dir);
-        ok=true;
+// ── GENERATE GRID ──
+function buildGrid(mode) {
+  const N = mode.size;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    grid = Array.from({ length: N }, () => Array(N).fill('')); placed = [];
+    for (const w of [...activeWords].sort((a, b) => b.length - a.length)) {
+      let ok = false;
+      for (let t = 0; t < 400 && !ok; t++) {
+        const d = mode.dirs[Math.floor(Math.random() * mode.dirs.length)], r = Math.floor(Math.random() * N), c = Math.floor(Math.random() * N);
+        if (canPlace(w, r, c, d, N)) { place(w, r, c, d); ok = true; }
       }
     }
-    // Fallback: force horizontal
-    if(!ok){
-      for(let r=0;r<SIZE&&!ok;r++){
-        for(let c=0;c<=SIZE-word.length&&!ok;c++){
-          if(canPlace(word,r,c,[0,1],SIZE)){placeWord(word,r,c,[0,1]);ok=true;}
-        }
-      }
-    }
+    if (placed.length === activeWords.length) break;
   }
-
-  // Remove words that couldn't be placed (unfindable)
-  const placedWords=placed.map(p=>p.word);
-  activeWords=activeWords.filter(w=>placedWords.includes(w));
-
-  const letters='ABCDEFGHIJKLMNPRSTUVWYZ';
-  for(let r=0;r<SIZE;r++)
-    for(let c=0;c<SIZE;c++)
-      if(!grid[r][c]) grid[r][c]=letters[Math.floor(Math.random()*letters.length)];
+  activeWords = activeWords.filter(w => placed.some(p => p.word === w));
+  const L = 'ABCDEGHIJKLMNPRSTUWY';
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (!grid[r][c]) grid[r][c] = L[Math.floor(Math.random() * L.length)];
 }
-
-function canPlace(word,r,c,dir,SIZE){
-  for(let i=0;i<word.length;i++){
-    const nr=r+dir[0]*i, nc=c+dir[1]*i;
-    if(nr<0||nr>=SIZE||nc<0||nc>=SIZE) return false;
-    if(grid[nr][nc]&&grid[nr][nc]!==word[i]) return false;
-  }
-  return true;
-}
-
-function placeWord(word,r,c,dir){
-  const cells=[];
-  for(let i=0;i<word.length;i++){
-    const nr=r+dir[0]*i, nc=c+dir[1]*i;
-    grid[nr][nc]=word[i];
-    cells.push([nr,nc]);
-  }
-  placed.push({word,cells});
-}
+function canPlace(w, r, c, d, N) { for (let i = 0; i < w.length; i++) { const nr = r + d[0] * i, nc = c + d[1] * i; if (nr < 0 || nr >= N || nc < 0 || nc >= N) return false; if (grid[nr][nc] && grid[nr][nc] !== w[i]) return false; } return true; }
+function place(w, r, c, d) { const cells = []; for (let i = 0; i < w.length; i++) { const nr = r + d[0] * i, nc = c + d[1] * i; grid[nr][nc] = w[i]; cells.push([nr, nc]); } placed.push({ word: w, cells }); }
 
 // ── RENDER ──
-function renderGrid(SIZE){
-  const container=document.getElementById('word-grid');
-  if(!container) return;
-  container.innerHTML='';
-  container.style.gridTemplateColumns=`repeat(${SIZE},1fr)`;
+function renderGrid(N) {
+  const g = $('word-grid');
+  g.style.gridTemplateColumns = `repeat(${N},1fr)`;
+  g.innerHTML = grid.map((row, r) => row.map((ch, c) => `<div class="cell" data-row="${r}" data-col="${c}">${ch}</div>`).join('')).join('');
+  requestAnimationFrame(sizeFont);
+}
+function sizeFont() { const w = $('word-grid').offsetWidth || 320, N = grid.length; const fs = Math.max(10, Math.min((w / N) * .55, 20)); $('word-grid').style.fontSize = fs + 'px'; }
+window.addEventListener('resize', () => { if ($('s-game').classList.contains('active')) sizeFont(); });
+function renderWordList() {
+  $('word-list').innerHTML = activeWords.map(w => `<div class="word-chip" id="chip-${w}">${w}</div>`).join('');
+  $('total-count').textContent = activeWords.length; $('found-count').textContent = foundWords.length;
+}
+const cellEl = (r, c) => $('word-grid').children[r * grid.length + c];
 
-  // Defer font size calc until screen is actually visible
-  // Use a post-render rAF to measure real width
-  const _SIZE=SIZE;
-  requestAnimationFrame(()=>{
-    const colLeft=document.querySelector('.game-col-left');
-    const wrapEl=document.querySelector('.grid-wrap');
-    const wrapW=(colLeft&&colLeft.offsetWidth>0?colLeft:wrapEl)?.offsetWidth||320;
-    const cellW=Math.floor((wrapW-32-_SIZE*2)/_SIZE);
-    const fs=Math.max(9,Math.min(cellW*.55,18));
-    document.querySelectorAll('#word-grid .cell').forEach(c=>c.style.fontSize=fs+'px');
-  });
-  // Initial font size estimate (corrected by rAF above)
-  const wrapW=window.innerWidth>1024?Math.min(window.innerWidth-340,680):Math.min(window.innerWidth-32,520);
-  const cellW=Math.floor((wrapW-32-SIZE*2)/SIZE);
-  const fs=Math.max(9,Math.min(cellW*.55,18));
+// ── INPUT (pointer, dipasang sekali) ──
+const gridEl = $('word-grid');
+function cellAt(x, y) { const el = document.elementFromPoint(x, y); return el && el.classList.contains('cell') ? { row: +el.dataset.row, col: +el.dataset.col } : null; }
+gridEl.addEventListener('pointerdown', e => {
+  if (over || paused || pendingCredit) return;
+  const c = cellAt(e.clientX, e.clientY); if (!c) return;
+  e.preventDefault(); try { gridEl.setPointerCapture(e.pointerId); } catch {}
+  sel = { id: e.pointerId, start: c, cells: [c] }; paint();
+});
+gridEl.addEventListener('pointermove', e => {
+  if (!sel || sel.id !== e.pointerId) return;
+  const c = cellAt(e.clientX, e.clientY); if (!c) return;
+  const cells = between(sel.start, c); if (cells) { sel.cells = cells; paint(); }
+});
+const endSel = e => { if (!sel || sel.id !== e.pointerId) return; const s = sel; sel = null; clearPaint(); if (!over) check(s.cells); };
+gridEl.addEventListener('pointerup', endSel); gridEl.addEventListener('pointercancel', endSel);
 
-  for(let r=0;r<SIZE;r++){
-    for(let c=0;c<SIZE;c++){
-      const cell=document.createElement('div');
-      cell.className='cell';
-      cell.textContent=grid[r][c];
-      cell.dataset.row=r;
-      cell.dataset.col=c;
-      cell.style.fontSize=fs+'px';
-      container.appendChild(cell);
-    }
+function between(a, b) {
+  const dr = b.row - a.row, dc = b.col - a.col, len = Math.max(Math.abs(dr), Math.abs(dc));
+  if (!len) return [a];
+  if (dr && dc && Math.abs(dr) !== Math.abs(dc)) return null; // bukan garis lurus → pakai seleksi terakhir yang valid
+  const sr = Math.sign(dr), sc = Math.sign(dc), out = [];
+  for (let i = 0; i <= len; i++) out.push({ row: a.row + sr * i, col: a.col + sc * i });
+  return out;
+}
+function paint() {
+  clearPaint(); sel.cells.forEach(({ row, col }) => { const el = cellEl(row, col); if (el && !el.classList.contains('found')) el.classList.add('selecting'); });
+  const p = $('sel-preview'); p.textContent = sel.cells.map(({ row, col }) => grid[row][col]).join(''); p.classList.toggle('show', sel.cells.length > 1);
+}
+function clearPaint() { gridEl.querySelectorAll('.selecting').forEach(el => el.classList.remove('selecting')); $('sel-preview').classList.remove('show'); }
+
+function check(cells) {
+  if (cells.length < 2) return;
+  const key = cells.map(({ row, col }) => row + ',' + col).join('|');
+  for (const p of placed) {
+    if (foundWords.includes(p.word)) continue;
+    const fwd = p.cells.map(([r, c]) => r + ',' + c).join('|'), bwd = [...p.cells].reverse().map(([r, c]) => r + ',' + c).join('|');
+    if (key === fwd || key === bwd) { found(p); return; }   // cocokin posisi, bukan cuma huruf
   }
-
-  // Touch events on container (not per-cell, for perf)
-  // Remove old listeners first to prevent stacking
-  container.removeEventListener('mousedown',onStart);
-  container.removeEventListener('mouseover',onMove);
-  container.removeEventListener('touchstart',onTouchStart);
-  container.removeEventListener('touchmove',onTouchMove);
-  container.removeEventListener('touchend',onTouchEnd);
-  container.addEventListener('mousedown',onStart);
-  container.addEventListener('mouseover',onMove);
-  container.addEventListener('touchstart',onTouchStart,{passive:false});
-  container.addEventListener('touchmove',onTouchMove,{passive:false});
-  container.addEventListener('touchend',onTouchEnd,{passive:false});
-  container.addEventListener('touchcancel',onTouchEnd,{passive:false});
-  // mouseup on window — add only once
-  if(!window._wsMouseUpAdded){
-    window._wsMouseUpAdded=true;
-    window.addEventListener('mouseup',onEnd);
-  }
+  if (cells.length >= 3) vib(15);
 }
-
-function renderWordList(){
-  const list=document.getElementById('word-list');
-  if(!list) return;
-  list.innerHTML='';
-  activeWords.forEach(w=>{
-    const chip=document.createElement('div');
-    chip.className='word-chip';
-    chip.id='chip-'+w;
-    chip.textContent=w;
-    list.appendChild(chip);
-  });
-  // Update total count after filtering
-  const tc=document.getElementById('total-count');
-  if(tc) tc.textContent=activeWords.length;
-  const fc=document.getElementById('found-count');
-  if(fc) fc.textContent=foundWords.length;
+function found(p) {
+  foundWords.push(p.word);
+  const color = FOUND_COLORS[activeWords.indexOf(p.word) % FOUND_COLORS.length];
+  p.cells.forEach(([r, c]) => { const el = cellEl(r, c); el.classList.remove('hint'); el.classList.add('found'); el.style.background = color; });
+  const chip = $('chip-' + p.word); chip.classList.add('found'); chip.style.background = color;
+  $('found-count').textContent = foundWords.length;
+  vib([20, 15, 40]);
+  gridEl.querySelectorAll('.cell.hint').forEach(el => el.classList.remove('hint'));
+  if (duo) askWho(p.word); else afterFound();
 }
+function afterFound() { if (foundWords.length >= activeWords.length) setTimeout(() => showResult(true), 450); }
 
-// ── INPUT ──
-function getCellFromPoint(x,y){
-  const el=document.elementFromPoint(x,y);
-  if(el&&el.classList.contains('cell')) return el;
-  return null;
+// ── SIAPA YANG NEMU ──
+function askWho(word) { pendingCredit = word; $('who-word').textContent = word; $('who-sheet').classList.add('show'); }
+function credit(who) {
+  if (!pendingCredit) return;
+  credits[pendingCredit] = who;
+  const chip = $('chip-' + pendingCredit); if (chip && who !== 'b') chip.insertAdjacentHTML('beforeend', `<small>${who === 'r' ? '🧑' : '👧'}</small>`);
+  pendingCredit = null; hideWho(); updateScores(); afterFound();
 }
+function hideWho() { $('who-sheet').classList.remove('show'); pendingCredit = null; }
+function updateScores() { const v = Object.values(credits); $('sc-r').textContent = v.filter(x => x === 'r').length; $('sc-d').textContent = v.filter(x => x === 'd').length; }
 
-function onStart(e){
-  const el=e.target.closest('.cell');
-  if(!el) return;
-  selecting=true;
-  startCell={row:+el.dataset.row,col:+el.dataset.col};
-  currentSel=[startCell];
-  highlightSel();
-}
-
-function onMove(e){
-  if(!selecting) return;
-  const el=e.target.closest?.('.cell')||e.target;
-  if(!el||!el.dataset.row) return;
-  const end={row:+el.dataset.row,col:+el.dataset.col};
-  currentSel=cellsBetween(startCell,end);
-  highlightSel();
-}
-
-function onEnd(){
-  if(!selecting) return;
-  selecting=false;
-  checkSel();
-  clearSel();
-  currentSel=[];
-}
-
-function onTouchStart(e){
-  e.preventDefault();
-  const t=e.touches[0];
-  const el=getCellFromPoint(t.clientX,t.clientY);
-  if(!el) return;
-  selecting=true;
-  startCell={row:+el.dataset.row,col:+el.dataset.col};
-  currentSel=[startCell];
-  highlightSel();
-}
-
-function onTouchMove(e){
-  e.preventDefault();
-  if(!selecting) return;
-  const t=e.touches[0];
-  const el=getCellFromPoint(t.clientX,t.clientY);
-  if(!el||!el.dataset.row) return;
-  const end={row:+el.dataset.row,col:+el.dataset.col};
-  currentSel=cellsBetween(startCell,end);
-  highlightSel();
-}
-
-function onTouchEnd(e){e.preventDefault();onEnd();}
-
-function cellsBetween(a,b){
-  const dr=b.row-a.row, dc=b.col-a.col;
-  const len=Math.max(Math.abs(dr),Math.abs(dc));
-  if(len===0) return [a];
-  if(dr!==0&&dc!==0&&Math.abs(dr)!==Math.abs(dc)) return [a];
-  const sr=dr===0?0:dr/Math.abs(dr), sc=dc===0?0:dc/Math.abs(dc);
-  const cells=[];
-  for(let i=0;i<=len;i++) cells.push({row:a.row+sr*i,col:a.col+sc*i});
-  return cells;
-}
-
-function getCell(r,c){
-  return document.querySelector(`#word-grid .cell[data-row="${r}"][data-col="${c}"]`);
-}
-
-function highlightSel(){
-  document.querySelectorAll('#word-grid .cell.selecting').forEach(c=>c.classList.remove('selecting'));
-  currentSel.forEach(({row,col})=>{
-    const c=getCell(row,col);
-    if(c&&!c.classList.contains('found')) c.classList.add('selecting');
-  });
-}
-
-function clearSel(){
-  document.querySelectorAll('#word-grid .cell.selecting').forEach(c=>c.classList.remove('selecting'));
-}
-
-function checkSel(){
-  if(foundWords.length===activeWords.length) return; // game over
-  if(!activeWords.length) return; // game not started
-  const selected=currentSel.map(({row,col})=>grid[row][col]).join('');
-  for(const {word,cells} of placed){
-    if(foundWords.includes(word)) continue;
-    if(selected===word){markFound(word,cells);return;}
-    // also check reverse (for hard mode — though we don't add reverse words,
-    // user might drag backwards)
-    if(selected===word.split('').reverse().join('')){
-      markFound(word,[...cells].reverse());return;
-    }
-  }
-}
-
-function markFound(word,cells){
-  foundWords.push(word);
-  const idx=activeWords.indexOf(word);
-  const color=FOUND_COLORS[idx%FOUND_COLORS.length];
-
-  cells.forEach(([r,c])=>{
-    const cell=getCell(r,c);
-    if(cell){cell.classList.remove('selecting');cell.classList.add('found');cell.style.background=color;}
-  });
-
-  const chip=document.getElementById('chip-'+word);
-  if(chip){chip.classList.add('found');chip.style.background=color;}
-
-  document.getElementById('found-count').textContent=foundWords.length;
-  if(navigator.vibrate) navigator.vibrate(30);
-
-  if(foundWords.length>=activeWords.length&&activeWords.length>0) setTimeout(showWin,500);
+// ── HINT ──
+function useHint() {
+  if (over || paused) return;
+  const left = placed.filter(p => !foundWords.includes(p.word));
+  if (!left.length) return;
+  const p = left[Math.floor(Math.random() * left.length)];
+  gridEl.querySelectorAll('.cell.hint').forEach(el => el.classList.remove('hint'));
+  const [r, c] = p.cells[0]; cellEl(r, c).classList.add('hint');
+  seconds = Math.min(MODES[currentMode].time - 1, seconds + HINT_COST); hintsUsed++; updateTimer();
+  toast(`💡 Huruf pertama "${p.word}" nyala (+${HINT_COST} dtk)`); vib(20);
 }
 
 // ── TIMER ──
-function startTimer(){
-  stopTimer(); // always clear before starting new
-  timerInterval=setInterval(()=>{
-    seconds++;
-    const rem=timeLimit-seconds;
-    if(rem<=0){
-      clearInterval(timerInterval);timerInterval=null;
-      document.getElementById('timer-display').textContent='00:00';
-      showResult(false);
-      return;
-    }
-    updateTimerDisplay();
-  },1000);
-}
-
-function stopTimer(){
-  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
-}
-
-function updateTimerDisplay(){
-  const rem=Math.max(0,timeLimit-seconds);
-  const m=String(Math.floor(rem/60)).padStart(2,'0');
-  const s=String(rem%60).padStart(2,'0');
-  const el=document.getElementById('timer-display');
-  if(el){el.textContent=`${m}:${s}`;el.className='stat-num'+(rem<=30?' warn':'');}
-}
-
-// ── WIN ──
-function showWin(){showResult(true);}
-
-function showResult(completed){
+function startTimer() {
   stopTimer();
-  const used=seconds;
-  const m=String(Math.floor(used/60)).padStart(2,'0');
-  const s=String(used%60).padStart(2,'0');
+  timerIv = setInterval(() => {
+    if (paused || pendingCredit) return;
+    seconds++; updateTimer();
+    if (seconds >= MODES[currentMode].time) showResult(false);
+  }, 1000);
+}
+function stopTimer() { if (timerIv) clearInterval(timerIv); timerIv = null; }
+function updateTimer() { const rem = Math.max(0, MODES[currentMode].time - seconds); const el = $('timer-display'); el.textContent = fmt(rem); el.className = 'stat-num time' + (rem <= 30 ? ' warn' : ''); }
+function resume() { paused = false; $('pause-ov').classList.remove('show'); }
+document.addEventListener('visibilitychange', () => { if (document.hidden && !over && $('s-game').classList.contains('active')) { paused = true; $('pause-ov').classList.add('show'); } });
 
-  document.getElementById('win-score').textContent=`${foundWords.length}/${activeWords.length}`;
-  document.getElementById('win-time').textContent=`${m}:${s}`;
-
-  const ws=document.getElementById('win-screen');
-  const we=document.getElementById('win-emoji');
-  const wt=document.getElementById('win-title');
-  const wm=document.getElementById('win-msg');
-
-  if(completed){
-    if(we) we.textContent='🎉';
-    if(wt) wt.textContent='Semua kata ditemukan!';
-    if(wm) wm.textContent=`Hebat banget! ${foundWords.length} kata ditemukan dalam ${m}:${s} 🤍`;
-    launchConfetti();
-  } else {
-    const left=activeWords.length-foundWords.length;
-    if(we) we.textContent=foundWords.length===0?'😅':foundWords.length<activeWords.length/2?'😬':'🌸';
-    if(wt) wt.textContent='Waktu habis!';
-    if(wm) wm.textContent=foundWords.length===0?'Belum ada yang ketemu nih — coba lagi!':
-      `${foundWords.length} kata ketemu, tinggal ${left} lagi. Coba lagi yuk!`;
-  }
-
-  if(ws) ws.classList.add('show');
-  if(ws){
-    ws.scrollIntoView({behavior:'smooth',block:'nearest'});
-    // Also scroll the screen container itself
-    const gameScreen=document.getElementById('s-game');
-    if(gameScreen) setTimeout(()=>gameScreen.scrollTop=ws.offsetTop-20,100);
-  }
+// ── HASIL ──
+function showResult(done) {
+  if (over) return;       // cegah hasil dobel
+  over = true; stopTimer(); hideWho(); sel = null; clearPaint();
+  $('grid-wrap').classList.add('over');
+  $('hint-btn').disabled = true;
+  const total = activeWords.length, n = foundWords.length;
+  let bestTxt = '—', newBest = false;
+  if (done) {
+    const prev = getBest(currentMode, selectedCatId);
+    if (!prev || seconds < prev) { try { localStorage.setItem(bestKey(), String(seconds)); } catch {} newBest = true; }
+    bestTxt = fmt(Math.min(seconds, prev || seconds));
+  } else { const prev = getBest(currentMode, selectedCatId); if (prev) bestTxt = fmt(prev); }
+  $('win-emoji').textContent = done ? (newBest ? '🏆' : '🎉') : n === 0 ? '😅' : n < total / 2 ? '😬' : '🌸';
+  $('win-title').textContent = done ? (newBest ? 'Rekor baru! 🏆' : 'Semua kata ditemukan!') : 'Waktu habis!';
+  $('win-msg').textContent = done ? `Hebat banget! ${n} kata ketemu dalam ${fmt(seconds)}${hintsUsed ? ` (pakai ${hintsUsed} hint)` : ''} 🤍` : n === 0 ? 'Belum ada yang ketemu nih — coba lagi!' : `${n} kata ketemu, tinggal ${total - n} lagi. Coba lagi yuk!`;
+  $('win-score').textContent = `${n}/${total}`; $('win-time').textContent = fmt(Math.min(seconds, MODES[currentMode].time)); $('win-best').textContent = bestTxt;
+  // kata yang kelewat: ditunjukin di grid
+  const missed = placed.filter(p => !foundWords.includes(p.word));
+  missed.forEach(p => p.cells.forEach(([r, c]) => { const el = cellEl(r, c); if (!el.classList.contains('found')) el.style.boxShadow = 'inset 0 0 0 2px rgba(229,57,53,.55)'; }));
+  $('missed').innerHTML = missed.length ? `Yang kelewat (ditandai merah di grid): <b>${missed.map(p => p.word).join(', ')}</b>` : '';
+  if (duo) {
+    const v = Object.values(credits), r = v.filter(x => x === 'r').length, d = v.filter(x => x === 'd').length;
+    const w = r === d ? null : r > d ? 'Razan' : 'Dara', l = w === 'Razan' ? 'Dara' : 'Razan';
+    $('duo-result').innerHTML = `<div class="duo-result">🧑 Razan <b>${r}</b> · 👧 Dara <b>${d}</b><br>${w ? `👀 <b>${w}</b> lebih jeli! ${l} traktir ${w} minuman favorit 🧋` : 'Seri! Sama jelinya — tos dulu ✋'}</div>`;
+  } else $('duo-result').innerHTML = '';
+  $('win-screen').classList.add('show');
+  setTimeout(() => $('win-screen').scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  if (done) launchConfetti(); else vib([80, 40, 80]);
 }
 
-function playAgain(){
-  stopTimer();
-  seconds=0;
-  foundWords=[];
-  const ws=document.getElementById('win-screen');
-  if(ws) ws.classList.remove('show');
-  const fc=document.getElementById('found-count');
-  if(fc) fc.textContent='0';
-  updateTimerDisplay();
-
-  const SIZE=MODES[currentMode].size;
-  initGrid(SIZE);
-  requestAnimationFrame(()=>{
-    renderGrid(SIZE);
-    renderWordList();
-    startTimer();
-  });
-}
-
-// ── CONFETTI ──
-// Init: ensure first active screen has visible class
-(function(){
-  const first=document.querySelector('.screen.active');
-  if(first) first.classList.add('visible');
-})();
-
-function launchConfetti(){
-  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0','#a0c4b4'];
-  for(let i=0;i<80;i++) setTimeout(()=>{
-    const el=document.createElement('div');el.className='confetti-piece';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*25);
+function launchConfetti() {
+  const colors = ['#c17a6f', '#e8c4b0', '#c9a96e', '#b5c4b1', '#faf6f0', '#a0c4b4'];
+  for (let i = 0; i < 80; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }, i * 25);
 }
 </script>
 </body>
