@@ -209,6 +209,9 @@
   .mem-card small{font-size:11px;opacity:.75;line-height:1.4;display:block}
   .mem-card .mc-go{margin-left:auto;font-size:1.1rem;opacity:.8}
   .mem-card:active{transform:scale(.98)}
+  .sec-new{display:inline-block;background:linear-gradient(135deg,#ff8a65,#e91e63);color:#fff;font-size:11px;font-weight:700;border-radius:50px;padding:.25rem .8rem;animation:secPulse 1.6s ease-in-out infinite}
+  @keyframes secPulse{0%,100%{box-shadow:0 0 0 0 rgba(233,30,99,.45)}50%{box-shadow:0 0 0 6px rgba(233,30,99,0)}}
+  .dot.has-new{background:#e91e63!important;box-shadow:0 0 0 3px rgba(233,30,99,.2)}
   .fade-in{animation:fadeUp .35s ease both}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
@@ -1075,7 +1078,8 @@ greet(); renderChips(); renderRows(); setNav('home');
 // 1) status "password udah diset" diingat di HP → kolom password langsung muncul, nggak nunggu "Memeriksa..."
 // 2) script keuangan "dibangunin" diam-diam pas website dibuka → cek password jadi lebih cepat
 // 3) opsi "Ingat di HP ini" 30 hari → langsung masuk tanpa password
-const KEU_HAS = u => 'keu-haspw-' + u, KEU_REM = u => 'keu-remember-' + u, REM_DAYS = 30;
+const KEU_HAS = u => 'keu-haspw-' + u, KEU_REM = u => 'keu-remember-' + u, KEU_AUTH = u => 'keu-auth-' + u, REM_DAYS = 30;
+// KEU_AUTH = tiket masuk buat halaman keuangan (dicek di halaman keuangan biar nggak bisa dibuka langsung tanpa password)
 function keuShowLogin() {
   $('keu-loading').style.display = 'none';
   $('keu-subtitle').textContent = 'Masukkan password untuk masuk';
@@ -1096,6 +1100,12 @@ function keuShowSetup() {
 const _openKeuangan = openKeuangan;
 openKeuangan = function (user) {
   const cfg = KEU_CONFIG[user];
+  // Kantong nggak lewat openLink → catat "udah dibuka" di sini biar label BARU-nya hilang & masuk Terakhir dibuka
+  if (cfg && cfg.link) {
+    seen[cfg.link] = Date.now(); LS.set('idx-seen', seen);
+    recent = [cfg.link, ...recent.filter(l => l !== cfg.link)].slice(0, 8); LS.set('idx-recent', recent);
+    renderRows(); decorateGrid();
+  }
   // udah diingat → langsung masuk
   const rem = LS.get(KEU_REM(user), 0);
   if (rem && Date.now() < rem) {
@@ -1104,7 +1114,7 @@ openKeuangan = function (user) {
     $('keu-subtitle').innerHTML = `Membuka... 💰<br><a href="#" id="keu-forget" style="font-size:11px;color:var(--muted)">Batal & minta password lagi</a>`;
     ['keu-loading', 'keu-setup', 'keu-login', 'keu-setup-err', 'keu-login-err'].forEach(id => $(id).style.display = 'none');
     $('keu-overlay').style.display = 'flex';
-    const go = setTimeout(() => { keuClose(); window.location.href = cfg.link; }, 700);
+    const go = setTimeout(() => { LS.set(KEU_AUTH(user), rem); keuClose(); window.location.href = cfg.link; }, 700);
     $('keu-forget').onclick = e => { e.preventDefault(); clearTimeout(go); LS.set(KEU_REM(user), 0); openKeuangan(user); };
     return;
   }
@@ -1130,7 +1140,8 @@ keuXhr = function (method, url, body, cb) {
       const u = Object.keys(KEU_CONFIG).find(k => url.indexOf(KEU_CONFIG[k].url) === 0);
       if (u && !err && data) {
         if (/action=hasPassword/.test(url) && typeof data.hasPassword === 'boolean') LS.set(KEU_HAS(u), data.hasPassword);
-        if (method === 'POST' && data.status === 'ok' && /setPassword/.test(body || '')) LS.set(KEU_HAS(u), true);
+        if (method === 'POST' && data.status === 'ok' && /setPassword/.test(body || '')) { LS.set(KEU_HAS(u), true); LS.set(KEU_AUTH(u), Date.now() + 12 * 36e5); }
+        if (/action=checkPassword/.test(url) && data.valid === true) LS.set(KEU_AUTH(u), Date.now() + 12 * 36e5);
       }
     } catch (e) {}
     cb(err, data);
@@ -1145,7 +1156,7 @@ keuLoginSubmit = function () {
     $('keu-loading').style.display = 'none';
     if (!err && data && data.valid) {
       LS.set(KEU_HAS(user), true);
-      if (remember) LS.set(KEU_REM(user), Date.now() + REM_DAYS * 864e5);
+      if (remember) { LS.set(KEU_REM(user), Date.now() + REM_DAYS * 864e5); LS.set(KEU_AUTH(user), Date.now() + REM_DAYS * 864e5); }
       keuClose(); window.location.href = cfg.link;
     } else {
       $('keu-login').style.display = 'block';
@@ -1156,6 +1167,35 @@ keuLoginSubmit = function () {
     }
   });
 };
+// ═════════ SECRET: penanda "baru terbuka" (isi tetap dikunci password) ═════════
+let secSeen = LS.get('idx-secret-seen', []);
+const secretNewList = () => YEARLY_SECRETS.filter(x => isUnlocked(x.year) && !secSeen.includes(x.year));
+const secIdx = CATS.findIndex(c => c.key === 'secret');
+function markSecretCard() {
+  const n = secretNewList().length, dots = document.querySelectorAll('.dot');
+  if (dots[secIdx]) dots[secIdx].classList.toggle('has-new', n > 0);
+  let tag = $('sec-new-tag');
+  if (!tag) { $('c-badge').insertAdjacentHTML('beforebegin', '<div id="sec-new-tag" style="margin-bottom:.5rem"></div>'); tag = $('sec-new-tag'); }
+  tag.innerHTML = CATS[idx] && CATS[idx].key === 'secret' && n ? `<span class="sec-new">🎁 ${n} secret baru terbuka!</span>` : '';
+}
+const _renderCard = renderCard;
+renderCard = function () { _renderCard(); markSecretCard(); };
+const _renderCatScreen2 = renderCatScreen;
+renderCatScreen = function (i) {
+  _renderCatScreen2(i);
+  if (CATS[i].key !== 'secret') return;
+  document.querySelectorAll('#cat-body .grid-item').forEach((el, k) => {
+    const sc = YEARLY_SECRETS[k]; if (!sc || !isUnlocked(sc.year)) return;
+    if (!secSeen.includes(sc.year)) el.insertAdjacentHTML('beforeend', '<span class="new-dot">BARU</span>');
+    el.addEventListener('click', () => {
+      if (secSeen.includes(sc.year)) return;
+      secSeen.push(sc.year); LS.set('idx-secret-seen', secSeen);
+      el.querySelector('.new-dot')?.remove(); markSecretCard();
+    });
+  });
+};
+markSecretCard();
+
 // bangunin script keuangan diam-diam sekali per sesi, biar pas dibuka udah siap
 setTimeout(() => {
   try { if (sessionStorage.getItem('keu-warm')) return; sessionStorage.setItem('keu-warm', '1'); } catch (e) {}
