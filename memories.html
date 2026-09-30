@@ -102,6 +102,34 @@
   .v-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:1.2rem;cursor:pointer;z-index:2}
   .v-nav.l{left:.6rem}.v-nav.r{right:.6rem}
   .v-bottom{padding:.6rem 1rem calc(.9rem + env(safe-area-inset-bottom));color:rgba(255,255,255,.7);font-size:11px;text-align:center}
+
+  /* UPLOAD */
+  .up-bg{position:fixed;inset:0;z-index:90;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .up-bg.show{display:flex}
+  .up{background:var(--cream);border-radius:22px 22px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:1rem 1.1rem calc(1.2rem + env(safe-area-inset-bottom));animation:up .28s ease}
+  @keyframes up{from{transform:translateY(100%)}to{transform:none}}
+  .up-drag{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto .8rem}
+  .up h3{font-size:15px;color:var(--ink);text-align:center}
+  .up .hint{font-size:11.5px;color:var(--muted);text-align:center;margin:.2rem 0 .9rem;line-height:1.5}
+  .seg{display:flex;background:#fff;border:1.5px solid var(--blush);border-radius:14px;padding:.2rem;margin-bottom:.7rem}
+  .seg button{flex:1;border:none;background:none;padding:.55rem;border-radius:11px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+  .seg button.on{background:var(--rose);color:#fff}
+  .fld{width:100%;padding:.7rem .9rem;border:1.5px solid var(--blush);border-radius:12px;font-size:14px;color:var(--ink);background:#fff;outline:none;margin-bottom:.4rem}
+  .fld-note{font-size:11px;color:var(--muted);margin-bottom:.8rem}
+  .pick{display:flex;flex-direction:column;align-items:center;gap:.2rem;border:2px dashed var(--blush);border-radius:16px;padding:1.1rem;background:#fff;cursor:pointer;text-align:center;margin-bottom:.7rem}
+  .pick b{font-size:13px;color:var(--rose)}.pick small{font-size:10.5px;color:var(--muted)}
+  .opt{display:flex;align-items:flex-start;gap:.5rem;font-size:11.5px;color:var(--muted);margin-bottom:.8rem;cursor:pointer;line-height:1.45}
+  .opt b{color:var(--ink)}
+  .flist{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.8rem;max-height:34vh;overflow-y:auto}
+  .fi{display:flex;align-items:center;gap:.55rem;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:12px;padding:.4rem .55rem}
+  .fi img,.fi .fv{width:38px;height:38px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:1rem}
+  .fi .nm{flex:1;min-width:0;font-size:11.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fi .nm small{display:block;color:var(--muted);font-size:10px}
+  .fi .st{font-size:11px;font-weight:600;white-space:nowrap}
+  .fi .st.ok{color:#2e7d32}.fi .st.err{color:#c62828}.fi .st.run{color:var(--rose)}
+  .fi .x{border:none;background:none;color:var(--muted);cursor:pointer;font-size:.9rem}
+  .pbar{height:6px;border-radius:3px;background:var(--blush);overflow:hidden;margin-bottom:.8rem;display:none}
+  .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .3s}
   .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:50px;padding:.45rem 1.1rem;font-size:12px;z-index:999;white-space:nowrap;animation:fade .25s ease}
 </style>
 </head>
@@ -139,6 +167,7 @@
   <div class="top">
     <a class="ib" href="index.html">←</a>
     <div class="top-t"><b>📸 Kenangan Kita</b><small id="upd">Razan & Dara</small></div>
+    <button class="ib" onclick="openUpload()" title="Tambah foto/video">➕</button>
     <button class="ib" id="refresh" onclick="refresh()">🔄</button>
   </div>
   <div class="hero"><p class="eyebrow">Semua momen kita</p><h1>Kenangan <span>Kita</span></h1></div>
@@ -146,7 +175,7 @@
   <div id="otd"></div>
   <div class="tabs"><button class="tab on" data-t="albums" onclick="setTab('albums')">📅 Per Tanggal</button><button class="tab" data-t="random" onclick="setTab('random')">🎲 Random</button></div>
   <div id="tab-albums"><div class="chips" id="years"></div><div id="album-list"></div></div>
-  <div id="tab-random" style="display:none"><button class="shuffle" onclick="shuffleOne()">🎲 Acak satu kenangan</button><div id="random-grid"></div></div>
+  <div id="tab-random" style="display:none"><button class="shuffle" onclick="shuffleOne()">🎲 Acak satu kenangan</button><button class="btn ghost" style="max-width:none;margin:-.3rem 0 .9rem" onclick="openUpload('random')">➕ Tambah ke Random</button><div id="random-grid"></div></div>
 </div>
 
 <!-- ALBUM -->
@@ -154,9 +183,27 @@
   <div class="top">
     <button class="ib" onclick="show('s-home')">←</button>
     <div class="top-t"><b id="al-title">Album</b><small id="al-sub"></small></div>
+    <button class="ib" onclick="openUpload(curAlbum)" title="Tambah ke album ini">➕</button>
   </div>
   <div id="al-grid"></div>
 </div>
+</div>
+
+<!-- UPLOAD -->
+<div class="up-bg" id="up-bg" onclick="if(event.target===this&&!upBusy)closeUpload()">
+  <div class="up">
+    <div class="up-drag"></div>
+    <h3>➕ Tambah Kenangan</h3>
+    <p class="hint">Foto & video langsung masuk ke Google Drive Memories</p>
+    <div class="seg"><button id="to-date" class="on" onclick="setTarget('date')">📅 Per Tanggal</button><button id="to-rand" onclick="setTarget('random')">🎲 Random</button></div>
+    <div id="date-box"><input class="fld" type="date" id="up-date"><p class="fld-note" id="date-note"></p></div>
+    <label class="pick" id="pick"><span style="font-size:1.8rem">🖼️</span><b>Pilih foto / video</b><small>Bisa pilih banyak sekaligus</small><input type="file" id="up-files" accept="image/*,video/*" multiple hidden></label>
+    <label class="opt"><input type="checkbox" id="up-compress" checked><span><b>Kecilin foto biar cepat</b> (maks 2560 px, masih tajem di HP). Matiin kalau mau simpan kualitas asli.</span></label>
+    <div class="flist" id="flist"></div>
+    <div class="pbar" id="pbar"><i id="pbar-i"></i></div>
+    <button class="btn" style="max-width:none" id="up-go" onclick="startUpload()" disabled>Upload</button>
+    <button class="btn ghost" style="max-width:none" id="up-cancel" onclick="closeUpload()">Batal</button>
+  </div>
 </div>
 
 <!-- VIEWER -->
@@ -276,8 +323,9 @@ function setTab(t) {
 }
 
 // ═══ ISI ALBUM ═══
+let curAlbum = null;
 async function openAlbum(id) {
-  const a = DATA.albums.find(x => x.id === id);
+  const a = DATA.albums.find(x => x.id === id); curAlbum = a || null;
   $('al-title').textContent = a ? (a.date ? fmtD(a.date) : a.name) : 'Album';
   $('al-sub').textContent = a ? `${a.date ? HARI[parseD(a.date).getDay()] + ' · ' : ''}${a.photos} foto${a.videos ? ` · ${a.videos} video` : ''}${a.date ? ' · ' + ago(a.date) : ''}` : '';
   $('al-grid').innerHTML = `<div class="grid">${Array(Math.min(12, a ? a.photos + a.videos : 9)).fill('<div class="cell skel"></div>').join('')}</div>`;
@@ -344,6 +392,97 @@ function renderViewer() {
   });
 })();
 document.addEventListener('keydown', e => { if (!$('viewer').classList.contains('show')) return; if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); if (e.key === 'Escape') closeViewer(); });
+
+
+// ═══ UPLOAD ═══
+const MAX_MB = 36;
+let upTarget = 'date', upFiles = [], upBusy = false;
+const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.round(b / 1024) + ' KB';
+function openUpload(album) {
+  if (upBusy) return $('up-bg').classList.add('show');
+  upFiles = []; renderFiles();
+  if (album && album.date) { setTarget('date'); $('up-date').value = album.date; }
+  else if (album === 'random') setTarget('random');
+  else { setTarget('date'); $('up-date').value = todayISO(); }
+  dateNote();
+  $('up-bg').classList.add('show');
+}
+function closeUpload() { if (upBusy) return toast('Tunggu upload-nya selesai dulu ya 🙏'); $('up-bg').classList.remove('show'); }
+function setTarget(t) { upTarget = t; $('to-date').classList.toggle('on', t === 'date'); $('to-rand').classList.toggle('on', t === 'random'); $('date-box').style.display = t === 'date' ? '' : 'none'; }
+function dateNote() {
+  const v = $('up-date').value; if (!v) return $('date-note').textContent = '';
+  const ex = DATA && DATA.albums.find(a => a.date === v);
+  $('date-note').textContent = ex ? `📂 Masuk ke album "${fmtD(v)}" yang udah ada (${ex.photos + ex.videos} file)` : `✨ Album baru "${fmtD(v)}" bakal dibikin otomatis`;
+}
+$('up-date').addEventListener('change', dateNote);
+$('up-files').addEventListener('change', e => {
+  [...e.target.files].forEach(f => upFiles.push({ f, st: f.type.startsWith('video/') && f.size > MAX_MB * 1048576 ? 'big' : 'wait', url: f.type.startsWith('image/') ? URL.createObjectURL(f) : null }));
+  e.target.value = ''; renderFiles();
+});
+function renderFiles() {
+  const L = { wait: ['', 'Siap'], run: ['run', '⏳ ...'], ok: ['ok', '✓ Masuk'], err: ['err', '✕ Gagal'], big: ['err', '> ' + MAX_MB + ' MB'] };
+  $('flist').innerHTML = upFiles.map((x, i) => `<div class="fi">${x.url ? `<img src="${x.url}" alt="">` : '<span class="fv">🎬</span>'}<span class="nm">${esc(x.f.name)}<small>${fmtSize(x.f.size)}${x.msg ? ' · ' + esc(x.msg) : ''}</small></span><span class="st ${L[x.st][0]}">${x.st === 'run' && x.pct != null ? x.pct + '%' : L[x.st][1]}</span>${!upBusy && x.st !== 'ok' ? `<button class="x" onclick="upFiles.splice(${i},1);renderFiles()">✕</button>` : ''}</div>`).join('');
+  const ready = upFiles.filter(x => x.st === 'wait' || x.st === 'err').length, big = upFiles.filter(x => x.st === 'big').length;
+  $('up-go').disabled = upBusy || !ready;
+  $('up-go').textContent = upBusy ? 'Mengupload... jangan tutup halaman 🙏' : ready ? `Upload ${ready} file` : 'Upload';
+  if (big && !upBusy) $('up-go').textContent += ` · ${big} video kegedean, upload lewat app Drive`;
+}
+// foto dikecilin di HP dulu biar cepat; kalau gagal (misal HEIC di Chrome) kirim file asli
+async function prepare(file, compress) {
+  if (compress && file.type.startsWith('image/') && !/gif/.test(file.type)) {
+    try {
+      const bmp = await createImageBitmap(file), max = 2560, k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .88));
+      if (blob && blob.size < file.size) return { blob, name: file.name.replace(/\.[^.]+$/, '') + '.jpg', mime: 'image/jpeg' };
+    } catch (e) {}
+  }
+  return { blob: file, name: file.name, mime: file.type || 'application/octet-stream' };
+}
+const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+async function post(body) {
+  const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ pw: PW, ...body }) });
+  const t = await r.text(); let j; try { j = JSON.parse(t); } catch { throw new Error('Script belum support upload — deploy versi terbaru dulu'); }
+  if (!j.ok) { const e = new Error(j.error); e.code = j.error; throw e; } return j.data;
+}
+async function startUpload() {
+  const target = upTarget === 'random' ? 'random' : $('up-date').value;
+  if (!target) return toast('Pilih tanggalnya dulu 📅');
+  const queue = upFiles.filter(x => x.st === 'wait' || x.st === 'err'); if (!queue.length) return;
+  upBusy = true; $('up-cancel').style.display = 'none'; $('pbar').style.display = 'block'; renderFiles();
+  let done = 0; const total = queue.length, compress = $('up-compress').checked;
+  const bar = () => $('pbar-i').style.width = (done / total * 100) + '%';
+  const worker = async () => {
+    while (queue.length) {
+      const x = queue.shift(); x.st = 'run'; x.pct = null; x.msg = ''; renderFiles();
+      try {
+        const p = await prepare(x.f, compress);
+        if (p.blob.size > MAX_MB * 1048576) throw new Error('lebih dari ' + MAX_MB + ' MB');
+        x.pct = 50; renderFiles();
+        await post({ action: 'upload', target, name: p.name, mime: p.mime, data: await toB64(p.blob) });
+        x.st = 'ok'; x.msg = p.blob !== x.f ? 'dikecilin jadi ' + fmtSize(p.blob.size) : '';
+      } catch (e) { if (e.code === 'password') { upBusy = false; closeUpload(); return logout(); } x.st = 'err'; x.msg = e.message; }
+      done++; bar(); renderFiles();
+    }
+  };
+  await Promise.all([worker(), worker()]);   // 2 file sekaligus
+  const ok = upFiles.filter(x => x.st === 'ok').length, fail = upFiles.filter(x => x.st === 'err').length;
+  try {
+    const d = await post({ action: 'done' });
+    d.full = true; d.random = { count: d.random.items.length, cover: d.random.cover, items: d.random.items };
+    DATA = d; randomItems = d.random.items; try { localStorage.setItem('mem-idx', JSON.stringify(DATA)); } catch {}
+    renderHome();
+  } catch (e) {}
+  upBusy = false; $('up-cancel').style.display = ''; renderFiles();
+  if (ok && !fail) {
+    toast(`✨ ${ok} kenangan berhasil ditambah!`); $('up-bg').classList.remove('show'); $('pbar').style.display = 'none';
+    if (target === 'random') { show('s-home'); setTab('random'); renderGrid($('random-grid'), randomItems || [], '🎲 Random'); }
+    else { const a = DATA.albums.find(x => x.date === target); if (a) openAlbum(a.id); }
+  } else toast(fail ? `${ok} berhasil, ${fail} gagal — tap Upload buat coba lagi` : 'Selesai');
+}
+window.addEventListener('beforeunload', e => { if (upBusy) { e.preventDefault(); e.returnValue = ''; } });
 
 function logout() { try { localStorage.removeItem('mem-pw'); localStorage.removeItem('mem-idx'); } catch {} PW = ''; DATA = null; show('s-gate'); $('gate-err').textContent = 'Password berubah, masuk lagi ya 🤍'; }
 
