@@ -262,11 +262,13 @@ async function fetchText(url, opt, ms) {
   catch (e) { const x = new Error(e.name === 'AbortError' ? 'Google lagi lama banget jawabnya (lebih dari ' + Math.round(ms / 1000) + ' detik). Coba 🔄 lagi ya.' : 'Koneksi ke Google putus, coba lagi.'); x.code = 'network'; throw x; }
   finally { clearTimeout(to); }
 }
-async function api(action, extra = '', fresh = false) {
+async function api(action, extra = '', fresh = false, longWait = false) {
   const url = `${API_URL}?action=${action}&pw=${encodeURIComponent(PW)}${extra}${fresh ? '&fresh=1' : ''}`;
+  // kalau Google harus nyusun ulang daftar foto (cache kosong), bisa sampai ±1 menit → tungguin, jangan diputus
+  const ms = fresh || longWait ? 100000 : 30000;
   let t;
-  try { t = await fetchText(url, null, fresh ? 90000 : 30000); }
-  catch (e) { await new Promise(r => setTimeout(r, 800)); t = await fetchText(url, null, fresh ? 90000 : 30000); }   // coba sekali lagi
+  try { t = await fetchText(url, null, ms); }
+  catch (e) { if (e.code === 'network' && /lama banget/.test(e.message)) throw e; await new Promise(r => setTimeout(r, 800)); t = await fetchText(url, null, ms); }   // putus koneksi → coba sekali lagi
   let j;
   try { j = JSON.parse(t); } catch { const e = new Error('Script Google-nya lagi error atau kelamaan (balasannya bukan data). Cek deployment udah versi terbaru, terus coba 🔄 lagi.'); e.code = 'server'; throw e; }
   if (!j.ok) { const e = new Error(j.error); e.code = j.error; throw e; }
@@ -277,8 +279,12 @@ async function api(action, extra = '', fresh = false) {
 async function login(saved) {
   const pw = saved || $('pw').value.trim(); if (!pw) return;
   PW = pw; $('login-btn').disabled = true; $('login-btn').textContent = 'Membuka... 🔐'; $('gate-err').textContent = '';
+  // kasih tau kalau lagi nunggu lama, biar nggak dikira nyangkut
+  const slow1 = setTimeout(() => { $('login-btn').textContent = 'Lagi nyiapin album... ⏳'; $('gate-err').textContent = 'Kalau daftar foto lagi disusun ulang, bisa sampai ±1 menit. Tungguin ya 🤍'; }, 7000);
+  const slow2 = setTimeout(() => { $('login-btn').textContent = 'Dikit lagi... 📸'; }, 30000);
   // ambil data langsung (sekalian ngecek password) — dulu ngecek dulu baru ambil data = 2x nunggu Google
   const ok = await loadAlbums(false, true);
+  clearTimeout(slow1); clearTimeout(slow2); $('gate-err').textContent = '';
   $('login-btn').disabled = false; $('login-btn').textContent = 'Buka Kenangan 💝';
   if (ok === 'password') { try { localStorage.removeItem('mem-pw'); localStorage.removeItem('mem-idx'); } catch {} DATA = null; show('s-gate'); $('gate-err').textContent = 'Password salah, coba lagi 🤍'; return; }
   if (ok === true) {
@@ -299,7 +305,7 @@ async function loadAlbums(fresh, fromLogin) {
     let d;
     try {
       // cara cepat: semua data (album + isi + random) sekali ambil
-      d = await api('all', '', fresh);
+      d = await api('all', '', fresh, !DATA);
       d.full = true; d.random = splitRandom(d.random);
     } catch (e) { if (e.code !== 'action') throw e; d = await api('albums', '', fresh); } // script versi lama
     const changed = !DATA || JSON.stringify(DATA.albums) !== JSON.stringify(d.albums) || (DATA.random && DATA.random.count) !== d.random.count;
