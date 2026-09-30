@@ -229,7 +229,7 @@
 
 <script>
 // ═══ PENGATURAN — isi pakai link web app dari memories.gs (Deploy → Web app → URL) ═══
-const API_URL = 'https://script.google.com/macros/s/AKfycbyBm0vHLCkH4u56FlHJfwdFw0L-8JicoOMWY7ka2A2Tlauw7DIQQZ2RZNV8csHBrtQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxPd5lEfwBFVHE8j0kX4vBvC4JdYhXjVLeZA0-sAbqNa3sLyAOVo1k1HLBJe0aFq8Jw/exec';
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -300,7 +300,7 @@ async function loadAlbums(fresh, fromLogin) {
     try {
       // cara cepat: semua data (album + isi + random) sekali ambil
       d = await api('all', '', fresh);
-      d.full = true; d.random = { count: d.random.items.length, cover: d.random.cover, items: d.random.items };
+      d.full = true; d.random = splitRandom(d.random);
     } catch (e) { if (e.code !== 'action') throw e; d = await api('albums', '', fresh); } // script versi lama
     const changed = !DATA || JSON.stringify(DATA.albums) !== JSON.stringify(d.albums) || (DATA.random && DATA.random.count) !== d.random.count;
     DATA = d;
@@ -321,12 +321,22 @@ async function loadAlbums(fresh, fromLogin) {
 }
 function refresh() { loadAlbums(true).then(() => { if (!(DATA && DATA.full) && $('tab-random').style.display !== 'none') loadRandom(true); }); }
 
+function splitRandom(r) {
+  const items = r.items || [];
+  return { items, cover: r.cover, count: items.length, photos: items.filter(x => x.type === 'image').length, videos: items.filter(x => x.type === 'video').length };
+}
+function sejak(t) {
+  if (!t) return ''; const m = Math.floor((Date.now() - t) / 60000);
+  return m < 1 ? 'baru aja' : m < 60 ? m + ' mnt lalu' : m < 1440 ? Math.floor(m / 60) + ' jam lalu' : Math.floor(m / 1440) + ' hari lalu';
+}
 function renderHome() {
-  const A = DATA.albums;
+  const A = DATA.albums, R = DATA.random || {};
+  // random versi lama cuma punya "count" → dianggap foto semua
+  const rp = R.photos != null ? R.photos : (R.count || 0), rv = R.videos || 0;
   $('st-a').textContent = A.length;
-  $('st-p').textContent = A.reduce((s, a) => s + a.photos, 0) + (DATA.random.count || 0);
-  $('st-v').textContent = A.reduce((s, a) => s + a.videos, 0);
-  $('upd').textContent = `${A.length} album · ${DATA.random.count || 0} foto random`;
+  $('st-p').textContent = A.reduce((s, a) => s + a.photos, 0) + rp;
+  $('st-v').textContent = A.reduce((s, a) => s + a.videos, 0) + rv;
+  $('upd').textContent = `${A.length} album · ${rp} foto${rv ? ` + ${rv} video` : ''} random${DATA.updated ? ' · update ' + sejak(DATA.updated) : ''}`;
   // hari ini, tahun lalu
   const now = new Date(), otd = A.filter(a => { const d = parseD(a.date); return d && d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() < now.getFullYear(); });
   $('otd').innerHTML = otd.map(a => `<div class="otd" onclick="openAlbum('${a.id}')"><img src="${thumb(a.cover, 240)}" alt="" onerror="if(!this.dataset.t){this.dataset.t=1;this.src='${thumbAlt(a.cover, 240)}'}else this.style.visibility='hidden'"><div><p>📆 Hari ini, ${now.getFullYear() - parseD(a.date).getFullYear()} tahun lalu</p><b>${esc(a.name)}</b><small>${a.photos} foto${a.videos ? ` · ${a.videos} video` : ''} · tap buat nostalgia 🥹</small></div></div>`).join('');
@@ -501,7 +511,7 @@ async function startUpload() {
   const ok = upFiles.filter(x => x.st === 'ok').length, fail = upFiles.filter(x => x.st === 'err').length;
   try {
     const d = await post({ action: 'done' });
-    d.full = true; d.random = { count: d.random.items.length, cover: d.random.cover, items: d.random.items };
+    d.full = true; d.random = splitRandom(d.random);
     DATA = d; randomItems = d.random.items; try { localStorage.setItem('mem-idx', JSON.stringify(DATA)); } catch {}
     renderHome();
   } catch (e) {}
