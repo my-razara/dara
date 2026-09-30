@@ -86,6 +86,7 @@
   .cell .broken{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:1.3rem;color:var(--muted)}
   .skel{background:linear-gradient(90deg,var(--warm) 25%,#fbf3ea 50%,var(--warm) 75%);background-size:200% 100%;animation:sk 1.2s infinite}
   @keyframes sk{to{background-position:-200% 0}}
+  .more{text-align:center;font-size:11px;color:var(--muted);padding:.8rem 0;min-height:1px}
   .empty{text-align:center;color:var(--muted);font-size:12.5px;line-height:1.7;padding:2rem 1rem}
 
   /* VIEWER */
@@ -160,7 +161,7 @@
 
 <!-- VIEWER -->
 <div class="viewer" id="viewer">
-  <div class="v-top"><button class="v-btn" onclick="closeViewer()">✕</button><span id="v-count">1 / 1</span><a class="v-btn" id="v-open" href="#" target="_blank" title="Buka di Drive">⤓</a></div>
+  <div class="v-top"><button class="v-btn" onclick="closeViewer()">✕</button><span id="v-count">1 / 1</span><a class="v-btn" id="v-open" href="#" target="_blank" rel="noopener" title="Download file asli">⬇️</a></div>
   <div class="v-stage" id="v-stage"><span class="v-load">Memuat...</span></div>
   <button class="v-nav l" onclick="step(-1)">‹</button><button class="v-nav r" onclick="step(1)">›</button>
   <div class="v-bottom" id="v-cap"></div>
@@ -173,7 +174,10 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxPd5lEfwBFVHE8j0kX4vBv
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const $ = id => document.getElementById(id);
-const thumb = (id, w) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
+// tampilan pakai versi kecil WebP dari Google (ringan), file asli cuma diambil pas download
+const thumb = (id, w) => `https://lh3.googleusercontent.com/d/${id}=w${w}-rw`;
+const thumbAlt = (id, w) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
+const download = id => `https://drive.google.com/uc?export=download&id=${id}`;
 let PW = '', DATA = null, year = 'all', view = { items: [], i: 0, title: '' }, randomItems = null;
 
 function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0, 0); }
@@ -189,7 +193,7 @@ function ago(s) {
   return Math.floor(days / 365) + ' tahun lalu';
 }
 function imgLoaded(el) { el.classList.add('ok'); el.parentElement.classList.remove('skel'); }
-function imgFail(el) { el.parentElement.classList.remove('skel'); const b = el.parentElement.querySelector('.broken'); if (b) b.style.display = 'flex'; }
+function imgFail(el) { if (el.dataset.alt && !el.dataset.tried) { el.dataset.tried = 1; el.src = el.dataset.alt; return; } el.parentElement.classList.remove('skel'); const b = el.parentElement.querySelector('.broken'); if (b) b.style.display = 'flex'; }
 
 // ═══ API ═══
 async function api(action, extra = '', fresh = false) {
@@ -238,7 +242,7 @@ function renderHome() {
   $('upd').textContent = `${A.length} album · ${DATA.random.count || 0} foto random`;
   // hari ini, tahun lalu
   const now = new Date(), otd = A.filter(a => { const d = parseD(a.date); return d && d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() < now.getFullYear(); });
-  $('otd').innerHTML = otd.map(a => `<div class="otd" onclick="openAlbum('${a.id}')"><img src="${thumb(a.cover, 300)}" alt="" onerror="this.style.visibility='hidden'"><div><p>📆 Hari ini, ${now.getFullYear() - parseD(a.date).getFullYear()} tahun lalu</p><b>${esc(a.name)}</b><small>${a.photos} foto${a.videos ? ` · ${a.videos} video` : ''} · tap buat nostalgia 🥹</small></div></div>`).join('');
+  $('otd').innerHTML = otd.map(a => `<div class="otd" onclick="openAlbum('${a.id}')"><img src="${thumb(a.cover, 240)}" alt="" onerror="if(!this.dataset.t){this.dataset.t=1;this.src='${thumbAlt(a.cover, 240)}'}else this.style.visibility='hidden'"><div><p>📆 Hari ini, ${now.getFullYear() - parseD(a.date).getFullYear()} tahun lalu</p><b>${esc(a.name)}</b><small>${a.photos} foto${a.videos ? ` · ${a.videos} video` : ''} · tap buat nostalgia 🥹</small></div></div>`).join('');
   // tahun
   const years = [...new Set(A.map(a => a.year))].sort((a, b) => b - a);
   if (year !== 'all' && !years.includes(year)) year = 'all';
@@ -252,7 +256,7 @@ function renderAlbums() {
   // kelompok per bulan
   const groups = []; A.forEach(a => { const d = parseD(a.date), k = d ? `${BLN[d.getMonth()]} ${d.getFullYear()}` : `${a.year}`; let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, items: [] }); g.items.push(a); });
   $('album-list').innerHTML = groups.map(g => `<p class="month-lbl">${g.k}</p><div class="albums">${g.items.map(a => `
-    <div class="album" onclick="openAlbum('${a.id}')"><div class="cover skel"><img loading="lazy" src="${thumb(a.cover, 600)}" alt="" onload="imgLoaded(this)" onerror="imgFail(this)"><span class="broken">🖼️</span>
+    <div class="album" onclick="openAlbum('${a.id}')"><div class="cover skel"><img loading="lazy" src="${thumb(a.cover, 500)}" data-alt="${thumbAlt(a.cover, 500)}" alt="" onload="imgLoaded(this)" onerror="imgFail(this)"><span class="broken">🖼️</span>
       ${a.date ? `<span class="ago">${ago(a.date)}</span>` : ''}<span class="cnt">📷 ${a.photos}${a.videos ? ` · ▶ ${a.videos}` : ''}</span></div>
       <div class="a-info"><b>${esc(a.date ? fmtD(a.date) : a.name)}</b><small>${a.date ? HARI[parseD(a.date).getDay()] : 'Album'}</small></div></div>`).join('')}</div>`).join('');
 }
@@ -279,10 +283,23 @@ async function loadRandom(fresh) {
   try { const d = await api('random', '', fresh); randomItems = d.items; renderGrid($('random-grid'), randomItems, '🎲 Random'); }
   catch (e) { if (e.code === 'password') return logout(); $('random-grid').innerHTML = `<div class="empty">😢 Gagal ngambil foto random.<br>${esc(e.message)}</div>`; }
 }
+const BATCH = 36;
+function cellHTML(it, i) { return `<div class="cell skel" data-i="${i}"><img loading="lazy" decoding="async" src="${thumb(it.id, 360)}" data-alt="${thumbAlt(it.id, 360)}" alt="" onload="imgLoaded(this)" onerror="imgFail(this)"><span class="broken">${it.type === 'video' ? '🎬' : '🖼️'}</span>${it.type === 'video' ? '<div class="vid"><span>▶</span></div>' : ''}</div>`; }
 function renderGrid(el, items, title) {
+  if (el._obs) el._obs.disconnect();
   if (!items.length) { el.innerHTML = '<div class="empty">Masih kosong 📭<br>Taruh foto/video di folder ini dulu ya.</div>'; return; }
-  el.innerHTML = `<div class="grid">${items.map((it, i) => `<div class="cell skel" data-i="${i}"><img loading="lazy" src="${thumb(it.id, 400)}" alt="" onload="imgLoaded(this)" onerror="imgFail(this)"><span class="broken">${it.type === 'video' ? '🎬' : '🖼️'}</span>${it.type === 'video' ? '<div class="vid"><span>▶</span></div>' : ''}</div>`).join('')}</div>`;
-  el.querySelectorAll('.cell').forEach(c => c.onclick = () => openViewer(items, +c.dataset.i, title));
+  el.innerHTML = '<div class="grid"></div><div class="more"></div>';
+  const grid = el.querySelector('.grid'), more = el.querySelector('.more'); let shown = 0;
+  const add = () => {
+    const next = items.slice(shown, shown + BATCH);
+    grid.insertAdjacentHTML('beforeend', next.map((it, k) => cellHTML(it, shown + k)).join(''));
+    shown += next.length;
+    more.textContent = shown < items.length ? `Memuat lagi... (${shown}/${items.length})` : '';
+    if (shown >= items.length && el._obs) el._obs.disconnect();
+  };
+  grid.addEventListener('click', e => { const c = e.target.closest('.cell'); if (c) openViewer(items, +c.dataset.i, title); });
+  add();
+  if (shown < items.length) { el._obs = new IntersectionObserver(es => { if (es[0].isIntersecting) add(); }, { rootMargin: '600px' }); el._obs.observe(more); }
 }
 function shuffleOne() {
   if (!randomItems || !randomItems.length) return toast('Foto random-nya belum ada 📭');
@@ -296,13 +313,13 @@ function step(d) { const n = view.items.length; if (n < 2) return; view.i = (vie
 function renderViewer() {
   const it = view.items[view.i], st = $('v-stage');
   $('v-count').textContent = `${view.i + 1} / ${view.items.length}`;
-  $('v-cap').textContent = view.title;
-  $('v-open').href = `https://drive.google.com/file/d/${it.id}/view`;
+  $('v-cap').textContent = view.title + (it.type === 'video' ? ' · video diputar versi streaming, ⬇️ buat file asli' : ' · tampil versi ringan, ⬇️ buat file asli');
+  $('v-open').href = download(it.id);
   st.innerHTML = '<span class="v-load">Memuat...</span>';
   if (it.type === 'video') st.insertAdjacentHTML('beforeend', `<iframe src="https://drive.google.com/file/d/${it.id}/preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`);
-  else { const img = new Image(); img.alt = ''; img.onload = () => { st.querySelector('.v-load')?.remove(); }; img.onerror = () => { st.innerHTML = '<span class="v-load">Foto nggak bisa dimuat 😢 — coba tap ⤓</span>'; }; img.src = thumb(it.id, 2000); st.appendChild(img); }
+  else { const img = new Image(); img.alt = ''; img.onload = () => { st.querySelector('.v-load')?.remove(); }; img.onerror = () => { if (!img.dataset.tried) { img.dataset.tried = 1; img.src = thumbAlt(it.id, 1600); return; } st.innerHTML = '<span class="v-load">Foto nggak bisa dimuat 😢 — coba tap ⤓</span>'; }; img.src = thumb(it.id, 1600); st.appendChild(img); }
   // preload sebelah-sebelahnya
-  [1, -1].forEach(d => { const n = view.items[(view.i + d + view.items.length) % view.items.length]; if (n && n.type === 'image') new Image().src = thumb(n.id, 2000); });
+  [1, -1].forEach(d => { const n = view.items[(view.i + d + view.items.length) % view.items.length]; if (n && n.type === 'image') new Image().src = thumb(n.id, 1600); });
 }
 // swipe
 (function () {
