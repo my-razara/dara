@@ -131,6 +131,19 @@
   .pbar{height:6px;border-radius:3px;background:var(--blush);overflow:hidden;margin-bottom:.8rem;display:none}
   .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .3s}
   .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:50px;padding:.45rem 1.1rem;font-size:12px;z-index:999;white-space:nowrap;animation:fade .25s ease}
+
+  /* ═══ BIAR RINGAN DI HP ═══ */
+  .cover .cnt,.cell .vid span{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(45,31,26,.72)!important}
+  @media (hover:none),(pointer:coarse){
+    .top,.up-bg{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+    .top{background:rgba(250,246,240,.98)!important}
+    .up-bg{background:rgba(45,31,26,.55)!important}
+    .album{box-shadow:0 2px 8px rgba(45,31,26,.06)!important}
+    .otd{box-shadow:0 3px 12px rgba(193,122,111,.12)!important}
+  }
+  .album,.cell,.tab,.chip,.ib,.btn,.shuffle{touch-action:manipulation}
+  .albums{content-visibility:auto;contain-intrinsic-size:auto 400px}
+  .cell img{content-visibility:auto}
 </style>
 </head>
 <body>
@@ -216,7 +229,7 @@
 
 <script>
 // ═══ PENGATURAN — isi pakai link web app dari memories.gs (Deploy → Web app → URL) ═══
-const API_URL = 'https://script.google.com/macros/s/AKfycbxPd5lEfwBFVHE8j0kX4vBvC4JdYhXjVLeZA0-sAbqNa3sLyAOVo1k1HLBJe0aFq8Jw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyBm0vHLCkH4u56FlHJfwdFw0L-8JicoOMWY7ka2A2Tlauw7DIQQZ2RZNV8csHBrtQ/exec';
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -243,9 +256,18 @@ function imgLoaded(el) { el.classList.add('ok'); el.parentElement.classList.remo
 function imgFail(el) { if (el.dataset.alt && !el.dataset.tried) { el.dataset.tried = 1; el.src = el.dataset.alt; return; } el.parentElement.classList.remove('skel'); const b = el.parentElement.querySelector('.broken'); if (b) b.style.display = 'flex'; }
 
 // ═══ API ═══
+async function fetchText(url, opt, ms) {
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), ms);
+  try { const r = await fetch(url, Object.assign({ signal: ctl.signal }, opt || {})); return await r.text(); }
+  catch (e) { const x = new Error(e.name === 'AbortError' ? 'Google lagi lama banget jawabnya (lebih dari ' + Math.round(ms / 1000) + ' detik). Coba 🔄 lagi ya.' : 'Koneksi ke Google putus, coba lagi.'); x.code = 'network'; throw x; }
+  finally { clearTimeout(to); }
+}
 async function api(action, extra = '', fresh = false) {
   const url = `${API_URL}?action=${action}&pw=${encodeURIComponent(PW)}${extra}${fresh ? '&fresh=1' : ''}`;
-  const r = await fetch(url); const t = await r.text(); let j;
+  let t;
+  try { t = await fetchText(url, null, fresh ? 90000 : 30000); }
+  catch (e) { await new Promise(r => setTimeout(r, 800)); t = await fetchText(url, null, fresh ? 90000 : 30000); }   // coba sekali lagi
+  let j;
   try { j = JSON.parse(t); } catch { const e = new Error('Script Google-nya lagi error atau kelamaan (balasannya bukan data). Cek deployment udah versi terbaru, terus coba 🔄 lagi.'); e.code = 'server'; throw e; }
   if (!j.ok) { const e = new Error(j.error); e.code = j.error; throw e; }
   return j.data;
@@ -255,22 +277,23 @@ async function api(action, extra = '', fresh = false) {
 async function login(saved) {
   const pw = saved || $('pw').value.trim(); if (!pw) return;
   PW = pw; $('login-btn').disabled = true; $('login-btn').textContent = 'Membuka... 🔐'; $('gate-err').textContent = '';
-  try {
-    await api('check');
+  // ambil data langsung (sekalian ngecek password) — dulu ngecek dulu baru ambil data = 2x nunggu Google
+  const ok = await loadAlbums(false, true);
+  $('login-btn').disabled = false; $('login-btn').textContent = 'Buka Kenangan 💝';
+  if (ok === 'password') { try { localStorage.removeItem('mem-pw'); localStorage.removeItem('mem-idx'); } catch {} DATA = null; show('s-gate'); $('gate-err').textContent = 'Password salah, coba lagi 🤍'; return; }
+  if (ok === true) {
     if (!saved && $('remember').checked) { try { localStorage.setItem('mem-pw', pw); } catch {} }
     if (!$('s-home').classList.contains('active') && !$('s-album').classList.contains('active')) show('s-home');
-    loadAlbums();
-  } catch (e) {
-    try { localStorage.removeItem('mem-pw'); } catch {}
-    show('s-gate');
-    $('gate-err').textContent = e.code === 'password' ? 'Password salah, coba lagi 🤍' : 'Gagal nyambung — cek internet atau link API-nya';
+    return;
   }
-  $('login-btn').disabled = false; $('login-btn').textContent = 'Buka Kenangan 💝';
+  // gagal jaringan: kalau ada data tersimpan tetap tampil, password nggak dihapus
+  if (DATA) { toast('📶 Lagi nggak bisa nyambung — nampilin data terakhir'); return; }
+  show('s-gate'); $('gate-err').textContent = ok || 'Gagal nyambung — coba lagi sebentar';
 }
 
 // ═══ ALBUM LIST ═══
-async function loadAlbums(fresh) {
-  if (!DATA) $('album-list').innerHTML = `<div class="albums">${Array(4).fill('<div class="album"><div class="cover skel"></div><div class="a-info"><b>&nbsp;</b><small>&nbsp;</small></div></div>').join('')}</div>`;
+async function loadAlbums(fresh, fromLogin) {
+  if (!DATA && !fromLogin) $('album-list').innerHTML = `<div class="albums">${Array(4).fill('<div class="album"><div class="cover skel"></div><div class="a-info"><b>&nbsp;</b><small>&nbsp;</small></div></div>').join('')}</div>`;
   $('refresh').classList.add('spin');
   try {
     let d;
@@ -285,8 +308,16 @@ async function loadAlbums(fresh) {
     if (DATA.full) randomItems = DATA.random.items;
     if (changed || fresh) { renderHome(); if (randomItems && $('tab-random').style.display !== 'none') renderGrid($('random-grid'), randomItems, '🎲 Random'); }
     if (fresh) { if (!DATA.full) randomItems = null; toast('✨ Udah paling baru'); }
-  } catch (e) { if (e.code === 'password') return logout(); $('album-list').innerHTML = `<div class="empty">😢 Gagal ngambil kenangan.<br>${esc(e.message)}</div>`; }
-  $('refresh').classList.remove('spin');
+    $('refresh').classList.remove('spin');
+    return true;
+  } catch (e) {
+    $('refresh').classList.remove('spin');
+    if (e.code === 'password') { if (fromLogin) return 'password'; logout(); return 'password'; }
+    if (fromLogin && !DATA) return e.message;
+    if (DATA) toast('📶 ' + e.message);
+    else $('album-list').innerHTML = `<div class="empty">😢 Gagal ngambil kenangan.<br>${esc(e.message)}</div>`;
+    return e.message;
+  }
 }
 function refresh() { loadAlbums(true).then(() => { if (!(DATA && DATA.full) && $('tab-random').style.display !== 'none') loadRandom(true); }); }
 
@@ -443,8 +474,7 @@ async function prepare(file, compress) {
 }
 const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
 async function post(body) {
-  const r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ pw: PW, ...body }) });
-  const t = await r.text(); let j; try { j = JSON.parse(t); } catch { throw new Error('Script belum support upload — deploy versi terbaru dulu'); }
+  const t = await fetchText(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ pw: PW, ...body }) }, 180000); let j; try { j = JSON.parse(t); } catch { throw new Error('Script belum support upload — deploy versi terbaru dulu'); }
   if (!j.ok) { const e = new Error(j.error); e.code = j.error; throw e; } return j.data;
 }
 async function startUpload() {
@@ -491,7 +521,7 @@ function logout() { try { localStorage.removeItem('mem-pw'); localStorage.remove
   if (!API_URL) return show('s-setup');
   let saved = null; try { saved = localStorage.getItem('mem-pw'); } catch {}
   try { const c = localStorage.getItem('mem-idx'); if (c && saved) { DATA = JSON.parse(c); PW = saved; if (DATA.full) randomItems = DATA.random.items; show('s-home'); renderHome(); } } catch {}
-  if (saved) { if (!DATA) show('s-gate'); PW = saved; login(saved); } else show('s-gate');
+  if (saved) { PW = saved; if (!DATA) { show('s-gate'); $('pw').value = ''; } login(saved); } else show('s-gate');
 })();
 </script>
 </body>
