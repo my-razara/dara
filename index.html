@@ -214,6 +214,38 @@
   .dot.has-new{background:#e91e63!important;box-shadow:0 0 0 3px rgba(233,30,99,.2)}
   .fade-in{animation:fadeUp .35s ease both}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ═════════ BIAR RINGAN DI HP (tambahan) ═════════ */
+  /* 1) efek blur kaca itu paling berat di HP — di HP diganti warna solid (kelihatannya hampir sama), di laptop tetap blur */
+  @media (hover:none),(pointer:coarse){
+    .bnav,.search,.cat-header,#popup-overlay,.popup-overlay{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+    .bnav{background:rgba(255,255,255,.97)!important}
+    .search{background:#fff!important}
+    .cat-header{background:rgba(250,246,240,.99)!important}
+    #popup-overlay{background:rgba(45,31,26,.55)!important}
+    /* bayangan dibikin lebih tipis = gambar ulang lebih cepat pas scroll */
+    .mini{box-shadow:0 2px 8px rgba(193,122,111,.07)!important}
+    .grid-item{box-shadow:none!important}
+  }
+  /* 2) tap langsung respon (tanpa jeda nunggu dobel-tap zoom) */
+  a,button,.grid-item,.mini,.chip,.dot,.card,.main-card,[onclick]{touch-action:manipulation}
+  /* 3) animasi cuma pakai transform/opacity (ringan), bukan box-shadow (berat, gambar ulang tiap frame) */
+  .grid-item,.mini,.chip,.bnav button{transition:transform .15s ease,background-color .15s ease,color .15s ease!important}
+  .grid-item.secret-unlocked{animation:none!important}
+  .sec-new{animation:secPulseLite 1.8s ease-in-out infinite!important;box-shadow:0 2px 10px rgba(233,30,99,.3)}
+  @keyframes secPulseLite{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  /* 4) scroll lebih mulus & nggak "narik" halaman belakang */
+  #home,.cat-body,.row,.results{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .row{contain:content}
+  /* 5) kartu game yang belum kelihatan di layar nggak digambar dulu */
+  .cat-body .section{content-visibility:auto;contain-intrinsic-size:auto 600px}
+  /* 6) kartu kecil di home nggak animasi masuk tiap balik ke home */
+  #home-rows .fade-in{animation:none}
+  /* 7) kalau HP-nya diset "kurangi animasi", semua animasi hiasan dimatiin */
+  @media (prefers-reduced-motion:reduce){
+    .card-emoji,.sec-new,.heart-fall{animation:none!important}
+    *{scroll-behavior:auto!important}
+  }
 </style>
 </head>
 <body>
