@@ -29,6 +29,9 @@
     /* HEADER */
     .header{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);padding:14px 16px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
     .header-row{display:flex;justify-content:space-between;align-items:center}
+    .header-left{display:flex;align-items:center;gap:8px}
+    .back-home{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);text-decoration:none;font-size:14px;flex-shrink:0}
+    .back-home:active{background:var(--rose-l);color:var(--rose)}
     .header h1{font-size:17px;font-weight:700;color:var(--text)}
     .header-date{font-size:11px;color:var(--text2);margin-top:2px}
     .month-nav{display:flex;align-items:center;gap:6px}
@@ -78,6 +81,7 @@
     /* BUTTONS */
     .btn-primary{width:100%;padding:13px;background:var(--rose);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif;box-shadow:0 4px 14px rgba(193,122,111,.3)}
     .btn-primary:active{background:var(--deep);transform:scale(.98)}
+    .btn-primary:disabled{opacity:.6}
     .btn-outline{width:100%;padding:11px;background:none;color:var(--rose);border:1.5px solid var(--rose);border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'Poppins',sans-serif;transition:all .15s}
     .btn-outline:active{background:var(--rose-l)}
     .btn-danger{width:100%;padding:11px;background:none;color:var(--coral);border:1.5px solid var(--coral);border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:'Poppins',sans-serif}
@@ -156,15 +160,41 @@
     /* EMPTY */
     .empty{text-align:center;padding:2rem 1rem;color:var(--text2);font-size:14px}
     .empty-icon{font-size:36px;margin-bottom:8px}
+
+    /* GATE LOGIN */
+    #gate{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center}
+    #gate .g-ico{font-size:3.2rem;margin-bottom:.6rem}
+    #gate h2{font-size:1.3rem;font-weight:700;color:var(--text)}
+    #gate p{font-size:12.5px;color:var(--text2);margin:.3rem 0 1.2rem;line-height:1.6}
+    #gate .form-input{max-width:300px;text-align:center;font-size:1.1rem;letter-spacing:.15em;margin-bottom:.6rem}
+    #gate label{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:11.5px;color:var(--text2);margin-bottom:.9rem;cursor:pointer}
+    #gate .btn-primary{max-width:300px}
+    #gate a{display:block;margin-top:.9rem;font-size:12px;color:var(--text2);text-decoration:none}
+    #gate .g-err{font-size:12px;color:var(--coral);margin-top:.6rem;min-height:1em}
   </style>
 </head>
 <body>
 
+<!-- GATE: muncul kalau halaman dibuka tanpa login dari index -->
+<div id="gate">
+  <div class="g-ico">🌸</div>
+  <h2>Kantong Dara</h2>
+  <p>Masukkan password dulu ya 🤍</p>
+  <input type="password" class="form-input" id="gate-pw" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')gateSubmit()">
+  <label><input type="checkbox" id="gate-remember"> Ingat di HP ini (30 hari)</label>
+  <button class="btn-primary" id="gate-btn" onclick="gateSubmit()">Masuk 🌸</button>
+  <div class="g-err" id="gate-err"></div>
+  <a href="index.html">← Kembali ke beranda</a>
+</div>
+
 <div class="header">
   <div class="header-row">
-    <div>
-      <h1>🌸 Keuangan Dara</h1>
-      <div class="header-date" id="hdr-date"></div>
+    <div class="header-left">
+      <a class="back-home" href="index.html" title="Kembali ke beranda">←</a>
+      <div>
+        <h1>🌸 Keuangan Dara</h1>
+        <div class="header-date" id="hdr-date"></div>
+      </div>
     </div>
     <div class="month-nav">
       <button onclick="changeMonth(-1)">‹</button>
@@ -266,6 +296,7 @@
   <div class="tab" id="tab-riwayat">
     <div class="filter-tabs">
       <button class="filter-tab active" onclick="setFilter('all',this)">Semua</button>
+      <button class="filter-tab" onclick="setFilter('expense',this)">Pengeluaran</button>
       <button class="filter-tab" onclick="setFilter('income',this)">Pemasukan</button>
     </div>
     <div class="card" id="tx-list"></div>
@@ -345,7 +376,7 @@
       </div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Pos di bawah jumlah tetap tiap bulan. Sisa otomatis jadi tabungan.</div>
       <div id="alloc-rows"></div>
-      <div class="alloc-row" style="border-top:1.5px solid var(--blush);margin-top:6px">
+      <div class="alloc-row" style="border-top:1.5px solid var(--border);margin-top:6px">
         <span class="alloc-name" style="font-weight:700">Tabungan — otomatis</span>
         <span class="alloc-val" id="set-nabung-display" style="color:var(--purple);font-weight:700">Rp0</span>
       </div>
@@ -406,18 +437,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
-const LOCAL_KEY = 'dara_dompet_v1';
+const LOCAL_KEY   = 'dara_dompet_v1';
+const PENDING_KEY = 'dara_pending_v1';
+const AUTH_KEY    = 'keu-auth-dara';        // diset juga dari index.html setelah login
+const REMEMBER_KEY= 'keu-remember-dara';
+const NOTIF_LAST_KEY = 'dara_notif_last';
 const GS_URL    = 'https://script.google.com/macros/s/AKfycbyBm0vHLCkH4u56FlHJfwdFw0L-8JicoOMWY7ka2A2Tlauw7DIQQZ2RZNV8csHBrtQ/exec';
 const GS_SKEY   = 'dara_rahasia_123';
 function getGsUrl()  { return GS_URL; }
 function getGsSkey() { return GS_SKEY; }
 
-const ACCS = {
-  'Cash': { color: '#c17a6f', bg: '#f5ede0', emoji: '👛' },
-};
-const CATS = {
-  'Cash': ['Makan','Transport','Skincare','Jajan','Belanja','Hiburan','Lainnya'],
-};
+const DEFAULT_ACCS = { 'Cash': { color: '#c17a6f', bg: '#f5ede0', emoji: '👛' } };
+const DEFAULT_CATS = { 'Cash': ['Makan','Transport','Skincare','Jajan','Belanja','Hiburan','Lainnya'] };
+let ACCS = JSON.parse(JSON.stringify(DEFAULT_ACCS));
+let CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
 const INCOME_CATS = ['Uang Jajan','Hadiah','Lainnya'];
 let currentTxType = 'expense';
 
@@ -429,83 +462,123 @@ let chartAlloc, chartDaily, chartSave;
 
 // ─── DEF ──────────────────────────────────────────────────────
 function def() {
-  return {
-    txs: [], savings: {},
-    settings: {
-      rt: '21:00', re: false, goals: [],
-      gaji: 0, payday: 1,
-      alloc: { spend: 0 }
-    }
-  };
+  return { txs: [], savings: {}, settings: { rt: '21:00', re: false, goals: [], gaji: 0, payday: 1, alloc: { rows: [] } } };
 }
 function ensureShape(d) {
+  if (!d.txs) d.txs = [];
+  if (!d.savings) d.savings = {};
   if (!d.settings) d.settings = {};
-  if (!d.settings.goals) d.settings.goals = [];
-  if (typeof d.settings.gaji !== 'number') d.settings.gaji = 0;
-  if (typeof d.settings.payday !== 'number') d.settings.payday = 1;
-  if (!d.settings.alloc) d.settings.alloc = { rows: Array(10).fill(null).map(()=>({name:'',amount:0})) };
-  if (!d.settings.alloc.rows) d.settings.alloc.rows = Array(10).fill(null).map(()=>({name:'',amount:0}));
-  while (d.settings.alloc.rows.length < 10) d.settings.alloc.rows.push({name:'',amount:0});
+  const s = d.settings;
+  if (!s.goals) s.goals = [];
+  s.gaji = Number(s.gaji) || 0;
+  s.payday = Number(s.payday) || 1;
+  // [FIX] alloc lama kadang tersimpan sebagai array kosong → alokasi Dara nggak pernah kesimpan
+  if (!s.alloc || Array.isArray(s.alloc) || typeof s.alloc !== 'object') s.alloc = {};
+  if (!Array.isArray(s.alloc.rows)) {
+    s.alloc.rows = [];
+    if (Number(s.alloc.spend) > 0) s.alloc.rows.push({ name: 'Pengeluaran', amount: Number(s.alloc.spend) });
+  }
+  while (s.alloc.rows.length < 10) s.alloc.rows.push({ name: '', amount: 0 });
+  s.alloc.rows = s.alloc.rows.map(r => ({ name: String((r && r.name) || ''), amount: Number(r && r.amount) || 0 }));
   return d;
 }
-function nabungAmt(s) {
-  const gaji = Number(s.gaji) || 0;
-  const totalAlloc = (s.alloc.rows||[]).reduce((a,r)=>a+(Number(r.amount)||0),0);
-  return Math.max(0, gaji - totalAlloc);
+function normalizeTxs(d) {
+  d.txs = d.txs.map(tx => {
+    tx.amount = Number(tx.amount) || 0;
+    if (tx.date && String(tx.date).length > 10) tx.date = localISO(new Date(tx.date));
+    if (tx.type !== 'income' && tx.type !== 'expense') tx.type = (!tx.acc || tx.acc === '-') ? 'income' : 'expense';
+    return tx;
+  });
+  return d;
+}
+function allocTotal(s) { return (s.alloc.rows || []).reduce((a, r) => a + (Number(r.amount) || 0), 0); }
+function nabungAmt(s) { return Math.max(0, (Number(s.gaji) || 0) - allocTotal(s)); }
+// budget belanja = total pos alokasi; kalau belum diisi, pakai total uang jajan
+function budgetAmt(s) { return allocTotal(s) || (Number(s.gaji) || 0); }
+
+// rekening & kategori tambahan disimpan di settings biar nggak ilang pas reload
+function applyAccCats(s) {
+  ACCS = JSON.parse(JSON.stringify(DEFAULT_ACCS)); CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
+  if (Array.isArray(s.accounts) && s.accounts.length) {
+    if (s.accFull) ACCS = {};
+    s.accounts.forEach(a => { if (a && a.name) ACCS[a.name] = { color: a.color || '#c9a96e', bg: a.bg || '#faf0e0', emoji: a.emoji || '💳' }; });
+    if (!Object.keys(ACCS).length) ACCS = JSON.parse(JSON.stringify(DEFAULT_ACCS));
+  }
+  Object.keys(ACCS).forEach(a => { if (!CATS[a]) CATS[a] = ['Makan','Transport','Jajan','Belanja','Lainnya']; });
+  if (s.cats && typeof s.cats === 'object') Object.keys(s.cats).forEach(a => { if (ACCS[a] && Array.isArray(s.cats[a])) CATS[a] = s.cats[a].slice(); });
+}
+function storeAccCats(s) {
+  s.accFull = true;
+  s.accounts = Object.entries(ACCS).map(([name, a]) => ({ name, color: a.color, bg: a.bg, emoji: a.emoji }));
+  s.cats = JSON.parse(JSON.stringify(CATS));
 }
 
-// ─── STORAGE (XHR) ────────────────────────────────────────────
-function xhrGet(url, cb) {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onload = function() { try { cb(null, JSON.parse(xhr.responseText)); } catch(e) { cb(e); } };
-  xhr.onerror = function() { cb(new Error('err')); };
-  xhr.send();
-}
-function xhrPost(url, body, cb) {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', url, true);
-  xhr.setRequestHeader('Content-Type', 'text/plain');
-  xhr.onload = function() { try { cb(null, JSON.parse(xhr.responseText)); } catch(e) { cb(e); } };
-  xhr.onerror = function() { cb(new Error('err')); };
-  xhr.send(JSON.stringify(body));
-}
-async function load() {
-  return new Promise((resolve) => {
-    xhrGet(GS_URL + '?key=' + encodeURIComponent(GS_SKEY), (err, d) => {
-      if (err || !d || d.error) { resolve(fromLocal()); return; }
-      ensureShape(d);
-      if (!d.txs) d.txs = [];
-      if (!d.savings) d.savings = {};
-      // Normalize dates (Sheets may return ISO strings due to Date objects)
-      d.txs = d.txs.map(tx => {
-        if (tx.date && String(tx.date).length > 10) {
-          const dt = new Date(tx.date);
-          tx.date = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-        }
-        return tx;
-      });
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
-      resolve(d);
-    });
-  });
-}
+// ─── DATA: tampil dari HP dulu, sinkron ke Sheets di belakang ─────────────
+let _data = null;
 function fromLocal() {
-  try { return ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def()); } catch { return def(); }
+  try { return normalizeTxs(ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def())); } catch { return ensureShape(def()); }
 }
-async function save(d) { localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); }
-async function gsPost(action, extra) {
-  extra = extra || {};
-  return new Promise((resolve) => {
-    xhrPost(GS_URL, Object.assign({ key: GS_SKEY, action }, extra), (err, res) => resolve(res));
+function saveLocal(d) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); } catch {} }
+function getPending() { try { return JSON.parse(localStorage.getItem(PENDING_KEY)) || []; } catch { return []; } }
+function setPending(q) { try { localStorage.setItem(PENDING_KEY, JSON.stringify(q)); } catch {} }
+function applyPending(d) {
+  getPending().forEach(op => {
+    const x = op.extra || {};
+    if (op.action === 'saveTx' && x.data) { if (!d.txs.some(t => String(t.id) === String(x.data.id))) d.txs.push(Object.assign({}, x.data)); }
+    else if (op.action === 'deleteTx') d.txs = d.txs.filter(t => String(t.id) !== String(x.id));
+    else if (op.action === 'saveSaving') d.savings[x.month] = Number(x.amount) || 0;
+    else if (op.action === 'saveSettings' && x.data) d.settings = Object.assign({}, d.settings, x.data);
   });
+  return d;
 }
-async function syncTx(tx)          { await gsPost('saveTx', { data: tx }); }
-async function syncDelTx(id)       { await gsPost('deleteTx', { id }); }
-async function syncSaving(mo, amt) { await gsPost('saveSaving', { month: mo, amount: amt }); }
-async function syncSettings(s)     { await gsPost('saveSettings', { data: s }); }
+function dedupe(d) { const seen = new Set(); d.txs = d.txs.filter(t => { const k = String(t.id); if (seen.has(k)) return false; seen.add(k); return true; }); return d; }
+
+async function load(forceNetwork) {
+  if (!_data) { _data = fromLocal(); applyAccCats(_data.settings); }
+  if (!forceNetwork) return _data;
+  try {
+    const r = await fetch(GS_URL + '?key=' + encodeURIComponent(GS_SKEY) + '&t=' + Date.now());
+    const d = await r.json();
+    if (!d || d.error) return _data;
+    ensureShape(d); applyPending(d); ensureShape(d); normalizeTxs(d); dedupe(d);
+    _data = d; saveLocal(d); applyAccCats(d.settings);
+  } catch (e) { /* offline → tetap pakai data di HP */ }
+  return _data;
+}
+async function save(d) { _data = d; saveLocal(d); }
+
+let _flushing = false, _flushTimer = null;
+function scheduleFlush() { clearTimeout(_flushTimer); _flushTimer = setTimeout(flushPending, 400); }
+async function postJSON(body) {
+  const r = await fetch(GS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ key: GS_SKEY }, body)) });
+  return r.json();
+}
+// semua perubahan yang ngantre dikirim SEKALIGUS (1 request), dulu satu-satu
+async function flushPending() {
+  if (_flushing) return; _flushing = true;
+  try {
+    while (getPending().length) {
+      const ops = getPending().slice(0, 40);
+      let res;
+      try { res = await postJSON({ action: 'saveBatch', ops }); } catch (e) { break; }        // offline → coba lagi nanti
+      if (res && res.error === 'Unknown action') {                                           // script lama → kirim satu-satu
+        for (const op of ops) { try { await postJSON(Object.assign({ action: op.action }, op.extra)); } catch (e) { return; } setPending(getPending().slice(1)); }
+        continue;
+      }
+      if (!res || res.error) break;                                                          // Unauthorized dll → jangan buang antrean
+      setPending(getPending().slice(ops.length));
+    }
+  } finally { _flushing = false; }
+}
+function gsPost(action, extra) { const q = getPending(); q.push({ action, extra: extra || {} }); setPending(q); scheduleFlush(); }
+async function syncTx(tx)          { gsPost('saveTx', { data: tx }); }
+async function syncDelTx(id)       { gsPost('deleteTx', { id }); }
+async function syncSaving(mo, amt) { gsPost('saveSaving', { month: mo, amount: amt }); }
+async function syncSettings(s)     { gsPost('saveSettings', { data: s }); }
 
 // ─── UTILS ────────────────────────────────────────────────────
+function localISO(dt) { return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0'); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 function fmtInput(el) {
   const raw = el.value.replace(/\./g, '').replace(/[^0-9]/g, '');
   const num = parseInt(raw) || 0;
@@ -515,27 +588,21 @@ function parseInput(id) {
   const val = (document.getElementById(id).value || '0').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9]/g,'');
   return parseInt(val) || 0;
 }
-function setInput(id, num) {
-  const el = document.getElementById(id);
-  if (el) el.value = num > 0 ? num.toLocaleString('id-ID') : '';
-}
+function setInput(id, num) { const el = document.getElementById(id); if (el) el.value = num > 0 ? num.toLocaleString('id-ID') : ''; }
 function fmt(n) { return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
 function fmtS(n) {
-  if (n >= 1000000) return 'Rp' + (n/1000000).toFixed(2).replace(/\.?0+$/,'') + ' jt';
-  if (n >= 1000) return 'Rp' + Math.round(n/1000) + 'rb';
-  return fmt(n);
+  const neg = n < 0; n = Math.abs(n);
+  const s = n >= 1000000 ? 'Rp' + (n/1000000).toFixed(2).replace(/\.?0+$/,'') + ' jt' : n >= 1000 ? 'Rp' + Math.round(n/1000) + 'rb' : fmt(n);
+  return (neg ? '-' : '') + s;
 }
 function mKey(y,m) { return y+'-'+String(m+1).padStart(2,'0'); }
 function mLabel(y,m) { return new Date(y,m,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'}); }
 function mShort(y,m) { return new Date(y,m,1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}); }
-async function monthTxs(y,m) {
-  const k = mKey(y,m), d = await load();
-  return d.txs.filter(tx => tx.date.startsWith(k));
-}
+async function monthTxs(y,m) { const k = mKey(y,m), d = await load(); return d.txs.filter(tx => String(tx.date).startsWith(k)); }
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
 // ─── NAV ──────────────────────────────────────────────────────
@@ -545,6 +612,7 @@ function showTab(name) {
   document.getElementById('tab-'+name).classList.add('active');
   document.getElementById('nav-'+name).classList.add('active');
   ({home:renderHome,riwayat:renderTxList,nabung:renderNabung,settings:renderSettings})[name]?.();
+  window.scrollTo(0, 0);
 }
 function changeMonth(d) {
   cMonth += d;
@@ -554,16 +622,42 @@ function changeMonth(d) {
   renderHome(); renderTxList();
 }
 
+// ─── GATE LOGIN (kalau halaman dibuka langsung tanpa lewat index) ─────────
+function authed() { return (Number(localStorage.getItem(AUTH_KEY)) || 0) > Date.now(); }
+async function gateSubmit() {
+  const pw = document.getElementById('gate-pw').value.trim(); if (!pw) return;
+  const btn = document.getElementById('gate-btn'), err = document.getElementById('gate-err');
+  btn.disabled = true; btn.textContent = 'Memeriksa... 🔐'; err.textContent = '';
+  try {
+    const r = await fetch(GS_URL + '?key=' + encodeURIComponent(GS_SKEY) + '&action=checkPassword&password=' + encodeURIComponent(pw));
+    const d = await r.json();
+    if (d && d.valid) {
+      const remember = document.getElementById('gate-remember').checked;
+      const until = Date.now() + (remember ? 30 * 864e5 : 12 * 36e5);
+      localStorage.setItem(AUTH_KEY, String(until));
+      if (remember) localStorage.setItem(REMEMBER_KEY, String(until));
+      document.getElementById('gate').style.display = 'none';
+      init();
+    } else { err.textContent = 'Password salah, coba lagi 🤍'; document.getElementById('gate-pw').value = ''; }
+  } catch (e) { err.textContent = 'Gagal koneksi, coba lagi 🙏'; }
+  btn.disabled = false; btn.textContent = 'Masuk 🌸';
+}
+
 // ─── INIT ─────────────────────────────────────────────────────
 async function init() {
   const now = new Date();
   document.getElementById('hdr-date').textContent = now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('month-label').textContent = mLabel(cYear, cMonth);
-  document.getElementById('inp-date').value = now.toISOString().split('T')[0];
-  updateCats();
-  await renderHome();
-  await renderNabung();
-  renderSettings();
+  document.getElementById('inp-date').value = localISO(now);   // [FIX] dulu pakai UTC → sebelum jam 7 pagi tanggalnya mundur sehari
+  await load();
+  updateAccSelect();
+  await renderHome(); await renderNabung(); renderSettings();
+  // ambil data terbaru dari Sheets di belakang layar
+  setTimeout(async () => {
+    await flushPending(); await load(true);
+    updateAccSelect(); await renderHome(); await renderNabung(); renderTxList(); renderSettings();
+  }, 50);
+  window.addEventListener('online', () => flushPending());
   startReminderCheck();
 }
 
@@ -576,111 +670,95 @@ async function renderHome() {
   const incTxs = txs.filter(tx => tx.type === 'income');
   const spent = {};
   Object.keys(ACCS).forEach(a => spent[a] = 0);
-  expTxs.forEach(tx => { if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount; else spent['Cash'] = (spent['Cash']||0) + tx.amount; });
+  const firstAcc = Object.keys(ACCS)[0];
+  expTxs.forEach(tx => { if (spent[tx.acc] !== undefined) spent[tx.acc] += tx.amount; else spent[firstAcc] = (spent[firstAcc]||0) + tx.amount; });
   const totalSpent = Object.values(spent).reduce((a,b)=>a+b,0);
-  const totalBudget = Number(s.alloc.spend) || 0;
-  const remaining = totalBudget - totalSpent;
   const totalIncome = incTxs.reduce((a,tx)=>a+tx.amount,0);
+  const totalBudget = budgetAmt(s);                       // [FIX] dulu baca alloc.spend yang nggak pernah diisi → budget selalu 0
+  const remaining = totalBudget - totalSpent;             // sama kayak rumus aslinya: budget − yang dipakai
 
-  // Badge
   const payday = s.payday || 1;
   const today = new Date().getDate();
   const badge = document.getElementById('home-badge');
-  const daysBefore = 2;
-  badge.innerHTML = (today >= payday-daysBefore && today < payday)
+  badge.innerHTML = (today >= payday-2 && today < payday)
     ? '<div class="warning-badge">⏳ Sebentar lagi uang jajan masuk!</div>'
-    : today === payday
-    ? '<div class="gajian-badge">🎉 Hari ini uang jajan masuk! Atur dulu ya.</div>'
-    : '';
+    : today === payday ? '<div class="gajian-badge">🎉 Hari ini uang jajan masuk! Atur dulu ya.</div>' : '';
 
   document.getElementById('dash-gaji').textContent = fmtS(s.gaji);
   document.getElementById('dash-target-nabung').textContent = fmtS(nabung);
   document.getElementById('dash-spent').textContent = fmtS(totalSpent);
   const remEl = document.getElementById('dash-rem');
-  remEl.textContent = fmtS(Math.abs(remaining));
+  remEl.textContent = fmtS(remaining);
   remEl.style.color = remaining >= 0 ? 'var(--sage)' : 'var(--coral)';
-  document.getElementById('dash-income').textContent = fmtS(totalIncome);
+  document.getElementById('dash-income').textContent = (totalIncome > 0 ? '+' : '') + fmtS(totalIncome);
 
-  // Acc list
-  document.getElementById('acc-list').innerHTML = Object.entries(ACCS).map(([name, acc]) => {
+  const accNames = Object.keys(ACCS), multi = accNames.length > 1;
+  document.getElementById('acc-list').innerHTML = accNames.map(name => {
+    const acc = ACCS[name], sp = spent[name] || 0;
     const budget = totalBudget;
-    const sp = spent[name] || 0;
-    const rem = budget - sp;
     const pct = budget > 0 ? Math.min((sp/budget)*100,100) : 0;
-    const over = sp > budget;
+    const rem = budget - sp, over = !multi && sp > budget;
     return `<div class="acc-item">
       <div class="acc-dot" style="background:${acc.color}"></div>
       <div class="acc-info">
-        <div class="acc-name">${name}</div>
+        <div class="acc-name">${esc(name)}</div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${over?'var(--coral)':acc.color}"></div></div>
-        <div class="acc-sub">${fmt(sp)} dari ${fmt(budget)}</div>
+        <div class="acc-sub">${multi ? 'Terpakai ' + fmt(sp) : fmt(sp) + ' dari ' + fmt(budget)}</div>
       </div>
       <div class="acc-right">
-        <div class="acc-saldo" style="color:${over?'var(--coral)':'var(--sage)'}">${fmt(rem)}</div>
-        <div class="acc-sisa">${over?'LEBIH':'sisa'}</div>
+        <div class="acc-saldo" style="color:${over?'var(--coral)':multi?'var(--coral)':'var(--sage)'}">${multi ? fmt(sp) : fmt(rem)}</div>
+        <div class="acc-sisa">${multi ? 'dipakai' : over ? 'LEBIH' : 'sisa'}</div>
       </div>
     </div>`;
   }).join('');
 
-  // Donut - alloc rows
+  if (typeof Chart === 'undefined') return;
   const allocRows2 = (s.alloc.rows||[]).filter(r=>r.name&&r.amount>0);
   const allocColors = ['#c17a6f','#c9a96e','#7a9e8a','#9b7ec8','#f48fb1','#ffb74d','#7986cb','#4db6ac','#e57373','#81c784'];
-  const allocCtx = document.getElementById('chart-alloc').getContext('2d');
   if (chartAlloc) chartAlloc.destroy();
   const donutLabels = allocRows2.length ? allocRows2.map(r=>r.name) : ['Pengeluaran'];
-  const donutData   = allocRows2.length ? allocRows2.map(r=>r.amount) : [s.gaji||0];
-  donutLabels.push('Tabungan');
-  donutData.push(nabung);
-  chartAlloc = new Chart(allocCtx, {
+  const donutData   = allocRows2.length ? allocRows2.map(r=>r.amount) : [Math.max(0,(s.gaji||0)-nabung)];
+  donutLabels.push('Tabungan'); donutData.push(nabung);
+  chartAlloc = new Chart(document.getElementById('chart-alloc').getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: donutLabels,
-      datasets: [{ data: donutData,
-        backgroundColor: [...allocColors.slice(0,donutLabels.length-1),'#9b7ec8'], borderWidth: 0 }]
-    },
+    data: { labels: donutLabels, datasets: [{ data: donutData, backgroundColor: [...allocColors.slice(0,donutLabels.length-1),'#9b7ec8'], borderWidth: 0 }] },
     options: { responsive:true, maintainAspectRatio:false, cutout:'62%',
-      plugins: { legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:8}},
-        tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}} } }
+      plugins: { legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:8}}, tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}} } }
   });
-
-  // Bar
   const days = new Date(cYear,cMonth+1,0).getDate();
   const daily = Array(days).fill(0);
-  expTxs.forEach(tx => { const dd=parseInt(tx.date.split('-')[2])-1; if(dd>=0&&dd<days) daily[dd]+=tx.amount; });
-  const dailyCtx = document.getElementById('chart-daily').getContext('2d');
+  expTxs.forEach(tx => { const dd=parseInt(String(tx.date).split('-')[2])-1; if(dd>=0&&dd<days) daily[dd]+=tx.amount; });
   if (chartDaily) chartDaily.destroy();
-  chartDaily = new Chart(dailyCtx, {
+  chartDaily = new Chart(document.getElementById('chart-daily').getContext('2d'), {
     type: 'bar',
-    data: { labels: Array.from({length:days},(_,i)=>i+1),
-      datasets: [{ data:daily, backgroundColor:daily.map(v=>v>50000?'#c17a6f':'#7a9e8a'), borderRadius:4 }] },
-    options: { responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:9}}},
-        y:{grid:{color:'rgba(193,122,111,0.06)'},ticks:{font:{size:9},callback:v=>v>=1000?'Rp'+(v/1000)+'rb':''}}} }
+    data: { labels: Array.from({length:days},(_,i)=>i+1), datasets: [{ data:daily, backgroundColor:daily.map(v=>v>50000?'#c17a6f':'#7a9e8a'), borderRadius:4 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:9}}}, y:{grid:{color:'rgba(193,122,111,0.06)'},ticks:{font:{size:9},callback:v=>v>=1000?'Rp'+(v/1000)+'rb':''}}} }
   });
 }
 
 // ─── CATEGORIES ───────────────────────────────────────────────
 function updateCats() {
   const acc = document.getElementById('inp-acc').value;
-  document.getElementById('cat-list').innerHTML = (CATS[acc]||[]).map(c=>
-    `<button class="cat-btn" onclick="pickCat(this,'${c}')">${c}</button>`).join('');
+  document.getElementById('cat-list').innerHTML = (CATS[acc]||[]).map((c,i)=>
+    `<button class="cat-btn" onclick="pickCat(this,${i})">${esc(c)}</button>`).join('');
   document.getElementById('inp-cat').value = '';
 }
-function pickCat(btn, cat) {
+function pickCat(btn, i) {
+  const acc = document.getElementById('inp-acc').value;
   document.querySelectorAll('#cat-list .cat-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('inp-cat').value = cat;
+  document.getElementById('inp-cat').value = (CATS[acc]||[])[i] || '';
 }
 function renderIncomeCats() {
-  document.getElementById('income-cat-list').innerHTML = INCOME_CATS.map(c=>
-    `<button class="cat-btn" onclick="pickIncomeCat(this,'${c}')">${c}</button>`).join('');
+  document.getElementById('income-cat-list').innerHTML = INCOME_CATS.map((c,i)=>
+    `<button class="cat-btn" onclick="pickIncomeCat(this,${i})">${esc(c)}</button>`).join('');
   document.getElementById('inp-income-cat').value = '';
 }
-function pickIncomeCat(btn, cat) {
+function pickIncomeCat(btn, i) {
   document.querySelectorAll('#income-cat-list .cat-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('inp-income-cat').value = cat;
+  document.getElementById('inp-income-cat').value = INCOME_CATS[i];
 }
 function setTxType(type) {
   currentTxType = type;
@@ -693,35 +771,28 @@ function setTxType(type) {
 }
 
 // ─── SAVE TX ──────────────────────────────────────────────────
+let _savingTx = false;
 async function saveTx() {
+  if (_savingTx) return;                                   // [FIX] anti dobel tap
   const date = document.getElementById('inp-date').value;
-  const amount = parseInt(document.getElementById('inp-amount').value);
+  const amount = parseInt(String(document.getElementById('inp-amount').value).replace(/[^0-9]/g,''));
   const note = document.getElementById('inp-note').value.trim();
-
-  if (currentTxType === 'income') {
-    const cat = document.getElementById('inp-income-cat').value.trim();
-    if (!date||!cat||!amount||amount<=0) { toast('Isi tanggal, sumber, dan nominal'); return; }
+  const isIncome = currentTxType === 'income';
+  const cat = document.getElementById(isIncome ? 'inp-income-cat' : 'inp-cat').value.trim();
+  if (!date||!cat||!amount||amount<=0) { toast(isIncome ? 'Isi tanggal, sumber, dan nominal' : 'Isi tanggal, kategori, dan nominal'); return; }
+  _savingTx = true;
+  try {
     const d = await load();
-    const tx = { id:Date.now(), type:'income', date, cat, amount, note, at:new Date().toISOString() };
+    const tx = isIncome
+      ? { id:Date.now(), type:'income', date, acc:'', cat, amount, note, at:new Date().toISOString() }
+      : { id:Date.now(), type:'expense', date, acc:document.getElementById('inp-acc').value, cat, amount, note, at:new Date().toISOString() };
     d.txs.push(tx); await save(d); syncTx(tx);
     document.getElementById('inp-amount').value = '';
     document.getElementById('inp-note').value = '';
-    document.getElementById('inp-income-cat').value = '';
-    document.querySelectorAll('#income-cat-list .cat-btn').forEach(b=>b.classList.remove('active'));
-    toast('✓ Pemasukan disimpan'); await renderHome(); return;
-  }
-
-  const acc = document.getElementById('inp-acc').value;
-  const cat = document.getElementById('inp-cat').value.trim();
-  if (!date||!cat||!amount||amount<=0) { toast('Isi tanggal, kategori, dan nominal'); return; }
-  const d = await load();
-  const tx = { id:Date.now(), type:'expense', date, acc, cat, amount, note, at:new Date().toISOString() };
-  d.txs.push(tx); await save(d); syncTx(tx);
-  document.getElementById('inp-amount').value = '';
-  document.getElementById('inp-note').value = '';
-  document.getElementById('inp-cat').value = '';
-  document.querySelectorAll('#cat-list .cat-btn').forEach(b=>b.classList.remove('active'));
-  toast('✓ Pengeluaran disimpan'); await renderHome();
+    document.getElementById(isIncome ? 'inp-income-cat' : 'inp-cat').value = '';
+    document.querySelectorAll((isIncome ? '#income-cat-list' : '#cat-list') + ' .cat-btn').forEach(b=>b.classList.remove('active'));
+    toast(isIncome ? '✓ Pemasukan disimpan' : '✓ Pengeluaran disimpan'); await renderHome();
+  } finally { _savingTx = false; }
 }
 
 // ─── TX LIST ──────────────────────────────────────────────────
@@ -733,31 +804,33 @@ function setFilter(f, btn) {
 async function renderTxList() {
   const d = await load();
   const k = mKey(cYear, cMonth);
-  let txs = d.txs.filter(tx => tx.date.startsWith(k));
+  let txs = d.txs.filter(tx => String(tx.date).startsWith(k));
   if (txFilter==='income') txs = txs.filter(tx=>tx.type==='income');
-  txs.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  if (txFilter==='expense') txs = txs.filter(tx=>tx.type!=='income');
+  txs.sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.id-a.id);
   const el = document.getElementById('tx-list');
   if (!txs.length) { el.innerHTML='<div class="empty"><div class="empty-icon">🌸</div>Belum ada transaksi bulan ini</div>'; return; }
   el.innerHTML = txs.map(tx => {
     const isIncome = tx.type === 'income';
     const acc = isIncome ? {color:'#7a9e8a',bg:'#eaf2ed',emoji:'💰'} : (ACCS[tx.acc]||{color:'#c17a6f',bg:'#f5ede0',emoji:'👛'});
-    const dd = tx.date.split('-');
+    const dd = String(tx.date).split('-');
     return `<div class="tx-item">
       <div class="tx-icon" style="background:${acc.bg}">${acc.emoji}</div>
       <div class="tx-info">
-        <div class="tx-cat">${tx.cat}</div>
-        <div class="tx-meta">${isIncome?'Pemasukan':tx.acc} · ${dd[2]}/${dd[1]}${tx.note?' · '+tx.note:''}</div>
+        <div class="tx-cat">${esc(tx.cat)}</div>
+        <div class="tx-meta">${isIncome?'Pemasukan':esc(tx.acc)} · ${dd[2]}/${dd[1]}${tx.note?' · '+esc(tx.note):''}</div>
       </div>
       <div class="tx-right">
         <div class="tx-amount" style="color:${isIncome?'var(--sage)':'var(--coral)'}">${isIncome?'+':'-'}${fmt(tx.amount)}</div>
-        <button class="tx-del" onclick="delTx(${tx.id})">×</button>
+        <button class="tx-del" onclick="delTx('${tx.id}')">×</button>
       </div>
     </div>`;
   }).join('');
 }
 async function delTx(id) {
+  if (!confirm('Hapus transaksi ini?')) return;
   const d = await load();
-  d.txs = d.txs.filter(tx=>tx.id!==id);
+  d.txs = d.txs.filter(tx=>String(tx.id)!==String(id));    // [FIX] bandingin sebagai teks biar id dari Sheets tetap cocok
   await save(d); syncDelTx(id);
   await renderTxList(); await renderHome();
   toast('Transaksi dihapus');
@@ -777,18 +850,17 @@ async function renderGoals() {
     const perMonth = fulfilled ? 0 : Math.max(0,g.target-g.saved)/monthsLeft;
     return `<div class="goal-card" style="${fulfilled?'background:linear-gradient(135deg,#1a3a2a,#0d2a1a)':''}">
       <div class="goal-top">
-        <div class="goal-name">${g.name} ${fulfilled?'🎉':''}</div>
-        <button class="goal-del" onclick="event.stopPropagation();deleteGoal(${g.id})">Hapus</button>
+        <div class="goal-name">${esc(g.name)} ${fulfilled?'🎉':''}</div>
+        <button class="goal-del" onclick="event.stopPropagation();deleteGoal('${g.id}')">Hapus</button>
       </div>
       <div class="goal-amounts"><span class="goal-saved">${fmt(g.saved)}</span><span class="goal-target">/ ${fmt(g.target)}</span></div>
       <div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%;background:${fulfilled?'#7a9e8a':'#c9a96e'}"></div></div>
       <div class="goal-meta">
-        ${fulfilled ? '<span>✅ Target tercapai!</span><span>Yeay 🎊</span>'
-          : `<span>📅 ${daysLeft} hari lagi</span><span>~${fmt(perMonth)}/bulan</span>`}
+        ${fulfilled ? '<span>✅ Target tercapai!</span><span>Yeay 🎊</span>' : `<span>📅 ${daysLeft} hari lagi</span><span>~${fmt(perMonth)}/bulan</span>`}
       </div>
       <div class="goal-edit-row">
         <input type="number" placeholder="Update total tersimpan" id="goal-saved-${g.id}" inputmode="numeric">
-        <button onclick="updateGoalSaved(${g.id})">Simpan</button>
+        <button onclick="updateGoalSaved('${g.id}')">Simpan</button>
       </div>
     </div>`;
   }).join('');
@@ -816,6 +888,7 @@ async function updateGoalSaved(id) {
   toast('✓ Progress diupdate'); await renderGoals();
 }
 async function deleteGoal(id) {
+  if (!confirm('Hapus target ini?')) return;
   const d = await load();
   d.settings.goals = (d.settings.goals||[]).filter(g=>String(g.id)!==String(id));
   await save(d); syncSettings(d.settings);
@@ -830,16 +903,17 @@ async function renderNabung() {
   document.getElementById('nabung-target-permonth').textContent = fmt(nabung);
   const savings = d.savings || {};
   const months = [];
-  for (let i=5;i>=0;i--) {
-    let m=cMonth-i, y=cYear;
-    while(m<0){m+=12;y--;}
-    months.push({key:mKey(y,m),label:mShort(y,m),full:mLabel(y,m)});
-  }
-  const vals = months.map(mo=>savings[mo.key]||0);
-  document.getElementById('total-saved').textContent = fmt(Object.values(savings).reduce((a,b)=>a+b,0));
-  const ctx = document.getElementById('chart-save').getContext('2d');
+  for (let i=5;i>=0;i--) { let m=cMonth-i, y=cYear; while(m<0){m+=12;y--;} months.push({key:mKey(y,m),label:mShort(y,m),full:mLabel(y,m)}); }
+  const vals = months.map(mo=>Number(savings[mo.key])||0);
+  document.getElementById('total-saved').textContent = fmt(Object.values(savings).reduce((a,b)=>a+(Number(b)||0),0));
+  document.getElementById('save-list').innerHTML = months.map(mo=>
+    `<div class="save-item">
+      <div class="save-label">${mo.full}</div>
+      <input class="save-input" type="number" placeholder="0" value="${savings[mo.key]||''}" inputmode="numeric" onchange="recordSaving('${mo.key}',this.value)">
+    </div>`).join('');
+  if (typeof Chart === 'undefined') return;
   if (chartSave) chartSave.destroy();
-  chartSave = new Chart(ctx, {
+  chartSave = new Chart(document.getElementById('chart-save').getContext('2d'), {
     type: 'bar',
     data: { labels:months.map(m=>m.label), datasets:[
       {label:'Ditabung',data:vals,backgroundColor:'#9b7ec8',borderRadius:4},
@@ -847,18 +921,11 @@ async function renderNabung() {
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{labels:{font:{size:11},boxWidth:11}},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},
-        y:{grid:{color:'rgba(193,122,111,0.06)'},ticks:{font:{size:9},callback:v=>v>=1000000?'Rp'+(v/1000000).toFixed(1)+'jt':v>=1000?'Rp'+(v/1000)+'rb':''}}}}
+      scales:{x:{grid:{display:false},ticks:{font:{size:10}}}, y:{grid:{color:'rgba(193,122,111,0.06)'},ticks:{font:{size:9},callback:v=>v>=1000000?'Rp'+(v/1000000).toFixed(1)+'jt':v>=1000?'Rp'+(v/1000)+'rb':''}}}}
   });
-  document.getElementById('save-list').innerHTML = months.map(mo=>
-    `<div class="save-item">
-      <div class="save-label">${mo.full}</div>
-      <input class="save-input" type="number" placeholder="0" value="${savings[mo.key]||''}" inputmode="numeric" onchange="recordSaving('${mo.key}',this.value)">
-    </div>`).join('');
 }
 async function recordSaving(key, val) {
   const d = await load();
-  if (!d.savings) d.savings = {};
   const amt = parseInt(val)||0;
   d.savings[key] = amt; await save(d); syncSaving(key,amt);
   await renderNabung(); toast('✓ Tabungan dicatat');
@@ -876,18 +943,16 @@ async function renderSettings() {
   if (today.getDate() >= payday) ng = new Date(today.getFullYear(), today.getMonth()+1, payday);
   const diff = Math.ceil((ng-today)/86400000);
   document.getElementById('next-gajian').textContent = `${ng.toLocaleDateString('id-ID',{day:'numeric',month:'long'})} — ${diff} hari lagi`;
-  setInput('set-gaji', s.gaji || 0);
-  // Render alloc rows
-  const allocRows = s.alloc.rows || Array(10).fill(null).map(()=>({name:'',amount:0}));
+  if (document.activeElement !== document.getElementById('set-gaji')) setInput('set-gaji', s.gaji || 0);
   const allocEl = document.getElementById('alloc-rows');
-  if (allocEl) {
-    allocEl.innerHTML = allocRows.map((r,i)=>`
+  if (allocEl && !allocEl.contains(document.activeElement)) {
+    allocEl.innerHTML = s.alloc.rows.map((r,i)=>`
       <div class="alloc-row">
-        <input type="text" id="alloc-name-${i}" value="${r.name||''}" placeholder="Nama pos ${i+1}, mis. Transport"
-          style="flex:1;padding:7px 10px;border:1.5px solid var(--blush);border-radius:8px;font-size:12px;color:var(--ink);background:#fff;outline:none;font-family:'Poppins',sans-serif;min-width:0;margin-right:8px"
+        <input type="text" id="alloc-name-${i}" value="${esc(r.name)}" placeholder="Nama pos ${i+1}, mis. Transport"
+          style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);background:#fff;outline:none;font-family:'Poppins',sans-serif;min-width:0;margin-right:8px"
           onchange="saveAllocSettings()">
         <input type="text" id="alloc-amt-${i}" value="${r.amount>0?r.amount.toLocaleString('id-ID'):''}" placeholder="0"
-          style="width:110px;padding:7px 10px;border:1.5px solid var(--blush);border-radius:8px;font-size:12px;text-align:right;color:var(--ink);background:#fff;outline:none;font-family:'Poppins',sans-serif"
+          style="width:110px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;text-align:right;color:var(--text);background:#fff;outline:none;font-family:'Poppins',sans-serif"
           inputmode="numeric" oninput="fmtInput(this)" onchange="saveAllocSettings()">
       </div>`).join('');
   }
@@ -897,66 +962,59 @@ async function renderSettings() {
 }
 async function savePayday(val) {
   const d = await load();
-  if (!d.settings) d.settings = {};
-  d.settings.payday = parseInt(val) || 1;
+  d.settings.payday = Math.min(31, Math.max(1, parseInt(val) || 1));
   await save(d); syncSettings(d.settings);
-  renderSettings();
+  renderSettings(); renderHome();
 }
 async function saveAllocSettings() {
   const d = await load();
-  if (!d.settings) d.settings = {};
   d.settings.gaji = parseInput('set-gaji');
-  // Read alloc rows
   const rows = [];
   for (let i=0;i<10;i++) {
-    const nameEl = document.getElementById('alloc-name-'+i);
-    const amtEl  = document.getElementById('alloc-amt-'+i);
+    const nameEl = document.getElementById('alloc-name-'+i), amtEl = document.getElementById('alloc-amt-'+i);
     if (!nameEl||!amtEl) continue;
     rows.push({ name: nameEl.value.trim(), amount: parseFloat((amtEl.value||'0').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9]/g,''))||0 });
   }
-  if (!d.settings.alloc) d.settings.alloc = {};
-  d.settings.alloc.rows = rows;
+  d.settings.alloc = { rows };                              // [FIX] selalu objek → alokasi beneran kesimpan ke Sheets
   await save(d); syncSettings(d.settings);
   document.getElementById('set-nabung-display').textContent = fmt(nabungAmt(d.settings));
   toast('✓ Pengaturan disimpan'); await renderHome();
 }
-async function saveReminder(val) {
-  const d = await load(); if (!d.settings) d.settings={};
-  d.settings.rt = val; await save(d); syncSettings(d.settings);
-}
+async function saveReminder(val) { const d = await load(); d.settings.rt = val; await save(d); syncSettings(d.settings); }
 function toggleNotif(on) {
   if (on) {
+    if (!('Notification' in window)) { document.getElementById('tog-notif').checked=false; toast('Browser ini belum support notifikasi'); return; }
     Notification.requestPermission().then(async p => {
-      const d = await load(); if (!d.settings) d.settings={};
-      if (p==='granted') { d.settings.re=true; await save(d); toast('✓ Reminder aktif'); }
+      const d = await load();
+      if (p==='granted') { d.settings.re=true; await save(d); syncSettings(d.settings); toast('✓ Reminder aktif'); }
       else { document.getElementById('tog-notif').checked=false; toast('Izinkan notifikasi dulu'); }
     });
-  } else { load().then(async d=>{if(!d.settings)d.settings={};d.settings.re=false;await save(d);}); }
+  } else { load().then(async d=>{ d.settings.re=false; await save(d); syncSettings(d.settings); }); }
 }
 function startReminderCheck() {
   setInterval(async()=>{
-    const d=await load(),s=d.settings||{};
-    if(!s.re||Notification.permission!=='granted') return;
-    const now=new Date(),[h,m]=(s.rt||'21:00').split(':').map(Number);
-    if(now.getHours()===h&&now.getMinutes()===m)
+    const d=await load(), s=d.settings||{};
+    if(!s.re||!('Notification' in window)||Notification.permission!=='granted') return;
+    const now=new Date(), [h,m]=(s.rt||'21:00').split(':').map(Number), todayKey=localISO(now);
+    if(now.getHours()===h&&now.getMinutes()===m&&localStorage.getItem(NOTIF_LAST_KEY)!==todayKey){
+      localStorage.setItem(NOTIF_LAST_KEY,todayKey);
       new Notification('Keuangan Dara 🌸',{body:'Jangan lupa catat pengeluaran hari ini ya!'});
-  },60000);
+    }
+  },30000);
 }
 
-// ─── MANAGE ACC & CAT ────────────────────────────────────────
+// ─── MANAGE ACC & CAT (sekarang ikut tersimpan ke Sheets) ─────
+async function persistAccCats() { const d = await load(); storeAccCats(d.settings); await save(d); syncSettings(d.settings); }
 function renderAccManage() {
   const accNames = Object.keys(ACCS);
   const el = document.getElementById('acc-manage-list');
   if (!el) return;
-  if (!accNames.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text2);padding:.5rem 0">Belum ada rekening</div>'; return; }
   el.innerHTML = accNames.map(name =>
     `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(193,122,111,.08)">
-      <span style="font-size:13px">${ACCS[name].emoji} ${name}</span>
-      ${accNames.length > 1 ? `<button onclick="removeAcc('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1">×</button>` : ''}
-    </div>`
-  ).join('');
+      <span style="font-size:13px">${ACCS[name].emoji} ${esc(name)}</span>
+      ${accNames.length > 1 ? `<button onclick="removeAcc(${accNames.indexOf(name)})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1">×</button>` : ''}
+    </div>`).join('');
 }
-
 async function addAcc() {
   const name = document.getElementById('new-acc-name').value.trim();
   if (!name) { toast('Isi nama rekening dulu'); return; }
@@ -965,43 +1023,32 @@ async function addAcc() {
   ACCS[name] = { color: '#c9a96e', bg: '#faf0e0', emoji: emojis[Object.keys(ACCS).length % emojis.length] };
   CATS[name] = ['Makan','Transport','Jajan','Belanja','Lainnya'];
   document.getElementById('new-acc-name').value = '';
-  // Save to settings
-  const d = await load();
-  if (!d.settings.accounts) d.settings.accounts = [];
-  d.settings.accounts.push({ name, color: ACCS[name].color, bg: ACCS[name].bg, emoji: ACCS[name].emoji });
-  await save(d); syncSettings(d.settings);
-  // Update acc dropdown
-  updateAccSelect();
-  renderAccManage();
-  renderCatManage();
+  await persistAccCats();
+  updateAccSelect(); renderAccManage(); renderCatManage(); renderHome();
   toast('✓ Rekening ditambahkan');
 }
-
-function removeAcc(name) {
-  if (Object.keys(ACCS).length <= 1) { toast('Minimal 1 rekening'); return; }
-  delete ACCS[name];
-  delete CATS[name];
-  updateAccSelect();
-  renderAccManage();
-  renderCatManage();
+async function removeAcc(i) {
+  const name = Object.keys(ACCS)[i];
+  if (!name || Object.keys(ACCS).length <= 1) { toast('Minimal 1 rekening'); return; }
+  if (!confirm(`Hapus rekening "${name}"? Transaksi lamanya tetap ada.`)) return;
+  delete ACCS[name]; delete CATS[name];
+  await persistAccCats();
+  updateAccSelect(); renderAccManage(); renderCatManage(); renderHome();
   toast('Rekening dihapus');
 }
-
 function renderCatManage() {
   const acc = document.getElementById('inp-acc').value;
   const cats = CATS[acc] || [];
   const el = document.getElementById('cat-manage-list');
   if (!el) return;
-  el.innerHTML = `<div style="font-size:11px;color:var(--text2);margin-bottom:6px">Kategori untuk: <b>${acc}</b></div>` +
+  el.innerHTML = `<div style="font-size:11px;color:var(--text2);margin-bottom:6px">Kategori untuk: <b>${esc(acc)}</b></div>` +
     cats.map((c,i) =>
       `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(193,122,111,.08)">
-        <span style="font-size:13px">${c}</span>
+        <span style="font-size:13px">${esc(c)}</span>
         <button onclick="removeCat(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1">×</button>
-      </div>`
-    ).join('');
+      </div>`).join('');
 }
-
-function addCat() {
+async function addCat() {
   const name = document.getElementById('new-cat-name').value.trim();
   const acc = document.getElementById('inp-acc').value;
   if (!name) { toast('Isi nama kategori dulu'); return; }
@@ -1009,24 +1056,22 @@ function addCat() {
   if (CATS[acc].includes(name)) { toast('Kategori sudah ada'); return; }
   CATS[acc].push(name);
   document.getElementById('new-cat-name').value = '';
-  updateCats();
-  renderCatManage();
+  await persistAccCats();
+  updateCats(); renderCatManage();
   toast('✓ Kategori ditambahkan');
 }
-
-function removeCat(idx) {
+async function removeCat(idx) {
   const acc = document.getElementById('inp-acc').value;
   if (!CATS[acc]) return;
   CATS[acc].splice(idx, 1);
-  updateCats();
-  renderCatManage();
+  await persistAccCats();
+  updateCats(); renderCatManage();
   toast('Kategori dihapus');
 }
-
 function updateAccSelect() {
   const sel = document.getElementById('inp-acc');
   const cur = sel.value;
-  sel.innerHTML = Object.keys(ACCS).map(a => `<option value="${a}">${a}</option>`).join('');
+  sel.innerHTML = Object.keys(ACCS).map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
   if (ACCS[cur]) sel.value = cur;
   updateCats();
 }
@@ -1036,28 +1081,30 @@ async function exportCSV() {
   const d = await load();
   if (!d.txs.length) { toast('Belum ada data'); return; }
   const rows = [['Tanggal','Tipe','Rekening','Kategori','Nominal','Keterangan']];
-  d.txs.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(tx=>{
+  d.txs.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(tx=>{
     const isIncome = tx.type==='income';
     rows.push([tx.date,isIncome?'Pemasukan':'Pengeluaran',isIncome?'-':tx.acc,tx.cat,tx.amount,tx.note||'']);
   });
-  const csv = '\uFEFF'+rows.map(r=>r.map(c=>'"'+c+'"').join(',')).join('\n');
+  const csv = '\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href=url; a.download='keuangan-dara-'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
+  a.href=url; a.download='keuangan-dara-'+localISO(new Date())+'.csv'; a.click();
   URL.revokeObjectURL(url); toast('✓ CSV berhasil didownload');
 }
 
 // ─── CLEAR ────────────────────────────────────────────────────
 async function clearAll() {
-  if (confirm('Yakin mau hapus semua data?')) {
-    localStorage.removeItem(LOCAL_KEY);
-    await renderHome(); await renderTxList(); await renderNabung();
-    toast('Data dihapus');
-  }
+  if (!confirm('Hapus data yang tersimpan di HP ini?\n\nData di Google Sheets tetap aman dan bakal dimuat ulang. Buat hapus permanen, hapus langsung dari Google Sheets-nya.')) return;
+  localStorage.removeItem(LOCAL_KEY); _data = null;
+  await load(); await load(true);
+  updateAccSelect(); await renderHome(); await renderTxList(); await renderNabung(); renderSettings();
+  toast('Data di HP dibersihin & dimuat ulang');
 }
 
-init();
+// ─── MULAI ────────────────────────────────────────────────────
+if (authed()) { document.getElementById('gate').style.display = 'none'; init(); }
+else setTimeout(() => document.getElementById('gate-pw').focus(), 200);
 </script>
 </body>
 </html>
