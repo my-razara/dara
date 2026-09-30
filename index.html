@@ -1070,6 +1070,97 @@ window.navGo = k => {
 };
 
 greet(); renderChips(); renderRows(); setNav('home');
+
+// ═════════ KANTONG (KEUANGAN): login lebih cepat ═════════
+// 1) status "password udah diset" diingat di HP → kolom password langsung muncul, nggak nunggu "Memeriksa..."
+// 2) script keuangan "dibangunin" diam-diam pas website dibuka → cek password jadi lebih cepat
+// 3) opsi "Ingat di HP ini" 30 hari → langsung masuk tanpa password
+const KEU_HAS = u => 'keu-haspw-' + u, KEU_REM = u => 'keu-remember-' + u, REM_DAYS = 30;
+function keuShowLogin() {
+  $('keu-loading').style.display = 'none';
+  $('keu-subtitle').textContent = 'Masukkan password untuk masuk';
+  $('keu-login').style.display = 'block';
+  setTimeout(() => $('keu-pw-input').focus(), 100);
+}
+function keuShowSetup() {
+  $('keu-loading').style.display = 'none'; $('keu-login').style.display = 'none';
+  $('keu-subtitle').textContent = 'Pertama kali masuk — buat password dulu!';
+  $('keu-setup').style.display = 'block';
+  setTimeout(() => $('keu-pw-new').focus(), 100);
+}
+// checkbox "Ingat di HP ini" (ditambahin sekali ke form login yang udah ada)
+(function () {
+  const btn = $('keu-login').querySelector('button[onclick="keuLoginSubmit()"]');
+  if (btn && !$('keu-remember')) btn.insertAdjacentHTML('beforebegin', `<label style="display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:11.5px;color:var(--muted);margin:.1rem 0 .7rem;cursor:pointer"><input type="checkbox" id="keu-remember"> Ingat di HP ini (${REM_DAYS} hari)</label>`);
+})();
+const _openKeuangan = openKeuangan;
+openKeuangan = function (user) {
+  const cfg = KEU_CONFIG[user];
+  // udah diingat → langsung masuk
+  const rem = LS.get(KEU_REM(user), 0);
+  if (rem && Date.now() < rem) {
+    keuUser = user;
+    $('keu-icon').textContent = '💰'; $('keu-title').textContent = cfg.label;
+    $('keu-subtitle').innerHTML = `Membuka... 💰<br><a href="#" id="keu-forget" style="font-size:11px;color:var(--muted)">Batal & minta password lagi</a>`;
+    ['keu-loading', 'keu-setup', 'keu-login', 'keu-setup-err', 'keu-login-err'].forEach(id => $(id).style.display = 'none');
+    $('keu-overlay').style.display = 'flex';
+    const go = setTimeout(() => { keuClose(); window.location.href = cfg.link; }, 700);
+    $('keu-forget').onclick = e => { e.preventDefault(); clearTimeout(go); LS.set(KEU_REM(user), 0); openKeuangan(user); };
+    return;
+  }
+  if (!LS.get(KEU_HAS(user), false)) return _openKeuangan(user);   // belum tau → cara lama (sekali aja)
+  // udah tau password udah diset → langsung tampilin kolom password
+  keuUser = user;
+  $('keu-icon').textContent = '💰'; $('keu-title').textContent = cfg.label;
+  ['keu-setup', 'keu-setup-err', 'keu-login-err'].forEach(id => $(id).style.display = 'none');
+  $('keu-overlay').style.display = 'flex';
+  keuShowLogin();
+  if ($('keu-remember')) $('keu-remember').checked = false;
+  // cek ulang diam-diam (sekalian bangunin script)
+  keuXhr('GET', cfg.url + '?key=' + cfg.key + '&action=hasPassword', null, (err, data) => {
+    if (err || !data || keuUser !== user) return;
+    if (data.hasPassword === false) { LS.set(KEU_HAS(user), false); if ($('keu-login').style.display !== 'none' && !$('keu-pw-input').value) keuShowSetup(); }
+  });
+};
+// catat hasil pengecekan pertama
+const _keuXhr = keuXhr;
+keuXhr = function (method, url, body, cb) {
+  _keuXhr(method, url, body, (err, data) => {
+    try {
+      const u = Object.keys(KEU_CONFIG).find(k => url.indexOf(KEU_CONFIG[k].url) === 0);
+      if (u && !err && data) {
+        if (/action=hasPassword/.test(url) && typeof data.hasPassword === 'boolean') LS.set(KEU_HAS(u), data.hasPassword);
+        if (method === 'POST' && data.status === 'ok' && /setPassword/.test(body || '')) LS.set(KEU_HAS(u), true);
+      }
+    } catch (e) {}
+    cb(err, data);
+  });
+};
+keuLoginSubmit = function () {
+  const pw = $('keu-pw-input').value.trim(); if (!pw) return;
+  const user = keuUser, cfg = KEU_CONFIG[user], remember = $('keu-remember') && $('keu-remember').checked;
+  $('keu-login-err').style.display = 'none'; $('keu-login').style.display = 'none';
+  $('keu-loading').style.display = 'block'; $('keu-subtitle').textContent = 'Memeriksa password...';
+  keuXhr('GET', cfg.url + '?key=' + cfg.key + '&action=checkPassword&password=' + encodeURIComponent(pw), null, (err, data) => {
+    $('keu-loading').style.display = 'none';
+    if (!err && data && data.valid) {
+      LS.set(KEU_HAS(user), true);
+      if (remember) LS.set(KEU_REM(user), Date.now() + REM_DAYS * 864e5);
+      keuClose(); window.location.href = cfg.link;
+    } else {
+      $('keu-login').style.display = 'block';
+      $('keu-login-err').style.display = err ? 'none' : 'block';
+      $('keu-pw-input').value = '';
+      $('keu-subtitle').textContent = err ? 'Gagal koneksi, coba lagi 🙏' : 'Masukkan password untuk masuk';
+      setTimeout(() => $('keu-pw-input').focus(), 100);
+    }
+  });
+};
+// bangunin script keuangan diam-diam sekali per sesi, biar pas dibuka udah siap
+setTimeout(() => {
+  try { if (sessionStorage.getItem('keu-warm')) return; sessionStorage.setItem('keu-warm', '1'); } catch (e) {}
+  Object.keys(KEU_CONFIG).forEach(u => { const c = KEU_CONFIG[u]; if (c && c.url) keuXhr('GET', c.url + '?key=' + c.key + '&action=hasPassword', null, () => {}); });
+}, 1500);
 })();
 </script>
 </body>
