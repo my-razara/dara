@@ -211,7 +211,8 @@ async function login(saved) {
   try {
     await api('check');
     if (!saved && $('remember').checked) { try { localStorage.setItem('mem-pw', pw); } catch {} }
-    show('s-home'); loadAlbums();
+    if (!$('s-home').classList.contains('active') && !$('s-album').classList.contains('active')) show('s-home');
+    loadAlbums();
   } catch (e) {
     try { localStorage.removeItem('mem-pw'); } catch {}
     show('s-gate');
@@ -225,14 +226,22 @@ async function loadAlbums(fresh) {
   if (!DATA) $('album-list').innerHTML = `<div class="albums">${Array(4).fill('<div class="album"><div class="cover skel"></div><div class="a-info"><b>&nbsp;</b><small>&nbsp;</small></div></div>').join('')}</div>`;
   $('refresh').classList.add('spin');
   try {
-    DATA = await api('albums', '', fresh);
-    try { sessionStorage.setItem('mem-albums', JSON.stringify(DATA)); } catch {}
-    renderHome();
-    if (fresh) { randomItems = null; toast('✨ Udah paling baru'); }
+    let d;
+    try {
+      // cara cepat: semua data (album + isi + random) sekali ambil
+      d = await api('all', '', fresh);
+      d.full = true; d.random = { count: d.random.items.length, cover: d.random.cover, items: d.random.items };
+    } catch (e) { if (e.code !== 'action') throw e; d = await api('albums', '', fresh); } // script versi lama
+    const changed = !DATA || JSON.stringify(DATA.albums) !== JSON.stringify(d.albums) || (DATA.random && DATA.random.count) !== d.random.count;
+    DATA = d;
+    try { localStorage.setItem('mem-idx', JSON.stringify(DATA)); } catch {}
+    if (DATA.full) randomItems = DATA.random.items;
+    if (changed || fresh) { renderHome(); if (randomItems && $('tab-random').style.display !== 'none') renderGrid($('random-grid'), randomItems, '🎲 Random'); }
+    if (fresh) { if (!DATA.full) randomItems = null; toast('✨ Udah paling baru'); }
   } catch (e) { if (e.code === 'password') return logout(); $('album-list').innerHTML = `<div class="empty">😢 Gagal ngambil kenangan.<br>${esc(e.message)}</div>`; }
   $('refresh').classList.remove('spin');
 }
-function refresh() { loadAlbums(true); if ($('tab-random').style.display !== 'none') loadRandom(true); }
+function refresh() { loadAlbums(true).then(() => { if (!(DATA && DATA.full) && $('tab-random').style.display !== 'none') loadRandom(true); }); }
 
 function renderHome() {
   const A = DATA.albums;
@@ -263,7 +272,7 @@ function renderAlbums() {
 function setTab(t) {
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   $('tab-albums').style.display = t === 'albums' ? '' : 'none'; $('tab-random').style.display = t === 'random' ? '' : 'none';
-  if (t === 'random' && !randomItems) loadRandom();
+  if (t === 'random' && (!randomItems || !$('random-grid').querySelector('.cell'))) loadRandom();
 }
 
 // ═══ ISI ALBUM ═══
@@ -273,12 +282,14 @@ async function openAlbum(id) {
   $('al-sub').textContent = a ? `${a.date ? HARI[parseD(a.date).getDay()] + ' · ' : ''}${a.photos} foto${a.videos ? ` · ${a.videos} video` : ''}${a.date ? ' · ' + ago(a.date) : ''}` : '';
   $('al-grid').innerHTML = `<div class="grid">${Array(Math.min(12, a ? a.photos + a.videos : 9)).fill('<div class="cell skel"></div>').join('')}</div>`;
   show('s-album');
+  if (a && a.items) return renderGrid($('al-grid'), a.items, $('al-title').textContent);   // udah ada, langsung tampil
   try {
     const d = await api('album', '&id=' + encodeURIComponent(id));
     renderGrid($('al-grid'), d.items, $('al-title').textContent);
   } catch (e) { if (e.code === 'password') return logout(); $('al-grid').innerHTML = `<div class="empty">😢 Gagal buka album.<br>${esc(e.message)}</div>`; }
 }
 async function loadRandom(fresh) {
+  if (!fresh && DATA && DATA.full) { randomItems = DATA.random.items; return renderGrid($('random-grid'), randomItems, '🎲 Random'); }
   $('random-grid').innerHTML = `<div class="grid">${Array(9).fill('<div class="cell skel"></div>').join('')}</div>`;
   try { const d = await api('random', '', fresh); randomItems = d.items; renderGrid($('random-grid'), randomItems, '🎲 Random'); }
   catch (e) { if (e.code === 'password') return logout(); $('random-grid').innerHTML = `<div class="empty">😢 Gagal ngambil foto random.<br>${esc(e.message)}</div>`; }
@@ -334,13 +345,13 @@ function renderViewer() {
 })();
 document.addEventListener('keydown', e => { if (!$('viewer').classList.contains('show')) return; if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); if (e.key === 'Escape') closeViewer(); });
 
-function logout() { try { localStorage.removeItem('mem-pw'); } catch {} PW = ''; DATA = null; show('s-gate'); $('gate-err').textContent = 'Password berubah, masuk lagi ya 🤍'; }
+function logout() { try { localStorage.removeItem('mem-pw'); localStorage.removeItem('mem-idx'); } catch {} PW = ''; DATA = null; show('s-gate'); $('gate-err').textContent = 'Password berubah, masuk lagi ya 🤍'; }
 
 // ═══ MULAI ═══
 (function init() {
   if (!API_URL) return show('s-setup');
   let saved = null; try { saved = localStorage.getItem('mem-pw'); } catch {}
-  try { const c = sessionStorage.getItem('mem-albums'); if (c && saved) { DATA = JSON.parse(c); PW = saved; show('s-home'); renderHome(); } } catch {}
+  try { const c = localStorage.getItem('mem-idx'); if (c && saved) { DATA = JSON.parse(c); PW = saved; if (DATA.full) randomItems = DATA.random.items; show('s-home'); renderHome(); } } catch {}
   if (saved) { if (!DATA) show('s-gate'); PW = saved; login(saved); } else show('s-gate');
 })();
 </script>
