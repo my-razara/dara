@@ -122,15 +122,44 @@
     .empty-icon{font-size:36px;margin-bottom:8px}
     .gajian-badge{background:var(--teal-l);color:var(--teal);font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;text-align:center;margin-bottom:10px}
     .warning-badge{background:var(--coral-l);color:var(--coral);font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;text-align:center;margin-bottom:10px}
+    /* GATE LOGIN + tombol balik */
+    .header-left{display:flex;align-items:center;gap:8px}
+    .back-home{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text2);text-decoration:none;font-size:14px;flex-shrink:0}
+    #gate{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center}
+    #gate .g-ico{font-size:3.2rem;margin-bottom:.6rem}
+    #gate h2{font-size:1.3rem;font-weight:700;color:var(--text)}
+    #gate p{font-size:12.5px;color:var(--text2);margin:.3rem 0 1.2rem;line-height:1.6}
+    #gate input[type=password]{width:100%;max-width:300px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:1.1rem;text-align:center;letter-spacing:.15em;margin-bottom:.6rem;outline:none;font-family:'Poppins',sans-serif}
+    #gate input[type=password]:focus{border-color:var(--teal)}
+    #gate label{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:11.5px;color:var(--text2);margin-bottom:.9rem;cursor:pointer}
+    #gate button{width:100%;max-width:300px;padding:12px;border:none;border-radius:var(--rs);background:var(--teal);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif}
+    #gate button:disabled{opacity:.6}
+    #gate a{display:block;margin-top:.9rem;font-size:12px;color:var(--text2);text-decoration:none}
+    #gate .g-err{font-size:12px;color:var(--coral);margin-top:.6rem;min-height:1em}
   </style>
 </head>
 <body>
 
+<!-- GATE: muncul kalau halaman dibuka tanpa login dari index -->
+<div id="gate">
+  <div class="g-ico">💰</div>
+  <h2>Kantong Razan</h2>
+  <p>Masukkan password dulu ya</p>
+  <input type="password" id="gate-pw" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')gateSubmit()">
+  <label><input type="checkbox" id="gate-remember"> Ingat di HP ini (30 hari)</label>
+  <button id="gate-btn" onclick="gateSubmit()">Masuk</button>
+  <div class="g-err" id="gate-err"></div>
+  <a href="index.html">← Kembali ke beranda</a>
+</div>
+
 <div class="header">
   <div class="header-row">
-    <div>
-      <h1>💰 Keuangan Razan</h1>
-      <div class="header-date" id="hdr-date"></div>
+    <div class="header-left">
+      <a class="back-home" href="index.html" title="Kembali ke beranda">←</a>
+      <div>
+        <h1>💰 Keuangan Razan</h1>
+        <div class="header-date" id="hdr-date"></div>
+      </div>
     </div>
     <div class="month-nav">
       <button onclick="changeMonth(-1)">‹</button>
@@ -280,6 +309,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
 const LOCAL_KEY = 'razan_dompet_v1';
+const PENDING_KEY = 'razan_dompet_pending_v1';   // [FIX #1] antrean sync yang belum terkirim
+const NOTIF_LAST_KEY = 'razan_notif_last';        // [FIX #4] cegah notif dobel / kelewat
 const GS_URL    = 'https://script.google.com/macros/s/AKfycbzLjVJHq_wIAXnTrJ07h1ET_-_RAw_gFte8TyhpNdc3ftmQh0_jMbfAtkPZArqhES3S/exec';
 const GS_SKEY   = 'razan123';
 function getGsUrl()  { return GS_URL; }
@@ -302,14 +333,17 @@ let txFilter = 'all';
 let chartAlloc, chartDaily, chartSave;
 let _dataCache = null, _dataCacheDirty = true;
 
+// [FIX #8] default alokasi disamakan di def() dan ensureShape()
+const DEFAULT_ALLOC = {cash:1300000,seabank:1000000,bniwondr:315000,adminbca:10000,sedekah:200000};
+
 function def() {
-  return { txs: [], savings: {}, settings: { rt:'21:00', re:false, goals:[], gaji:3850000, alloc:{cash:1300000,seabank:1000000,bniwondr:315000,adminbca:10000,sedekah:200000} } };
+  return { txs: [], savings: {}, settings: { rt:'21:00', re:false, goals:[], gaji:3850000, alloc:Object.assign({},DEFAULT_ALLOC) } };
 }
 function ensureShape(d) {
   if (!d.settings) d.settings = {};
   if (!d.settings.goals) d.settings.goals = [];
   if (typeof d.settings.gaji !== 'number') d.settings.gaji = 3850000;
-  if (!d.settings.alloc) d.settings.alloc = {cash:1300000,seabank:500000,bniwondr:315000,adminbca:10000};
+  if (!d.settings.alloc) d.settings.alloc = Object.assign({},DEFAULT_ALLOC);
   if (d.settings.alloc.ortu !== undefined) { d.settings.alloc.cash=(d.settings.alloc.ortu||0)+(d.settings.alloc.adek||0); delete d.settings.alloc.ortu; delete d.settings.alloc.adek; }
   if (d.settings.alloc.bcablu !== undefined) { d.settings.alloc.seabank=(d.settings.alloc.seabank||0)+(d.settings.alloc.bcablu||0); delete d.settings.alloc.bcablu; }
   if (d.settings.alloc['bca blu'] !== undefined) { d.settings.alloc.seabank=(d.settings.alloc.seabank||0)+(d.settings.alloc['bca blu']||0); delete d.settings.alloc['bca blu']; }
@@ -320,6 +354,9 @@ function kromAmt(s) {
   const a = s.alloc || {};
   return Math.max(0,(Number(s.gaji)||0)-((Number(a.cash)||0)+(Number(a.seabank)||0)+(Number(a.bniwondr)||0)+(Number(a.adminbca)||0)+(Number(a.sedekah)||0)));
 }
+
+// [FIX #7] escape teks sebelum masuk innerHTML
+function esc(s) { return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function xhrGet(url, cb) {
   const xhr = new XMLHttpRequest();
@@ -364,10 +401,64 @@ function fromLocal() {
   try { return normalizeTxs(ensureShape(JSON.parse(localStorage.getItem(LOCAL_KEY)) || def())); } catch { return def(); }
 }
 
+// ─── [FIX #1] ANTREAN SYNC ─────────────────────────────────────
+// Setiap perubahan masuk antrean dulu, baru dikirim ke GS.
+// Kalau gagal (offline / error), tetap di antrean & dikirim ulang nanti.
+// Data dari GS ditimpa perubahan yang masih di antrean, jadi nggak ada yang hilang.
+let _flushing = false;
+function getPending() { try { return JSON.parse(localStorage.getItem(PENDING_KEY)) || []; } catch { return []; } }
+function setPending(q) { localStorage.setItem(PENDING_KEY, JSON.stringify(q)); }
+function gsPostRaw(action, extra) {
+  return new Promise((resolve) => { xhrPost(getGsUrl(), Object.assign({key:getGsSkey(),action},extra||{}), (err,res)=>resolve(err?null:res)); });
+}
+// semua perubahan yang ngantre dikirim SEKALIGUS (1 request) — dulu satu-satu
+async function flushPending() {
+  if (_flushing) return;
+  _flushing = true;
+  try {
+    while (getPending().length) {
+      const ops = getPending().slice(0, 40);
+      const res = await gsPostRaw('saveBatch', { ops });
+      if (!res) break;                                              // offline / network error → coba lagi nanti
+      if (res.error === 'Unknown action') {                         // script lama → kirim satu-satu kayak dulu
+        const op = getPending()[0];
+        const r1 = await gsPostRaw(op.action, op.extra);
+        if (!r1) break;
+        if (r1.status !== 'ok' && r1.error === 'Unauthorized') break;
+        const q = getPending(); q.shift(); setPending(q);
+        continue;
+      }
+      if (res.error === 'Unauthorized') break;                      // key salah → jangan buang antrean
+      setPending(getPending().slice(ops.length));                   // sukses
+    }
+  } finally { _flushing = false; }
+}
+function applyPending(d) {
+  getPending().forEach(op => {
+    const x = op.extra || {};
+    if (op.action === 'saveTx' && x.data) {
+      if (!d.txs.some(t => String(t.id) === String(x.data.id))) d.txs.push(Object.assign({}, x.data));
+    } else if (op.action === 'deleteTx') {
+      d.txs = d.txs.filter(t => String(t.id) !== String(x.id));
+    } else if (op.action === 'saveSaving') {
+      d.savings[x.month] = Number(x.amount) || 0;
+    } else if (op.action === 'saveSettings' && x.data) {
+      d.settings = Object.assign({}, d.settings, x.data);
+    }
+  });
+  return d;
+}
+function dedupeTxs(d) {
+  const seen = new Set();
+  d.txs = d.txs.filter(t => { const k = String(t.id); if (seen.has(k)) return false; seen.add(k); return true; });
+  return d;
+}
+
 async function load(forceNetwork) {
   if (!forceNetwork && _dataCache && !_dataCacheDirty) return _dataCache;
   const url = getGsUrl(), skey = getGsSkey();
   if (!url || !skey) { _dataCache = fromLocal(); _dataCacheDirty = false; return _dataCache; }
+  if (forceNetwork) await flushPending();
   return new Promise((resolve) => {
     if (_dataCache && !_dataCacheDirty && !forceNetwork) { resolve(_dataCache); return; }
     xhrGet(url + '?key=' + encodeURIComponent(skey), (err, d) => {
@@ -380,7 +471,10 @@ async function load(forceNetwork) {
         if (!tx.type||tx.type==='') { tx.type=(INCOME_CATS.includes(tx.cat)||!tx.acc||tx.acc===''||tx.acc==='-')?'income':'expense'; }
         return tx;
       });
+      applyPending(d);
+      ensureShape(d);
       normalizeTxs(d);
+      dedupeTxs(d);
       localStorage.setItem(LOCAL_KEY, JSON.stringify(d));
       _dataCache = d; _dataCacheDirty = false;
       resolve(d);
@@ -388,8 +482,10 @@ async function load(forceNetwork) {
   });
 }
 async function save(d) { localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); _dataCache = d; _dataCacheDirty = false; }
+let _flushTimer = null;
 async function gsPost(action, extra) {
-  return new Promise((resolve) => { xhrPost(getGsUrl(), Object.assign({key:getGsSkey(),action},extra||{}),(err,res)=>resolve(res)); });
+  const q = getPending(); q.push({ action, extra: extra || {} }); setPending(q);
+  clearTimeout(_flushTimer); _flushTimer = setTimeout(flushPending, 400);   // tunggu sebentar biar input beruntun kekirim bareng
 }
 async function syncTx(tx)          { await gsPost('saveTx', {data:tx}); }
 async function syncDelTx(id)       { await gsPost('deleteTx', {id}); }
@@ -428,7 +524,11 @@ function changeMonth(d) {
   const nd=new Date(cYear,cMonth+d,1); cYear=nd.getFullYear(); cMonth=nd.getMonth();
   document.getElementById('month-label').textContent=mLabel(cYear,cMonth);
   clearTimeout(_changeMonthTimer);
-  _changeMonthTimer=setTimeout(async()=>{await renderHome();renderTxList();},180);
+  _changeMonthTimer=setTimeout(async()=>{
+    await renderHome();renderTxList();
+    // [FIX #5] tab Nabung ikut di-update kalau lagi dibuka
+    if(document.getElementById('tab-nabung').classList.contains('active')) renderNabung();
+  },180);
 }
 
 async function init() {
@@ -439,7 +539,8 @@ async function init() {
   updateCats();
   _dataCache=fromLocal(); _dataCacheDirty=false;
   await renderHome(); renderSettings();
-  setTimeout(async()=>{ await load(true); await renderHome(); await renderNabung(); renderTxList(); },100);
+  setTimeout(async()=>{ await load(true); await renderHome(); await renderNabung(); renderTxList(); renderSettings(); },100);
+  window.addEventListener('online', ()=>flushPending()); // [FIX #1] kirim ulang antrean begitu online lagi
   startReminderCheck();
 }
 
@@ -512,13 +613,14 @@ async function renderTxList() {
   const ed=new Date(cYear,cMonth+1,25), end=`${ed.getFullYear()}-${String(ed.getMonth()+1).padStart(2,'0')}-25`;
   let txs=d.txs.filter(tx=>tx.date>=start&&tx.date<=end);
   if(txFilter==='income') txs=txs.filter(tx=>tx.type==='income');
-  else if(txFilter!=='all') txs=txs.filter(tx=>tx.type!=='income'&&tx.acc===txFilter);
+  // [FIX #9] data lama 'bca blu' ikut muncul di filter SeaBank
+  else if(txFilter!=='all') txs=txs.filter(tx=>tx.type!=='income'&&(tx.acc===txFilter||(txFilter==='SeaBank'&&tx.acc==='bca blu')));
   txs.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
   const el=document.getElementById('tx-list');
   if(!txs.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>Belum ada transaksi bulan ini</div>';return;}
   el.innerHTML=txs.map(tx=>{
     const isIncome=tx.type==='income', acc=isIncome?{color:'#1D9E75',bg:'#E1F5EE',emoji:'💵'}:(ACCS[tx.acc]||{color:'#888',bg:'#eee',emoji:'💳'}), dd=tx.date.split('-');
-    return `<div class="tx-item"><div class="tx-icon" style="background:${acc.bg}">${acc.emoji}</div><div class="tx-info"><div class="tx-cat">${tx.cat}</div><div class="tx-meta">${isIncome?'Pemasukan':(tx.acc==='bca blu'?'SeaBank':tx.acc)} · ${dd[2]}/${dd[1]}${tx.note?' · '+tx.note:''}</div></div><div class="tx-right"><div class="tx-amount" style="color:${isIncome?'var(--teal)':'var(--coral)'}">${isIncome?'+':'-'}${fmt(tx.amount)}</div><button class="tx-del" onclick="delTx(${tx.id})">×</button></div></div>`;
+    return `<div class="tx-item"><div class="tx-icon" style="background:${acc.bg}">${acc.emoji}</div><div class="tx-info"><div class="tx-cat">${esc(tx.cat)}</div><div class="tx-meta">${isIncome?'Pemasukan':esc(tx.acc==='bca blu'?'SeaBank':tx.acc)} · ${dd[2]}/${dd[1]}${tx.note?' · '+esc(tx.note):''}</div></div><div class="tx-right"><div class="tx-amount" style="color:${isIncome?'var(--teal)':'var(--coral)'}">${isIncome?'+':'-'}${fmt(tx.amount)}</div><button class="tx-del" onclick="delTx(${tx.id})">×</button></div></div>`;
   }).join('');
 }
 async function delTx(id) { const d=await load(); d.txs=d.txs.filter(tx=>tx.id!==id); await save(d);syncDelTx(id);await renderTxList();await renderHome();toast('Transaksi dihapus'); }
@@ -528,11 +630,17 @@ async function renderGoals() {
   if(!goals.length){el.innerHTML='<div class="empty" style="padding:1rem"><div class="empty-icon">🎯</div>Belum ada target. Bikin di bawah.</div>';return;}
   el.innerHTML=goals.map(g=>{
     const pct=Math.min(100,(g.saved/g.target)*100), fulfilled=g.saved>=g.target, daysLeft=Math.max(0,Math.ceil((new Date(g.deadline)-new Date())/86400000)), monthsLeft=Math.max(1,Math.round(daysLeft/30)), perMonth=fulfilled?0:Math.max(0,g.target-g.saved)/monthsLeft;
-    return `<div class="goal-card" style="${fulfilled?'background:linear-gradient(135deg,#1a4a1a,#0d3b0d)':''}"><div class="goal-top"><div class="goal-name">${g.name} ${fulfilled?'🎉':''}</div><button class="goal-del" onclick="event.stopPropagation();deleteGoal(${g.id})">Hapus</button></div><div class="goal-amounts"><span class="goal-saved">${fmt(g.saved)}</span><span class="goal-target">/ ${fmt(g.target)}</span></div><div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%;background:${fulfilled?'#5CDB5C':'#E8C55A'}"></div></div><div class="goal-meta">${fulfilled?'<span>✅ Target tercapai!</span><span>Lunas 🎊</span>':`<span>📅 ${daysLeft} hari lagi</span><span>perlu ~${fmt(perMonth)}/bulan</span>`}</div><div class="goal-edit-row"><input type="text" placeholder="Update tersimpan" id="goal-saved-${g.id}" inputmode="numeric" oninput="fmtInput(this)" style="width:100%"><button onclick="updateGoalSaved(${g.id})">Simpan</button></div></div>`;
+    return `<div class="goal-card" style="${fulfilled?'background:linear-gradient(135deg,#1a4a1a,#0d3b0d)':''}"><div class="goal-top"><div class="goal-name">${esc(g.name)} ${fulfilled?'🎉':''}</div><button class="goal-del" onclick="event.stopPropagation();deleteGoal(${g.id})">Hapus</button></div><div class="goal-amounts"><span class="goal-saved">${fmt(g.saved)}</span><span class="goal-target">/ ${fmt(g.target)}</span></div><div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%;background:${fulfilled?'#5CDB5C':'#E8C55A'}"></div></div><div class="goal-meta">${fulfilled?'<span>✅ Target tercapai!</span><span>Lunas 🎊</span>':`<span>📅 ${daysLeft} hari lagi</span><span>perlu ~${fmt(perMonth)}/bulan</span>`}</div><div class="goal-edit-row"><input type="text" placeholder="Update tersimpan" id="goal-saved-${g.id}" inputmode="numeric" oninput="fmtInput(this)" style="width:100%"><button onclick="updateGoalSaved(${g.id})">Simpan</button></div></div>`;
   }).join('');
 }
 async function addGoal() { const name=document.getElementById('goal-name').value.trim(),target=parseInput('goal-amount'),deadline=document.getElementById('goal-deadline').value; if(!name||!target||target<=0||!deadline){toast('Isi nama, target, dan deadline');return;} const d=await load(); if(!d.settings.goals)d.settings.goals=[]; d.settings.goals.push({id:Date.now(),name,target,deadline,saved:0}); await save(d);syncSettings(d.settings); document.getElementById('goal-name').value='';document.getElementById('goal-amount').value='';document.getElementById('goal-deadline').value=''; toast('✓ Target dibuat');await renderGoals(); }
-async function updateGoalSaved(id) { const val=parseInput(`goal-saved-${id}`); if(isNaN(val)||val<0){toast('Isi nominal dulu');return;} const d=await load(); d.settings.goals=(d.settings.goals||[]).map(g=>String(g.id)===String(id)?{...g,saved:val}:g); await save(d);syncSettings(d.settings); toast('✓ Progress diupdate');await renderGoals(); }
+async function updateGoalSaved(id) {
+  // [FIX #3] input kosong nggak lagi me-reset progress jadi 0
+  const raw=(document.getElementById(`goal-saved-${id}`).value||'').trim();
+  if(!raw){toast('Isi nominal dulu');return;}
+  const val=parseInput(`goal-saved-${id}`); if(isNaN(val)||val<0){toast('Isi nominal dulu');return;}
+  const d=await load(); d.settings.goals=(d.settings.goals||[]).map(g=>String(g.id)===String(id)?{...g,saved:val}:g); await save(d);syncSettings(d.settings); toast('✓ Progress diupdate');await renderGoals();
+}
 async function deleteGoal(id) { const d=await load(); d.settings.goals=(d.settings.goals||[]).filter(g=>String(g.id)!==String(id)); await save(d);syncSettings(d.settings); toast('✓ Target dihapus');await renderGoals(); }
 
 async function renderNabung() {
@@ -550,12 +658,14 @@ async function renderNabung() {
 async function recordSaving(key,val) { const d=await load(); if(!d.savings)d.savings={}; const amt=parseInt(val)||0; d.savings[key]=amt;await save(d);syncSaving(key,amt);await renderNabung();toast('✓ Tabungan dicatat'); }
 
 async function renderSettings() {
-  const d=await load(),s=d.settings||{};
-  document.getElementById('tog-notif').checked=!!s.re;
+  const d=await load(),s=d.settings||{}, a=s.alloc||{};
+  // [FIX #4] toggle cuma nyala kalau setting aktif DAN browser ini support + udah diizinkan
+  document.getElementById('tog-notif').checked=!!s.re&&hasNotif()&&Notification.permission==='granted';
   document.getElementById('inp-reminder').value=s.rt||'21:00';
   const today=new Date(); let ng=new Date(today.getFullYear(),today.getMonth(),26); if(today.getDate()>=26)ng=new Date(today.getFullYear(),today.getMonth()+1,26);
   document.getElementById('next-gajian').textContent=`${ng.toLocaleDateString('id-ID',{day:'numeric',month:'long'})} — ${Math.ceil((ng-today)/86400000)} hari lagi`;
-  setInput('set-gaji',s.gaji||3850000);setInput('set-cash',s.alloc.cash||1300000);setInput('set-seabank',s.alloc.seabank||1000000);setInput('set-bniwondr',s.alloc.bniwondr||315000);setInput('set-adminbca',s.alloc.adminbca||10000);setInput('set-sedekah',s.alloc.sedekah||200000);
+  // [FIX #6] pakai ?? supaya nilai 0 nggak diganti default
+  setInput('set-gaji',s.gaji??3850000);setInput('set-cash',a.cash??DEFAULT_ALLOC.cash);setInput('set-seabank',a.seabank??DEFAULT_ALLOC.seabank);setInput('set-bniwondr',a.bniwondr??DEFAULT_ALLOC.bniwondr);setInput('set-adminbca',a.adminbca??DEFAULT_ALLOC.adminbca);setInput('set-sedekah',a.sedekah??DEFAULT_ALLOC.sedekah);
   document.getElementById('set-krom-display').textContent=fmt(kromAmt(s));
 }
 async function saveAllocSettings() {
@@ -567,20 +677,82 @@ async function saveAllocSettings() {
   toast('✓ Gaji & alokasi diperbarui');await renderHome();
 }
 async function saveReminder(val) { const d=await load();if(!d.settings)d.settings={};d.settings.rt=val;await save(d);syncSettings(d.settings); }
-function toggleNotif(on) { if(on){Notification.requestPermission().then(async p=>{const d=await load();if(!d.settings)d.settings={};if(p==='granted'){d.settings.re=true;await save(d);toast('✓ Reminder aktif');}else{document.getElementById('tog-notif').checked=false;toast('Izinkan notifikasi dulu');}});}else{load().then(async d=>{if(!d.settings)d.settings={};d.settings.re=false;await save(d);});} }
-function startReminderCheck() { setInterval(async()=>{const d=await load(),s=d.settings||{};if(!s.re||Notification.permission!=='granted')return;const now=new Date(),[h,m]=(s.rt||'21:00').split(':').map(Number);if(now.getHours()===h&&now.getMinutes()===m)new Notification('Keuangan Razan 💰',{body:'Jangan lupa catat pengeluaran hari ini ya!'});},60000); }
+
+// [FIX #4] cek support notifikasi (iPhone Safari biasa nggak punya Notification)
+function hasNotif() { return typeof window!=='undefined' && 'Notification' in window; }
+function toggleNotif(on) {
+  if(on){
+    if(!hasNotif()){document.getElementById('tog-notif').checked=false;toast('Browser ini belum support notifikasi');return;}
+    Notification.requestPermission().then(async p=>{const d=await load();if(!d.settings)d.settings={};if(p==='granted'){d.settings.re=true;await save(d);syncSettings(d.settings);toast('✓ Reminder aktif');}else{document.getElementById('tog-notif').checked=false;toast('Izinkan notifikasi dulu');}});
+  } else {
+    load().then(async d=>{if(!d.settings)d.settings={};d.settings.re=false;await save(d);syncSettings(d.settings);});
+  }
+}
+function startReminderCheck() {
+  setInterval(async()=>{
+    if(!hasNotif())return;
+    const d=await load(),s=d.settings||{};
+    if(!s.re||Notification.permission!=='granted')return;
+    const now=new Date(),[h,m]=(s.rt||'21:00').split(':').map(Number);
+    const todayKey=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate();
+    // cek tiap 20 detik biar menitnya nggak kelewat, tapi cuma kirim sekali per hari
+    if(now.getHours()===h&&now.getMinutes()===m&&localStorage.getItem(NOTIF_LAST_KEY)!==todayKey){
+      localStorage.setItem(NOTIF_LAST_KEY,todayKey);
+      new Notification('Keuangan Razan 💰',{body:'Jangan lupa catat pengeluaran hari ini ya!'});
+    }
+  },20000);
+}
 
 async function exportCSV() {
   const d=await load(); if(!d.txs.length){toast('Belum ada data');return;}
   const rows=[['Tanggal','Tipe','Rekening','Kategori','Nominal','Keterangan']];
   d.txs.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(tx=>{const isIncome=tx.type==='income';rows.push([tx.date,isIncome?'Pemasukan':'Pengeluaran',isIncome?'-':tx.acc,tx.cat,tx.amount,tx.note||'']);});
-  const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  // [FIX #7] tanda kutip di dalam teks di-escape supaya kolom CSV nggak geser
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}), url=URL.createObjectURL(blob), a=document.createElement('a');
   a.href=url;a.download=`keuangan-razan-${new Date().toISOString().split('T')[0]}.csv`;a.click();URL.revokeObjectURL(url);toast('✓ CSV berhasil didownload');
 }
-async function clearAll() { if(confirm('Yakin mau hapus semua data?')){localStorage.removeItem(LOCAL_KEY);await renderHome();await renderTxList();await renderNabung();toast('Data dihapus');} }
 
-init();
+// [FIX #2] hapus beneran: cache, lokal, dan Google Sheets
+async function clearAll() {
+  if(!confirm('Yakin mau hapus semua transaksi, tabungan, dan target?\n\nData di Google Sheets juga ikut terhapus. Pengaturan gaji & alokasi tetap disimpan.')) return;
+  const d=await load();
+  const ids=d.txs.map(tx=>tx.id);
+  const months=Object.keys(d.savings||{});
+  d.txs=[]; d.savings={}; d.settings.goals=[];
+  await save(d);
+  const q=getPending();
+  ids.forEach(id=>q.push({action:'deleteTx',extra:{id}}));
+  months.forEach(mo=>q.push({action:'saveSaving',extra:{month:mo,amount:0}}));
+  q.push({action:'saveSettings',extra:{data:d.settings}});
+  setPending(q);
+  flushPending();
+  await renderHome();await renderTxList();await renderNabung();
+  toast('Data dihapus');
+}
+
+// ─── GATE LOGIN ───────────────────────────────────────────────
+const AUTH_KEY = 'keu-auth-razan', REMEMBER_KEY = 'keu-remember-razan';
+function authed() { return (Number(localStorage.getItem(AUTH_KEY)) || 0) > Date.now(); }
+function gateSubmit() {
+  const pw = document.getElementById('gate-pw').value.trim(); if (!pw) return;
+  const btn = document.getElementById('gate-btn'), err = document.getElementById('gate-err');
+  btn.disabled = true; btn.textContent = 'Memeriksa... 🔐'; err.textContent = '';
+  xhrGet(getGsUrl() + '?key=' + encodeURIComponent(getGsSkey()) + '&action=checkPassword&password=' + encodeURIComponent(pw), (e, d) => {
+    btn.disabled = false; btn.textContent = 'Masuk';
+    if (e) { err.textContent = 'Gagal koneksi, coba lagi 🙏'; return; }
+    if (d && d.valid) {
+      const remember = document.getElementById('gate-remember').checked;
+      const until = Date.now() + (remember ? 30 * 864e5 : 12 * 36e5);
+      localStorage.setItem(AUTH_KEY, String(until));
+      if (remember) localStorage.setItem(REMEMBER_KEY, String(until));
+      document.getElementById('gate').style.display = 'none';
+      init();
+    } else { err.textContent = 'Password salah, coba lagi'; document.getElementById('gate-pw').value = ''; }
+  });
+}
+if (authed()) { document.getElementById('gate').style.display = 'none'; init(); }
+else setTimeout(() => document.getElementById('gate-pw').focus(), 200);
 </script>
 </body>
 </html>
