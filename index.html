@@ -287,6 +287,11 @@
     *{scroll-behavior:auto!important}
   }
 </style>
+<script>
+/* TAMBAHAN: welcome cuma muncul sekali per kunjungan */
+try { if (sessionStorage.getItem('idx-welcomed')) document.documentElement.classList.add('no-welcome'); } catch (e) {}
+</script>
+<style>.no-welcome #s-welcome{display:none!important}</style>
 </head>
 <body>
 
@@ -1232,6 +1237,37 @@ window.rollGame = () => {
   tick();
 };
 window.playPicked = () => { if (!rndPicked) return; const it = rndPicked; $('rnd-ov').classList.remove('show'); openItem(it); };
+
+
+// ═════════ WELCOME CUMA SEKALI + BALIK KE LAYAR TERAKHIR ═════════
+const _enterApp = enterApp;
+enterApp = function () { try { sessionStorage.setItem('idx-welcomed', '1'); } catch (e) {} _enterApp(); };
+// sebelum pindah ke game/hadiah/kenangan/kantong: ingat lagi di layar mana
+function rememberView() {
+  try {
+    const onCat = $('cat-screen').classList.contains('active');
+    const nav = $('bnav').dataset.cur;
+    const v = onCat
+      ? { s: nav === 'fav' ? 'fav' : 'cat', i: CATS.findIndex(c => c.name === $('cat-hname').textContent), y: $('cat-body').scrollTop }
+      : { s: 'home', i: idx, y: $('home').scrollTop };
+    sessionStorage.setItem('idx-view', JSON.stringify(v));
+    sessionStorage.setItem('idx-welcomed', '1');
+  } catch (e) {}
+}
+window.addEventListener('pagehide', rememberView);
+document.addEventListener('click', e => { const a = e.target.closest('a[href]'); if (a && !a.href.startsWith('javascript')) rememberView(); }, true);
+(function restoreView() {
+  if (!document.documentElement.classList.contains('no-welcome')) return;
+  let v = null; try { v = JSON.parse(sessionStorage.getItem('idx-view') || 'null'); } catch (e) {}
+  if (!v) return;
+  try {
+    if (v.s === 'cat' && CATS[v.i] && CATS[v.i].key !== 'secret') { renderCatScreen(v.i); [30, 250, 600].forEach(t => setTimeout(() => { $('cat-body').scrollTop = v.y || 0; }, t)); }
+    else if (v.s === 'fav') { navGo('fav'); [30, 250, 600].forEach(t => setTimeout(() => { $('cat-body').scrollTop = v.y || 0; }, t)); }
+    else { if (typeof v.i === 'number' && v.i !== idx && CATS[v.i]) { idx = v.i; renderCard(); } setTimeout(() => { $('home').scrollTop = v.y || 0; }, 30); }
+  } catch (e) {}
+})();
+// tombol "back" browser yang balikin halaman dari cache: tetap tanpa welcome
+window.addEventListener('pageshow', e => { if (e.persisted) { const w = $('s-welcome'); if (w && sessionStorage.getItem('idx-welcomed')) w.style.display = 'none'; } });
 
 // ═════════ KANTONG (KEUANGAN): login lebih cepat ═════════
 // 1) status "password udah diset" diingat di HP → kolom password langsung muncul, nggak nunggu "Memeriksa..."
