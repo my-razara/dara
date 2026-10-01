@@ -255,6 +255,14 @@
   .rs-go{background:var(--rose);color:#fff}
   .rs-again{background:#fff;color:var(--rose);border:1.5px solid var(--rose)!important}
   .rs-btns button:disabled{opacity:.45}
+
+  /* ═══ PASANG APLIKASI ═══ */
+  .install-card{display:none;align-items:center;gap:.8rem;width:100%;margin-top:.8rem;padding:.85rem 1rem;border-radius:20px;border:none;background:linear-gradient(135deg,#c17a6f,#d9907f);color:#fff;cursor:pointer;text-align:left;font-family:'Poppins',sans-serif;box-shadow:0 6px 20px rgba(193,122,111,.3)}
+  .install-card.show{display:flex}
+  .install-card img{width:44px;height:44px;border-radius:12px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .install-card b{display:block;font-size:14px}
+  .install-card small{font-size:11px;opacity:.9}
+  .install-card .ic-x{margin-left:auto;font-size:.9rem;opacity:.8;padding:.3rem}
   /* ═════════ BIAR RINGAN DI HP (tambahan) ═════════ */
   /* 1) efek blur kaca itu paling berat di HP — di HP diganti warna solid (kelihatannya hampir sama), di laptop tetap blur */
   @media (hover:none),(pointer:coarse){
@@ -287,6 +295,14 @@
     *{scroll-behavior:auto!important}
   }
 </style>
+<!-- TAMBAHAN: biar bisa di-install jadi aplikasi -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c17a6f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Untuk Dara">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>
 /* TAMBAHAN: welcome cuma muncul sekali per kunjungan */
 try { if (sessionStorage.getItem('idx-welcomed')) document.documentElement.classList.add('no-welcome'); } catch (e) {}
@@ -1061,7 +1077,7 @@ function greet() {
 // ── baris di home ──
 function renderRows() {
   const favItems = favs.map(byLink).filter(Boolean), recItems = recent.map(byLink).filter(Boolean), newItems = ALL.filter(isNew);
-  let h = memCardHTML() + `<button class="rnd-btn" onclick="openRnd()"><span class="rb-ico">🎲</span><span><b>Main apa ya?</b><small>Bingung mau main apa — biar dipilihin</small></span></button>`;
+  let h = `<button class="install-card${canInstall() ? ' show' : ''}" id="install-card" onclick="doInstall(event)"><img src="icons/icon-192.png" alt=""><span><b>Pasang jadi aplikasi 📱</b><small>Ada ikonnya di HP, kebuka full screen</small></span><span class="ic-x" onclick="event.stopPropagation();hideInstall()">✕</span></button>` + memCardHTML() + `<button class="rnd-btn" onclick="openRnd()"><span class="rb-ico">🎲</span><span><b>Main apa ya?</b><small>Bingung mau main apa — biar dipilihin</small></span></button>`;
   h += `<div class="hx-sec"><div class="hx-title"><span>⭐ Favorit kamu</span>${favItems.length ? `<button onclick="navGo('fav')">Lihat semua</button>` : ''}</div>`
     + (favItems.length ? `<div class="row">${favItems.map(miniHTML).join('')}</div>` : `<div class="empty-hint">Belum ada favorit. Buka game atau hadiah, terus tap ☆ di pojok kanan atas 🤍</div>`) + '</div>';
   if (recItems.length) h += `<div class="hx-sec"><div class="hx-title"><span>🕘 Terakhir dibuka</span><button onclick="clearRecent()">Hapus</button></div><div class="row">${recItems.map(miniHTML).join('')}</div></div>`;
@@ -1238,6 +1254,20 @@ window.rollGame = () => {
 };
 window.playPicked = () => { if (!rndPicked) return; const it = rndPicked; $('rnd-ov').classList.remove('show'); openItem(it); };
 
+
+
+// ═════════ APLIKASI (PWA) ═════════
+var installEvt = null;   // var (bukan let) karena udah dipakai renderRows sebelum baris ini jalan
+function isApp() { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
+function canInstall() { try { return !!installEvt && !isApp() && localStorage.getItem('idx-install-hide') !== '1'; } catch (e) { return !!installEvt && !isApp(); } }
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; const c = $('install-card'); if (c) c.classList.toggle('show', canInstall()); });
+window.addEventListener('appinstalled', () => { installEvt = null; const c = $('install-card'); if (c) c.classList.remove('show'); });
+window.doInstall = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; const c = $('install-card'); if (c) c.classList.remove('show'); };
+window.hideInstall = () => { try { localStorage.setItem('idx-install-hide', '1'); } catch (e) {} const c = $('install-card'); if (c) c.classList.remove('show'); };
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  let swDone = false; const regSW = () => { if (swDone) return; swDone = true; navigator.serviceWorker.register('sw.js').catch(() => {}); };
+  if (document.readyState === 'complete') regSW(); else { window.addEventListener('load', regSW); setTimeout(regSW, 4000); }   // jangan nunggu font kelamaan
+}
 
 // ═════════ WELCOME CUMA SEKALI + BALIK KE LAYAR TERAKHIR ═════════
 const _enterApp = enterApp;
