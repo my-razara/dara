@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v2';
+const VERSI = 'v3';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "./",
@@ -92,12 +92,19 @@ const ASET = ['manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icon
 
 // ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
 const SYNC_BAR = `<script>(function(){
-function warna(el){while(el&&el!==document.documentElement){var c=getComputedStyle(el).backgroundColor;if(c&&c!=='transparent'&&!/rgba\\([^)]*,\\s*0\\)/.test(c))return c;el=el.parentElement;}
+function grad(el){var g=getComputedStyle(el).backgroundImage;if(!g||g==='none'||!/(linear|radial)-gradient/.test(g))return null;if(/linear-gradient\\((?!\\s*(to bottom|180deg|rgb))/.test(g))return null;var m=g.match(/rgba?\\([^)]+\\)/);return m?m[0]:null;}
+function kanvas(el){try{if(el&&el.tagName==='CANVAS'&&el.width&&el.height){var r=el.getBoundingClientRect(),sx=el.width/r.width,sy=el.height/r.height;
+ var d=el.getContext('2d').getImageData(Math.max(0,Math.floor((window.innerWidth/2-r.left)*sx)),Math.max(0,Math.floor((2-r.top)*sy)),1,1).data;if(d[3]>200)return 'rgb('+d[0]+','+d[1]+','+d[2]+')';}}catch(e){}return null;}
+function warna(el){var kv=kanvas(el);if(kv)return kv;while(el&&el!==document.documentElement){var c=getComputedStyle(el).backgroundColor;if(c&&c!=='transparent'&&!/rgba\\([^)]*,\\s*0\\)/.test(c))return c;var gg=grad(el);if(gg)return gg;el=el.parentElement;}
  var b=getComputedStyle(document.body).backgroundColor;if(b&&b!=='transparent'&&!/,\\s*0\\)/.test(b))return b;return getComputedStyle(document.documentElement).backgroundColor||'#faf6f0';}
 function solid(c){var m=c.match(/rgba?\\(([^)]+)\\)/);if(!m)return c;var p=m[1].split(',').map(parseFloat);if(p.length<4||p[3]>=0.98)return 'rgb('+p[0]+','+p[1]+','+p[2]+')';
  var a=p[3],bg=[250,246,240];return 'rgb('+Math.round(p[0]*a+bg[0]*(1-a))+','+Math.round(p[1]*a+bg[1]*(1-a))+','+Math.round(p[2]*a+bg[2]*(1-a))+')';}
-function sync(){try{var el=document.elementFromPoint(window.innerWidth/2,2)||document.body;var c=solid(warna(el));
- var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}if(m.content!==c)m.content=c;}catch(e){}}
+var app=false;try{app=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){}
+function cap(c){if(!app||!document.body)return;var d=document.getElementById('__barcap');if(!d){d=document.createElement('div');d.id='__barcap';d.setAttribute('aria-hidden','true');
+ d.style.cssText='position:fixed;top:0;left:0;right:0;height:26px;pointer-events:none;z-index:2147483647';document.body.appendChild(d);}
+ var t=c.replace('rgb(','rgba(').replace(')',',');d.style.background='linear-gradient(to bottom,'+t+'1) 0,'+t+'1) 2px,'+t+'.6) 8px,'+t+'.25) 16px,'+t+'0) 26px)';}
+function sync(){try{var cp=document.getElementById('__barcap');if(cp)cp.style.display='none';var el=document.elementFromPoint(window.innerWidth/2,2)||document.body;if(cp)cp.style.display='';var c=solid(warna(el));
+ var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}if(m.content!==c)m.content=c;cap(c);}catch(e){}}
 document.addEventListener('DOMContentLoaded',sync);window.addEventListener('load',sync);[300,1000,2500].forEach(function(t){setTimeout(sync,t)});
 document.addEventListener('click',function(){setTimeout(sync,350)},true);document.addEventListener('visibilitychange',sync);
 })();<\/script>`;
