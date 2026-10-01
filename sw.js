@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v1';
+const VERSI = 'v2';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "./",
@@ -90,6 +90,27 @@ const HALAMAN = [
 ];
 const ASET = ['manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
+// ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
+const SYNC_BAR = `<script>(function(){
+function warna(el){while(el&&el!==document.documentElement){var c=getComputedStyle(el).backgroundColor;if(c&&c!=='transparent'&&!/rgba\\([^)]*,\\s*0\\)/.test(c))return c;el=el.parentElement;}
+ var b=getComputedStyle(document.body).backgroundColor;if(b&&b!=='transparent'&&!/,\\s*0\\)/.test(b))return b;return getComputedStyle(document.documentElement).backgroundColor||'#faf6f0';}
+function solid(c){var m=c.match(/rgba?\\(([^)]+)\\)/);if(!m)return c;var p=m[1].split(',').map(parseFloat);if(p.length<4||p[3]>=0.98)return 'rgb('+p[0]+','+p[1]+','+p[2]+')';
+ var a=p[3],bg=[250,246,240];return 'rgb('+Math.round(p[0]*a+bg[0]*(1-a))+','+Math.round(p[1]*a+bg[1]*(1-a))+','+Math.round(p[2]*a+bg[2]*(1-a))+')';}
+function sync(){try{var el=document.elementFromPoint(window.innerWidth/2,2)||document.body;var c=solid(warna(el));
+ var m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m);}if(m.content!==c)m.content=c;}catch(e){}}
+document.addEventListener('DOMContentLoaded',sync);window.addEventListener('load',sync);[300,1000,2500].forEach(function(t){setTimeout(sync,t)});
+document.addEventListener('click',function(){setTimeout(sync,350)},true);document.addEventListener('visibilitychange',sync);
+})();<\/script>`;
+async function sisipin(res) {
+  try {
+    const type = res.headers.get('content-type') || '';
+    if (!res.ok || !type.includes('text/html')) return res;
+    const html = await res.text();
+    const out = html.includes('</head>') ? html.replace('</head>', SYNC_BAR + '</head>') : SYNC_BAR + html;
+    return new Response(out, { status: res.status, statusText: res.statusText, headers: res.headers });
+  } catch (e) { return res; }
+}
+
 // pas di-install: simpan semua halaman game/hadiah biar bisa dimainin offline (yang gagal dilewatin aja)
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -108,8 +129,8 @@ self.addEventListener('fetch', e => {
   }
   // halaman HTML: SELALU coba ambil versi terbaru dulu (biar update dari GitHub langsung kepakai), kalau offline pakai simpanan
   if (req.mode === 'navigate' || req.destination === 'document' || url.pathname.endsWith('.html')) {
-    e.respondWith(fetch(req).then(r => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return r; })
-      .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('index.html'))));
+    e.respondWith(fetch(req).then(r => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return sisipin(r); })
+      .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r ? sisipin(r) : caches.match('index.html').then(sisipin))));
     return;
   }
   e.respondWith(staleWhileRevalidate(req));
