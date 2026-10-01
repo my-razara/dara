@@ -309,10 +309,24 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <script>
-/* TAMBAHAN: welcome cuma muncul sekali per kunjungan */
-try { if (sessionStorage.getItem('idx-welcomed')) document.documentElement.classList.add('no-welcome'); } catch (e) {}
+/* TAMBAHAN: welcome cuma muncul pas BARU buka (bukan pas balik dari game/hadiah/kenangan) */
+(function () {
+  var d = document.documentElement, skip = false;
+  try {
+    var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+    var dariDalam = document.referrer && document.referrer.indexOf(location.origin) === 0;   // datang dari halaman website ini sendiri
+    skip = !!sessionStorage.getItem('idx-welcomed') || nav.type === 'back_forward' || nav.type === 'reload' || dariDalam;
+    if (sessionStorage.getItem('idx-keep-welcome')) { sessionStorage.removeItem('idx-keep-welcome'); skip = false; }   // refresh otomatis pas welcome lagi tampil → welcome tetap
+    if (skip) {
+      sessionStorage.setItem('idx-welcomed', '1');
+      d.classList.add('no-welcome');
+      // ada layar terakhir yang mau dibalikin → sembunyiin dulu sampai siap, biar nggak kedip
+      if (sessionStorage.getItem('idx-view')) { d.classList.add('restoring'); setTimeout(function () { d.classList.remove('restoring'); }, 1500); }
+    }
+  } catch (e) {}
+})();
 </script>
-<style>.no-welcome #s-welcome{display:none!important}</style>
+<style>.no-welcome #s-welcome{display:none!important}.restoring body{visibility:hidden}</style>
 </head>
 <body>
 
@@ -1271,6 +1285,16 @@ window.addEventListener('appinstalled', () => { installEvt = null; const c = $('
 window.doInstall = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; const c = $('install-card'); if (c) c.classList.remove('show'); };
 window.hideInstall = () => { try { localStorage.setItem('idx-install-hide', '1'); } catch (e) {} const c = $('install-card'); if (c) c.classList.remove('show'); };
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  const t0 = Date.now();
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    try {
+      if (sessionStorage.getItem('sw-reloaded') || Date.now() - t0 > 5000) return;   // cuma sekali & cuma di 5 detik pertama
+      sessionStorage.setItem('sw-reloaded', '1');
+      const w = document.getElementById('s-welcome');
+      if (w && getComputedStyle(w).display !== 'none' && !w.classList.contains('hide')) sessionStorage.setItem('idx-keep-welcome', '1');
+      location.reload();
+    } catch (e) {}
+  });
   let swDone = false; const regSW = () => { if (swDone) return; swDone = true; navigator.serviceWorker.register('sw.js').catch(() => {}); };
   if (document.readyState === 'complete') regSW(); else { window.addEventListener('load', regSW); setTimeout(regSW, 4000); }   // jangan nunggu font kelamaan
 }
@@ -1295,7 +1319,9 @@ document.addEventListener('click', e => { const a = e.target.closest('a[href]');
 (function restoreView() {
   if (!document.documentElement.classList.contains('no-welcome')) return;
   let v = null; try { v = JSON.parse(sessionStorage.getItem('idx-view') || 'null'); } catch (e) {}
-  if (!v) return;
+  const done = () => document.documentElement.classList.remove('restoring');
+  if (!v) return done();
+  setTimeout(done, 60);
   try {
     if (v.s === 'cat' && CATS[v.i] && CATS[v.i].key !== 'secret') { renderCatScreen(v.i); [30, 250, 600].forEach(t => setTimeout(() => { $('cat-body').scrollTop = v.y || 0; }, t)); }
     else if (v.s === 'fav') { navGo('fav'); [30, 250, 600].forEach(t => setTimeout(() => { $('cat-body').scrollTop = v.y || 0; }, t)); }
