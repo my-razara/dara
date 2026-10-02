@@ -157,7 +157,7 @@
 <!-- GAME -->
 <div id="s-game" class="screen">
   <div class="game-header">
-    <button class="exit" onclick="quitGame()">✕</button>
+    <button class="exit" onclick="askExit()">✕</button>
     <div class="gh-mid"><span class="game-label">Slot Cinta 🎰</span><span class="spin-info">Spin <span id="spin-count">0</span>/10 · 🏆 <span id="jackpot-count">0</span> · ✨ <span id="win-count">0</span> · 😅 <span id="zonk-count">0</span></span></div>
     <span style="width:32px"></span>
   </div>
@@ -485,6 +485,34 @@ function confetti(n = 50) {
     document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
   }, i * 22);
 }
+</script>
+
+<!-- TAMBAHAN: konfirmasi keluar (pengganti pop-up bawaan browser yang suka nggak muncul di mode aplikasi) -->
+<style>
+  .xq-ov{position:fixed;inset:0;z-index:9000;background:rgba(45,31,26,.45);display:none;align-items:flex-end;justify-content:center}
+  .xq-ov.show{display:flex}
+  .xq{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.2rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:xqUp .25s ease;font-family:'Poppins',sans-serif}
+  @keyframes xqUp{from{transform:translateY(100%)}to{transform:none}}
+  .xq h3{font-size:1.05rem;color:#2d1f1a;text-align:center;margin-bottom:.2rem}
+  .xq p{font-size:12px;color:#9a8070;text-align:center;margin-bottom:1rem}
+  .xq button{width:100%;padding:.85rem;border-radius:50px;border:none;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:.5rem}
+  .xq .xq-home{background:#c17a6f;color:#fff}
+  .xq .xq-restart{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .xq .xq-cancel{background:none;color:#9a8070;font-weight:500;margin-bottom:0}
+</style>
+<div class="xq-ov" id="xq-ov" onclick="if(event.target===this)xqClose()">
+  <div class="xq">
+    <h3>Keluar dari permainan?</h3>
+    <p>Progres permainan yang sekarang bakal hilang</p>
+    <button class="xq-home" onclick="location.href='index.html'">🏠 Keluar ke menu</button>
+    <button class="xq-restart" onclick="xqRestart()">↺ Balik ke awal game</button>
+    <button class="xq-cancel" onclick="xqClose()">Lanjut main</button>
+  </div>
+</div>
+<script>
+function askExit() { document.getElementById('xq-ov').classList.add('show'); }
+function xqClose() { document.getElementById('xq-ov').classList.remove('show'); }
+function xqRestart() { xqClose(); const c = window.confirm; window.confirm = () => true; try { quitGame(); } finally { window.confirm = c; } }
 </script>
 </body>
 </html>
