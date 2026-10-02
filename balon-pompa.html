@@ -153,7 +153,21 @@
       <div class="topt tsel" data-v="5"><b>5</b><span>Standar</span></div>
       <div class="topt" data-v="7"><b>7</b><span>Panjang</span></div>
     </div>
-    <button class="start-btn" onclick="initGame();showScreen('screen-who')">Mulai! 🎈</button>
+    <button class="start-btn" onclick="BOT=null;applyNames();initGame();goWho()">Mulai Berdua! 🎈</button>
+<button class="start-btn" style="margin-top:.55rem;background:#fff;color:var(--rose);border:1.5px solid var(--rose);box-shadow:none" onclick="showScreen('screen-botpick')">🤖 Main sendiri lawan komputer</button>
+</div>
+</div>
+
+<!-- PILIH LAWAN KOMPUTER -->
+<div id="screen-botpick" class="screen">
+<div class="inner">
+<h2 class="who-title">Kamu main sebagai?</h2>
+<p class="who-sub">Lawan kamu: 🤖 Komputer — dia juga nggak tau kapan balonnya meledak 😏</p>
+<div class="who-cards">
+<div class="who-card" onclick="BOT='dara';applyNames();initGame();goWho()"><span class="wc-avatar">🧑</span><p class="wc-name">Razan</p><p class="wc-hint">vs 🤖 Komputer</p></div>
+<div class="who-card" onclick="BOT='razan';applyNames();initGame();goWho()"><span class="wc-avatar">👧</span><p class="wc-name">Dara</p><p class="wc-hint">vs 🤖 Komputer</p></div>
+</div>
+<button class="loser-first" style="display:block" onclick="showScreen('screen-intro')">← Kembali</button>
   </div>
 </div>
 
@@ -163,9 +177,9 @@
     <h2 class="who-title" id="who-title">Udah suit kan?</h2>
     <p class="who-sub">Siapa yang menang suit? Dia yang pompa pertama!</p>
     <div class="score-bar">
-      <div class="sb-item"><span class="sb-name">Razan</span><span class="sb-score" id="w-sr">0</span></div>
+      <div class="sb-item"><span class="sb-name nm-razan">Razan</span><span class="sb-score" id="w-sr">0</span></div>
       <span class="sb-vs">VS</span>
-      <div class="sb-item"><span class="sb-name">Dara</span><span class="sb-score" id="w-sd">0</span></div>
+      <div class="sb-item"><span class="sb-name nm-dara">Dara</span><span class="sb-score" id="w-sd">0</span></div>
     </div>
     <span class="gold-tag" id="gold-tag">🌟 Ronde ini BALON EMAS — menang = +2 poin!</span>
     <div class="who-cards">
@@ -180,9 +194,9 @@
 <!-- GAME -->
 <div id="screen-game" class="screen">
   <div class="game-top">
-    <div class="gt-player" id="gt-r"><span class="gt-name">Razan</span><span class="gt-score" id="g-sr">0</span></div>
+    <div class="gt-player" id="gt-r"><span class="gt-name nm-razan">Razan</span><span class="gt-score" id="g-sr">0</span></div>
     <div class="gt-round">Ronde <b id="g-round">1</b><br><span id="g-gold" style="color:#b8860b;font-weight:700"></span></div>
-    <div class="gt-player" id="gt-d"><span class="gt-name">Dara</span><span class="gt-score" id="g-sd">0</span></div>
+    <div class="gt-player" id="gt-d"><span class="gt-name nm-dara">Dara</span><span class="gt-score" id="g-sd">0</span></div>
   </div>
   <div class="balloon-area">
     <div class="tension"><div class="tension-lbl" id="tension-lbl">😌 Masih santai</div><div class="tension-bar"><i id="tension-cover" style="width:100%"></i></div></div>
@@ -215,14 +229,14 @@
     <h2 class="end-title" id="end-title">Selesai!</h2>
     <p class="end-sub" id="end-sub"></p>
     <div class="end-score-card">
-      <div><span class="es-avatar">🧑</span><span class="es-name">Razan</span><span class="es-score" id="end-razan">0</span></div>
+      <div><span class="es-avatar av-razan">🧑</span><span class="es-name nm-razan">Razan</span><span class="es-score" id="end-razan">0</span></div>
       <span class="es-vs">VS</span>
-      <div><span class="es-avatar">👧</span><span class="es-name">Dara</span><span class="es-score" id="end-dara">0</span></div>
+      <div><span class="es-avatar av-dara">👧</span><span class="es-name nm-dara">Dara</span><span class="es-score" id="end-dara">0</span></div>
     </div>
     <div class="hist" id="hist"></div>
     <div class="end-verdict" id="end-verdict"></div>
     <div class="end-btns">
-      <button class="end-btn end-btn-primary" onclick="initGame();showScreen('screen-who')">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-primary" onclick="initGame();goWho()">Main Lagi 🔄</button>
       <button class="end-btn end-btn-outline" onclick="showScreen('screen-intro')">Menu</button>
     </div>
   </div>
@@ -231,7 +245,34 @@
 <script>
 let WIN_TARGET = 5;
 const MIN_PUMPS = 5, MAX_PUMPS = 18, MAX_PER_TURN = 3;
-const NAMES = { razan: 'Razan', dara: 'Dara' };
+let NAMES = { razan: 'Razan', dara: 'Dara' };
+let BOT = null, botActing = false, botTimer = null;   // BOT = slot yang dimainin komputer
+function applyNames() {
+  NAMES = { razan: 'Razan', dara: 'Dara' }; if (BOT) NAMES[BOT] = 'Komputer';
+  ['razan', 'dara'].forEach(p => { document.querySelectorAll('.nm-' + p).forEach(e => e.textContent = NAMES[p]); document.querySelectorAll('.av-' + p).forEach(e => e.textContent = NAMES[p] === 'Komputer' ? '🤖' : p === 'razan' ? '🧑' : '👧'); });
+}
+// lawan komputer: nggak bisa suit fisik → ronde 1 diacak, ronde berikutnya yang kalah mulai duluan
+function goWho() {
+  if (!BOT) return showScreen('screen-who');
+  const first = lastLoser || (Math.random() < .5 ? 'razan' : 'dara');
+  setFirst(first);
+  toastMsg(first === BOT ? '🤖 Komputer mulai duluan' : `Kamu (${NAMES[first]}) mulai duluan`);
+}
+function toastMsg(m) { const c = $('creak'); c.textContent = m; c.classList.remove('show'); void c.offsetWidth; c.classList.add('show'); }
+// otak komputer: makin tegang balonnya, makin dikit pompanya (tapi tetap berani-berani dikit 😏)
+function botPlay() {
+  clearTimeout(botTimer);
+  if (!BOT || over || turn !== BOT) return;
+  const risk = pumps / MAX_PUMPS, r = Math.random();
+  const want = pumps < MIN_PUMPS - 2 ? (r < .5 ? 3 : 2) : risk < .45 ? (r < .35 ? 3 : r < .75 ? 2 : 1) : risk < .7 ? (r < .7 ? 1 : 2) : 1;
+  let done = 0;
+  const step = () => {
+    if (over || turn !== BOT) return;
+    if (done < want) { botActing = true; pump(); botActing = false; done++; if (!over) botTimer = setTimeout(step, 650); }
+    else { botActing = true; pass(); botActing = false; }
+  };
+  botTimer = setTimeout(step, 900);
+}
 
 // ── MISI (tetap) ──
 const ROUND_DEMANDS = [
@@ -289,13 +330,15 @@ function setFirst(who) {
   $('g-gold').textContent = isGold ? '🌟 EMAS ×2' : '';
   setTension(); updateTurn(); updateScores();
   showScreen('screen-game');
+  if (BOT && turn === BOT) botPlay();
 }
 function updateTurn() {
-  $('pump-who').textContent = NAMES[turn];
+  $('pump-who').textContent = NAMES[turn] === 'Komputer' ? '🤖 Komputer' : NAMES[turn];
+  const botTurn = BOT && turn === BOT;
   $('gt-r').classList.toggle('on', turn === 'razan'); $('gt-d').classList.toggle('on', turn === 'dara');
   [1, 2, 3].forEach(i => $('dot' + i).classList.toggle('on', i <= turnPumps));
-  $('pump-btn').disabled = over || turnPumps >= MAX_PER_TURN;
-  $('pass-btn').disabled = over || turnPumps < 1;
+  $('pump-btn').disabled = over || turnPumps >= MAX_PER_TURN || botTurn;
+  $('pass-btn').disabled = over || turnPumps < 1 || botTurn;
   $('pump-btn').textContent = turnPumps >= MAX_PER_TURN ? 'Maks 3x — oper!' : '🎈 POMPA!';
 }
 // meter tegang: dihitung dari jumlah pompa vs batas MAKSIMUM (bukan titik ledak asli) + sedikit acak → nggak bisa diintip
@@ -311,6 +354,7 @@ function setTension() {
 
 function pump() {
   if (over || turnPumps >= MAX_PER_TURN) return;
+  if (BOT && turn === BOT && !botActing) return;
   pumps++; turnPumps++;
   $('balloon-count').textContent = pumps + 'x';
   const b = $('balloon'); b.classList.remove('wobble'); void b.offsetWidth; b.classList.add('wobble');
@@ -324,7 +368,9 @@ function pump() {
 }
 function pass() {
   if (over || turnPumps < 1) return;
+  if (BOT && turn === BOT && !botActing) return;
   turn = turn === 'razan' ? 'dara' : 'razan'; turnPumps = 0; vib(10); updateTurn();
+  if (BOT && turn === BOT) botPlay();
 }
 $('pump-btn').addEventListener('click', pump);
 $('pass-btn').addEventListener('click', pass);
@@ -342,7 +388,7 @@ function explode() {
     $('bang-title').textContent = (streak >= 3 ? `🔥 ${NAMES[winner]} ${streak}x berturut! ` : '') + `BOOM! ${NAMES[loser]} kalah!`;
     $('bang-sub').textContent = `${NAMES[loser]} yang bikin balon meledak — ${NAMES[winner]} menang ronde ini${isGold ? ' dan dapet 2 poin! 🌟' : '!'}`;
     $('bang-pumps').textContent = `Balon meledak di pompaan ke-${pumps}`;
-    $('demand-text').textContent = getRandom(ROUND_DEMANDS, usedD);
+    $('demand-text').textContent = BOT ? (loser === BOT ? 'Komputernya kena ledakan 😆 Mantap!' : 'Yah, kena! Balas di ronde berikutnya 💪') : getRandom(ROUND_DEMANDS, usedD);
     const end = scores[winner] >= WIN_TARGET;
     $('bang-next').textContent = end ? 'Lihat Hasil Akhir 🏆' : 'Ronde Berikutnya →';
     $('bang-next').onclick = end ? showEnd : nextRound;
@@ -350,17 +396,17 @@ function explode() {
     $('bang-overlay').classList.add('show');
   }, 650);
 }
-function nextRound() { $('bang-overlay').classList.remove('show'); round++; prepRound(); updateScores(); showScreen('screen-who'); }
+function nextRound() { $('bang-overlay').classList.remove('show'); round++; prepRound(); updateScores(); goWho(); }
 
 function showEnd() {
   $('bang-overlay').classList.remove('show');
-  const r = scores.razan, d = scores.dara, rw = r > d, w = rw ? 'Razan' : 'Dara', l = rw ? 'Dara' : 'Razan';
-  $('end-icon').textContent = rw ? '🏆' : '👑';
+  const r = scores.razan, d = scores.dara, rw = r > d, w = NAMES[rw ? 'razan' : 'dara'], l = NAMES[rw ? 'dara' : 'razan'];
+  $('end-icon').textContent = w === 'Komputer' ? '🤖' : rw ? '🏆' : '👑';
   $('end-title').textContent = `${w} Menang!`;
   $('end-sub').textContent = `${w} menang ${Math.max(r, d)}-${Math.min(r, d)} dalam ${round} ronde!`;
   $('end-razan').textContent = r; $('end-dara').textContent = d;
   $('hist').innerHTML = history.map(h => `<div class="hr"><span>Ronde ${h.round}${h.gold ? ' 🌟' : ''}</span><span>💥 ${NAMES[h.loser]} di pompa ke-<b>${h.pumps}</b></span></div>`).join('');
-  $('end-verdict').innerHTML = `<strong>🎯 Hak Pemenang:</strong><br>${getRandom(FINAL_DEMANDS, usedF).replace(/{winner}/g, w).replace(/{loser}/g, l)}`;
+  $('end-verdict').innerHTML = BOT ? (w === 'Komputer' ? '<strong>🤖 Komputer menang!</strong><br>Coba lagi — atau tantang pasanganmu biar ada hukumannya 😏' : '<strong>🏆 Kamu ngalahin komputer!</strong><br>Sekarang tantang pasanganmu langsung 😏') : `<strong>🎯 Hak Pemenang:</strong><br>${getRandom(FINAL_DEMANDS, usedF).replace(/{winner}/g, w).replace(/{loser}/g, l)}`;
   showScreen('screen-end'); confetti();
 }
 function confetti() {
