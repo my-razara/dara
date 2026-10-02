@@ -8,89 +8,77 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none;user-select:none}
   html,body{height:100%;overflow:hidden;background:#0a0a1a}
-
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center}
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto}
   .screen.active{display:flex}
-
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
   .star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
   @keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.5}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
   /* INTRO */
-  #s-intro{background:transparent;padding:1.5rem;text-align:center}
-  .intro-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px}
+  #s-intro,#s-pick,#s-final{padding:1.5rem;text-align:center}
+  .intro-wrap,.pick-wrap,.final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%;margin:auto}
   .intro-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
-  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
   .intro-title{font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;color:#fff;margin-bottom:.3rem}
   .intro-title span{color:#64ffda}
-  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.75;max-width:280px;margin:.3rem auto 1.25rem}
-  .how-row{display:flex;gap:.5rem;margin-bottom:1rem;width:100%;max-width:340px}
+  .intro-sub{font-size:12.5px;color:rgba(255,255,255,.45);line-height:1.75;max-width:290px;margin:.3rem auto 1.1rem}
+  .how-row{display:flex;gap:.5rem;margin-bottom:1rem;width:100%}
   .how-item{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:.7rem .4rem;text-align:center}
   .how-emoji{font-size:1.3rem;display:block;margin-bottom:.2rem}
-  .how-text{font-size:10px;color:rgba(255,255,255,.4);line-height:1.4}
-  .score-opts{display:flex;gap:.5rem;width:100%;max-width:340px;margin-bottom:1.25rem}
-  .score-opt{flex:1;padding:.6rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;text-align:center;transition:all .15s}
+  .how-text{font-size:10px;color:rgba(255,255,255,.45);line-height:1.4}
+  .opt-label{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:.5rem}
+  .score-opts{display:flex;gap:.5rem;width:100%;margin-bottom:1rem}
+  .score-opt{flex:1;padding:.6rem .4rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;text-align:center}
   .score-opt.sel{border-color:#64ffda;background:rgba(100,255,218,.08)}
-  .score-opt:active{transform:scale(.95)}
-  .so-num{font-size:1.2rem;font-weight:900;color:#64ffda;display:block}
-  .so-label{font-size:9px;color:rgba(255,255,255,.35)}
-  .intro-btn{width:100%;max-width:340px;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#004d40,#64ffda);color:#001a14;box-shadow:0 6px 20px rgba(100,255,218,.25)}
+  .so-num{font-size:1.15rem;font-weight:900;color:#64ffda;display:block}
+  .so-label{font-size:9px;color:rgba(255,255,255,.4)}
+  .intro-btn{width:100%;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,#004d40,#64ffda);color:#001a14;box-shadow:0 6px 20px rgba(100,255,218,.25)}
   .intro-btn:active{transform:scale(.97)}
-
-  /* PICK */
-  #s-pick{background:transparent;padding:1.5rem;text-align:center}
-  .pick-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%}
-  .pick-btns{display:flex;gap:.6rem;width:100%;margin-top:1.25rem}
-  .pick-btn{flex:1;padding:1rem .5rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem;transition:all .15s}
+  .pick-btns{display:flex;gap:.6rem;width:100%;margin-top:1.2rem}
+  .pick-btn{flex:1;padding:1rem .5rem;border-radius:18px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.4rem}
   .pick-btn:active{transform:scale(.97);background:rgba(255,255,255,.08)}
+  .back-link{margin-top:1rem;background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;text-decoration:underline}
 
   /* GAME */
-  #s-game{background:#0a0a1a;padding:0;justify-content:flex-start;overflow:hidden}
-  .g-header{flex-shrink:0;width:100%;background:rgba(10,10,26,.95);border-bottom:1px solid rgba(255,255,255,.06);padding:.4rem .75rem;display:flex;align-items:center;justify-content:space-between;z-index:10}
-  .gh-player{text-align:center;min-width:70px}
-  .gh-name{font-size:9px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;display:block}
-  .gh-score{font-size:2rem;font-weight:900;display:block;line-height:1}
-  .gh-score.left{color:#7eb3f5}
-  .gh-score.right{color:#e8a090}
-  .gh-mid{text-align:center}
-  .gh-rally{font-size:10px;color:rgba(255,255,255,.3);display:block}
-  .gh-to{font-size:9px;color:rgba(100,255,218,.5);display:block;margin-top:.1rem}
-
+  #s-game{background:#0a0a1a;justify-content:flex-start;overflow:hidden}
+  .g-header{flex-shrink:0;width:100%;background:rgba(10,10,26,.95);border-bottom:1px solid rgba(255,255,255,.06);padding:.35rem .6rem;display:flex;align-items:center;justify-content:space-between;gap:.4rem;z-index:10}
+  .g-btn{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.55);cursor:pointer;flex-shrink:0;font-size:12px}
+  .gh-player{text-align:center;min-width:64px}
+  .gh-name{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;display:block}
+  .gh-score{font-size:1.8rem;font-weight:900;display:block;line-height:1}
+  .gh-score.left{color:#7eb3f5}.gh-score.right{color:#e8a090}
+  .gh-mid{text-align:center;flex:1}
+  .gh-rally{font-size:10px;color:rgba(255,255,255,.35);display:block}
+  .gh-to{font-size:9px;color:rgba(100,255,218,.55);display:block;margin-top:.1rem}
   #game-canvas{display:block;width:100%;flex:1;touch-action:none}
-
-  /* POINT overlay */
-  #point-overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,10,26,.7);backdrop-filter:blur(8px)}
-  #point-overlay.show{display:flex}
-  .po-sheet{text-align:center;animation:popin .35s cubic-bezier(.34,1.5,.64,1)}
+  #point-overlay,#pause-overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,10,26,.78)}
+  #point-overlay.show,#pause-overlay.show{display:flex}
+  .po-sheet{text-align:center;animation:popin .35s cubic-bezier(.34,1.5,.64,1);padding:1rem}
   @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
   .po-icon{font-size:3rem;display:block;margin-bottom:.5rem}
-  .po-title{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:.25rem}
-  .po-score{font-size:1rem;color:rgba(255,255,255,.5);margin-bottom:1.25rem}
-  .po-btn{padding:.85rem 2.5rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#004d40,#64ffda);color:#001a14}
-  .po-btn:active{transform:scale(.97)}
+  .po-title{font-size:1.35rem;font-weight:900;color:#fff;margin-bottom:.25rem}
+  .po-score{font-size:1rem;color:rgba(255,255,255,.55);margin-bottom:1.2rem}
+  .po-btn{padding:.85rem 2.4rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:linear-gradient(135deg,#004d40,#64ffda);color:#001a14}
 
   /* FINAL */
-  #s-final{background:transparent;padding:1.5rem;text-align:center;overflow-y:auto}
-  .final-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;max-width:380px;gap:.85rem}
+  .final-wrap{gap:.85rem}
   .final-icon{font-size:3.5rem;display:block;animation:float 3s ease-in-out infinite}
   .final-title{font-size:1.3rem;font-weight:900;color:#fff}
-  .final-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic;max-width:280px}
+  .final-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.65;font-style:italic;max-width:280px}
   .final-score{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.1rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.75rem;text-align:center;width:100%}
-  .fs-sc{font-size:2.8rem;font-weight:900;display:block}
-  .fs-sc.left{color:#7eb3f5}
-  .fs-sc.right{color:#e8a090}
+  .fs-sc{font-size:2.6rem;font-weight:900;display:block}
+  .fs-sc.left{color:#7eb3f5}.fs-sc.right{color:#e8a090}
   .final-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:.85rem;width:100%}
-  .fst-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);display:block;margin-bottom:.6rem}
+  .fst-title{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.3);display:block;margin-bottom:.6rem}
   .fst-row{display:flex;justify-content:space-between;font-size:12px;padding:.2rem 0}
-  .fst-label{color:rgba(255,255,255,.35)}
+  .fst-label{color:rgba(255,255,255,.4)}
   .fst-val{font-weight:700;color:#64ffda}
-  .verdict{background:rgba(100,255,218,.05);border:1px solid rgba(100,255,218,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.7);line-height:1.8;font-style:italic;width:100%}
+  .verdict{background:rgba(100,255,218,.05);border:1px solid rgba(100,255,218,.15);border-radius:16px;padding:.9rem 1.1rem;font-size:13px;color:rgba(255,255,255,.75);line-height:1.8;font-style:italic;width:100%}
   .verdict strong{color:#64ffda;font-style:normal}
   .final-btns{display:flex;gap:.6rem;width:100%}
-  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif}
+  .final-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700}
   .final-btn-p{background:linear-gradient(135deg,#004d40,#64ffda);color:#001a14}
-  .final-btn-p:active{transform:scale(.97)}
-  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+  .final-btn-o{background:rgba(255,255,255,.07);color:rgba(255,255,255,.5)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -103,71 +91,55 @@
   <div class="intro-wrap">
     <span class="intro-icon">🏓</span>
     <h1 class="intro-title">Table Tennis <span>Rally!</span></h1>
-    <p class="intro-sub">Geser paddle kiri-kanan, pantulkan bola ke sisi lawan. Bola makin cepat tiap reli!</p>
+    <p class="intro-sub">Geser paddle, pantulkan bola ke sisi lawan. Bola makin cepat tiap reli! HP berdiri = atas lawan bawah, HP miring = kiri lawan kanan.</p>
     <div class="how-row">
-      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Drag paddle naik-turun</span></div>
+      <div class="how-item"><span class="how-emoji">👆</span><span class="how-text">Geser jari di sisi kamu</span></div>
       <div class="how-item"><span class="how-emoji">🏓</span><span class="how-text">Bola pantul makin cepat</span></div>
-      <div class="how-item"><span class="how-emoji">🎯</span><span class="how-text">Spin tergantung posisi pukul</span></div>
+      <div class="how-item"><span class="how-emoji">🎯</span><span class="how-text">Pukul pakai ujung paddle = bola miring</span></div>
     </div>
-    <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:.6rem">Main sampai skor:</div>
-    <div class="score-opts">
-      <div class="score-opt" id="opt-5"  onclick="selScore(5)"><span class="so-num">5</span><span class="so-label">poin</span></div>
-      <div class="score-opt sel" id="opt-7" onclick="selScore(7)"><span class="so-num">7</span><span class="so-label">poin</span></div>
-      <div class="score-opt" id="opt-11" onclick="selScore(11)"><span class="so-num">11</span><span class="so-label">poin</span></div>
+    <div class="opt-label">Lawan:</div>
+    <div class="score-opts" id="opt-mode">
+      <div class="score-opt sel" data-v="duo"><span class="so-num">👫</span><span class="so-label">Razan vs Dara</span></div>
+      <div class="score-opt" data-v="bot"><span class="so-num">🤖</span><span class="so-label">Lawan komputer</span></div>
     </div>
-    <button class="intro-btn" onclick="showScreen('s-pick')">Mulai! 🏓</button>
+    <div class="opt-label">Main sampai skor:</div>
+    <div class="score-opts" id="opt-score">
+      <div class="score-opt" data-v="5"><span class="so-num">5</span><span class="so-label">poin</span></div>
+      <div class="score-opt sel" data-v="7"><span class="so-num">7</span><span class="so-label">poin</span></div>
+      <div class="score-opt" data-v="11"><span class="so-num">11</span><span class="so-label">poin</span></div>
+    </div>
+    <button class="intro-btn" onclick="goPick()">Mulai! 🏓</button>
   </div>
 </div>
 
 <!-- PICK -->
 <div id="s-pick" class="screen">
   <div class="pick-wrap">
-    <span style="font-size:3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite;position:relative;z-index:1">🏓</span>
-    <p style="font-size:1.1rem;font-weight:700;color:#fff">Siapa di sisi kiri?</p>
-    <p style="font-size:12px;color:rgba(255,255,255,.35);margin-top:.25rem;line-height:1.6">HP landscape — kiri vs kanan</p>
+    <span style="font-size:3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite">🏓</span>
+    <p style="font-size:1.1rem;font-weight:700;color:#fff" id="pick-title">Siapa di sisi atas / kiri?</p>
+    <p style="font-size:12px;color:rgba(255,255,255,.4);margin-top:.25rem;line-height:1.6" id="pick-sub">Taruh HP di tengah — atas lawan bawah</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="initGame('razan')">
-        <span style="font-size:2rem">🧑</span>
-        <span style="font-size:13px;font-weight:700;color:#fff">Razan kiri</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35)">Dara di kanan</span>
-      </div>
-      <div class="pick-btn" onclick="initGame('dara')">
-        <span style="font-size:2rem">👧</span>
-        <span style="font-size:13px;font-weight:700;color:#fff">Dara kiri</span>
-        <span style="font-size:10px;color:rgba(255,255,255,.35)">Razan di kanan</span>
-      </div>
+      <div class="pick-btn" onclick="initGame('razan')"><span style="font-size:2rem">🧑</span><span style="font-size:13px;font-weight:700;color:#fff" id="pk-r">Razan di atas</span><span style="font-size:10px;color:rgba(255,255,255,.4)" id="pk-r2">Dara di bawah</span></div>
+      <div class="pick-btn" onclick="initGame('dara')"><span style="font-size:2rem">👧</span><span style="font-size:13px;font-weight:700;color:#fff" id="pk-d">Dara di atas</span><span style="font-size:10px;color:rgba(255,255,255,.4)" id="pk-d2">Razan di bawah</span></div>
     </div>
+    <button class="back-link" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
   <div class="g-header">
-    <div class="gh-player">
-      <span class="gh-name" id="gh-name-l">🧑 Razan</span>
-      <span class="gh-score left" id="gh-sc-l">0</span>
-    </div>
-    <div class="gh-mid">
-      <span class="gh-rally" id="gh-rally">Rally: 0</span>
-      <span class="gh-to" id="gh-to">First to 7</span>
-    </div>
-    <div class="gh-player">
-      <span class="gh-name" id="gh-name-r">Dara 👧</span>
-      <span class="gh-score right" id="gh-sc-r">0</span>
-    </div>
+    <button class="g-btn" onclick="quitGame()">✕</button>
+    <div class="gh-player"><span class="gh-name" id="gh-name-l">🧑 Razan</span><span class="gh-score left" id="gh-sc-l">0</span></div>
+    <div class="gh-mid"><span class="gh-rally" id="gh-rally">Rally: 0</span><span class="gh-to" id="gh-to">First to 7</span></div>
+    <div class="gh-player"><span class="gh-name" id="gh-name-r">Dara 👧</span><span class="gh-score right" id="gh-sc-r">0</span></div>
+    <button class="g-btn" onclick="pauseGame()">⏸</button>
   </div>
   <canvas id="game-canvas"></canvas>
 </div>
 
-<!-- POINT OVERLAY -->
-<div id="point-overlay">
-  <div class="po-sheet">
-    <span class="po-icon" id="po-icon">🏓</span>
-    <p class="po-title" id="po-title">Poin!</p>
-    <p class="po-score" id="po-score">0 – 0</p>
-    <button class="po-btn" onclick="continueGame()">Lanjut →</button>
-  </div>
-</div>
+<div id="point-overlay"><div class="po-sheet"><span class="po-icon" id="po-icon">🏓</span><p class="po-title" id="po-title">Poin!</p><p class="po-score" id="po-score">0 – 0</p><button class="po-btn" onclick="continueGame()">Lanjut →</button></div></div>
+<div id="pause-overlay"><div class="po-sheet"><span class="po-icon">⏸️</span><p class="po-title">Dijeda</p><p class="po-score">Tarik napas dulu 😄</p><button class="po-btn" onclick="resumeGame()">Lanjut →</button></div></div>
 
 <!-- FINAL -->
 <div id="s-final" class="screen">
@@ -176,529 +148,251 @@
     <h2 class="final-title" id="final-title">Razan Menang!</h2>
     <p class="final-sub" id="final-sub">Jagoan meja!</p>
     <div class="final-score">
-      <div><span class="fs-sc left" id="end-l">0</span><span style="font-size:10px;color:rgba(255,255,255,.3)" id="end-name-l">Razan</span></div>
-      <span style="color:rgba(255,255,255,.15);font-size:1rem">🏓</span>
-      <div><span class="fs-sc right" id="end-r">0</span><span style="font-size:10px;color:rgba(255,255,255,.3)" id="end-name-r">Dara</span></div>
+      <div><span class="fs-sc left" id="end-l">0</span><span style="font-size:10px;color:rgba(255,255,255,.35)" id="end-name-l">Razan</span></div>
+      <span style="color:rgba(255,255,255,.2);font-size:1rem">🏓</span>
+      <div><span class="fs-sc right" id="end-r">0</span><span style="font-size:10px;color:rgba(255,255,255,.35)" id="end-name-r">Dara</span></div>
     </div>
     <div class="final-stat">
       <span class="fst-title">📊 Statistik Pertandingan</span>
       <div class="fst-row"><span class="fst-label">Rally terpanjang</span><span class="fst-val" id="stat-rally">0</span></div>
-      <div class="fst-row"><span class="fst-label">Total reli</span><span class="fst-val" id="stat-hits">0</span></div>
-      <div class="fst-row"><span class="fst-label">Kecepatan bola max</span><span class="fst-val" id="stat-speed">0</span></div>
+      <div class="fst-row"><span class="fst-label">Total pukulan</span><span class="fst-val" id="stat-hits">0</span></div>
+      <div class="fst-row"><span class="fst-label">Rekor rally sepanjang masa</span><span class="fst-val" id="stat-best">0</span></div>
     </div>
     <div class="verdict" id="verdict">...</div>
     <div class="final-btns">
-      <button class="final-btn final-btn-p" onclick="showScreen('s-pick')">Main Lagi 🔄</button>
+      <button class="final-btn final-btn-p" onclick="goPick()">Main Lagi 🔄</button>
       <button class="final-btn final-btn-o" onclick="showScreen('s-intro')">Menu</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── STARS ──
-(function(){
-  const s=document.getElementById('stars');
-  for(let i=0;i<50;i++){
-    const el=document.createElement('div');
-    el.className='star';
-    const sz=1+Math.random()*2;
-    el.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:-${Math.random()*5}s`;
-    s.appendChild(el);
-  }
+(function () {
+  const s = document.getElementById('stars');
+  for (let i = 0; i < 50; i++) { const el = document.createElement('div'); el.className = 'star'; const z = 1 + Math.random() * 2; el.style.cssText = `width:${z}px;height:${z}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:-${Math.random() * 5}s`; s.appendChild(el); }
 })();
 
-// ── CONFIG ──
-const PADDLE_H     = 0.18;  // fraction of canvas height
-const PADDLE_W     = 0.022;
-const PADDLE_INSET = 0.025;
-const BALL_R       = 0.022;
-const INIT_SPEED   = 0.007; // fraction of W per frame
-const SPEED_INC    = 0.00008;
-const MAX_SPEED    = 0.022;
-const NET_W        = 0.008;
+// ── CONFIG (semua relatif ke ukuran lapangan, kecepatan per DETIK → sama di HP 60Hz & 120Hz) ──
+const PADDLE_LEN = 0.22, PADDLE_THICK = 0.022, PADDLE_INSET = 0.03, BALL_R = 0.02;
+const SPEED0 = 0.45, SPEED_INC = 0.045, SPEED_MAX = 1.3;   // × panjang lapangan per detik
 
 // ── STATE ──
-let targetScore = 7;
-let leftPlayer  = 'razan'; // 'razan' or 'dara'
-let scores = {left:0, right:0};
-let rallyCount = 0;
-let maxRally = 0;
-let totalHits = 0;
-let maxSpeed = 0;
+const $ = id => document.getElementById(id);
+let targetScore = 7, mode = 'duo', leftPlayer = 'razan';
+let scores, rally, maxRally, totalHits, canvas, ctx, CW, CH, LW, LH, portrait = false, dpr = 1;
+let ball, L, R, particles = [], trail = [], running = false, paused = false, serveT = 0, lastT = 0, animId = null, phase = 'idle';
+const pointers = new Map();   // pointerId → 'left' | 'right'
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); }
+[['opt-mode', v => mode = v], ['opt-score', v => targetScore = +v]].forEach(([id, set]) => $(id).querySelectorAll('.score-opt').forEach(b => b.onclick = () => { $(id).querySelectorAll('.score-opt').forEach(x => x.classList.toggle('sel', x === b)); set(b.dataset.v); }));
+const names = () => { const other = leftPlayer === 'razan' ? 'Dara' : 'Razan'; return { left: leftPlayer === 'razan' ? 'Razan' : 'Dara', right: mode === 'bot' ? 'Komputer' : other }; };
+const emo = n => n === 'Razan' ? '🧑' : n === 'Dara' ? '👧' : '🤖';
 
-// Canvas & ctx
-let canvas, ctx, W, H;
-let animId = null;
-let gameRunning = false;
-let pointPending = false;
-
-// Ball
-let bx, by, bvx, bvy, bspeed;
-
-// Paddles
-let lPaddle = {y:0.5, vy:0, touching:false, touchY:0};
-let rPaddle = {y:0.5, vy:0, touching:false, touchY:0};
-
-// Particle system
-let particles = [];
-
-// Trail
-let trail = [];
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el) el.classList.add('active');
-  if(id==='s-game') requestAnimationFrame(()=>requestAnimationFrame(startLoop));
+function goPick() {
+  const port = window.innerHeight > window.innerWidth, a = port ? 'atas' : 'kiri', b = port ? 'bawah' : 'kanan';
+  if (mode === 'bot') { $('pick-title').textContent = 'Siapa yang main?'; $('pick-sub').textContent = `Kamu di ${b === 'bawah' ? 'atas' : 'kiri'}, komputer di ${b}`; $('pk-r').textContent = 'Razan'; $('pk-r2').textContent = 'lawan komputer'; $('pk-d').textContent = 'Dara'; $('pk-d2').textContent = 'lawan komputer'; }
+  else { $('pick-title').textContent = `Siapa di sisi ${a}?`; $('pick-sub').textContent = port ? 'Taruh HP di tengah — atas lawan bawah' : 'HP miring — kiri lawan kanan'; $('pk-r').textContent = `Razan di ${a}`; $('pk-r2').textContent = `Dara di ${b}`; $('pk-d').textContent = `Dara di ${a}`; $('pk-d2').textContent = `Razan di ${b}`; }
+  showScreen('s-pick');
 }
-
-function selScore(n){
-  targetScore=n;
-  [5,7,11].forEach(x=>{
-    const el=document.getElementById('opt-'+x);
-    if(el) el.classList.toggle('sel',x===n);
-  });
-}
-
-// ── INIT ──
-function initGame(leftP){
-  leftPlayer=leftP;
-  scores={left:0,right:0};
-  rallyCount=0; maxRally=0; totalHits=0; maxSpeed=0;
-  particles=[]; trail=[];
-
-  const lName=leftPlayer==='razan'?'🧑 Razan':'👧 Dara';
-  const rName=leftPlayer==='razan'?'Dara 👧':'Razan 🧑';
-  const lEl=document.getElementById('gh-name-l');
-  const rEl=document.getElementById('gh-name-r');
-  const toEl=document.getElementById('gh-to');
-  if(lEl) lEl.textContent=lName;
-  if(rEl) rEl.textContent=rName;
-  if(toEl) toEl.textContent='First to '+targetScore;
-
+function initGame(lp) {
+  leftPlayer = lp; scores = { left: 0, right: 0 }; rally = 0; maxRally = 0; totalHits = 0; particles = []; trail = [];
+  const n = names(); $('gh-name-l').textContent = `${emo(n.left)} ${n.left}`; $('gh-name-r').textContent = `${n.right} ${emo(n.right)}`; $('gh-to').textContent = 'First to ' + targetScore;
   showScreen('s-game');
+  requestAnimationFrame(() => requestAnimationFrame(() => { setupCanvas(); L = { y: LH / 2, target: LH / 2 }; R = { y: LH / 2, target: LH / 2 }; serve(Math.random() < .5 ? -1 : 1); start(); }));
 }
 
-function startLoop(){
-  canvas=document.getElementById('game-canvas');
-  if(!canvas) return;
-  const wrap=document.getElementById('s-game');
-  const hdrH=document.querySelector('.g-header')?.offsetHeight||44;
-  W=wrap.clientWidth;
-  H=Math.max(200,wrap.clientHeight-hdrH);
-  const dpr=window.devicePixelRatio||1;
-  canvas.width=W*dpr; canvas.height=H*dpr;
-  canvas.style.width=W+'px'; canvas.style.height=H+'px';
-  ctx=canvas.getContext('2d');
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-
-  setupInput();
-  resetBall(1);
-  lPaddle={y:.5,vy:0,touching:false,touchY:0};
-  rPaddle={y:.5,vy:0,touching:false,touchY:0};
-  gameRunning=true;
-  pointPending=false;
-  updateHUD();
-
-  if(animId) cancelAnimationFrame(animId);
-  loop();
+// ── LAPANGAN: HP berdiri → main atas-bawah (gambarnya diputar), HP miring → kiri-kanan ──
+function setupCanvas() {
+  canvas = $('game-canvas'); ctx = canvas.getContext('2d');
+  const wrap = $('s-game'), hdr = document.querySelector('.g-header').offsetHeight;
+  CW = wrap.clientWidth; CH = Math.max(200, wrap.clientHeight - hdr);
+  dpr = Math.min(window.devicePixelRatio || 1, 3);
+  canvas.width = Math.round(CW * dpr); canvas.height = Math.round(CH * dpr); canvas.style.height = CH + 'px';
+  const wasPortrait = portrait, oldLW = LW, oldLH = LH;
+  portrait = CH > CW; LW = portrait ? CH : CW; LH = portrait ? CW : CH;
+  if (ball && oldLW && (wasPortrait !== portrait || oldLW !== LW)) { ball.x *= LW / oldLW; ball.y *= LH / oldLH; ball.vx *= LW / oldLW; ball.vy *= LW / oldLW; L.y *= LH / oldLH; R.y *= LH / oldLH; }
 }
+window.addEventListener('resize', () => { if ($('s-game').classList.contains('active')) setupCanvas(); });
+function toLogical(cx, cy) { const r = canvas.getBoundingClientRect(), sx = cx - r.left, sy = cy - r.top; return portrait ? { x: sy, y: CW - sx } : { x: sx, y: sy }; }
 
-// ── INPUT ──
-function setupInput(){
-  const c=canvas;
-  c.addEventListener('touchstart', onTS, {passive:false});
-  c.addEventListener('touchmove',  onTM, {passive:false});
-  c.addEventListener('touchend',   onTE, {passive:false});
-  c.addEventListener('mousedown',  onMS);
-  window.addEventListener('mousemove', onMM);
-  window.addEventListener('mouseup',   onMU);
-}
+// [FIX] dulu kontrol dipasang ulang tiap main → numpuk; jari yang lewat tengah bikin paddle lawan "nyangkut". Sekarang tiap jari dikunci ke sisinya
+(function () {
+  const c = $('game-canvas');
+  c.addEventListener('pointerdown', e => { e.preventDefault(); const p = toLogical(e.clientX, e.clientY), side = p.x < LW / 2 ? 'left' : 'right'; if (mode === 'bot' && side === 'right') return; pointers.set(e.pointerId, side); (side === 'left' ? L : R).target = p.y; try { c.setPointerCapture(e.pointerId); } catch {} });
+  c.addEventListener('pointermove', e => { const side = pointers.get(e.pointerId); if (!side) return; (side === 'left' ? L : R).target = toLogical(e.clientX, e.clientY).y; });
+  const up = e => pointers.delete(e.pointerId);
+  c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up);
+})();
 
-let lMouse=false, rMouse=false;
-
-function getTouchSide(clientX){ return clientX < window.innerWidth/2 ? 'left':'right'; }
-
-function onTS(e){
-  e.preventDefault();
-  Array.from(e.changedTouches).forEach(t=>{
-    const side=getTouchSide(t.clientX);
-    const p=side==='left'?lPaddle:rPaddle;
-    const rect=canvas.getBoundingClientRect();
-    p.touching=true;
-    p.touchY=(t.clientY-rect.top)/H;
-  });
+function serve(dir) {
+  const sp = SPEED0 * LW, ang = (Math.random() * .5 - .25);
+  ball = { x: LW / 2, y: LH * (.35 + Math.random() * .3), vx: sp * Math.cos(ang) * dir, vy: sp * Math.sin(ang), speed: sp };
+  trail = []; serveT = 1.1; rally = 0; updateHUD();
 }
-function onTM(e){
-  e.preventDefault();
-  Array.from(e.changedTouches).forEach(t=>{
-    const side=getTouchSide(t.clientX);
-    const p=side==='left'?lPaddle:rPaddle;
-    const rect=canvas.getBoundingClientRect();
-    p.touchY=(t.clientY-rect.top)/H;
-  });
-}
-function onTE(e){
-  e.preventDefault();
-  Array.from(e.changedTouches).forEach(t=>{
-    const side=getTouchSide(t.clientX);
-    const p=side==='left'?lPaddle:rPaddle;
-    p.touching=false;
-  });
-}
-function onMS(e){
-  const side=getTouchSide(e.clientX);
-  if(side==='left') lMouse=true; else rMouse=true;
-}
-function onMM(e){
-  const rect=canvas?.getBoundingClientRect();
-  if(!rect) return;
-  const ny=(e.clientY-rect.top)/H;
-  if(lMouse) lPaddle.touchY=ny;
-  if(rMouse) rPaddle.touchY=ny;
-}
-function onMU(){ lMouse=false; rMouse=false; }
-
-// ── BALL RESET ──
-function resetBall(dir){
-  bx=0.5; by=0.4+Math.random()*0.2;
-  bspeed=INIT_SPEED;
-  const angle=(Math.random()*.5-.25); // slight angle
-  bvx=bspeed*dir;
-  bvy=bspeed*Math.tan(angle);
-  trail=[];
-}
-
-// ── MAIN LOOP ──
-function loop(){
-  if(!gameRunning){animId=null;return;}
-  animId=requestAnimationFrame(loop);
-  update();
+function start() { running = true; paused = false; phase = 'play'; lastT = performance.now(); cancelAnimationFrame(animId); animId = requestAnimationFrame(loop); }
+function loop(t) {
+  if (!running) return;
+  animId = requestAnimationFrame(loop);
+  const dt = Math.min(.033, (t - lastT) / 1000); lastT = t;
+  if (!paused) update(dt);
   render();
 }
 
-function update(){
-  if(pointPending) return;
-
-  // Move paddles toward touch target (smooth follow)
-  const phH=PADDLE_H/2;
-  [lPaddle,rPaddle].forEach(p=>{
-    if(p.touching||p===lPaddle&&lMouse||p===rPaddle&&rMouse){
-      const target=Math.max(phH,Math.min(1-phH,p.touchY));
-      p.vy=(target-p.y)*0.22;
-    } else {
-      p.vy*=0.75;
-    }
-    p.y=Math.max(phH,Math.min(1-phH,p.y+p.vy));
-  });
-
-  // Move ball
-  bx+=bvx;
-  by+=bvy;
-
-  // Track speed
-  const spd=Math.sqrt(bvx*bvx+bvy*bvy);
-  if(spd>maxSpeed) maxSpeed=spd;
-
-  // Trail
-  trail.push({x:bx,y:by,age:0});
-  if(trail.length>12) trail.shift();
-  trail.forEach(t=>t.age++);
-
-  // Top/bottom wall bounce
-  const br=BALL_R;
-  if(by-br<0){by=br;bvy=Math.abs(bvy);spawnParticles(bx,0,'#64ffda',4);}
-  if(by+br>1){by=1-br;bvy=-Math.abs(bvy);spawnParticles(bx,1,'#64ffda',4);}
-
-  // Left paddle collision
-  const lpX=PADDLE_INSET+PADDLE_W;
-  const lpY1=lPaddle.y-PADDLE_H/2;
-  const lpY2=lPaddle.y+PADDLE_H/2;
-  if(bvx<0 && bx-br<=lpX && bx-br>=PADDLE_INSET && by>=lpY1 && by<=lpY2){
-    const rel=(by-lPaddle.y)/(PADDLE_H/2); // -1..1
-    const bounceAngle=rel*0.85; // max ~49 degrees
-    bspeed=Math.min(bspeed+SPEED_INC*60,MAX_SPEED);
-    bvx=Math.abs(bspeed*Math.cos(bounceAngle));
-    bvy=bspeed*Math.sin(bounceAngle)+lPaddle.vy*0.4;
-    bx=lpX+br+0.002;
-    rallyCount++; totalHits++;
-    if(rallyCount>maxRally) maxRally=rallyCount;
-    spawnParticles(bx,by,'#7eb3f5',8);
-    if(navigator.vibrate) navigator.vibrate(18);
-    updateHUD();
+function update(dt) {
+  const half = PADDLE_LEN * LH / 2, k = 1 - Math.pow(.78, dt * 60);
+  // komputer: ngikutin bola kalau lagi ke arahnya, dengan sedikit telat & meleset
+  if (mode === 'bot') {
+    const toward = ball.vx > 0;
+    if (toward && (!R.aimT || R.aimT <= 0)) { R.aim = ball.y + (Math.random() - .5) * half * 1.3; R.aimT = .18; }
+    R.aimT = (R.aimT || 0) - dt;
+    const tgt = toward ? R.aim : LH / 2, maxMove = LH * (0.9 + Math.min(scores.left, 5) * .08) * dt;
+    R.target = R.y + Math.max(-maxMove, Math.min(maxMove, tgt - R.y));
   }
-
-  // Right paddle collision
-  const rpX=1-PADDLE_INSET-PADDLE_W;
-  const rpY1=rPaddle.y-PADDLE_H/2;
-  const rpY2=rPaddle.y+PADDLE_H/2;
-  if(bvx>0 && bx+br>=rpX && bx+br<=1-PADDLE_INSET && by>=rpY1 && by<=rpY2){
-    const rel=(by-rPaddle.y)/(PADDLE_H/2);
-    const bounceAngle=rel*0.85;
-    bspeed=Math.min(bspeed+SPEED_INC*60,MAX_SPEED);
-    bvx=-Math.abs(bspeed*Math.cos(bounceAngle));
-    bvy=bspeed*Math.sin(bounceAngle)+rPaddle.vy*0.4;
-    bx=rpX-br-0.002;
-    rallyCount++; totalHits++;
-    if(rallyCount>maxRally) maxRally=rallyCount;
-    spawnParticles(bx,by,'#e8a090',8);
-    if(navigator.vibrate) navigator.vibrate(18);
-    updateHUD();
-  }
-
-  // Score — ball out
-  if(bx-br<0){
-    // Right scores
-    scores.right++;
-    rallyCount=0;
-    scorePoint('right');
-  } else if(bx+br>1){
-    // Left scores
-    scores.left++;
-    rallyCount=0;
-    scorePoint('left');
-  }
+  [L, R].forEach(p => { p.prev = p.y; p.y += (Math.max(half, Math.min(LH - half, p.target)) - p.y) * (mode === 'bot' && p === R ? 1 : k); p.vel = (p.y - p.prev) / Math.max(dt, .001); });
+  particles.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt * 2.4; }); particles = particles.filter(p => p.life > 0);
+  if (serveT > 0) { serveT -= dt; return; }
+  const r = BALL_R * LW, px0 = PADDLE_INSET * LW, pw = PADDLE_THICK * LW;
+  const ox = ball.x, oy = ball.y;
+  ball.x += ball.vx * dt; ball.y += ball.vy * dt;
+  trail.push({ x: ball.x, y: ball.y }); if (trail.length > 12) trail.shift();
+  if (ball.y - r < 0) { ball.y = r; ball.vy = Math.abs(ball.vy); burst(ball.x, 0, '#64ffda', 4); }
+  if (ball.y + r > LH) { ball.y = LH - r; ball.vy = -Math.abs(ball.vy); burst(ball.x, LH, '#64ffda', 4); }
+  // [FIX] cek tabrakan "nyapu" sepanjang gerakan → bola kencang nggak nembus paddle lagi
+  const hit = (paddle, planeX, dir) => {
+    const crossed = dir < 0 ? (ox - r >= planeX - 1 && ball.x - r <= planeX) : (ox + r <= planeX + 1 && ball.x + r >= planeX);
+    if (!crossed) return false;
+    const t = (dir < 0 ? (ox - r - planeX) / (ox - ball.x || 1e-6) : (planeX - ox - r) / (ball.x - ox || 1e-6));
+    const yAt = oy + (ball.y - oy) * Math.max(0, Math.min(1, t));
+    if (yAt < paddle.y - half - r || yAt > paddle.y + half + r) return false;
+    const rel = Math.max(-1, Math.min(1, (yAt - paddle.y) / half)), ang = rel * .85;
+    ball.speed = Math.min(ball.speed + SPEED_INC * LW, SPEED_MAX * LW);
+    ball.vx = -dir * ball.speed * Math.cos(ang); ball.vy = ball.speed * Math.sin(ang) + paddle.vel * .15;
+    ball.x = planeX - dir * (r + 1); ball.y = yAt;
+    rally++; totalHits++; maxRally = Math.max(maxRally, rally);
+    burst(ball.x, ball.y, dir < 0 ? '#7eb3f5' : '#e8a090', 8); vib(15); updateHUD();
+    return true;
+  };
+  if (ball.vx < 0) hit(L, px0 + pw, -1); else hit(R, LW - px0 - pw, 1);
+  if (ball.x + r < 0) point('right'); else if (ball.x - r > LW) point('left');
 }
+function burst(x, y, color, n) { for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, s = (.18 + Math.random() * .36) * LW; particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, color, size: .008 * LW + Math.random() * .006 * LW }); } }
 
-// ── PARTICLES ──
-function spawnParticles(x,y,color,n){
-  for(let i=0;i<n;i++){
-    const angle=Math.random()*Math.PI*2;
-    const spd=.003+Math.random()*.006;
-    particles.push({x,y,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,life:1,color,size:.008+Math.random()*.006});
+function point(side) {
+  scores[side]++; running = false; phase = 'point'; vib([60, 30, 120]); updateHUD();
+  const n = names(), who = n[side];
+  if (scores.left >= targetScore || scores.right >= targetScore) return setTimeout(showFinal, 450);
+  $('po-icon').textContent = emo(who); $('po-title').textContent = `Poin untuk ${who}!`; $('po-score').textContent = `${scores.left} – ${scores.right}`;
+  $('point-overlay').classList.add('show'); G_lastScorer = side;
+}
+let G_lastScorer = 'left';
+function continueGame() { $('point-overlay').classList.remove('show'); serve(G_lastScorer === 'left' ? 1 : -1); start(); }
+function pauseGame() { if (phase !== 'play' || !running) return; paused = true; $('pause-overlay').classList.add('show'); }
+function resumeGame() { paused = false; lastT = performance.now(); $('pause-overlay').classList.remove('show'); }
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
+function quitGame() { if (!confirm('Keluar dari pertandingan?')) return; running = false; cancelAnimationFrame(animId); ['point-overlay', 'pause-overlay'].forEach(i => $(i).classList.remove('show')); showScreen('s-intro'); }
+function updateHUD() { $('gh-sc-l').textContent = scores.left; $('gh-sc-r').textContent = scores.right; $('gh-rally').textContent = `Rally: ${rally}`; }
+
+// ── GAMBAR ──
+function render() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (portrait) { ctx.translate(CW, 0); ctx.rotate(Math.PI / 2); }
+  const tg = ctx.createLinearGradient(0, 0, LW, 0); tg.addColorStop(0, '#0d2818'); tg.addColorStop(1, '#081510');
+  ctx.fillStyle = tg; ctx.fillRect(0, 0, LW, LH);
+  ctx.fillStyle = 'rgba(126,179,245,.03)'; ctx.fillRect(0, 0, LW / 2, LH); ctx.fillStyle = 'rgba(232,160,144,.03)'; ctx.fillRect(LW / 2, 0, LW / 2, LH);
+  ctx.strokeStyle = 'rgba(100,255,218,.15)'; ctx.lineWidth = 2; ctx.strokeRect(4, 4, LW - 8, LH - 8);
+  ctx.strokeStyle = 'rgba(100,255,218,.08)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, LH / 2); ctx.lineTo(LW, LH / 2); ctx.stroke();
+  ctx.fillStyle = 'rgba(200,200,200,.12)'; ctx.fillRect(LW / 2 - LW * .004, 0, LW * .008, LH);
+  ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(LW / 2, 0); ctx.lineTo(LW / 2, LH); ctx.stroke(); ctx.setLineDash([]);
+  particles.forEach(p => { ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); }); ctx.globalAlpha = 1;
+  const r = BALL_R * LW;
+  trail.forEach((t, i) => { const a = (i + 1) / trail.length * .3; ctx.fillStyle = `rgba(255,230,100,${a})`; ctx.beginPath(); ctx.arc(t.x, t.y, r * (i + 1) / trail.length * .8, 0, Math.PI * 2); ctx.fill(); });
+  if (ball) {
+    const g = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, r * 3); g.addColorStop(0, 'rgba(255,230,100,.4)'); g.addColorStop(1, 'rgba(255,230,100,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ball.x, ball.y, r * 3, 0, Math.PI * 2); ctx.fill();
+    const bg = ctx.createRadialGradient(ball.x - r * .3, ball.y - r * .3, 1, ball.x, ball.y, r); bg.addColorStop(0, '#fff'); bg.addColorStop(.5, '#ffe082'); bg.addColorStop(1, '#ffb300');
+    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2); ctx.fill();
+  }
+  const n = names(), pw = PADDLE_THICK * LW, plen = PADDLE_LEN * LH, x0 = PADDLE_INSET * LW;
+  drawPaddle(x0, L.y, pw, plen, '#5a8ad4', '#3a6aaa', emo(n.left));
+  drawPaddle(LW - x0 - pw, R.y, pw, plen, '#d4835a', '#aa533a', emo(n.right));
+  // aba-aba servis
+  if (serveT > 0 && phase === 'play') {
+    ctx.save(); ctx.translate(LW / 2, LH / 2); if (portrait) ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `900 ${Math.round(Math.min(LW, LH) * .12)}px Poppins,sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(serveT > .55 ? 'Siap...' : 'Servis!', 0, 0); ctx.restore();
   }
 }
+function drawPaddle(x, y, pw, ph, c1, c2, label) {
+  ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 8;
+  ctx.fillStyle = c1; ctx.beginPath(); ctx.roundRect(x, y - ph / 2, pw, ph, pw / 2); ctx.fill();
+  ctx.shadowBlur = 0; ctx.fillStyle = c2; ctx.beginPath(); ctx.roundRect(x + pw * .12, y - ph / 2 + ph * .04, pw * .76, ph * .92, pw * .4); ctx.fill();
+  ctx.save(); ctx.translate(x + pw / 2, y); if (portrait) ctx.rotate(-Math.PI / 2);
+  ctx.font = `${Math.round(pw * 1.1)}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, 0, 0); ctx.restore();
+}
 
-// ── SCORE POINT ──
-function scorePoint(side){
-  pointPending=true;
-  gameRunning=false;
+// ── AKHIR ──
+function showFinal() {
+  running = false; cancelAnimationFrame(animId);
+  const n = names(), lWon = scores.left >= targetScore, winner = lWon ? n.left : n.right;
+  const best = Math.max(maxRally, +(localStorage.getItem('tt-best-rally') || 0)); try { localStorage.setItem('tt-best-rally', String(best)); } catch {}
+  $('final-icon').textContent = winner === 'Komputer' ? '🤖' : '🏆'; $('final-title').textContent = `${winner} Menang!`;
+  $('final-sub').textContent = winner === 'Komputer' ? 'Komputernya lagi jago — coba lagi!' : 'Jagoan meja ping-pong!';
+  $('end-l').textContent = scores.left; $('end-r').textContent = scores.right; $('end-name-l').textContent = n.left; $('end-name-r').textContent = n.right;
+  $('stat-rally').textContent = maxRally + ' pukulan'; $('stat-hits').textContent = totalHits + ' total'; $('stat-best').textContent = best + ' pukulan' + (maxRally >= best && maxRally > 0 ? ' 🆕' : '');
+  const diff = Math.abs(scores.left - scores.right);
+  $('verdict').innerHTML = diff <= 1 ? `Pertandingan ketat banget ${scores.left}-${scores.right}! Selisih cuma 1 poin.` : `<strong>${winner}</strong> menang ${Math.max(scores.left, scores.right)}-${Math.min(scores.left, scores.right)}! Rally terpanjang ${maxRally} pukulan. 🏓`;
+  showScreen('s-final'); if (winner !== 'Komputer') confetti(80);
+}
+function confetti(n) {
+  const colors = ['#64ffda', '#7eb3f5', '#e8a090', '#ffd54f', '#fff'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }, i * 18);
+}
+</script>
 
-  const lName=leftPlayer==='razan'?'Razan':'Dara';
-  const rName=leftPlayer==='razan'?'Dara':'Razan';
-  const scorerName=side==='left'?lName:rName;
-
-  if(navigator.vibrate) navigator.vibrate([60,30,120]);
-
-  // Check game over
-  const gameOver=scores.left>=targetScore||scores.right>=targetScore;
-
-  if(gameOver){
-    setTimeout(()=>showFinal(),400);
-    return;
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
   }
-
-  // Show point overlay
-  const po=document.getElementById('point-overlay');
-  const poi=document.getElementById('po-icon');
-  const pot=document.getElementById('po-title');
-  const pos=document.getElementById('po-score');
-  if(poi) poi.textContent=side==='left'?'🧑':'👧';
-  if(pot) pot.textContent=`Poin untuk ${scorerName}!`;
-  if(pos) pos.textContent=`${scores.left} – ${scores.right}`;
-  if(po) po.classList.add('show');
-
-  updateHUD();
-  spawnParticles(side==='left'?0:1,.5,side==='left'?'#7eb3f5':'#e8a090',20);
-}
-
-function continueGame(){
-  const po=document.getElementById('point-overlay');
-  if(po) po.classList.remove('show');
-  resetBall(scores.left>scores.right?-1:1);
-  lPaddle.y=.5; rPaddle.y=.5;
-  gameRunning=true;
-  pointPending=false;
-  loop();
-}
-
-// ── RENDER ──
-function render(){
-  ctx.clearRect(0,0,W,H);
-
-  // Table background
-  const tg=ctx.createLinearGradient(0,0,0,H);
-  tg.addColorStop(0,'#0d2818');
-  tg.addColorStop(1,'#081510');
-  ctx.fillStyle=tg;
-  ctx.fillRect(0,0,W,H);
-
-  // Table lines
-  // Outer border
-  ctx.strokeStyle='rgba(100,255,218,.15)';
-  ctx.lineWidth=2;
-  ctx.strokeRect(4,4,W-8,H-8);
-
-  // Side lines
-  ctx.strokeStyle='rgba(100,255,218,.1)';
-  ctx.lineWidth=1;
-  ctx.beginPath();
-  ctx.moveTo(0,H*.08); ctx.lineTo(W,H*.08);
-  ctx.moveTo(0,H*.92); ctx.lineTo(W,H*.92);
-  ctx.stroke();
-
-  // Center line (net)
-  const netX=W/2;
-  const netW=W*NET_W;
-  // Net posts
-  ctx.fillStyle='rgba(200,200,200,.4)';
-  ctx.fillRect(netX-1,0,2,8);
-  ctx.fillRect(netX-1,H-8,2,8);
-  // Net mesh
-  ctx.fillStyle='rgba(200,200,200,.12)';
-  ctx.fillRect(netX-netW/2,0,netW,H);
-  // Net dashes
-  ctx.strokeStyle='rgba(255,255,255,.25)';
-  ctx.lineWidth=1;
-  ctx.setLineDash([6,5]);
-  ctx.beginPath();
-  ctx.moveTo(netX,0); ctx.lineTo(netX,H);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Left half tint
-  ctx.fillStyle='rgba(126,179,245,.015)';
-  ctx.fillRect(0,0,W/2,H);
-  // Right half tint
-  ctx.fillStyle='rgba(232,160,144,.015)';
-  ctx.fillRect(W/2,0,W/2,H);
-
-  // Particles
-  particles=particles.filter(p=>p.life>0);
-  particles.forEach(p=>{
-    p.x+=p.vx; p.y+=p.vy; p.life-=.04;
-    ctx.beginPath();
-    ctx.arc(p.x*W,p.y*H,p.size*W,0,Math.PI*2);
-    ctx.fillStyle=p.color+(Math.floor(p.life*255).toString(16).padStart(2,'0'));
-    ctx.fill();
-  });
-
-  // Ball trail
-  trail.forEach((t,i)=>{
-    const alpha=((i+1)/trail.length)*0.35*(1-t.age/20);
-    if(alpha<=0) return;
-    const r=(BALL_R*W)*((i+1)/trail.length)*0.8;
-    ctx.beginPath();
-    ctx.arc(t.x*W,t.y*H,r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,230,100,${alpha})`;
-    ctx.fill();
-  });
-
-  // Ball
-  const ballX=bx*W, ballY=by*H, ballR=BALL_R*W;
-  // Glow
-  const glowGrad=ctx.createRadialGradient(ballX,ballY,0,ballX,ballY,ballR*3);
-  glowGrad.addColorStop(0,'rgba(255,230,100,.4)');
-  glowGrad.addColorStop(1,'rgba(255,230,100,0)');
-  ctx.beginPath(); ctx.arc(ballX,ballY,ballR*3,0,Math.PI*2);
-  ctx.fillStyle=glowGrad; ctx.fill();
-  // Ball body
-  const ballGrad=ctx.createRadialGradient(ballX-ballR*.3,ballY-ballR*.3,1,ballX,ballY,ballR);
-  ballGrad.addColorStop(0,'#fff');
-  ballGrad.addColorStop(0.5,'#ffe082');
-  ballGrad.addColorStop(1,'#ffb300');
-  ctx.beginPath(); ctx.arc(ballX,ballY,ballR,0,Math.PI*2);
-  ctx.fillStyle=ballGrad; ctx.fill();
-  // Shine
-  ctx.beginPath(); ctx.arc(ballX-ballR*.28,ballY-ballR*.28,ballR*.25,0,Math.PI*2);
-  ctx.fillStyle='rgba(255,255,255,.7)'; ctx.fill();
-
-  // Draw paddles
-  drawPaddle(ctx,PADDLE_INSET*W,lPaddle.y*H,PADDLE_W*W,PADDLE_H*H,'left');
-  drawPaddle(ctx,(1-PADDLE_INSET-PADDLE_W)*W,rPaddle.y*H,PADDLE_W*W,PADDLE_H*H,'right');
-}
-
-function drawPaddle(ctx,x,y,pw,ph,side){
-  const cx=x+pw/2;
-  // Shadow
-  ctx.shadowColor='rgba(0,0,0,.4)';
-  ctx.shadowBlur=8;
-
-  // Handle
-  const hColor=side==='left'?'#5a8ad4':'#d4835a';
-  ctx.fillStyle=hColor;
-  ctx.beginPath();
-  ctx.roundRect(x,y-ph/2,pw,ph,pw/2);
-  ctx.fill();
-
-  // Rubber face (slightly inset)
-  const rColor=side==='left'?'#3a6aaa':'#aa533a';
-  ctx.fillStyle=rColor;
-  ctx.beginPath();
-  ctx.roundRect(x+pw*.1,y-ph/2+ph*.04,pw*.8,ph*.92,pw*.4);
-  ctx.fill();
-
-  // Shine strip
-  ctx.fillStyle='rgba(255,255,255,.15)';
-  ctx.beginPath();
-  ctx.roundRect(x+pw*.25,y-ph/2+ph*.08,pw*.25,ph*.35,pw*.2);
-  ctx.fill();
-
-  ctx.shadowColor='transparent';
-  ctx.shadowBlur=0;
-
-  // Player label
-  ctx.font=`bold ${Math.max(9,ph*.1)}px Poppins,sans-serif`;
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  ctx.fillStyle='rgba(255,255,255,.4)';
-  ctx.fillText(side==='left'?'L':'R',cx,y);
-}
-
-// ── HUD ──
-function updateHUD(){
-  const sl=document.getElementById('gh-sc-l');
-  const sr=document.getElementById('gh-sc-r');
-  const gr=document.getElementById('gh-rally');
-  if(sl) sl.textContent=scores.left;
-  if(sr) sr.textContent=scores.right;
-  if(gr) gr.textContent=`Rally: ${rallyCount}`;
-}
-
-// ── FINAL ──
-function showFinal(){
-  gameRunning=false;
-  if(animId){cancelAnimationFrame(animId);animId=null;}
-
-  const lWon=scores.left>=targetScore;
-  const lName=leftPlayer==='razan'?'Razan':'Dara';
-  const rName=leftPlayer==='razan'?'Dara':'Razan';
-  const winnerName=lWon?lName:rName;
-
-  const fi=document.getElementById('final-icon');if(fi) fi.textContent='🏆';
-  const ft=document.getElementById('final-title');if(ft) ft.textContent=`${winnerName} Menang!`;
-  const fs=document.getElementById('final-sub');if(fs) fs.textContent='Jagoan meja ping-pong!';
-  const el=document.getElementById('end-l');if(el) el.textContent=scores.left;
-  const er=document.getElementById('end-r');if(er) er.textContent=scores.right;
-  const enl=document.getElementById('end-name-l');if(enl) enl.textContent=lName;
-  const enr=document.getElementById('end-name-r');if(enr) enr.textContent=rName;
-
-  const maxSpeedKmh=Math.round(maxSpeed*W*60*0.036);
-  const sr2=document.getElementById('stat-rally');if(sr2) sr2.textContent=maxRally+' hits';
-  const sh=document.getElementById('stat-hits');if(sh) sh.textContent=totalHits+' total';
-  const ss=document.getElementById('stat-speed');if(ss) ss.textContent=maxSpeedKmh+' km/h';
-
-  const vd=document.getElementById('verdict');
-  if(vd){
-    const diff=Math.abs(scores.left-scores.right);
-    const txt=diff<=1?`Pertandingan ketat banget ${scores.left}-${scores.right}! Selisih cuma 1 poin.`:`<strong>${winnerName}</strong> menang ${Math.max(scores.left,scores.right)}-${Math.min(scores.left,scores.right)}! Rally terpanjang ${maxRally} hits. 🏓`;
-    vd.innerHTML=txt;
-  }
-
-  showScreen('s-final');
-  confetti(80);
-}
-
-function confetti(n){
-  const colors=['#64ffda','#7eb3f5','#e8a090','#ffd54f','#fff'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');
-    el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),5000);
-  },i*18);
-}
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
