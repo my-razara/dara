@@ -166,6 +166,11 @@
       <div class="pick-btn" onclick="newMatch('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan nyimpen angka</span><span class="pick-sub2">Dara yang nebak duluan</span></div></div>
       <div class="pick-btn" onclick="newMatch('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara nyimpen angka</span><span class="pick-sub2">Razan yang nebak duluan</span></div></div>
     </div>
+    <p class="sub" style="margin-top:1.1rem">🤖 Atau main sendiri lawan komputer — komputer nyimpen angka duluan:</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="newMatch('d','d')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">vs 🤖 Komputer</span></div></div>
+      <div class="pick-btn" onclick="newMatch('r','r')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">vs 🤖 Komputer</span></div></div>
+    </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
@@ -225,8 +230,9 @@
 
 <script>
 // ═════════ DATA ═════════
-const NAMES = { r:'Razan', d:'Dara' };
-const ICON = { r:'🧑', d:'👧' };
+let NAMES = { r:'Razan', d:'Dara' };
+let ICON = { r:'🧑', d:'👧' };
+let BOT = null, botTimer = null;   // 'r' / 'd' kalau slot itu dimainin komputer
 const GOOD_DEMANDS = [
   '<b>{t}</b> kasih tepuk tangan + "pinter banget sih kamu" ke <b>{g}</b> 👏',
   '<b>{t}</b> kasih <b>{g}</b> 1 pujian soal otaknya 🧠🥰',
@@ -286,7 +292,11 @@ function buildPad(id, onKey, okLabel) {
 function bump(boxId) { const b = $(boxId); b.classList.remove('bad'); void b.offsetWidth; b.classList.add('bad'); vib([40, 20, 40]); }
 
 // ═════════ MATCH ═════════
-function newMatch(firstThinker) {
+function newMatch(firstThinker, bot) {
+  if (bot !== undefined) BOT = bot || null; else BOT = null;
+  NAMES = { r:'Razan', d:'Dara' }; ICON = { r:'🧑', d:'👧' };
+  if (BOT) { NAMES[BOT] = 'Komputer'; ICON[BOT] = '🤖'; }
+  clearTimeout(botTimer);
   M = { first: firstThinker === 'd' ? 'd' : 'r', range: CFG.range, turns: CFG.turns * 2, turn: 0, log: [] };
   setupSecret();
 }
@@ -294,6 +304,13 @@ function thinker() { return M.turn % 2 === 0 ? M.first : other(M.first); }
 
 function setupSecret() {
   const t = thinker(), g = other(t);
+  if (BOT && t === BOT) {   // komputer milih angka diam-diam
+    M.secret = 1 + Math.floor(Math.random() * M.range); M.story = ''; M.random = true;
+    setText('cv-icon', '🤖'); setText('cv-sub', `Komputer udah nyimpen angka 1–${M.range} 🤫 Giliran kamu nebak!`);
+    setHTML('cv-rules', `<div class="row"><span>🎯 Rentang</span><b>1 – ${M.range}</b></div>${CFG.limit ? `<div class="row"><span>⏳ Kesempatan</span><b>${maxTries(M.range)}x</b></div>` : ''}<div class="row"><span>💡 Clue</span><b>naik / turun${CFG.temp ? ' + suhu 🌡️' : ''}</b></div>`);
+    setText('cv-btn', `${ICON[g]} ${NAMES[g]} siap nebak 🎯`);
+    return showScreen('s-cover');
+  }
   const w = $('set-who'); w.textContent = `${ICON[t]} ${NAMES[t]} — nyimpen angka`; w.className = 'who ' + t;
   setHTML('set-sub', `Pilih angka <b>1–${M.range}</b>. ${NAMES[g]} jangan ngintip! 🙈 <br><span style="font-size:11px">Giliran ${M.turn + 1} dari ${M.turns}</span>`);
   M.input = ''; $('story').value = '';
@@ -342,8 +359,20 @@ function startGuess() {
   buildPad('g-pad', guessKey, 'NEBAK');
   updateRange(); updateTries();
   showScreen('s-guess');
+  const bt = BOT && g === BOT;
+  $('g-pad').style.opacity = bt ? '.35' : ''; $('g-pad').style.pointerEvents = bt ? 'none' : '';
+  if (bt) { setHTML('feedback', `<span class="fb-temp">🤖 Komputer lagi mikir... kamu tinggal nonton 👀</span>`); botTimer = setTimeout(botGuess, 1100); }
 }
-function guessKey(k) {
+// komputer nebak: mirip cari-tengah, tapi nggak selalu sempurna biar bisa dikalahin
+function botGuess() {
+  if (!T || T.done || !BOT || T.g !== BOT) return;
+  const lo = T.lo, hi = T.hi, mid = (lo + hi) / 2, spread = (hi - lo) * (Math.random() < .55 ? .22 : .05);
+  let n = Math.round(mid + (Math.random() * 2 - 1) * spread); n = Math.max(lo, Math.min(hi, n));
+  T.input = String(n); setText('g-num', n); vib(10);
+  botTimer = setTimeout(() => { if (!T || T.done) return; submit(); if (!T.done) botTimer = setTimeout(botGuess, 1000); }, 600);
+}
+function guessKey(k) { if (BOT && T && T.g === BOT) return; return guessKey_orig(k); }
+function guessKey_orig(k) {
   if (!T || T.done) return;
   if (k === '⌫') T.input = T.input.slice(0, -1);
   else if (k === 'NEBAK') { submit(); return; }
@@ -410,7 +439,7 @@ function turnResult() {
   const x = M.log[M.log.length - 1], last = M.turn + 1 >= M.turns;
   const good = x.ok && x.tries <= optimal(M.range);
   const units = x.secret % 10 || 10;
-  const dm = x.ok ? (good ? fill(draw('good', GOOD_DEMANDS), { t: NAMES[x.t], g: NAMES[x.g] }) : null)
+  const dm = BOT ? null : x.ok ? (good ? fill(draw('good', GOOD_DEMANDS), { t: NAMES[x.t], g: NAMES[x.g] }) : null)
     : fill(draw('fail', FAIL_DEMANDS), { t: NAMES[x.t], g: NAMES[x.g], n: Math.min(5, units), s: units });
   const nt = other(x.t);
   setHTML('result-inner', `
@@ -425,7 +454,7 @@ function turnResult() {
     </div>
     ${x.story ? `<div class="story-card"><span>💌 Cerita di balik angka ${x.secret}</span>${esc(x.story)}</div>` : ''}
     ${dm ? `<div class="demand"><span class="demand-tag">${x.ok ? '🎁 Bonus' : `😈 Hukuman buat ${NAMES[x.g]}`}</span><p class="demand-text">${dm}</p></div>` : ''}
-    <button class="btn" onclick="${last ? 'showFinal()' : 'nextTurn()'}">${last ? 'Lihat Juara 🏆' : `Gantian → ${NAMES[nt]} nyimpen angka 🔄`}</button>
+    <button class="btn" onclick="${last ? 'showFinal()' : 'nextTurn()'}">${last ? 'Lihat Juara 🏆' : NAMES[nt] === 'Komputer' ? 'Gantian → 🤖 Komputer nyimpen angka 🔄' : BOT ? 'Gantian → kamu nyimpen angka, 🤖 Komputer nebak 🔄' : `Gantian → ${NAMES[nt]} nyimpen angka 🔄`}</button>
     <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
   showScreen('s-result');
 }
@@ -456,16 +485,16 @@ function showFinal() {
     <h2 class="title" style="font-size:1.5rem">${tie ? 'Seri!' : `${w} Menang!`}</h2>
     <p class="sub">Rentang 1–${M.range} · skor = total percobaan (lebih kecil lebih bagus)</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${sr}</span><span class="sc-s">best ${best('r') ?? '—'}</span></div>
+      <div><span class="sc-nm r">${ICON.r} ${NAMES.r}</span><span class="sc-v">${sr}</span><span class="sc-s">best ${best('r') ?? '—'}</span></div>
       <span class="sc-vs">🔢</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${sd}</span><span class="sc-s">best ${best('d') ?? '—'}</span></div>
+      <div><span class="sc-nm d">${ICON.d} ${NAMES.d}</span><span class="sc-v">${sd}</span><span class="sc-s">best ${best('d') ?? '—'}</span></div>
     </div>
-    <div class="tbl"><div class="tr head"><span>Percobaan</span><span>🧑 Razan</span><span>👧 Dara</span></div>${rows.join('')}</div>
+    <div class="tbl"><div class="tr head"><span>Percobaan</span><span>${ICON.r} ${NAMES.r}</span><span>${ICON.d} ${NAMES.d}</span></div>${rows.join('')}</div>
     ${stories.length ? `<div class="story-card"><span>💌 Angka-angka spesial hari ini</span>${stories.map(x => `<b>${x.secret}</b> (${NAMES[x.t]}): ${esc(x.story)}`).join('<br>')}</div>` : ''}
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
-      <p class="demand-text">${tie ? 'Sebutin barengan angka yang paling berarti buat kalian berdua — hitungan ketiga! 1… 2… 3… 💞' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
-    <button class="btn" onclick="newMatch(M ? other(M.first) : 'r')">Main Lagi 🔄</button>
+    <div class="demand"><span class="demand-tag">${BOT ? '🤖 Lawan Komputer' : tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${BOT ? (w === 'Komputer' ? 'Komputer lebih jago kali ini — coba lagi, atau tantang pasanganmu 😏' : tie ? 'Seri lawan komputer — lumayan banget!' : 'Kamu ngalahin komputer! Sekarang tantang pasanganmu 😏') : tie ? 'Sebutin barengan angka yang paling berarti buat kalian berdua — hitungan ketiga! 1… 2… 3… 💞' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn" onclick="newMatch(M ? (BOT ? M.first : other(M.first)) : 'r', BOT)">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-result');
   confetti(tie ? 40 : 70);
@@ -474,7 +503,7 @@ function showFinal() {
 function exitGame() {
   if (!M) { showScreen('s-intro'); return; }
   if (!confirm('Keluar dari game? Skor hilang.')) return;
-  M = null; T = null; showScreen('s-intro');
+  clearTimeout(botTimer); M = null; T = null; showScreen('s-intro');
 }
 
 // Keyboard (laptop)
