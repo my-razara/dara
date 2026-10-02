@@ -201,6 +201,11 @@
       <div class="pick-btn" onclick="initGame('razan')"><div class="pick-symbol r">✕</div><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Razan = ✕ · Dara = ♡</span></div></div>
       <div class="pick-btn" onclick="initGame('dara')"><div class="pick-symbol d">♡</div><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Dara = ♡ · Razan = ✕</span></div></div>
     </div>
+    <p class="pick-sub" style="margin-top:1.1rem">🤖 Atau main sendiri lawan komputer:</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('razan','dara')"><div class="pick-symbol r">✕</div><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">vs 🤖 Komputer ♡</span></div></div>
+      <div class="pick-btn" onclick="initGame('dara','razan')"><div class="pick-symbol d">♡</div><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">vs 🤖 Komputer ✕</span></div></div>
+    </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
@@ -208,9 +213,9 @@
 <!-- GAME -->
 <div id="s-game" class="screen">
   <div class="score-header">
-    <div class="sh-player razan" id="sp-razan"><span class="sh-name">🧑 Razan</span><span class="sh-symbol" style="color:var(--blue)">✕</span><span class="sh-score" style="color:var(--blue)" id="score-razan">0</span><span class="sh-streak" id="streak-razan"></span></div>
+    <div class="sh-player razan" id="sp-razan"><span class="sh-name" id="shn-razan">🧑 Razan</span><span class="sh-symbol" style="color:var(--blue)">✕</span><span class="sh-score" style="color:var(--blue)" id="score-razan">0</span><span class="sh-streak" id="streak-razan"></span></div>
     <div class="sh-mid"><span class="turn-badge razan" id="turn-badge">Giliran Razan</span><span class="round-label" id="round-label">Ronde 1 · target 3</span></div>
-    <div class="sh-player dara" id="sp-dara"><span class="sh-name">👧 Dara</span><span class="sh-symbol" style="color:var(--rose)">♡</span><span class="sh-score" style="color:var(--rose)" id="score-dara">0</span><span class="sh-streak" id="streak-dara"></span></div>
+    <div class="sh-player dara" id="sp-dara"><span class="sh-name" id="shn-dara">👧 Dara</span><span class="sh-symbol" style="color:var(--rose)">♡</span><span class="sh-score" style="color:var(--rose)" id="score-dara">0</span><span class="sh-streak" id="streak-dara"></span></div>
   </div>
   <div class="board-wrap"><div class="board" id="board"></div></div>
   <div class="foot"><button class="btn-ghost" onclick="exitGame()">✕ Keluar</button></div>
@@ -249,7 +254,9 @@
 
 <script>
 // ═════════ STATE ═════════
-const NAMES = { razan:'Razan', dara:'Dara' };
+let NAMES = { razan:'Razan', dara:'Dara' };
+let BOT = null;   // 'razan' / 'dara' kalau slot itu dimainin komputer
+const AV = p => NAMES[p] === 'Komputer' ? '🤖' : p === 'razan' ? '🧑' : '👧';
 const SYMBOLS = { razan:'✕', dara:'♡' };
 const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 let CFG = { mode:'mix', need:3 };
@@ -444,12 +451,16 @@ const FINAL_WIN = [
 ];
 
 function pickChallenge() {
-  const pool = CFG.mode === 'skill' ? SKILL : CFG.mode === 'love' ? LOVE : (Math.random() < .6 ? SKILL : LOVE);
+  // lawan komputer: cuma tantangan Skill (tantangan 💘 Love butuh dinilai pasangan)
+  const pool = (BOT || CFG.mode === 'skill') ? SKILL : CFG.mode === 'love' ? LOVE : (Math.random() < .6 ? SKILL : LOVE);
   return draw(pool === SKILL ? 'skill' : 'love', pool);
 }
 
 // ═════════ GAME ═════════
-function initGame(first) {
+function initGame(first, bot) {
+  BOT = bot || null;
+  NAMES = { razan:'Razan', dara:'Dara' }; if (BOT) NAMES[BOT] = 'Komputer';
+  ['razan','dara'].forEach(p => setText('shn-' + p, `${AV(p)} ${NAMES[p]}`));
   const f = first === 'dara' ? 'dara' : 'razan';
   G = { first: f, roundFirst: f, cur: f, board: Array(9).fill(null), wins: { razan:0, dara:0 }, round: 1,
         pending: null, phase: 'play',
@@ -471,10 +482,46 @@ function updateHeader() {
     const sp = $('sp-' + p); if (sp) sp.classList.toggle('active', G.cur === p);
   });
   setText('round-label', `Ronde ${G.round} · target ${CFG.need}`);
+  maybeBot();
+}
+
+// ═════════ KOMPUTER ═════════
+function maybeBot() {
+  if (!BOT || !G || G.phase !== 'play' || G.cur !== BOT || G.botBusy) return;
+  G.botBusy = true;
+  setTimeout(botTurn, 750);
+}
+function botPick() {
+  const b = G.board, me = BOT, you = other(BOT), free = b.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+  // kadang (30%) jalan asal biar bisa dikalahin
+  if (Math.random() < .3) return free[Math.floor(Math.random() * free.length)];
+  const win = (bd, p) => WIN_LINES.some(([a, c, d]) => bd[a] === p && bd[c] === p && bd[d] === p);
+  const mm = (bd, turn, depth) => {
+    if (win(bd, me)) return 10 - depth; if (win(bd, you)) return depth - 10; if (bd.every(Boolean)) return 0;
+    let best = turn === me ? -99 : 99;
+    bd.forEach((v, i) => { if (v) return; bd[i] = turn; const sc = mm(bd, turn === me ? you : me, depth + 1); bd[i] = null; best = turn === me ? Math.max(best, sc) : Math.min(best, sc); });
+    return best;
+  };
+  let best = -99, picks = [];
+  free.forEach(i => { const bd = [...b]; bd[i] = me; const sc = mm(bd, you, 1); if (sc > best) { best = sc; picks = [i]; } else if (sc === best) picks.push(i); });
+  return picks[Math.floor(Math.random() * picks.length)];
+}
+function botTurn() {
+  if (!G || G.phase !== 'play' || G.cur !== BOT) { if (G) G.botBusy = false; return; }
+  const i = botPick();
+  G.pending = i; G.phase = 'challenge'; G.curLove = false; renderBoard();
+  const b = $('ch-badge'); if (b) { b.textContent = 'Giliran Komputer 🤖'; b.className = 'ch-badge ' + BOT; }
+  setText('ch-type', '🤖 Komputer'); setText('ch-title', 'Komputer lagi nyoba tantangan...'); setHTML('ch-desc', 'Tunggu sebentar ya 😏');
+  setHTML('ch-ui', '<div style="font-size:3rem;text-align:center;animation:float 1s ease-in-out infinite">🤖</div>');
+  setText('ch-result', ''); const r = $('ch-result'); if (r) r.className = 'ch-result';
+  const sk = $('ch-skip'); if (sk) sk.style.display = 'none';
+  const ov = $('ch-overlay'); if (ov) ov.classList.add('show');
+  setTimeout(() => { if (!G) return; G.botBusy = false; const ok = Math.random() < .62; resolveChallenge(ok, ok ? 'Komputer lolos tantangan!' : 'Komputer gagal tantangan 😆'); }, 1100);
 }
 
 function tapCell(i) {
   if (!G || G.phase !== 'play' || G.board[i] || G.pending !== null) return;
+  if (BOT && G.cur === BOT) return;   // lagi giliran komputer
   G.pending = i; G.phase = 'challenge';
   renderBoard();
   openChallenge();
@@ -549,6 +596,10 @@ function roundOver(winner) {
   }
   const done = G.wins.razan >= CFG.need || G.wins.dara >= CFG.need;
   setText('rr-icon', icon); setText('rr-title', title); setText('rr-sub', sub);
+  if (BOT) {
+    tag = winner === BOT ? '🤖 Komputer menang' : winner ? '🎉 Mantap!' : '🤝 Seri';
+    demand = winner === BOT ? 'Komputernya menang ronde ini — balas di ronde berikutnya! 💪' : winner ? 'Komputernya kewalahan 😎 Terusin!' : 'Seri lawan komputer — lumayan banget!';
+  }
   setText('rr-tag', tag); setHTML('rr-demand', demand);
   setText('rr-next', done ? 'Lihat Juara 🏆' : `Ronde ${G.round + 1} → ${NAMES[other(G.roundFirst)]} mulai`);
   const ov = $('rr-overlay'); if (ov) ov.classList.add('show');
@@ -586,20 +637,20 @@ function showFinal() {
     <h2 class="end-title">${w} Juara Tic-Tac-Toe!</h2>
     <p class="end-sub">${G.round} ronde dimainkan · target ${CFG.need}</p>
     <div class="final-score">
-      <div><span class="fs-nm">🧑 Razan ✕</span><span class="fs-sc blue">${G.wins.razan}</span></div>
+      <div><span class="fs-nm">${AV('razan')} ${NAMES.razan} ✕</span><span class="fs-sc blue">${G.wins.razan}</span></div>
       <span class="fs-vs">⭕</span>
-      <div><span class="fs-nm">👧 Dara ♡</span><span class="fs-sc rose">${G.wins.dara}</span></div>
+      <div><span class="fs-nm">${AV('dara')} ${NAMES.dara} ♡</span><span class="fs-sc rose">${G.wins.dara}</span></div>
     </div>
     <div class="stat-table">
-      <div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+      <div class="row head"><span></span><span>${AV('razan')} ${NAMES.razan}</span><span>${AV('dara')} ${NAMES.dara}</span></div>
       <div class="row"><span>🎯 Tantangan dicoba</span><b>${R.tries}</b><b>${D.tries}</b></div>
       <div class="row"><span>✅ Lolos</span><b>${R.ok} (${pct(R)})</b><b>${D.ok} (${pct(D)})</b></div>
       <div class="row"><span>💘 Love lolos</span><b>${R.love}</b><b>${D.love}</b></div>
       <div class="row"><span>🔥 Streak terbaik</span><b>${R.best}</b><b>${D.best}</b></div>
     </div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
-    <button class="btn-main" onclick="initGame(G ? other(G.first) : 'razan')">Main Lagi 🔄</button>
+    ${BOT ? `<div class="demand"><span class="demand-tag">${wp === BOT ? '🤖 Komputer juara' : '🏆 Kamu ngalahin komputer!'}</span><p class="demand-text">${wp === BOT ? 'Coba lagi — atau tantang pasanganmu langsung biar ada hukumannya 😏' : 'Sekarang tantang pasanganmu — buktiin siapa yang paling jago! 😏'}</p></div>` : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
+    <button class="btn-main" onclick="initGame(G ? other(G.first) : 'razan', BOT)">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`;
   showScreen('s-result');
   confetti(70);
