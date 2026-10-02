@@ -187,6 +187,11 @@
       <div class="pick-btn" onclick="initGame('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Ronde 1: Razan tarik pertama</span></div></div>
       <div class="pick-btn" onclick="initGame('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Ronde 1: Dara tarik pertama</span></div></div>
     </div>
+    <p class="sub" style="margin-top:1.1rem">🤖 Atau main sendiri lawan komputer:</p>
+    <div class="pick-btns">
+      <div class="pick-btn" onclick="initGame('r','d')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">vs 🤖 Komputer</span></div></div>
+      <div class="pick-btn" onclick="initGame('d','r')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">vs 🤖 Komputer</span></div></div>
+    </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
@@ -195,9 +200,9 @@
 <div id="s-game" class="screen">
   <div class="gw">
     <div class="hdr">
-      <div class="hp r"><span class="hp-n">🧑 RAZAN</span><span class="hp-s" id="sc-r">0</span><div class="tokens" id="tk-r"></div></div>
+      <div class="hp r"><span class="hp-n" id="hpn-r">🧑 RAZAN</span><span class="hp-s" id="sc-r">0</span><div class="tokens" id="tk-r"></div></div>
       <div class="hm"><b id="round-lbl">Ronde 1</b><span id="target-lbl">first to 3</span><br><button class="x-btn" onclick="exitGame()">✕ Keluar</button></div>
-      <div class="hp d"><span class="hp-n">👧 DARA</span><span class="hp-s" id="sc-d">0</span><div class="tokens" id="tk-d"></div></div>
+      <div class="hp d"><span class="hp-n" id="hpn-d">👧 DARA</span><span class="hp-s" id="sc-d">0</span><div class="tokens" id="tk-d"></div></div>
     </div>
     <div class="pips" id="pips"></div>
     <div class="body">
@@ -223,8 +228,9 @@
 const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
 const SUITS = ['♠','♥','♦','♣'];
 const SUIT_VAL = { '♠':4, '♥':3, '♦':2, '♣':1 };
-const NAMES = { r:'Razan', d:'Dara' };
-const ICON = { r:'🧑', d:'👧' };
+let NAMES = { r:'Razan', d:'Dara' };
+let ICON = { r:'🧑', d:'👧' };
+let BOT = null, botActing = false, botTimer = null;   // 'r' / 'd' kalau slot itu dimainin komputer
 const SUIT_DARES = {
   '♥': ['<b>{l}</b> kasih <b>{w}</b> pelukan 5 detik 🤗', '<b>{l}</b> kasih kecupan jauh ke <b>{w}</b> 😘', '<b>{l}</b> bilang "aku sayang kamu" dengan gaya paling lebay ke <b>{w}</b> 💕'],
   '♦': ['<b>{l}</b> utang 1 jajanan kecil ke <b>{w}</b> 🍬', '<b>{l}</b> ambilin minum buat <b>{w}</b> 🥤', '<b>{l}</b> traktir es teh <b>{w}</b> next time 🧋'],
@@ -271,7 +277,11 @@ function cardStr(c) { return c.joker ? '🃏' : c.rank + c.suit; }
 function cardColor(c) { return c.joker ? '#ce93d8' : (c.suit === '♥' || c.suit === '♦') ? '#e57373' : '#e0e0e0'; }
 
 // ═════════ GAME ═════════
-function initGame(first) {
+function initGame(first, bot) {
+  BOT = bot || null; clearTimeout(botTimer);
+  NAMES = { r:'Razan', d:'Dara' }; ICON = { r:'🧑', d:'👧' };
+  if (BOT) { NAMES[BOT] = 'Komputer'; ICON[BOT] = '🤖'; }
+  ['r', 'd'].forEach(p => { const e = $('hpn-' + p); if (e) e.textContent = `${ICON[p]} ${NAMES[p].toUpperCase()}`; });
   const f = first === 'd' ? 'd' : 'r';
   G = { first: f, target: CFG.target, scores: { r:0, d:0 }, round: 1, starter: f, cur: f,
         drawn: { r:null, d:null }, tok: { r:{ redraw:1, double:1 }, d:{ redraw:1, double:1 } },
@@ -317,9 +327,31 @@ function renderTurn() {
   } else if (G.phase === 'done') {
     deck.classList.add('off'); deck.classList.remove('pulse');
   }
+  if (BOT && G.cur === BOT && (G.phase === 'draw' || G.phase === 'decide')) {
+    setHTML('actions', '<div style="text-align:center;font-size:13px;color:rgba(255,255,255,.6);padding:.6rem">🤖 Komputer lagi mikir...</div>');
+    if (G.phase === 'draw') setText('deck-lbl', 'giliran komputer...');
+    const key = G.round + G.phase;
+    if (G.botKey !== key) { G.botKey = key; clearTimeout(botTimer); botTimer = setTimeout(botAct, 1000); }
+  }
+}
+// otak komputer: kalau tarik kedua, dia liat kartu kamu dulu (sama kayak aturan buat manusia)
+function botAct() {
+  if (!G || !BOT || G.cur !== BOT) return;
+  const opp = G.drawn[other(BOT)], mine = G.drawn[BOT];
+  botActing = true;
+  if (G.phase === 'draw') {
+    const wantDbl = G.tok[BOT].double && !G.dbl && (opp ? opp.val <= 6 && Math.random() < .6 : Math.random() < .15);
+    if (wantDbl) G.pendingDbl = true;
+    drawCard();
+  } else if (G.phase === 'decide') {
+    const losing = opp ? compare(mine, opp) < 0 : mine.val < 8;
+    if (losing && G.tok[BOT].redraw) redraw(); else keepCard();
+  }
+  botActing = false;
 }
 
 function toggleDouble() {
+  if (BOT && G.cur === BOT && !botActing) return;
   if (G.phase !== 'draw' || !G.tok[G.cur].double || G.dbl) return;
   G.pendingDbl = !G.pendingDbl; vib(20); renderTurn();
 }
@@ -340,6 +372,7 @@ function showCard(p, c) {
 
 function drawCard() {
   if (!G || G.phase !== 'draw') return;
+  if (BOT && G.cur === BOT && !botActing) return;
   const p = G.cur;
   if (G.pendingDbl) { G.dbl = p; G.tok[p].double = 0; G.st[p].doubles++; G.pendingDbl = false; setText('dbl-flag', `💥 DOUBLE oleh ${NAMES[p]} — ronde ini 2 poin!`); vib([40, 30, 80]); updateHud(); }
   const c = G.deck.pop();
@@ -352,9 +385,9 @@ function drawCard() {
   else afterKeep();
 }
 
-function keepCard() { if (G.phase !== 'decide') return; afterKeep(); }
+function keepCard() { if (G.phase !== 'decide' || (BOT && G.cur === BOT && !botActing)) return; afterKeep(); }
 function redraw() {
-  if (G.phase !== 'decide') return;
+  if (G.phase !== 'decide' || (BOT && G.cur === BOT && !botActing)) return;
   const p = G.cur;
   G.tok[p].redraw = 0; G.st[p].redraws++;
   const c = G.deck.pop();
@@ -405,7 +438,7 @@ function reveal() {
   G.hist.push({ r: a, d: b, w, pts, dbl: G.dbl });
   updateHud();
   // hadiah sesuai jenis kartu pemenang
-  if (w && CFG.dare) {
+  if (w && CFG.dare && !BOT) {
     const suit = G.drawn[w].joker ? '🃏' : G.drawn[w].suit;
     const md = $('mini-demand');
     md.innerHTML = `<span>${suit} Hadiah ronde</span>${fill(draw('s' + suit, SUIT_DARES[suit]), { w: NAMES[w], l: NAMES[other(w)] })}`;
@@ -443,17 +476,17 @@ function showFinal() {
     <h2 class="title" style="font-size:1.5rem">${w} Menang!</h2>
     <p class="sub">First to ${G.target}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${G.scores.r}</span></div>
+      <div><span class="sc-nm r">${ICON.r} ${NAMES.r}</span><span class="sc-v">${G.scores.r}</span></div>
       <span class="sc-vs">♠️</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${G.scores.d}</span></div>
+      <div><span class="sc-nm d">${ICON.d} ${NAMES.d}</span><span class="sc-v">${G.scores.d}</span></div>
     </div>
     <div class="recap">${rows}</div>
-    <div class="tbl"><div class="tr head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="tbl"><div class="tr head"><span></span><span>${ICON.r} ${NAMES.r}</span><span>${ICON.d} ${NAMES.d}</span></div>
       ${row('🏅 Kartu terbaik', p => S[p].best ? `<span style="color:${cardColor(S[p].best)}">${cardStr(S[p].best)}</span>` : '—')}
       ${row('🃏 Joker', p => S[p].jokers)}${row('🔄 Tarik ulang', p => S[p].redraws)}${row('💥 Double (menang)', p => `${S[p].doubles} (${S[p].dblWon})`)}</div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
-    <button class="btn" onclick="initGame(G ? other(G.first) : 'r')">Main Lagi 🔄</button>
+    <div class="demand"><span class="demand-tag">${BOT ? '🤖 Lawan Komputer' : `👑 Tantangan Final dari ${w}`}</span><p class="demand-text">${BOT ? (w === 'Komputer' ? 'Kartunya lagi berpihak ke komputer 😅 Coba lagi, atau tantang pasanganmu!' : 'Kamu ngalahin komputer! Sekarang tantang pasanganmu 😏') : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    <button class="btn" onclick="initGame(G ? other(G.first) : 'r', BOT)">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-final');
   confetti(70);
