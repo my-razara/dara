@@ -177,8 +177,20 @@
     <p class="pick-title">Siapa yang nendang duluan?</p>
     <p class="pick-sub">Gantian jadi penendang & kiper tiap tendangan</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="initGame('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan nendang duluan</span><span class="pick-sub2">Dara jadi kiper dulu</span></div></div>
-      <div class="pick-btn" onclick="initGame('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara nendang duluan</span><span class="pick-sub2">Razan jadi kiper dulu</span></div></div>
+      <div class="pick-btn" onclick="initGame('r', null)"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan nendang duluan</span><span class="pick-sub2">Dara jadi kiper dulu</span></div></div>
+      <div class="pick-btn" onclick="initGame('d', null)"><span class="pick-icon">👧</span><div><span class="pick-name">Dara nendang duluan</span><span class="pick-sub2">Razan jadi kiper dulu</span></div></div>
+    </div>
+    <div class="panel" style="margin-top:1.1rem">
+      <span class="panel-title">🤖 Atau main sendiri lawan komputer</span>
+      <div class="pills" id="bot-pills" style="margin-bottom:.6rem">
+        <button class="pill" data-v="0">😅<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>normal</small></button>
+        <button class="pill" data-v="2">😎<small>jago</small></button>
+      </div>
+      <div class="pick-btns">
+        <div class="pick-btn" onclick="initGame('r', 'd')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">Kamu nendang duluan, 🤖 jadi kiper</span></div></div>
+        <div class="pick-btn" onclick="initGame('d', 'r')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">Kamu nendang duluan, 🤖 jadi kiper</span></div></div>
+      </div>
     </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
@@ -198,9 +210,9 @@
 <div id="s-game" class="screen">
   <div class="game-wrap">
     <div class="score-bar">
-      <div class="sb-p r"><span class="sb-name">🧑 Razan</span><span class="sb-score" id="sc-r">0</span><div class="dots" id="dots-r"></div></div>
+      <div class="sb-p r"><span class="sb-name" id="sbn-r">🧑 Razan</span><span class="sb-score" id="sc-r">0</span><div class="dots" id="dots-r"></div></div>
       <div class="sb-mid"><span class="sb-round" id="sb-round">Tendangan 1</span><span class="sb-sd" id="sb-sd"></span><button class="sb-exit" onclick="exitGame()">✕ Keluar</button></div>
-      <div class="sb-p d"><span class="sb-name">👧 Dara</span><span class="sb-score" id="sc-d">0</span><div class="dots" id="dots-d"></div></div>
+      <div class="sb-p d"><span class="sb-name" id="sbn-d">👧 Dara</span><span class="sb-score" id="sc-d">0</span><div class="dots" id="dots-d"></div></div>
     </div>
     <div class="field" id="field">
       <div class="box" id="box"></div>
@@ -265,7 +277,11 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { kicks: 5 };
+let CFG = { kicks: 5, bot: 1 };
+// [BARU] lawan komputer: BOT = slot ('r'/'d') yang dimainin komputer
+let BOT = null, botT = null;
+const BOT_SHOOT = [ { mix: [.55, .2, .17, .08], pw: [.35, 1.05] }, { mix: [.45, .3, .17, .08], pw: [.5, .98] }, { mix: [.35, .4, .17, .08], pw: [.6, .92] } ];
+const BOT_READ = [.15, .4, .65];   // seberapa jago komputer baca kebiasaan arah tendanganmu
 let G = null;
 let powerRaf = null, token = 0;
 const decks = {};
@@ -283,6 +299,10 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
 }
+document.querySelectorAll('#bot-pills .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('#bot-pills .pill').forEach(x => x.classList.remove('on'));
+  p.classList.add('on'); CFG.bot = parseInt(p.dataset.v);
+}));
 document.querySelectorAll('#kick-pills .pill').forEach(p => p.addEventListener('click', () => {
   document.querySelectorAll('#kick-pills .pill').forEach(x => x.classList.remove('on'));
   p.classList.add('on'); CFG.kicks = parseInt(p.dataset.v);
@@ -325,11 +345,16 @@ function resetActors(anim) {
 function clearZones() { document.querySelectorAll('.zone').forEach(z => z.className = 'zone'); }
 
 // ═════════ GAME ═════════
-function initGame(first) {
+function initGame(first, bot) {
   const f = first === 'd' ? 'd' : 'r';
+  if (bot !== undefined) BOT = bot || null;
+  clearTimeout(botT);
+  NAMES.r = 'Razan'; NAMES.d = 'Dara'; ICON.r = '🧑'; ICON.d = '👧';
+  if (BOT) { NAMES[BOT] = 'Komputer'; ICON[BOT] = '🤖'; }
+  setText('sbn-r', `${ICON.r} ${NAMES.r}`); setText('sbn-d', `${ICON.d} ${NAMES.d}`);
   G = { first: f, n: CFG.kicks, turn: 0, shooter: f, phase: 'shoot',
         score: { r:0, d:0 }, log: { r:[], d:[] }, sd: false,
-        streak: { r:0, d:0 }, st: { r: blank(), d: blank() }, pick: null };
+        streak: { r:0, d:0 }, st: { r: blank(), d: blank() }, pick: null, hist: [] };
   showScreen('s-game');
   requestAnimationFrame(() => { layout(); startShooter(); });
 }
@@ -362,10 +387,12 @@ function startShooter() {
   $('power').classList.remove('show');
   pickType('place');
   showScreen('s-game');
+  if (BOT && G.shooter === BOT) botShoot();
 }
 
-function pickType(t) {
+function pickType(t, byBot) {
   if (!G || G.phase !== 'shoot') return;
+  if (BOT && G.shooter === BOT && !byBot) return;
   G.pick.type = t;
   document.querySelectorAll('.type').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   const k = NAMES[other(G.shooter)];
@@ -384,6 +411,7 @@ function pickType(t) {
 function tapZone(z) {
   if (!G) return;
   if (G.phase === 'shoot') {
+    if (BOT && G.shooter === BOT) return;
     if (G.pick.type === 'panenka' && z[1] !== 'c') return;
     G.pick.zone = z;
     clearZones(); document.querySelector(`.zone[data-z="${z}"]`).classList.add('pick');
@@ -422,6 +450,12 @@ function stopPower() {
 function toPass() {
   G.phase = 'pass';
   $('zones').classList.remove('active');
+  if (BOT && other(G.shooter) === BOT) {   // komputer jadi kiper → langsung tendang, nggak perlu oper HP
+    G.phase = 'anim';
+    setHTML('hint', '🤖 Komputer lagi baca arah tendanganmu...');
+    botT = setTimeout(() => { if (!G || G.phase !== 'anim') return; const z = botKeep(); clearZones(); document.querySelector(`.zone[data-z="${z}"]`).classList.add('kpick'); resolve(z); }, 650);
+    return;
+  }
   setTimeout(() => {
     if (!G || G.phase !== 'pass') return;
     clearZones();
@@ -470,6 +504,7 @@ function outcome(shot, keep) {
 
 function resolve(keep) {
   const s = G.shooter, k = other(s);
+  if (BOT && s !== BOT) G.hist.push(G.pick.zone);
   const res = outcome(G.pick.zone, keep);
   G.lastRes = res;
   // animasi
@@ -492,7 +527,7 @@ function resolve(keep) {
     const b = $('banner'); b.textContent = res.goal ? 'GOOOL! ⚽' : res.kind === 'over' ? 'MELAMBUNG! 🚀' : res.kind === 'post' ? 'TIANG! 🥅' : 'DISELAMATKAN! 🧤';
     b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
     vib(res.goal ? [100, 50, 200] : [200, 80, 200]);
-    if (res.goal) confetti(35);
+    if (res.goal && NAMES[s] !== 'Komputer') confetti(35);
   }, 800);
 
   // catat
@@ -532,7 +567,7 @@ function showKickResult(res, keep) {
   setHTML('rr-why', `${TYPE_NAME[G.pick.type]} ke ${ZLABEL[G.pick.zone]} · kiper loncat ${ZLABEL[keep]}<br>${res.why}`);
   setText('rr-score', `${G.score.r} — ${G.score.d}`);
   let note = '';
-  if (res.kind === 'panenka-fail') note = '😈 ' + fill(draw('pf', PANENKA_FAIL), { s: NAMES[s], k: NAMES[k] }).replace(/<\/?b>/g, '');
+  if (res.kind === 'panenka-fail') note = BOT ? (s === BOT ? '😂 Komputer sok keren, ketangkep!' : '😅 Komputer nggak ketipu Panenka-mu!') : '😈 ' + fill(draw('pf', PANENKA_FAIL), { s: NAMES[s], k: NAMES[k] }).replace(/<\/?b>/g, '');
   else if (G.streak[s] >= 3) note = `🔥 ${NAMES[s]} gol ${G.streak[s]}x beruntun!`;
   else if (!wasSd && G.sd) note = '⚡ Imbang! Masuk SUDDEN DEATH — siapa gagal duluan, kalah!';
   setText('rr-note', note);
@@ -550,8 +585,36 @@ function afterKick() {
 
 function exitGame() {
   if (!confirm('Keluar dari game? Skor hilang.')) return;
+  clearTimeout(botT);
   token++; cancelAnimationFrame(powerRaf); $('rr').classList.remove('show');
   G = null; showScreen('s-intro');
+}
+
+// ═════════ KOMPUTER ═════════
+function botShoot() {
+  const L = BOT_SHOOT[CFG.bot] || BOT_SHOOT[1];
+  const types = ['place', 'power', 'curve', 'panenka'];
+  let r = Math.random(), t = types[0];
+  for (let i = 0; i < 4; i++) { if (r < L.mix[i]) { t = types[i]; break; } r -= L.mix[i]; }
+  pickType(t, true);
+  const zs = t === 'panenka' ? ['tc', 'bc'] : ZONES;
+  G.pick.zone = zs[Math.floor(Math.random() * zs.length)];
+  if (t === 'power') G.pick.power = L.pw[0] + Math.random() * (L.pw[1] - L.pw[0]);
+  setHTML('hint', `🤖 Komputer lagi ancang-ancang...`);
+  G.phase = 'pass';
+  botT = setTimeout(() => { if (G && G.phase === 'pass') goKeeper(); }, 900);
+}
+function botKeep() {
+  // komputer belajar dari arah tendanganmu sebelumnya
+  const read = BOT_READ[CFG.bot] ?? .4;
+  let col;
+  if (G.hist.length && Math.random() < read) {
+    const cnt = { l: 0, c: 0, r: 0 }; G.hist.forEach((z, i) => cnt[z[1]] += 1 + i * .5);
+    const tot = cnt.l + cnt.c + cnt.r; let x = Math.random() * tot;
+    col = x < cnt.l ? 'l' : x < cnt.l + cnt.c ? 'c' : 'r';
+  } else col = ['l', 'c', 'r'][Math.floor(Math.random() * 3)];
+  const row = Math.random() < .6 ? 't' : 'b';
+  return row + col;
 }
 
 // ═════════ FINAL ═════════
@@ -566,24 +629,25 @@ function showFinal(wp) {
   if (S.r.panenka + S.d.panenka) v += `<br>🎩 Panenka sukses: ${S.r.panenka + S.d.panenka}x — gaya banget!`;
   setHTML('final-inner', `
     <span class="badge">Hasil Adu Penalti</span>
-    <span class="end-icon">🏆</span>
+    <span class="end-icon">${w === 'Komputer' ? '🤖' : '🏆'}</span>
     <h2 class="end-title">${w} Juara!</h2>
     <p class="end-sub">${G.log.r.length + G.log.d.length} tendangan${G.sd ? ' · lewat sudden death' : ''}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${G.score.r}</span></div>
+      <div><span class="sc-nm r">${ICON.r} ${NAMES.r}</span><span class="sc-v">${G.score.r}</span></div>
       <span class="sc-vs">⚽</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${G.score.d}</span></div>
+      <div><span class="sc-nm d">${ICON.d} ${NAMES.d}</span><span class="sc-v">${G.score.d}</span></div>
     </div>
-    <div class="stat-table"><div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="stat-table"><div class="row head"><span></span><span>${ICON.r} ${NAMES.r}</span><span>${ICON.d} ${NAMES.d}</span></div>
       <div class="row"><span>⚽ Gol / tendangan</span><b>${S.r.goals}/${S.r.kicks} (${acc('r')})</b><b>${S.d.goals}/${S.d.kicks} (${acc('d')})</b></div>
       ${row('🧤 Penyelamatan', 'saves')}${row('💥 Power masuk', 'power')}${row('🎩 Panenka sukses', 'panenka')}${row('🔥 Gol beruntun', 'best')}
     </div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${w === 'Komputer' ? 'Komputer menang kali ini 🤖 Coba variasi arah tendangan — dia ngapalin kebiasaanmu lho! Atau tantang pasanganmu biar ada hukumannya 😏' : `Kamu ngalahin komputer level <b>${['santai', 'normal', 'jago'][CFG.bot]}</b>! ⚽ Sekarang tantang pasanganmu 😏`}</p></div>`
+      : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
     <button class="btn-main" onclick="initGame(G ? other(G.first) : 'r')">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-final');
-  confetti(70);
+  if (w !== 'Komputer') confetti(70);
 }
 
 window.addEventListener('resize', () => { if (G && G.geo && document.querySelector('#s-game.active')) { layout(); resetActors(false); } });
