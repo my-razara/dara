@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Tracking Period Dara 🌸</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -299,23 +299,58 @@
   .nav-btn.active .nav-icon{transform:scale(1.1)}
 
   /* Toast */
-  .toast{position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);
+  .toast{position:fixed;top:calc(1rem + env(safe-area-inset-top));left:50%;transform:translateX(-50%);max-width:calc(100% - 2rem);white-space:normal!important;text-align:center;
     background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;
     font-size:12px;font-weight:500;z-index:9999;white-space:nowrap;pointer-events:none;
     animation:toastin .25s ease}
   @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  /* ═════ [BARU] ═════ */
+  .app-header{padding:calc(1.1rem + env(safe-area-inset-top)) 0 1rem}
+  .hdr-back{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid rgba(193,122,111,.15);color:var(--muted);text-decoration:none;font-size:14px;margin-right:.6rem;flex-shrink:0}
+  .hdr-left-wrap{display:flex;align-items:center}
+  .sync{font-size:10px;font-weight:600;border-radius:50px;padding:.25rem .65rem;border:1px solid var(--blush);background:#fff;color:var(--muted);white-space:nowrap;cursor:pointer;font-family:'Poppins',sans-serif}
+  .sync.ok{color:#388e3c;border-color:rgba(129,199,132,.4);background:rgba(129,199,132,.08)}
+  .sync.busy{color:var(--gold);border-color:rgba(201,169,110,.4)}
+  .sync.err{color:#c62828;border-color:rgba(229,115,115,.4);background:rgba(229,115,115,.08)}
+  .offline-bar{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.25);border-radius:14px;padding:.75rem .9rem;margin-bottom:1rem;font-size:11.5px;color:var(--ink);line-height:1.55;display:flex;gap:.6rem;align-items:center}
+  .offline-bar button{flex-shrink:0;border:none;background:var(--rose);color:#fff;border-radius:50px;padding:.45rem .8rem;font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
+  .ring-marker{fill:#fff;stroke:var(--ink);stroke-width:3}
+  .quick{display:flex;gap:.5rem;margin-bottom:1rem}
+  .quick button{flex:1;padding:.85rem .6rem;border-radius:16px;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:700;text-align:center;line-height:1.35;transition:transform .12s}
+  .quick button:active{transform:scale(.96)}
+  .quick small{display:block;font-size:10px;font-weight:400;opacity:.85}
+  .q-start{background:linear-gradient(135deg,#ef8a8a,#d35f5f);color:#fff;box-shadow:0 6px 16px rgba(211,95,95,.3)}
+  .q-end{background:linear-gradient(135deg,#9fd39f,#5fa863);color:#fff;box-shadow:0 6px 16px rgba(95,168,99,.3)}
+  .q-cal{background:#fff;color:var(--rose);border:1.5px solid var(--blush)!important}
+  .next-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.85rem 1rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(193,122,111,.06)}
+  .next-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);padding:.3rem 0}
+  .next-row b{color:var(--ink);font-weight:600}
+  .cal-today-btn{display:block;margin:.6rem auto 0;border:1.5px solid var(--blush);background:#fff;color:var(--rose);border-radius:50px;padding:.4rem 1rem;font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
+  .cal-hint{font-size:10.5px;color:var(--muted);text-align:center;margin-top:.5rem}
+  .hi-info{min-width:0;cursor:pointer}
+  .hi-main,.hi-sub{display:block}
+  .hi-tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.3rem}
+  .hi-tag{font-size:9.5px;background:var(--warm);border-radius:50px;padding:1px 7px;color:var(--muted)}
+  .ls-del{width:100%;padding:.7rem;border-radius:50px;border:none;background:transparent;color:#c62828;font-family:'Poppins',sans-serif;font-size:12px;cursor:pointer;margin-top:.3rem;text-decoration:underline}
+  .disclaimer{font-size:10px;color:var(--muted);text-align:center;line-height:1.6;margin:.5rem 0 1rem;opacity:.85}
 </style>
 </head>
 <body>
 <div class="page">
 
   <div class="app-header">
-    <div class="app-header-left">
-      <h1>Period <span>Dara</span></h1>
-      <p id="header-date">Loading...</p>
+    <div class="hdr-left-wrap">
+      <a class="hdr-back" href="index.html" aria-label="Menu utama">←</a>
+      <div class="app-header-left">
+        <h1>Period <span>Dara</span></h1>
+        <p id="header-date">Loading...</p>
+      </div>
     </div>
-    <span class="app-header-icon">🌸</span>
+    <button class="sync busy" id="sync" onclick="retrySync()">⏳ Memuat</button>
   </div>
+
+  <div id="offline-wrap"></div>
 
   <!-- HOME -->
   <div id="screen-home">
@@ -327,6 +362,7 @@
           <circle class="ring-ovulation" id="r-ovulation" cx="55" cy="55" r="45" stroke-dashoffset="283"/>
           <circle class="ring-folicular" id="r-folicular" cx="55" cy="55" r="45" stroke-dashoffset="283"/>
           <circle class="ring-period"    id="r-period"    cx="55" cy="55" r="45" stroke-dashoffset="283"/>
+          <circle class="ring-marker" id="r-marker" cx="100" cy="55" r="6" style="display:none"/>
         </svg>
         <div class="ring-center">
           <span class="ring-day" id="ring-day">—</span>
@@ -339,6 +375,8 @@
         <span class="ring-phase-desc" id="phase-desc">Memuat data dari server... 🌸</span>
       </div>
     </div>
+
+    <div class="quick" id="quick"></div>
 
     <div class="info-pills" id="info-pills">
       <div class="info-pill">
@@ -355,8 +393,10 @@
       </div>
     </div>
 
+    <div class="next-card" id="next-card" style="display:none"></div>
     <div id="late-wrap"></div>
     <div id="razan-wrap"></div>
+    <p class="disclaimer">Prediksi cuma perkiraan dari riwayat siklus — bukan pengganti saran dokter 🤍</p>
   </div>
 
   <!-- CALENDAR -->
@@ -375,6 +415,8 @@
         <div class="leg-item"><div class="leg-dot" style="background:var(--ovulation)"></div>Ovulasi</div>
         <div class="leg-item"><div class="leg-dot" style="background:var(--luteal)"></div>Luteal</div>
       </div>
+      <p class="cal-hint">Tap tanggal buat nandain haid · tap tanggal haid yang udah ada buat ngedit</p>
+      <button class="cal-today-btn" onclick="goToday()">📍 Ke bulan ini</button>
     </div>
   </div>
 
@@ -397,13 +439,13 @@
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <button class="nav-btn active" onclick="showScreen('home',this)">
+  <button class="nav-btn active" data-s="home" onclick="showScreen('home',this)">
     <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
   </button>
-  <button class="nav-btn" onclick="showScreen('calendar',this)">
+  <button class="nav-btn" data-s="calendar" onclick="showScreen('calendar',this)">
     <span class="nav-icon">📅</span><span class="nav-label">Kalender</span>
   </button>
-  <button class="nav-btn" onclick="showScreen('history',this)">
+  <button class="nav-btn" data-s="history" onclick="showScreen('history',this)">
     <span class="nav-icon">📊</span><span class="nav-label">Riwayat</span>
   </button>
 </div>
@@ -428,7 +470,7 @@
 <div id="log-overlay" onclick="handleOverlay(event)">
   <div class="log-sheet">
     <div class="ls-drag"></div>
-    <p class="ls-title">Tandai Haid</p>
+    <p class="ls-title" id="ls-title">Tandai Haid</p>
     <p class="ls-date" id="ls-date-label">Tanggal dipilih</p>
 
     <div class="ls-section">
@@ -471,91 +513,105 @@
     </div>
     <button class="ls-save" onclick="saveLog()">Simpan 🌸</button>
     <button class="ls-cancel" onclick="closeLog()">Batal</button>
+    <button class="ls-del" id="ls-del" style="display:none" onclick="delFromForm()">🗑️ Hapus catatan haid ini</button>
   </div>
 </div>
 
 <script>
 // ── DATA ──
 const GS_URL='https://script.google.com/macros/s/AKfycbwxqc1oPn30mM-EG8cHfX-cEIJbr8-MZMZLur_TW-6XjBGWuS1_2l1UsS-6EUZX9tDB/exec';
+const CACHE_KEY='period-dara-cache';
 let cycles=[];
-let isSaving=false;
+let loaded=false;          // [FIX] baru boleh nyimpen kalau data server udah kebaca (biar data lama nggak ketimpa kosong)
+let saving=false, pending=false, syncErr=false;
+let currentScreen='home';
 
 function xhrGet(url,cb){
   const xhr=new XMLHttpRequest();
-  xhr.open('GET',url,true);
+  xhr.open('GET',url,true); xhr.timeout=20000;
   xhr.onload=function(){try{cb(null,JSON.parse(xhr.responseText));}catch(e){cb(e);}};
-  xhr.onerror=function(){cb(new Error('err'));};
+  xhr.onerror=xhr.ontimeout=function(){cb(new Error('err'));};
   xhr.send();
 }
 function xhrPost(url,body,cb){
   const xhr=new XMLHttpRequest();
-  xhr.open('POST',url,true);
+  xhr.open('POST',url,true); xhr.timeout=20000;
   xhr.setRequestHeader('Content-Type','text/plain');
-  xhr.onload=function(){try{cb(null,JSON.parse(xhr.responseText));}catch(e){cb(e);}};
-  xhr.onerror=function(){cb(new Error('err'));};
+  xhr.onload=function(){try{cb(null,JSON.parse(xhr.responseText));}catch(e){cb(xhr.status>=200&&xhr.status<400?null:e);}};
+  xhr.onerror=xhr.ontimeout=function(){cb(new Error('err'));};
   xhr.send(JSON.stringify(body));
 }
 function normalizeDate(val){
   if(!val)return null;
   const s=String(val);
-  // If it's a full ISO string like 2026-08-02T00:00:00.000Z, extract date in local time
   if(s.length>10&&s.includes('T')){
     const d=new Date(s);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
-  // Already YYYY-MM-DD
   return s.substring(0,10);
 }
-async function loadFromSheets(){
-  return new Promise((resolve)=>{
-    showToast('Memuat data...');
-    xhrGet(GS_URL+'?action=getAll',(err,rows)=>{
-      if(err||!rows){showToast('Gagal muat data — cek koneksi internet');resolve();return;}
-      cycles=rows.filter(r=>r[0]&&r[0]!=='').map(r=>({
-        start:normalizeDate(r[0]),
-        end:normalizeDate(r[1])||null,
-        mood:r[2]||'',
-        flow:r[3]||'',
-        syms:r[4]?String(r[4]).split(',').filter(Boolean):[],
-      }));
-      cycles.sort((a,b)=>a.start.localeCompare(b.start));
-      renderHome();renderCalendar();
-      document.querySelectorAll('.toast').forEach(e=>e.remove());
-      resolve();
-    });
-  });
+function saveCache(){try{localStorage.setItem(CACHE_KEY,JSON.stringify(cycles));}catch(e){}}
+function readCache(){try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'null');}catch(e){return null;}}
+
+function setSync(state,txt){const el=document.getElementById('sync');el.className='sync '+state;el.textContent=txt;}
+function renderOffline(){
+  document.getElementById('offline-wrap').innerHTML=loaded?'':
+    `<div class="offline-bar"><span>⚠️</span><span style="flex:1">Belum nyambung ke server. ${cycles.length?'Yang tampil data terakhir di HP ini.':''} Perubahan baru bisa disimpan kalau udah nyambung.</span><button onclick="loadFromSheets()">Coba lagi</button></div>`;
 }
 
-async function saveToSheets(){
-  if(isSaving)return;
-  isSaving=true;
-  return new Promise((resolve)=>{
-    xhrPost(GS_URL,{action:'save',cycles},(err,res)=>{
-      if(err)showToast('Gagal simpan — cek koneksi internet');
-      isSaving=false;
-      resolve();
-    });
+function loadFromSheets(){
+  setSync('busy','⏳ Memuat');
+  xhrGet(GS_URL+'?action=getAll',(err,rows)=>{
+    if(err||!Array.isArray(rows)){
+      const c=readCache(); if(c&&!loaded){cycles=c;}
+      loaded=false; setSync('err','⚠️ Offline'); renderOffline(); renderAll();
+      showToast('Gagal muat data — cek koneksi internet');
+      return;
+    }
+    cycles=rows.filter(r=>r[0]&&r[0]!=='').map(r=>({
+      start:normalizeDate(r[0]),
+      end:normalizeDate(r[1])||null,
+      mood:r[2]||'',
+      flow:r[3]||'',
+      syms:r[4]?String(r[4]).split(',').filter(Boolean):[],
+    }));
+    cycles.sort((a,b)=>a.start.localeCompare(b.start));
+    loaded=true; syncErr=false; saveCache();
+    setSync('ok','☁️ Tersimpan'); renderOffline(); renderAll();
   });
 }
-
-async function deleteFromSheets(start){
-  try{
-    await fetch(GS_URL,{
-      method:'POST',
-      body:JSON.stringify({action:'delete',start}),
-    });
-  }catch(err){
-    showToast('Gagal hapus — cek koneksi internet');
-    console.error(err);
-  }
+// [FIX] simpan antre: kalau lagi nyimpen, perubahan berikutnya tetap kekirim setelahnya
+function saveToSheets(){
+  saveCache();
+  if(saving){pending=true;return;}
+  saving=true; setSync('busy','⏳ Menyimpan');
+  xhrPost(GS_URL,{action:'save',cycles},(err)=>{
+    saving=false;
+    if(err){syncErr=true;setSync('err','⚠️ Gagal simpan');showToast('Gagal simpan — tap tombol ⚠️ di atas buat coba lagi');}
+    else{syncErr=false;setSync('ok','☁️ Tersimpan');}
+    if(pending){pending=false;saveToSheets();}
+  });
 }
+function deleteFromSheets(start,cb){
+  setSync('busy','⏳ Menghapus');
+  xhrPost(GS_URL,{action:'delete',start},(err)=>{
+    if(err){setSync('err','⚠️ Gagal hapus');showToast('Gagal hapus — cek koneksi internet');}
+    else setSync('ok','☁️ Tersimpan');
+    if(cb)cb(err);
+  });
+}
+function retrySync(){ if(!loaded)loadFromSheets(); else if(syncErr)saveToSheets(); else showToast('☁️ Semua data udah tersimpan'); }
+function requireOnline(){ if(loaded)return true; showToast('Belum nyambung ke server — tap "Coba lagi" dulu ya'); return false; }
 
 const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const MON3=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 const DOW=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const MOOD={happy:'😊 Seneng',ok:'😐 Biasa',sad:'😢 Sensitif',tired:'😔 Lelah'};
+const SYM={kram:'🤕 Kram',pusing:'💫 Pusing',ngidam:'🍫 Ngidam',capek:'😴 Capek',jerawat:'😣 Jerawat',kembung:'🫃 Kembung',nyeri:'💊 Nyeri',moodswing:'🌊 Mood swing'};
 
 let calYear=new Date().getFullYear();
 let calMonth=new Date().getMonth();
-let logMood='',logFlow='',logSyms=[];
+let logMood='',logFlow='',logSyms=[],editingStart=null;
 
 // ── UTILS ──
 const toStr=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -563,61 +619,58 @@ const fromStr=s=>{const[y,m,d]=s.split('-');return new Date(+y,+m-1,+d)};
 const diffD=(a,b)=>Math.round((b-a)/864e5);
 const addD=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r};
 const todayStr=()=>toStr(new Date());
+const today0=()=>fromStr(todayStr());   // [FIX] hitung hari pakai tengah malam, bukan jam sekarang
+const fmtD=s=>{const d=fromStr(s);return `${d.getDate()} ${MON3[d.getMonth()]} ${d.getFullYear()}`};
+const fmtShort=s=>{const d=fromStr(s);return `${d.getDate()} ${MON3[d.getMonth()]}`};
 
-function avgCycle(){
-  if(cycles.length<2)return 28;
+function cycleLens(){
   const ls=[];
   for(let i=1;i<cycles.length;i++){
     const l=diffD(fromStr(cycles[i-1].start),fromStr(cycles[i].start));
     if(l>10&&l<60)ls.push(l);
   }
-  return ls.length?Math.round(ls.reduce((a,b)=>a+b)/ls.length):28;
+  return ls;
 }
+function avgCycle(){ const ls=cycleLens(); return ls.length?Math.round(ls.reduce((a,b)=>a+b)/ls.length):28; }
 function avgDur(){
-  const ds=cycles.filter(c=>c.end).map(c=>diffD(fromStr(c.start),fromStr(c.end))+1);
+  const ds=cycles.filter(c=>c.end).map(c=>diffD(fromStr(c.start),fromStr(c.end))+1).filter(d=>d>0&&d<15);
   return ds.length?Math.round(ds.reduce((a,b)=>a+b)/ds.length):5;
 }
 function variance(){
   if(cycles.length<3)return null;
-  const ls=[];
-  for(let i=1;i<cycles.length;i++){
-    const l=diffD(fromStr(cycles[i-1].start),fromStr(cycles[i].start));
-    if(l>10&&l<60)ls.push(l);
-  }
-  if(ls.length<2)return null;
+  const ls=cycleLens(); if(ls.length<2)return null;
   const avg=ls.reduce((a,b)=>a+b)/ls.length;
   return Math.round(Math.max(...ls.map(l=>Math.abs(l-avg))));
 }
+// [FIX] ovulasi ±14 hari sebelum haid berikutnya (bukan setengah siklus)
+const ovDayOf=(len,pdur)=>Math.max(pdur+2,len-14);
 
 function getPhase(){
   if(!cycles.length)return null;
   const last=cycles[cycles.length-1];
   const avg=avgCycle(),pdur=avgDur();
-  const now=new Date();
-  const dayInCycle=diffD(fromStr(last.start),now)+1;
+  const dayInCycle=diffD(fromStr(last.start),today0())+1;
   if(dayInCycle<1)return null;
-
   const periodEnd=last.end?diffD(fromStr(last.start),fromStr(last.end))+1:pdur;
-  if(dayInCycle<=periodEnd)return{phase:'period',day:dayInCycle,avg,pdur};
-
-  const ovDay=Math.round(avg/2);
-  if(dayInCycle<ovDay-1)return{phase:'folicular',day:dayInCycle,avg,pdur};
-  if(dayInCycle<=ovDay+1)return{phase:'ovulation',day:dayInCycle,avg,pdur};
-  if(dayInCycle<avg)return{phase:'luteal',day:dayInCycle,avg,pdur};
-  return{phase:'late',day:dayInCycle,avg,pdur};
+  const ovDay=ovDayOf(avg,pdur);
+  if(dayInCycle<=periodEnd)return{phase:'period',day:dayInCycle,avg,pdur,ovDay};
+  if(dayInCycle<ovDay-1)return{phase:'folicular',day:dayInCycle,avg,pdur,ovDay};
+  if(dayInCycle<=ovDay+1)return{phase:'ovulation',day:dayInCycle,avg,pdur,ovDay};
+  if(dayInCycle<=avg)return{phase:'luteal',day:dayInCycle,avg,pdur,ovDay};
+  return{phase:'late',day:dayInCycle,avg,pdur,ovDay};
 }
 
 // ── SCREENS ──
 function showScreen(id,btn){
+  currentScreen=id;
   ['home','calendar','history'].forEach(s=>{
     document.getElementById('screen-'+s).style.display=s===id?'block':'none';
   });
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  if(id==='home')renderHome();
-  if(id==='calendar')renderCalendar();
-  if(id==='history')renderHistory();
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===id));
+  window.scrollTo(0,0);
+  renderAll();
 }
+function renderAll(){ renderHome(); if(currentScreen==='calendar')renderCalendar(); if(currentScreen==='history')renderHistory(); }
 
 // ── HOME ──
 const PHASE_DATA={
@@ -638,28 +691,42 @@ const PHASE_DATA={
     razan:'Haid Dara sudah melebihi prediksi. Perhatiin kondisinya ya 🤍'},
 };
 
+function activePeriod(){
+  // haid yang lagi jalan: belum dikasih tanggal selesai & mulai ≤10 hari lalu
+  const last=cycles.length?cycles[cycles.length-1]:null; if(!last)return null;
+  const d=diffD(fromStr(last.start),today0());
+  if(d<0||d>10)return null;
+  if(last.end&&last.end<todayStr())return null;
+  return last;
+}
+
 function renderHome(){
   const now=new Date();
   document.getElementById('header-date').textContent=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'});
 
+  // tombol cepat
+  const ap=activePeriod();
+  document.getElementById('quick').innerHTML=ap
+    ?`<button class="q-end" onclick="quickEnd()">✅ Haid selesai hari ini<small>mulai ${fmtShort(ap.start)}</small></button><button class="q-cal" onclick="openLogForm(null,'${ap.start}')">✏️ Catat gejala<small>mood & aliran</small></button>`
+    :`<button class="q-start" onclick="quickStart()">🩸 Haid mulai hari ini<small>${fmtShort(todayStr())}</small></button><button class="q-cal" onclick="showScreen('calendar')">📅 Pilih tanggal lain<small>dari kalender</small></button>`;
+
   const p=getPhase();
   const avg=avgCycle();
   const last=cycles.length?cycles[cycles.length-1]:null;
+  const marker=document.getElementById('r-marker');
 
   if(!p){
     document.getElementById('ring-day').textContent='—';
     document.getElementById('phase-badge').className='ring-phase-badge badge-unknown';
     document.getElementById('phase-badge').textContent='Mulai catat';
     document.getElementById('phase-name').textContent='Belum ada data';
-    document.getElementById('phase-desc').textContent='Tap kalender dan tandai hari pertama haid Dara untuk mulai tracking 🌸';
-    ['r-period','r-folicular','r-ovulation','r-luteal'].forEach(id=>{
-      document.getElementById(id).style.strokeDashoffset=283;
-    });
-    document.getElementById('ip-next').textContent='—';
-    document.getElementById('ip-ovul').textContent='—';
-    document.getElementById('ip-cycle').textContent='—';
+    document.getElementById('phase-desc').textContent=loaded||cycles.length?'Tap "Haid mulai hari ini" atau pilih tanggal di kalender buat mulai tracking 🌸':'Memuat data dari server... 🌸';
+    ['r-period','r-folicular','r-ovulation','r-luteal'].forEach(id=>{const el=document.getElementById(id);el.style.strokeDasharray='0 283';});
+    marker.style.display='none';
+    ['ip-next','ip-ovul','ip-cycle'].forEach(id=>document.getElementById(id).textContent='—');
     document.getElementById('late-wrap').innerHTML='';
     document.getElementById('razan-wrap').innerHTML='';
+    document.getElementById('next-card').style.display='none';
     return;
   }
 
@@ -670,42 +737,29 @@ function renderHome(){
   document.getElementById('phase-name').textContent=info.name;
   document.getElementById('phase-desc').textContent=info.desc;
 
-  // Ring segments (stacked)
-  const circ=283;
-  const pdur=p.pdur;
-  const ovDay=Math.round(avg/2);
-  const folLen=ovDay-pdur-2;
-  const ovLen=3;
-  const lutLen=avg-ovDay-1;
+  // [FIX] cincin mulai dari atas: haid → folikuler → ovulasi → luteal, plus titik posisi hari ini
+  const circ=283, pdur=Math.min(p.pdur,avg-4), ovDay=p.ovDay;
+  const folLen=Math.max(0,ovDay-1-pdur-1), ovLen=3, lutLen=Math.max(0,avg-(ovDay+1));
+  const tot=pdur+folLen+ovLen+lutLen;
+  const setArc=(id,len,offset)=>{const el=document.getElementById(id);const L=circ*len/tot;el.style.strokeDasharray=`${L} ${circ-L}`;el.style.strokeDashoffset=-circ*offset/tot;};
+  setArc('r-period',pdur,0); setArc('r-folicular',folLen,pdur); setArc('r-ovulation',ovLen,pdur+folLen); setArc('r-luteal',lutLen,pdur+folLen+ovLen);
+  const frac=Math.min(1,(p.day-.5)/avg), th=frac*Math.PI*2;
+  marker.setAttribute('cx',55+45*Math.cos(th)); marker.setAttribute('cy',55+45*Math.sin(th)); marker.style.display='';
 
-  const pPct=pdur/avg,fPct=folLen/avg,oPct=ovLen/avg,lPct=lutLen/avg;
-
-  // Draw arcs: period (front), then folicular, ovulation, luteal (back)
-  // Use stroke-dashoffset to show partial arc
-  // Each arc starts where previous ends
-  const setArc=(id,pct,offset)=>{
-    const el=document.getElementById(id);
-    const len=circ*pct;
-    el.style.strokeDasharray=`${len} ${circ-len}`;
-    el.style.strokeDashoffset=-circ*offset;
-  };
-
-  setArc('r-luteal',lPct,0);
-  setArc('r-ovulation',oPct,lPct);
-  setArc('r-folicular',fPct,lPct+oPct);
-  setArc('r-period',pPct,lPct+oPct+fPct);
-
-  // Pills
   const nextP=addD(fromStr(last.start),avg);
-  const nextO=addD(fromStr(last.start),Math.round(avg/2));
-  const dToP=diffD(now,nextP);
-  const dToO=diffD(now,nextO);
-
-  document.getElementById('ip-next').textContent=dToP>=0?dToP+'h':'Telat';
-  document.getElementById('ip-ovul').textContent=dToO>=0?dToO+'h':'Lewat';
+  const nextO=addD(fromStr(last.start),ovDay-1);
+  const dToP=diffD(today0(),nextP);
+  const dToO=diffD(today0(),nextO);
+  document.getElementById('ip-next').textContent=dToP>0?dToP+'h':dToP===0?'Hari ini':'Telat';
+  document.getElementById('ip-ovul').textContent=dToO>0?dToO+'h':dToO===0?'Hari ini':'Lewat';
   document.getElementById('ip-cycle').textContent=cycles.length>=2?avg+'h':'28h*';
 
-  // Late alert
+  // [BARU] tanggal perkiraan
+  const nc=document.getElementById('next-card'); nc.style.display='';
+  nc.innerHTML=`<div class="next-row"><span>🩸 Perkiraan haid berikutnya</span><b>${fmtD(toStr(nextP))}</b></div>
+    <div class="next-row"><span>⚡ Perkiraan masa subur</span><b>${fmtShort(toStr(addD(nextO,-1)))} – ${fmtShort(toStr(addD(nextO,1)))}</b></div>
+    <div class="next-row"><span>📌 Haid terakhir mulai</span><b>${fmtD(last.start)}</b></div>`;
+
   const lateWrap=document.getElementById('late-wrap');
   if(dToP<0){
     const late=Math.abs(dToP);
@@ -716,11 +770,18 @@ function renderHome(){
     lateWrap.innerHTML=`<div class="late-alert ${cls}"><span>⚠️</span><span>${msg}</span></div>`;
   } else lateWrap.innerHTML='';
 
-  // Razan alert
   document.getElementById('razan-wrap').innerHTML=`<div class="razan-card">
     <span class="razan-card-icon">👨</span>
     <p class="razan-card-text"><b>Untuk Razan:</b> ${info.razan}</p>
   </div>`;
+}
+
+function quickStart(){ if(!requireOnline())return; openLog(todayStr()); }
+function quickEnd(){
+  if(!requireOnline())return;
+  const ap=activePeriod(); if(!ap)return;
+  ap.end=todayStr(); saveToSheets(); renderAll();
+  showToast('Haid ditandai selesai hari ini ✅');
 }
 
 // ── CALENDAR ──
@@ -730,35 +791,46 @@ function changeMonth(dir){
   if(calMonth<0){calMonth=11;calYear--}
   renderCalendar();
 }
+function goToday(){const n=new Date();calYear=n.getFullYear();calMonth=n.getMonth();renderCalendar();}
+
+function cycleAt(dateStr){ // catatan haid yang mencakup tanggal ini
+  const d=fromStr(dateStr),pdur=avgDur();
+  for(const c of cycles){
+    const s=fromStr(c.start), e=c.end?fromStr(c.end):addD(s,pdur-1);
+    if(d>=s&&d<=e)return c;
+  }
+  return null;
+}
 
 function getDayPhase(dateStr){
   if(!cycles.length)return'';
   const d=fromStr(dateStr);
   const avg=avgCycle(),pdur=avgDur();
-
   for(const c of cycles){
     const s=fromStr(c.start);
     const e=c.end?fromStr(c.end):addD(s,pdur-1);
     if(d.getTime()===s.getTime())return'p-period-start';
     if(d>=s&&d<=e)return'p-period';
   }
-
-  const last=cycles[cycles.length-1];
-  const lastStart=fromStr(last.start);
-
+  // [FIX] cari siklus yang memuat tanggal ini (dulu tanggal sebelum haid terakhir dihitung ngaco)
+  let k=-1; for(let i=0;i<cycles.length;i++){ if(cycles[i].start<=dateStr)k=i; }
+  if(k<0)return'';
+  const s=fromStr(cycles[k].start), dayIn=diffD(s,d)+1;
+  if(k<cycles.length-1){
+    const len=diffD(s,fromStr(cycles[k+1].start)), ov=ovDayOf(len,pdur);
+    if(len<=10||len>=60)return'';
+    if(dayIn<ov-1)return'p-folicular';
+    if(dayIn<=ov+1)return'p-ovulation';
+    return'p-luteal';
+  }
   for(let i=1;i<=6;i++){
-    const ps=addD(lastStart,avg*i);
-    const pe=addD(ps,pdur-1);
+    const ps=addD(s,avg*i), pe=addD(ps,pdur-1);
     if(d>=ps&&d<=pe)return'p-predict';
   }
-
-  const dayIn=diffD(lastStart,d)+1;
-  const normDay=((dayIn-1)%avg)+1;
-  const ovDay=Math.round(avg/2);
-
-  if(normDay>pdur&&normDay<ovDay-1)return'p-folicular';
-  if(normDay>=ovDay-1&&normDay<=ovDay+1)return d>new Date()?'p-predict-ov':'p-ovulation';
-  if(normDay>ovDay+1&&normDay<avg)return'p-luteal';
+  const normDay=((dayIn-1)%avg)+1, ov=ovDayOf(avg,pdur), future=d>today0();
+  if(normDay>pdur&&normDay<ov-1)return'p-folicular';
+  if(normDay>=ov-1&&normDay<=ov+1)return future?'p-predict-ov':'p-ovulation';
+  if(normDay>ov+1)return'p-luteal';
   return'';
 }
 
@@ -766,163 +838,183 @@ function renderCalendar(){
   document.getElementById('cal-label').textContent=`${MONTHS[calMonth]} ${calYear}`;
   const grid=document.getElementById('cal-grid');
   grid.innerHTML='';
-
   DOW.forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el)});
-
   const firstDay=new Date(calYear,calMonth,1).getDay();
   const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
   const todayS=todayStr();
-
   for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el)}
-
   for(let d=1;d<=daysInMonth;d++){
     const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const el=document.createElement('button');
-    el.className='cal-day';
-    el.textContent=d;
+    el.className='cal-day'; el.textContent=d;
     if(ds===todayS)el.classList.add('today');
-    const ph=getDayPhase(ds);
-    if(ph)el.classList.add(ph);
+    const ph=getDayPhase(ds); if(ph)el.classList.add(ph);
     el.addEventListener('click',()=>openLog(ds));
     grid.appendChild(el);
   }
 }
 
 // ── LOG ──
-let _pendingDateStr = '';
-
+let _pendingDateStr='';
 function openLog(dateStr){
-  _pendingDateStr = dateStr;
-  const last = cycles.length ? cycles[cycles.length-1] : null;
-
-  // Check if there's an active cycle (no end date or end date >= dateStr)
-  const hasActiveCycle = last && (!last.end || last.end >= dateStr);
-  // Check if dateStr is after or equal to last start
-  const isAfterLastStart = last && dateStr > last.start;
-  // Check if dateStr is within reasonable range of last cycle (within 14 days)
-  const daysSinceLastStart = last ? diffD(fromStr(last.start), fromStr(dateStr)) : 999;
-
-  if(last && isAfterLastStart && daysSinceLastStart <= 14 && (!last.end || last.end >= dateStr || daysSinceLastStart <= 10)){
-    // Show choice: continue or new
-    const d = fromStr(dateStr);
-    document.getElementById('choice-date-label').textContent =
-      d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    document.getElementById('choice-overlay').style.display = 'flex';
-  } else {
-    // Directly open as new cycle
-    openLogForm(dateStr, false);
-  }
+  if(!requireOnline())return;
+  _pendingDateStr=dateStr;
+  // [BARU] tanggal yang udah tercatat haid → langsung edit catatannya
+  const ex=cycleAt(dateStr);
+  if(ex&&cycles.some(c=>c.start===ex.start&&(c.end||dateStr===c.start))){ openLogForm(null,ex.start); return; }
+  const last=cycles.length?cycles[cycles.length-1]:null;
+  const isAfterLastStart=last&&dateStr>last.start;
+  const daysSinceLastStart=last?diffD(fromStr(last.start),fromStr(dateStr)):999;
+  if(last&&isAfterLastStart&&daysSinceLastStart<=14&&(!last.end||last.end>=dateStr||daysSinceLastStart<=10)){
+    const d=fromStr(dateStr);
+    document.getElementById('choice-date-label').textContent=d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('choice-overlay').style.display='flex';
+  } else openLogForm(dateStr,null);
 }
-
 function choiceContinue(){
   closeChoice();
-  // Update end date of last cycle
-  const last = cycles[cycles.length-1];
-  if(last){
-    last.end = _pendingDateStr;
-    saveToSheets();
-    renderCalendar();
-    renderHome();
-    showToast('Hari haid diperbarui 🌸');
-  }
+  const last=cycles[cycles.length-1];
+  if(last){ last.end=_pendingDateStr; saveToSheets(); renderAll(); showToast('Hari haid diperbarui 🌸'); }
 }
+function choiceNew(){ closeChoice(); openLogForm(_pendingDateStr,null); }
+function closeChoice(){ document.getElementById('choice-overlay').style.display='none'; }
+function handleChoiceOverlay(e){ if(e.target===document.getElementById('choice-overlay'))closeChoice(); }
 
-function choiceNew(){
-  closeChoice();
-  openLogForm(_pendingDateStr, false);
-}
-
-function closeChoice(){
-  document.getElementById('choice-overlay').style.display = 'none';
-}
-
-function handleChoiceOverlay(e){
-  if(e.target===document.getElementById('choice-overlay'))closeChoice();
-}
-
-function openLogForm(dateStr, isEdit){
-  document.getElementById('ls-start').value=dateStr;
-  document.getElementById('ls-end').value='';
-  document.getElementById('ls-date-label').textContent=`Tanggal: ${dateStr}`;
-  logMood='';logFlow='';logSyms=[];
-  document.querySelectorAll('.mood-chip,.flow-chip,.chip').forEach(b=>b.classList.remove('on'));
+function openLogForm(dateStr,editStart){
+  if(!requireOnline())return;
+  editingStart=editStart||null;
+  const c=editStart?cycles.find(x=>x.start===editStart):null;
+  const start=c?c.start:dateStr;
+  document.getElementById('ls-start').value=start;
+  document.getElementById('ls-end').value=c&&c.end?c.end:'';
+  document.getElementById('ls-title').textContent=c?'Edit Catatan Haid':'Tandai Haid';
+  document.getElementById('ls-date-label').textContent=c?`Haid mulai ${fmtD(c.start)}`:`Tanggal: ${fmtD(start)}`;
+  document.getElementById('ls-del').style.display=c?'':'none';
+  logMood=c?c.mood:'';logFlow=c?c.flow:'';logSyms=c?[...c.syms]:[];
+  document.querySelectorAll('.mood-chip').forEach(b=>b.classList.toggle('on',b.dataset.v===logMood));
+  document.querySelectorAll('.flow-chip').forEach(b=>b.classList.toggle('on',b.dataset.v===logFlow));
+  document.querySelectorAll('#sym-chips .chip').forEach(b=>b.classList.toggle('on',logSyms.includes(b.dataset.v)));
   document.getElementById('log-overlay').classList.add('active');
 }
 function closeLog(){document.getElementById('log-overlay').classList.remove('active')}
 function handleOverlay(e){if(e.target===document.getElementById('log-overlay'))closeLog()}
-
 function pickMood(btn){document.querySelectorAll('.mood-chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');logMood=btn.dataset.v}
 function pickFlow(btn){document.querySelectorAll('.flow-chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');logFlow=btn.dataset.v}
 function toggleChip(btn){btn.classList.toggle('on');const v=btn.dataset.v;logSyms.includes(v)?logSyms=logSyms.filter(s=>s!==v):logSyms.push(v)}
 
-async function saveLog(){
+function saveLog(){
   const start=document.getElementById('ls-start').value;
   const end=document.getElementById('ls-end').value;
   if(!start){showToast('Pilih tanggal dulu ya!');return}
-
-  const idx=cycles.findIndex(c=>c.start===start);
+  if(end&&end<start){showToast('Tanggal selesai nggak boleh sebelum tanggal mulai');return}
+  if(end&&diffD(fromStr(start),fromStr(end))>14){showToast('Haid lebih dari 15 hari? Cek lagi tanggalnya ya');return}
   const entry={start,end:end||null,mood:logMood,flow:logFlow,syms:[...logSyms]};
-  if(idx>=0)cycles[idx]=entry;
-  else{cycles.push(entry);cycles.sort((a,b)=>a.start.localeCompare(b.start))}
-  await saveToSheets();
-
+  const moved=editingStart&&editingStart!==start;
+  if(editingStart)cycles=cycles.filter(c=>c.start!==editingStart);
+  const idx=cycles.findIndex(c=>c.start===start);
+  if(idx>=0)cycles[idx]=entry; else cycles.push(entry);
+  cycles.sort((a,b)=>a.start.localeCompare(b.start));
+  if(moved)deleteFromSheets(editingStart,()=>saveToSheets()); else saveToSheets();
   closeLog();
   showToast('Tersimpan! 🌸');
-  renderCalendar();
-  renderHome();
+  renderAll();
 }
 
 // ── HISTORY ──
 function renderHistory(){
   const avg=avgCycle(),dur=avgDur(),vari=variance(),tot=cycles.length;
-
   document.getElementById('s-avg').textContent=cycles.length>=2?avg+'h':'—';
   document.getElementById('s-dur').textContent=cycles.filter(c=>c.end).length?dur+'h':'—';
   document.getElementById('s-tot').textContent=tot;
   document.getElementById('s-var').textContent=vari!==null?vari+'h':'—';
-
   const rw=document.getElementById('reg-wrap');
   if(cycles.length<3){
     rw.innerHTML=`<div class="reg-badge reg-unk">🔍 <span>Butuh minimal 3 siklus untuk cek keteraturan. Sekarang baru ada <b>${tot}</b> siklus.</span></div>`;
   } else if(vari!==null&&vari<=7){
     rw.innerHTML=`<div class="reg-badge reg-ok">✅ <span>Siklus Dara <b>teratur</b> — variansi ${vari} hari (normal ≤7 hari) 🌸</span></div>`;
   } else {
-    rw.innerHTML=`<div class="reg-badge reg-bad">⚠️ <span>Siklus Dara <b>tidak teratur</b> — variansi ${vari} hari. Disarankan konsultasi ke dokter.</span></div>`;
+    rw.innerHTML=`<div class="reg-badge reg-bad">⚠️ <span>Siklus Dara <b>tidak teratur</b> — variansi ${vari??'?'} hari. Disarankan konsultasi ke dokter.</span></div>`;
   }
-
   const list=document.getElementById('hist-list');
   if(!cycles.length){list.innerHTML='<p style="text-align:center;color:var(--muted);font-size:12px;padding:1rem 0">Belum ada data</p>';return}
-
   list.innerHTML=[...cycles].reverse().map((c,i,arr)=>{
     const dur2=c.end?diffD(fromStr(c.start),fromStr(c.end))+1+'h':'?';
-    const prev=arr[i+1];
-    const cycleLen=prev?diffD(fromStr(c.start),fromStr(prev.start))+'h':'—';
+    const prev=arr[i+1];   // siklus sebelumnya (lebih lama)
+    // [FIX] dulu kebalik → panjang siklus jadi minus
+    const cycleLen=prev?diffD(fromStr(prev.start),fromStr(c.start))+'h':'—';
+    const tags=[c.mood&&MOOD[c.mood],c.flow&&('🩸 '+c.flow),...(c.syms||[]).map(s=>SYM[s]||s)].filter(Boolean);
     return `<div class="hist-item">
       <div class="hi-dot"></div>
-      <div class="hi-info">
-        <span class="hi-main">${c.start}${c.end?' → '+c.end:''}</span>
-        <span class="hi-sub">Durasi: ${dur2} · Siklus: ${cycleLen}${c.mood?' · '+c.mood:''}</span>
+      <div class="hi-info" onclick="openLogForm(null,'${c.start}')">
+        <span class="hi-main">${fmtD(c.start)}${c.end?' → '+fmtShort(c.end):''}</span>
+        <span class="hi-sub">Durasi: ${dur2} · Siklus: ${cycleLen}</span>
+        ${tags.length?`<div class="hi-tags">${tags.map(t=>`<span class="hi-tag">${t}</span>`).join('')}</div>`:''}
       </div>
       <button class="hi-del" onclick="delCycle('${c.start}')">✕</button>
     </div>`;
   }).join('');
 }
 
-async function delCycle(s){
-  cycles=cycles.filter(c=>c.start!==s);
-  await deleteFromSheets(s);
-  renderHistory();renderHome();
+function delCycle(s){
+  if(!requireOnline())return;
+  if(!confirm('Hapus catatan haid '+fmtD(s)+'?'))return;
+  cycles=cycles.filter(c=>c.start!==s); saveCache();
+  deleteFromSheets(s);
+  renderAll();
   showToast('Dihapus');
 }
+function delFromForm(){ const s=editingStart; if(!s)return; closeLog(); delCycle(s); }
 
 function showToast(msg){
   document.querySelectorAll('.toast').forEach(e=>e.remove());
   const el=document.createElement('div');el.className='toast';el.textContent=msg;
-  document.body.appendChild(el);setTimeout(()=>el.remove(),2200);
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2400);
 }
 
-// Init
-loadFromSheets();
+// Init: tampilin data terakhir di HP dulu biar nggak kosong, terus ambil dari server
+(function(){ const c=readCache(); if(c){cycles=c;} renderAll(); loadFromSheets(); })();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
