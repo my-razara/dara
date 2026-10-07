@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Open When — Untuk Dara 🤍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -171,6 +171,27 @@
   .btn-primary { background: var(--rose); color: #fff; box-shadow: 0 4px 16px rgba(193,122,111,0.3); }
   .btn-primary:hover { background: var(--deep); transform: translateY(-1px); }
 
+  /* ═════ [BARU] ═════ */
+  * { -webkit-tap-highlight-color: transparent; }
+  .home-link { position: absolute; top: calc(.8rem + env(safe-area-inset-top)); left: .8rem; z-index: 5; font-size: 12px; color: var(--muted); text-decoration: none; padding: .45rem .85rem; border-radius: 50px; background: rgba(255,255,255,.8); border: 1px solid rgba(193,122,111,.15); }
+  .hero { padding-top: calc(3.6rem + env(safe-area-inset-top)); }
+  .progress { margin: 1.1rem auto 0; font-size: 11.5px; color: var(--muted); }
+  .progress b { color: var(--rose); font-weight: 600; }
+  .dots { display: flex; gap: 5px; justify-content: center; margin-top: .5rem; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(193,122,111,.18); }
+  .dots i.on { background: var(--rose); }
+  .envelope:active { transform: scale(.98); }
+  .env-seal { position: absolute; right: 1.1rem; bottom: 1.1rem; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    background: radial-gradient(circle at 35% 30%, #d98b80, var(--rose) 60%, var(--deep)); box-shadow: 0 3px 8px rgba(122,63,53,.3); }
+  .envelope.read .env-seal { background: rgba(255,255,255,.55); box-shadow: none; }
+  .envelope.read .env-status { color: rgba(45,31,26,.55); }
+  .letter-actions { display: flex; flex-direction: column; gap: .55rem; align-items: center; }
+  .btn-reply { display: inline-block; padding: .8rem 1.6rem; border-radius: 50px; text-decoration: none; font-size: 13px; font-weight: 500; color: #fff; background: #25a35a; box-shadow: 0 4px 14px rgba(37,163,90,.28); }
+  .letter-meta { font-size: 10.5px; color: var(--muted); margin-top: .35rem; }
+  #letter-overlay { padding: calc(1rem + env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom)); }
+  .letter-modal.opening .letter-body, .letter-modal.opening .letter-footer { animation: unfold .6s ease .15s both; }
+  @keyframes unfold { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
   @media (max-width: 480px) {
     .envelopes { grid-template-columns: 1fr; }
     .letter-body { padding: 1.5rem; }
@@ -179,6 +200,8 @@
 </style>
 </head>
 <body>
+
+<a class="home-link" href="index.html">← Menu utama</a>
 
 <!-- INTRO -->
 <div id="screen-intro" class="screen active">
@@ -200,6 +223,8 @@
       <h1 class="hero-title">Open <span>When...</span></h1>
       <p class="hero-sub">Pilih amplop sesuai perasaan kamu sekarang. Setiap surat ditulis khusus untuk momen itu.</p>
       <div class="hero-divider"></div>
+      <p class="progress" id="progress"></p>
+      <div class="dots" id="dots"></div>
     </div>
 
     <div class="envelopes fade-in">
@@ -210,7 +235,7 @@
           <p class="env-condition">...kamu lagi sedih</p>
           <p class="env-preview">"Ada sesuatu yang mau aku bilang waktu kamu lagi di titik terendah..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-angry" onclick="openLetter('angry')">
@@ -219,7 +244,7 @@
           <p class="env-condition">...kamu lagi marah sama aku</p>
           <p class="env-preview">"Kalau kamu lagi marah sama aku, ini yang pengen aku sampaikan..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-miss" onclick="openLetter('miss')">
@@ -228,7 +253,7 @@
           <p class="env-condition">...kamu lagi kangen aku</p>
           <p class="env-preview">"Waktu jarak terasa berat dan kamu kangen, baca ini dulu..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-stress" onclick="openLetter('stress')">
@@ -237,7 +262,7 @@
           <p class="env-condition">...kamu lagi stress</p>
           <p class="env-preview">"Tarik napas dulu. Aku udah siapkan sesuatu buat kamu..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-insecure" onclick="openLetter('insecure')">
@@ -246,7 +271,7 @@
           <p class="env-condition">...kamu lagi ngerasa kurang</p>
           <p class="env-preview">"Waktu kamu mulai ngerasa tidak cukup baik, baca ini..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-happy" onclick="openLetter('happy')">
@@ -255,7 +280,7 @@
           <p class="env-condition">...kamu lagi bahagia</p>
           <p class="env-preview">"Waktu semuanya terasa baik — ini yang aku rasain juga..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-lonely" onclick="openLetter('lonely')">
@@ -264,7 +289,7 @@
           <p class="env-condition">...kamu lagi ngerasa sendirian</p>
           <p class="env-preview">"Kamu tidak pernah benar-benar sendirian. Ini buktinya..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
       <div class="envelope env-overthink" onclick="openLetter('overthink')">
@@ -273,7 +298,7 @@
           <p class="env-condition">...kamu lagi overthinking</p>
           <p class="env-preview">"Stop sebentar. Aku tau pikiranmu lagi kemana-mana..."</p>
         </div>
-        <p class="env-open-hint">✉ Klik untuk buka</p>
+        <p class="env-open-hint">✉ Tap untuk buka</p><span class="env-seal">💌</span>
       </div>
 
     </div>
@@ -300,7 +325,11 @@
       <span class="letter-sign" id="letter-sign">— Razan 🤍</span>
     </div>
     <div class="letter-footer">
-      <button class="btn-close-letter" onclick="closeLetter()">Tutup Surat 🤍</button>
+      <div class="letter-actions">
+        <a class="btn-reply" id="btn-reply" href="#" target="_blank" rel="noopener">💬 Bales ke Razan</a>
+        <button class="btn-close-letter" onclick="closeLetter()">Tutup Surat 🤍</button>
+        <p class="letter-meta" id="letter-meta"></p>
+      </div>
     </div>
   </div>
 </div>
@@ -391,7 +420,44 @@ const letters = {
   }
 };
 
+// ── [BARU] catat surat yang udah dibuka (cuma di HP ini) ──
+const WA = '6285692740607';
+const KEYS = ['sad', 'angry', 'miss', 'stress', 'insecure', 'happy', 'lonely', 'overthink'];
+const PLAIN = { sad: 'kamu lagi sedih', angry: 'kamu lagi marah sama aku', miss: 'kamu lagi kangen aku', stress: 'kamu lagi stress', insecure: 'kamu lagi ngerasa kurang', happy: 'kamu lagi bahagia', lonely: 'kamu lagi ngerasa sendirian', overthink: 'kamu lagi overthinking' };
+const REPLY = {
+  sad: 'Hei, aku baru buka surat "Open when kamu lagi sedih" 🌧️ Lagi butuh kamu nih…',
+  angry: 'Aku baru buka surat "Open when kamu lagi marah sama aku" 🔥 Kita ngobrol ya nanti.',
+  miss: 'Aku baru buka surat "Open when kamu lagi kangen aku" 🌙 Kangen kamu…',
+  stress: 'Aku baru buka surat "Open when kamu lagi stress" 😮‍💨 Lagi capek banget nih.',
+  insecure: 'Aku baru buka surat "Open when kamu lagi ngerasa kurang" 🪞 Makasih ya udah nulis itu.',
+  happy: 'Aku baru buka surat "Open when kamu lagi bahagia" 🌸 Hari ini aku seneng banget!',
+  lonely: 'Aku baru buka surat "Open when kamu lagi ngerasa sendirian" 🌃 Temenin aku ngobrol yuk.',
+  overthink: 'Aku baru buka surat "Open when kamu lagi overthinking" 💭 Kepala aku lagi penuh nih.',
+};
+let log = {};
+try { log = JSON.parse(localStorage.getItem('openwhen-log') || '{}'); } catch (e) {}
+function saveLog() { try { localStorage.setItem('openwhen-log', JSON.stringify(log)); } catch (e) {} }
+function ago(ts) {
+  const d = Math.floor((Date.now() - ts) / 864e5);
+  if (d <= 0) return 'hari ini'; if (d === 1) return 'kemarin'; if (d < 30) return `${d} hari lalu`;
+  return new Date(ts).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function renderStatus() {
+  const cards = document.querySelectorAll('.envelope');
+  cards.forEach((el, i) => {
+    const k = KEYS[i], L = log[k];
+    el.classList.toggle('read', !!L);
+    el.querySelector('.env-status').textContent = L ? `Dibuka ${L.count}x` : 'Buka sekarang';
+    el.querySelector('.env-seal').textContent = L ? '✓' : '💌';
+    el.querySelector('.env-open-hint').textContent = L ? `✉ Terakhir dibuka ${ago(L.last)}` : '✉ Tap untuk buka';
+  });
+  const n = KEYS.filter(k => log[k]).length;
+  document.getElementById('progress').innerHTML = n ? `<b>${n}</b> dari 8 surat udah pernah kamu buka 🤍` : 'Belum ada surat yang dibuka — pilih yang paling pas sama perasaanmu';
+  document.getElementById('dots').innerHTML = KEYS.map(k => `<i class="${log[k] ? 'on' : ''}"></i>`).join('');
+}
+
 function startOpenWhen() {
+  try { sessionStorage.setItem('openwhen-intro', '1'); } catch (e) {}
   document.getElementById('screen-intro').classList.remove('active');
   document.getElementById('screen-main').classList.add('active');
   setTimeout(() => {
@@ -401,6 +467,13 @@ function startOpenWhen() {
 
 function openLetter(key) {
   const l = letters[key];
+  const prev = log[key];
+  log[key] = { count: (prev ? prev.count : 0) + 1, last: Date.now() }; saveLog();
+  document.getElementById('letter-meta').textContent = prev ? `Surat ini udah kamu buka ${log[key].count}x · sebelumnya ${ago(prev.last)}` : 'Pertama kali dibuka 💌';
+  document.getElementById('btn-reply').href = `https://wa.me/${WA}?text=${encodeURIComponent(REPLY[key])}`;
+  const m = document.querySelector('.letter-modal'); m.classList.remove('opening'); void m.offsetWidth; m.classList.add('opening');
+  document.getElementById('letter-overlay').scrollTop = 0;
+  try { navigator.vibrate && navigator.vibrate([15, 30, 15]); } catch (e) {}
   document.getElementById('letter-icon').textContent = l.icon;
   document.getElementById('letter-condition').innerHTML = l.condition;
   document.getElementById('letter-text').innerHTML = l.text;
@@ -412,6 +485,7 @@ function openLetter(key) {
 function closeLetter() {
   document.getElementById('letter-overlay').classList.remove('active');
   document.body.style.overflow = '';
+  renderStatus();
 }
 
 function handleOverlayClick(e) {
@@ -419,6 +493,51 @@ function handleOverlayClick(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLetter(); });
+renderStatus();
+// udah lewat intro di sesi ini? langsung ke daftar surat
+try { if (sessionStorage.getItem('openwhen-intro')) startOpenWhen(); } catch (e) {}
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
