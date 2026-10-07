@@ -38,6 +38,8 @@
   .pill.on{background:var(--rose);border-color:var(--rose);color:#fff}
   .start-btn{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:14.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4)}
   .start-btn:active{transform:scale(.97);background:var(--deep)}
+  .start-btn.alt{background:#fff;color:var(--rose);border:1.5px solid var(--rose);box-shadow:none;margin-top:.55rem}
+  .back-link{background:none;border:none;color:var(--muted);font-size:13px;margin-top:.9rem;cursor:pointer;padding:.4rem}
   .hint{font-size:11px;color:var(--muted);margin-top:.6rem;line-height:1.5}
 
   /* GAME */
@@ -154,7 +156,28 @@
         <button class="pill" data-v="10">10<small>panjang</small></button>
       </div>
     </div>
-    <button class="start-btn" onclick="startGame()">Mulai! 🌈</button>
+    <button class="start-btn" onclick="startGame(false)">Mulai Berdua! 🌈</button>
+    <button class="start-btn alt" onclick="showScreen('screen-bot')">🤖 Main sendiri lawan komputer</button>
+  </div>
+</div>
+
+<!-- [BARU] LAWAN KOMPUTER -->
+<div id="screen-bot" class="screen">
+  <div class="inner">
+    <span class="intro-icon">🤖</span>
+    <h2 class="intro-title" style="font-size:1.4rem">Lawan <span>Komputer</span></h2>
+    <p class="intro-sub">Kamu di bawah, komputer di atas. Dia juga bisa ketipu kok — apalagi pas ronde KEBALIK 😈</p>
+    <div class="card">
+      <span class="card-title">Kecepatan komputer</span>
+      <div class="pills" id="bot-pills">
+        <button class="pill" data-v="0">🐢<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>sedang</small></button>
+        <button class="pill" data-v="2">⚡<small>kilat</small></button>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startGame('Razan')">🧑 Aku Razan</button>
+    <button class="start-btn alt" style="margin-top:.55rem" onclick="startGame('Dara')">👧 Aku Dara</button>
+    <button class="back-link" onclick="showScreen('screen-intro')">← Kembali</button>
   </div>
 </div>
 
@@ -195,6 +218,10 @@ const COLORS = [
 // pasangan warna yang gampang ketuker (buat soal susah)
 const SIMILAR = { MERAH: ['ORANYE', 'PINK', 'COKLAT'], ORANYE: ['MERAH', 'KUNING', 'COKLAT'], KUNING: ['ORANYE', 'HIJAU'], PINK: ['MERAH', 'UNGU'], UNGU: ['PINK', 'BIRU'], BIRU: ['UNGU', 'HIJAU', 'ABU'], HIJAU: ['BIRU', 'KUNING'], COKLAT: ['ORANYE', 'MERAH', 'ABU'], ABU: ['COKLAT', 'BIRU'] };
 const NAMES = { r: 'Razan', d: 'Dara' };
+// [BARU] lawan komputer: kamu selalu panel bawah (r), komputer panel atas (d)
+let BOT = false, BOT_LVL = 1, botT = null;
+const BOT_CFG = [ { rt: 1900, acc: .76 }, { rt: 1350, acc: .86 }, { rt: 950, acc: .93 } ];
+const AVK = k => NAMES[k] === 'Komputer' ? '🤖' : NAMES[k] === 'Razan' ? '🧑' : '👧';
 const LOSE_DARES = [
   '<b>{l}</b> sebutin 5 warna favorit <b>{w}</b> — salah satu = cium tangan 😆',
   '<b>{l}</b> kasih <b>{w}</b> pijat bahu 2 menit 💆',
@@ -211,8 +238,15 @@ function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); }
 document.querySelectorAll('#target-pills .pill').forEach(p => p.addEventListener('click', () => { document.querySelectorAll('#target-pills .pill').forEach(x => x.classList.remove('on')); p.classList.add('on'); target = +p.dataset.v; }));
 
+document.querySelectorAll('#bot-pills .pill').forEach(p => p.addEventListener('click', () => { document.querySelectorAll('#bot-pills .pill').forEach(x => x.classList.remove('on')); p.classList.add('on'); BOT_LVL = +p.dataset.v; }));
+
 // ═════════ GAME ═════════
-function startGame() {
+function startGame(human) {
+  if (human !== undefined) BOT = human || false;
+  clearTimeout(botT);
+  if (BOT) { NAMES.r = BOT; NAMES.d = 'Komputer'; } else { NAMES.r = 'Razan'; NAMES.d = 'Dara'; }
+  document.querySelector('#panel-r .p-name').textContent = `${AVK('r')} ${NAMES.r.toUpperCase()}`;
+  document.querySelector('#panel-d .p-name').textContent = `${AVK('d')} ${NAMES.d.toUpperCase()}`;
   S = { q: 0, maxQ: target * 3, scores: { r: 0, d: 0 }, streak: { r: 0, d: 0 }, best: { r: 0, d: 0 }, times: { r: [], d: [] }, wrong: { r: 0, d: 0 }, steals: { r: 0, d: 0 }, cur: null };
   showScreen('screen-game'); updateScores(); nextQ();
 }
@@ -242,13 +276,14 @@ function nextQ() {
   const my = ++token;
   requestAnimationFrame(() => { requestAnimationFrame(() => { bar.style.transition = `width ${time}ms linear`; bar.style.width = '0%'; S.cur.t0 = performance.now(); }); });
   setTimeout(() => { if (my === token && S && !S.cur.done) resolve(null, 'timeout'); }, time + 80);
+  if (BOT) botPlan(my, flip, hard, trap, time);
 }
 function buildGrid(k) {
   const g = $('grid-' + k); g.innerHTML = '';
   $('panel-' + k).classList.remove('locked');
   S.cur.opts[k].forEach(c => {
     const b = document.createElement('button'); b.className = 'ans-btn'; b.textContent = c.name; b.dataset.n = c.name;
-    b.addEventListener('pointerdown', e => { e.preventDefault(); answer(k, c, b); });
+    b.addEventListener('pointerdown', e => { e.preventDefault(); if (BOT && k === 'd') return; answer(k, c, b); });
     g.appendChild(b);
   });
 }
@@ -279,7 +314,7 @@ function resolve(k, why, pts, rt, stolen) {
   if (why === 'timeout') S.streak.r = S.streak.d = 0;
   updateScores();
   const fb = $('feedback');
-  fb.innerHTML = why === 'correct' ? `${k === 'r' ? '🧑' : '👧'} ${NAMES[k]} ${stolen ? 'nyolong!' : 'bener!'} <b>+${pts}</b> · ${(rt / 1000).toFixed(2)}s${pts === 2 ? ' 🔥' : ''}`
+  fb.innerHTML = why === 'correct' ? `${AVK(k)} ${NAMES[k]} ${stolen ? 'nyolong!' : 'bener!'} <b>+${pts}</b> · ${(rt / 1000).toFixed(2)}s${pts === 2 ? ' 🔥' : ''}`
     : why === 'both' ? `😵 Dua-duanya salah! Jawabannya <b>${cur.answer.name}</b>` : `⏰ Waktu habis! Jawabannya <b>${cur.answer.name}</b>`;
   fb.classList.add('show');
   const over = S.scores.r >= target || S.scores.d >= target || S.q >= S.maxQ;
@@ -289,7 +324,24 @@ function resolve(k, why, pts, rt, stolen) {
 function updateScores() {
   ['r', 'd'].forEach(k => { $('score-' + k).innerHTML = `${S.scores[k]}<small>/${target}</small>`; $('streak-' + k).textContent = S.streak[k] >= 2 ? `🔥 ${S.streak[k]}x` : ''; });
 }
-function exitGame() { if (!confirm('Keluar dari game?')) return; token++; S = null; showScreen('screen-intro'); }
+function exitGame() { if (!confirm('Keluar dari game?')) return; token++; clearTimeout(botT); S = null; showScreen('screen-intro'); }
+
+// ═════════ KOMPUTER ═════════
+function botPlan(my, flip, hard, trap, time) {
+  clearTimeout(botT);
+  const c = BOT_CFG[BOT_LVL] || BOT_CFG[1];
+  let rt = c.rt * (.75 + Math.random() * .5) + (flip ? 450 : 0) + (hard ? 250 : 0);
+  let acc = c.acc - (flip ? .12 : 0) - (hard ? .05 : 0);
+  if (rt > time - 150) return;                 // kelamaan mikir → nggak sempat jawab
+  botT = setTimeout(() => {
+    if (my !== token || !S || !S.cur || S.cur.done || S.cur.locked.d) return;
+    const cur = S.cur, ok = Math.random() < acc;
+    const wrongs = cur.opts.d.filter(o => o !== cur.answer);
+    const choice = ok ? cur.answer : (Math.random() < .7 ? trap : wrongs[Math.floor(Math.random() * wrongs.length)]);
+    const btn = [...$('grid-d').querySelectorAll('.ans-btn')].find(b => b.dataset.n === choice.name);
+    if (btn) answer('d', choice, btn);
+  }, rt);
+}
 
 // ═════════ AKHIR ═════════
 function showEnd() {
@@ -299,17 +351,20 @@ function showEnd() {
   const fastest = k => S.times[k].length ? (Math.min(...S.times[k]) / 1000).toFixed(2) + 's' : '—';
   const row = (lbl, f) => `<div class="tr"><span>${lbl}</span><b>${f('r')}</b><b>${f('d')}</b></div>`;
   const dare = pick(LOSE_DARES).replace(/\{w\}/g, w).replace(/\{l\}/g, l);
+  const botVerdict = tie ? 'Seri lawan komputer — mantap, main lagi buat nentuin! 🔄' : w === 'Komputer'
+    ? `<strong>🤖 Komputer menang!</strong> Otak kita emang gampang ketipu warna 😄 Coba level lebih santai, atau tantang pasanganmu biar ada hukumannya 😏`
+    : `<strong>🏆 Kamu ngalahin komputer level ${['santai', 'sedang', 'kilat'][BOT_LVL]}!</strong> Sekarang tantang pasanganmu 😏`;
   $('end-inner').innerHTML = `
-    <span class="end-icon">${tie ? '🤝' : wk === 'r' ? '🏆' : '👑'}</span>
+    <span class="end-icon">${tie ? '🤝' : w === 'Komputer' ? '🤖' : wk === 'r' ? '🏆' : '👑'}</span>
     <h2 class="end-title">${tie ? 'Seri!' : `${w} Menang!`}</h2>
     <p class="end-sub">${tie ? 'Otak kalian sama-sama gampang ketipu 😄' : `Otak ${w} lebih tahan banting hari ini!`} · ${S.q} soal</p>
-    <div class="score-card"><div><span class="es-name r">🧑 Razan</span><span class="es-score">${r}</span></div><span class="es-vs">VS</span><div><span class="es-name d">👧 Dara</span><span class="es-score">${d}</span></div></div>
-    <div class="tbl"><div class="tr head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="score-card"><div><span class="es-name r">${AVK('r')} ${NAMES.r}</span><span class="es-score">${r}</span></div><span class="es-vs">VS</span><div><span class="es-name d">${AVK('d')} ${NAMES.d}</span><span class="es-score">${d}</span></div></div>
+    <div class="tbl"><div class="tr head"><span></span><span>${AVK('r')} ${NAMES.r}</span><span>${AVK('d')} ${NAMES.d}</span></div>
       ${row('⚡ Rata-rata', avg)}${row('🚀 Tercepat', fastest)}${row('🔥 Streak terbaik', k => S.best[k])}${row('🕵️ Nyolong', k => S.steals[k])}${row('❌ Salah', k => S.wrong[k])}</div>
-    <div class="verdict">${tie ? 'Skor sama — main lagi buat nentuin pemenangnya! 🔄' : `<strong>Hukuman buat ${l}:</strong><br>${dare}`}</div>
+    <div class="verdict">${BOT ? botVerdict : tie ? 'Skor sama — main lagi buat nentuin pemenangnya! 🔄' : `<strong>Hukuman buat ${l}:</strong><br>${dare}`}</div>
     <div class="end-btns"><button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button><button class="end-btn end-btn-o" onclick="showScreen('screen-intro')">Menu</button></div>`;
   showScreen('screen-end');
-  if (!tie) confetti();
+  if (!tie && w !== 'Komputer') confetti();
 }
 function confetti() {
   const colors = ['#c17a6f', '#e8c4b0', '#c9a96e', '#b5c4b1', '#faf6f0', '#e91e8c', '#1e88e5'];
