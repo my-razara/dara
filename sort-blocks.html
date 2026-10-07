@@ -167,8 +167,20 @@
     <p class="title" style="font-size:1.15rem">Siapa yang duluan?</p>
     <p class="sub">Papan sama persis buat berdua. Tiap ronde gantian yang duluan</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="newMatch('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Kasih HP ke Razan</span></div></div>
-      <div class="pick-btn" onclick="newMatch('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Kasih HP ke Dara</span></div></div>
+      <div class="pick-btn" onclick="newMatch('r', null)"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Kasih HP ke Razan</span></div></div>
+      <div class="pick-btn" onclick="newMatch('d', null)"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Kasih HP ke Dara</span></div></div>
+    </div>
+    <div class="panel" style="margin-top:1.1rem;text-align:left">
+      <span class="panel-title">🤖 Atau main sendiri lawan komputer</span>
+      <div class="pills" id="bot-pills" style="margin-bottom:.6rem">
+        <button class="pill" data-v="0">🐢<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>normal</small></button>
+        <button class="pill" data-v="2">⚡<small>kilat</small></button>
+      </div>
+      <div class="pick-btns">
+        <div class="pick-btn" onclick="newMatch('r', 'd')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">Kamu duluan, papannya sama persis</span></div></div>
+        <div class="pick-btn" onclick="newMatch('d', 'r')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">Kamu duluan, papannya sama persis</span></div></div>
+      </div>
     </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
@@ -234,7 +246,11 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { mode:'easy', rounds:3, fast:false };
+let CFG = { mode:'easy', rounds:3, fast:false, bot:1 };
+// [BARU] lawan komputer: BOT = slot ('r'/'d') yang dimainin komputer
+let BOT = null, botT = null;
+const ICON = { r: '🧑', d: '👧' };
+const BOT_L = [ { move: 2300, oops: .2 }, { move: 1500, oops: .1 }, { move: 950, oops: .04 } ];
 let M = null, P = null;
 let tick = null, cdT = null, token = 0;
 const decks = {};
@@ -258,7 +274,7 @@ function bindPills(id, key, num) {
     p.classList.add('on'); CFG[key] = num ? parseInt(p.dataset.v) : p.dataset.v;
   }));
 }
-bindPills('mode-pills', 'mode'); bindPills('round-pills', 'rounds', true);
+bindPills('mode-pills', 'mode'); bindPills('round-pills', 'rounds', true); bindPills('bot-pills', 'bot', true);
 function toggleFast() { CFG.fast = !CFG.fast; $('fast-toggle').classList.toggle('on', CFG.fast); }
 (function stars() { const s = $('stars'); for (let i = 0; i < 60; i++) { const el = document.createElement('div'); el.className = 'star'; const z = 1 + Math.random() * 2; el.style.cssText = `width:${z}px;height:${z}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:-${Math.random() * 5}s`; s.appendChild(el); } })();
 
@@ -328,7 +344,11 @@ function generate(mode, fast) {
 }
 
 // ═════════ MATCH ═════════
-function newMatch(first) {
+function newMatch(first, bot) {
+  if (bot !== undefined) BOT = bot || null;
+  clearTimeout(botT);
+  NAMES.r = 'Razan'; NAMES.d = 'Dara'; ICON.r = '🧑'; ICON.d = '👧';
+  if (BOT) { NAMES[BOT] = 'Komputer'; ICON[BOT] = '🤖'; }
   M = { first: first === 'd' ? 'd' : 'r', mode: CFG.mode, fast: CFG.fast, rounds: CFG.rounds, round: 1, sub: 0, wins: { r:0, d:0 }, res: [], puzzles: [] };
   M.puzzles[0] = generate(M.mode, M.fast);
   nextTurn();
@@ -347,7 +367,7 @@ function nextTurn() {
     if (my !== token) return;
     if (n === 0) { el.textContent = 'GO!'; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); vib([60, 30, 100]); setTimeout(() => { if (my === token) startPlay(p); }, 550); return; }
     el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim');
-    if (n === 3) sub.innerHTML = `${p === 'r' ? '🧑' : '👧'} <b style="color:${p === 'r' ? '#7eb3f5' : '#f0a39a'}">${NAMES[p]}</b> pegang HP · Ronde ${M.round}/${M.rounds}${prev ? `<br>Target: kalahin ${prev.time != null ? fmt(prev.time) : 'DNF'} ⏱️` : ''}`;
+    if (n === 3) sub.innerHTML = `${ICON[p]} <b style="color:${p === 'r' ? '#7eb3f5' : '#f0a39a'}">${NAMES[p]}</b> ${p === BOT ? 'mulai nyortir' : BOT ? '— giliranmu' : 'pegang HP'} · Ronde ${M.round}/${M.rounds}${prev ? `<br>Target: kalahin ${prev.time != null ? fmt(prev.time) : 'DNF'} ⏱️` : ''}`;
     vib(30); n--; cdT = setTimeout(step, 850);
   };
   step();
@@ -356,7 +376,8 @@ function nextTurn() {
 function startPlay(p) {
   const pz = M.puzzles[M.round - 1], cfg = MODES[M.mode];
   P = { p, cols: pz.cols.map(c => c.slice()), sel: null, hist: [], moves: 0, undos: 0, hints: 0, start: Date.now(), penalty: 0, active: true, hintMove: null };
-  const who = $('who'); who.textContent = `${p === 'r' ? '🧑' : '👧'} ${NAMES[p]}`; who.className = 'who ' + p;
+  const who = $('who'); who.textContent = `${ICON[p]} ${NAMES[p]}`; who.className = 'who ' + p;
+  document.querySelector('.actions').style.opacity = BOT && p === BOT ? '.4' : '';
   setHTML('hr', `<b>Ronde ${M.round}/${M.rounds}</b><br>${M.wins.r} – ${M.wins.d}`);
   setText('timer-lim', `batas ${Math.floor(cfg.limit / 60)}:${String(cfg.limit % 60).padStart(2, '0')}`);
   setHTML('target', `🎯 Tiap tabung 1 warna · ${M.fast ? '⚡ mode cepat' : 'pindah 1 blok'} · par ±${pz.par} gerakan`);
@@ -371,6 +392,32 @@ function startPlay(p) {
     tEl.classList.toggle('warn', cfg.limit - t <= 15);
     if (t >= cfg.limit) { toast('⏰ Waktu habis!'); finish(false); }
   }, 100);
+  if (BOT && p === BOT) { clearTimeout(botT); botT = setTimeout(botMove, 900); }
+}
+
+// ═════════ KOMPUTER ═════════
+// ngikutin solver, tapi kecepatannya kayak orang & kadang salah langkah terus di-undo
+function botMove() {
+  if (!P || !P.active || P.p !== BOT) return;
+  const cfg = MODES[M.mode], L = BOT_L[CFG.bot] || BOT_L[1];
+  const delay = () => L.move * (.6 + Math.random() * .8);
+  if (P.oops) { P.oops = false; undo(true); botT = setTimeout(botMove, delay()); return; }
+  let mv;
+  if (Math.random() < L.oops && P.moves > 0) {
+    const legal = [];
+    for (let i = 0; i < P.cols.length; i++) for (let j = 0; j < P.cols.length; j++) { const n = moveCount(P.cols, i, j, cfg.h, M.fast); if (n) legal.push([i, j]); }
+    if (legal.length) { mv = legal[Math.floor(Math.random() * legal.length)]; P.oops = true; P.planKey = P.cols.map(c => c.join('')).join('|'); }
+  }
+  if (!mv) {
+    // ikutin rencana penuh dari solver (dihitung ulang cuma kalau rencananya udah nggak cocok)
+    const key = P.cols.map(c => c.join('')).join('|');
+    if (!P.plan || P.planKey !== key || !P.plan.length) { P.plan = solve(P.cols, cfg.h, M.fast, 80000) || []; }
+    if (!P.plan.length) { if (P.hist.length) { undo(true); botT = setTimeout(botMove, delay()); } return; }
+    mv = P.plan.shift();
+    P.planKey = apply(P.cols, mv[0], mv[1], mv[2]).map(c => c.join('')).join('|');
+  }
+  tapCol(mv[0], true);
+  botT = setTimeout(() => { if (P && P.active && P.p === BOT) tapCol(mv[1], true); if (P && P.active) botT = setTimeout(botMove, delay()); }, 380);
 }
 function elapsed() { return (Date.now() - P.start) / 1000 + P.penalty; }
 
@@ -413,8 +460,9 @@ function updateInfo() {
   $('undo-btn').disabled = !P.hist.length;
 }
 
-function tapCol(i) {
+function tapCol(i, byBot) {
   if (!P || !P.active) return;
+  if (BOT && P.p === BOT && byBot !== true) return;
   const cfg = MODES[M.mode];
   if (P.sel === null) {
     if (!P.cols[i].length) return;
@@ -438,36 +486,41 @@ function tapCol(i) {
   if (solved(P.cols, cfg.h)) finish(true);
 }
 
-function undo() {
+function undo(byBot) {
   if (!P || !P.active || !P.hist.length) return;
+  if (BOT && P.p === BOT && byBot !== true) return;
   P.cols = P.hist.pop(); P.undos++; P.sel = null; P.hintMove = null;
   vib(10); render(); updateInfo();
 }
 
 function hint() {
-  if (!P || !P.active) return;
+  if (!P || !P.active || (BOT && P.p === BOT)) return;
   const cfg = MODES[M.mode];
-  const sol = solve(P.cols, cfg.h, M.fast, 60000);
+  // [FIX] hint ngikutin satu rencana yang sama, biar nggak nyuruh bolak-balik mindahin blok yang sama
+  const key = P.cols.map(c => c.join('')).join('|');
+  if (!P.hplan || P.hplanKey !== key || !P.hplan.length) P.hplan = solve(P.cols, cfg.h, M.fast, 80000) || [];
+  const sol = P.hplan;
   P.penalty += HINT_PENALTY; P.hints++;
   if (!sol || !sol.length) { toast('😵 Kayaknya buntu — coba ↩️ undo beberapa kali (+10s)'); return; }
   P.hintMove = sol[0]; P.sel = null;
+  P.hplanKey = apply(P.cols, sol[0][0], sol[0][1], sol[0][2]).map(c => c.join('')).join('|'); P.hplan = sol.slice(1);
   toast(`💡 Pindah dari tabung ${sol[0][0] + 1} ke ${sol[0][1] + 1} (+10s)`);
   render();
 }
 
 function giveUp() {
-  if (!P || !P.active) return;
+  if (!P || !P.active || (BOT && P.p === BOT)) return;
   if (!confirm('Nyerah ronde ini? Hasilnya DNF.')) return;
   finish(false);
 }
 
 function finish(ok) {
   if (!P || !P.active) return;
-  P.active = false; clearInterval(tick); token++;
+  P.active = false; clearInterval(tick); clearTimeout(botT); token++;
   const t = ok ? Math.round(elapsed() * 10) / 10 : null;
   if (!M.res[M.round - 1]) M.res[M.round - 1] = {};
   M.res[M.round - 1][P.p] = { time: t, moves: P.moves, undos: P.undos, hints: P.hints };
-  if (ok) { confetti(40); vib([50, 30, 100, 30, 200]); } else vib([100, 50, 100]);
+  if (ok) { if (P.p !== BOT) confetti(40); vib([50, 30, 100, 30, 200]); } else vib([100, 50, 100]);
   setTimeout(() => { if (M.sub === 0) { M.sub = 1; handover(); } else roundResult(); }, ok ? 900 : 400);
 }
 
@@ -486,8 +539,8 @@ function handover() {
     <span class="icon">${prev.time != null ? '✅' : '🏳️'}</span>
     <h2 class="title" style="font-size:1.35rem">${NAMES[other(nx)]} ${prev.time != null ? 'selesai!' : 'DNF'}</h2>
     <p class="sub">${prev.time != null ? `Waktu <b style="color:#fff">${fmt(prev.time)}</b> · ${prev.moves} gerakan${prev.hints ? ` · ${prev.hints} hint` : ''}` : 'Nggak selesai — kesempatan emas buat lawan!'}</p>
-    <p class="sub" style="margin-top:-.4rem">Kasih HP ke ${NAMES[nx]} — papan yang <b style="color:#fff">sama persis</b> 🤫</p>
-    <button class="btn" onclick="nextTurn()">${nx === 'r' ? '🧑' : '👧'} ${NAMES[nx]} siap!</button>
+    <p class="sub" style="margin-top:-.4rem">${BOT ? (nx === BOT ? 'Sekarang komputer nyortir papan yang <b style="color:#fff">sama persis</b> 🤖' : 'Giliranmu — papan yang <b style="color:#fff">sama persis</b> 🤫') : `Kasih HP ke ${NAMES[nx]} — papan yang <b style="color:#fff">sama persis</b> 🤫`}</p>
+    <button class="btn" onclick="nextTurn()">${nx === BOT ? '🤖 Lihat komputer main' : `${ICON[nx]} ${NAMES[nx]} siap!`}</button>
     <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
   showScreen('s-result');
 }
@@ -498,7 +551,7 @@ function roundResult() {
   if (wp) M.wins[wp]++;
   const need = Math.floor(M.rounds / 2) + 1;
   const done = M.wins.r >= need || M.wins.d >= need || M.round >= M.rounds;
-  const card = p => `<div class="rc ${p} ${wp === p ? 'win' : ''}"><span class="rc-nm">${p === 'r' ? '🧑 Razan' : '👧 Dara'}</span><span class="rc-v">${describe(R[p])}</span><span class="rc-s">${R[p].moves} gerakan · ${R[p].undos} undo${R[p].hints ? ` · ${R[p].hints} hint` : ''}</span></div>`;
+  const card = p => `<div class="rc ${p} ${wp === p ? 'win' : ''}"><span class="rc-nm">${ICON[p]} ${NAMES[p]}</span><span class="rc-v">${describe(R[p])}</span><span class="rc-s">${R[p].moves} gerakan · ${R[p].undos} undo${R[p].hints ? ` · ${R[p].hints} hint` : ''}</span></div>`;
   const w = wp ? NAMES[wp] : '', l = wp ? NAMES[other(wp)] : '';
   let sub = wp ? (a.time != null && b.time != null ? `Selisih ${Math.abs(a.time - b.time).toFixed(1)} detik` : `${l} DNF`) : 'Dua-duanya nggak selesai 😅';
   setHTML('result-inner', `
@@ -507,11 +560,12 @@ function roundResult() {
     <h2 class="title" style="font-size:1.35rem">${wp ? `${w} Menang Ronde!` : 'Seri!'}</h2>
     <p class="sub">${sub} · Skor ${M.wins.r}–${M.wins.d}</p>
     <div class="res-card">${card('r')}${card('d')}</div>
-    <div class="demand"><span class="demand-tag">${wp ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span><p class="demand-text">${wp ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Beresin puzzle ini bareng-bareng, satu HP berdua 🤝'}</p></div>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${!wp ? 'Seri sama komputer! 🤝' : w === 'Komputer' ? 'Komputer lebih cepet ronde ini — rencanain 2-3 langkah ke depan! 💪' : 'Ronde ini punyamu! Pertahanin 🔥'}</p></div>`
+      : `<div class="demand"><span class="demand-tag">${wp ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span><p class="demand-text">${wp ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Beresin puzzle ini bareng-bareng, satu HP berdua 🤝'}</p></div>`}
     <button class="btn" onclick="${done ? 'showFinal()' : 'goNext()'}">${done ? 'Lihat Juara 🏆' : `Ronde ${M.round + 1} → puzzle baru`}</button>
     <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
   showScreen('s-result');
-  if (wp) confetti(30);
+  if (wp && w !== 'Komputer') confetti(30);
 }
 function goNext() {
   M.round++; M.sub = 0;
@@ -529,33 +583,34 @@ function showFinal() {
   const best = p => { const t = M.res.map(x => x[p].time).filter(v => v != null); return t.length ? fmt(Math.min(...t)) : '—'; };
   let v = tie ? `Skor ronde seri, tapi <strong>${w}</strong> unggul total waktu ⏱️` : `<strong>${w}</strong> menang ${Math.max(M.wins.r, M.wins.d)}-${Math.min(M.wins.r, M.wins.d)}! Otak paling rapi hari ini 🧠`;
   const hr = sum('r', 'hints'), hd = sum('d', 'hints');
-  if (hr + hd) v += `<br>💡 Hint dipakai: Razan ${hr}x · Dara ${hd}x`;
+  if (hr + hd) v += `<br>💡 Hint dipakai: ${NAMES.r} ${hr}x · ${NAMES.d} ${hd}x`;
   setHTML('result-inner', `
     <span class="label">Hasil Akhir</span>
-    <span class="icon">🏆</span>
+    <span class="icon">${w === 'Komputer' ? '🤖' : '🏆'}</span>
     <h2 class="title" style="font-size:1.5rem">${w} Juara Sortir!</h2>
     <p class="sub">${M.round} ronde · ${MODES[M.mode].colors} warna${M.fast ? ' · ⚡ mode cepat' : ''}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${M.wins.r}</span></div>
+      <div><span class="sc-nm r">${ICON.r} ${NAMES.r}</span><span class="sc-v">${M.wins.r}</span></div>
       <span class="sc-vs">🟦</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${M.wins.d}</span></div>
+      <div><span class="sc-nm d">${ICON.d} ${NAMES.d}</span><span class="sc-v">${M.wins.d}</span></div>
     </div>
-    <div class="tbl"><div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>${rows}
+    <div class="tbl"><div class="row head"><span></span><span>${ICON.r} ${NAMES.r}</span><span>${ICON.d} ${NAMES.d}</span></div>${rows}
       <div class="row"><span>⚡ Tercepat</span><b>${best('r')}</b><b>${best('d')}</b></div>
       <div class="row"><span>🔄 Gerakan</span><b>${sum('r', 'moves')}</b><b>${sum('d', 'moves')}</b></div>
       <div class="row"><span>↩️ Undo</span><b>${sum('r', 'undos')}</b><b>${sum('d', 'undos')}</b></div></div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
-    <button class="btn" onclick="newMatch(M ? other(M.first) : 'r')">Main Lagi 🔄</button>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${w === 'Komputer' ? 'Komputer menang kali ini 🤖 Coba level santai dulu, atau tantang pasanganmu biar ada hukumannya 😏' : `Kamu ngalahin komputer level <b>${['santai', 'normal', 'kilat'][CFG.bot]}</b>! 🧠 Sekarang tantang pasanganmu 😏`}</p></div>`
+      : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
+    <button class="btn" onclick="newMatch(BOT ? M.first : (M ? other(M.first) : 'r'))">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-result');
-  confetti(70);
+  if (w !== 'Komputer') confetti(70);
 }
 
 function exitGame() {
   if (!M) { showScreen('s-intro'); return; }
   if (!confirm('Keluar dari game? Skor hilang.')) return;
-  token++; clearInterval(tick); clearTimeout(cdT); M = null; P = null;
+  token++; clearInterval(tick); clearTimeout(cdT); clearTimeout(botT); M = null; P = null;
   showScreen('s-intro');
 }
 window.addEventListener('resize', () => { if (P && P.active) render(); });
