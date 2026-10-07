@@ -6,153 +6,95 @@
 <title>Panas Dingin — Razan & Dara 🔥</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
-    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
-    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none}
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--blue:#4a7fc1;--pink:#d9776b}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
   html,body{height:100%;overflow:hidden;background:var(--cream)}
-  body::before{content:'';position:fixed;inset:0;
-    background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
-    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
-    pointer-events:none;z-index:0}
-
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3),transparent 70%),radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15),transparent 70%);pointer-events:none;z-index:0}
   .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
   .screen.active{display:flex}
-
-  /* ── INTRO ── */
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .inner{width:100%;max-width:380px;margin:auto;display:flex;flex-direction:column;align-items:center}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.9rem;animation:float 3s ease-in-out infinite}
   .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
   .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
-  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .rules-list{display:flex;flex-direction:column;gap:.4rem}
-  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5}
-  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* ── SUIT ── */
-  #s-suit{padding:0}
-  .suit-split{width:100%;height:100%;display:flex;flex-direction:column}
-  .suit-half{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;user-select:none}
-  .sh-top{background:rgba(193,122,111,.05);border-bottom:2px solid rgba(193,122,111,.12);transform:rotate(180deg)}
-  .sh-bot{background:rgba(201,169,110,.05)}
-  .suit-name{position:absolute;top:.75rem;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .suit-choices{display:flex;gap:.75rem}
-  .suit-btn{width:clamp(64px,16vw,76px);height:clamp(64px,16vw,76px);border-radius:50%;border:2.5px solid var(--blush);background:#fff;display:flex;align-items:center;justify-content:center;font-size:clamp(1.6rem,6vw,2rem);cursor:pointer;transition:all .12s;box-shadow:0 3px 10px rgba(193,122,111,.1)}
-  .suit-btn.selected{border-color:var(--rose);background:rgba(193,122,111,.08);transform:scale(1.08)}
-  .suit-btn.locked{pointer-events:none;opacity:.5}
-  .suit-chosen{font-size:clamp(2.5rem,10vw,3rem);display:none;animation:popin .3s cubic-bezier(.34,1.5,.64,1)}
-  .suit-chosen.show{display:block}
-  .suit-ready{font-size:11px;font-weight:600;color:var(--rose);margin-top:.5rem;display:none}
-  .suit-ready.show{display:block}
-  .suit-vs{flex-shrink:0;background:#fff;border-top:1px solid rgba(193,122,111,.1);border-bottom:1px solid rgba(193,122,111,.1);padding:.4rem;text-align:center;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.15em}
-  @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-
-  /* ── SUIT RESULT ── */
-  .sr-icon{font-size:3rem;display:block;margin-bottom:.75rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
-  .sr-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
-  .sr-desc{font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem}
-  .sr-picks{display:flex;align-items:center;justify-content:center;gap:1.25rem;margin-bottom:1.25rem}
-  .srp-side{text-align:center}
-  .srp-emoji{font-size:2.5rem;display:block}
-  .srp-name{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:.25rem;display:block}
-  .srp-vs{font-size:1.2rem;color:var(--blush);align-self:center}
-  .g-btn{width:100%;max-width:380px;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s;margin-top:.5rem}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.1rem}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.15rem;margin-bottom:.9rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.55rem}
+  .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin:0}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .opt-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin-bottom:.45rem}
+  .pills{display:flex;gap:.45rem;margin-bottom:.9rem;width:100%}
+  .pill{flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.55rem .3rem;cursor:pointer;text-align:center;font-size:1.1rem;font-weight:700;color:var(--rose)}
+  .pill small{display:block;font-size:9px;font-weight:500;color:var(--muted)}
+  .pill.on{border-color:var(--rose);background:rgba(193,122,111,.06)}
+  .g-btn{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35)}
   .g-btn:active{background:var(--deep);transform:scale(.97)}
+  .g-btn.alt{background:#fff;color:var(--rose);border:1.5px solid var(--rose);box-shadow:none}
+  .g-btn.soft{background:var(--warm);color:var(--muted);border:1.5px solid var(--blush);box-shadow:none}
+  .who-list{display:flex;flex-direction:column;gap:.55rem;width:100%}
+  .divider{font-size:11px;color:var(--muted);margin:.2rem 0}
+  .back{margin-top:.9rem;background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline}
 
-  /* ── HIDE PHASE ── */
-  #s-hide{text-align:center}
-  .hide-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:0 4px 16px rgba(193,122,111,.08);width:100%;max-width:380px}
-  .hide-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
-  .hide-name{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.3rem}
-  .hide-sub{font-size:12px;color:var(--muted);line-height:1.6}
-  .hide-area{
-    width:100%;max-width:380px;
-    height:220px;
-    background:#fff;border:2px dashed var(--blush);
-    border-radius:16px;margin-bottom:1.25rem;
-    position:relative;overflow:hidden;cursor:pointer;
-    transition:border-color .2s;
-  }
-  .hide-area:active{border-color:var(--rose)}
-  .hide-area-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;pointer-events:none}
-  .hide-area-label span{font-size:2rem}
-  .hide-area-label p{font-size:12px;color:var(--muted)}
-  .hide-dot{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--rose);transform:translate(-50%,-50%);display:none;box-shadow:0 0 0 4px rgba(193,122,111,.2)}
-  .hide-confirm{display:none}
-
-  /* ── SEEK PHASE ── */
-  #s-seek{padding:0}
-  #seek-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-
-  /* HUD seek */
-  #seek-hud{position:fixed;top:0;left:0;right:0;z-index:20;background:rgba(250,246,240,.93);backdrop-filter:blur(8px);border-bottom:1px solid rgba(193,122,111,.1);padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center}
-  .sh-info{text-align:center;flex:1}
-  .sh-name{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
-  .sh-val{font-size:1.3rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .sh-mid{text-align:center}
-  .sh-mid b{font-size:13px;color:var(--rose);display:block}
-  .sh-mid span{font-size:10px;color:var(--muted)}
-
-  /* Feedback bubble */
-  #feedback{
-    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-    z-index:30;pointer-events:none;text-align:center;
-    display:none;
-  }
+  /* PLAY (sembunyi & cari pakai area yang SAMA) */
+  #s-play{padding:0;justify-content:flex-start}
+  .hud{flex-shrink:0;width:100%;height:64px;background:rgba(250,246,240,.97);border-bottom:1px solid rgba(193,122,111,.12);padding:.4rem .7rem;display:flex;align-items:center;gap:.5rem;z-index:5}
+  .x-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;flex-shrink:0}
+  .hud-mid{flex:1;text-align:center;min-width:0}
+  .hud-title{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hud-sub{font-size:10.5px;color:var(--muted)}
+  .hud-sc{text-align:center;min-width:44px}
+  .hud-sc span{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;display:block}
+  .hud-sc b{font-size:1.15rem;color:var(--rose);line-height:1}
+  .lock-btn{display:none;padding:.5rem .9rem;border-radius:50px;border:none;background:var(--rose);color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;flex-shrink:0}
+  .lock-btn.show{display:block}
+  .field{flex:1;width:100%;position:relative;overflow:hidden}
+  #field-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .field-hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:13px;color:var(--muted);pointer-events:none;text-align:center;line-height:1.6}
+  .field-hint span{font-size:2.2rem;display:block}
+  #feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:30;pointer-events:none;text-align:center;display:none}
   #feedback.show{display:block;animation:fbpop .6s cubic-bezier(.34,1.5,.64,1)}
   @keyframes fbpop{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}60%{transform:translate(-50%,-55%) scale(1.1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
   .fb-emoji{font-size:4rem;display:block;line-height:1}
-  .fb-text{font-size:1rem;font-weight:700;color:var(--ink);margin-top:.25rem;background:rgba(250,246,240,.9);border-radius:50px;padding:.2rem .85rem;display:inline-block}
-
-  /* Ripple */
+  .fb-text{font-size:1rem;font-weight:700;color:var(--ink);margin-top:.25rem;background:rgba(250,246,240,.94);border-radius:50px;padding:.2rem .85rem;display:inline-block}
+  .fb-trend{display:block;font-size:12px;font-weight:700;margin-top:.3rem}
   .ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:25;animation:ripple-anim .8s ease forwards}
   @keyframes ripple-anim{0%{transform:translate(-50%,-50%) scale(0);opacity:.7}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
 
-  /* Found overlay */
-  #found-overlay{
-    display:none;position:fixed;inset:0;z-index:40;
-    background:rgba(250,246,240,.96);
-    flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:1.5rem;
-  }
+  /* PASS & FOUND */
+  .pass-icon{font-size:3.5rem;display:block;margin-bottom:.8rem;animation:float 2s ease-in-out infinite}
+  .pass-title{font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .pass-sub{font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:1.2rem;max-width:290px}
+  #found-overlay{display:none;position:fixed;inset:0;z-index:40;background:rgba(250,246,240,.85);flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;padding:1.2rem}
   #found-overlay.show{display:flex}
-  .fo-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
-  .fo-title{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
-  .fo-desc{font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:.75rem;max-width:280px}
-  .fo-score{
-    background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);
-    border-radius:50px;padding:.3rem 1.2rem;
-    font-size:13px;font-weight:700;color:var(--rose);
-    margin-bottom:1.25rem;display:inline-block;
-  }
+  .fo-sheet{background:#fff;border-radius:22px;padding:1.2rem;width:100%;max-width:380px;box-shadow:0 -4px 30px rgba(45,31,26,.12);animation:popin .35s ease}
+  .fo-icon{font-size:3rem;display:block;margin-bottom:.4rem}
+  .fo-title{font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:.3rem}
+  .fo-desc{font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:.6rem}
+  .fo-score{background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:.3rem 1.2rem;font-size:13px;font-weight:700;color:var(--rose);margin-bottom:1rem;display:inline-block}
 
-  /* ── RESULT ── */
-  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  /* RESULT */
+  .end-icon{font-size:4rem;display:block;margin-bottom:.9rem;animation:float 3s ease-in-out infinite}
   .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
-  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem}
-  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%;max-width:360px}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.3rem auto 1.1rem}
+  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.15rem;margin-bottom:.8rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%}
   .es-avatar{font-size:1.5rem;display:block;margin-bottom:.2rem}
   .es-name{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
-  .es-score{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
+  .es-score{font-size:2.3rem;font-weight:700;color:var(--rose);display:block}
   .es-vs{color:var(--blush);font-size:.9rem}
-  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.5rem;width:100%;max-width:360px}
+  .recap{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.4rem .9rem;margin-bottom:.8rem;width:100%;text-align:left}
+  .rc{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:.35rem 0;border-bottom:1px solid rgba(193,122,111,.08)}
+  .rc:last-child{border:none}
+  .rc b{color:var(--ink)}
+  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.95rem 1.15rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.1rem;width:100%}
   .end-verdict strong{color:var(--rose)}
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;transition:all .15s}
+  .end-btns{display:flex;gap:.6rem;width:100%}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700}
   .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
-  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
   .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
-
-  /* Toast */
-  .toast{position:fixed;top:5rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;font-size:12px;font-weight:500;z-index:999;white-space:nowrap;pointer-events:none;animation:tin .25s ease}
-  @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -161,130 +103,112 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <span class="intro-icon">🔥</span>
-  <span class="intro-label">Game Berdua</span>
-  <h1 class="intro-title">Panas <span>Dingin</span></h1>
-  <p class="intro-sub">Satu orang sembunyiin titik di layar, yang lain cari — dikasih petunjuk panas/dingin tiap tap! 🧊🔥</p>
-  <div class="rules-card">
-    <span class="rules-title">Cara Main</span>
-    <div class="rules-list">
-      <div class="rule"><span class="rule-dot"></span>Suit dulu — yang menang pilih sembunyiin atau cari duluan</div>
-      <div class="rule"><span class="rule-dot"></span>Yang sembunyiin: tap titik di area layar, kasih HP ke lawan</div>
-      <div class="rule"><span class="rule-dot"></span>Yang cari: tap layar untuk cari — muncul petunjuk 🔥 panas / 🧊 dingin</div>
-      <div class="rule"><span class="rule-dot"></span>Makin sedikit percobaan nemu = makin banyak poin</div>
-      <div class="rule"><span class="rule-dot"></span>Max 10 percobaan · 3 ronde · Yang menang boleh minta apapun 😏</div>
+  <div class="inner">
+    <span class="intro-icon">🔥</span>
+    <span class="intro-label">Game Berdua</span>
+    <h1 class="intro-title">Panas <span>Dingin</span></h1>
+    <p class="intro-sub">Satu orang sembunyiin titik di layar, yang lain cari — dikasih petunjuk panas/dingin tiap tap! 🧊🔥</p>
+    <div class="rules-card">
+      <span class="rules-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>Yang sembunyiin: tap titik di mana aja di layar, kunci, terus kasih HP ke lawan</div>
+      <div class="rule"><span class="rule-dot"></span>Yang cari: tap layar — muncul petunjuk 🔥 panas / 🧊 dingin + makin panas / makin dingin</div>
+      <div class="rule"><span class="rule-dot"></span>Makin sedikit percobaan nemu = makin banyak poin (maks 10)</div>
+      <div class="rule"><span class="rule-dot"></span>Nggak ketemu dalam 10x = yang sembunyiin dapet +5</div>
+      <div class="rule"><span class="rule-dot"></span>Tiap ronde gantian · yang menang boleh minta apapun 😏</div>
     </div>
+    <span class="opt-title">Jumlah ronde</span>
+    <div class="pills" id="opt-rounds"><button class="pill" data-v="1">1<small>singkat</small></button><button class="pill on" data-v="3">3<small>normal</small></button><button class="pill" data-v="5">5<small>panjang</small></button></div>
+    <button class="g-btn" onclick="showScreen('s-who')">Mulai Berdua 🔥</button>
+    <button class="g-btn alt" style="margin-top:.55rem" onclick="showScreen('s-bot')">🤖 Main sendiri lawan komputer</button>
   </div>
-  <div style="display:flex;gap:.45rem;margin-bottom:1rem;width:100%;max-width:380px">
-    <div onclick="setRounds(3,this)" id="ro-3" class="ro-opt ro-sel" style="flex:1;background:rgba(193,122,111,.05);border:2px solid var(--rose);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
-      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">3</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
-    </div>
-    <div onclick="setRounds(5,this)" id="ro-5" class="ro-opt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
-      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">5</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
-    </div>
-  </div>
-  <button class="start-btn" onclick="showScreen('s-who')">Suit Dulu! ✊</button>
 </div>
 
 <!-- WHO FIRST -->
 <div id="s-who" class="screen">
-  <span style="font-size:3rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite">🙈</span>
-  <span style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem">Pilih duluan</span>
-  <h2 style="font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.35rem">Siapa yang sembunyiin duluan?</h2>
-  <p style="font-size:12.5px;color:var(--muted);line-height:1.75;max-width:280px;margin:.5rem auto 1.5rem">Bisa suit dulu di dunia nyata, atau langsung pilih aja!</p>
-  <div style="display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:380px">
-    <button class="g-btn" style="margin-top:0" onclick="chooseFirst('razan','hide')">🧑 Razan yang sembunyiin duluan</button>
-    <button class="g-btn" style="margin-top:0;background:var(--gold)" onclick="chooseFirst('dara','hide')">👧 Dara yang sembunyiin duluan</button>
-    <div style="text-align:center;font-size:11px;color:var(--muted);margin:.25rem 0">atau</div>
-    <button class="g-btn" style="margin-top:0;background:var(--warm);color:var(--muted);box-shadow:none;border:1.5px solid var(--blush)" onclick="chooseFirst('razan','seek')">🧑 Razan yang cari duluan</button>
-    <button class="g-btn" style="margin-top:0;background:var(--warm);color:var(--muted);box-shadow:none;border:1.5px solid var(--blush)" onclick="chooseFirst('dara','seek')">👧 Dara yang cari duluan</button>
+  <div class="inner">
+    <span class="pass-icon">🙈</span>
+    <h2 class="pass-title">Siapa yang sembunyiin duluan?</h2>
+    <p class="pass-sub">Bisa suit dulu di dunia nyata, atau langsung pilih aja!</p>
+    <div class="who-list">
+      <button class="g-btn" onclick="startMatch('razan')">🧑 Razan yang sembunyiin duluan</button>
+      <button class="g-btn" style="background:var(--gold)" onclick="startMatch('dara')">👧 Dara yang sembunyiin duluan</button>
+    </div>
+    <button class="back" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
-<!-- HIDE -->
-<div id="s-hide" class="screen">
-  <div class="hide-card">
-    <span class="hide-label">Fase Sembunyiin</span>
-    <p class="hide-name" id="hide-hider-name">Razan sembunyiin</p>
-    <p class="hide-sub">Tap titik manapun di area bawah — yang lain ga boleh liat! Abis itu kasih HP ke <span id="hide-seeker-name">Dara</span></p>
-  </div>
-
-  <div class="hide-area" id="hide-area">
-    <div class="hide-area-label" id="hide-label-wrap">
-      <span>👆</span>
-      <p>Tap di sini untuk sembunyiin titik</p>
+<!-- LAWAN KOMPUTER -->
+<div id="s-bot" class="screen">
+  <div class="inner">
+    <span class="pass-icon">🤖</span>
+    <h2 class="pass-title">Kamu main sebagai?</h2>
+    <p class="pass-sub">Komputer sembunyiin duluan, kamu cari. Abis itu gantian — kamu sembunyiin, komputer yang nyari pakai petunjuk panas-dingin juga (nggak curang!) 😏</p>
+    <div class="who-list">
+      <button class="g-btn" onclick="startMatch('dara','dara')">🧑 Aku Razan</button>
+      <button class="g-btn" style="background:var(--gold)" onclick="startMatch('razan','razan')">👧 Aku Dara</button>
     </div>
-    <div class="hide-dot" id="hide-dot"></div>
-  </div>
-
-  <div class="hide-confirm" id="hide-confirm">
-    <p style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Titik udah disembunyiin! Kasih HP ke <b id="hc-seeker" style="color:var(--rose)">Dara</b> sekarang</p>
-    <button class="g-btn" onclick="startSeek()">Udah siap, mulai cari! 🔍</button>
+    <button class="back" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
 </div>
 
-<!-- SEEK -->
-<div id="s-seek" class="screen">
-  <div id="seek-hud">
-    <div class="sh-info">
-      <span class="sh-name">🧑 Razan</span>
-      <span class="sh-val" id="sh-razan">0</span>
-    </div>
-    <div class="sh-mid">
-      <b id="sh-round">Ronde 1/3</b>
-      <span id="sh-tries">Percobaan: 0/10</span>
-    </div>
-    <div class="sh-info">
-      <span class="sh-name">👧 Dara</span>
-      <span class="sh-val" id="sh-dara">0</span>
-    </div>
+<!-- PLAY -->
+<div id="s-play" class="screen">
+  <div class="hud">
+    <button class="x-btn" onclick="exitGame()">✕</button>
+    <div class="hud-sc"><span id="hs-rn">Razan</span><b id="sh-razan">0</b></div>
+    <div class="hud-mid"><div class="hud-title" id="hud-title">—</div><div class="hud-sub" id="hud-sub">—</div></div>
+    <div class="hud-sc"><span id="hs-dn">Dara</span><b id="sh-dara">0</b></div>
+    <button class="lock-btn" id="lock-btn" onclick="lockHide()">Kunci ✓</button>
   </div>
+  <div class="field" id="field">
+    <canvas id="field-canvas"></canvas>
+    <div class="field-hint" id="field-hint"></div>
+  </div>
+</div>
+<div id="feedback"><span class="fb-emoji" id="fb-emoji">🔥</span><p class="fb-text" id="fb-text">Panas banget!</p><span class="fb-trend" id="fb-trend"></span></div>
 
-  <canvas id="seek-canvas"></canvas>
-
-  <div id="feedback">
-    <span class="fb-emoji" id="fb-emoji">🔥</span>
-    <p class="fb-text" id="fb-text">Panas banget!</p>
+<!-- PASS -->
+<div id="s-pass" class="screen">
+  <div class="inner">
+    <span class="pass-icon" id="pass-icon">📱</span>
+    <h2 class="pass-title" id="pass-title">Kasih HP ke Dara</h2>
+    <p class="pass-sub" id="pass-sub">Titik udah disembunyiin. Jangan ngintip ya!</p>
+    <button class="g-btn" id="pass-btn" onclick="startSeek()">Siap cari! 🔍</button>
   </div>
 </div>
 
-<!-- FOUND OVERLAY -->
-<div id="found-overlay">
+<div id="found-overlay"><div class="fo-sheet">
   <span class="fo-icon" id="fo-icon">🎯</span>
   <p class="fo-title" id="fo-title">Ketemu!</p>
-  <p class="fo-desc" id="fo-desc">...</p>
+  <p class="fo-desc" id="fo-desc"></p>
   <div class="fo-score" id="fo-score">+5 poin!</div>
   <button class="g-btn" id="fo-btn" onclick="nextTurn()">Lanjut →</button>
-</div>
+</div></div>
 
 <!-- RESULT -->
 <div id="s-result" class="screen">
-  <span class="end-icon" id="end-icon">🏆</span>
-  <h2 class="end-title" id="end-title">...</h2>
-  <p class="end-sub" id="end-sub">...</p>
-  <div class="end-score-card">
-    <div><span class="es-avatar">🧑</span><span class="es-name">Razan</span><span class="es-score" id="end-r">0</span></div>
-    <span class="es-vs">VS</span>
-    <div><span class="es-avatar">👧</span><span class="es-name">Dara</span><span class="es-score" id="end-d">0</span></div>
-  </div>
-  <div class="end-verdict" id="end-verdict">...</div>
-  <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="showScreen('s-intro')">Main Lagi 🔄</button>
-    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+  <div class="inner">
+    <span class="end-icon" id="end-icon">🏆</span>
+    <h2 class="end-title" id="end-title">...</h2>
+    <p class="end-sub" id="end-sub">...</p>
+    <div class="end-score-card">
+      <div><span class="es-avatar" id="ea-r">🧑</span><span class="es-name" id="en-r">Razan</span><span class="es-score" id="end-r">0</span></div>
+      <span class="es-vs">VS</span>
+      <div><span class="es-avatar" id="ea-d">👧</span><span class="es-name" id="en-d">Dara</span><span class="es-score" id="end-d">0</span></div>
+    </div>
+    <div class="recap" id="recap"></div>
+    <div class="end-verdict" id="end-verdict">...</div>
+    <div class="end-btns">
+      <button class="end-btn end-btn-p" onclick="startMatch(M.firstHider, BOT)">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
   </div>
 </div>
 
 <script>
 const MAX_TRIES = 10;
 let TOTAL_ROUNDS = 3;
-
-function setRounds(n,btn){
-  TOTAL_ROUNDS=n;
-  document.querySelectorAll('.ro-opt').forEach(b=>{b.style.borderColor='var(--blush)';b.style.background='#fff';});
-  btn.style.borderColor='var(--rose)';btn.style.background='rgba(193,122,111,.05)';
-}
-
-// Feedback levels based on distance percentage
+// level petunjuk berdasarkan jarak / diagonal area (isi tetap)
 const FEEDBACK = [
   {max:0.05, emoji:'🎯', text:'Tepat!',       color:'#e74c3c', rippleColor:'rgba(231,76,60,.25)'},
   {max:0.10, emoji:'🔥', text:'Panas banget!', color:'#e74c3c', rippleColor:'rgba(231,76,60,.2)'},
@@ -294,322 +218,219 @@ const FEEDBACK = [
   {max:1.00, emoji:'🧊', text:'Beku!!',        color:'#2980b9', rippleColor:'rgba(41,128,185,.2)'},
 ];
 
-// State
-let suitPicks={razan:null,dara:null};
+const $ = id => document.getElementById(id);
+let NAMES = { razan: 'Razan', dara: 'Dara' }, BOT = null, M = null, botTimer = null;
+let canvas, ctx, FW, FH, dpr = 1;
+const other = p => p === 'razan' ? 'dara' : 'razan';
+const AV = p => NAMES[p] === 'Komputer' ? '🤖' : p === 'razan' ? '🧑' : '👧';
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); }
+$('opt-rounds').querySelectorAll('.pill').forEach(b => b.onclick = () => { $('opt-rounds').querySelectorAll('.pill').forEach(x => x.classList.toggle('on', x === b)); TOTAL_ROUNDS = +b.dataset.v; });
 
-let hider='razan', seeker='dara';
-let hiddenX=0, hiddenY=0; // normalized 0-1
-let hiddenScreenX=0, hiddenScreenY=0; // actual screen coords
-let tries=0, roundNum=1;
-let turnPhase=0; // 0=first player hides, 1=second player hides
-let scores={razan:0,dara:0};
-let firstHider='razan';
-let canvas,ctx,W,H;
-let tapHistory=[];
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function chooseFirst(player, role){
-  // role: 'hide' = player sembunyiin duluan, 'seek' = player cari duluan
-  if(role==='hide'){
-    hider=player;
-    seeker=player==='razan'?'dara':'razan';
-  } else {
-    seeker=player;
-    hider=player==='razan'?'dara':'razan';
-  }
-  firstHider=hider;
-  scores={razan:0,dara:0};roundNum=1;turnPhase=0;
+function startMatch(firstHider, bot) {
+  BOT = bot || null; clearTimeout(botTimer);
+  NAMES = { razan: 'Razan', dara: 'Dara' }; if (BOT) NAMES[BOT] = 'Komputer';
+  $('hs-rn').textContent = NAMES.razan; $('hs-dn').textContent = NAMES.dara;
+  M = { firstHider, hider: firstHider, seeker: other(firstHider), round: 1, phase: 0, scores: { razan: 0, dara: 0 }, log: [] };
   startHide();
 }
 
-// ── HIDE ──
-function startHide(){
-  hiddenX=0;hiddenY=0;
-  const hiderName=hider==='razan'?'Razan':'Dara';
-  const seekerName=seeker==='razan'?'Razan':'Dara';
-  document.getElementById('hide-hider-name').textContent=`${hiderName} sembunyiin`;
-  document.getElementById('hide-seeker-name').textContent=seekerName;
-  document.getElementById('hc-seeker').textContent=seekerName;
-  document.getElementById('hide-label-wrap').style.display='flex';
-  document.getElementById('hide-dot').style.display='none';
-  document.getElementById('hide-confirm').style.display='none';
-  showScreen('s-hide');
-
-  // Setup hide area input — prevent double firing
-  const area=document.getElementById('hide-area');
-  const newArea=area.cloneNode(true); // remove old listeners
-  area.parentNode.replaceChild(newArea,area);
-  let lastHideTouch=0;
-  newArea.addEventListener('touchend',(e)=>{
-    e.preventDefault();
-    lastHideTouch=Date.now();
-    tapHide(e.changedTouches[0]);
-  },{passive:false});
-  newArea.addEventListener('click',(e)=>{
-    if(Date.now()-lastHideTouch<300)return;
-    tapHide(e);
+// ── AREA MAIN (dipakai buat sembunyi DAN cari → ukurannya sama persis) ──
+function setupField() {
+  canvas = $('field-canvas'); ctx = canvas.getContext('2d');
+  const f = $('field'); FW = f.clientWidth; FH = f.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 3);
+  canvas.width = Math.round(FW * dpr); canvas.height = Math.round(FH * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+const toPx = p => ({ x: p.x * FW, y: p.y * FH });
+const diag = () => Math.hypot(FW, FH);
+function drawField() {
+  ctx.clearRect(0, 0, FW, FH);
+  ctx.strokeStyle = 'rgba(193,122,111,.06)'; ctx.lineWidth = 1;
+  for (let x = 0; x < FW; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, FH); ctx.stroke(); }
+  for (let y = 0; y < FH; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(FW, y); ctx.stroke(); }
+  if (M.mode === 'hide' && M.secret) { const p = toPx(M.secret); ctx.beginPath(); ctx.arc(p.x, p.y, 11, 0, Math.PI * 2); ctx.fillStyle = '#c17a6f'; ctx.fill(); ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(193,122,111,.35)'; ctx.lineWidth = 4; ctx.stroke(); }
+  if (M.mode === 'seek') (M.taps || []).forEach((t, i) => {
+    const p = toPx(t), fb = FEEDBACK[t.lvl], a = .25 + .6 * (i + 1) / M.taps.length;
+    ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(p.x, p.y, 15, 0, Math.PI * 2); ctx.fillStyle = fb.color; ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Poppins,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i + 1, p.x, p.y); ctx.globalAlpha = 1;
   });
+  if (M.reveal) { const p = toPx(M.secret); ctx.beginPath(); ctx.arc(p.x, p.y, 22, 0, Math.PI * 2); ctx.fillStyle = 'rgba(74,154,106,.25)'; ctx.fill(); ctx.strokeStyle = '#4a9a6a'; ctx.lineWidth = 3; ctx.stroke(); ctx.font = '18px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🎯', p.x, p.y); }
 }
+window.addEventListener('resize', () => { if ($('s-play').classList.contains('active')) { setupField(); drawField(); } });
+function hud(title, sub) { $('hud-title').textContent = title; $('hud-sub').textContent = sub; $('sh-razan').textContent = M.scores.razan; $('sh-dara').textContent = M.scores.dara; }
 
-function tapHide(e){
-  const area=document.getElementById('hide-area');
-  if(!area) return;
-  const rect=area.getBoundingClientRect();
-  const x=e.clientX-rect.left;
-  const y=e.clientY-rect.top;
-  // FIX: store as normalized to hide-area, BUT also store screen coords for seek
-  hiddenX=x/rect.width;
-  hiddenY=y/rect.height;
-  // Store actual screen coords for seek (accounting for different layouts)
-  hiddenScreenX=e.clientX;
-  hiddenScreenY=e.clientY;
-
-  const dot=document.getElementById('hide-dot');
-  if(dot){dot.style.left=x+'px';dot.style.top=y+'px';dot.style.display='block';}
-  const lw=document.getElementById('hide-label-wrap');if(lw) lw.style.display='none';
-  const hc=document.getElementById('hide-confirm');if(hc) hc.style.display='block';
-}
-
-// ── SEEK ──
-let seekTouchHandler=null, seekClickHandler=null, lastSeekTouch=0;
-
-function startSeek(){
-  tries=0;tapHistory=[];
-  initSeekCanvas();
-  updateSeekHUD();
-  showScreen('s-seek');
-
-  const sc=document.getElementById('seek-canvas');
-
-  // FIX: clone canvas to nuke all old listeners cleanly
-  const newSc=sc.cloneNode(true);
-  sc.parentNode.replaceChild(newSc,sc);
-  const freshSc=document.getElementById('seek-canvas');
-
-  let lastTouch=0;
-  freshSc.addEventListener('touchend',(e)=>{
-    e.preventDefault();
-    lastTouch=Date.now();
-    const t=e.changedTouches[0];
-    onSeekTap({clientX:t.clientX,clientY:t.clientY});
-  },{passive:false});
-  freshSc.addEventListener('click',(e)=>{
-    if(Date.now()-lastTouch<400) return;
-    onSeekTap(e);
-  });
-}
-
-function initSeekCanvas(){
-  canvas=document.getElementById('seek-canvas');
-  if(!canvas) return;
-  ctx=canvas.getContext('2d');
-  const dpr=window.devicePixelRatio||1;
-  W=window.innerWidth;H=window.innerHeight;
-  canvas.width=W*dpr;canvas.height=H*dpr;
-  canvas.style.width=W+'px';canvas.style.height=H+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  drawSeekBg();
-}
-
-function drawSeekBg(){
-  if(!ctx) return;
-  ctx.clearRect(0,0,W,H);
-  // Draw tap history as fading dots
-  tapHistory.forEach((t,i)=>{
-    const alpha=Math.max(0.05,(i+1)/tapHistory.length*0.35);
-    ctx.beginPath();ctx.arc(t.x,t.y,20,0,Math.PI*2);
-    ctx.fillStyle=`rgba(193,122,111,${alpha})`;ctx.fill();
-    // Label
-    ctx.fillStyle=`rgba(45,31,26,${alpha*2})`;
-    ctx.font='bold 10px Poppins,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(i+1,t.x,t.y);
-  });
-}
-
-function onSeekTap(e){
-  if(tries>=MAX_TRIES)return;
-  const canvas=document.getElementById('seek-canvas');
-  const rect=canvas.getBoundingClientRect();
-  const cx=e.clientX-rect.left;
-  const cy=e.clientY-rect.top;
-
-  // FIX: use stored screen coords directly — no conversion needed
-  const hx=hiddenScreenX;
-  const hy=hiddenScreenY;
-
-  const dist=Math.sqrt((cx-hx)**2+(cy-hy)**2);
-  const maxDist=Math.sqrt(W*W+H*H);
-  const pct=dist/maxDist;
-
-  tries++;
-  tapHistory.push({x:cx,y:cy,pct});
-  drawSeekBg();
-  updateSeekHUD();
-
-  // Find feedback level
-  const fb=FEEDBACK.find(f=>pct<=f.max)||FEEDBACK[FEEDBACK.length-1];
-
-  // Show ripple
-  showRipple(cx,cy,fb.rippleColor,pct);
-
-  // Show feedback
-  const fbEl=document.getElementById('feedback');
-  document.getElementById('fb-emoji').textContent=fb.emoji;
-  document.getElementById('fb-text').textContent=fb.text;
-  fbEl.style.color=fb.color;
-  fbEl.classList.remove('show');void fbEl.offsetWidth;fbEl.classList.add('show');
-
-  // Check if found (within 5% of screen diagonal)
-  if(pct<=0.05){
-    setTimeout(()=>onFound(tries),400);
-    return;
+// ── SEMBUNYI ──
+function startHide() {
+  Object.assign(M, { mode: 'hide', secret: null, taps: [], reveal: false });
+  $('lock-btn').classList.remove('show');
+  showScreen('s-play'); setupField();
+  if (BOT && M.hider === BOT) {   // komputer sembunyiin diam-diam
+    M.secret = { x: .08 + Math.random() * .84, y: .08 + Math.random() * .84 };
+    $('pass-icon').textContent = '🤖'; $('pass-title').textContent = 'Komputer udah sembunyiin titik!';
+    $('pass-sub').textContent = `Ronde ${M.round}/${TOTAL_ROUNDS} · Cari dalam maks ${MAX_TRIES} tap 🔍`; $('pass-btn').textContent = 'Mulai cari! 🔍';
+    return showScreen('s-pass');
   }
-
-  // Out of tries
-  if(tries>=MAX_TRIES){
-    setTimeout(()=>onFailed(),800);
-  }
+  hud(`${AV(M.hider)} ${NAMES[M.hider]}`, `Sembunyiin titik · Ronde ${M.round}/${TOTAL_ROUNDS}`);
+  $('field-hint').innerHTML = `<span>👆</span>Tap di mana aja buat<br>sembunyiin titik<br><small>${NAMES[M.seeker]} jangan ngintip! 🙈</small>`;
+  drawField();
 }
-
-function showRipple(x,y,color,pct){
-  const r=document.createElement('div');
-  r.className='ripple';
-  const size=Math.max(60,200*(1-pct));
-  r.style.cssText=`left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${color};animation-duration:.8s`;
-  document.body.appendChild(r);
-  setTimeout(()=>r.remove(),850);
-}
-
-function updateSeekHUD(){
-  document.getElementById('sh-razan').textContent=scores.razan;
-  document.getElementById('sh-dara').textContent=scores.dara;
-  document.getElementById('sh-round').textContent=`Ronde ${roundNum}/${TOTAL_ROUNDS}`;
-  document.getElementById('sh-tries').textContent=`Percobaan: ${tries}/${MAX_TRIES}`;
-}
-
-function onFound(triesUsed){
-  const fb=document.getElementById('feedback');if(fb) fb.classList.remove('show');
-  // Score = max 10, lose 1 per try
-  const pts=Math.max(1,10-triesUsed+1);
-  scores[seeker]+=pts;
-  // Show hidden point on canvas
-  if(ctx){
-    ctx.save();
-    ctx.beginPath();ctx.arc(hiddenScreenX,hiddenScreenY,18,0,Math.PI*2);
-    ctx.fillStyle='rgba(74,154,106,.3)';ctx.fill();
-    ctx.strokeStyle='#4a9a6a';ctx.lineWidth=3;ctx.stroke();
-    ctx.font='bold 11px Poppins,sans-serif';ctx.fillStyle='#2a7a4a';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('🎯',hiddenScreenX,hiddenScreenY);
-    ctx.restore();
-  }
-  updateSeekHUD();
-
-  document.getElementById('fo-icon').textContent='🎯';
-  document.getElementById('fo-title').textContent=`${seeker==='razan'?'Razan':'Dara'} Nemu!`;
-  document.getElementById('fo-desc').textContent=`Ketemu dalam ${triesUsed} percobaan! Makin sedikit makin pinter 😄`;
-  document.getElementById('fo-score').textContent=`+${pts} poin!`;
-
-  const isLastTurn=turnPhase===1&&roundNum===TOTAL_ROUNDS;
-  const isLastInRound=turnPhase===1;
-  document.getElementById('fo-btn').textContent=isLastTurn?'Lihat Hasil 🏆':'Lanjut →';
-  document.getElementById('found-overlay').classList.add('show');
-  confetti(40);
-}
-
-function onFailed(){
-  const fb=document.getElementById('feedback');if(fb) fb.classList.remove('show');
-  // FIX: hider earns points when seeker fails
-  scores[hider]+=5;
-  updateSeekHUD();
-  // Show where it was
-  const hx=hiddenScreenX;
-  const hy=hiddenScreenY;
-  if(ctx){
-    ctx.save();
-    ctx.beginPath();ctx.arc(hx,hy,22,0,Math.PI*2);
-    ctx.fillStyle='rgba(193,122,111,.3)';ctx.fill();
-    ctx.strokeStyle='#c17a6f';ctx.lineWidth=3;ctx.stroke();
-    ctx.font='bold 11px Poppins,sans-serif';ctx.fillStyle='#c17a6f';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('Di sini!',hx,hy);
-    ctx.restore();
-  }
-
-  document.getElementById('fo-icon').textContent='😅';
-  document.getElementById('fo-title').textContent='Ga ketemu!';
-  const hiderName=hider==='razan'?'Razan':'Dara';
-  document.getElementById('fo-desc').textContent=`${tries} percobaan habis! ${hiderName} sembunyi terlalu pinter — dapat +5 poin! 🙈`;
-  document.getElementById('fo-score').textContent=`+5 poin untuk ${hiderName}!`;
-  const isLastTurn=turnPhase===1&&roundNum===TOTAL_ROUNDS;
-  document.getElementById('fo-btn').textContent=isLastTurn?'Lihat Hasil 🏆':'Lanjut →';
-  document.getElementById('found-overlay').classList.add('show');
-}
-
-function nextTurn(){
-  document.getElementById('found-overlay').classList.remove('show');
-
-  if(turnPhase===0){
-    // Switch hider/seeker
-    turnPhase=1;
-    [hider,seeker]=[seeker,hider];
-    startHide();
+function lockHide() {
+  if (!M.secret) return;
+  vib(20);
+  if (BOT && M.seeker === BOT) {
+    $('pass-icon').textContent = '🤖'; $('pass-title').textContent = 'Titik dikunci!'; $('pass-sub').textContent = 'Sekarang komputer yang nyari pakai petunjuk panas-dingin. Kamu tinggal nonton 👀';
+    $('pass-btn').textContent = 'Tonton komputer nyari 👀';
   } else {
-    // Next round
-    roundNum++;
-    if(roundNum>TOTAL_ROUNDS){
-      showResult();return;
-    }
-    turnPhase=0;
-    hider=firstHider;
-    seeker=firstHider==='razan'?'dara':'razan';
-    startHide();
+    $('pass-icon').textContent = AV(M.seeker); $('pass-title').textContent = `Kasih HP ke ${NAMES[M.seeker]}`;
+    $('pass-sub').textContent = `Titik ${NAMES[M.hider]} udah dikunci. Jangan ngintip ya! 🙈`; $('pass-btn').textContent = `${AV(M.seeker)} ${NAMES[M.seeker]} siap cari! 🔍`;
   }
+  showScreen('s-pass');
 }
 
-// ── RESULT ──
-function showResult(){
-  const r=scores.razan,d=scores.dara;
-  const tie=r===d,rw=r>d;
-  const winner=rw?'Razan':'Dara',loser=rw?'Dara':'Razan';
-  document.getElementById('end-icon').textContent=tie?'🤝':rw?'🏆':'👑';
-  document.getElementById('end-title').textContent=tie?'Seri!':`${winner} Menang!`;
-  document.getElementById('end-sub').textContent=tie?'Dua-duanya sama jago sembunyi!':
-    `${winner} lebih jago cari hari ini!`;
-  document.getElementById('end-r').textContent=r;
-  document.getElementById('end-d').textContent=d;
-  document.getElementById('end-verdict').innerHTML=tie
-    ?'Skor sama — main lagi untuk tentukan pemenangnya!'
-    :`<strong>${winner} menang ${rw?r:d} - ${rw?d:r}!</strong> Sekarang ${winner} boleh minta <strong>satu hal apapun</strong> ke ${loser} — dan ${loser} ga boleh nolak! 😏🤍`;
-  showScreen('s-result');
-  if(!tie)confetti(70);
+// ── CARI ──
+function startSeek() {
+  Object.assign(M, { mode: 'seek', taps: [], reveal: false, done: false });
+  $('lock-btn').classList.remove('show'); $('field-hint').innerHTML = '';
+  showScreen('s-play'); setupField(); drawField(); updateSeekHud();
+  if (BOT && M.seeker === BOT) { botInit(); botTimer = setTimeout(botTap, 1100); }
+  else $('field-hint').innerHTML = '<span>🔍</span>Tap buat nyari!';
 }
-
-function showToast(msg){
-  document.querySelectorAll('.toast').forEach(e=>e.remove());
-  const el=document.createElement('div');el.className='toast';el.textContent=msg;
-  document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
+function updateSeekHud() { hud(`${AV(M.seeker)} ${NAMES[M.seeker]} nyari`, `Ronde ${M.round}/${TOTAL_ROUNDS} · percobaan ${M.taps.length}/${MAX_TRIES}`); }
+function level(p) { const d = Math.hypot((p.x - M.secret.x) * FW, (p.y - M.secret.y) * FH) / diag(); return FEEDBACK.findIndex(f => d <= f.max); }
+function seekAt(p) {
+  if (M.done || M.taps.length >= MAX_TRIES) return;
+  const lvl = level(p), prev = M.taps[M.taps.length - 1];
+  M.taps.push({ ...p, lvl }); $('field-hint').innerHTML = '';
+  drawField(); updateSeekHud();
+  const fb = FEEDBACK[lvl], px = toPx(p), r = $('field').getBoundingClientRect();
+  const rp = document.createElement('div'); rp.className = 'ripple'; const size = Math.max(60, 200 * (1 - lvl / 5));
+  rp.style.cssText = `left:${r.left + px.x}px;top:${r.top + px.y}px;width:${size}px;height:${size}px;background:${fb.rippleColor}`; document.body.appendChild(rp); setTimeout(() => rp.remove(), 850);
+  $('fb-emoji').textContent = fb.emoji; $('fb-text').textContent = fb.text; $('feedback').style.color = fb.color;
+  // [BARU] bandingin sama tap sebelumnya
+  let trend = '';
+  if (prev) { const dn = Math.hypot((p.x - M.secret.x) * FW, (p.y - M.secret.y) * FH), dp = Math.hypot((prev.x - M.secret.x) * FW, (prev.y - M.secret.y) * FH); trend = dn < dp - 4 ? '⬆️ makin panas' : dn > dp + 4 ? '⬇️ makin dingin' : '↔️ sama aja'; }
+  $('fb-trend').textContent = lvl === 0 ? '' : trend; $('fb-trend').style.color = trend.includes('panas') ? '#e74c3c' : '#2980b9';
+  const fe = $('feedback'); fe.classList.remove('show'); void fe.offsetWidth; fe.classList.add('show');
+  vib(lvl <= 1 ? [30, 20, 60] : 15);
+  if (lvl === 0) { M.done = true; setTimeout(() => onFound(), 450); }
+  else if (M.taps.length >= MAX_TRIES) { M.done = true; setTimeout(onFailed, 850); }
 }
-
-window.addEventListener('resize',function(){
-  if(document.getElementById('s-seek')?.classList.contains('active')){
-    initSeekCanvas();
-    drawSeekBg();
-  }
+$('field-canvas').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect(), p = { x: (e.clientX - r.left) / FW, y: (e.clientY - r.top) / FH };
+  if (M.mode === 'hide' && !(BOT && M.hider === BOT)) { M.secret = p; $('field-hint').innerHTML = ''; $('lock-btn').classList.add('show'); drawField(); vib(10); }
+  else if (M.mode === 'seek' && !(BOT && M.seeker === BOT)) seekAt(p);
 });
 
-function confetti(n=50){
-  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
-  },i*20);
+// ── KOMPUTER NYARI: cuma pakai petunjuk panas-dingin yang sama kayak kamu ──
+function botInit() { M.cands = []; for (let i = 0; i < 46; i++) for (let j = 0; j < 70; j++) M.cands.push({ x: (i + .5) / 46, y: (j + .5) / 70 }); }
+function botTap() {
+  if (!M || M.done || M.seeker !== BOT || M.mode !== 'seek') return;
+  let pick;
+  if (!M.taps.length) pick = { x: .35 + Math.random() * .3, y: .35 + Math.random() * .3 };
+  else {
+    const last = M.taps[M.taps.length - 1], lo = last.lvl ? FEEDBACK[last.lvl - 1].max : 0, hi = FEEDBACK[last.lvl].max;
+    const keep = M.cands.filter(c => { const d = Math.hypot((c.x - last.x) * FW, (c.y - last.y) * FH) / diag(); return d > lo && d <= hi; });
+    if (keep.length) M.cands = keep;
+    // kadang tebak titik tengah kandidat, kadang asal pilih salah satu (biar nggak sempurna)
+    if (Math.random() < .55) { const cx = M.cands.reduce((s, c) => s + c.x, 0) / M.cands.length, cy = M.cands.reduce((s, c) => s + c.y, 0) / M.cands.length; pick = M.cands.reduce((b, c) => Math.hypot(c.x - cx, c.y - cy) < Math.hypot(b.x - cx, b.y - cy) ? c : b); }
+    else pick = M.cands[Math.floor(Math.random() * M.cands.length)];
+    pick = { x: Math.min(.98, Math.max(.02, pick.x + (Math.random() - .5) * .02)), y: Math.min(.98, Math.max(.02, pick.y + (Math.random() - .5) * .02)) };
+  }
+  seekAt(pick);
+  if (!M.done) botTimer = setTimeout(botTap, 1300);
 }
+
+function onFound() {
+  const n = M.taps.length, pts = Math.max(1, MAX_TRIES - n + 1);
+  M.scores[M.seeker] += pts; M.reveal = true; drawField(); updateSeekHud();
+  M.log.push({ round: M.round, seeker: M.seeker, ok: true, n, pts });
+  showFound('🎯', `${NAMES[M.seeker]} Nemu!`, `Ketemu dalam ${n} percobaan! Makin sedikit makin pinter 😄`, `+${pts} poin buat ${NAMES[M.seeker]}!`);
+  confetti(40);
+}
+function onFailed() {
+  M.scores[M.hider] += 5; M.reveal = true; drawField(); updateSeekHud();
+  M.log.push({ round: M.round, seeker: M.seeker, ok: false, n: MAX_TRIES, pts: 0 });
+  showFound('😅', 'Ga ketemu!', `${MAX_TRIES} percobaan habis! ${NAMES[M.hider]} sembunyi terlalu pinter 🙈 Titiknya ada di 🎯`, `+5 poin buat ${NAMES[M.hider]}!`);
+}
+function showFound(icon, title, desc, score) {
+  $('feedback').classList.remove('show');
+  $('fo-icon').textContent = icon; $('fo-title').textContent = title; $('fo-desc').textContent = desc; $('fo-score').textContent = score;
+  $('fo-btn').textContent = M.phase === 1 && M.round >= TOTAL_ROUNDS ? 'Lihat Hasil 🏆' : M.phase === 0 ? `Gantian → ${NAMES[M.seeker]} sembunyiin` : 'Ronde berikutnya →';
+  $('found-overlay').classList.add('show');
+}
+function nextTurn() {
+  $('found-overlay').classList.remove('show');
+  if (M.phase === 0) { M.phase = 1; [M.hider, M.seeker] = [M.seeker, M.hider]; return startHide(); }
+  M.round++;
+  if (M.round > TOTAL_ROUNDS) return showResult();
+  M.phase = 0; M.hider = M.firstHider; M.seeker = other(M.firstHider); startHide();
+}
+function exitGame() { if (!confirm('Keluar dari permainan?')) return; clearTimeout(botTimer); M.done = true; $('found-overlay').classList.remove('show'); showScreen('s-intro'); }
+
+// ── HASIL ──
+function showResult() {
+  const r = M.scores.razan, d = M.scores.dara, tie = r === d, rw = r > d, w = NAMES[rw ? 'razan' : 'dara'], l = NAMES[rw ? 'dara' : 'razan'];
+  $('ea-r').textContent = AV('razan'); $('ea-d').textContent = AV('dara'); $('en-r').textContent = NAMES.razan; $('en-d').textContent = NAMES.dara;
+  $('end-icon').textContent = tie ? '🤝' : w === 'Komputer' ? '🤖' : rw ? '🏆' : '👑';
+  $('end-title').textContent = tie ? 'Seri!' : `${w} Menang!`;
+  $('end-sub').textContent = tie ? 'Dua-duanya sama jago sembunyi & nyari!' : `${w} lebih jago sembunyi & nyari hari ini!`;
+  $('end-r').textContent = r; $('end-d').textContent = d;
+  $('recap').innerHTML = M.log.map(x => `<div class="rc"><span>Ronde ${x.round} · ${AV(x.seeker)} ${NAMES[x.seeker]} nyari</span><b>${x.ok ? `${x.n}x · +${x.pts}` : '❌ nggak ketemu'}</b></div>`).join('');
+  $('end-verdict').innerHTML = BOT ? (tie ? 'Seri lawan komputer — lumayan banget!' : w === 'Komputer' ? '<strong>🤖 Komputer menang!</strong> Coba lagi — atau tantang pasanganmu biar ada hukumannya 😏' : '<strong>🏆 Kamu ngalahin komputer!</strong> Sekarang tantang pasanganmu 😏')
+    : tie ? 'Skor sama — main lagi untuk tentukan pemenangnya!' : `<strong>${w} menang ${Math.max(r, d)} - ${Math.min(r, d)}!</strong> Sekarang ${w} boleh minta <strong>satu hal apapun</strong> ke ${l} — dan ${l} ga boleh nolak! 😏🤍`;
+  showScreen('s-result'); if (!tie && w !== 'Komputer') confetti(70);
+}
+function confetti(n = 50) {
+  const colors = ['#c17a6f', '#e8c4b0', '#c9a96e', '#b5c4b1', '#faf6f0'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }, i * 20);
+}
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
