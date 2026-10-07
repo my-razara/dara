@@ -51,6 +51,12 @@
   .hud{flex-shrink:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 .7rem;gap:.4rem}
   .hud.d{background:rgba(42,13,16,.92);transform:rotate(180deg)} /* Dara di seberang */
   .hud.r{background:rgba(10,26,58,.92)}
+  body.botmode .hud.d{transform:none}
+  body.botmode .hud.d .sp-wrap{visibility:hidden}
+  body.botmode .player.d .av{transform:none}
+  body.botmode .banner.top{display:none!important}
+  body.botmode .fb.down{animation:fbdownb .8s ease forwards}
+  @keyframes fbdownb{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,45px)}}
   .h-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
   .hud.r .h-name{color:var(--blue)}.hud.d .h-name{color:var(--pink)}
   .h-score{font-size:1.5rem;font-weight:700;color:#fff;line-height:1}
@@ -164,8 +170,20 @@
     <p class="pick-title">Siapa yang servis duluan?</p>
     <p class="pick-sub">Setelah itu, pemenang rally yang servis.</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="startGame('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan servis</span><span class="pick-sub2">Main di sisi bawah</span></div></div>
-      <div class="pick-btn" onclick="startGame('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara servis</span><span class="pick-sub2">Main di sisi atas</span></div></div>
+      <div class="pick-btn" onclick="startGame('r', null)"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan servis</span><span class="pick-sub2">Main di sisi bawah</span></div></div>
+      <div class="pick-btn" onclick="startGame('d', null)"><span class="pick-icon">👧</span><div><span class="pick-name">Dara servis</span><span class="pick-sub2">Main di sisi atas</span></div></div>
+    </div>
+    <div class="panel" style="margin-top:1.1rem">
+      <span class="panel-title">🤖 Atau main sendiri lawan komputer</span>
+      <div class="pills" id="bot-pills" style="margin-bottom:.6rem">
+        <button class="pill" data-v="0">🐢<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>normal</small></button>
+        <button class="pill" data-v="2">🔥<small>jago</small></button>
+      </div>
+      <div class="pick-btns">
+        <div class="pick-btn" onclick="startGame('r', 'Razan')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">Kamu di bawah & servis duluan</span></div></div>
+        <div class="pick-btn" onclick="startGame('r', 'Dara')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">Kamu di bawah & servis duluan</span></div></div>
+      </div>
     </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
@@ -175,7 +193,7 @@
 <div id="s-game" class="screen">
   <div class="game-wrap">
     <div class="hud d">
-      <div><span class="h-name">👧 Dara</span><div class="h-score" id="sc-d">0<small>pts</small></div></div>
+      <div><span class="h-name" id="hn-d">👧 Dara</span><div class="h-score" id="sc-d">0<small>pts</small></div></div>
       <div class="h-mid"><div class="power" id="pw-d"></div><span class="h-streak" id="st-d"></span></div>
       <div class="sp-wrap"><button class="sp-btn" id="sp-d-speed" data-p="d" data-t="speed">⚡</button><button class="sp-btn" id="sp-d-curve" data-p="d" data-t="curve">🌀</button></div>
     </div>
@@ -194,7 +212,7 @@
       <div class="banner bot" id="ban-bot"><span id="ban-bot-t"></span></div>
     </div>
     <div class="hud r">
-      <div><span class="h-name">🧑 Razan</span><div class="h-score" id="sc-r">0<small>pts</small></div></div>
+      <div><span class="h-name" id="hn-r">🧑 Razan</span><div class="h-score" id="sc-r">0<small>pts</small></div></div>
       <div class="h-mid"><div class="power" id="pw-r"></div><span class="h-streak" id="st-r"></span></div>
       <div class="sp-wrap"><button class="sp-btn" id="sp-r-speed" data-p="r" data-t="speed">⚡</button><button class="sp-btn" id="sp-r-curve" data-p="r" data-t="curve">🌀</button><button class="h-exit" onclick="exitGame()">✕</button></div>
     </div>
@@ -232,7 +250,16 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { target: 7 };
+let CFG = { target: 7, bot: 1 };
+// [BARU] lawan komputer: kamu sisi bawah (slot r), komputer sisi atas (slot d)
+let BOT = null, HUMAN = 'Razan';
+const BOT_L = [
+  { err: 38, react: 26, hit: [.55, .9], perfect: .25, smash: .08, whiff: .12, aim: 15 },
+  { err: 20, react: 16, hit: [.75, .96], perfect: .45, smash: .2, whiff: .06, aim: 28 },
+  { err: 8,  react: 8,  hit: [.9, .99], perfect: .7, smash: .35, whiff: .02, aim: 42 },
+];
+let BS = {};
+const AV = k => NAMES[k] === 'Komputer' ? '🤖' : NAMES[k] === 'Razan' ? '🧑' : '👧';
 let G = null;
 let raf = null, token = 0;
 const decks = {};
@@ -256,6 +283,10 @@ document.querySelectorAll('#target-pills .pill').forEach(p => p.addEventListener
   document.querySelectorAll('#target-pills .pill').forEach(x => x.classList.remove('on'));
   p.classList.add('on'); CFG.target = parseInt(p.dataset.v);
 }));
+document.querySelectorAll('#bot-pills .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('#bot-pills .pill').forEach(x => x.classList.remove('on'));
+  p.classList.add('on'); CFG.bot = parseInt(p.dataset.v);
+}));
 function stopLoop() { token++; cancelAnimationFrame(raf); }
 
 // ═════════ INPUT (dipasang SEKALI) ═════════
@@ -265,7 +296,7 @@ court.addEventListener('pointerdown', e => {
   if (!G || (G.phase !== 'play' && G.phase !== 'serve')) return;
   e.preventDefault();
   const r = court.getBoundingClientRect();
-  const p = (e.clientY - r.top) < r.height / 2 ? 'd' : 'r';
+  const p = BOT ? 'r' : ((e.clientY - r.top) < r.height / 2 ? 'd' : 'r');
   const pl = G.pl[p];
   if (pl.pid !== null) return; // satu jari per pemain
   pl.pid = e.pointerId; pointerOwner[e.pointerId] = p;
@@ -294,6 +325,7 @@ document.querySelectorAll('.sp-btn').forEach(b => b.addEventListener('pointerdow
   e.preventDefault(); e.stopPropagation();
   if (!G || G.phase === 'end') return;
   const p = b.dataset.p, t = b.dataset.t;
+  if (BOT && p === BOT) return;
   if (!G.sp[p][t]) return;
   if (G.armed[p] === t) { G.armed[p] = null; }            // tap lagi = batal
   else { G.armed[p] = t; feedback(p, t === 'speed' ? '⚡ Speed siap!' : '🌀 Curve siap!', '#ba68c8'); }
@@ -301,8 +333,14 @@ document.querySelectorAll('.sp-btn').forEach(b => b.addEventListener('pointerdow
 }));
 
 // ═════════ GAME ═════════
-function startGame(server) {
+function startGame(server, human) {
   stopLoop();
+  if (human !== undefined) { BOT = human ? 'd' : null; HUMAN = human || 'Razan'; }
+  if (BOT) { NAMES.r = HUMAN; NAMES.d = 'Komputer'; } else { NAMES.r = 'Razan'; NAMES.d = 'Dara'; }
+  document.body.classList.toggle('botmode', !!BOT);
+  setText('hn-r', `${AV('r')} ${NAMES.r}`); setText('hn-d', `${AV('d')} ${NAMES.d}`);
+  document.querySelector('#pl-r .av').textContent = AV('r'); document.querySelector('#pl-d .av').textContent = AV('d');
+  BS = {};
   const s = server === 'd' ? 'd' : 'r';
   G = {
     first: s, server: s, target: CFG.target, cap: CFG.target + 4,
@@ -353,6 +391,7 @@ function prepareServe() {
 }
 
 function step(k, now) {
+  if (BOT) botStep(k, now);
   // pemain
   ['r', 'd'].forEach(p => {
     const pl = G.pl[p];
@@ -432,6 +471,47 @@ function swing(p) {
   if (G.rally === 10) banner('🔥 Rally epik! 10 pukulan!', 900);
 }
 
+// ═════════ KOMPUTER ═════════
+// prediksi x kok pas sampai garis pemain (ikut mantul tembok & efek curve)
+function predictShX(lineY) {
+  const s = G.sh; let x = s.x, y = s.y, vx = s.vx, ax = s.ax;
+  for (let i = 0; i < 400 && (s.vy < 0 ? y > lineY : y < lineY); i++) {
+    vx += ax; x += vx; y += s.vy;
+    if (x < 14) { x = 14; vx = Math.abs(vx) * .7; ax = 0; }
+    if (x > G.W - 14) { x = G.W - 14; vx = -Math.abs(vx) * .7; ax = 0; }
+  }
+  return x;
+}
+function botStep(k, now) {
+  const p = BOT, pl = G.pl[p], s = G.sh, L = BOT_L[CFG.bot] || BOT_L[1];
+  const heading = G.phase === 'play' && s.vy < 0, dy = s.y - G.yD;
+  if (!heading) { pl.tx = G.W / 2 + (s.x - G.W / 2) * .25; pl.holding = false; pl.power = 0; BS.plan = null; return; }
+  if (!BS.plan || BS.plan.rally !== G.rally) {
+    // rencana pukulan baru tiap kok datang
+    const h = G.pl.r.x, away = h < G.W / 2 ? 1 : -1;                 // arahin ke sisi yang jauh dari kamu
+    const willHit = Math.random() < L.hit[0] + (L.hit[1] - L.hit[0]) * Math.random();
+    BS.plan = {
+      rally: G.rally,
+      // meleset sengaja kalau "gagal" (kayak orang beneran telat lari)
+      err: willHit ? (Math.random() - .5) * 2 * L.err * .5 : (Math.random() < .5 ? -1 : 1) * (72 + Math.random() * 30),
+      aim: -away * (10 + Math.random() * L.aim),                       // dx = s.x - pl.x → kebalikannya offset
+      release: Math.random() < L.perfect ? 4 + Math.random() * 18 : 26 + Math.random() * 38,
+      whiff: Math.random() < L.whiff,
+      smash: Math.random() < L.smash, react: L.react + Math.random() * L.react, t: 0,
+    };
+    if (willHit) { const tot = BS.plan.aim + BS.plan.err; if (Math.abs(tot) > 56) BS.plan.err -= tot - Math.sign(tot) * 56; }
+    // pakai jurus spesial kadang-kadang pas rally udah panjang
+    if (G.rally >= 3 && Math.random() < .12) { const t = G.sp[p].speed && Math.random() < .5 ? 'speed' : G.sp[p].curve ? 'curve' : null; if (t && G.sp[p][t]) { G.armed[p] = t; updateSpecials(); } }
+  }
+  const P = BS.plan; P.t += k;
+  if (P.t < P.react) return;                                            // waktu reaksi
+  pl.tx = clamp(predictShX(G.yD) + P.aim + P.err, 30, G.W - 30);
+  // mulai "tahan" biar power keisi pas mau mukul
+  if (!pl.holding && dy < (P.smash ? 260 : 120)) { pl.holding = true; pl.holdStart = now; }
+  if (P.whiff && dy < 110 && dy > 80) { P.whiff = false; pl.holding = false; swing(p); pl.power = 0; return; }
+  if (dy <= P.release) { pl.holding = false; swing(p); pl.power = 0; P.release = -999; }
+}
+
 function point(winner) {
   if (G.phase !== 'play') return;
   G.phase = 'point';
@@ -463,7 +543,8 @@ function showInterval() {
   G.phase = 'interval';
   const t = G.scores.r === G.scores.d ? null : (G.scores.r < G.scores.d ? 'r' : 'd');
   setText('iv-title', `Interval! ${G.scores.d} — ${G.scores.r}`);
-  setHTML('iv-text', t ? fill(draw('iv', INTERVAL_DEMANDS), { t: NAMES[t], l: NAMES[other(t)] }) : 'Skor imbang! Tarik napas, minum dulu, terus lanjut 💪');
+  setHTML('iv-text', BOT ? (t === 'r' ? 'Lagi ketinggalan dari komputer — tarik napas, fokus ke timing lingkaran hijau 💪' : t ? 'Kamu unggul! Pertahanin, jangan kasih kendor 🔥' : 'Skor imbang! Tarik napas, minum dulu, terus lanjut 💪')
+    : t ? fill(draw('iv', INTERVAL_DEMANDS), { t: NAMES[t], l: NAMES[other(t)] }) : 'Skor imbang! Tarik napas, minum dulu, terus lanjut 💪');
   $('interval').classList.add('show');
 }
 function closeInterval() { $('interval').classList.remove('show'); if (G && G.phase === 'interval') prepareServe(); }
@@ -524,23 +605,24 @@ function showResult(wp) {
   const row = (lbl, k2) => `<div class="row"><span>${lbl}</span><b>${S.r[k2]}</b><b>${S.d[k2]}</b></div>`;
   setHTML('result-inner', `
     <span class="badge">Hasil Pertandingan</span>
-    <span class="end-icon">🏆</span>
+    <span class="end-icon">${w === 'Komputer' ? '🤖' : '🏆'}</span>
     <h2 class="end-title">${w} Juara!</h2>
     <p class="end-sub">Mencapai ${a} poin duluan${a > G.target ? ' lewat deuce' : ''}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${G.scores.r}</span></div>
+      <div><span class="sc-nm r">${AV('r')} ${NAMES.r}</span><span class="sc-v">${G.scores.r}</span></div>
       <span class="sc-vs">🏸</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${G.scores.d}</span></div>
+      <div><span class="sc-nm d">${AV('d')} ${NAMES.d}</span><span class="sc-v">${G.scores.d}</span></div>
     </div>
-    <div class="stat-table"><div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="stat-table"><div class="row head"><span></span><span>${AV('r')} ${NAMES.r}</span><span>${AV('d')} ${NAMES.d}</span></div>
       ${row('🏸 Pukulan', 'hits')}${row('💥 Smash', 'smash')}${row('✨ Perfect', 'perfect')}${row('💨 Whiff', 'whiff')}${row('⚡🌀 Spesial', 'specials')}${row('🔥 Poin beruntun', 'bestStreak')}
     </div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
-    <button class="btn-main" onclick="startGame(G ? other(G.first) : 'r')">Main Lagi 🔄</button>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${w === 'Komputer' ? 'Komputer menang kali ini 🤖 Latihan timing lingkaran hijau dulu, atau tantang pasanganmu biar ada hukumannya 😏' : `Kamu ngalahin komputer level <b>${['santai', 'normal', 'jago'][CFG.bot]}</b>! 🏸 Sekarang tantang pasanganmu 😏`}</p></div>`
+      : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
+    <button class="btn-main" onclick="startGame(BOT ? 'r' : (G ? other(G.first) : 'r'))">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-result');
-  confetti(70);
+  if (w !== 'Komputer') confetti(70);
 }
 
 function confetti(n) {
