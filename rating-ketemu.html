@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Rating Ketemu — Untuk Dara 🌟</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -139,6 +139,7 @@
   .h-rating{font-size:12px;font-weight:600;color:var(--rose);display:block;margin-bottom:.2rem}
   .h-text{font-size:11px;color:var(--muted);line-height:1.5;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .history-item.open .h-text{white-space:pre-wrap;overflow:visible;word-break:break-word}
   .h-del{
     width:22px;height:22px;border-radius:50%;
     border:none;background:rgba(193,122,111,.08);
@@ -158,12 +159,39 @@
   .avg-label{font-size:11px;opacity:.8}
   .avg-score{font-size:1.6rem;font-weight:700}
   .avg-stars{font-size:.9rem;opacity:.8}
+  /* ═════ [BARU] ═════ */
+  .home-link{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:0;font-size:12px;color:var(--muted);text-decoration:none;padding:.45rem .85rem;border-radius:50px;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.15)}
+  .header{position:relative;padding-top:calc(3.4rem + env(safe-area-inset-top))}
+  .tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem}
+  .tag{padding:.38rem .75rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;font-family:'Poppins',sans-serif;font-size:11.5px;color:var(--muted);cursor:pointer;transition:all .12s}
+  .tag.on{background:rgba(193,122,111,.1);border-color:var(--rose);color:var(--rose);font-weight:600}
+  .tag:active{transform:scale(.93)}
+  .h-stars{font-size:.8rem;letter-spacing:-1px}
+  .history-item{cursor:pointer}
+  .h-tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem}
+  .h-tag{font-size:9.5px;background:var(--warm);border-radius:50px;padding:1px 7px;color:var(--muted)}
+  .h-actions{display:none;gap:.4rem;margin-top:.55rem}
+  .history-item.open .h-actions{display:flex}
+  .h-act{border:1px solid var(--blush);background:#fff;border-radius:50px;padding:.3rem .7rem;font-family:'Poppins',sans-serif;font-size:10.5px;color:var(--rose);cursor:pointer}
+  .h-more{font-size:9.5px;color:var(--gold);margin-top:.25rem;display:block}
+  .history-item.open .h-more{display:none}
+  .dist{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.8rem 1rem;margin-bottom:1rem}
+  .dist-row{display:flex;align-items:center;gap:.5rem;font-size:10.5px;color:var(--muted);padding:.15rem 0}
+  .dist-row .lbl{width:34px;flex-shrink:0}
+  .dist-bar{flex:1;height:7px;border-radius:5px;background:var(--warm);overflow:hidden}
+  .dist-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:5px}
+  .dist-row .n{width:18px;text-align:right;font-weight:600;color:var(--ink)}
+  .avg-sub{font-size:10.5px;opacity:.85;margin-top:.15rem}
+  .char-count{font-size:10px;color:var(--muted);text-align:right;margin-top:.25rem}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:12.5px;padding:.6rem 1.1rem;border-radius:50px;opacity:0;pointer-events:none;transition:all .3s;z-index:60;max-width:calc(100% - 2rem);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
 <div class="page">
 
   <div class="header">
+    <a class="home-link" href="index.html">← Menu utama</a>
     <span class="header-icon">⭐</span>
     <span class="header-label">Dari Dara, untuk Razan</span>
     <h1 class="header-title">Rating <span>Ketemu</span></h1>
@@ -190,10 +218,27 @@
     <p class="preview-msg" id="preview-msg"></p>
   </div>
 
+  <!-- [BARU] highlight cepat -->
+  <div class="input-section">
+    <label class="input-label">Yang paling berkesan <span>— boleh pilih beberapa</span></label>
+    <div class="tags" id="tags">
+      <button class="tag">🍜 Makan enak</button>
+      <button class="tag">💬 Ngobrol lama</button>
+      <button class="tag">😂 Banyak ketawa</button>
+      <button class="tag">🤗 Banyak peluk</button>
+      <button class="tag">📸 Foto-foto</button>
+      <button class="tag">🚶 Jalan-jalan</button>
+      <button class="tag">🎁 Dapet kejutan</button>
+      <button class="tag">⏰ Kurang lama</button>
+      <button class="tag">📱 Kebanyakan main HP</button>
+    </div>
+  </div>
+
   <!-- ALASAN -->
   <div class="input-section">
     <label class="input-label">Ceritain alasannya <span>— boleh panjang, boleh pendek</span></label>
-    <textarea id="alasan" placeholder="Misal: tadi seru banget, Razan dengerin aku cerita sampai selesai tanpa motong..." rows="4"></textarea>
+    <textarea id="alasan" placeholder="Misal: tadi seru banget, Razan dengerin aku cerita sampai selesai tanpa motong..." rows="4" maxlength="1000"></textarea>
+    <p class="char-count" id="char-count"></p>
   </div>
 
   <!-- TANGGAL -->
@@ -216,9 +261,11 @@
         <div>
           <p class="avg-label">Rata-rata rating kamu</p>
           <span class="avg-score" id="avg-score">0.0</span>
+          <p class="avg-sub" id="avg-sub"></p>
         </div>
         <span class="avg-stars" id="avg-stars"></span>
       </div>
+      <div class="dist" id="dist"></div>
     </div>
     <div class="history-list" id="history-list">
       <p class="history-empty">Belum ada rating. Yuk kasih rating pertamamu!</p>
@@ -226,6 +273,7 @@
   </div>
 
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
 const WA = '6285692740607';
@@ -269,31 +317,42 @@ const STAR_DATA = {
   },
 };
 
-// Set default date to today
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth()+1).padStart(2,'0');
-const dd = String(today.getDate()).padStart(2,'0');
-document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+// ── TANGGAL ── (pakai tanggal HP, nggak boleh tanggal masa depan)
+const pad = n => String(n).padStart(2, '0');
+const todayISO = () => { const t = new Date(); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`; };
+document.getElementById('tanggal').value = todayISO();
+document.getElementById('tanggal').max = todayISO();
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let toastT;
+function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
+
+// highlight cepat
+let tags = [];
+document.querySelectorAll('#tags .tag').forEach(b => b.addEventListener('click', () => {
+  b.classList.toggle('on');
+  const v = b.textContent; tags = b.classList.contains('on') ? [...tags, v] : tags.filter(x => x !== v);
+}));
+// [BARU] draf alasan nggak hilang kalau halaman ketutup
+const ta = document.getElementById('alasan');
+try { ta.value = localStorage.getItem('dara-rating-draft') || ''; } catch (e) {}
+function updCount() { const n = ta.value.length; document.getElementById('char-count').textContent = n ? `${n}/1000` : ''; }
+ta.addEventListener('input', () => { try { localStorage.setItem('dara-rating-draft', ta.value); } catch (e) {} updCount(); });
+updCount();
 
 function setStar(n) {
   selectedStar = n;
   const stars = document.querySelectorAll('.star');
-  stars.forEach((s, i) => {
-    s.classList.toggle('active', i < n);
-  });
-
+  stars.forEach((s, i) => { s.classList.remove('active'); if (i < n) { void s.offsetWidth; s.classList.add('active'); } });
   const data = STAR_DATA[n];
   document.getElementById('rating-desc').textContent = data.label;
-
-  // Show preview
   const preview = document.getElementById('rating-preview');
-  document.getElementById('preview-stars').textContent = '⭐'.repeat(n) + '☆'.repeat(5-n);
+  document.getElementById('preview-stars').textContent = '⭐'.repeat(n) + '☆'.repeat(5 - n);
   document.getElementById('preview-title').textContent = data.title;
   document.getElementById('preview-msg').textContent = data.msg;
   preview.classList.add('show');
-
   document.getElementById('send-btn').disabled = false;
+  try { navigator.vibrate && navigator.vibrate(n === 5 ? [20, 30, 40] : 15); } catch (e) {}
 }
 
 function formatDate(val) {
@@ -305,79 +364,140 @@ function formatDate(val) {
 
 function kirim() {
   if (!selectedStar) return;
-  const alasan = document.getElementById('alasan').value.trim();
-  const tgl = formatDate(document.getElementById('tanggal').value);
+  const iso = document.getElementById('tanggal').value;
+  if (iso && iso > todayISO()) { toast('Tanggalnya belum kejadian 😄 Pilih tanggal hari ini atau sebelumnya ya'); return; }
+  const alasanTxt = ta.value.trim();
+  // highlight ikut dikirim di bagian alasan
+  const alasan = [alasanTxt, tags.length ? '✨ ' + tags.join(', ') : ''].filter(Boolean).join('\n');
+  const tgl = formatDate(iso);
   const data = STAR_DATA[selectedStar];
   const msg = data.waMsg(alasan, tgl);
 
-  // Save to history
-  saveHistory({
-    stars: selectedStar,
-    alasan: alasan || '-',
-    tanggal: tgl,
-    label: data.label,
-  });
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank');   // langsung pas tombol ditekan, biar nggak keblokir
+  saveHistory({ stars: selectedStar, alasan: alasanTxt || '-', tags: [...tags], tanggal: tgl, iso, label: data.label });
 
-  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank');
-
-  // Reset form
   setTimeout(() => {
     selectedStar = 0;
     document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
     document.getElementById('rating-desc').textContent = 'Tap bintang untuk kasih rating';
-    document.getElementById('alasan').value = '';
+    ta.value = ''; try { localStorage.removeItem('dara-rating-draft'); } catch (e) {} updCount();
+    tags = []; document.querySelectorAll('#tags .tag').forEach(b => b.classList.remove('on'));
     document.getElementById('rating-preview').classList.remove('show');
     document.getElementById('send-btn').disabled = true;
-    // reset date to today
-    document.getElementById('tanggal').value = `${yyyy}-${mm}-${dd}`;
+    document.getElementById('tanggal').value = todayISO();
   }, 500);
+  toast('🤍 Rating tersimpan & dikirim ke Razan');
 }
 
-// ── HISTORY ──
-let history = JSON.parse(localStorage.getItem('dara-rating-history') || '[]');
+// ── HISTORY ── ([FIX] nama variabel dulu "history" — bentrok sama fitur bawaan browser)
+const KEY = 'dara-rating-history';
+let ratings = [];
+try { ratings = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(ratings)); } catch (e) {} }
 
-function saveHistory(item) {
-  history.unshift({ ...item, id: Date.now() });
-  localStorage.setItem('dara-rating-history', JSON.stringify(history));
-  renderHistory();
+function saveHistory(item) { ratings.unshift({ ...item, id: Date.now() }); persist(); renderHistory(); }
+function deleteHistory(id, ev) {
+  if (ev) ev.stopPropagation();
+  const h = ratings.find(x => x.id === id);
+  if (!confirm(`Hapus rating ${h ? h.tanggal : ''}?`)) return;
+  ratings = ratings.filter(h => h.id !== id); persist(); renderHistory(); toast('Rating dihapus');
 }
+function resend(id, ev) {
+  ev.stopPropagation();
+  const h = ratings.find(x => x.id === id); if (!h) return;
+  const alasan = [h.alasan !== '-' ? h.alasan : '', h.tags && h.tags.length ? '✨ ' + h.tags.join(', ') : ''].filter(Boolean).join('\n');
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(STAR_DATA[h.stars].waMsg(alasan, h.tanggal))}`, '_blank');
+}
+function toggleItem(el) { el.classList.toggle('open'); }
 
-function deleteHistory(id) {
-  history = history.filter(h => h.id !== id);
-  localStorage.setItem('dara-rating-history', JSON.stringify(history));
-  renderHistory();
+// [FIX] urut berdasarkan tanggal ketemu (bukan waktu ngisi)
+function sortKey(h) {
+  if (h.iso) return h.iso;
+  const M = { Jan:1, Feb:2, Mar:3, Apr:4, Mei:5, Jun:6, Jul:7, Ags:8, Sep:9, Okt:10, Nov:11, Des:12 };
+  const m = String(h.tanggal || '').match(/(\d+) (\w+) (\d{4})/);
+  return m ? `${m[3]}-${pad(M[m[2]] || 1)}-${pad(m[1])}` : new Date(h.id).toISOString().slice(0, 10);
 }
 
 function renderHistory() {
   const list = document.getElementById('history-list');
   const avgWrap = document.getElementById('avg-wrap');
-
-  if (!history.length) {
+  if (!ratings.length) {
     list.innerHTML = '<p class="history-empty">Belum ada rating. Yuk kasih rating pertamamu!</p>';
     avgWrap.style.display = 'none';
     return;
   }
-
-  // Average
-  const avg = history.reduce((sum, h) => sum + h.stars, 0) / history.length;
+  const avg = ratings.reduce((sum, h) => sum + h.stars, 0) / ratings.length;
   document.getElementById('avg-score').textContent = avg.toFixed(1);
   document.getElementById('avg-stars').textContent = '⭐'.repeat(Math.round(avg));
+  const five = ratings.filter(h => h.stars === 5).length;
+  document.getElementById('avg-sub').textContent = `dari ${ratings.length}x ketemu${five ? ` · ${five}x sempurna 🥰` : ''}`;
+  const max = Math.max(...[1, 2, 3, 4, 5].map(n => ratings.filter(h => h.stars === n).length));
+  document.getElementById('dist').innerHTML = [5, 4, 3, 2, 1].map(n => {
+    const c = ratings.filter(h => h.stars === n).length;
+    return `<div class="dist-row"><span class="lbl">${n} ⭐</span><div class="dist-bar"><i style="width:${max ? c / max * 100 : 0}%"></i></div><span class="n">${c}</span></div>`;
+  }).join('');
   avgWrap.style.display = 'block';
 
-  list.innerHTML = history.map(h => `
-    <div class="history-item">
+  const sorted = [...ratings].sort((a, b) => sortKey(b).localeCompare(sortKey(a)) || b.id - a.id);
+  list.innerHTML = sorted.map(h => `
+    <div class="history-item" onclick="toggleItem(this)">
       <span class="h-stars">${'⭐'.repeat(h.stars)}</span>
       <div class="h-body">
-        <span class="h-date">${h.tanggal}</span>
-        <span class="h-rating">${h.label}</span>
-        <p class="h-text">${h.alasan}</p>
+        <span class="h-date">${esc(h.tanggal)}</span>
+        <span class="h-rating">${esc(h.label)}</span>
+        <p class="h-text">${esc(h.alasan)}</p>
+        ${h.tags && h.tags.length ? `<div class="h-tags">${h.tags.map(t => `<span class="h-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+        ${h.alasan && h.alasan.length > 40 ? '<span class="h-more">tap buat baca semua ▾</span>' : ''}
+        <div class="h-actions"><button class="h-act" onclick="resend(${h.id}, event)">📤 Kirim ulang</button></div>
       </div>
-      <button class="h-del" onclick="deleteHistory(${h.id})">✕</button>
+      <button class="h-del" onclick="deleteHistory(${h.id}, event)">✕</button>
     </div>
   `).join('');
 }
 
 renderHistory();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
