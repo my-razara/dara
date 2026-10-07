@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Tarik Tambang — Razan & Dara 🪢</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,166 +11,131 @@
     --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
     --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
   }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:none}
-  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
+  html,body{height:100%;overflow:hidden;background:var(--cream);overscroll-behavior:none}
   body::before{content:'';position:fixed;inset:0;
     background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3) 0%,transparent 70%),
     radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15) 0%,transparent 70%);
     pointer-events:none;z-index:0}
 
-  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+  /* layar yang isinya panjang bisa di-scroll tanpa kepotong atasnya */
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom));text-align:center;overflow-y:auto}
   .screen.active{display:flex}
+  .screen > .inner{margin:auto 0;width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center}
 
   /* INTRO */
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
+  .intro-icon{font-size:3.2rem;display:block;margin-bottom:.6rem;animation:float 3s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
-  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.2rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:300px;margin:.5rem auto 1.5rem}
-  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;max-width:380px;text-align:left}
-  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.7;max-width:300px;margin:.4rem auto 1rem}
+  .rules-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1.1rem;margin-bottom:1rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .rules-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.55rem}
   .rules-list{display:flex;flex-direction:column;gap:.4rem}
   .rule{display:flex;align-items:flex-start;gap:.6rem;font-size:12px;color:var(--muted);line-height:1.5}
-  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.3rem}
-  .start-btn{width:100%;max-width:380px;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
+  .rule-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .opt-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.4rem;align-self:flex-start}
+  .opts{display:flex;gap:.45rem;margin-bottom:.85rem;width:100%}
+  .ro-opt{flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.5rem .3rem;cursor:pointer;text-align:center;transition:all .15s;min-width:0}
+  .ro-opt.on{border-color:var(--rose);background:rgba(193,122,111,.06)}
+  .ro-opt b{font-size:1.1rem;font-weight:700;color:var(--rose);display:block;line-height:1.3}
+  .ro-opt small{font-size:9.5px;color:var(--muted)}
+  .start-btn{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4);transition:all .2s}
   .start-btn:active{transform:scale(.97);background:var(--deep)}
+  .start-btn.alt{background:#fff;color:var(--rose);border:1.5px solid var(--rose);box-shadow:none;margin-top:.55rem}
+  .start-btn.gold{background:var(--gold);box-shadow:0 4px 18px rgba(201,169,110,.4)}
+  .back{background:none;border:none;color:var(--muted);font-size:13px;margin-top:.9rem;cursor:pointer;padding:.4rem}
+  .best{font-size:11.5px;color:var(--muted);margin-top:.75rem;min-height:1em}
 
-  /* GAME — LANDSCAPE SPLIT */
-  #s-game{padding:0;flex-direction:row!important}
+  /* GAME — HP ditaruh di tengah, satu di atas (layarnya kebalik), satu di bawah */
+  #s-game{padding:0;overflow:hidden;justify-content:stretch;touch-action:none;user-select:none;-webkit-user-select:none}
+  .side{position:absolute;left:0;right:0;height:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.25rem,1.4vh,.7rem);cursor:pointer;transition:background .1s;touch-action:none}
+  .side.top{top:0;transform:rotate(180deg)}
+  .side.bottom{bottom:0}
+  .side.c-r{background:rgba(74,127,193,.06)} .side.c-r.pumped{background:rgba(74,127,193,.18)}
+  .side.c-d{background:rgba(217,119,107,.07)} .side.c-d.pumped{background:rgba(217,119,107,.2)}
+  .side.botside{cursor:default}
+  .side-name{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .side-score{font-size:clamp(1.8rem,7vh,3rem);font-weight:700;line-height:1}
+  .c-r .side-score{color:#4a7fc1} .c-d .side-score{color:#d9776b}
+  .tap-btn{width:clamp(72px,14vh,108px);height:clamp(72px,14vh,108px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(1.7rem,5vh,2.5rem);transition:transform .05s,box-shadow .05s;pointer-events:none}
+  .c-r .tap-btn{background:#4a7fc1;box-shadow:0 6px 22px rgba(74,127,193,.4)}
+  .c-d .tap-btn{background:#d9776b;box-shadow:0 6px 22px rgba(217,119,107,.4)}
+  .tap-btn.pressed{transform:scale(.86)}
+  .side-taps{font-size:11px;color:var(--muted)}
+  .side-taps b{color:var(--ink)}
 
-  /* Player sides */
-  .player-side{
-    flex:1;height:100%;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    gap:clamp(.5rem,2vh,1rem);
-    position:relative;overflow:hidden;
-    cursor:pointer;user-select:none;
-    transition:background .1s;
-  }
-  .razan-side{background:rgba(193,122,111,.06);border-right:none}
-  .dara-side{background:rgba(201,169,110,.06);border-left:none}
-  .razan-side.pumped{background:rgba(193,122,111,.18)!important}
-  .dara-side.pumped{background:rgba(201,169,110,.18)!important}
+  /* garis tengah + garis menang */
+  .line{position:absolute;left:0;right:0;height:0;pointer-events:none;z-index:3}
+  .line.mid{top:50%;border-top:2px dashed rgba(45,31,26,.25)}
+  .line.win{border-top:3px solid rgba(201,169,110,.55)}
+  .line.win span{position:absolute;right:8px;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--gold);text-transform:uppercase}
+  #win-top{top:15%} #win-top span{top:-16px;transform:rotate(180deg);right:auto;left:8px}
+  #win-bot{top:85%} #win-bot span{top:3px}
 
-  /* Rotated for Razan */
-  .razan-side{transform:rotate(180deg)}
+  /* tali + simpul yang bergerak */
+  #rope{position:absolute;left:0;right:0;height:0;top:50%;z-index:4;pointer-events:none}
+  #rope::before{content:'';position:absolute;left:-10px;right:-10px;top:-4px;height:8px;border-radius:4px;background:repeating-linear-gradient(115deg,#b08a5a 0 7px,#d4b483 7px 14px);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+  .knot{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);background:#fff;border:2px solid var(--gold);border-radius:50px;padding:.2rem .75rem;display:flex;align-items:center;gap:.35rem;box-shadow:0 4px 16px rgba(45,31,26,.15);white-space:nowrap}
+  .knot .k-ic{font-size:1.1rem}
+  .knot .k-t{font-size:1.15rem;font-weight:700;color:var(--ink);min-width:1.4ch;text-align:center}
+  .knot.danger .k-t{color:var(--rose);animation:dangerpulse .4s ease-in-out infinite alternate}
+  @keyframes dangerpulse{from{transform:scale(1)}to{transform:scale(1.15)}}
+  .knot .k-t.go{font-size:.9rem;color:var(--rose)}
 
-  .side-name{font-size:clamp(9px,1.8vw,11px);font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);position:absolute;top:clamp(.5rem,1.5vh,.75rem)}
-  .side-score{font-size:clamp(2.5rem,8vw,3.5rem);font-weight:700;color:var(--rose);line-height:1}
-  .side-taps{font-size:clamp(9px,1.8vw,11px);color:var(--muted)}
-  .tap-hint{font-size:clamp(9px,1.8vw,11px);color:var(--muted);opacity:.6}
+  /* tombol & info di tengah kiri/kanan */
+  .x-btn{position:absolute;left:10px;top:50%;transform:translateY(-50%);z-index:6;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.06);touch-action:manipulation}
+  .round-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:6;background:#fff;border:1px solid rgba(193,122,111,.2);border-radius:12px;padding:.2rem .55rem;font-size:10px;font-weight:600;color:var(--rose);text-align:center;line-height:1.35;pointer-events:none}
+  .round-badge small{display:block;font-size:9px;color:var(--muted);font-weight:500}
 
-  /* Big tap button */
-  .tap-btn{
-    width:clamp(80px,20vw,110px);height:clamp(80px,20vw,110px);
-    border-radius:50%;border:none;cursor:pointer;
-    background:var(--rose);
-    box-shadow:0 6px 24px rgba(193,122,111,.4),0 2px 8px rgba(193,122,111,.2);
-    display:flex;align-items:center;justify-content:center;
-    font-size:clamp(1.8rem,6vw,2.5rem);
-    transition:transform .05s,box-shadow .05s;
-    user-select:none;
-  }
-  .tap-btn:active,.tap-btn.pressed{
-    transform:scale(.88)!important;
-    box-shadow:0 2px 8px rgba(193,122,111,.3)!important;
-  }
+  .tap-ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:25;animation:tripanim .5s ease forwards}
+  @keyframes tripanim{0%{transform:translate(-50%,-50%) scale(0);opacity:.6}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
 
-  /* Center rope area */
-  .center-col{
-    width:clamp(120px,30vw,180px);flex-shrink:0;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:clamp(.4rem,1.5vh,.75rem);
-    background:#fff;
-    border-left:1px solid rgba(193,122,111,.1);
-    border-right:1px solid rgba(193,122,111,.1);
-    box-shadow:0 0 30px rgba(193,122,111,.08);
-    z-index:2;padding:.5rem;
-    position:relative;
-  }
-
-  .round-badge{background:rgba(193,122,111,.08);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:.2rem .7rem;font-size:clamp(8px,1.5vw,10px);font-weight:600;color:var(--rose)}
-
-  /* Rope canvas */
-  #rope-canvas{display:block;border-radius:8px}
-
-  /* Progress bar */
-  .rope-track{
-    width:100%;height:clamp(16px,4vw,22px);
-    background:var(--warm);border-radius:50px;
-    border:1px solid var(--blush);
-    overflow:hidden;position:relative;
-  }
-  .rope-fill{
-    position:absolute;top:0;bottom:0;left:0;
-    border-radius:50px;
-    background:linear-gradient(to right,var(--rose),var(--deep));
-    transition:width .1s ease;
-  }
-  .rope-center-mark{
-    position:absolute;top:0;bottom:0;left:50%;
-    width:2px;background:var(--ink);transform:translateX(-50%);
-    z-index:2;
-  }
-  .rope-flag{
-    position:absolute;top:50%;transform:translate(-50%,-50%);
-    font-size:clamp(10px,2.5vw,14px);z-index:3;
-    transition:left .1s ease;
-  }
-
-  .timer-display{
-    font-size:clamp(1.4rem,5vw,2rem);font-weight:700;color:var(--ink);line-height:1;
-  }
-  .timer-display.danger{color:var(--rose);animation:dangerpulse .4s ease-in-out infinite alternate}
-  @keyframes dangerpulse{from{transform:scale(1)}to{transform:scale(1.1)}}
-
-  .status-text{font-size:clamp(9px,1.8vw,11px);color:var(--muted);text-align:center;line-height:1.4}
-
-  /* WIN FLASH */
-  #win-flash{
-    position:fixed;inset:0;z-index:50;
-    display:none;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;
-    background:rgba(250,246,240,.96);
-    animation:flashin .3s ease;
-  }
-  #win-flash.show{display:flex}
+  /* OVERLAY (menang ronde / jeda) */
+  .ov{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;overflow-y:auto;text-align:center;background:rgba(250,246,240,.97);padding:1.25rem 1rem;animation:flashin .3s ease}
+  .ov.show{display:flex}
+  .ov > .inner{margin:auto 0;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center}
   @keyframes flashin{from{opacity:0}to{opacity:1}}
-  .wf-icon{font-size:3.5rem;display:block;margin-bottom:.75rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
+  .wf-icon{font-size:3.2rem;display:block;margin-bottom:.5rem;animation:popin .4s cubic-bezier(.34,1.5,.64,1)}
   @keyframes popin{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-  .wf-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
-  .wf-desc{font-size:12px;color:var(--muted);margin-bottom:1rem;line-height:1.6;max-width:260px}
-  .wf-scores{display:flex;align-items:center;justify-content:center;gap:1.25rem;margin-bottom:1.25rem}
+  .wf-title{font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .wf-streak{font-size:12px;font-weight:700;color:var(--gold);min-height:18px;margin-bottom:.2rem}
+  .wf-desc{font-size:12px;color:var(--muted);margin-bottom:.75rem;line-height:1.6;max-width:280px}
+  .wf-demand{display:none;background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.3);border-radius:12px;padding:.6rem .9rem;margin:0 0 .9rem;width:100%;text-align:center}
+  .wf-demand span{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem}
+  .wf-demand p{font-size:12px;font-weight:600;color:var(--ink);line-height:1.5}
+  .wf-stats{font-size:11px;color:var(--muted);margin-bottom:.75rem}
+  .wf-scores{display:flex;align-items:center;justify-content:center;gap:1.25rem;margin-bottom:1.1rem}
   .wfs-item{text-align:center}
-  .wfs-num{font-size:2rem;font-weight:700;color:var(--rose);display:block}
+  .wfs-num{font-size:2rem;font-weight:700;display:block;line-height:1.2}
   .wfs-name{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
   .wfs-vs{color:var(--blush);font-size:.9rem;align-self:center}
-  .wf-btn{padding:.875rem 2.5rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .wf-btn{width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
   .wf-btn:active{background:var(--deep);transform:scale(.97)}
+  .wf-btn.o{background:transparent;color:var(--muted);border:1.5px solid var(--blush);box-shadow:none;margin-top:.55rem}
+  .col-r{color:#4a7fc1} .col-d{color:#d9776b}
 
   /* RESULT */
-  #s-result{background:var(--cream)}
-  .end-icon{font-size:4rem;display:block;margin-bottom:1rem;animation:float 3s ease-in-out infinite}
-  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
-  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.25rem}
-  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%;max-width:360px}
+  .end-icon{font-size:3.6rem;display:block;margin-bottom:.6rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .end-sub{font-size:13px;color:var(--muted);line-height:1.7;max-width:300px;margin:.3rem auto 1rem}
+  .end-score-card{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:20px;padding:1.1rem;margin-bottom:.9rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;text-align:center;box-shadow:0 4px 20px rgba(193,122,111,.08);width:100%}
   .es-av{font-size:1.5rem;display:block;margin-bottom:.2rem}
   .es-nm{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
-  .es-sc{font-size:2.4rem;font-weight:700;color:var(--rose);display:block}
+  .es-sc{font-size:2.3rem;font-weight:700;display:block;line-height:1.2}
   .es-vs{color:var(--blush);font-size:.9rem}
-  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:1rem 1.25rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.5rem;width:100%;max-width:360px}
+  .recap{width:100%;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.55rem .85rem;margin-bottom:.9rem;text-align:left}
+  .rc{display:flex;justify-content:space-between;gap:.5rem;font-size:11.5px;color:var(--muted);padding:.3rem 0;border-bottom:1px dashed rgba(193,122,111,.15)}
+  .rc:last-child{border-bottom:none}
+  .rc b{color:var(--ink);font-weight:600;text-align:right}
+  .end-verdict{background:rgba(193,122,111,.06);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:var(--ink);line-height:1.7;margin-bottom:1.1rem;width:100%}
   .end-verdict strong{color:var(--rose)}
-  .end-btns{display:flex;gap:.6rem;width:100%;max-width:360px}
-  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;transition:all .15s}
+  .end-btns{display:flex;gap:.6rem;width:100%}
+  .end-btn{flex:1;padding:.85rem .5rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;transition:all .15s}
   .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
   .end-btn-p:active{background:var(--deep);transform:scale(.97)}
   .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
-
-  /* Tap ripple */
-  .tap-ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:25;animation:tripanim .5s ease forwards}
-  @keyframes tripanim{0%{transform:translate(-50%,-50%) scale(0);opacity:.6}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
 
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
@@ -179,141 +144,122 @@
 <body>
 
 <!-- INTRO -->
-<div id="s-intro" class="screen active">
+<div id="s-intro" class="screen active"><div class="inner">
   <span class="intro-icon">🪢</span>
-  <span class="intro-label">Game Berdua — Landscape</span>
+  <span class="intro-label">Game Berdua · Bisa Lawan Komputer</span>
   <h1 class="intro-title">Tarik <span>Tambang</span></h1>
-  <p class="intro-sub">Tap tombol di sisi kamu secepat mungkin — tarik tambang ke arah kamu! Menang 3 ronde duluan yang jago 💪</p>
+  <p class="intro-sub">Tap sisi kamu secepat mungkin — tarik tambang ke arah kamu! Yang duluan menang sesuai target, dia yang jago 💪</p>
   <div class="rules-card">
     <span class="rules-title">Cara Main</span>
     <div class="rules-list">
-      <div class="rule"><span class="rule-dot"></span>Putar HP landscape — Razan kiri, Dara kanan</div>
-      <div class="rule"><span class="rule-dot"></span>Tap tombol besar di sisi kamu secepat mungkin</div>
+      <div class="rule"><span class="rule-dot"></span>Taruh HP di tengah — Razan di atas, Dara di bawah (nggak perlu diputar)</div>
+      <div class="rule"><span class="rule-dot"></span>Tap di mana aja di setengah layar kamu secepat mungkin — boleh pakai 2 jari</div>
       <div class="rule"><span class="rule-dot"></span>Tambang bergerak ke arah yang lebih banyak tap</div>
-      <div class="rule"><span class="rule-dot"></span>Tarik tambang ke ujung sisi kamu dalam 10 detik = menang ronde</div>
-      <div class="rule"><span class="rule-dot"></span>Best of 5 ronde · Yang menang boleh minta apapun! 😏</div>
+      <div class="rule"><span class="rule-dot"></span>Tarik simpul sampai garis emas di sisi kamu dalam 10 detik = menang ronde</div>
+      <div class="rule"><span class="rule-dot"></span>Waktu habis? Simpul lebih dekat ke sisi siapa, dia yang menang</div>
+      <div class="rule"><span class="rule-dot"></span>Yang menang boleh minta apapun! 😏</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:.4rem;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.2);border-radius:50px;padding:.4rem 1rem;margin-bottom:1.25rem;font-size:11.5px;color:#8a6a20;font-weight:500;width:100%;max-width:380px">
-    📱 Putar HP ke landscape dulu ya!
+  <span class="opt-label">Menang duluan</span>
+  <div class="opts" id="opt-rounds">
+    <div class="ro-opt on" data-v="3"><b>3</b><small>ronde</small></div>
+    <div class="ro-opt" data-v="5"><b>5</b><small>ronde</small></div>
+    <div class="ro-opt" data-v="7"><b>7</b><small>ronde</small></div>
   </div>
-  <div style="display:flex;gap:.45rem;margin-bottom:.85rem;width:100%;max-width:380px">
-    <div onclick="setRounds(3,this)" class="ro-opt" style="flex:1;background:rgba(193,122,111,.05);border:2px solid var(--rose);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
-      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">3</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
-    </div>
-    <div onclick="setRounds(5,this)" class="ro-opt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
-      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">5</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
-    </div>
-    <div onclick="setRounds(7,this)" class="ro-opt" style="flex:1;background:#fff;border:2px solid var(--blush);border-radius:12px;padding:.6rem .3rem;cursor:pointer;text-align:center">
-      <span style="font-size:1.2rem;font-weight:700;color:var(--rose);display:block">7</span><span style="font-size:9px;color:var(--muted)">Ronde</span>
-    </div>
+  <button class="start-btn" onclick="startGame(null)">Mulai Berdua! 🪢</button>
+  <button class="start-btn alt" onclick="showScreen('s-bot')">🤖 Main sendiri lawan komputer</button>
+  <div class="best" id="best-line"></div>
+</div></div>
+
+<!-- PILIH LAWAN KOMPUTER -->
+<div id="s-bot" class="screen"><div class="inner">
+  <span class="intro-icon">🤖</span>
+  <h2 class="intro-title" style="font-size:1.4rem">Lawan <span>Komputer</span></h2>
+  <p class="intro-sub">Kamu di bawah, komputer di atas. Seberapa kuat komputernya?</p>
+  <span class="opt-label">Level komputer</span>
+  <div class="opts" id="opt-level">
+    <div class="ro-opt" data-v="0"><b>😌</b><small>Santai</small></div>
+    <div class="ro-opt on" data-v="1"><b>💪</b><small>Sedang</small></div>
+    <div class="ro-opt" data-v="2"><b>🔥</b><small>Jago</small></div>
   </div>
-  <button class="start-btn" onclick="startGame()">Mulai! 🪢</button>
-</div>
+  <button class="start-btn" onclick="startGame('dara')">🧑 Aku Razan</button>
+  <button class="start-btn gold" style="margin-top:.55rem" onclick="startGame('razan')">👧 Aku Dara</button>
+  <button class="back" onclick="showScreen('s-intro')">← Kembali</button>
+</div></div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-
-  <!-- Razan kiri (rotated 180°) -->
-  <div class="player-side razan-side" id="side-razan"
-    ontouchstart="onTap('razan',event)" onclick="onTap('razan',event)">
-    <span class="side-name">Razan</span>
-    <span class="side-score" id="wins-razan">0</span>
-    <div class="tap-btn" id="tapbtn-razan">💪</div>
-    <span class="side-taps">Tap: <b id="taps-razan">0</b></span>
-    <span class="tap-hint">TAP CEPAT!</span>
+  <div class="side top" id="side-top">
+    <span class="side-name" id="nm-top">Razan</span>
+    <span class="side-score" id="wins-top">0</span>
+    <div class="tap-btn" id="btn-top">💪</div>
+    <span class="side-taps">Tap: <b id="taps-top">0</b></span>
   </div>
-
-  <!-- Center -->
-  <div class="center-col">
-    <span class="round-badge">Ronde <span id="c-round">1</span>/<span id="c-total">3</span></span>
-
-    <!-- Rope progress bar -->
-    <div class="rope-track">
-      <div class="rope-fill" id="rope-fill" style="width:50%"></div>
-      <div class="rope-center-mark"></div>
-      <span class="rope-flag" id="rope-flag" style="left:50%">🪢</span>
-    </div>
-
-    <div class="timer-display" id="timer-display">10</div>
-    <div class="status-text" id="status-text">Siap?</div>
-
-    <!-- Mini scores -->
-    <div style="display:flex;gap:.5rem;align-items:center">
-      <div style="text-align:center">
-        <span style="font-size:1rem;font-weight:700;color:var(--rose)" id="score-razan-c">0</span>
-        <span style="font-size:9px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:.06em">Razan</span>
-      </div>
-      <span style="color:var(--blush);font-size:.8rem">:</span>
-      <div style="text-align:center">
-        <span style="font-size:1rem;font-weight:700;color:var(--rose)" id="score-dara-c">0</span>
-        <span style="font-size:9px;color:var(--muted);display:block;text-transform:uppercase;letter-spacing:.06em">Dara</span>
-      </div>
-    </div>
+  <div class="side bottom" id="side-bottom">
+    <span class="side-name" id="nm-bottom">Dara</span>
+    <span class="side-score" id="wins-bottom">0</span>
+    <div class="tap-btn" id="btn-bottom">💪</div>
+    <span class="side-taps">Tap: <b id="taps-bottom">0</b></span>
   </div>
-
-  <!-- Dara kanan -->
-  <div class="player-side dara-side" id="side-dara"
-    ontouchstart="onTap('dara',event)" onclick="onTap('dara',event)">
-    <span class="side-name">Dara</span>
-    <span class="side-score" id="wins-dara">0</span>
-    <div class="tap-btn" id="tapbtn-dara" style="background:var(--gold)">💪</div>
-    <span class="side-taps">Tap: <b id="taps-dara">0</b></span>
-    <span class="tap-hint">TAP CEPAT!</span>
-  </div>
-
+  <div class="line win" id="win-top"><span>Garis menang</span></div>
+  <div class="line mid"></div>
+  <div class="line win" id="win-bot"><span>Garis menang</span></div>
+  <div id="rope"><div class="knot" id="knot"><span class="k-ic">🪢</span><span class="k-t" id="k-t">3</span></div></div>
+  <button class="x-btn" onclick="pauseGame()">✕</button>
+  <div class="round-badge">Ronde <span id="c-round">1</span><small id="c-score">0 : 0</small></div>
 </div>
 
-<!-- WIN FLASH -->
-<div id="win-flash">
+<!-- JEDA -->
+<div class="ov" id="pause-ov"><div class="inner">
+  <span class="wf-icon">⏸️</span>
+  <p class="wf-title">Dijeda</p>
+  <p class="wf-desc">Ronde ini dihentikan sebentar. Lanjut kalau udah siap — ada hitung mundur dulu.</p>
+  <button class="wf-btn" onclick="resumeGame()">▶ Lanjut</button>
+  <button class="wf-btn o" onclick="exitGame()">Keluar</button>
+</div></div>
+
+<!-- MENANG RONDE -->
+<div class="ov" id="win-flash"><div class="inner">
   <span class="wf-icon" id="wf-icon">🏆</span>
   <p class="wf-title" id="wf-title">Razan menang ronde!</p>
-  <p class="wf-streak" id="wf-streak" style="font-size:12px;font-weight:700;color:var(--gold);min-height:18px;margin-bottom:.25rem"></p>
+  <p class="wf-streak" id="wf-streak"></p>
   <p class="wf-desc" id="wf-desc">...</p>
-  <div id="wf-demand" style="display:none;background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.3);border-radius:12px;padding:.6rem .9rem;margin:.5rem 0 .75rem;max-width:300px;text-align:center">
-    <span style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem">🎯 Misi Pemenang</span>
-    <p id="wf-demand-text" style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.5"></p>
-  </div>
+  <p class="wf-stats" id="wf-stats"></p>
+  <div class="wf-demand" id="wf-demand"><span>🎯 Misi Pemenang</span><p id="wf-demand-text"></p></div>
   <div class="wf-scores">
-    <div class="wfs-item"><span class="wfs-num" id="wf-r">0</span><span class="wfs-name">Razan</span></div>
+    <div class="wfs-item"><span class="wfs-num col-r" id="wf-r">0</span><span class="wfs-name" id="wfn-r">Razan</span></div>
     <span class="wfs-vs">:</span>
-    <div class="wfs-item"><span class="wfs-num" id="wf-d">0</span><span class="wfs-name">Dara</span></div>
+    <div class="wfs-item"><span class="wfs-num col-d" id="wf-d">0</span><span class="wfs-name" id="wfn-d">Dara</span></div>
   </div>
-  <button class="wf-btn" id="wf-btn" onclick="nextRound()">Ronde Berikutnya →</button>
-</div>
+  <button class="wf-btn" id="wf-btn">Ronde Berikutnya →</button>
+</div></div>
 
 <!-- RESULT -->
-<div id="s-result" class="screen">
+<div id="s-result" class="screen"><div class="inner">
   <span class="end-icon" id="end-icon">🏆</span>
   <h2 class="end-title" id="end-title">...</h2>
   <p class="end-sub" id="end-sub">...</p>
   <div class="end-score-card">
-    <div><span class="es-av">🧑</span><span class="es-nm">Razan</span><span class="es-sc" id="end-r">0</span></div>
+    <div><span class="es-av" id="ea-r">🧑</span><span class="es-nm" id="en-r">Razan</span><span class="es-sc col-r" id="end-r">0</span></div>
     <span class="es-vs">VS</span>
-    <div><span class="es-av">👧</span><span class="es-nm">Dara</span><span class="es-sc" id="end-d">0</span></div>
+    <div><span class="es-av" id="ea-d">👧</span><span class="es-nm" id="en-d">Dara</span><span class="es-sc col-d" id="end-d">0</span></div>
   </div>
+  <div class="recap" id="recap"></div>
   <div class="end-verdict" id="end-verdict">...</div>
   <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-p" onclick="startGame(BOT)">Main Lagi 🔄</button>
     <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
   </div>
-</div>
+</div></div>
 
 <script>
 let WIN_ROUNDS = 3;
-
-function setRounds(n,btn){
-  WIN_ROUNDS=n;
-  document.querySelectorAll(".ro-opt").forEach(b=>{b.style.borderColor="var(--blush)";b.style.background="#fff";});
-  btn.style.borderColor="var(--rose)";btn.style.background="rgba(193,122,111,.05)";
-} // first to 3 wins
-const ROUND_TIME = 10; // seconds
-const WIN_THRESHOLD = 85; // % to win a round
-const DECAY = 0.3; // rope drift back to center per frame when not tapping
-
-let taps = {razan:0, dara:0};
-let consec = {razan:0, dara:0};
-let usedDemands=[], usedFinalDemands=[];
+const ROUND_TIME = 10;      // detik
+const WIN_LO = 15, WIN_HI = 85;   // posisi garis menang (%)
+const PULL_PER_TAP = 1.5;   // tenaga per tap
+const PULL_DECAY = 0.85;    // tenaga berkurang tiap 0,1 detik
+const ROPE_SPEED = 2.5;     // % per detik per selisih tenaga
+const DECAY = 0.3;          // tambang balik ke tengah kalau dua-duanya diem
 
 const ROUND_DEMANDS = [
   'Kasih pelukan ke yang kalah sekarang — minimal 10 detik! 🤗',
@@ -336,253 +282,316 @@ const FINAL_DEMANDS = [
   '{winner} bebas minta satu momen bareng {loser} — kapanpun dan di manapun.',
 ];
 
+// level komputer: tap per detik
+const BOT_LEVELS = [
+  { name: 'Santai', rate: 5.2 },
+  { name: 'Sedang', rate: 7.2 },
+  { name: 'Jago',   rate: 9.3 },
+];
+let BOT_LEVEL = 1;
+
 function getRandomDemand(pool, used){
-  let avail=pool.map((_,i)=>i).filter(i=>!used.includes(i));
-  if(avail.length===0){used.length=0;avail=pool.map((_,i)=>i);}
-  const idx=avail[Math.floor(Math.random()*avail.length)];
+  let avail = pool.map((_, i) => i).filter(i => !used.includes(i));
+  if (!avail.length) { used.length = 0; avail = pool.map((_, i) => i); }
+  const idx = avail[Math.floor(Math.random() * avail.length)];
   used.push(idx);
   return pool[idx];
 }
-let wins = {razan:0, dara:0};
-let ropePos = 50; // 0=razan wins, 100=dara wins, 50=center
-let roundNum = 1;
-let timeLeft = ROUND_TIME;
-let gameRunning = false;
-let countdown = 3;
-let phase = 'countdown'; // countdown | playing | roundend
-let timerInterval = null;
-let lastTap = {razan:0, dara:0};
-let raf = null;
+
+const $ = id => document.getElementById(id);
+let BOT = null, NAMES = { razan: 'Razan', dara: 'Dara' }, TOP = 'razan', BOTTOM = 'dara';
+let wins, consec, usedDemands = [], usedFinalDemands = [], log = [];
+let pull, tapCount, lastTap, ropePos = 50, roundNum = 1, timeLeft = ROUND_TIME;
+let phase = 'idle';   // idle | countdown | playing | paused | roundend
+let cdTimer = null, raf = null, lastT = 0, botAcc = 0, botPhase = 0, roundStart = 0;
+const other = p => p === 'razan' ? 'dara' : 'razan';
+const AV = p => NAMES[p] === 'Komputer' ? '🤖' : p === 'razan' ? '🧑' : '👧';
+const posOf = p => p === TOP ? 'top' : 'bottom';
+function vib(p){ try { navigator.vibrate && navigator.vibrate(p); } catch {} }
 
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+  if (id === 's-intro') showBest();
+}
+function pills(id, cb){ $(id).querySelectorAll('.ro-opt').forEach(b => b.onclick = () => { $(id).querySelectorAll('.ro-opt').forEach(x => x.classList.toggle('on', x === b)); cb(+b.dataset.v); }); }
+pills('opt-rounds', v => WIN_ROUNDS = v);
+pills('opt-level', v => BOT_LEVEL = v);
+
+function bestKey(){ return 'tt-tambang-best'; }
+function showBest(){
+  let b = null; try { b = JSON.parse(localStorage.getItem(bestKey())); } catch {}
+  $('best-line').textContent = b ? `⚡ Rekor tap tercepat: ${b.v.toFixed(1)} tap/detik (${b.who})` : '';
+}
+function saveBest(who, v){
+  if (NAMES[who] === 'Komputer' || !(v > 0)) return false;
+  let b = null; try { b = JSON.parse(localStorage.getItem(bestKey())); } catch {}
+  if (b && b.v >= v) return false;
+  try { localStorage.setItem(bestKey(), JSON.stringify({ v, who: NAMES[who] })); } catch {}
+  return true;
 }
 
-function startGame(){
-  wins={razan:0,dara:0};
-  consec={razan:0,dara:0};
-  usedDemands=[];usedFinalDemands=[];
-  roundNum=1;
-  const wf=document.getElementById('win-flash');if(wf) wf.classList.remove('show');
+// ── MULAI ──
+function startGame(bot){
+  BOT = bot || null;
+  NAMES = { razan: 'Razan', dara: 'Dara' }; if (BOT) NAMES[BOT] = 'Komputer';
+  // lawan komputer: kamu selalu di bawah (layar nggak kebalik)
+  TOP = BOT || 'razan'; BOTTOM = other(TOP);
+  ['top', 'bottom'].forEach(pos => {
+    const p = pos === 'top' ? TOP : BOTTOM, el = $('side-' + pos);
+    el.className = `side ${pos} ${p === 'razan' ? 'c-r' : 'c-d'}${p === BOT ? ' botside' : ''}`;
+    $('nm-' + pos).textContent = `${AV(p)} ${NAMES[p]}`;
+    $('btn-' + pos).textContent = p === BOT ? '🤖' : '💪';
+  });
+  wins = { razan: 0, dara: 0 }; consec = { razan: 0, dara: 0 };
+  usedDemands = []; usedFinalDemands = []; log = [];
+  roundNum = 1;
+  $('win-flash').classList.remove('show'); $('pause-ov').classList.remove('show');
   showScreen('s-game');
   startRound();
 }
 
 function startRound(){
-  taps={razan:0,dara:0};
-  ropePos=50;
-  timeLeft=ROUND_TIME;
-  phase='countdown';
-  countdown=3;
-  gameRunning=false;
+  pull = { razan: 0, dara: 0 }; tapCount = { razan: 0, dara: 0 }; lastTap = { razan: 0, dara: 0 };
+  ropePos = 50; timeLeft = ROUND_TIME; botAcc = 0; botPhase = Math.random() * 6;
   updateUI();
-  document.getElementById('status-text').textContent='Bersiap...';
-  document.getElementById('timer-display').textContent='';
-  document.getElementById('timer-display').classList.remove('danger');
-  clearInterval(timerInterval);
-
-  const rn=document.getElementById('round-num');if(rn) rn.textContent=roundNum;
-  const cr=document.getElementById('c-round');if(cr) cr.textContent=roundNum;
-  const ct=document.getElementById('c-total');if(ct) ct.textContent=WIN_ROUNDS;
-  let cd=3;
-  document.getElementById('status-text').textContent=cd;
-  timerInterval=setInterval(()=>{
+  runCountdown();
+}
+function runCountdown(){
+  clearInterval(cdTimer); cancelAnimationFrame(raf);
+  phase = 'countdown';
+  let cd = 3; setKnot(cd);
+  cdTimer = setInterval(() => {
     cd--;
-    if(cd>0){
-      document.getElementById('status-text').textContent=cd;
-    } else {
-      clearInterval(timerInterval);
-      document.getElementById('status-text').textContent='TARIK! 💪';
-      phase='playing';
-      gameRunning=true;
-      timeLeft=ROUND_TIME;
-      startTimer();
-      startGameLoop();
-    }
-  },1000);
+    if (cd > 0) { setKnot(cd); vib(15); return; }
+    clearInterval(cdTimer);
+    phase = 'playing'; vib(60);
+    setKnot('TARIK!', true);
+    setTimeout(() => { if (phase === 'playing') setKnot(Math.ceil(timeLeft)); }, 600);
+    roundStart = performance.now(); lastT = roundStart;
+    raf = requestAnimationFrame(loop);
+  }, 800);
+}
+function setKnot(v, go){
+  const t = $('k-t'); t.textContent = v; t.classList.toggle('go', !!go);
+  $('knot').classList.toggle('danger', phase === 'playing' && typeof v === 'number' && v <= 3);
 }
 
-function startTimer(){
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    if(phase!=='playing')return;
-    timeLeft--;
-    document.getElementById('timer-display').textContent=timeLeft;
-    if(timeLeft<=3) document.getElementById('timer-display').classList.add('danger');
-    else document.getElementById('timer-display').classList.remove('danger');
-    if(timeLeft<=0){
-      clearInterval(timerInterval);
-      endRound();
-    }
-  },1000);
+// ── LOOP (semua dihitung per detik, jadi sama cepat di HP mana aja) ──
+function loop(t){
+  if (phase !== 'playing') return;
+  const dt = Math.min((t - lastT) / 1000, 0.05); lastT = t;
+
+  if (BOT) botStep(dt);
+
+  ropePos -= (pull.razan - pull.dara) * dt * ROPE_SPEED;
+  const now = performance.now();
+  if (now - lastTap.razan > 500 && now - lastTap.dara > 500) ropePos += (50 - ropePos) * DECAY * dt;
+  ropePos = Math.max(10, Math.min(90, ropePos));
+  const k = Math.pow(PULL_DECAY, dt * 10); pull.razan *= k; pull.dara *= k;
+
+  timeLeft -= dt;
+  const sec = Math.max(0, Math.ceil(timeLeft));
+  if (now - roundStart > 600 && $('k-t').textContent != sec) setKnot(sec);
+  updateRope();
+
+  if (ropePos <= WIN_LO) return endRound('razan');
+  if (ropePos >= WIN_HI) return endRound('dara');
+  if (timeLeft <= 0) return endRound(null);
+  raf = requestAnimationFrame(loop);
 }
 
-function startGameLoop(){
-  cancelAnimationFrame(raf);
-  let lastTime=0;
-  function loop(t){
-    if(phase!=='playing'){return;}
-    const dt=Math.min((t-lastTime)/1000,0.05);
-    lastTime=t;
+// ── KOMPUTER: tap dengan ritme naik-turun kayak orang beneran ──
+function botStep(dt){
+  botPhase += dt;
+  const base = BOT_LEVELS[BOT_LEVEL].rate;
+  // makin lama sedikit capek, kadang ngebut sebentar
+  const wave = 1 + .13 * Math.sin(botPhase * 2.1) + .07 * Math.sin(botPhase * 5.3);
+  const tired = 1 - .025 * (ROUND_TIME - timeLeft);
+  botAcc += base * wave * tired * dt * (.85 + Math.random() * .3);
+  while (botAcc >= 1) { botAcc -= 1; doTap(BOT, null); }
+}
 
-    // Rope physics: moves based on tap difference
-    const diff=taps.razan-taps.dara; // positive = razan pulling
-    // Rope moves left (lower %) for razan, right (higher %) for dara
-    ropePos -= diff * dt * 2.5;
-    ropePos = Math.max(10, Math.min(90, ropePos));
+// ── TAP ──
+function onPointer(pos, e){
+  e.preventDefault();
+  const p = pos === 'top' ? TOP : BOTTOM;
+  if (p === BOT) return;
+  doTap(p, e);
+}
+['top', 'bottom'].forEach(pos => $('side-' + pos).addEventListener('pointerdown', e => onPointer(pos, e)));
+document.addEventListener('contextmenu', e => { if ($('s-game').classList.contains('active')) e.preventDefault(); });
 
-    // Slight decay back to center if both not tapping recently
-    const now=Date.now();
-    const razanActive=now-lastTap.razan<500;
-    const daraActive=now-lastTap.dara<500;
-    if(!razanActive&&!daraActive){
-      ropePos+=(50-ropePos)*DECAY*dt;
-    }
-
-    // Taps decay over time
-    taps.razan*=Math.pow(0.85,dt*10);
-    taps.dara*=Math.pow(0.85,dt*10);
-
-    updateRope();
-
-    // Check win condition
-    if(ropePos<=15){endRound('razan');return;}
-    if(ropePos>=85){endRound('dara');return;}
-
-    raf=requestAnimationFrame(loop);
+function doTap(p, e){
+  if (phase !== 'playing') return;
+  pull[p] += PULL_PER_TAP; tapCount[p]++; lastTap[p] = performance.now();
+  const pos = posOf(p), side = $('side-' + pos), btn = $('btn-' + pos);
+  side.classList.add('pumped'); btn.classList.add('pressed');
+  setTimeout(() => { side.classList.remove('pumped'); btn.classList.remove('pressed'); }, 80);
+  $('taps-' + pos).textContent = tapCount[p];
+  if (e) {
+    const r = document.createElement('div'); r.className = 'tap-ripple';
+    r.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:64px;height:64px;background:${p === 'razan' ? 'rgba(74,127,193,.25)' : 'rgba(217,119,107,.25)'}`;
+    document.body.appendChild(r); setTimeout(() => r.remove(), 500);
   }
-  lastTime=performance.now();
-  raf=requestAnimationFrame(loop);
 }
 
-function onTap(player, e){
-  if(e) e.preventDefault();
-  if(phase!=='playing')return;
-  // FIX: debounce double-fire from touchstart+click
-  const now=Date.now();
-  if(!window._lastTapTime) window._lastTapTime={razan:0,dara:0};
-  if(now-window._lastTapTime[player]<80) return;
-  window._lastTapTime[player]=now;
-
-  taps[player]+=1.5;
-  lastTap[player]=now;
-
-  // Visual feedback
-  const side=document.getElementById(`side-${player}`);
-  side.classList.add('pumped');
-  setTimeout(()=>side.classList.remove('pumped'),80);
-
-  const btn=document.getElementById(`tapbtn-${player}`);
-  btn.classList.add('pressed');
-  setTimeout(()=>btn.classList.remove('pressed'),80);
-
-  // Ripple
-  if(e&&e.clientX){
-    const r=document.createElement('div');
-    r.className='tap-ripple';
-    r.style.cssText=`left:${e.clientX}px;top:${e.clientY}px;width:60px;height:60px;background:rgba(193,122,111,.2)`;
-    document.body.appendChild(r);
-    setTimeout(()=>r.remove(),500);
-  }
-
-  // Update tap counter display
-  document.getElementById(`taps-${player}`).textContent=Math.round(taps[player]);
-}
-
-function updateRope(){
-  document.getElementById('rope-fill').style.width=`${100-ropePos}%`;
-  document.getElementById('rope-flag').style.left=`${ropePos}%`;
-}
-
+// posisi simpul: 0 = sisi Razan, 100 = sisi Dara → di layar ikut siapa yang di atas
+function screenPct(v){ return TOP === 'razan' ? v : 100 - v; }
+function updateRope(){ $('rope').style.top = screenPct(ropePos) + '%'; }
 function updateUI(){
-  document.getElementById('wins-razan').textContent=wins.razan;
-  document.getElementById('wins-dara').textContent=wins.dara;
-  document.getElementById('score-razan-c').textContent=wins.razan;
-  document.getElementById('score-dara-c').textContent=wins.dara;
-  document.getElementById('c-round').textContent=roundNum;
-  document.getElementById('timer-display').textContent=timeLeft;
+  ['top', 'bottom'].forEach(pos => { const p = pos === 'top' ? TOP : BOTTOM; $('wins-' + pos).textContent = wins[p]; $('taps-' + pos).textContent = tapCount ? tapCount[p] : 0; });
+  $('c-round').textContent = roundNum;
+  $('c-score').textContent = `${wins[TOP]} : ${wins[BOTTOM]}`;
   updateRope();
 }
 
-function endRound(forceWinner){
-  clearInterval(timerInterval);
-  cancelAnimationFrame(raf);
-  phase='roundend';
-  gameRunning=false;
+// ── JEDA ──
+function pauseGame(){
+  if (phase === 'playing' || phase === 'countdown') {
+    clearInterval(cdTimer); cancelAnimationFrame(raf);
+    phase = 'paused';
+    $('pause-ov').classList.add('show');
+  } else if (phase !== 'paused') exitGame();
+}
+function resumeGame(){
+  $('pause-ov').classList.remove('show');
+  pull = { razan: 0, dara: 0 };
+  runCountdown();
+}
+function exitGame(){
+  if (!confirm('Keluar dari permainan?')) return;
+  clearInterval(cdTimer); cancelAnimationFrame(raf); phase = 'idle';
+  $('pause-ov').classList.remove('show'); $('win-flash').classList.remove('show');
+  showScreen('s-intro');
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden && (phase === 'playing' || phase === 'countdown')) pauseGame(); });
 
-  let winner;
-  if(forceWinner){
-    winner=forceWinner;
+// ── AKHIR RONDE ──
+function endRound(winner){
+  cancelAnimationFrame(raf); clearInterval(cdTimer);
+  phase = 'roundend';
+  const timeUp = winner === null;
+  if (timeUp) winner = Math.abs(ropePos - 50) < 1 ? null : ropePos < 50 ? 'razan' : 'dara';
+  const secs = Math.max(.5, ROUND_TIME - Math.max(0, timeLeft));
+  const tps = { razan: tapCount.razan / secs, dara: tapCount.dara / secs };
+  let newBest = [];
+  ['razan', 'dara'].forEach(p => { if (saveBest(p, tps[p])) newBest = [p]; });
+
+  log.push({ round: roundNum, winner, timeUp, taps: { ...tapCount } });
+  $('wf-demand').style.display = 'none'; $('wf-streak').textContent = '';
+  if (winner) {
+    const loser = other(winner);
+    wins[winner]++; consec[winner]++; consec[loser] = 0;
+    const wn = NAMES[winner];
+    $('wf-icon').textContent = wins[winner] >= WIN_ROUNDS ? '🏆' : NAMES[winner] === 'Komputer' ? '🤖' : '💪';
+    $('wf-title').textContent = `${wn} menang ronde ${roundNum}!`;
+    $('wf-desc').textContent = timeUp ? `Waktu habis — tambang lebih ke sisi ${wn}!` : `${wn} berhasil tarik tambang sampai garis menang!`;
+    if (consec[winner] >= 2) $('wf-streak').textContent = `🔥 ${wn} menang ${consec[winner]}x beruntun!`;
+    // misi kecil tiap ronde (cuma kalau main berdua)
+    if (!BOT && wins[winner] < WIN_ROUNDS) { $('wf-demand-text').textContent = getRandomDemand(ROUND_DEMANDS, usedDemands); $('wf-demand').style.display = 'block'; }
+    if (NAMES[winner] !== 'Komputer') confetti(30);
+    vib([40, 30, 80]);
   } else {
-    // Time's up — whoever has rope closer to their side wins
-    if(ropePos<50) winner='razan';
-    else if(ropePos>50) winner='dara';
-    else winner=null; // tie
+    consec = { razan: 0, dara: 0 };
+    $('wf-icon').textContent = '🤝';
+    $('wf-title').textContent = 'Seri! Ronde ini draw';
+    $('wf-desc').textContent = 'Tambang persis di tengah — ronde ini tidak ada pemenang!';
   }
-
-  if(winner){
-    wins[winner]++;
-    const wn=winner==='razan'?'Razan':'Dara';
-    const ln=winner==='razan'?'Dara':'Razan';
-    document.getElementById('wf-icon').textContent=wins[winner]>=WIN_ROUNDS?'🏆':'💪';
-    document.getElementById('wf-title').textContent=`${wn} menang ronde ${roundNum}!`;
-    document.getElementById('wf-desc').textContent=forceWinner
-      ?`${wn} berhasil tarik tambang ke sisinya!`
-      :`Waktu habis — tambang lebih ke sisi ${wn}!`;
-    confetti(30);
-  } else {
-    document.getElementById('wf-icon').textContent='🤝';
-    document.getElementById('wf-title').textContent='Seri! Ronde ini draw';
-    document.getElementById('wf-desc').textContent='Tambang persis di tengah — ronde ini tidak ada pemenang!';
-  }
-
-  const wfr=document.getElementById('wf-r');if(wfr) wfr.textContent=wins.razan;
-  const wfd_el=document.getElementById('wf-d');if(wfd_el) wfd_el.textContent=wins.dara;
+  $('wf-stats').textContent = `Tap: ${NAMES.razan} ${tapCount.razan} (${tps.razan.toFixed(1)}/dtk) · ${NAMES.dara} ${tapCount.dara} (${tps.dara.toFixed(1)}/dtk)` + (newBest.length ? ` · ⚡ Rekor baru ${NAMES[newBest[0]]}!` : '');
+  $('wfn-r').textContent = NAMES.razan; $('wfn-d').textContent = NAMES.dara;
+  $('wf-r').textContent = wins.razan; $('wf-d').textContent = wins.dara;
   updateUI();
 
-  const gameOver=wins.razan>=WIN_ROUNDS||wins.dara>=WIN_ROUNDS;
-  document.getElementById('wf-btn').textContent=gameOver?'Lihat Hasil 🏆':'Ronde Berikutnya →';
-  document.getElementById('wf-btn').onclick=gameOver?showResult:nextRound;
-  document.getElementById('win-flash').classList.add('show');
+  const gameOver = wins.razan >= WIN_ROUNDS || wins.dara >= WIN_ROUNDS;
+  $('wf-btn').textContent = gameOver ? 'Lihat Hasil 🏆' : 'Ronde Berikutnya →';
+  $('wf-btn').onclick = gameOver ? showResult : nextRound;
+  $('win-flash').classList.add('show');
 }
 
 function nextRound(){
-  const wf=document.getElementById('win-flash');if(wf) wf.classList.remove('show');
-  const wfd=document.getElementById('wf-demand');if(wfd) wfd.style.display='none';
+  $('win-flash').classList.remove('show');
   roundNum++;
   startRound();
 }
 
 function showResult(){
-  document.getElementById('win-flash').classList.remove('show');
-  const r=wins.razan,d=wins.dara;
-  const tie=r===d,rw=r>d;
-  const winner=rw?'Razan':'Dara',loser=rw?'Dara':'Razan';
-  document.getElementById('end-icon').textContent=tie?'🤝':rw?'🏆':'👑';
-  document.getElementById('end-title').textContent=tie?'Seri!':`${winner} Menang!`;
-  document.getElementById('end-sub').textContent=tie?'Dua-duanya sama kuat!':`${winner} lebih kuat hari ini!`;
-  document.getElementById('end-r').textContent=r;
-  document.getElementById('end-d').textContent=d;
-  if(tie){
-    document.getElementById('end-verdict').innerHTML='Kekuatan kalian imbang — main lagi untuk tentukan yang lebih kuat!';
+  $('win-flash').classList.remove('show');
+  phase = 'idle';
+  const r = wins.razan, d = wins.dara, tie = r === d, rw = r > d;
+  const winner = NAMES[rw ? 'razan' : 'dara'], loser = NAMES[rw ? 'dara' : 'razan'];
+  $('ea-r').textContent = AV('razan'); $('ea-d').textContent = AV('dara');
+  $('en-r').textContent = NAMES.razan; $('en-d').textContent = NAMES.dara;
+  $('end-icon').textContent = tie ? '🤝' : winner === 'Komputer' ? '🤖' : rw ? '🏆' : '👑';
+  $('end-title').textContent = tie ? 'Seri!' : `${winner} Menang!`;
+  $('end-sub').textContent = tie ? 'Dua-duanya sama kuat!' : `${winner} lebih kuat hari ini!`;
+  $('end-r').textContent = r; $('end-d').textContent = d;
+  $('recap').innerHTML = log.map(x => `<div class="rc"><span>Ronde ${x.round} · ${x.taps.razan} vs ${x.taps.dara} tap</span><b>${x.winner ? `${AV(x.winner)} ${NAMES[x.winner]}${x.timeUp ? ' ⏱️' : ''}` : '🤝 Seri'}</b></div>`).join('');
+  if (tie) {
+    $('end-verdict').innerHTML = 'Kekuatan kalian imbang — main lagi untuk tentukan yang lebih kuat!';
+  } else if (BOT) {
+    $('end-verdict').innerHTML = winner === 'Komputer'
+      ? `<strong>🤖 Komputer menang!</strong> Coba pakai 2 jari, atau turunin levelnya dulu 😄 Habis itu tantang pasanganmu!`
+      : `<strong>🏆 Kamu ngalahin komputer level ${BOT_LEVELS[BOT_LEVEL].name}!</strong> Sekarang tantang pasanganmu 😏`;
   } else {
-    const tmpl=getRandomDemand(FINAL_DEMANDS,usedFinalDemands);
-    const demand=tmpl.replace(/{winner}/g,winner).replace(/{loser}/g,loser);
-    document.getElementById('end-verdict').innerHTML=`<strong>🎯 Hak Pemenang:</strong><br>${demand} 😏🤍`;
+    const demand = getRandomDemand(FINAL_DEMANDS, usedFinalDemands).replace(/{winner}/g, winner).replace(/{loser}/g, loser);
+    $('end-verdict').innerHTML = `<strong>🎯 Hak Pemenang:</strong><br>${demand} 😏🤍`;
   }
   showScreen('s-result');
-  if(!tie)confetti(80);
+  if (!tie && winner !== 'Komputer') confetti(80);
 }
 
-function confetti(n=50){
-  const colors=['#c17a6f','#e8c4b0','#c9a96e','#b5c4b1','#faf6f0'];
-  for(let i=0;i<n;i++) setTimeout(()=>{
-    const el=document.createElement('div');el.className='cp';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
-  },i*20);
+function confetti(n = 50){
+  const colors = ['#c17a6f', '#e8c4b0', '#c9a96e', '#b5c4b1', '#faf6f0'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
+showBest();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
