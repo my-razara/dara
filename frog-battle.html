@@ -84,6 +84,14 @@
 
   .controls{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:.5rem .6rem calc(.5rem + env(safe-area-inset-bottom));background:rgba(13,31,13,.97);border-top:1px solid rgba(126,200,80,.2);gap:.5rem}
   .pad{display:flex;gap:.4rem;align-items:center}
+  /* lawan komputer: kontrol cuma satu, dilebarin — kiri/kanan di kiri, loncat di kanan */
+  body.botmode .pad.d{display:none}
+  .pwr-ind:empty{display:none}
+  body.botmode .pad.r{flex:1}
+  body.botmode .pad.r .cbtn[data-k="left"]{order:1}
+  body.botmode .pad.r .cbtn[data-k="right"]{order:2}
+  body.botmode .pad.r .cbtn[data-k="jump"]{order:3;margin-left:auto;width:76px}
+  body.botmode .pad.r .pad-lbl{order:0}
   .pad-lbl{font-size:9px;font-weight:700;writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.1em;text-transform:uppercase}
   .pad.r .pad-lbl{color:var(--blue)}.pad.d .pad-lbl{color:var(--pink)}
   .cbtn{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;touch-action:none;transition:transform .08s,background .08s}
@@ -134,6 +142,19 @@
     <p class="intro-sub">Dua katak, satu kolam — loncat antar daun teratai, tangkap serangga, injak kepala lawan! 🪰</p>
 
     <div class="panel">
+      <span class="panel-title">Lawan</span>
+      <div class="pills" id="bot-pills">
+        <button class="pill on" data-v="-1">👫<small>berdua</small></button>
+        <button class="pill" data-v="0">🤖<small>santai</small></button>
+        <button class="pill" data-v="1">🤖<small>normal</small></button>
+        <button class="pill" data-v="2">🤖<small>jago</small></button>
+      </div>
+      <div class="pills" id="me-pills" style="margin-top:.5rem;display:none">
+        <button class="pill on" data-v="Razan">🧑<small>aku Razan</small></button>
+        <button class="pill" data-v="Dara">👧<small>aku Dara</small></button>
+      </div>
+    </div>
+    <div class="panel">
       <span class="panel-title">Durasi Ronde</span>
       <div class="pills" id="dur-pills">
         <button class="pill" data-v="45">45s</button>
@@ -171,15 +192,15 @@
 <div id="s-game" class="screen">
   <div class="game-wrap">
     <div class="hud">
-      <div class="hud-p r"><span class="hud-name">🧑 Razan</span><span class="hud-score" id="sc-r">0</span><span class="hud-sub" id="sub-r"></span></div>
+      <div class="hud-p r"><span class="hud-name" id="hn-r">🧑 Razan</span><span class="hud-score" id="sc-r">0</span><span class="hud-sub" id="sub-r"></span></div>
       <div class="hud-mid"><span class="hud-timer" id="hud-timer">60</span><span class="hud-lbl" id="hud-lbl">detik</span><button class="hud-exit" onclick="exitGame()">✕</button></div>
-      <div class="hud-p d"><span class="hud-name">👧 Dara</span><span class="hud-score" id="sc-d">0</span><span class="hud-sub" id="sub-d"></span></div>
+      <div class="hud-p d"><span class="hud-name" id="hn-d">👧 Dara</span><span class="hud-score" id="sc-d">0</span><span class="hud-sub" id="sub-d"></span></div>
     </div>
     <div class="tbar"><div class="tbar-fill" id="tbar"></div></div>
     <div id="arena"></div>
     <div class="controls">
       <div class="pad r">
-        <span class="pad-lbl">Razan</span>
+        <span class="pad-lbl" id="pl-r">Razan</span>
         <div class="cbtn" data-p="r" data-k="left">⬅️</div>
         <div class="cbtn jump" data-p="r" data-k="jump">🦘</div>
         <div class="cbtn" data-p="r" data-k="right">➡️</div>
@@ -230,7 +251,11 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { dur: 60, need: 2 };
+let CFG = { dur: 60, need: 2, bot: -1, me: 'Razan' };
+// [BARU] lawan komputer: kamu katak biru (slot r, tombol kiri), komputer slot d
+let BOT = null, BK = {};
+const BOT_L = [ { think: 430, slack: 34, miss: .18, hunt: .05 }, { think: 230, slack: 20, miss: .07, hunt: .2 }, { think: 110, slack: 12, miss: .02, hunt: .45 } ];
+const AV = k => NAMES[k] === 'Komputer' ? '🤖' : NAMES[k] === 'Razan' ? '🧑' : '👧';
 let M = null, R = null;
 let raf = null, cdTimer = null, token = 0;
 const keys = { r:{ left:false, right:false }, d:{ left:false, right:false } };
@@ -259,12 +284,15 @@ function bindPills(id, key) {
 }
 bindPills('dur-pills', 'dur');
 bindPills('need-pills', 'need');
+bindPills('bot-pills', 'bot');
+document.querySelectorAll('#bot-pills .pill').forEach(p => p.addEventListener('click', () => { $('me-pills').style.display = CFG.bot >= 0 ? 'flex' : 'none'; }));
+document.querySelectorAll('#me-pills .pill').forEach(p => p.addEventListener('click', () => { document.querySelectorAll('#me-pills .pill').forEach(x => x.classList.remove('on')); p.classList.add('on'); CFG.me = p.dataset.v; }));
 function stopAll() { token++; cancelAnimationFrame(raf); clearTimeout(cdTimer); }
 
 // ═════════ KONTROL (dipasang SEKALI) ═════════
 document.querySelectorAll('.cbtn').forEach(btn => {
   const p = btn.dataset.p, k = btn.dataset.k;
-  const down = e => { e.preventDefault(); try { btn.setPointerCapture(e.pointerId); } catch {} btn.classList.add('on'); if (k === 'jump') doJump(p); else keys[p][k] = true; };
+  const down = e => { e.preventDefault(); if (BOT && p === BOT) return; try { btn.setPointerCapture(e.pointerId); } catch {} btn.classList.add('on'); if (k === 'jump') doJump(p); else keys[p][k] = true; };
   const up = e => { btn.classList.remove('on'); if (k !== 'jump') keys[p][k] = false; };
   btn.addEventListener('pointerdown', down);
   ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => btn.addEventListener(ev, up));
@@ -272,12 +300,16 @@ document.querySelectorAll('.cbtn').forEach(btn => {
 });
 // Keyboard (buat ngetes di laptop): Razan A/D/W, Dara ←/→/↑
 const KEYMAP = { a:['r','left'], d:['r','right'], w:['r','jump'], arrowleft:['d','left'], arrowright:['d','right'], arrowup:['d','jump'] };
-document.addEventListener('keydown', e => { const m = KEYMAP[e.key.toLowerCase()]; if (!m) return; e.preventDefault(); if (m[1] === 'jump') { if (!e.repeat) doJump(m[0]); } else keys[m[0]][m[1]] = true; });
+document.addEventListener('keydown', e => { const m = KEYMAP[e.key.toLowerCase()]; if (!m || (BOT && m[0] === BOT)) return; e.preventDefault(); if (m[1] === 'jump') { if (!e.repeat) doJump(m[0]); } else keys[m[0]][m[1]] = true; });
 document.addEventListener('keyup', e => { const m = KEYMAP[e.key.toLowerCase()]; if (m && m[1] !== 'jump') keys[m[0]][m[1]] = false; });
 
 // ═════════ MATCH ═════════
 function startMatch() {
   stopAll();
+  BOT = CFG.bot >= 0 ? 'd' : null;
+  if (BOT) { NAMES.r = CFG.me; NAMES.d = 'Komputer'; } else { NAMES.r = 'Razan'; NAMES.d = 'Dara'; }
+  document.body.classList.toggle('botmode', !!BOT);
+  setText('hn-r', `${AV('r')} ${NAMES.r}`); setText('hn-d', `${AV('d')} ${NAMES.d}`); setText('pl-r', NAMES.r);
   M = { need: CFG.need, wins: { r:0, d:0 }, round: 0, tot: { r: blank(), d: blank() } };
   countdown();
 }
@@ -293,7 +325,7 @@ function countdown() {
     if (my !== token) return;
     if (n <= 0) { beginRound(); return; }
     if (el) { el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
-    if (sub) sub.textContent = n === 1 ? 'LOMPAAAT! 🐸' : `Ronde ${M.round + 1} — Razan kiri, Dara kanan`;
+    if (sub) sub.textContent = n === 1 ? 'LOMPAAAT! 🐸' : (BOT ? `Ronde ${M.round + 1} — kamu katak biru 🐸` : `Ronde ${M.round + 1} — Razan kiri, Dara kanan`);
     n--; cdTimer = setTimeout(step, 800);
   };
   step();
@@ -369,6 +401,7 @@ function update(dtms) {
   const tEl = $('hud-timer'); if (tEl) { tEl.textContent = Math.ceil(secs); tEl.className = 'hud-timer' + (secs <= 10 ? ' warn' : ''); }
   const bar = $('tbar'); if (bar) { const pct = secs / CFG.dur * 100; bar.style.width = pct + '%'; bar.style.background = pct < 25 ? '#e57373' : pct < 50 ? '#ffb300' : '#7ec850'; }
 
+  if (BOT) botThink(dtms);
   ['r', 'd'].forEach(p => stepFrog(R.frogs[p], k, dtms));
   frogVsFrog();
   spawnItems(dtms);
@@ -438,6 +471,51 @@ function stomp(top, bot) {
   updateScores();
   vib([60, 30, 60]);
   toast(`🦶 ${NAMES[top.p]} nginjak ${NAMES[bot.p]}!`);
+}
+
+// ═════════ KOMPUTER ═════════
+// pilih serangga/power-up terdekat yang paling worth, jalan ke sana, loncat kalau di atas
+function surfaceOf(f) {
+  const bottom = f.y + f.size; if (!f.onGround) return null;
+  if (bottom >= R.ground - 1) return { x: 0, y: R.ground, w: R.W, ground: true };
+  return R.plats.find(pl => Math.abs(pl.y - bottom) < 3) || null;
+}
+function botThink(dtms) {
+  const f = R.frogs[BOT], h = R.frogs[other(BOT)], L = BOT_L[CFG.bot] || BOT_L[1], key = keys[BOT];
+  BK.t = (BK.t || 0) - dtms;
+  const fx = f.x + f.size / 2, fy = f.y + f.size / 2;
+  if (BK.t <= 0) {
+    BK.t = L.think * (.7 + Math.random() * .6);
+    // pilih target
+    let best = null, bestV = -1;
+    R.items.forEach(it => {
+      const ix = it.x + 16, iy = it.y + 16, d = Math.abs(ix - fx) + Math.max(0, fy - iy) * 1.4 + Math.max(0, iy - fy) * .6;
+      let val = it.kind === 'rare' ? 3 : it.kind === 'pwr' ? (it.pw.id === 'freeze' ? 2.6 : 1.8) : 1;
+      if (it.ttl < 1200) val *= .4;
+      const hd = Math.hypot(h.x + h.size / 2 - ix, h.y + h.size / 2 - iy);   // lawan lebih deket? kurang worth
+      if (hd < d * .6) val *= .6;
+      const v = val / (d + 60);
+      if (v > bestV) { bestV = v; best = it; }
+    });
+    BK.target = best;
+    // kadang ngejar kepala lawan buat diinjak
+    BK.hunt = h.stun <= 0 && h.effect !== 'giant' && Math.random() < L.hunt && Math.abs(h.x - f.x) < 140;
+    BK.miss = Math.random() < L.miss;
+  }
+  let tx, ty;
+  if (BK.hunt) { tx = h.x + h.size / 2; ty = h.y - 30; }
+  else if (BK.target && R.items.includes(BK.target)) { tx = BK.target.x + 16; ty = BK.target.y + 16; }
+  else { tx = R.W * .6; ty = fy; }
+  // target di bawah tapi masih berdiri di teratai yang sama → jalan ke ujung teratai dulu
+  const sf = surfaceOf(f);
+  if (sf && !sf.ground && ty > sf.y + 10 && tx > sf.x - 6 && tx < sf.x + sf.w + 6) tx = (tx - sf.x < sf.x + sf.w - tx) ? sf.x - 24 : sf.x + sf.w + 24;
+  if (BK.miss) tx += (Math.random() - .5) * 120;
+  const dx = tx - fx;
+  key.left = dx < -L.slack; key.right = dx > L.slack;
+  // loncat
+  const above = ty < fy - 22;
+  if (f.onGround && (above || BK.hunt) && Math.abs(dx) < 90) doJump(BOT);
+  else if (!f.onGround && f.jumps < 2 && f.vy > -1 && above && ty < fy - 40 && Math.abs(dx) < 70) doJump(BOT);
 }
 
 function surfaces() { return [{ x: 10, y: R.ground, w: R.W - 20 }, ...R.plats]; }
@@ -518,7 +596,7 @@ function applyPower(f, pw) {
     return;
   }
   f.effect = pw.id; f.effT = pw.dur;
-  setText('pwr-' + f.p, `${f.p === 'r' ? '🧑' : '👧'} ${pw.emoji} ${pw.name}`);
+  setText('pwr-' + f.p, `${AV(f.p)} ${pw.emoji} ${pw.name}`);
   pop(f.x, f.y - 12, pw.emoji + ' ' + pw.name, '#fff');
 }
 
@@ -574,22 +652,22 @@ function endRound() {
     <h2 class="end-title">${winner ? `${w} Menang Ronde!` : 'Seri!'}</h2>
     <p class="end-sub">${winner ? `Skor ${Math.max(fr.score, fd.score)}-${Math.min(fr.score, fd.score)}` : 'Skor sama — ronde ini nggak dihitung'}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${M.wins.r}</span><span class="sc-sub">${fr.score} poin</span></div>
+      <div><span class="sc-nm r">${AV('r')} ${NAMES.r}</span><span class="sc-v">${M.wins.r}</span><span class="sc-sub">${fr.score} poin</span></div>
       <span class="sc-vs">🐸</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${M.wins.d}</span><span class="sc-sub">${fd.score} poin</span></div>
+      <div><span class="sc-nm d">${AV('d')} ${NAMES.d}</span><span class="sc-v">${M.wins.d}</span><span class="sc-sub">${fd.score} poin</span></div>
     </div>
     ${table(fr.st, fd.st)}
-    <div class="demand"><span class="demand-tag">${winner ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span>
-      <p class="demand-text">${winner ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — dua katak sama lincahnya ✋🐸'}</p></div>
+    ${BOT ? botBox(winner ? w === 'Komputer' : null, false) : `<div class="demand"><span class="demand-tag">${winner ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span>
+      <p class="demand-text">${winner ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — dua katak sama lincahnya ✋🐸'}</p></div>`}
     <button class="btn-main" onclick="countdown()">Ronde ${M.round + 1} →</button>
     <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`;
   showScreen('s-result');
-  if (winner) confetti(30);
+  if (winner && w !== 'Komputer') confetti(30);
 }
 
 function table(a, b) {
   const row = (lbl, k) => `<div class="row"><span>${lbl}</span><b>${a[k]}</b><b>${b[k]}</b></div>`;
-  return `<div class="stat-table"><div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+  return `<div class="stat-table"><div class="row head"><span></span><span>${AV('r')} ${NAMES.r}</span><span>${AV('d')} ${NAMES.d}</span></div>
     ${row('🪰 Serangga', 'food')}${row('🦋 Kupu langka', 'rare')}${row('🦶 Nginjak', 'stomps')}${row('💫 Keinjak', 'stomped')}${row('⚡ Power-up', 'pwr')}${row('🔥 Combo terbaik', 'bestCombo')}</div>`;
 }
 
@@ -604,21 +682,28 @@ function showFinal() {
   const inner = $('result-inner'); if (!inner) return;
   inner.innerHTML = `
     <span class="badge">Hasil Akhir</span>
-    <span class="end-icon">👑</span>
-    <h2 class="end-title">${w} Raja Kolam!</h2>
+    <span class="end-icon">${w === 'Komputer' ? '🤖' : '👑'}</span>
+    <h2 class="end-title">${w === 'Komputer' ? 'Komputer Menang!' : `${w} Raja Kolam!`}</h2>
     <p class="end-sub">${M.round} ronde · ${CFG.dur} detik per ronde</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${M.need > 1 ? M.wins.r : t.r.score}</span><span class="sc-sub">${M.need > 1 ? t.r.score + ' poin total' : ''}</span></div>
+      <div><span class="sc-nm r">${AV('r')} ${NAMES.r}</span><span class="sc-v">${M.need > 1 ? M.wins.r : t.r.score}</span><span class="sc-sub">${M.need > 1 ? t.r.score + ' poin total' : ''}</span></div>
       <span class="sc-vs">🐸</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${M.need > 1 ? M.wins.d : t.d.score}</span><span class="sc-sub">${M.need > 1 ? t.d.score + ' poin total' : ''}</span></div>
+      <div><span class="sc-nm d">${AV('d')} ${NAMES.d}</span><span class="sc-v">${M.need > 1 ? M.wins.d : t.d.score}</span><span class="sc-sub">${M.need > 1 ? t.d.score + ' poin total' : ''}</span></div>
     </div>
     ${table(t.r, t.d)}
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    ${BOT ? botBox(w === 'Komputer', true) : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
     <button class="btn-main" onclick="startMatch()">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`;
   showScreen('s-result');
-  confetti(70);
+  if (w !== 'Komputer') confetti(70);
+}
+
+function botBox(botWon, final) {
+  const txt = botWon === null ? 'Seri lawan komputer — kataknya sama lincah! 🤝🐸'
+    : botWon ? (final ? 'Komputer menang kali ini 🤖 Coba level santai dulu, atau tantang pasanganmu biar ada hukumannya 😏' : 'Komputer menang ronde ini — incer 🦋 sama injak kepalanya! 💪')
+    : (final ? `Kamu ngalahin komputer level <b>${['santai', 'normal', 'jago'][CFG.bot]}</b>! 🐸👑 Sekarang tantang pasanganmu 😏` : 'Ronde ini punyamu! Pertahanin 🔥');
+  return `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${txt}</p></div>`;
 }
 
 function confetti(n) {
