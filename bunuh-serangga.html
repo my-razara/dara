@@ -39,7 +39,8 @@
   .btn-main{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:linear-gradient(135deg,var(--dgreen),var(--green));color:#fff;box-shadow:0 4px 18px rgba(139,195,74,.35);transition:transform .15s}
   .btn-main:active{transform:scale(.97)}
   .btn-ghost{width:100%;padding:.8rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:600;background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);margin-top:.55rem}
-  #duel-only.hide{display:none}
+  #duel-only.hide,#bot-only.hide{display:none}
+  .arena-wrap.top.nobot-flip{transform:none} /* lawan komputer: arena komputer nggak perlu dibalik */
 
   /* COUNTDOWN */
   #s-countdown{justify-content:center}
@@ -135,6 +136,19 @@
       <div class="pills" id="mode-pills">
         <button class="pill on" data-v="duel">⚔️ Duel<small>layar dibagi 2</small></button>
         <button class="pill" data-v="team">🤝 Tim<small>skor bareng</small></button>
+        <button class="pill" data-v="bot">🤖 Komputer<small>main sendiri</small></button>
+      </div>
+    </div>
+    <div class="panel hide" id="bot-only">
+      <span class="panel-title">Lawan Komputer</span>
+      <div class="pills" id="me-pills" style="margin-bottom:.5rem">
+        <button class="pill on" data-v="razan">🧑 Aku Razan</button>
+        <button class="pill" data-v="dara">👧 Aku Dara</button>
+      </div>
+      <div class="pills" id="bot-pills">
+        <button class="pill" data-v="0">🐢<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>sedang</small></button>
+        <button class="pill" data-v="2">⚡<small>ganas</small></button>
       </div>
     </div>
     <div class="panel">
@@ -235,7 +249,12 @@ const TEAM_LOSE = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { mode:'duel', dur:60, need:2 };
+let CFG = { mode:'duel', dur:60, need:2, me:'razan', bot:1 };
+// [BARU] lawan komputer
+let BOT = null;
+const BOT_CFG = [ { rate:1.4, react:700, bomb:.06 }, { rate:2.2, react:450, bomb:.03 }, { rate:3.2, react:250, bomb:.012 } ];
+const AV = p => NAMES[p] === 'Komputer' ? '🤖' : p === 'razan' ? '🧑' : '👧';
+const BOTTOM = () => BOT ? other(BOT) : 'razan';
 let M = null;          // match (series)
 let R = null;          // ronde berjalan
 let rafId = null, cdTimer = null, token = 0;
@@ -261,7 +280,9 @@ function bindPills(id, cb) {
     p.classList.add('on'); cb(p.dataset.v);
   }));
 }
-bindPills('mode-pills', v => { CFG.mode = v; const d = $('duel-only'); if (d) d.classList.toggle('hide', v !== 'duel'); });
+bindPills('mode-pills', v => { CFG.mode = v; const d = $('duel-only'); if (d) d.classList.toggle('hide', v === 'team'); const b = $('bot-only'); if (b) b.classList.toggle('hide', v !== 'bot'); });
+bindPills('me-pills', v => CFG.me = v);
+bindPills('bot-pills', v => CFG.bot = parseInt(v) || 0);
 bindPills('dur-pills', v => CFG.dur = parseInt(v) || 60);
 bindPills('need-pills', v => CFG.need = parseInt(v) || 2);
 function stopLoop() { token++; cancelAnimationFrame(rafId); clearTimeout(cdTimer); }
@@ -269,7 +290,9 @@ function stopLoop() { token++; cancelAnimationFrame(rafId); clearTimeout(cdTimer
 // ═════════ MATCH ═════════
 function startMatch() {
   stopLoop();
-  M = { mode: CFG.mode, dur: CFG.dur, need: CFG.need, round: 0, wins: { razan:0, dara:0 },
+  BOT = CFG.mode === 'bot' ? other(CFG.me) : null;
+  NAMES.razan = 'Razan'; NAMES.dara = 'Dara'; if (BOT) NAMES[BOT] = 'Komputer';
+  M = { mode: CFG.mode === 'bot' ? 'duel' : CFG.mode, dur: CFG.dur, need: CFG.need, round: 0, wins: { razan:0, dara:0 },
         totals: { razan: blankStats(), dara: blankStats() } };
   countdown();
 }
@@ -287,15 +310,15 @@ function countdown() {
     if (my !== token) return;
     if (n <= 0) { beginRound(); return; }
     if (el) { el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
-    if (sub) sub.textContent = n === 1 ? 'SIAP BUNUH! 🔨' : M.mode === 'duel' ? `Ronde ${M.round + 1} — Razan bawah, Dara atas` : 'Tap bareng-bareng!';
+    if (sub) sub.textContent = n === 1 ? 'SIAP BUNUH! 🔨' : M.mode === 'duel' ? (BOT ? `Ronde ${M.round + 1} — kamu bawah, 🤖 atas` : `Ronde ${M.round + 1} — Razan bawah, Dara atas`) : 'Tap bareng-bareng!';
     n--; cdTimer = setTimeout(step, 800);
   };
   step();
 }
 
 function arenaHTML(owner, pos) {
-  return `<div class="arena-wrap ${pos}"><div class="arena">
-    <div class="a-hud"><span class="a-name">${owner === 'team' ? '🤝 Tim Razan & Dara' : (owner === 'razan' ? '🧑 Razan' : '👧 Dara')}</span>
+  return `<div class="arena-wrap ${pos}${BOT && owner === BOT ? ' nobot-flip' : ''}"><div class="arena">
+    <div class="a-hud"><span class="a-name">${owner === 'team' ? '🤝 Tim Razan & Dara' : `${AV(owner)} ${NAMES[owner]}`}</span>
       <span class="a-score" id="sc-${owner}">0</span><span class="a-combo" id="cb-${owner}"></span></div>
     <div class="field ${owner === 'team' ? 'team' : ''}" id="field-${owner}"></div>
   </div></div>`;
@@ -314,14 +337,16 @@ function beginRound() {
   if (!M) return;
   M.round++;
   const wrap = $('game-wrap'); if (!wrap) return;
-  const owners = M.mode === 'duel' ? ['dara', 'razan'] : ['team'];
+  const bot = BOTTOM(), top = other(bot);
+  const owners = M.mode === 'duel' ? [top, bot] : ['team'];
   wrap.innerHTML = M.mode === 'duel'
-    ? arenaHTML('dara', 'top') + midHTML() + arenaHTML('razan', 'bottom')
+    ? arenaHTML(top, 'top') + midHTML() + arenaHTML(bot, 'bottom')
     : midHTML() + arenaHTML('team', '');
   showScreen('s-game');
 
   R = { phase:'play', start: performance.now(), paused:0, pauseAt:null, lvl:0, nextSpawn:0, arenas:{} };
   owners.forEach(o => { R.arenas[o] = { owner:o, field:$('field-' + o), bugs:[], combo:0, lastHit:0, ...blankStats() }; });
+  R.botNext = performance.now() + 900;
   const my = token;
   let last = performance.now();
   const loop = now => {
@@ -355,6 +380,7 @@ function tickGame(now, dt) {
   }
 
   Object.values(R.arenas).forEach(a => moveBugs(a, L, dt, now));
+  if (BOT && R.arenas[BOT]) botStep(R.arenas[BOT], now);
   if (left <= 0) endRound();
 }
 
@@ -376,7 +402,7 @@ function spawnBug(a, type, emoji, L, now) {
   const b = { el, type, x: Math.random() * (W - 52), y: Math.random() * (H - 52), ang: Math.random() * Math.PI * 2,
               sp: .5 + Math.random() * 1.3, born: now, ttl: L.ttl * (.8 + Math.random() * .4), dead:false };
   el.style.transform = `translate3d(${b.x}px,${b.y}px,0)`;
-  el.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); hitBug(a, b); });
+  el.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (BOT && a.owner === BOT) return; hitBug(a, b); });
   f.appendChild(el);
   a.bugs.push(b);
 }
@@ -446,6 +472,25 @@ function fx(field, x, y, emoji, label, color) {
   field.appendChild(p); setTimeout(() => p.remove(), 800);
 }
 
+// ═════════ KOMPUTER ═════════
+// tap dengan kecepatan sesuai level, butuh waktu "lihat" dulu, kadang kepencet bom
+function botStep(a, now) {
+  if (now < R.botNext || R.pauseAt) return;
+  const c = BOT_CFG[CFG.bot] || BOT_CFG[1];
+  const seen = a.bugs.filter(b => !b.dead && now - b.born > c.react * (.8 + Math.random() * .4));
+  const good = seen.filter(b => b.type !== 'bomb'), bombs = seen.filter(b => b.type === 'bomb');
+  let target = null;
+  // salah pencet bom cuma kadang-kadang, pas lagi buru-buru nge-tap
+  if (good.length && bombs.length && Math.random() < c.bomb) target = bombs[0];
+  else if (good.length) {
+    const prio = t => t.type === 'rare' ? 3 : t.type === 'heart' ? 2 : 1;
+    good.sort((x, y) => prio(y) - prio(x) || (y.born - x.born) * (Math.random() < .5 ? 1 : -1));
+    target = Math.random() < .75 ? good[0] : good[Math.floor(Math.random() * good.length)];
+  }
+  if (target) hitBug(a, target);
+  R.botNext = now + 1000 / c.rate * (.6 + Math.random() * .8) * (target ? 1 : .5);
+}
+
 let lvlT = null;
 function levelFlash(l) {
   const f = $('lvl-flash'); if (!f) return;
@@ -492,7 +537,7 @@ function endRound() {
 function statTable(ra, da) {
   const row = (lbl, k) => `<div class="row"><span>${lbl}</span><b>${ra[k]}</b><b>${da[k]}</b></div>`;
   return `<div class="stat-table">
-    <div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="row head"><span></span><span>${AV('razan')} ${NAMES.razan}</span><span>${AV('dara')} ${NAMES.dara}</span></div>
     ${row('🪳 Terbunuh', 'killed')}${row('🪲 Langka', 'rare')}${row('❤️ Love', 'hearts')}${row('💣 Kena bom', 'bombs')}${row('🔥 Combo terbaik', 'bestCombo')}
   </div>`;
 }
@@ -506,17 +551,17 @@ function showRoundResult(winner, ra, da) {
     <h2 class="end-title">${winner ? `${w} Menang Ronde!` : 'Seri!'}</h2>
     <p class="end-sub">${winner ? `Selisih ${Math.abs(ra.score - da.score)} poin` : 'Skor sama persis — ronde ini nggak dihitung'}</p>
     <div class="score-card">
-      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v">${ra.score}</span><span class="sc-sub">⭐ ${M.wins.razan}/${M.need}</span></div>
+      <div><span class="sc-nm">${AV('razan')} ${NAMES.razan}</span><span class="sc-v">${ra.score}</span><span class="sc-sub">⭐ ${M.wins.razan}/${M.need}</span></div>
       <span class="sc-vs">⚔️</span>
-      <div><span class="sc-nm">👧 Dara</span><span class="sc-v">${da.score}</span><span class="sc-sub">⭐ ${M.wins.dara}/${M.need}</span></div>
+      <div><span class="sc-nm">${AV('dara')} ${NAMES.dara}</span><span class="sc-v">${da.score}</span><span class="sc-sub">⭐ ${M.wins.dara}/${M.need}</span></div>
     </div>
     ${statTable(ra, da)}
-    <div class="demand"><span class="demand-tag">${winner ? `😈 Hukuman buat ${l}` : '🤝 Bonus Seri'}</span>
-      <p class="demand-text">${winner ? fill(draw('rl', ROUND_LOSE), { w, l }) : draw('tie', TIE)}</p></div>
+    ${BOT ? botBox(winner ? w === 'Komputer' : null, false) : `<div class="demand"><span class="demand-tag">${winner ? `😈 Hukuman buat ${l}` : '🤝 Bonus Seri'}</span>
+      <p class="demand-text">${winner ? fill(draw('rl', ROUND_LOSE), { w, l }) : draw('tie', TIE)}</p></div>`}
     <button class="btn-main" onclick="countdown()">Ronde ${M.round + 1} →</button>
     <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`;
   showScreen('s-result');
-  if (winner) confetti(30);
+  if (winner && w !== 'Komputer') confetti(30);
 }
 
 function showFinal() {
@@ -525,21 +570,28 @@ function showFinal() {
   const w = NAMES[wp], l = NAMES[other(wp)];
   inner.innerHTML = `
     <span class="badge">Juara Duel</span>
-    <span class="end-icon">👑</span>
-    <h2 class="end-title">${w} Raja Pembasmi Serangga!</h2>
+    <span class="end-icon">${w === 'Komputer' ? '🤖' : '👑'}</span>
+    <h2 class="end-title">${w === 'Komputer' ? 'Komputer Menang!' : `${w} Raja Pembasmi Serangga!`}</h2>
     <p class="end-sub">Menang ${M.wins[wp]}-${M.wins[other(wp)]} dalam ${M.round} ronde 🪳🔨</p>
     <div class="score-card">
-      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v">${M.wins.razan}</span><span class="sc-sub">${t.razan.score} poin total</span></div>
+      <div><span class="sc-nm">${AV('razan')} ${NAMES.razan}</span><span class="sc-v">${M.wins.razan}</span><span class="sc-sub">${t.razan.score} poin total</span></div>
       <span class="sc-vs">⚔️</span>
-      <div><span class="sc-nm">👧 Dara</span><span class="sc-v">${M.wins.dara}</span><span class="sc-sub">${t.dara.score} poin total</span></div>
+      <div><span class="sc-nm">${AV('dara')} ${NAMES.dara}</span><span class="sc-v">${M.wins.dara}</span><span class="sc-sub">${t.dara.score} poin total</span></div>
     </div>
     ${statTable(t.razan, t.dara)}
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span>
-      <p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    ${BOT ? botBox(w === 'Komputer', true) : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span>
+      <p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
     <button class="btn-main" onclick="startMatch()">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Menu</button>`;
   showScreen('s-result');
-  confetti(70);
+  if (w !== 'Komputer') confetti(70);
+}
+
+function botBox(botWon, final) {
+  const txt = botWon === null ? 'Seri lawan komputer — jempolmu secepat mesin! 🤝'
+    : botWon ? (final ? 'Komputer menang kali ini 🤖 Coba level santai dulu, atau tantang pasanganmu biar ada hukumannya 😏' : 'Komputer menang ronde ini — awas bom, kejar combo! 💪')
+    : (final ? `Kamu ngalahin komputer level <b>${['santai', 'sedang', 'ganas'][CFG.bot]}</b>! 🪳🔨 Sekarang tantang pasanganmu 😏` : 'Ronde ini punyamu! Pertahanin 🔥');
+  return `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${txt}</p></div>`;
 }
 
 function showTeamResult() {
