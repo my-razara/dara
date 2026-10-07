@@ -145,8 +145,20 @@
     <p class="title" style="font-size:1.15rem">Siapa yang lempar duluan?</p>
     <p class="sub">Tiap ronde: 3 dart per orang, gantian pegang HP</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="newMatch('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Dart biru</span></div></div>
-      <div class="pick-btn" onclick="newMatch('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Dart pink</span></div></div>
+      <div class="pick-btn" onclick="newMatch('r', null)"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Dart biru</span></div></div>
+      <div class="pick-btn" onclick="newMatch('d', null)"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Dart pink</span></div></div>
+    </div>
+    <div class="panel" style="margin-top:1.1rem;text-align:left">
+      <span class="panel-title">🤖 Atau main sendiri lawan komputer</span>
+      <div class="pills" id="bot-pills" style="margin-bottom:.6rem">
+        <button class="pill" data-v="0">😅<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>normal</small></button>
+        <button class="pill" data-v="2">😎<small>jago</small></button>
+      </div>
+      <div class="pick-btns">
+        <div class="pick-btn" onclick="newMatch('r', 'd')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">Dart biru · kamu duluan</span></div></div>
+        <div class="pick-btn" onclick="newMatch('d', 'r')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">Dart pink · kamu duluan</span></div></div>
+      </div>
     </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
@@ -156,9 +168,9 @@
 <div id="s-game" class="screen">
   <div class="gw">
     <div class="hdr">
-      <div class="hp r" id="hp-r"><span class="hp-n">🧑 RAZAN</span><span class="hp-v" id="sc-r">0</span></div>
+      <div class="hp r" id="hp-r"><span class="hp-n" id="hpn-r">🧑 RAZAN</span><span class="hp-v" id="sc-r">0</span></div>
       <div class="hm"><b id="round-lbl">Ronde 1/5</b><span id="mode-lbl">Skor tertinggi</span><button class="x-btn" onclick="exitGame()">✕ Keluar</button></div>
-      <div class="hp d" id="hp-d"><span class="hp-n">👧 DARA</span><span class="hp-v" id="sc-d">0</span></div>
+      <div class="hp d" id="hp-d"><span class="hp-n" id="hpn-d">👧 DARA</span><span class="hp-v" id="sc-d">0</span></div>
     </div>
     <div class="visit" id="visit"></div>
     <canvas id="board"></canvas>
@@ -200,7 +212,10 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { mode: 'high', rounds: 5 };
+let CFG = { mode: 'high', rounds: 5, bot: 1 };
+// [BARU] lawan komputer: BOT = slot ('r'/'d') yang dimainin komputer
+let BOT = null, botT = null;
+const BOT_ERR = [.15, .085, .045];   // seberapa meleset timing komputer (relatif radius papan)
 let M = null, T = null;
 let canvas = document.getElementById('board'), ctx = canvas.getContext('2d');
 let W = 0, H = 0, DPR = 1, R = 100, CX = 0, CY = 0;
@@ -227,6 +242,7 @@ function bindPills(id, key, num, cb) {
 }
 bindPills('mode-pills', 'mode', false, () => { $('round-panel').style.display = CFG.mode === '301' ? 'none' : ''; $('rule-301').style.display = CFG.mode === '301' ? '' : 'none'; });
 bindPills('round-pills', 'rounds', true);
+bindPills('bot-pills', 'bot', true);
 (function stars() { const s = $('stars'); for (let i = 0; i < 55; i++) { const el = document.createElement('div'); el.className = 'star'; const z = 1 + Math.random() * 2; el.style.cssText = `width:${z}px;height:${z}px;left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-duration:${2 + Math.random() * 5}s;animation-delay:-${Math.random() * 5}s`; s.appendChild(el); } })();
 let banT = null;
 function banner(b, s, ms) {
@@ -250,8 +266,13 @@ function scoreAt(nx, ny) { // nx, ny relatif R (y ke bawah positif)
 }
 
 // ═════════ MATCH ═════════
-function newMatch(first) {
+function newMatch(first, bot) {
   const f = first === 'd' ? 'd' : 'r';
+  if (bot !== undefined) BOT = bot || null;
+  clearInterval(botT);
+  NAMES.r = 'Razan'; NAMES.d = 'Dara'; ICON.r = '🧑'; ICON.d = '👧';
+  if (BOT) { NAMES[BOT] = 'Komputer'; ICON[BOT] = '🤖'; }
+  setText('hpn-r', `${ICON.r} ${NAMES.r.toUpperCase()}`); setText('hpn-d', `${ICON.d} ${NAMES.d.toUpperCase()}`);
   M = { first: f, mode: CFG.mode, rounds: CFG.mode === '301' ? 15 : CFG.rounds, round: 0, sub: 0,
         score: CFG.mode === '301' ? { r:301, d:301 } : { r:0, d:0 }, visits: [],
         st: { r:{ bulls:0, triples:0, doubles:0, misses:0, bestVisit:0, busts:0 }, d:{ bulls:0, triples:0, doubles:0, misses:0, bestVisit:0, busts:0 } } };
@@ -281,6 +302,7 @@ function startVisit() {
     const loop = now => { if (my !== token || !T) return; render(now); raf = requestAnimationFrame(loop); };
     raf = requestAnimationFrame(loop);
     const prev = M.visits[M.round] && M.visits[M.round][other(p)];
+    if (BOT && p === BOT) botVisit();
     banner(`${ICON[p]} ${NAMES[p]}`, `Ronde ${M.round + 1}${M.mode === 'high' ? '/' + M.rounds : ''}${prev && M.mode === 'high' ? ` · kalahin <b>${prev.total}</b>` : M.mode === '301' ? ` · sisa <b>${M.score[p]}</b>` : ''}`, 1300);
   });
 }
@@ -290,6 +312,7 @@ function updateHud() {
   $('hp-r').classList.toggle('on', T && T.p === 'r'); $('hp-d').classList.toggle('on', T && T.p === 'd');
   setText('round-lbl', M.mode === '301' ? `Ronde ${M.round + 1}` : `Ronde ${M.round + 1}/${M.rounds}`);
   setText('mode-lbl', M.mode === '301' ? '301 · habisin pas 0' : 'Skor tertinggi');
+  if (BOT && T.p === BOT) { setHTML('phase', '🤖 Komputer lagi bidik...'); $('tap-btn').textContent = '🤖 ...'; $('tap-btn').disabled = true; return; }
   setHTML('phase', T.phase === 'x' ? 'Tap buat <b>kunci horizontal</b> ↔️' : T.phase === 'y' ? 'Tap buat <b>lempar!</b> ↕️' : '...');
   $('tap-btn').textContent = T.phase === 'y' ? '🎯 LEMPAR!' : '↔️ KUNCI';
   $('tap-btn').disabled = T.phase !== 'x' && T.phase !== 'y';
@@ -315,13 +338,14 @@ function aimPos(now) {
 }
 
 // ═════════ INPUT ═════════
-function tap() {
+function tap(byBot) {
   if (!T || T.busy) return;
+  if (BOT && T.p === BOT && byBot !== true) return;
   const now = performance.now(), a = aimPos(now);
   if (T.phase === 'x') { T.lockX = a.x; T.phase = 'y'; T.t0 = now; T.off = Math.random() * Math.PI * 2; vib(15); updateHud(); return; }
   if (T.phase === 'y') { T.lockY = a.y; throwDart(); }
 }
-$('tap-btn').addEventListener('click', tap);
+$('tap-btn').addEventListener('click', () => tap());
 canvas.addEventListener('pointerdown', e => { e.preventDefault(); tap(); });
 document.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && $('s-game').classList.contains('active')) { e.preventDefault(); tap(); } });
 
@@ -343,7 +367,7 @@ function throwDart() {
     else { M.score[T.p] = rem; if (rem === 0) { banner('🏁 CHECKOUT!', `${NAMES[T.p]} habisin pas 0!`, 1800); confetti(60); vib([60, 30, 120, 30, 200]); } }
   } else M.score[T.p] += s.pts;
   if (!T.bust && !(M.mode === '301' && M.score[T.p] === 0)) {
-    if (s.pts === 50) { msg = ['🎯 BULLSEYE! +50', fill(draw('bull', BULL_DARES), { p: NAMES[T.p], o: NAMES[other(T.p)] })]; confetti(40); vib([40, 20, 80, 20, 140]); }
+    if (s.pts === 50) { msg = ['🎯 BULLSEYE! +50', BOT ? (T.p === BOT ? 'Komputer lagi tajam 🤖' : 'Komputer sampai kagum 🤖😮') : fill(draw('bull', BULL_DARES), { p: NAMES[T.p], o: NAMES[other(T.p)] })]; if (T.p !== BOT) confetti(40); vib([40, 20, 80, 20, 140]); }
     else if (s.kind === 't') { banner(`${s.label}! +${s.pts}`, s.n === 20 ? '🔥 Triple 20!' : 'Triple!', 1000); vib([30, 15, 60]); }
     else if (s.kind === 'd') { banner(`${s.label} +${s.pts}`, 'Double!', 900); vib([25, 15, 40]); }
     else if (s.kind === 'm') { banner('💨 Meleset!', '', 800); vib([60, 20, 60]); }
@@ -359,6 +383,42 @@ function throwDart() {
     else { T.phase = 'x'; T.busy = false; T.t0 = performance.now(); T.off = Math.random() * Math.PI * 2; updateHud(); renderVisit(); }
   }, msg ? 1600 : 900);
 }
+// ═════════ KOMPUTER ═════════
+function segPoint(n, ring) {
+  const a = ORDER.indexOf(n) * 18 * Math.PI / 180, r = ring === 't' ? .58 : ring === 'd' ? .95 : .76;
+  return { x: Math.sin(a) * r, y: -Math.cos(a) * r };
+}
+function botTarget() {
+  const lvl = CFG.bot;
+  if (M.mode !== '301') {
+    if (lvl === 0) return Math.random() < .6 ? { x: 0, y: 0 } : segPoint(20, 's');
+    return Math.random() < (lvl === 2 ? .75 : .45) ? segPoint(20, 't') : { x: 0, y: 0 };
+  }
+  // 301: hitung biar pas 0 dan nggak bust
+  const rem = M.score[BOT];
+  if (rem > 60) return lvl === 0 ? segPoint(20, 's') : segPoint(20, 't');
+  if (rem === 50) return { x: 0, y: 0 };
+  if (rem <= 20) return segPoint(rem, 's');
+  if (rem <= 40 && rem % 2 === 0) return segPoint(rem / 2, 'd');
+  if (rem % 3 === 0 && rem / 3 <= 20) return segPoint(rem / 3, 't');
+  return segPoint(Math.min(20, rem - 20), 's');
+}
+function botVisit() {
+  clearInterval(botT);
+  let tgt = null, err = null, wait = 0;
+  botT = setInterval(() => {
+    if (!T || T.p !== BOT || !M) { clearInterval(botT); return; }
+    if (T.busy || (T.phase !== 'x' && T.phase !== 'y')) { tgt = null; return; }
+    if (!tgt) { tgt = botTarget(); const e = BOT_ERR[CFG.bot] ?? .085; err = { x: gauss() * e, y: gauss() * e }; wait = 0; }
+    wait += 16;
+    if (wait < 450) return;   // mikir dulu
+    const a = aimPos(performance.now());
+    const want = T.phase === 'x' ? clamp(tgt.x + err.x, -.94, .94) : clamp(tgt.y + err.y, -.94, .94);
+    const now = T.phase === 'x' ? a.x : a.y;
+    if (Math.abs(now - want) < .035 || wait > T.period * 2.2) { tap(true); wait = 200; if (T.phase === 'fly') tgt = null; }
+  }, 16);
+}
+
 function updateScoresOnly() { setText('sc-r', M.score.r); setText('sc-d', M.score.d); }
 
 function endVisit() {
@@ -377,8 +437,8 @@ function endVisit() {
       <span class="icon">${ICON[p]}</span>
       <h2 class="title" style="font-size:1.3rem">${T.bust ? `${NAMES[p]} BUST 💥` : `${NAMES[p]} dapet ${total}`}</h2>
       <div class="shots">${labels}</div>
-      <p class="sub">${M.mode === '301' ? `Sisa ${NAMES[p]}: <b>${M.score[p]}</b> · Sisa ${NAMES[nx]}: <b>${M.score[nx]}</b>` : `Total ${NAMES[p]}: <b>${M.score[p]}</b>`}<br>Kasih HP ke <b>${NAMES[nx]}</b> 🎯</p>
-      <button class="btn" onclick="startVisit()">${ICON[nx]} ${NAMES[nx]} siap!</button>
+      <p class="sub">${M.mode === '301' ? `Sisa ${NAMES[p]}: <b>${M.score[p]}</b> · Sisa ${NAMES[nx]}: <b>${M.score[nx]}</b>` : `Total ${NAMES[p]}: <b>${M.score[p]}</b>`}<br>${BOT ? (nx === BOT ? 'Sekarang giliran komputer 🤖' : 'Giliranmu! 🎯') : `Kasih HP ke <b>${NAMES[nx]}</b> 🎯`}</p>
+      <button class="btn" onclick="startVisit()">${nx === BOT ? '🤖 Lihat komputer lempar' : `${ICON[nx]} ${NAMES[nx]} siap!`}</button>
       <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
     showScreen('s-result');
   } else roundResult();
@@ -394,15 +454,16 @@ function roundResult() {
     <span class="icon">${wp ? '🏆' : '🤝'}</span>
     <h2 class="title" style="font-size:1.3rem">${wp ? `${w} Menang Ronde!` : 'Seri!'}</h2>
     <div class="card">
-      <div class="row"><span>🧑 Razan <small style="opacity:.6">${line('r')}</small></span><b>${a}</b></div>
-      <div class="row"><span>👧 Dara <small style="opacity:.6">${line('d')}</small></span><b>${b}</b></div>
+      <div class="row"><span>${ICON.r} ${NAMES.r} <small style="opacity:.6">${line('r')}</small></span><b>${a}</b></div>
+      <div class="row"><span>${ICON.d} ${NAMES.d} <small style="opacity:.6">${line('d')}</small></span><b>${b}</b></div>
       <div class="row"><span>${M.mode === '301' ? 'Sisa poin' : 'Total'}</span><b>${M.score.r} – ${M.score.d}</b></div>
     </div>
-    <div class="demand"><span class="demand-tag">${wp ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span><p class="demand-text">${wp ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — tangan kalian sama mantapnya ✋🎯'}</p></div>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${!wp ? 'Seri sama komputer — tanganmu mantap! 🤝' : w === 'Komputer' ? 'Komputer menang ronde ini — incer Triple 20 biar ngejar! 💪' : 'Ronde ini punyamu! Pertahanin 🔥'}</p></div>`
+      : `<div class="demand"><span class="demand-tag">${wp ? `😈 Hukuman buat ${l}` : '🤝 Seri'}</span><p class="demand-text">${wp ? fill(draw('rl', ROUND_LOSE), { w, l }) : 'Tos dulu — tangan kalian sama mantapnya ✋🎯'}</p></div>`}
     <button class="btn" onclick="${last ? 'showFinal()' : 'nextRound()'}">${last ? 'Lihat Juara 🏆' : `Ronde ${M.round + 2} →`}</button>
     <button class="btn-ghost" onclick="exitGame()">✕ Keluar</button>`);
   showScreen('s-result');
-  if (wp) confetti(25);
+  if (wp && w !== 'Komputer') confetti(25);
 }
 function nextRound() { M.round++; M.sub = 0; startVisit(); }
 
@@ -425,28 +486,30 @@ function showFinal(checkoutBy) {
   if (bv >= 100) v += `<br>💯 Ada lemparan ${bv} dalam 1 ronde — mantap!`;
   setHTML('result-inner', `
     <span class="label">Hasil Akhir</span>
-    <span class="icon">${tie ? '🤝' : '🏆'}</span>
+    <span class="icon">${tie ? '🤝' : w === 'Komputer' ? '🤖' : '🏆'}</span>
     <h2 class="title" style="font-size:1.5rem">${tie ? 'Seri!' : `${w} Menang!`}</h2>
     <p class="sub">${M.mode === '301' ? 'Mode 301' : `${M.rounds} ronde · skor tertinggi`}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${M.score.r}</span><span class="sc-s">${M.mode === '301' ? 'sisa' : 'poin'}</span></div>
+      <div><span class="sc-nm r">${ICON.r} ${NAMES.r}</span><span class="sc-v">${M.score.r}</span><span class="sc-s">${M.mode === '301' ? 'sisa' : 'poin'}</span></div>
       <span class="sc-vs">🎯</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${M.score.d}</span><span class="sc-s">${M.mode === '301' ? 'sisa' : 'poin'}</span></div>
+      <div><span class="sc-nm d">${ICON.d} ${NAMES.d}</span><span class="sc-v">${M.score.d}</span><span class="sc-s">${M.mode === '301' ? 'sisa' : 'poin'}</span></div>
     </div>
-    <div class="tbl"><div class="tr head"><span>Ronde</span><span>🧑 Razan</span><span>👧 Dara</span></div>${rows}
+    <div class="tbl"><div class="tr head"><span>Ronde</span><span>${ICON.r} ${NAMES.r}</span><span>${ICON.d} ${NAMES.d}</span></div>${rows}
       ${stat('🎯 Bullseye', 'bulls')}${stat('🟢 Triple', 'triples')}${stat('🔴 Double', 'doubles')}${stat('💨 Meleset', 'misses')}${M.mode === '301' ? stat('💥 Bust', 'busts') : ''}${stat('💯 Ronde terbaik', 'bestVisit')}</div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
-      <p class="demand-text">${tie ? 'Seri! Lempar 1 dart lagi masing-masing — yang paling deket bull boleh minta peluk 🤗' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${tie ? 'Seri lawan komputer — tanganmu udah selevel mesin! 🤝' : w === 'Komputer' ? 'Komputer menang kali ini 🤖 Coba level santai dulu, atau tantang pasanganmu biar ada hukumannya 😏' : `Kamu ngalahin komputer level <b>${['santai', 'normal', 'jago'][CFG.bot]}</b>! 🎯 Sekarang tantang pasanganmu 😏`}</p></div>`
+      : `<div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? 'Seri! Lempar 1 dart lagi masing-masing — yang paling deket bull boleh minta peluk 🤗' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
     <button class="btn" onclick="newMatch(M ? other(M.first) : 'r')">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   showScreen('s-result');
-  confetti(tie ? 40 : 70);
+  if (tie || w !== 'Komputer') confetti(tie ? 40 : 70);
 }
 
 function exitGame() {
   if (!M) { showScreen('s-intro'); return; }
   if (!confirm('Keluar dari game? Skor hilang.')) return;
+  clearInterval(botT);
   token++; cancelAnimationFrame(raf); M = null; T = null; showScreen('s-intro');
 }
 window.addEventListener('resize', () => { if (T) layout(); });
