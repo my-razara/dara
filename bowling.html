@@ -140,8 +140,20 @@
     <p class="title" style="font-size:1.15rem">Siapa yang lempar duluan?</p>
     <p class="sub">Tiap frame: yang duluan main sampai frame-nya selesai, terus gantian</p>
     <div class="pick-btns">
-      <div class="pick-btn" onclick="initGame('r')"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Bola biru</span></div></div>
-      <div class="pick-btn" onclick="initGame('d')"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Bola pink</span></div></div>
+      <div class="pick-btn" onclick="initGame('r', null)"><span class="pick-icon">🧑</span><div><span class="pick-name">Razan duluan</span><span class="pick-sub2">Bola biru</span></div></div>
+      <div class="pick-btn" onclick="initGame('d', null)"><span class="pick-icon">👧</span><div><span class="pick-name">Dara duluan</span><span class="pick-sub2">Bola pink</span></div></div>
+    </div>
+    <div class="panel" style="margin-top:1.1rem;text-align:left">
+      <span class="panel-title">🤖 Atau main sendiri lawan komputer</span>
+      <div class="pills" id="bot-pills" style="margin-bottom:.6rem">
+        <button class="pill" data-v="0">😅<small>santai</small></button>
+        <button class="pill on" data-v="1">🙂<small>normal</small></button>
+        <button class="pill" data-v="2">😎<small>jago</small></button>
+      </div>
+      <div class="pick-btns">
+        <div class="pick-btn" onclick="initGame('r', 'd')"><span class="pick-icon">🧑</span><div><span class="pick-name">Aku Razan</span><span class="pick-sub2">Bola biru · kamu duluan</span></div></div>
+        <div class="pick-btn" onclick="initGame('d', 'r')"><span class="pick-icon">👧</span><div><span class="pick-name">Aku Dara</span><span class="pick-sub2">Bola pink · kamu duluan</span></div></div>
+      </div>
     </div>
     <button class="btn-ghost" onclick="showScreen('s-intro')">← Kembali</button>
   </div>
@@ -154,8 +166,8 @@
       <span class="who r" id="who">🧑 Razan</span>
       <div class="hinfo" id="hinfo"><b>Frame 1/5</b><br>Lemparan 1</div>
       <div class="htot">
-        <div class="ht"><span class="ht-n">Razan</span><span class="ht-v r" id="tot-r">0</span></div>
-        <div class="ht"><span class="ht-n">Dara</span><span class="ht-v d" id="tot-d">0</span></div>
+        <div class="ht"><span class="ht-n" id="htn-r">Razan</span><span class="ht-v r" id="tot-r">0</span></div>
+        <div class="ht"><span class="ht-n" id="htn-d">Dara</span><span class="ht-v d" id="tot-d">0</span></div>
         <button class="x-btn" onclick="exitGame()">✕</button>
       </div>
     </div>
@@ -199,7 +211,10 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { frames: 5 };
+let CFG = { frames: 5, bot: 1 };
+// [BARU] lawan komputer: BOT = slot ('r'/'d') yang dimainin komputer
+let BOT = null, botT = null;
+const BOT_L = [ { posErr: .16, angErr: .07, pw: [.45, .85] }, { posErr: .085, angErr: .04, pw: [.6, .95] }, { posErr: .04, angErr: .018, pw: [.75, 1] } ];
 let G = null, S = null;           // G = game, S = simulasi lemparan
 let canvas = document.getElementById('lane'), ctx = canvas.getContext('2d');
 let W = 0, H = 0, DPR = 1, L = null; // L = geometri lintasan
@@ -217,6 +232,10 @@ function draw(k, pool) { if (!decks[k] || !decks[k].length) decks[k] = shuffle(p
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function vib(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch {} }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; } }
+document.querySelectorAll('#bot-pills .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('#bot-pills .pill').forEach(x => x.classList.remove('on'));
+  p.classList.add('on'); CFG.bot = parseInt(p.dataset.v);
+}));
 document.querySelectorAll('#frame-pills .pill').forEach(p => p.addEventListener('click', () => {
   document.querySelectorAll('#frame-pills .pill').forEach(x => x.classList.remove('on'));
   p.classList.add('on'); CFG.frames = parseInt(p.dataset.v);
@@ -362,8 +381,13 @@ function simStep(k) {
 }
 
 // ═════════ ALUR GAME ═════════
-function initGame(first) {
+function initGame(first, bot) {
   const f = first === 'd' ? 'd' : 'r';
+  if (bot !== undefined) BOT = bot || null;
+  clearTimeout(botT);
+  NAMES.r = 'Razan'; NAMES.d = 'Dara'; ICON.r = '🧑'; ICON.d = '👧';
+  if (BOT) { NAMES[BOT] = 'Komputer'; ICON[BOT] = '🤖'; }
+  setText('htn-r', NAMES.r); setText('htn-d', NAMES.d);
   G = { first: f, n: CFG.frames, frame: 0, cur: f, sub: 0, phase: 'aim', pos: .5,
         pl: { r:{ rolls:[], fr:[] }, d:{ rolls:[], fr:[] } }, pins: null,
         st: { r:{ strikes:0, spares:0, gutters:0, pins:0, rolls:0 }, d:{ strikes:0, spares:0, gutters:0, pins:0, rolls:0 } } };
@@ -390,9 +414,9 @@ function resolveRoll() {
   let label, sub = '', type = 'n';
   const isStrike = knocked === 10 && before === 10;
   const isSpare = !isStrike && standing === 0 && before < 10;
-  if (isStrike) { label = 'STRIKE! 🎳✨'; type = 'x'; st.strikes++; confetti(45); vib([60, 30, 120, 30, 200]); sub = fill(draw('st', STRIKE_DARES), { p: NAMES[p], o: NAMES[other(p)] }); }
+  if (isStrike) { label = 'STRIKE! 🎳✨'; type = 'x'; st.strikes++; if (p !== BOT) confetti(45); vib([60, 30, 120, 30, 200]); sub = BOT ? (p === BOT ? 'Komputer lagi hoki 🤖' : 'Mantap, komputer sampai melongo! 🤖😮') : fill(draw('st', STRIKE_DARES), { p: NAMES[p], o: NAMES[other(p)] }); }
   else if (isSpare) { label = 'SPARE! ✅'; type = 's'; st.spares++; vib([50, 30, 100]); sub = `${NAMES[p]} beresin sisa pin!`; }
-  else if (S.ball.gutter && knocked === 0) { label = 'TALANG! 😬'; type = 'g'; st.gutters++; vib(120); sub = fill(draw('gt', GUTTER_DARES), { p: NAMES[p] }); }
+  else if (S.ball.gutter && knocked === 0) { label = 'TALANG! 😬'; type = 'g'; st.gutters++; vib(120); sub = BOT ? (p === BOT ? 'Komputer juga bisa khilaf 😂' : 'Santai, lemparan berikutnya pasti lebih bagus 💪') : fill(draw('gt', GUTTER_DARES), { p: NAMES[p] }); }
   else if (knocked === 0) { label = 'Meleset! 😅'; vib(80); }
   else { label = `${knocked} pin`; sub = standing ? `${standing} pin tersisa` : ''; vib(40); }
   banner(label, sub, type === 'x' || type === 'g' ? 2200 : 1300);
@@ -434,9 +458,11 @@ function newTurnUI() {
   const w = $('who'); w.textContent = `${ICON[G.cur]} ${NAMES[G.cur]}`; w.className = 'who ' + G.cur;
   setHTML('hinfo', `<b>Frame ${G.frame + 1}/${G.n}</b><br>Lemparan ${G.pl[G.cur].fr.length + 1}${G.standBefore < 10 ? ` · ${G.standBefore} pin` : ''}`);
   updateCtrl(); renderCard(); updateTotals();
+  setHTML('ctrl-hint', BOT && G.cur === BOT ? '🤖 Komputer lagi bidik...' : 'Geser buat posisi · <b>swipe ke atas</b> buat lempar');
+  if (BOT && G.cur === BOT) botAim();
 }
 function updateCtrl() {
-  ['b-left', 'b-throw', 'b-right'].forEach(id => $(id).disabled = !!G.ctrlLock);
+  ['b-left', 'b-throw', 'b-right'].forEach(id => $(id).disabled = !!G.ctrlLock || (BOT && G.cur === BOT));
 }
 function updateTotals() { setText('tot-r', runningTotal('r')); setText('tot-d', runningTotal('d')); }
 
@@ -447,7 +473,7 @@ function renderCard(target) {
   h += '<th>Σ</th></tr>';
   ['r', 'd'].forEach(p => {
     const fs = scoreFrames(G.pl[p].rolls, G.n);
-    h += `<tr><td class="nm ${p}">${p === 'r' ? 'R' : 'D'}</td>`;
+    h += `<tr><td class="nm ${p}">${NAMES[p] === 'Komputer' ? '🤖' : NAMES[p][0]}</td>`;
     fs.forEach((f, i) => {
       const cur = !target && G.cur === p && i === G.frame && G.frame < G.n;
       h += `<td class="${cur ? 'cur' : ''}"><div class="mk">${f.marks.map(m => `<span class="${m === 'X' ? 'x' : m === '/' ? 's' : ''}">${m}</span>`).join('')}</div><div class="sc">${f.score ?? ''}</div></td>`;
@@ -463,7 +489,7 @@ const ctrl = $('ctrl');
 let sw = null;
 ctrl.addEventListener('pointerdown', e => {
   if (e.target.closest('button')) return;
-  if (!G || G.phase !== 'aim') return;
+  if (!G || G.phase !== 'aim' || (BOT && G.cur === BOT)) return;
   e.preventDefault(); sw = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), px: G.pos, lx: e.clientX };
   try { ctrl.setPointerCapture(e.pointerId); } catch {}
 });
@@ -486,7 +512,7 @@ $('b-left').addEventListener('click', () => { if (G && G.phase === 'aim') G.pos 
 $('b-right').addEventListener('click', () => { if (G && G.phase === 'aim') G.pos = clamp(G.pos + .05, 0, 1); });
 $('b-throw').addEventListener('click', () => { if (G && G.phase === 'aim') startThrow(G.pos, 0, .65); });
 document.addEventListener('keydown', e => {
-  if (!G || G.phase !== 'aim' || !$('s-game').classList.contains('active')) return;
+  if (!G || G.phase !== 'aim' || !$('s-game').classList.contains('active') || (BOT && G.cur === BOT)) return;
   if (e.key === 'ArrowLeft') G.pos = clamp(G.pos - .04, 0, 1);
   if (e.key === 'ArrowRight') G.pos = clamp(G.pos + .04, 0, 1);
   if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); startThrow(G.pos, 0, .7); }
@@ -552,9 +578,33 @@ function drawBall(x, y) {
   [[.18, -.22], [-.18, -.12], [.02, .22]].forEach(([hx, hy]) => { ctx.beginPath(); ctx.arc(x + hx * r, y + hy * r, r * .13, 0, Math.PI * 2); ctx.fill(); });
 }
 
+// ═════════ KOMPUTER ═════════
+function botAim() {
+  clearTimeout(botT);
+  const Lv = BOT_L[CFG.bot] || BOT_L[1], stand = G.pins.filter(p => !p.down);
+  if (!stand.length) return;
+  // full rack: incer "kantong" (agak samping pin 1). Sisa pin: incer tengah-tengahnya
+  let tx;
+  if (stand.length === 10) tx = W / 2 + (Math.random() < .5 ? -1 : 1) * L.pr * .9;
+  else { const front = Math.max(...stand.map(p => p.y)); const near = stand.filter(p => p.y > front - L.pr * 4); tx = near.reduce((s, p) => s + p.x, 0) / near.length; }
+  const span = L.lw - 2 * L.br;
+  const target = clamp((tx - L.x0 - L.br) / span + (Math.random() - .5) * 2 * Lv.posErr, 0, 1);
+  const angle = (Math.random() - .5) * 2 * Lv.angErr, power = Lv.pw[0] + Math.random() * (Lv.pw[1] - Lv.pw[0]);
+  // animasi geser posisi biar keliatan lagi mikir
+  const from = G.pos, t0 = performance.now(), my = token;
+  const slide = () => {
+    if (my !== token || !G || G.phase !== 'aim' || G.cur !== BOT) return;
+    const t = Math.min(1, (performance.now() - t0) / 700);
+    G.pos = from + (target - from) * (1 - Math.pow(1 - t, 3));
+    if (t < 1) botT = setTimeout(slide, 16); else botT = setTimeout(() => { if (G && G.phase === 'aim' && G.cur === BOT) startThrow(G.pos, angle, power); }, 350);
+  };
+  botT = setTimeout(slide, 500);
+}
+
 function exitGame() {
   if (!G) { showScreen('s-intro'); return; }
   if (!confirm('Keluar dari game? Skor hilang.')) return;
+  clearTimeout(botT);
   token++; cancelAnimationFrame(raf); G = null; S = null; showScreen('s-intro');
 }
 window.addEventListener('resize', () => { if (!G || !L) return; layout(); if (G.phase === 'aim' && G.standBefore === 10) G.pins = freshPins(); });
@@ -567,28 +617,29 @@ function showFinal() {
   let v = tie ? `Seri ${r}-${d}! Lintasan hari ini adil banget 🎳` : `<strong>${w}</strong> menang ${Math.max(r, d)}-${Math.min(r, d)}! `;
   const sx = T.r.strikes + T.d.strikes;
   if (!tie) v += sx ? `Total ${sx} strike berdua — lumayan banget! ✨` : 'Belum ada strike — next time incer kantongnya! 🎯';
-  const tg = T.r.gutters + T.d.gutters; if (tg) v += `<br>😬 Masuk talang: Razan ${T.r.gutters}x · Dara ${T.d.gutters}x`;
+  const tg = T.r.gutters + T.d.gutters; if (tg) v += `<br>😬 Masuk talang: ${NAMES.r} ${T.r.gutters}x · ${NAMES.d} ${T.d.gutters}x`;
   setHTML('final-inner', `
     <span class="label">Hasil Akhir</span>
-    <span class="icon">${tie ? '🤝' : '🏆'}</span>
+    <span class="icon">${tie ? '🤝' : w === 'Komputer' ? '🤖' : '🏆'}</span>
     <h2 class="title" style="font-size:1.5rem">${tie ? 'Seri!' : `${w} Menang!`}</h2>
     <p class="sub">${G.n} frame · skor bowling standar</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${r}</span></div>
+      <div><span class="sc-nm r">${ICON.r} ${NAMES.r}</span><span class="sc-v">${r}</span></div>
       <span class="sc-vs">🎳</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${d}</span></div>
+      <div><span class="sc-nm d">${ICON.d} ${NAMES.d}</span><span class="sc-v">${d}</span></div>
     </div>
     <div class="final-card card" id="final-card" style="border:none"></div>
-    <div class="tbl"><div class="tr head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="tbl"><div class="tr head"><span></span><span>${ICON.r} ${NAMES.r}</span><span>${ICON.d} ${NAMES.d}</span></div>
       ${row('✨ Strike', p => T[p].strikes)}${row('✅ Spare', p => T[p].spares)}${row('😬 Talang', p => T[p].gutters)}${row('🎳 Rata-rata pin', p => T[p].rolls ? (T[p].pins / T[p].rolls).toFixed(1) : '—')}</div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
-      <p class="demand-text">${tie ? 'Seri! Rencanain main bowling beneran berdua — yang kalah di sana yang traktir 🎳💑' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${tie ? 'Seri lawan komputer — lemparanmu udah selevel mesin! 🤝' : w === 'Komputer' ? 'Komputer menang kali ini 🤖 Incer kantong di samping pin depan buat strike! Atau tantang pasanganmu biar ada hukumannya 😏' : `Kamu ngalahin komputer level <b>${['santai', 'normal', 'jago'][CFG.bot]}</b>! 🎳 Sekarang tantang pasanganmu 😏`}</p></div>`
+      : `<div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
+      <p class="demand-text">${tie ? 'Seri! Rencanain main bowling beneran berdua — yang kalah di sana yang traktir 🎳💑' : fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
     <button class="btn" onclick="initGame(G ? other(G.first) : 'r')">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`);
   renderCard($('final-card'));
   showScreen('s-final');
-  confetti(tie ? 40 : 75);
+  if (w !== 'Komputer' || tie) confetti(tie ? 40 : 75);
 }
 
 function confetti(n) {
