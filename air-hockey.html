@@ -39,6 +39,7 @@
   .pills{display:flex;gap:.45rem}
   .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1px solid rgba(100,180,255,.25);background:transparent;color:rgba(255,255,255,.55);font-size:13.5px;font-weight:700;cursor:pointer}
   .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.75}
+  .panel.hide{display:none}
   .pill.on{background:linear-gradient(135deg,#1a5a8a,var(--sky));border-color:transparent;color:#fff}
   .rule{display:flex;gap:.55rem;font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:.35rem}
   .rule:last-child{margin-bottom:0}
@@ -53,6 +54,9 @@
   .ban.show{display:flex}
   .ban.top{top:24%}.ban.top .ban-in{transform:rotate(180deg)}
   .ban.bot{bottom:24%}
+  body.botmode .bar.d{transform:none}
+  body.botmode .ban.top{display:none!important}
+  body.botmode .ban.bot{bottom:auto;top:50%;transform:translateY(-50%)}
   .ban-in{text-align:center;animation:pop .35s cubic-bezier(.34,1.5,.64,1)}
   .ban-big{font-size:2.4rem;font-weight:900;color:#fff;display:block;line-height:1.1;text-shadow:0 4px 20px rgba(0,0,0,.7)}
   .ban-small{font-size:13px;font-weight:600;color:rgba(255,255,255,.8);display:block;margin-top:.2rem;text-shadow:0 2px 10px rgba(0,0,0,.7)}
@@ -80,9 +84,9 @@
 <body>
 
 <div id="game-wrap">
-  <div class="bar d"><span class="b-name">👧 DARA</span><span class="b-score" id="sc-d">0</span><span class="b-streak" id="st-d"></span></div>
+  <div class="bar d"><span class="b-name" id="bn-d">👧 DARA</span><span class="b-score" id="sc-d">0</span><span class="b-streak" id="st-d"></span></div>
   <canvas id="arena"></canvas>
-  <div class="bar r"><span class="b-name">🧑 RAZAN</span><span class="b-score" id="sc-r">0</span><span class="b-streak" id="st-r"></span><button class="b-exit" onclick="exitGame()">✕</button></div>
+  <div class="bar r"><span class="b-name" id="bn-r">🧑 RAZAN</span><span class="b-score" id="sc-r">0</span><span class="b-streak" id="st-r"></span><button class="b-exit" onclick="exitGame()">✕</button></div>
 </div>
 
 <!-- INTRO -->
@@ -92,6 +96,22 @@
     <span class="label">Game Berdua</span>
     <h1 class="title">Air <span>Hockey!</span></h1>
     <p class="sub">Taruh HP rata di meja, duduk berhadapan — geser paddle, pukul puck, bobol gawang lawan! 🏆</p>
+    <div class="panel">
+      <span class="panel-title">Lawan</span>
+      <div class="pills" id="bot-pills">
+        <button class="pill on" data-v="-1">👫<small>berdua</small></button>
+        <button class="pill" data-v="0">🤖<small>santai</small></button>
+        <button class="pill" data-v="1">🤖<small>normal</small></button>
+        <button class="pill" data-v="2">🤖<small>jago</small></button>
+      </div>
+    </div>
+    <div class="panel hide" id="me-panel">
+      <span class="panel-title">Kamu main sebagai (di bawah)</span>
+      <div class="pills" id="me-pills">
+        <button class="pill on" data-v="r">🧑<small>Razan</small></button>
+        <button class="pill" data-v="d">👧<small>Dara</small></button>
+      </div>
+    </div>
     <div class="panel">
       <span class="panel-title">Target Gol</span>
       <div class="pills" id="target-pills">
@@ -138,7 +158,11 @@ const FINAL_WIN = [
 ];
 
 // ═════════ STATE ═════════
-let CFG = { target: 7, speed: 1 };
+let CFG = { target: 7, speed: 1, bot: -1, me: 'r' };
+// [BARU] lawan komputer: kamu selalu paddle bawah (slot r), komputer paddle atas (slot d)
+let BOT = null;
+const BOT_L = [ { speed: 5, err: 1.1, aim: .5 }, { speed: 8, err: .55, aim: .25 }, { speed: 12, err: .2, aim: .1 } ];
+let botErr = 0, botErrT = 0, botAim = 0, botIdle = 0;
 let G = null;
 let W = 0, H = 0, DPR = 1, S = 1;   // S = skala ukuran lapangan
 let canvas, ctx, raf = null, token = 0;
@@ -163,6 +187,10 @@ function bindPills(id, key) {
 }
 bindPills('target-pills', 'target');
 bindPills('speed-pills', 'speed');
+bindPills('bot-pills', 'bot');
+document.querySelectorAll('#bot-pills .pill').forEach(p => p.addEventListener('click', () => { $('me-panel').classList.toggle('hide', CFG.bot < 0); }));
+document.querySelectorAll('#me-pills .pill').forEach(p => p.addEventListener('click', () => { document.querySelectorAll('#me-pills .pill').forEach(x => x.classList.remove('on')); p.classList.add('on'); CFG.me = p.dataset.v; }));
+const AV = k => NAMES[k] === 'Komputer' ? '🤖' : NAMES[k] === 'Razan' ? '🧑' : '👧';
 let banT = null;
 function banner(big, small, ms) {
   setText('bt-big', big); setText('bb-big', big); setText('bt-small', small || ''); setText('bb-small', small || '');
@@ -189,7 +217,7 @@ canvas.addEventListener('pointerdown', e => {
   if (!G) return;
   e.preventDefault();
   const [x, y] = toLocal(e);
-  const p = y < H / 2 ? 'd' : 'r';
+  const p = BOT ? 'r' : (y < H / 2 ? 'd' : 'r');
   const pd = G.pads[p];
   if (pd.pid !== null) return;
   pd.pid = e.pointerId; owner[e.pointerId] = p;
@@ -215,6 +243,10 @@ function setTarget(p, x, y) {
 // ═════════ MATCH ═════════
 function startMatch() {
   stopLoop();
+  BOT = CFG.bot >= 0 ? 'd' : null;
+  if (BOT) { NAMES.r = CFG.me === 'd' ? 'Dara' : 'Razan'; NAMES.d = 'Komputer'; } else { NAMES.r = 'Razan'; NAMES.d = 'Dara'; }
+  document.body.classList.toggle('botmode', !!BOT);
+  setText('bn-r', `${AV('r')} ${NAMES.r.toUpperCase()}`); setText('bn-d', `${AV('d')} ${NAMES.d.toUpperCase()}`);
   showOverlay(null); hideBanner();
   resize();
   G = {
@@ -264,6 +296,7 @@ function step(k) {
   const { pr, R, goalL, goalR } = geo();
   const P = G.puck;
   const maxV = 21 * S * CFG.speed;
+  if (BOT) botThink(k);
   // paddle: gerak cepat ke target, velocity dihitung per frame (bukan per event)
   ['r', 'd'].forEach(p => {
     const pd = G.pads[p];
@@ -339,13 +372,49 @@ function goal(scorer) {
   const won = G.scores[scorer] >= CFG.target;
   const matchPoint = !won && G.scores[scorer] === CFG.target - 1;
   banner(own ? '😱 GOL BUNUH DIRI!' : '⚡ GOL!', `${NAMES[scorer]} ${G.scores.r}–${G.scores.d}${own ? ` · makasih ${NAMES[conceder]} 😂` : ''}${G.streak[scorer] >= 3 ? ` · 🔥${G.streak[scorer]} beruntun` : ''}${matchPoint ? ' · 🎯 MATCH POINT' : ''}`, 0);
-  confetti(25);
+  if (NAMES[scorer] !== 'Komputer') confetti(25);
   const my = token;
   setTimeout(() => {
     if (my !== token || !G) return;
     if (won) { showResult(scorer); return; }
     serve(conceder, 2);
   }, 1500);
+}
+
+// ═════════ KOMPUTER ═════════
+function predictX(P, lineY) {
+  const { pr } = geo();
+  if (Math.abs(P.vy) < .2) return P.x;
+  const t = (lineY - P.y) / P.vy; if (t < 0) return P.x;
+  const span = W - 2 * pr; let x = P.x - pr + P.vx * t;
+  x = ((x % (2 * span)) + 2 * span) % (2 * span); if (x > span) x = 2 * span - x;
+  return x + pr;
+}
+function botThink(k) {
+  const { pr, R } = geo(), P = G.puck, pd = G.pads.d, L = BOT_L[CFG.bot] || BOT_L[1];
+  botErrT -= k * 16.67;
+  if (botErrT <= 0) { botErr = (Math.random() - .5) * 2 * L.err * R; botErrT = 350 + Math.random() * 400; botAim = W / 2 + (Math.random() - .5) * W * L.aim; }
+  const homeY = H * .12, sp = Math.hypot(P.vx, P.vy);
+  // puck diem lama di sisi komputer (nyangkut) → mundur sebentar
+  if (G.phase === 'play' && P.y < H / 2 && sp < .6 * S) botIdle += k * 16.67; else botIdle = 0;
+  let tx, ty;
+  if (G.phase !== 'play' && G.phase !== 'cd') { tx = W / 2; ty = homeY; }
+  else if (botIdle > 2200) { tx = W / 2; ty = homeY; if (botIdle > 2800) botIdle = 0; }
+  else if (P.y > H / 2 - pr && P.vy >= -.3 * S) { tx = W / 2 + (P.x - W / 2) * .45; ty = homeY; }        // puck di sisi lawan → jaga gawang
+  else if (P.y > H / 2 - pr || (P.vy < -4 * S && P.y > pd.y)) { tx = predictX(P, homeY + R) + botErr; ty = homeY; }   // puck lagi ngebut datang → hadang
+  else if (G.phase === 'cd') { tx = W / 2; ty = homeY; }
+  else {
+    // pukul: posisiin paddle di belakang puck (searah gawang lawan), baru sodok
+    const dx = botAim - P.x, dy = H - P.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    const bx = P.x - ux * (R + pr + 6), by = P.y - uy * (R + pr + 6);
+    if (pd.y > P.y - pr * .2 && Math.abs(pd.x - P.x) < R + pr + 4) { tx = P.x + (P.x < W / 2 ? 1 : -1) * (R + pr + 10); ty = Math.min(pd.y, P.y); }  // ada di depan puck → minggir dulu
+    else if (Math.hypot(pd.x - bx, pd.y - by) > R * .45) { tx = bx + botErr * .3; ty = by; }
+    else { tx = P.x + ux * R * 1.6; ty = P.y + uy * R * 1.6; }
+  }
+  // batas kecepatan paddle komputer sesuai level
+  const mx = L.speed * S * k * 1.6, ddx = tx - pd.x, ddy = ty - pd.y, dist = Math.hypot(ddx, ddy);
+  const f = dist > mx ? mx / dist : 1;
+  setTarget('d', pd.x + ddx * f, pd.y + ddy * f);
 }
 
 // ═════════ RENDER ═════════
@@ -370,8 +439,9 @@ function render() {
   ctx.fillStyle = 'rgba(255,255,255,.7)';
   [[goalL - 3, 0], [goalR - 3, 0], [goalL - 3, H - 16], [goalR - 3, H - 16]].forEach(([x, y]) => ctx.fillRect(x, y, 6, 16));
   // paddle & puck
-  paddle(G.pads.d, '#f7c4bc', '#c17a6f', '👧', true);
-  paddle(G.pads.r, '#a9cdf8', '#4a7cc7', '🧑', false);
+  const meD = BOT && NAMES.r === 'Dara';
+  paddle(G.pads.d, BOT ? '#d7d7e0' : '#f7c4bc', BOT ? '#7a7f95' : '#c17a6f', AV('d'), !BOT);
+  paddle(G.pads.r, meD ? '#f7c4bc' : '#a9cdf8', meD ? '#c17a6f' : '#4a7cc7', AV('r'), false);
   const P = G.puck, sp = Math.hypot(P.vx, P.vy);
   if (sp > 9 * S) { ctx.beginPath(); ctx.arc(P.x - P.vx * 1.4, P.y - P.vy * 1.4, pr * .7, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,213,79,.12)'; ctx.fill(); }
   ctx.beginPath(); ctx.arc(P.x + 2, P.y + 3, pr, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fill();
@@ -418,23 +488,24 @@ function showResult(wp) {
   if (T.r.own + T.d.own) v += `<br>😱 Gol bunuh diri: ${T.r.own + T.d.own}x`;
   setHTML('result-inner', `
     <span class="label">Hasil Pertandingan</span>
-    <span class="icon">🏆</span>
+    <span class="icon">${w === 'Komputer' ? '🤖' : '🏆'}</span>
     <h2 class="title" style="font-size:1.5rem">${w} Menang!</h2>
     <p class="sub">First to ${CFG.target}</p>
     <div class="score-card">
-      <div><span class="sc-nm r">🧑 Razan</span><span class="sc-v">${G.scores.r}</span></div>
+      <div><span class="sc-nm r">${AV('r')} ${NAMES.r}</span><span class="sc-v">${G.scores.r}</span></div>
       <span class="sc-vs">🏒</span>
-      <div><span class="sc-nm d">👧 Dara</span><span class="sc-v">${G.scores.d}</span></div>
+      <div><span class="sc-nm d">${AV('d')} ${NAMES.d}</span><span class="sc-v">${G.scores.d}</span></div>
     </div>
-    <div class="stat-table"><div class="row head"><span></span><span>🧑 Razan</span><span>👧 Dara</span></div>
+    <div class="stat-table"><div class="row head"><span></span><span>${AV('r')} ${NAMES.r}</span><span>${AV('d')} ${NAMES.d}</span></div>
       ${row('🏒 Pukulan', 'hits')}${row('⚡ Gol', 'goals')}${row('🔥 Gol beruntun', 'best')}${row('💨 Tercepat (km/j)', 'fastest')}${row('😱 Bunuh diri', 'own')}
     </div>
     <div class="verdict">${v}</div>
-    <div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>
+    ${BOT ? `<div class="demand"><span class="demand-tag">🤖 Lawan Komputer</span><p class="demand-text">${w === 'Komputer' ? 'Komputer menang kali ini 🤖 Coba level santai dulu, atau tantang pasanganmu biar ada hukumannya 😏' : `Kamu ngalahin komputer level <b>${['santai', 'normal', 'jago'][CFG.bot]}</b>! 🏒 Sekarang tantang pasanganmu 😏`}</p></div>`
+      : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
     <button class="btn" onclick="startMatch()">Main Lagi 🔄</button>
     <button class="btn-ghost" onclick="showOverlay('o-intro')">Ganti Setting / Menu</button>`);
   showOverlay('o-result');
-  confetti(80);
+  if (w !== 'Komputer') confetti(80);
 }
 
 // ═════════ LAIN-LAIN ═════════
