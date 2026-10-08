@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Harian Razan — Edisi Khusus Dara</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -12,7 +12,8 @@
     --rose:#c17a6f;--gold:#c9a96e;--muted:#6a5a40;
     --line:#c8b898;
   }
-  *{margin:0;padding:0;box-sizing:border-box}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button{font-family:inherit}
   body{background:#e8e0d0;font-family:'Poppins',sans-serif;min-height:100vh;overflow-x:hidden}
 
   /* Paper texture */
@@ -28,7 +29,14 @@
     min-height:100vh;
     position:relative;z-index:1;
     box-shadow:0 0 60px rgba(0,0,0,.25);
+    padding-bottom:env(safe-area-inset-bottom);
   }
+
+  /* ── BAR ATAS ── */
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:calc(.6rem + env(safe-area-inset-top)) 1.25rem .5rem;background:var(--paper2);border-bottom:1px solid var(--line)}
+  .topbar a,.topbar button{font-size:11px;color:var(--ink);text-decoration:none;background:none;border:1px solid var(--line);border-radius:3px;padding:.3rem .6rem;cursor:pointer;white-space:nowrap}
+  .topbar a:active,.topbar button:active{background:var(--ink);color:var(--paper)}
+  .topbar-r{display:flex;gap:.4rem}
 
   /* ── MASTHEAD ── */
   .masthead{
@@ -44,7 +52,7 @@
   }
 
   .mast-top{
-    display:flex;justify-content:space-between;align-items:center;
+    display:flex;justify-content:space-between;align-items:center;gap:.4rem;
     margin-bottom:.5rem;
     font-size:9px;color:var(--muted);letter-spacing:.08em;
   }
@@ -63,9 +71,11 @@
     padding:.2rem 0;margin-bottom:.4rem;
   }
   .mast-bottom{
-    display:flex;justify-content:space-between;
+    display:flex;justify-content:space-between;gap:.4rem;
     font-size:9px;color:var(--muted);
   }
+  .mast-bottom span:nth-child(2){text-align:center}
+  .mast-bottom span:last-child{text-align:right}
 
   /* ── BREAKING BANNER ── */
   .breaking{
@@ -81,7 +91,9 @@
     font-size:9px;font-weight:700;letter-spacing:.1em;
     flex-shrink:0;
   }
-  .breaking-text{font-size:10px;font-weight:500}
+  .breaking-text{font-size:10px;font-weight:500;overflow:hidden;flex:1;min-width:0}
+  .breaking-text span{display:inline-block;white-space:nowrap;padding-left:100%;animation:ticker 16s linear infinite}
+  @keyframes ticker{to{transform:translateX(-100%)}}
 
   /* ── MAIN HEADLINE ── */
   .main-section{padding:1rem 1.25rem .75rem;border-bottom:2px solid var(--ink)}
@@ -113,6 +125,7 @@
     column-count:2;column-gap:1rem;
   }
   .article-body p{margin-bottom:.6rem}
+  .article-body,.art-body{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
   .article-body strong{font-weight:600;color:var(--ink)}
   .article-body em{font-style:italic;color:var(--rose)}
 
@@ -130,9 +143,10 @@
     margin:.75rem 0;
     break-inside:avoid;
   }
+  .photo-inner img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.1) sepia(.15);display:block}
   .photo-inner{
     background:linear-gradient(135deg,var(--paper2),#ede5ce);
-    height:90px;
+    height:90px;overflow:hidden;
     display:flex;align-items:center;justify-content:center;
     font-size:2.5rem;
     border-bottom:1px solid var(--line);
@@ -235,10 +249,51 @@
     transition:all .15s;
   }
   .share-btn:active{background:var(--ink);color:var(--paper)}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.75rem 1.25rem 0}
+  .actions .share-btn{width:100%;margin:0;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.35rem}
+  .actions .share-btn.full{grid-column:1 / -1}
+  .actions .share-btn.wa{border-color:#1f8f4e;color:#1f8f4e}
+  .toast{position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--paper);font-size:12px;padding:.55rem 1rem;border-radius:3px;opacity:0;pointer-events:none;transition:all .3s;z-index:50;max-width:calc(100vw - 2rem);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* layar sempit: kolom dibikin satu biar ga sesek */
+  @media (max-width:370px){
+    .article-body{column-count:1;font-size:12px;text-align:left}
+    .art-body{text-align:left}
+    .second-section{grid-template-columns:1fr}
+    .second-article:first-child{border-right:none;border-bottom:1px solid var(--line)}
+    .art-body{font-size:11px}
+    .notices-grid{grid-template-columns:1fr}
+    .mast-top span:nth-child(2){display:none}
+    .mast-bottom{font-size:8px}
+    .main-section,.quote-section,.notices-section{padding-left:1rem;padding-right:1rem}
+    .second-article{padding:.8rem 1rem}
+  }
+  @media (prefers-reduced-motion:reduce){.breaking-text span{animation:none;padding-left:0;white-space:normal}}
+
+  /* ── CETAK / SIMPAN PDF ── */
+  @media print{
+    @page{size:A4;margin:12mm}
+    body{background:#fff}
+    body::before,.topbar,.actions,.toast,.cf-ov{display:none!important}
+    .newspaper{max-width:none;box-shadow:none;min-height:0}
+    .breaking-text span{animation:none;padding-left:0;white-space:normal}
+    .article-body{column-count:2!important}
+    .second-section{grid-template-columns:1fr 1fr!important}
+    .notices-grid{grid-template-columns:1fr 1fr!important}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
 </style>
 </head>
 <body>
 <div class="newspaper">
+
+  <div class="topbar">
+    <a href="index.html">← Menu utama</a>
+    <div class="topbar-r">
+      <button onclick="printPaper()">🖨️ Simpan PDF</button>
+    </div>
+  </div>
 
   <!-- MASTHEAD -->
   <div class="masthead">
@@ -250,7 +305,7 @@
     <div class="mast-logo">Harian Razan</div>
     <div class="mast-tagline">"Semua Berita yang Penting Buat Dara Syifa Aulia"</div>
     <div class="mast-bottom">
-      <span>Jakarta, 2026</span>
+      <span id="mast-date">Jakarta, 2026</span>
       <span>Diterbitkan dengan Sepenuh Hati</span>
       <span>Edisi Terbatas · 1 Eksemplar</span>
     </div>
@@ -259,7 +314,7 @@
   <!-- BREAKING -->
   <div class="breaking">
     <span class="breaking-tag">BREAKING</span>
-    <span class="breaking-text">Dara Syifa Aulia resmi jadi orang terpenting di hidup Razan sejak pertama ketemu</span>
+    <span class="breaking-text"><span>Dara Syifa Aulia resmi jadi orang terpenting di hidup Razan sejak pertama ketemu</span></span>
   </div>
 
   <!-- MAIN HEADLINE -->
@@ -272,7 +327,7 @@
       <p class="dropcap">Dalam pernyataan resmi yang disampaikan melalui hadiah digital eksklusif ini, Razan akhirnya mengonfirmasi apa yang selama ini sudah banyak pihak duga — bahwa <strong>Dara Syifa Aulia</strong> adalah orang yang paling berpengaruh dalam hidupnya.</p>
 
       <div class="photo-box">
-        <div class="photo-inner">🤍</div>
+        <div class="photo-inner" id="photo-inner">🤍</div>
         <p class="photo-cap">Ilustrasi: Momen ketika Razan sadar dia udah ga bisa balik lagi.</p>
       </div>
 
@@ -342,7 +397,11 @@
   </div>
 
   <!-- SHARE -->
-  <button class="share-btn" onclick="window.history.back()">← Kembali ke Halaman Utama</button>
+  <div class="actions">
+    <a class="share-btn wa" id="wa-btn" href="#" target="_blank" rel="noopener">💬 Bales redaksi</a>
+    <button class="share-btn" onclick="printPaper()">🖨️ Simpan PDF</button>
+    <a class="share-btn full" href="index.html">← Kembali ke Halaman Utama</a>
+  </div>
 
   <!-- FOOTER -->
   <div class="paper-footer">
@@ -352,5 +411,78 @@
   </div>
 
 </div>
+<div class="toast" id="toast"></div>
+
+<script>
+  // Tanggal edisi = hari ini
+  (function(){
+    const H=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const B=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const d=new Date();
+    document.getElementById('mast-date').textContent=`Jakarta, ${H[d.getDay()]} ${d.getDate()} ${B[d.getMonth()]} ${d.getFullYear()}`;
+  })();
+
+  // Foto asli (opsional): taruh foto/koran.jpg (atau .jpeg/.png/.webp) → gantiin ilustrasi 🤍, otomatis jadi hitam-putih ala koran
+  (function(){
+    const ext=['jpg','jpeg','png','webp'];let k=0;
+    (function next(){
+      if(k>=ext.length) return;
+      const src='foto/koran.'+ext[k++];const img=new Image();
+      img.onload=()=>{const box=document.getElementById('photo-inner');box.textContent='';img.alt='Razan & Dara';box.appendChild(img);box.style.height='150px'};
+      img.onerror=next;img.src=src;
+    })();
+  })();
+
+  document.getElementById('wa-btn').href='https://wa.me/6285692740607?text='+encodeURIComponent('Kepada Yth. Redaksi Harian Razan 📰\n\nSaya sudah membaca edisi khusus hari ini. Tanggapan saya:\n\n');
+
+  function printPaper(){
+    if(typeof window.print!=='function'){toast('Browser ini ga bisa nyetak 😅');return}
+    toast('Pilih "Simpan sebagai PDF" di menu cetak');
+    setTimeout(()=>window.print(),400);
+  }
+  let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2500)}
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
 </body>
 </html>
