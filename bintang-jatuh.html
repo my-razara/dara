@@ -2,11 +2,25 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Bintang Jatuh — Untuk Dara 🌠</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  button { font-family: inherit; }
+  html, body { height: 100%; overscroll-behavior: none; }
+  #sky { touch-action: manipulation; }
+
+  .top-btn {
+    position: fixed; top: calc(.9rem + env(safe-area-inset-top)); z-index: 12;
+    font-size: 11.5px; color: rgba(255,255,255,.7); text-decoration: none;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14);
+    padding: .38rem .8rem; border-radius: 50px; backdrop-filter: blur(4px); cursor: pointer;
+  }
+  .top-btn:active { background: rgba(255,255,255,.15); }
+  .back-link { left: .9rem; }
+  .coll-btn { white-space: nowrap; left: 50%; transform: translateX(-50%); top: auto; bottom: calc(1rem + env(safe-area-inset-bottom)); display: none; }
+  .coll-btn.show { display: block; }
 
   body {
     background: #0a0515;
@@ -27,8 +41,8 @@
   .sky-header {
     position: fixed; top: 0; left: 0; right: 0;
     text-align: center;
-    padding: 1.75rem 1.5rem 1rem;
-    z-index: 10;
+    padding: calc(3.3rem + env(safe-area-inset-top)) 1.25rem 1rem;
+    z-index: 10; pointer-events: none;
     background: linear-gradient(to bottom, rgba(10,5,21,.85) 0%, transparent 100%);
   }
   .sky-label {
@@ -50,7 +64,7 @@
 
   /* ── COUNTER ── */
   .star-counter {
-    position: fixed; top: 1.25rem; right: 1.25rem;
+    position: fixed; top: calc(.9rem + env(safe-area-inset-top)); right: .9rem;
     background: rgba(255,255,255,.07);
     border: 1px solid rgba(255,255,255,.12);
     border-radius: 50px; padding: .3rem .85rem;
@@ -65,6 +79,7 @@
     position: fixed; bottom: 0; left: 0; right: 0;
     z-index: 20;
     padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
     pointer-events: none;
   }
   #msg-card.show {
@@ -77,8 +92,9 @@
     background: rgba(10,5,21,.92);
     border: 1px solid rgba(201,169,110,.25);
     border-radius: 20px 20px 16px 16px;
-    padding: 1.4rem 1.5rem 1.25rem;
-    backdrop-filter: blur(12px);
+    padding: 1.3rem 1.35rem 1.15rem;
+    max-height: calc(100dvh - 2rem); overflow-y: auto;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 -4px 40px rgba(0,0,0,.4);
     animation: slideup .4s cubic-bezier(.34,1.3,.64,1);
   }
@@ -97,6 +113,32 @@
     cursor: pointer; transition: all .15s;
   }
   .msg-close:active { background: rgba(201,169,110,.2); }
+  .msg-row { display: flex; gap: .5rem; margin-top: .5rem; }
+  .msg-row > * { flex: 1; text-align: center; text-decoration: none; padding: .6rem .4rem; border-radius: 50px; font-size: 12px; font-weight: 500; border: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.7); background: transparent; cursor: pointer; white-space: nowrap; }
+  .msg-row > *:active { background: rgba(255,255,255,.08); }
+  .msg-row .wa { border-color: rgba(37,211,102,.35); color: #7fe0a6; }
+
+  /* ── KOLEKSI ── */
+  #coll {
+    display: none; position: fixed; inset: 0; z-index: 25; background: rgba(6,3,15,.88);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    align-items: flex-end; justify-content: center;
+  }
+  #coll.show { display: flex; }
+  .coll-sheet {
+    width: 100%; max-width: 440px; max-height: 82dvh; overflow-y: auto;
+    background: #120a24; border: 1px solid rgba(201,169,110,.2); border-bottom: none;
+    border-radius: 22px 22px 0 0; padding: 1.2rem 1.1rem calc(1.2rem + env(safe-area-inset-bottom));
+    animation: slideup .35s ease;
+  }
+  .coll-title { text-align: center; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: .2rem; }
+  .coll-sub { text-align: center; color: rgba(255,255,255,.4); font-size: 11px; margin-bottom: 1rem; }
+  .coll-item { display: flex; gap: .65rem; padding: .7rem .2rem; border-bottom: 1px solid rgba(255,255,255,.06); cursor: pointer; text-align: left; width: 100%; background: none; border-left: 0; border-right: 0; border-top: 0; color: inherit; }
+  .coll-item:last-of-type { border-bottom: none; }
+  .ci-ic { font-size: 1.1rem; flex-shrink: 0; }
+  .ci-n { font-size: 9px; letter-spacing: .15em; color: #c9a96e; text-transform: uppercase; display: block; }
+  .ci-t { font-size: 12.5px; color: rgba(255,255,255,.85); line-height: 1.6; font-weight: 300; display: block; }
+  .coll-close { width: 100%; margin-top: .9rem; }
 
   /* ── ALL DONE ── */
   #done-overlay {
@@ -118,6 +160,18 @@
     box-shadow: 0 4px 20px rgba(193,122,111,.4);
   }
   .done-btn:active { opacity: .85; transform: scale(.97); }
+  .done-link { margin-top: .9rem; background: none; border: none; color: rgba(255,255,255,.55); font-size: 12px; text-decoration: underline; cursor: pointer; }
+
+  .sky-note {
+    position: fixed; left: 50%; bottom: calc(4rem + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    font-size: 11px; color: rgba(255,255,255,.4); z-index: 6; pointer-events: none; text-align: center; white-space: nowrap;
+    transition: opacity .4s;
+  }
+
+  @media (max-width: 360px) {
+    .sky-title { font-size: 1.15rem; }
+    .msg-row > * { font-size: 11px; }
+  }
 
   /* ── TAP RIPPLE ── */
   .tap-ripple {
@@ -133,7 +187,8 @@
 </head>
 <body>
 
-<canvas id="sky"></canvas>
+<canvas id="sky" aria-label="Langit malam, tap buat manggil bintang"></canvas>
+<a href="index.html" class="top-btn back-link">← Menu utama</a>
 
 <div class="sky-header">
   <span class="sky-label">Khusus untuk Dara</span>
@@ -141,7 +196,7 @@
   <p class="sky-hint">✨ Tap langit untuk memanggil bintang</p>
 </div>
 
-<div class="star-counter">
+<div class="star-counter" aria-live="polite">
   <span id="star-count">0</span> / 25 bintang
 </div>
 
@@ -153,7 +208,22 @@
     <span class="msg-num" id="msg-num">Bintang #1</span>
     <p class="msg-text" id="msg-text">...</p>
     <span class="msg-sign">— Razan 🤍</span>
-    <button class="msg-close" onclick="closeMsg()">Tutup & Cari Bintang Lagi ✨</button>
+    <button class="msg-close" id="msg-close" onclick="closeMsg()">Tutup & Cari Bintang Lagi ✨</button>
+    <div class="msg-row">
+      <a class="wa" id="msg-wa" href="#" target="_blank" rel="noopener">💬 Bales ke Razan</a>
+    </div>
+  </div>
+</div>
+
+<button class="top-btn coll-btn" id="coll-btn" onclick="openColl()">📜 Koleksi bintang</button>
+<p class="sky-note" id="sky-note"></p>
+
+<div id="coll" onclick="if(event.target===this)closeColl()">
+  <div class="coll-sheet">
+    <p class="coll-title">🌌 Rasi bintang kamu</p>
+    <p class="coll-sub" id="coll-sub"></p>
+    <div id="coll-list"></div>
+    <button class="msg-close coll-close" onclick="closeColl()">Tutup</button>
   </div>
 </div>
 
@@ -163,6 +233,8 @@
   <h2 class="done-title">Semua bintang <span>sudah jatuh</span></h2>
   <p class="done-sub">25 bintang, 25 pesan — semua sudah kamu tangkap. Makasih udah ada di langit aku, Dara. 🤍</p>
   <button class="done-btn" onclick="resetSky()">Hidupkan Lagi Langitnya 🌠</button>
+  <button class="done-link" onclick="document.getElementById('done-overlay').classList.remove('show');openColl()">📜 Baca ulang semua bintang</button>
+  <button class="done-link" style="margin-top:.3rem" onclick="document.getElementById('done-overlay').classList.remove('show')">Liat rasi bintangnya</button>
 </div>
 
 <script>
@@ -194,20 +266,36 @@ const MESSAGES = [
   { icon: "⭐", text: "Dari sekian banyak hal yang aku harapin di hidup aku — kamu adalah salah satu yang sudah terjawab. 🤍" },
 ];
 
-// State
-let remaining = [...Array(MESSAGES.length).keys()].sort(() => Math.random() - .5);
-let revealed = 0;
+// ── STATE (kesimpen) ──
+// caught = urutan bintang yang udah ketangkep: {i: index pesan, x, y (0..1 posisi di langit)}
+const KEY = 'bintang-jatuh';
+const WA = '6285692740607';
+let caught = [];
+try {
+  const d = JSON.parse(localStorage.getItem(KEY));
+  if (Array.isArray(d)) caught = d.filter(c => c && MESSAGES[c.i] && isFinite(c.x) && isFinite(c.y));
+} catch (e) {}
+const seenIdx = new Set(caught.map(c => c.i));
+let remaining = [...Array(MESSAGES.length).keys()].filter(i => !seenIdx.has(i)).sort(() => Math.random() - .5);
+let revealed = caught.length;
 let msgOpen = false;
+let flying = false;        // [FIX] satu bintang lagi terbang → tap lain diabaikan (dulu pesan bisa kelewat)
+let current = null;        // posisi di caught yang lagi dibuka
+let currentFresh = false;
+function save() { try { localStorage.setItem(KEY, JSON.stringify(caught)); } catch (e) {} }
 
 // Canvas setup
 const canvas = document.getElementById('sky');
 const ctx = canvas.getContext('2d');
-let W, H;
+let W, H, DPR = 1;
 
 function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  drawStaticStars();
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  bgCache = null;
 }
 
 // Static background stars
@@ -226,46 +314,65 @@ function initBgStars() {
   }
 }
 
-// Shooting stars (animated)
 const shooters = [];
-
-// Particles (sparkle on tap)
 const particles = [];
-
-let frame = 0;
+let frame = 0, lastT = 0, raf = 0;
+let bgCache = null;
 
 function drawStaticStars() {
-  ctx.clearRect(0, 0, W, H);
-
-  // Deep sky gradient
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, '#04011a');
-  grad.addColorStop(.5, '#080220');
-  grad.addColorStop(1, '#0d0525');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // Nebula glow
-  const neb1 = ctx.createRadialGradient(W * .25, H * .3, 0, W * .25, H * .3, W * .35);
-  neb1.addColorStop(0, 'rgba(80,40,120,.12)');
-  neb1.addColorStop(1, 'transparent');
-  ctx.fillStyle = neb1;
-  ctx.fillRect(0, 0, W, H);
-
-  const neb2 = ctx.createRadialGradient(W * .75, H * .6, 0, W * .75, H * .6, W * .3);
-  neb2.addColorStop(0, 'rgba(40,80,120,.1)');
-  neb2.addColorStop(1, 'transparent');
-  ctx.fillStyle = neb2;
-  ctx.fillRect(0, 0, W, H);
+  // langit + nebula digambar sekali ke kanvas cadangan (lebih hemat baterai)
+  if (!bgCache) {
+    bgCache = document.createElement('canvas');
+    bgCache.width = canvas.width; bgCache.height = canvas.height;
+    const b = bgCache.getContext('2d');
+    b.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const grad = b.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#04011a'); grad.addColorStop(.5, '#080220'); grad.addColorStop(1, '#0d0525');
+    b.fillStyle = grad; b.fillRect(0, 0, W, H);
+    const neb1 = b.createRadialGradient(W * .25, H * .3, 0, W * .25, H * .3, W * .35);
+    neb1.addColorStop(0, 'rgba(80,40,120,.12)'); neb1.addColorStop(1, 'transparent');
+    b.fillStyle = neb1; b.fillRect(0, 0, W, H);
+    const neb2 = b.createRadialGradient(W * .75, H * .6, 0, W * .75, H * .6, W * .3);
+    neb2.addColorStop(0, 'rgba(40,80,120,.1)'); neb2.addColorStop(1, 'transparent');
+    b.fillStyle = neb2; b.fillRect(0, 0, W, H);
+  }
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(bgCache, 0, 0); ctx.restore();
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  frame++;
+function drawCaught(t) {
+  if (!caught.length) return;
+  // garis rasi bintang (urut ketangkep)
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(201,169,110,.16)';
+  ctx.setLineDash([3, 5]);
+  ctx.beginPath();
+  caught.forEach((c, k) => { const x = c.x * W, y = c.y * H; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+  ctx.stroke();
+  ctx.setLineDash([]);
+  caught.forEach((c, k) => {
+    const x = c.x * W, y = c.y * H;
+    const pulse = .75 + .25 * Math.sin(t / 700 + k);
+    const hl = current === k && msgOpen;
+    const R = (hl ? 16 : 11) * pulse;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+    g.addColorStop(0, `rgba(255,236,190,${hl ? 1 : .95})`);
+    g.addColorStop(.35, `rgba(201,169,110,${hl ? .6 : .4})`);
+    g.addColorStop(1, 'rgba(201,169,110,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill();
+    // kilau 4 arah
+    ctx.strokeStyle = `rgba(255,240,200,${.5 * pulse})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x - R * .9, y); ctx.lineTo(x + R * .9, y); ctx.moveTo(x, y - R * .9); ctx.lineTo(x, y + R * .9); ctx.stroke();
+  });
+}
+
+function animate(t) {
+  raf = requestAnimationFrame(animate);
+  const dt = lastT ? Math.min(3, (t - lastT) / 16.667) : 1;   // 1 = satu frame 60fps → kecepatan sama di semua layar
+  lastT = t;
+  frame += dt;
 
   drawStaticStars();
 
-  // Draw bg stars with twinkling
   bgStars.forEach(s => {
     const alpha = s.alpha + Math.sin(frame * s.twinkleSpeed + s.twinkleOffset) * .15;
     ctx.beginPath();
@@ -274,17 +381,18 @@ function animate() {
     ctx.fill();
   });
 
+  drawCaught(t);
+
   // Shooting stars
   for (let i = shooters.length - 1; i >= 0; i--) {
     const s = shooters[i];
-    s.x += s.vx;
-    s.y += s.vy;
-    s.life -= s.decay;
+    s.x += s.vx * dt;
+    s.y += s.vy * dt;
+    s.life -= s.decay * dt;
     s.trail.push({ x: s.x, y: s.y });
     if (s.trail.length > 22) s.trail.shift();
 
     if (s.life <= 0) {
-      // Burst at end
       if (!s.burst) {
         s.burst = true;
         spawnBurst(s.x, s.y, s.color);
@@ -294,7 +402,6 @@ function animate() {
       continue;
     }
 
-    // Trail
     for (let j = 1; j < s.trail.length; j++) {
       const prog = j / s.trail.length;
       ctx.beginPath();
@@ -306,7 +413,6 @@ function animate() {
       ctx.stroke();
     }
 
-    // Head glow
     const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 6);
     grd.addColorStop(0, `rgba(${s.color},${s.life})`);
     grd.addColorStop(1, 'transparent');
@@ -316,13 +422,12 @@ function animate() {
     ctx.fill();
   }
 
-  // Particles
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy += .04;
-    p.life -= .025;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += .04 * dt;
+    p.life -= .025 * dt;
     if (p.life <= 0) { particles.splice(i, 1); continue; }
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
@@ -347,101 +452,185 @@ function spawnBurst(x, y, color) {
 }
 
 function launchShooter(fromX, fromY, onEnd) {
-  // Shoot diagonally downward from tap point upward
-  const angle = (Math.random() * 60 + 200) * Math.PI / 180; // roughly down-right
   const speed = Math.random() * 3 + 4;
-
-  // Start from top area, travel toward tap
   const startX = fromX + (Math.random() - .5) * 120;
   const startY = fromY - Math.random() * 200 - 100;
-
   const dx = fromX - startX;
   const dy = fromY - startY;
   const dist = Math.sqrt(dx * dx + dy * dy);
   const nx = dx / dist, ny = dy / dist;
-
   const colors = ['255,255,255', '255,240,180', '200,180,255', '180,220,255', '255,200,180'];
   const color = colors[Math.floor(Math.random() * colors.length)];
+  shooters.push({ x: startX, y: startY, vx: nx * speed, vy: ny * speed, life: 1, decay: .018, trail: [], color, burst: false, onEnd });
+}
 
-  shooters.push({
-    x: startX, y: startY,
-    vx: nx * speed, vy: ny * speed,
-    life: 1, decay: .018,
-    trail: [],
-    color,
-    burst: false,
-    onEnd,
-  });
+function ripple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'tap-ripple';
+  r.style.left = x + 'px'; r.style.top = y + 'px';
+  document.body.appendChild(r);
+  setTimeout(() => r.remove(), 700);
 }
 
 // Tap handler
 canvas.addEventListener('click', e => {
   if (msgOpen) return;
+  const x = e.clientX, y = e.clientY;
+
+  // tap bintang emas yang udah ketangkep → baca lagi pesannya
+  let best = -1, bd = 26 * 26;
+  caught.forEach((c, k) => { const d = (c.x * W - x) ** 2 + (c.y * H - y) ** 2; if (d < bd) { bd = d; best = k; } });
+  if (best >= 0) { ripple(x, y); openCaught(best, false); return; }
+
   if (remaining.length === 0) {
     document.getElementById('done-overlay').classList.add('show');
     return;
   }
+  if (flying) return;
+  flying = true;
+  ripple(x, y);
+  try { navigator.vibrate && navigator.vibrate(10); } catch (_) {}
 
-  const x = e.clientX, y = e.clientY;
-
-  // Ripple
-  const ripple = document.createElement('div');
-  ripple.className = 'tap-ripple';
-  ripple.style.left = x + 'px';
-  ripple.style.top = y + 'px';
-  document.body.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 700);
-
-  // Launch 1-3 shooters, last one triggers message
   const count = Math.floor(Math.random() * 2) + 1;
   for (let i = 0; i < count; i++) {
     const isLast = i === count - 1;
-    launchShooter(x, y, isLast ? () => {
-      showMessage(x, y);
-    } : null);
+    launchShooter(x, y, isLast ? () => { flying = false; showMessage(x, y); } : null);
   }
+  // jaga-jaga kalau tab ketutup pas bintang lagi terbang
+  setTimeout(() => { if (flying) { flying = false; showMessage(x, y); } }, 2500);
 });
 
 function showMessage(x, y) {
   if (!remaining.length) return;
-  msgOpen = true;
-
   const idx = remaining.pop();
-  revealed++;
+  // posisi bintang emas: jangan ketutup header / kartu pesan
+  const px = Math.min(.94, Math.max(.06, x / W));
+  const py = Math.min(.86, Math.max(.2, y / H));
+  caught.push({ i: idx, x: px, y: py });
+  revealed = caught.length;
+  save();
+  try { navigator.vibrate && navigator.vibrate([15, 40, 25]); } catch (_) {}
+  openCaught(caught.length - 1, true);
+}
 
-  const msg = MESSAGES[idx];
+function openCaught(k, fresh) {
+  const c = caught[k];
+  if (!c) return;
+  msgOpen = true;
+  current = k; currentFresh = fresh;
+  const msg = MESSAGES[c.i];
   document.getElementById('msg-icon').textContent = msg.icon;
-  document.getElementById('msg-num').textContent = `Bintang #${revealed}`;
+  document.getElementById('msg-num').textContent = `Bintang #${k + 1}`;
   document.getElementById('msg-text').textContent = msg.text;
-  document.getElementById('star-count').textContent = revealed;
-
-  document.getElementById('msg-card').classList.add('show');
+  document.getElementById('msg-close').textContent = fresh ? 'Tutup & Cari Bintang Lagi ✨' : 'Tutup ✨';
+  document.getElementById('msg-wa').href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(`Razan, aku nangkep bintang #${k + 1} 🌠\n\n"${msg.text}"\n\n`);
+  const card = document.getElementById('msg-card');
+  card.classList.remove('show'); void card.offsetWidth;
+  card.classList.add('show');
+  updateUI();
 }
 
 function closeMsg() {
+  if (!msgOpen) return;
   document.getElementById('msg-card').classList.remove('show');
   msgOpen = false;
-  if (remaining.length === 0) {
+  const wasFresh = currentFresh;
+  current = null; currentFresh = false;
+  if (wasFresh && remaining.length === 0) {
     setTimeout(() => {
       document.getElementById('done-overlay').classList.add('show');
     }, 500);
   }
 }
 
+function updateUI() {
+  document.getElementById('star-count').textContent = revealed;
+  document.getElementById('coll-btn').classList.toggle('show', caught.length > 0);
+  const note = document.getElementById('sky-note');
+  note.textContent = caught.length && remaining.length ? '✨ Tap bintang emas buat baca lagi pesannya' : '';
+}
+
+function openColl() {
+  const list = document.getElementById('coll-list');
+  document.getElementById('coll-sub').textContent = `${caught.length} dari ${MESSAGES.length} bintang udah kamu tangkep`;
+  list.innerHTML = caught.length ? caught.map((c, k) => {
+    const m = MESSAGES[c.i];
+    return `<button class="coll-item" onclick="closeColl();openCaught(${k},false)"><span class="ci-ic">${m.icon}</span><span><span class="ci-n">Bintang #${k + 1}</span><span class="ci-t"></span></span></button>`;
+  }).join('') : '<p class="coll-sub">Belum ada. Tap langitnya dulu ✨</p>';
+  // teks diisi lewat textContent biar aman
+  list.querySelectorAll('.ci-t').forEach((el, k) => el.textContent = MESSAGES[caught[k].i].text);
+  document.getElementById('coll').classList.add('show');
+}
+function closeColl() { document.getElementById('coll').classList.remove('show'); }
+
 function resetSky() {
+  if (!confirm('Hidupin lagi langitnya? Semua bintang emas bakal ilang dan 25 bintang bisa ditangkep dari awal lagi.')) return;
+  caught = [];
+  save();
   remaining = [...Array(MESSAGES.length).keys()].sort(() => Math.random() - .5);
   revealed = 0;
-  document.getElementById('star-count').textContent = '0';
   document.getElementById('done-overlay').classList.remove('show');
   document.getElementById('msg-card').classList.remove('show');
-  msgOpen = false;
+  msgOpen = false; flying = false; current = null;
+  updateUI();
 }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeMsg(); closeColl(); }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) cancelAnimationFrame(raf);
+  else { lastT = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(animate); }
+});
 
 // Init
 window.addEventListener('resize', resize);
 initBgStars();
 resize();
-animate();
+updateUI();
+raf = requestAnimationFrame(animate);
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
