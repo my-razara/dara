@@ -19,10 +19,13 @@
   .star-bg{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d) ease-in-out infinite var(--delay)}
   @keyframes twinkle{0%,100%{opacity:var(--min)}50%{opacity:var(--max)}}
 
-  .page{max-width:480px;margin:0 auto;padding:0 1.25rem 5rem;position:relative;z-index:1}
+  .page{max-width:480px;margin:0 auto;padding:0 1.25rem calc(5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  button{font-family:inherit}
+  .back-link{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1.25rem;z-index:5;font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:.4rem .85rem;border-radius:50px;backdrop-filter:blur(6px)}
+  .back-link:active{background:rgba(255,255,255,.16)}
 
   /* ── HEADER ── */
-  .header{text-align:center;padding:2.5rem 0 1.75rem}
+  .header{text-align:center;padding:3.6rem 0 1.5rem}
   .header-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(201,169,110,.7);display:block;margin-bottom:.5rem}
   .header-title{font-size:clamp(1.4rem,5vw,1.9rem);font-weight:700;color:#fff;margin-bottom:.3rem;text-shadow:0 0 30px rgba(193,122,111,.4)}
   .header-title span{color:var(--gold)}
@@ -30,11 +33,20 @@
 
   /* ── DNA CANVAS ── */
   .dna-wrap{
-    position:relative;margin:0 auto 1.75rem;
+    position:relative;margin:0 auto 2rem;
     width:100%;max-width:340px;
     height:clamp(280px,70vw,340px);
   }
-  #dna-canvas{width:100%;height:100%;display:block}
+  #dna-canvas{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation}
+  .dna-label{position:absolute;left:50%;bottom:-1.1rem;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.55);white-space:nowrap;pointer-events:none;transition:opacity .3s}
+
+  /* ── KOMPOSISI (bar 100%) ── */
+  .comp{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:0 0 .45rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+  .comp button{border:none;padding:0;height:100%;cursor:pointer;transition:opacity .25s,filter .25s;min-width:3px}
+  .comp.has-sel button{opacity:.3}
+  .comp.has-sel button.on{opacity:1;filter:brightness(1.15)}
+  .comp-meta{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:1.25rem}
+  .comp-meta b{color:rgba(201,169,110,.85);font-weight:600}
 
   /* ── PERCENTAGE PILLS ── */
   .pills-wrap{
@@ -42,6 +54,7 @@
     justify-content:center;margin-bottom:1.75rem;
   }
   .pill{
+    font-family:inherit;color:inherit;position:relative;
     display:flex;align-items:center;gap:.4rem;
     background:rgba(255,255,255,.07);
     border:1px solid rgba(255,255,255,.12);
@@ -52,7 +65,8 @@
   }
   @keyframes pillfade{to{opacity:1}}
   .pill:active{transform:scale(.95)}
-  .pill.selected{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)}
+  .pill.selected{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);box-shadow:0 0 0 2px var(--pc,rgba(255,255,255,.2))}
+  .pill.seen::after{content:'';position:absolute;top:-2px;right:-2px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px rgba(201,169,110,.8)}
   .pill-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
   .pill-label{font-size:11px;font-weight:500;color:rgba(255,255,255,.8)}
   .pill-pct{font-size:11px;font-weight:700;color:#fff}
@@ -83,7 +97,12 @@
   .detail-bar-bg{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
   .detail-bar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
 
-  .detail-desc{font-size:13px;color:rgba(255,255,255,.65);line-height:1.75}
+  .detail-desc{font-size:13px;color:rgba(255,255,255,.72);line-height:1.75}
+  .detail-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:.8rem;border-top:1px solid rgba(255,255,255,.08)}
+  .detail-nav button{border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);font-size:12px;padding:.45rem .9rem;border-radius:50px;cursor:pointer}
+  .detail-nav button:active{background:rgba(255,255,255,.16)}
+  .detail-nav span{font-size:10px;color:rgba(255,255,255,.35)}
+  .detail-rank{font-size:10px;color:rgba(201,169,110,.8);margin-top:.1rem}
   .detail-desc em{color:rgba(201,169,110,.9);font-style:normal;font-weight:500}
 
   /* ── TOTAL ── */
@@ -104,6 +123,15 @@
   }
   @keyframes blink{0%,100%{opacity:.3}50%{opacity:.7}}
 
+  .toast{position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:rgba(255,255,255,.95);color:#2d1f1a;font-size:12.5px;font-weight:500;padding:.6rem 1.1rem;border-radius:50px;opacity:0;pointer-events:none;transition:all .3s;z-index:2000;max-width:calc(100vw - 2rem);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media (max-width:360px){
+    .page{padding-left:1rem;padding-right:1rem}
+    .back-link{left:1rem}
+    .pill{padding:.32rem .7rem}
+    .detail-card{padding:1.2rem 1.1rem}
+  }
+  @media (prefers-reduced-motion:reduce){.star-bg{animation:none}}
   /* Confetti */
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
@@ -112,6 +140,7 @@
 <body>
 
 <div id="starfield"></div>
+<a href="index.html" class="back-link">← Menu utama</a>
 
 <div class="page">
   <div class="header">
@@ -121,10 +150,14 @@
   </div>
 
   <div class="dna-wrap">
-    <canvas id="dna-canvas"></canvas>
+    <canvas id="dna-canvas" aria-label="Untai DNA, tap buat pilih elemen"></canvas>
+    <span class="dna-label" id="dna-label"></span>
   </div>
 
-  <p class="tap-hint">👆 Tap salah satu elemen di bawah</p>
+  <p class="tap-hint" id="tap-hint">👆 Tap salah satu elemen di bawah</p>
+
+  <div class="comp" id="comp"></div>
+  <div class="comp-meta"><span>Komposisi 100%</span><span>Udah dilihat <b id="seen-count">0</b>/12</span></div>
 
   <div class="pills-wrap" id="pills-wrap"></div>
 
@@ -134,6 +167,7 @@
       <div>
         <p class="detail-name" id="d-name"></p>
         <p class="detail-pct" id="d-pct"></p>
+        <p class="detail-rank" id="d-rank"></p>
       </div>
     </div>
     <div class="detail-bar-wrap">
@@ -142,13 +176,19 @@
       </div>
     </div>
     <p class="detail-desc" id="d-desc"></p>
+    <div class="detail-nav">
+      <button onclick="step(-1)">‹ Sebelumnya</button>
+      <span id="d-pos"></span>
+      <button onclick="step(1)">Berikutnya ›</button>
+    </div>
   </div>
 
   <div class="total-card">
     <span class="total-label">Total elemen</span>
-    <span class="total-val">12 komponen · 100% kita</span>
+    <span class="total-val" id="total-val">12 komponen · 100% kita</span>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
 // ── DNA COMPONENTS ──
@@ -254,101 +294,94 @@ for(let i=0;i<80;i++){
 // ── DNA ANIMATION ──
 const canvas=document.getElementById('dna-canvas');
 const ctx=canvas.getContext('2d');
-let frame=0;
-let W,H;
+let W=0,H=0,DPR=1;
+let phaseT=0, lastT=0, raf=0;
+let selectedIdx=null;
+const SEGMENTS=48;
+const RGB=DNA.map(d=>hexToRgb(d.color));
+
+// bagi segmen sesuai persentase (min 1 segmen per elemen) → warna untai = komposisi asli
+const SEG_OWNER=(function(){
+  const n=DNA.length, extra=SEGMENTS-n;
+  const raw=DNA.map(d=>d.pct/100*extra);
+  const cnt=raw.map(Math.floor);
+  let left=extra-cnt.reduce((a,b)=>a+b,0);
+  raw.map((r,i)=>[r-Math.floor(r),i]).sort((x,y)=>y[0]-x[0]).slice(0,left).forEach(([,i])=>cnt[i]++);
+  const out=[];cnt.forEach((c,i)=>{for(let k=0;k<c+1;k++) out.push(i)});
+  return out;
+})();
 
 function resizeCanvas(){
   const wrap=canvas.parentElement;
-  W=canvas.width=wrap.offsetWidth;
-  H=canvas.height=wrap.offsetHeight;
+  DPR=Math.min(window.devicePixelRatio||1,2.5);
+  W=wrap.clientWidth;H=wrap.clientHeight;
+  canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
 }
 resizeCanvas();
 window.addEventListener('resize',resizeCanvas);
 
-function drawDNA(){
+function drawDNA(now){
+  const dt=lastT?Math.min(.1,(now-lastT)/1000):0;lastT=now;
+  phaseT+=dt*1.08;   // ≈ kecepatan lama di 60fps, tapi sama di semua layar
   ctx.clearRect(0,0,W,H);
 
   const cx=W/2;
-  const segments=40;
-  const segH=H/segments;
+  const segH=H/SEGMENTS;
   const amp=clamp(W*.22,40,80);
-  const speed=.018;
+  const sel=selectedIdx;
 
-  for(let i=0;i<segments;i++){
+  const pts=[];
+  for(let i=0;i<SEGMENTS;i++){
     const y=i*segH+segH/2;
-    const phase=i*(Math.PI*2/segments);
-    const wave=Math.sin(phase+frame*speed);
+    const wave=Math.sin(i*(Math.PI*2/SEGMENTS)+phaseT);
+    pts.push({y,x1:cx+amp*wave,x2:cx-amp*wave,wave,o:SEG_OWNER[i]});
+  }
 
-    const x1=cx+amp*wave;
-    const x2=cx-amp*wave;
-
-    // Pick color from DNA array based on segment
-    const colorIdx=Math.floor((i/segments)*DNA.length);
-    const c=hexToRgb(DNA[colorIdx].color);
-
-    const alpha=.6+.4*Math.abs(wave);
-
-    // Left strand dot
-    ctx.beginPath();
-    ctx.arc(x1,y,3.5,0,Math.PI*2);
-    ctx.fillStyle=`rgba(${c},${alpha})`;
-    ctx.fill();
-
-    // Right strand dot
-    ctx.beginPath();
-    ctx.arc(x2,y,3.5,0,Math.PI*2);
-    ctx.fillStyle=`rgba(${c},${alpha})`;
-    ctx.fill();
-
-    // Crossbar (rung) every ~3 segments
-    if(i%3===0){
-      const rungAlpha=.15+.25*Math.abs(wave);
-      ctx.beginPath();
-      ctx.moveTo(x1,y);
-      ctx.lineTo(x2,y);
-      ctx.strokeStyle=`rgba(${c},${rungAlpha})`;
-      ctx.lineWidth=1.5;
+  // Strand lines (per segmen, warnanya ngikut elemen)
+  for(const side of ['x1','x2']){
+    for(let i=1;i<SEGMENTS;i++){
+      const p=pts[i-1],q=pts[i];
+      const dim=sel!==null&&q.o!==sel;
+      ctx.beginPath();ctx.moveTo(p[side],p.y);ctx.lineTo(q[side],q.y);
+      ctx.strokeStyle=`rgba(${RGB[q.o]},${dim?.18:.7})`;
+      ctx.lineWidth=sel!==null&&!dim?3:2;ctx.lineCap='round';
       ctx.stroke();
-
-      // Rung center dot
-      const cx2=(x1+x2)/2;
-      ctx.beginPath();
-      ctx.arc(cx2,y,2,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${c},${rungAlpha*2})`;
-      ctx.fill();
     }
   }
 
-  // Strand lines
-  ctx.beginPath();
-  for(let i=0;i<segments;i++){
-    const y=i*segH+segH/2;
-    const wave=Math.sin(i*(Math.PI*2/segments)+frame*speed);
-    const x=cx+amp*wave;
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  }
-  const grad1=ctx.createLinearGradient(0,0,0,H);
-  DNA.forEach((d,i)=>{ grad1.addColorStop(i/(DNA.length-1),d.color+'aa'); });
-  ctx.strokeStyle=grad1;
-  ctx.lineWidth=2;
-  ctx.lineJoin='round';
-  ctx.stroke();
+  for(let i=0;i<SEGMENTS;i++){
+    const {y,x1,x2,wave,o}=pts[i];
+    const c=RGB[o];
+    const on=sel===null||o===sel;
+    const alpha=(.6+.4*Math.abs(wave))*(on?1:.28);
+    const r=sel!==null&&o===sel?4.6:3.5;
 
-  ctx.beginPath();
-  for(let i=0;i<segments;i++){
-    const y=i*segH+segH/2;
-    const wave=Math.sin(i*(Math.PI*2/segments)+frame*speed);
-    const x=cx-amp*wave;
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    if(i%3===0||(sel!==null&&o===sel)){
+      const rungAlpha=(.15+.25*Math.abs(wave))*(on?1:.4)*(sel!==null&&o===sel?1.8:1);
+      ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);
+      ctx.strokeStyle=`rgba(${c},${rungAlpha})`;ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.arc((x1+x2)/2,y,2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${c},${Math.min(1,rungAlpha*2)})`;ctx.fill();
+    }
+    if(sel!==null&&o===sel){ctx.shadowColor=`rgba(${c},.9)`;ctx.shadowBlur=10}
+    ctx.beginPath();ctx.arc(x1,y,r,0,Math.PI*2);ctx.fillStyle=`rgba(${c},${alpha})`;ctx.fill();
+    ctx.beginPath();ctx.arc(x2,y,r,0,Math.PI*2);ctx.fillStyle=`rgba(${c},${alpha})`;ctx.fill();
+    ctx.shadowBlur=0;
   }
-  ctx.strokeStyle=grad1;
-  ctx.lineWidth=2;
-  ctx.stroke();
-
-  frame++;
-  requestAnimationFrame(drawDNA);
+  raf=requestAnimationFrame(drawDNA);
 }
-drawDNA();
+function startAnim(){cancelAnimationFrame(raf);lastT=0;raf=requestAnimationFrame(drawDNA)}
+document.addEventListener('visibilitychange',()=>{if(document.hidden) cancelAnimationFrame(raf); else startAnim()});
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){ /* tetep jalan tapi pelan */ }
+startAnim();
+
+// tap untai → pilih elemen di bagian itu
+canvas.addEventListener('click',e=>{
+  const r=canvas.getBoundingClientRect();
+  const i=Math.max(0,Math.min(SEGMENTS-1,Math.floor((e.clientY-r.top)/r.height*SEGMENTS)));
+  showDetail(SEG_OWNER[i]);
+});
 
 function hexToRgb(hex){
   const r=parseInt(hex.slice(1,3),16);
@@ -359,34 +392,59 @@ function hexToRgb(hex){
 
 function clamp(v,mn,mx){return Math.min(Math.max(v,mn),mx)}
 
-// ── PILLS ──
-let selectedIdx = null;
+// ── SEEN (kesimpen) ──
+const K_SEEN='dna-hubungan-seen', K_ALL='dna-hubungan-all';
+let seen=new Set();
+try{seen=new Set((JSON.parse(localStorage.getItem(K_SEEN))||[]).filter(i=>DNA[i]))}catch(e){}
+function saveSeen(){try{localStorage.setItem(K_SEEN,JSON.stringify([...seen]))}catch(e){}}
+
+// ── PILLS + BAR KOMPOSISI ──
 const pillsWrap=document.getElementById('pills-wrap');
+const comp=document.getElementById('comp');
 
 DNA.forEach((d,i)=>{
-  const pill=document.createElement('div');
-  pill.className='pill';
+  const pill=document.createElement('button');
+  pill.className='pill'+(seen.has(i)?' seen':'');
+  pill.id='pill-'+i;
   pill.style.animationDelay=`${i*.05}s`;
+  pill.style.setProperty('--pc',d.color+'88');
   pill.innerHTML=`
     <div class="pill-dot" style="background:${d.color}"></div>
     <span class="pill-label">${d.emoji} ${d.name}</span>
     <span class="pill-pct">${d.pct}%</span>
   `;
-  pill.addEventListener('click',()=>showDetail(i,pill));
+  pill.addEventListener('click',()=>showDetail(i));
   pillsWrap.appendChild(pill);
-});
 
-function showDetail(idx, pillEl){
-  // Deselect all
+  const seg=document.createElement('button');
+  seg.style.cssText=`flex:${d.pct} 0 0;background:${d.color}`;
+  seg.setAttribute('aria-label',`${d.name} ${d.pct}%`);
+  seg.addEventListener('click',()=>showDetail(i));
+  comp.appendChild(seg);
+});
+updateSeen();
+
+const RANK=DNA.map((d,i)=>i).sort((a,b)=>DNA[b].pct-DNA[a].pct);
+
+function showDetail(idx){
+  selectedIdx=idx;
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('selected'));
-  pillEl.classList.add('selected');
+  const pillEl=document.getElementById('pill-'+idx);
+  if(pillEl) pillEl.classList.add('selected');
+  comp.classList.add('has-sel');
+  [...comp.children].forEach((s,i)=>s.classList.toggle('on',i===idx));
 
   const d=DNA[idx];
   document.getElementById('d-icon').style.background=d.color+'22';
   document.getElementById('d-icon').textContent=d.emoji;
   document.getElementById('d-name').textContent=d.name;
   document.getElementById('d-pct').textContent=`${d.pct}% dari hubungan kita`;
+  const rk=RANK.indexOf(idx)+1;
+  document.getElementById('d-rank').textContent=d.pct===1?'Kecil, tapi tetep bagian dari kita ✨':`Peringkat #${rk} dari 12`;
   document.getElementById('d-desc').innerHTML=d.desc;
+  document.getElementById('d-pos').textContent=`${idx+1} / ${DNA.length}`;
+  document.getElementById('dna-label').textContent=`${d.emoji} ${d.name} · ${d.pct}%`;
+  document.getElementById('tap-hint').textContent='👆 Tap untai DNA atau elemen lain';
 
   const bar=document.getElementById('d-bar');
   bar.style.background=d.color;
@@ -400,7 +458,33 @@ function showDetail(idx, pillEl){
 
   card.scrollIntoView({behavior:'smooth',block:'nearest'});
 
-  if(d.pct>=15) confetti();
+  const wasNew=!seen.has(idx);
+  seen.add(idx);saveSeen();
+  if(pillEl) pillEl.classList.add('seen');
+  updateSeen();
+
+  if(d.pct>=15&&wasNew) confetti();
+  if(wasNew&&seen.size===DNA.length){
+    let shown=false;try{shown=localStorage.getItem(K_ALL)==='1';localStorage.setItem(K_ALL,'1')}catch(e){}
+    if(!shown){setTimeout(()=>{confetti();toast('🧬 Kamu udah lihat semua 12 elemen DNA kita')},500)}
+  }
+}
+function step(d){
+  const n=DNA.length;
+  showDetail(((selectedIdx??-1)+d+n)%n);
+}
+function updateSeen(){
+  document.getElementById('seen-count').textContent=seen.size;
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') step(1);
+  else if(e.key==='ArrowLeft') step(-1);
+});
+
+let toastT;
+function toast(m){
+  const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2600);
 }
 
 function confetti(){
@@ -411,6 +495,48 @@ function confetti(){
     document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
   },i*25);
 }
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
