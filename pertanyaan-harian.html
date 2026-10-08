@@ -177,7 +177,7 @@
 /* ═══ PENGATURAN ═══
    Pasang pertanyaan-harian.gs di script.google.com (akun razara.my.id@gmail.com), Deploy → Web app
    (Execute as: Me, Who has access: Anyone), terus tempel URL /exec-nya di sini. */
-const QA_URL = '';
+const QA_URL = 'https://script.google.com/macros/s/AKfycbzLJHmyZ7rM00fAM1TgbfAv56ZlFoACgg55smSqiQriwFYGSEvIMI6gYConPvUR4jXC/exec';
 const QA_KEY = 'razara-tanya';           // harus sama dengan KEY di pertanyaan-harian.gs
 const WA_RAZAN = '6285692740607';
 const START = '2026-10-08';              // pertanyaan #1 keluar di tanggal ini
@@ -298,14 +298,14 @@ function fmt(s, withDay) { const d = parseYMD(s); return d ? `${withDay ? HARI[d
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 const other = w => w === 'Razan' ? 'Dara' : 'Razan';
 
-const K_ME = 'qa-me', K_CACHE = 'qa-cache', K_DRAFT = 'qa-draft';
+const K_ME = 'qa-me', K_CACHE = 'qa-cache', K_DRAFT = 'qa-draft', K_QUEUE = 'qa-queue';
 let me = lsGet(K_ME, null);
 let data = lsGet(K_CACHE, null);        // {who, today, days:[...]}
 let loading = false, online = false;
 let shown = 10;
 let justRevealed = null;
 
-function todayStr() { return (online && data && data.today) || ymd(new Date()); }
+function todayStr() { const dev = ymd(new Date()); if (online && data && data.today) return data.today; return data && data.today && data.today > dev ? data.today : dev; }
 function dayData(s) { return (data && data.days || []).find(d => d.date === s) || { date: s, mine: null, partner: null }; }
 
 /* ── server ── */
@@ -326,6 +326,7 @@ async function load() {
   try {
     const r = await api('GET');
     data = { who: me, today: r.today, days: r.days || [] };
+    applyQueue();
     lsSet(K_CACHE, data);
     online = true;
   } catch (e) { online = false; }
@@ -379,7 +380,8 @@ function render() {
 function bubble(who, ans, opts = {}) {
   const t = ans && ans.ts ? new Date(ans.ts) : null;
   const time = t ? ` · ${String(t.getHours()).padStart(2, '0')}.${String(t.getMinutes()).padStart(2, '0')}` : '';
-  return `<div class="bubble ${who}${opts.reveal ? ' reveal' : ''}"><small>${who === me ? 'Kamu' : who}${time}</small>${esc(ans.text)}${opts.edit ? `<button class="edit" onclick="editToday()">ubah</button>` : ''}</div>`;
+  const pend = ans && ans.pending ? ' · ⏳ ngirim…' : '';
+  return `<div class="bubble ${who}${opts.reveal ? ' reveal' : ''}"><small>${who === me ? 'Kamu' : who}${time}${pend}</small>${esc(ans.text)}${opts.edit ? `<button class="edit" onclick="editToday()">ubah</button>` : ''}</div>`;
 }
 let editing = false;
 function renderToday() {
@@ -399,6 +401,7 @@ function renderToday() {
   } else {
     h += bubble(me, d.mine, { edit: true });
     if (d.partner && !d.partner.hidden) h += bubble(o, d.partner, { reveal: justRevealed === s });
+    else if (d.partner && d.partner.hidden) h += `<div class="bubble secret">🔓 ${o} udah jawab — kebuka begitu jawaban kamu kekirim</div>`;
     else h += `<div class="bubble wait">⏳ ${o} belum jawab.${me === 'Dara' ? `<br><a class="nudge" target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku udah jawab pertanyaan hari ini 💬 Giliran kamu! "${q.text}"`)}">💬 Colek Razan lewat WA</a>` : '<br>Nanti jawabannya muncul di sini 🤍'}</div>`;
   }
   h += `</div>`;
@@ -421,7 +424,7 @@ function renderHist() {
     let h = `<div class="h-item"><div class="h-top"><span class="h-date">#${q.num} · ${fmt(s, true)}</span>${both ? '<span class="h-badge both">💞 berdua</span>' : (d.mine || d.partner) ? '<span class="h-badge half">setengah</span>' : ''}</div><p class="h-q">${esc(q.text)}</p>`;
     if (d.mine) {
       h += bubble(me, d.mine);
-      h += d.partner && !d.partner.hidden ? bubble(o, d.partner) : `<div class="bubble wait">${o} ga jawab yang ini</div>`;
+      h += d.partner && !d.partner.hidden ? bubble(o, d.partner) : d.partner ? `<div class="bubble secret">🔓 kebuka begitu jawaban kamu kekirim</div>` : `<div class="bubble wait">${o} ga jawab yang ini</div>`;
     } else {
       h += d.partner ? `<div class="bubble secret">🔒 ${o} udah jawab — jawab dulu buat ngintip</div>` : '';
       h += `<button class="h-ans-btn" onclick="openAns('${s}')">✍️ Jawab nyusul</button>`;
@@ -432,32 +435,60 @@ function renderHist() {
 }
 function showMore() { shown += 10; renderHist(); }
 
-/* ── kirim ── */
-async function post(date, text) {
-  await api('POST', { action: 'answer', who: me, date, text });
+/* ── kirim (kayak Keuangan: langsung tampil, dikirim di belakang layar, antre kalau ga ada sinyal) ── */
+function getQueue() { return lsGet(K_QUEUE, []) || []; }
+function setLocalAnswer(date, text) {
+  data = data || { who: me, today: null, days: [] };
+  let d = data.days.find(x => x.date === date);
+  if (!d) { d = { date, mine: null, partner: null }; data.days.push(d); data.days.sort((a, b) => a.date < b.date ? -1 : 1); }
+  d.mine = { text, ts: Date.now(), pending: true };
+  lsSet(K_CACHE, data);
 }
-async function sendToday() {
+function applyQueue() { getQueue().filter(x => x.who === me).forEach(x => setLocalAnswer(x.date, x.text)); }
+function enqueue(date, text) {
+  const q = getQueue().filter(x => !(x.date === date && x.who === me));
+  q.push({ date, who: me, text }); lsSet(K_QUEUE, q);
+}
+let flushing = false;
+async function flush() {
+  if (flushing || !QA_URL) return 0;
+  flushing = true; let sent = 0;
+  try {
+    while (getQueue().length) {
+      const it = getQueue()[0];
+      try { await api('POST', Object.assign({ action: 'answer' }, it)); }
+      catch (e) {
+        if (e.code === 'data' || e.code === 'tanggal') { lsSet(K_QUEUE, getQueue().slice(1)); continue; }   // ga mungkin kekirim → buang
+        break;                                                                                                  // ga ada sinyal → coba lagi nanti
+      }
+      lsSet(K_QUEUE, getQueue().slice(1)); sent++;
+    }
+  } finally { flushing = false; }
+  if (sent) await load();
+  return sent;
+}
+function answer(date, text, wasEdit) {
+  const hadHiddenPartner = !!(dayData(date).partner && dayData(date).partner.hidden);
+  setLocalAnswer(date, text); enqueue(date, text);
+  try { navigator.vibrate && navigator.vibrate([15, 40, 25]); } catch (e) {}
+  render();
+  flush().then(() => {
+    if (getQueue().some(x => x.date === date && x.who === me)) { toast('📶 Lagi ga ada sinyal — jawaban kamu kesimpen & otomatis kekirim nanti', 3500); return; }
+    const d = dayData(date);
+    if (wasEdit) { toast('✏️ Jawaban diubah'); return; }
+    if (d.partner && !d.partner.hidden) {
+      if (hadHiddenPartner || date === todayStr()) { justRevealed = date; render(); }
+      toast(`💞 Jawaban ${other(me)} kebuka!`);
+    } else if (me === 'Dara' && date === todayStr()) toast(`✓ Kekirim! <a target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku udah jawab pertanyaan hari ini 💬 Giliran kamu!`)}">Colek Razan</a>`, 5000);
+    else toast('✓ Kekirim!');
+  });
+}
+function sendToday() {
   const ta = $('ans'); const text = ta.value.trim();
   if (!text) { ta.focus(); toast('Tulis jawabannya dulu ya 🤍'); return; }
-  const s = todayStr(), btn = $('send');
-  btn.disabled = true; btn.textContent = '⏳ Ngirim…';
-  try {
-    await post(s, text);
-  } catch (e) {
-    btn.disabled = false; btn.textContent = editing ? 'Simpan perubahan' : 'Kirim jawaban 💬';
-    toast(e.code === 'tanggal' ? 'Tanggal di HP kayaknya kecepetan 😅' : '⚠️ Gagal ngirim — cek internet (jawaban kamu aman kesimpen)', 3200);
-    return;
-  }
   const wasEdit = editing; editing = false;
   try { localStorage.removeItem(K_DRAFT); } catch (e) {}
-  justRevealed = s;
-  try { navigator.vibrate && navigator.vibrate([15, 40, 25]); } catch (e) {}
-  await load();
-  const d = dayData(s);
-  if (wasEdit) toast('✏️ Jawaban diubah');
-  else if (d.partner && !d.partner.hidden) toast(`💞 Jawaban ${other(me)} kebuka!`);
-  else if (me === 'Dara') toast(`✓ Kekirim! <a target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku udah jawab pertanyaan hari ini 💬 Giliran kamu!`)}">Colek Razan</a>`, 5000);
-  else toast('✓ Kekirim! Tunggu jawaban Dara ya 🤍');
+  answer(todayStr(), text, wasEdit);
 }
 let ansDate = null;
 function openAns(s) {
@@ -469,25 +500,22 @@ function openAns(s) {
 }
 function closeAns() { $('ans-ov').classList.remove('show'); }
 $('as-text').addEventListener('input', () => $('as-count').textContent = `${$('as-text').value.length}/1500`);
-async function sendPast() {
+function sendPast() {
   const text = $('as-text').value.trim();
   if (!text) { $('as-text').focus(); return; }
-  const btn = $('as-send'); btn.disabled = true; btn.textContent = '⏳';
-  try { await post(ansDate, text); }
-  catch (e) { btn.disabled = false; btn.textContent = 'Kirim 💬'; toast('⚠️ Gagal ngirim — cek internet'); return; }
-  btn.disabled = false; btn.textContent = 'Kirim 💬';
-  closeAns(); await load();
-  const d = dayData(ansDate);
-  toast(d.partner && !d.partner.hidden ? `💞 Jawaban ${other(me)} kebuka!` : '✓ Kekirim!');
+  closeAns();
+  answer(ansDate, text, false);
 }
+window.addEventListener('online', () => flush());
 
 let toastT;
 function toast(m, ms) { const t = $('toast'); t.innerHTML = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2400); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAns(); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) flush().then(n => { if (!n) load(); }); });
 
+applyQueue();
 render();
-load();
+flush().then(n => { if (!n) load(); });
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
