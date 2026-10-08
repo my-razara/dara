@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Satu Pertanyaan Sehari — Razan & Dara 💬</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,textarea{font-family:'Poppins',sans-serif}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 50% at 15% 10%,rgba(126,179,245,.16),transparent 70%),
+               radial-gradient(ellipse 60% 50% at 85% 20%,rgba(240,163,154,.2),transparent 70%)}
+  .page{max-width:480px;margin:0 auto;padding:0 1.15rem calc(4rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding-top:calc(.9rem + env(safe-area-inset-top))}
+  .back-link,.me-btn{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .me-btn b{font-weight:600}
+  .me-btn.Razan b{color:var(--rz)} .me-btn.Dara b{color:var(--dr)}
+
+  .hero{text-align:center;padding:1.2rem 0 1rem}
+  .hero-ico{font-size:2.6rem;display:inline-block;animation:bob 3s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .hero-title{font-size:clamp(1.4rem,5.5vw,1.8rem);font-weight:700;line-height:1.15;margin-top:.35rem}
+  .hero-title span{color:var(--rose)}
+  .hero-sub{font-size:12px;color:var(--muted);margin-top:.35rem;line-height:1.6}
+
+  .stats{display:flex;gap:.5rem;margin-bottom:1rem}
+  .stat{flex:1;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:14px;padding:.6rem .5rem;text-align:center}
+  .stat b{display:block;font-size:1.25rem;color:var(--rose);font-weight:700;line-height:1.1}
+  .stat small{display:block;font-size:9.5px;line-height:1.35;margin-top:.2rem;color:var(--muted)}
+
+  .status{font-size:11px;color:var(--muted);text-align:center;margin:-.4rem 0 .8rem;min-height:1em}
+  .status.err{color:#a8473a}
+  .status button{border:none;background:none;color:var(--rose);text-decoration:underline;font-size:11px;cursor:pointer}
+
+  /* ── KARTU HARI INI ── */
+  .qcard{background:#fff;border-radius:22px;border:1px solid rgba(193,122,111,.16);box-shadow:0 10px 32px rgba(193,122,111,.12);padding:1.2rem 1.1rem 1.1rem;position:relative;overflow:hidden}
+  .qcard::before{content:'';position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,var(--rz2),var(--dr2))}
+  .q-meta{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:.5rem}
+  .q-text{font-size:17px;font-weight:600;line-height:1.5;color:var(--ink);margin-bottom:.9rem}
+  .who-row{display:flex;gap:.5rem;margin-bottom:.9rem}
+  .who-pill{flex:1;min-width:0;justify-content:center;display:flex;align-items:center;gap:.35rem;font-size:11.5px;border-radius:50px;padding:.35rem .7rem;background:var(--cream);color:var(--muted);white-space:nowrap}
+  .who-pill.done.Razan{background:rgba(74,127,193,.1);color:var(--rz)}
+  .who-pill.done.Dara{background:rgba(217,119,107,.12);color:#c4605a}
+  .who-pill b{font-weight:600}
+
+  .ans-box textarea{width:100%;min-height:110px;border:1.5px solid var(--blush);border-radius:14px;padding:.75rem .85rem;font-size:14px;line-height:1.6;color:var(--ink);background:var(--cream);outline:none;resize:vertical}
+  .ans-box textarea:focus{border-color:var(--rose);background:#fff}
+  .ans-info{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin:.3rem .1rem .7rem}
+  .send{width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 4px 16px rgba(193,122,111,.3)}
+  .send:disabled{opacity:.55}
+  .lock-note{font-size:11px;color:var(--muted);text-align:center;margin-top:.55rem}
+
+  .bubble{border-radius:16px;padding:.75rem .9rem;font-size:13.5px;line-height:1.65;margin-bottom:.55rem;white-space:pre-wrap;overflow-wrap:anywhere;position:relative}
+  .bubble small{display:block;font-size:10px;font-weight:600;letter-spacing:.04em;margin-bottom:.15rem;white-space:normal}
+  .bubble.Razan{background:rgba(74,127,193,.09);border:1px solid rgba(74,127,193,.18)}
+  .bubble.Razan small{color:var(--rz)}
+  .bubble.Dara{background:rgba(217,119,107,.09);border:1px solid rgba(217,119,107,.2)}
+  .bubble.Dara small{color:#c4605a}
+  .bubble.wait{background:var(--cream);border:1px dashed var(--blush);color:var(--muted);font-size:12.5px;text-align:center;white-space:normal}
+  .bubble.secret{background:repeating-linear-gradient(135deg,var(--cream) 0 10px,#f3ebe0 10px 20px);border:1px dashed var(--blush);color:var(--muted);font-size:12.5px;text-align:center;white-space:normal}
+  .bubble .edit{position:absolute;top:.45rem;right:.55rem;border:none;background:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline}
+  .nudge{display:inline-block;margin-top:.4rem;font-size:12px;color:#1f8f4e;text-decoration:none;font-weight:500}
+  .reveal{animation:reveal .6s ease}
+  @keyframes reveal{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+
+  /* ── RIWAYAT ── */
+  .sec{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:500;margin:1.6rem 0 .7rem;display:flex;align-items:center;gap:.5rem}
+  .sec::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+  .hist{display:flex;flex-direction:column;gap:.6rem}
+  .h-item{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.8rem .9rem}
+  .h-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.35rem}
+  .h-date{font-size:10px;color:var(--muted)}
+  .h-badge{font-size:9.5px;font-weight:600;border-radius:50px;padding:.1rem .5rem;white-space:nowrap}
+  .h-badge.both{background:rgba(181,196,177,.35);color:#4a6a46}
+  .h-badge.half{background:var(--warm);color:var(--muted)}
+  .h-q{font-size:13px;font-weight:500;line-height:1.5;margin-bottom:.5rem}
+  .h-item .bubble{font-size:12.5px;padding:.6rem .75rem;margin-bottom:.4rem}
+  .h-ans-btn{border:1.5px solid var(--blush);background:#fff;color:var(--rose);border-radius:50px;padding:.45rem .9rem;font-size:12px;font-weight:500;cursor:pointer}
+  .more-btn{display:block;margin:.8rem auto 0;border:none;background:none;color:var(--rose);font-size:12px;cursor:pointer;text-decoration:underline}
+  .empty{text-align:center;padding:1.4rem 1rem;background:rgba(255,255,255,.65);border:1px dashed var(--blush);border-radius:18px;font-size:12.5px;color:var(--muted);line-height:1.75}
+
+  /* ── PILIH SIAPA ── */
+  .ov{display:none;position:fixed;inset:0;z-index:100;background:rgba(45,31,26,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1.2rem}
+  .ov.show{display:flex}
+  .pick{background:var(--cream);border-radius:24px;padding:1.5rem 1.25rem;width:100%;max-width:360px;text-align:center;animation:reveal .35s ease}
+  .pick h3{font-size:16px;font-weight:600;margin-bottom:.3rem}
+  .pick p{font-size:12px;color:var(--muted);margin-bottom:1.1rem;line-height:1.6}
+  .pick-row{display:flex;gap:.6rem}
+  .pick-row button{flex:1;padding:1rem .5rem;border-radius:18px;border:2px solid transparent;font-size:14px;font-weight:600;cursor:pointer;color:#fff}
+  .pick-row .r{background:linear-gradient(135deg,var(--rz2),var(--rz))}
+  .pick-row .d{background:linear-gradient(135deg,var(--dr2),var(--dr))}
+  .pick-row span{display:block;font-size:1.8rem;margin-bottom:.2rem}
+
+  .ans-ov{align-items:flex-end;padding:0}
+  .ans-sheet{background:var(--cream);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:1.2rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92dvh;overflow-y:auto;animation:su .3s ease}
+  @keyframes su{from{transform:translateY(100%)}to{transform:none}}
+  .ans-sheet .q-meta{margin-bottom:.4rem}
+  .ans-sheet .q-text{font-size:15.5px}
+  .row2{display:flex;gap:.5rem}
+  .row2 button{flex:1}
+  .ghost{padding:.85rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:14px;cursor:pointer}
+
+  .toast{position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:12.5px;padding:.6rem 1.1rem;border-radius:50px;opacity:0;pointer-events:none;transition:all .3s;z-index:300;max-width:calc(100vw - 2rem);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .toast a{color:#f0c8b8;font-weight:600;margin-left:.3rem}
+
+  @media (max-width:360px){
+    .page{padding-left:.95rem;padding-right:.95rem}
+    .q-text{font-size:15.5px}
+    .who-pill{font-size:10.5px;padding:.3rem .55rem}
+    .stat small{font-size:9px}
+  }
+  @media (prefers-reduced-motion:reduce){.hero-ico{animation:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a href="index.html" class="back-link">← Menu utama</a>
+    <button class="me-btn" id="me-btn" onclick="openPick()">Kamu: <b id="me-name">?</b> ✎</button>
+  </div>
+
+  <div class="hero">
+    <span class="hero-ico">💬</span>
+    <h1 class="hero-title">Satu Pertanyaan <span>Sehari</span></h1>
+    <p class="hero-sub">Jawab dulu, baru bisa liat jawaban dia 👀</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="st-streak">0</b><small>🔥 hari beruntun</small></div>
+    <div class="stat"><b id="st-both">0</b><small>💞 jawab berdua</small></div>
+    <div class="stat"><b id="st-mine">0</b><small>✍️ jawabanmu</small></div>
+  </div>
+  <p class="status" id="status"></p>
+
+  <div id="today"></div>
+
+  <p class="sec">📚 Pertanyaan sebelumnya</p>
+  <div class="hist" id="hist"></div>
+  <button class="more-btn" id="more-btn" onclick="showMore()" style="display:none">Lihat lebih banyak</button>
+</div>
+
+<!-- pilih siapa -->
+<div class="ov" id="pick-ov">
+  <div class="pick" role="dialog" aria-modal="true">
+    <h3>Ini HP siapa? 😊</h3>
+    <p>Biar jawabannya kecatet atas nama yang bener. Bisa diganti kapan aja dari tombol di pojok kanan atas.</p>
+    <div class="pick-row">
+      <button class="d" onclick="setMe('Dara')"><span>🙋‍♀️</span>Aku Dara</button>
+      <button class="r" onclick="setMe('Razan')"><span>🙋‍♂️</span>Aku Razan</button>
+    </div>
+  </div>
+</div>
+
+<!-- jawab pertanyaan lama -->
+<div class="ov ans-ov" id="ans-ov" onclick="if(event.target===this)closeAns()">
+  <div class="ans-sheet" role="dialog" aria-modal="true">
+    <div class="q-meta"><span id="as-num"></span><span id="as-date"></span></div>
+    <p class="q-text" id="as-q"></p>
+    <div class="ans-box"><textarea id="as-text" maxlength="1500" placeholder="Tulis jawaban kamu…"></textarea>
+      <div class="ans-info"><span>Jawaban dia kebuka setelah kamu kirim</span><span id="as-count">0/1500</span></div></div>
+    <div class="row2"><button class="ghost" onclick="closeAns()">Batal</button><button class="send" id="as-send" onclick="sendPast()">Kirim 💬</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ PENGATURAN ═══
+   Pasang pertanyaan-harian.gs di script.google.com (akun razara.my.id@gmail.com), Deploy → Web app
+   (Execute as: Me, Who has access: Anyone), terus tempel URL /exec-nya di sini. */
+const QA_URL = '';
+const QA_KEY = 'razara-tanya';           // harus sama dengan KEY di pertanyaan-harian.gs
+const WA_RAZAN = '6285692740607';
+const START = '2026-10-08';              // pertanyaan #1 keluar di tanggal ini
+
+const QUESTIONS = [
+  'Hal kecil apa yang bikin kamu senyum hari ini?',
+  'Kalau kita bisa liburan berdua besok, kamu mau ke mana?',
+  'Momen apa dari kita yang paling sering kamu inget?',
+  'Makanan apa yang pengen kamu makan bareng aku minggu ini?',
+  'Lagu apa yang lagi sering kamu dengerin sekarang?',
+  'Apa satu hal yang kamu pengen aku lebih sering lakuin?',
+  'Kalau hari ini dijadiin judul film, judulnya apa?',
+  'Apa yang pertama kali kamu notice dari aku?',
+  'Satu hal yang lagi kamu khawatirin akhir-akhir ini?',
+  'Kalau kamu bisa punya satu kekuatan super, mau yang mana?',
+  'Kapan terakhir kali kamu ngerasa bangga sama diri sendiri?',
+  'Tempat makan favorit kita berdua yang mana?',
+  'Apa kebiasaan aku yang paling bikin kamu gemes?',
+  'Kalau kita punya rumah nanti, ruangan apa yang paling pengen kamu desain?',
+  'Hal apa yang bikin kamu ngerasa disayang?',
+  'Film atau series apa yang pengen kamu tonton bareng?',
+  'Kalau bisa balik ke satu hari bareng aku, hari yang mana?',
+  'Apa mimpi kamu yang belum pernah kamu ceritain ke siapa-siapa?',
+  'Emoji apa yang paling ngegambarin kamu hari ini?',
+  'Apa hal paling lucu yang pernah terjadi waktu kita bareng?',
+  'Kalau kita tukeran badan sehari, kamu mau ngapain?',
+  'Kamu lebih suka kencan di rumah atau keluar?',
+  'Satu kata buat ngegambarin hubungan kita?',
+  'Apa yang lagi kamu syukuri minggu ini?',
+  'Kebiasaan kecil apa yang pengen kamu mulai?',
+  'Siapa yang lebih sering ngambek, kamu atau aku? Jujur 😆',
+  'Apa cara terbaik buat ngehibur kamu pas lagi sedih?',
+  'Kalau kita bikin tradisi tahunan berdua, tradisinya apa?',
+  'Masakan apa yang pengen kamu bisa masak bareng?',
+  'Apa yang bikin kamu yakin sama aku?',
+  'Hal apa yang pengen kamu pelajari tahun ini?',
+  'Kalau kamu jadi hewan, kamu hewan apa?',
+  'Momen paling deg-degan waktu awal kita kenal?',
+  'Apa satu hal yang pengen kamu bilang ke diri kamu 5 tahun lalu?',
+  'Jajanan apa yang ga pernah bikin kamu bosen?',
+  'Bahasa cinta kamu yang mana: kata-kata, waktu bareng, hadiah, perhatian, atau sentuhan?',
+  'Kalau kita punya band, namanya apa?',
+  'Apa yang bikin hari kamu jadi hari yang baik?',
+  'Tempat mana yang pengen kamu datengin bareng aku?',
+  'Apa sifat aku yang paling kamu suka?',
+  'Apa yang pengen kamu capai sebelum ulang tahun berikutnya?',
+  'Kalau dikasih uang 1 juta dan harus habis hari ini, buat apa?',
+  'Kapan kamu ngerasa paling deket sama aku?',
+  'Hal apa yang bikin kamu gampang ketawa?',
+  'Kalau bisa ngobrol sama siapa aja di dunia, mau sama siapa?',
+  'Apa kenangan masa kecil favorit kamu?',
+  'Satu hal yang pengen kita coba bareng tahun depan?',
+  'Apa yang biasanya kamu pikirin sebelum tidur?',
+  'Warna apa yang paling ngegambarin perasaan kamu hari ini?',
+  'Apa yang paling kamu kangenin dari aku pas kita jauh?',
+  'Kalau hidup kamu ada soundtrack-nya, lagu pembukanya apa?',
+  'Hal apa yang pengen kamu lebih sering denger dari aku?',
+  'Kalau kita bisa tinggal di negara lain setahun, mau ke mana?',
+  'Apa kebiasaan kamu yang mungkin aku belum tau?',
+  'Gimana gambaran hari Minggu yang sempurna menurut kamu?',
+  'Apa hal yang dulu kamu takutin tapi sekarang udah engga?',
+  'Kalau kita jadi karakter kartun, kita jadi siapa?',
+  'Kapan terakhir kali kamu nangis karena seneng?',
+  'Apa yang bikin kamu ngerasa aman sama seseorang?',
+  'Satu hal yang pengen kamu ubah dari rutinitas kamu?',
+  'Kalau besok libur seharian, kamu mau ngapain bareng aku?',
+  'Apa hal yang paling kamu banggain dari hubungan kita?',
+  'Minuman favorit kamu sekarang apa?',
+  'Kalau bisa ngulang satu momen awal kita, kamu mau ngubah apa?',
+  'Apa yang pengen kamu lakuin buat diri sendiri minggu ini?',
+  'Siapa orang yang paling berpengaruh di hidup kamu?',
+  'Apa hadiah paling berkesan yang pernah kamu terima?',
+  'Kalau kita bikin bucket list berdua, 3 hal pertamanya apa?',
+  'Hal kecil apa dari aku yang bikin kamu ngerasa dihargai?',
+  'Kamu tim pagi atau tim malem?',
+  'Apa yang paling bikin kamu capek akhir-akhir ini?',
+  'Kalau kamu nulis buku, judulnya apa?',
+  'Apa yang pengen kamu denger kalau lagi ngerasa ga cukup?',
+  'Kita pertama kali ngobrol tentang apa, kamu inget?',
+  'Apa satu hal yang pengen kamu bilang tapi suka ketahan?',
+  'Kalau kamu cuma boleh makan satu makanan selamanya, makanan apa?',
+  'Apa arti rumah buat kamu?',
+  'Gimana cara kamu nunjukin sayang ke orang lain?',
+  'Apa yang pengen kamu inget dari tahun ini?',
+  'Kalau kita punya peliharaan, mau hewan apa dan namanya siapa?',
+  'Apa pujian paling berkesan yang pernah kamu dapet?',
+  'Kapan kamu ngerasa paling jadi diri sendiri?',
+  'Hal apa yang pengen kamu coba tapi belum berani?',
+  'Apa satu hal tentang aku yang bikin kamu penasaran?',
+  'Kalau kamu bisa ngirim pesan ke diri kamu 10 tahun lagi, isinya apa?',
+  'Apa yang bikin kamu ngerasa tenang?',
+  'Kalau kita jalan-jalan tanpa rencana, kamu mau diajak ke mana?',
+  'Lagu apa yang ngingetin kamu sama aku?',
+  'Apa satu nilai hidup yang pengen kamu pegang terus?',
+  'Cara baikan yang paling kamu suka gimana?',
+  'Apa rencana kecil kamu buat minggu depan?',
+  'Kalau bisa tinggal di satu suasana selamanya — hujan, cerah, atau mendung — pilih yang mana?',
+  'Apa yang pertama kali kamu lakuin pas bangun tidur?',
+  'Hal apa yang bikin kamu ngerasa beruntung punya aku?',
+  'Kalau ada film tentang kita, siapa yang cocok meranin kamu?',
+  'Apa satu hal yang pengen kamu maafin dari diri sendiri?',
+  'Kebiasaan apa dari keluarga kamu yang pengen kamu bawa nanti?',
+  'Apa yang paling kamu tunggu-tunggu bulan ini?',
+  'Kalau aku lagi bad mood, apa yang biasanya kamu lakuin?',
+  'Satu hal yang pengen kamu bilang ke aku hari ini?',
+];
+
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+function dayNum(s) { return Math.round((parseYMD(s) - parseYMD(START)) / 864e5); }
+function qOf(s) { const n = dayNum(s); const i = ((n % QUESTIONS.length) + QUESTIONS.length) % QUESTIONS.length; return { num: n + 1, text: QUESTIONS[i] }; }
+function fmt(s, withDay) { const d = parseYMD(s); return d ? `${withDay ? HARI[d.getDay()] + ', ' : ''}${d.getDate()} ${BULAN[d.getMonth()]}${d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : ''}` : ''; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+const other = w => w === 'Razan' ? 'Dara' : 'Razan';
+
+const K_ME = 'qa-me', K_CACHE = 'qa-cache', K_DRAFT = 'qa-draft';
+let me = lsGet(K_ME, null);
+let data = lsGet(K_CACHE, null);        // {who, today, days:[...]}
+let loading = false, online = false;
+let shown = 10;
+let justRevealed = null;
+
+function todayStr() { return (online && data && data.today) || ymd(new Date()); }
+function dayData(s) { return (data && data.days || []).find(d => d.date === s) || { date: s, mine: null, partner: null }; }
+
+/* ── server ── */
+function api(method, body) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    const url = QA_URL + (method === 'GET' ? `?action=list&key=${encodeURIComponent(QA_KEY)}&who=${encodeURIComponent(me)}&t=${Date.now()}` : '');
+    x.open(method, url, true); x.timeout = 20000;
+    if (method === 'POST') x.setRequestHeader('Content-Type', 'text/plain');
+    x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(Object.assign(new Error(r.error || 'gagal'), { code: r.error })); } catch (e) { rej(e); } };
+    x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+    x.send(method === 'POST' ? JSON.stringify(Object.assign({ key: QA_KEY }, body)) : null);
+  });
+}
+async function load() {
+  if (!QA_URL || !me) { render(); return; }
+  loading = true; renderStatus();
+  try {
+    const r = await api('GET');
+    data = { who: me, today: r.today, days: r.days || [] };
+    lsSet(K_CACHE, data);
+    online = true;
+  } catch (e) { online = false; }
+  loading = false;
+  render();
+}
+
+/* ── siapa ── */
+function openPick() { $('pick-ov').classList.add('show'); }
+function setMe(w) {
+  const changed = me !== w;
+  me = w; lsSet(K_ME, w);
+  $('pick-ov').classList.remove('show');
+  if (changed) { data = null; lsSet(K_CACHE, null); }
+  render(); load();
+}
+
+/* ── tampilan ── */
+function renderStatus() {
+  const st = $('status');
+  if (!QA_URL) { st.className = 'status'; st.textContent = ''; return; }
+  if (loading) { st.className = 'status'; st.textContent = data ? '' : '⏳ Ngambil pertanyaan…'; return; }
+  if (!online) { st.className = 'status err'; st.innerHTML = `⚠️ Belum nyambung${data ? ' — yang tampil data terakhir di HP ini' : ''}. <button onclick="load()">Coba lagi</button>`; return; }
+  st.textContent = '';
+}
+function stats() {
+  const days = (data && data.days) || [];
+  const both = days.filter(d => d.mine && d.partner && !d.partner.hidden);
+  $('st-both').textContent = both.length;
+  $('st-mine').textContent = days.filter(d => d.mine).length;
+  // beruntun: hari berturut-turut (mundur dari hari ini/kemarin) yang dijawab berdua
+  const set = new Set(both.map(d => d.date));
+  const d = parseYMD(todayStr());
+  if (!set.has(ymd(d))) d.setDate(d.getDate() - 1);
+  let n = 0; while (set.has(ymd(d))) { n++; d.setDate(d.getDate() - 1); }
+  $('st-streak').textContent = n;
+}
+function render() {
+  $('me-name').textContent = me || '?';
+  $('me-btn').className = 'me-btn ' + (me || '');
+  renderStatus();
+  if (!QA_URL) {
+    $('today').innerHTML = `<div class="empty">🔧 <b>Satu Pertanyaan Sehari lagi disiapin</b><br>Bentar lagi bisa dipakai ya 🤍</div>`;
+    $('hist').innerHTML = ''; return;
+  }
+  if (!me) { openPick(); }
+  stats();
+  renderToday();
+  renderHist();
+}
+function bubble(who, ans, opts = {}) {
+  const t = ans && ans.ts ? new Date(ans.ts) : null;
+  const time = t ? ` · ${String(t.getHours()).padStart(2, '0')}.${String(t.getMinutes()).padStart(2, '0')}` : '';
+  return `<div class="bubble ${who}${opts.reveal ? ' reveal' : ''}"><small>${who === me ? 'Kamu' : who}${time}</small>${esc(ans.text)}${opts.edit ? `<button class="edit" onclick="editToday()">ubah</button>` : ''}</div>`;
+}
+let editing = false;
+function renderToday() {
+  const s = todayStr(), q = qOf(s), d = dayData(s), o = other(me || 'Dara');
+  const pill = (w, done) => `<span class="who-pill ${w}${done ? ' done' : ''}">${w === 'Razan' ? '🙋‍♂️' : '🙋‍♀️'} <b>${w}</b> ${done ? '✓' : '· belum'}</span>`;
+  let h = `<div class="qcard">
+    <div class="q-meta"><span>Pertanyaan #${q.num}</span><span>${fmt(s, true)}</span></div>
+    <p class="q-text">${esc(q.text)}</p>
+    <div class="who-row">${pill('Dara', me === 'Dara' ? !!d.mine : !!d.partner)}${pill('Razan', me === 'Razan' ? !!d.mine : !!d.partner)}</div>`;
+  if (!d.mine || editing) {
+    const draft = lsGet(K_DRAFT, {});
+    const val = editing && d.mine ? d.mine.text : (draft.date === s ? draft.text : '');
+    h += `<div class="ans-box"><textarea id="ans" maxlength="1500" placeholder="Tulis jawaban kamu…">${esc(val)}</textarea>
+      <div class="ans-info"><span>${d.partner ? `🔒 ${o} udah jawab — kirim punyamu buat ngebuka` : 'Jawaban kamu kesimpen otomatis'}</span><span id="ans-count">${val.length}/1500</span></div></div>
+      <button class="send" id="send" onclick="sendToday()">${editing ? 'Simpan perubahan' : 'Kirim jawaban 💬'}</button>
+      ${editing ? `<button class="ghost" style="width:100%;margin-top:.5rem" onclick="editing=false;renderToday()">Batal</button>` : ''}`;
+  } else {
+    h += bubble(me, d.mine, { edit: true });
+    if (d.partner && !d.partner.hidden) h += bubble(o, d.partner, { reveal: justRevealed === s });
+    else h += `<div class="bubble wait">⏳ ${o} belum jawab.${me === 'Dara' ? `<br><a class="nudge" target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku udah jawab pertanyaan hari ini 💬 Giliran kamu! "${q.text}"`)}">💬 Colek Razan lewat WA</a>` : '<br>Nanti jawabannya muncul di sini 🤍'}</div>`;
+  }
+  h += `</div>`;
+  $('today').innerHTML = h;
+  const ta = $('ans');
+  if (ta) ta.addEventListener('input', () => { $('ans-count').textContent = `${ta.value.length}/1500`; if (!editing) lsSet(K_DRAFT, { date: s, text: ta.value }); });
+  justRevealed = null;
+}
+function editToday() { editing = true; renderToday(); const ta = $('ans'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }
+
+function renderHist() {
+  const t = todayStr();
+  const list = [];
+  for (let k = 1; k <= dayNum(t); k++) { const d = parseYMD(t); d.setDate(d.getDate() - k); list.push(ymd(d)); }
+  if (!list.length) { $('hist').innerHTML = `<div class="empty">Ini pertanyaan pertama 🌱<br>Besok pertanyaan baru, yang ini masuk ke sini.</div>`; $('more-btn').style.display = 'none'; return; }
+  const o = other(me || 'Dara');
+  $('hist').innerHTML = list.slice(0, shown).map(s => {
+    const d = dayData(s), q = qOf(s);
+    const both = d.mine && d.partner && !d.partner.hidden;
+    let h = `<div class="h-item"><div class="h-top"><span class="h-date">#${q.num} · ${fmt(s, true)}</span>${both ? '<span class="h-badge both">💞 berdua</span>' : (d.mine || d.partner) ? '<span class="h-badge half">setengah</span>' : ''}</div><p class="h-q">${esc(q.text)}</p>`;
+    if (d.mine) {
+      h += bubble(me, d.mine);
+      h += d.partner && !d.partner.hidden ? bubble(o, d.partner) : `<div class="bubble wait">${o} ga jawab yang ini</div>`;
+    } else {
+      h += d.partner ? `<div class="bubble secret">🔒 ${o} udah jawab — jawab dulu buat ngintip</div>` : '';
+      h += `<button class="h-ans-btn" onclick="openAns('${s}')">✍️ Jawab nyusul</button>`;
+    }
+    return h + `</div>`;
+  }).join('');
+  $('more-btn').style.display = list.length > shown ? '' : 'none';
+}
+function showMore() { shown += 10; renderHist(); }
+
+/* ── kirim ── */
+async function post(date, text) {
+  await api('POST', { action: 'answer', who: me, date, text });
+}
+async function sendToday() {
+  const ta = $('ans'); const text = ta.value.trim();
+  if (!text) { ta.focus(); toast('Tulis jawabannya dulu ya 🤍'); return; }
+  const s = todayStr(), btn = $('send');
+  btn.disabled = true; btn.textContent = '⏳ Ngirim…';
+  try {
+    await post(s, text);
+  } catch (e) {
+    btn.disabled = false; btn.textContent = editing ? 'Simpan perubahan' : 'Kirim jawaban 💬';
+    toast(e.code === 'tanggal' ? 'Tanggal di HP kayaknya kecepetan 😅' : '⚠️ Gagal ngirim — cek internet (jawaban kamu aman kesimpen)', 3200);
+    return;
+  }
+  const wasEdit = editing; editing = false;
+  try { localStorage.removeItem(K_DRAFT); } catch (e) {}
+  justRevealed = s;
+  try { navigator.vibrate && navigator.vibrate([15, 40, 25]); } catch (e) {}
+  await load();
+  const d = dayData(s);
+  if (wasEdit) toast('✏️ Jawaban diubah');
+  else if (d.partner && !d.partner.hidden) toast(`💞 Jawaban ${other(me)} kebuka!`);
+  else if (me === 'Dara') toast(`✓ Kekirim! <a target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku udah jawab pertanyaan hari ini 💬 Giliran kamu!`)}">Colek Razan</a>`, 5000);
+  else toast('✓ Kekirim! Tunggu jawaban Dara ya 🤍');
+}
+let ansDate = null;
+function openAns(s) {
+  ansDate = s; const q = qOf(s);
+  $('as-num').textContent = `Pertanyaan #${q.num}`; $('as-date').textContent = fmt(s, true);
+  $('as-q').textContent = q.text; $('as-text').value = ''; $('as-count').textContent = '0/1500';
+  $('ans-ov').classList.add('show');
+  setTimeout(() => $('as-text').focus(), 250);
+}
+function closeAns() { $('ans-ov').classList.remove('show'); }
+$('as-text').addEventListener('input', () => $('as-count').textContent = `${$('as-text').value.length}/1500`);
+async function sendPast() {
+  const text = $('as-text').value.trim();
+  if (!text) { $('as-text').focus(); return; }
+  const btn = $('as-send'); btn.disabled = true; btn.textContent = '⏳';
+  try { await post(ansDate, text); }
+  catch (e) { btn.disabled = false; btn.textContent = 'Kirim 💬'; toast('⚠️ Gagal ngirim — cek internet'); return; }
+  btn.disabled = false; btn.textContent = 'Kirim 💬';
+  closeAns(); await load();
+  const d = dayData(ansDate);
+  toast(d.partner && !d.partner.hidden ? `💞 Jawaban ${other(me)} kebuka!` : '✓ Kekirim!');
+}
+
+let toastT;
+function toast(m, ms) { const t = $('toast'); t.innerHTML = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2400); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAns(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+
+render();
+load();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
