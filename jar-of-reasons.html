@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Memory Jar — Untuk Dara 🤍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -12,13 +12,13 @@
     --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{min-height:100%}
   body{
     font-family:'Poppins',sans-serif;
-    min-height:100vh;overflow-x:hidden;
+    min-height:100vh;min-height:100dvh;overflow-x:hidden;
     background:var(--cream);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:1.5rem;
+    display:flex;flex-direction:column;align-items:center;
+    padding:3.25rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
     position:relative;
   }
   body::before{
@@ -28,10 +28,20 @@
       radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.18) 0%,transparent 70%);
     pointer-events:none;
   }
+  button{font-family:inherit}
+
+  .back-link{
+    position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1rem;z-index:5;
+    font-size:12px;color:var(--muted);text-decoration:none;
+    background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);
+    padding:.4rem .85rem;border-radius:50px;backdrop-filter:blur(6px);
+  }
+  .back-link:active{background:var(--warm)}
 
   /* ── SCREENS ── */
-  .screen{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:400px;z-index:1}
-  .screen.active{display:flex}
+  .screen{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:400px;z-index:1;margin:auto 0}
+  .screen.active{display:flex;animation:fadein .35s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
   /* ── INTRO ── */
   .intro-jar{font-size:5.5rem;display:block;margin-bottom:1.25rem;animation:jarfloat 3s ease-in-out infinite;filter:drop-shadow(0 8px 28px rgba(193,122,111,.45))}
@@ -39,14 +49,17 @@
   .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:block;}
   .intro-title{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:700;color:var(--ink);margin-bottom:.5rem;line-height:1.1}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:.5rem auto 1.75rem}
+  .intro-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:.5rem auto 1.5rem}
   .intro-badge{
-    display:inline-flex;align-items:center;gap:.4rem;
+    display:inline-flex;align-items:center;gap:.4rem;flex-wrap:wrap;justify-content:center;
     background:#fff;border:1px solid rgba(193,122,111,.2);
     border-radius:50px;padding:.45rem 1.1rem;font-size:12px;
-    color:var(--muted);margin-bottom:1.75rem;
+    color:var(--muted);margin-bottom:1.5rem;
   }
   .intro-badge span{color:var(--gold);font-weight:600}
+  .intro-prog{width:100%;max-width:260px;margin:-.75rem auto 1.5rem;display:none}
+  .intro-prog.show{display:block}
+  .intro-actions{width:100%;display:flex;flex-direction:column;gap:.55rem}
 
   .btn{
     padding:.875rem 2rem;border-radius:50px;border:none;cursor:pointer;
@@ -58,13 +71,14 @@
   .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
   .btn-ghost:active{background:var(--warm)}
   .btn-full{width:100%}
+  .btn-link{background:none;border:none;color:var(--muted);font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:.4rem}
 
   /* ── GAME ── */
   #screen-game{gap:.85rem}
 
-  .game-top{width:100%;display:flex;justify-content:space-between;align-items:center}
+  .game-top{width:100%;display:flex;justify-content:space-between;align-items:center;gap:.5rem}
   .game-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
-  .game-count{font-size:12px;color:var(--muted)}
+  .game-count{font-size:12px;color:var(--muted);white-space:nowrap}
   .game-count span{color:var(--rose);font-weight:600}
 
   /* Progress */
@@ -77,9 +91,11 @@
     position:relative;width:220px;height:290px;
     cursor:pointer;flex-shrink:0;
     transition:transform .1s;
+    border:none;background:none;padding:0;
   }
   .jar-wrap:active{transform:scale(.97);}
   .jar-wrap.shaking{animation:jarshake .5s ease}
+  .jar-wrap.empty{cursor:default;opacity:.75}
   @keyframes jarshake{
     0%,100%{transform:rotate(0) translateX(0)}
     15%{transform:rotate(-8deg) translateX(-6px)}
@@ -89,29 +105,33 @@
     75%{transform:rotate(-3deg) translateX(-3px)}
     90%{transform:rotate(2deg) translateX(2px)}
   }
+  @media (max-height:600px){
+    .jar-wrap{zoom:.84}
+  }
 
   .jar-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
-  /* Notes inside jar */
+  /* Notes inside jar (koordinat dalam ukuran 220x290) */
   .jar-inside{
     position:absolute;
-    left:18px;right:18px;top:50px;bottom:24px;
+    left:18px;top:50px;width:184px;height:216px;
     overflow:hidden;border-radius:2px 2px 18px 18px;
     pointer-events:none;
   }
-
   .jar-note{
     position:absolute;border-radius:5px;
     display:flex;align-items:center;justify-content:center;
     font-size:.9rem;pointer-events:none;
     box-shadow:0 2px 6px rgba(0,0,0,.25);
+    transition:top .6s cubic-bezier(.34,1.3,.64,1);
   }
-
   @keyframes notedrift{
     0%,100%{transform:rotate(var(--r)) translateY(0)}
     50%{transform:rotate(var(--r)) translateY(var(--d))}
   }
   .jar-note.drift{animation:notedrift var(--dur) ease-in-out var(--delay) infinite}
+  .jar-note.pop{animation:notepop .5s ease-in forwards}
+  @keyframes notepop{to{transform:translateY(-240px) rotate(200deg) scale(.6);opacity:0}}
 
   /* Tap hint */
   .tap-hint{
@@ -120,33 +140,51 @@
   }
   @keyframes blink{0%,100%{opacity:.4}50%{opacity:.9}}
 
+  .game-actions{display:flex;gap:.5rem;width:100%;justify-content:center;flex-wrap:wrap}
+  .chip-btn{
+    display:inline-flex;align-items:center;gap:.35rem;
+    background:#fff;border:1px solid rgba(193,122,111,.2);color:var(--deep);
+    border-radius:50px;padding:.5rem 1rem;font-size:12px;font-weight:500;cursor:pointer;
+  }
+  .chip-btn:active{background:var(--warm)}
+  .chip-btn b{color:var(--rose);font-weight:600}
+
   /* ── RESULT POPUP ── */
   #result-overlay{
     display:none;position:fixed;inset:0;z-index:999;
-    background:rgba(0,0,0,.65);backdrop-filter:blur(7px);
+    background:rgba(0,0,0,.65);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
     align-items:flex-end;justify-content:center;padding:.85rem;
+    padding-bottom:calc(.85rem + env(safe-area-inset-bottom));
   }
   #result-overlay.active{display:flex}
 
   .result-sheet{
     background:var(--cream);border-radius:24px 24px 20px 20px;
-    padding:1.75rem 1.5rem 1.5rem;width:100%;max-width:420px;
+    padding:1.5rem 1.35rem 1.35rem;width:100%;max-width:420px;
+    max-height:calc(100dvh - 1.7rem);overflow-y:auto;
     animation:slideup .4s cubic-bezier(.34,1.3,.64,1);
-    text-align:center;position:relative;overflow:hidden;
+    text-align:center;position:relative;
   }
   .result-sheet::before{
     content:'';position:absolute;inset:0;
     background:radial-gradient(ellipse at top,rgba(232,196,176,.18),transparent 60%);
-    pointer-events:none;
+    pointer-events:none;border-radius:inherit;
   }
   @keyframes slideup{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-  .result-drag{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto 1.25rem}
-  .result-scroll{font-size:3rem;display:block;margin-bottom:.75rem;animation:unroll .4s ease}
+  .result-drag{width:36px;height:4px;background:var(--blush);border-radius:2px;margin:0 auto 1rem}
+  .result-fav{
+    position:absolute;top:.9rem;right:.9rem;z-index:2;
+    width:38px;height:38px;border-radius:50%;border:1px solid rgba(201,169,110,.35);
+    background:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    filter:grayscale(1);opacity:.55;transition:all .2s;
+  }
+  .result-fav.on{filter:none;opacity:1;background:#fff8e6;border-color:var(--gold);transform:scale(1.05)}
+  .result-scroll{font-size:3rem;display:block;margin-bottom:.6rem;animation:unroll .4s ease}
   @keyframes unroll{from{transform:scale(.5) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
   .result-num{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.4rem}
   .result-icon{font-size:2rem;display:block;margin-bottom:.5rem}
-  .result-text{font-size:15px;color:var(--ink);line-height:1.85;font-weight:400;margin-bottom:1.25rem;position:relative;z-index:1}
-  .result-sign{font-size:12px;color:var(--rose);font-weight:500;display:block;margin-bottom:1.25rem;position:relative;z-index:1}
+  .result-text{font-size:15px;color:var(--ink);line-height:1.85;font-weight:400;margin-bottom:1.1rem;position:relative;z-index:1;overflow-wrap:anywhere}
+  .result-sign{font-size:12px;color:var(--rose);font-weight:500;display:block;margin-bottom:1.1rem;position:relative;z-index:1}
   .result-close{
     width:100%;padding:.85rem;border-radius:50px;border:none;cursor:pointer;
     font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;
@@ -155,12 +193,44 @@
     position:relative;z-index:1;
   }
   .result-close:active{background:var(--deep);transform:scale(.97)}
+  .result-row{display:flex;gap:.5rem;margin-top:.55rem;position:relative;z-index:1}
+  .result-row > *{flex:1}
+  .mini-btn{
+    display:flex;align-items:center;justify-content:center;gap:.3rem;
+    padding:.65rem .5rem;border-radius:50px;font-size:12px;font-weight:500;cursor:pointer;
+    text-decoration:none;border:1.5px solid var(--blush);color:var(--muted);background:transparent;
+    white-space:nowrap;
+  }
+  .mini-btn:active{background:var(--warm)}
+  .mini-btn.wa{border-color:rgba(37,211,102,.4);color:#1f8f4e}
 
   /* ── EMPTY STATE ── */
-  .empty-msg{
-    font-size:13px;color:var(--muted);
-    margin-top:.25rem;
+  .empty-msg{font-size:13px;color:var(--muted);margin-top:.25rem}
+
+  /* ── KOLEKSI ── */
+  #screen-coll{gap:.85rem;text-align:left}
+  .coll-head{width:100%;text-align:center}
+  .coll-title{font-size:1.35rem;font-weight:700;color:var(--ink)}
+  .coll-sub{font-size:12px;color:var(--muted);margin-top:.15rem}
+  .tabs{display:flex;gap:.4rem;width:100%;background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:.25rem}
+  .tab{flex:1;border:none;background:none;border-radius:50px;padding:.5rem .4rem;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tab.on{background:var(--rose);color:#fff}
+  .coll-list{width:100%;display:flex;flex-direction:column;gap:.5rem}
+  .coll-item{
+    display:flex;align-items:flex-start;gap:.7rem;width:100%;text-align:left;
+    background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:14px;
+    padding:.75rem .85rem;cursor:pointer;font-family:inherit;
+    box-shadow:0 2px 10px rgba(193,122,111,.06);
   }
+  .coll-item:active{background:var(--warm)}
+  .ci-icon{font-size:1.35rem;line-height:1.3;flex-shrink:0}
+  .ci-body{flex:1;min-width:0}
+  .ci-num{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .ci-text{font-size:12.5px;color:var(--ink);line-height:1.6;overflow-wrap:anywhere;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .ci-star{font-size:13px;flex-shrink:0;line-height:1.6}
+  .coll-empty{font-size:13px;color:var(--muted);text-align:center;padding:1.5rem 1rem;background:#fff;border-radius:14px;border:1px dashed var(--blush);width:100%}
+  .locked-note{font-size:11.5px;color:var(--muted);text-align:center;width:100%}
 
   /* ── FINISH ── */
   #screen-finish{gap:1rem}
@@ -169,19 +239,40 @@
   .finish-sub{font-size:13px;color:var(--muted);line-height:1.8;max-width:320px;margin:.25rem auto}
   .finish-quote{
     background:#fff;border:1px solid rgba(193,122,111,.18);
-    border-radius:16px;padding:1.25rem 1.5rem;
+    border-radius:16px;padding:1.25rem 1.35rem;
     font-size:13px;color:var(--ink);line-height:1.85;
     font-style:italic;
     margin:.25rem 0;
     box-shadow:0 2px 12px rgba(193,122,111,.08);
   }
+  .finish-actions{width:100%;display:flex;flex-direction:column;gap:.5rem}
+
+  /* Toast */
+  .toast{
+    position:fixed;left:50%;bottom:calc(1.25rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);
+    background:var(--ink);color:#fff;font-size:12.5px;padding:.6rem 1.1rem;border-radius:50px;
+    opacity:0;pointer-events:none;transition:all .3s;z-index:2000;max-width:calc(100vw - 2rem);text-align:center;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
 
   /* Confetti */
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  @media (max-width:360px){
+    body{padding-left:1rem;padding-right:1rem}
+    .intro-jar{font-size:4.6rem;margin-bottom:1rem}
+    .result-text{font-size:14px}
+    .btn{padding:.8rem 1.25rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .jar-note.drift,.intro-jar,.finish-emoji,.tap-hint{animation:none}
+  }
 </style>
 </head>
 <body>
+
+<a href="index.html" class="back-link">← Menu utama</a>
 
 <!-- INTRO -->
 <div id="screen-intro" class="screen active">
@@ -189,8 +280,12 @@
   <span class="intro-label">Khusus untuk Dara</span>
   <h1 class="intro-title">Memory <span>Jar</span></h1>
   <p class="intro-sub">Kocok toples — dan satu gulungan akan keluar. Kayak arisan, tapi isinya alasan kenapa kamu berarti 🤍</p>
-  <div class="intro-badge">Ada <span>34</span> gulungan yang menunggumu</div>
-  <button class="btn btn-rose btn-full" onclick="startGame()">Kocok Sekarang! 🫙</button>
+  <div class="intro-badge" id="intro-badge">Ada <span>34</span> gulungan yang menunggumu</div>
+  <div class="intro-prog prog-wrap" id="intro-prog"><div class="prog-bar"><div class="prog-fill" id="intro-fill" style="width:0%"></div></div></div>
+  <div class="intro-actions">
+    <button class="btn btn-rose btn-full" id="btn-start" onclick="startGame()">Kocok Sekarang! 🫙</button>
+    <button class="btn btn-ghost btn-full" id="btn-coll-intro" onclick="openColl()" style="display:none">📜 Lihat Gulungan yang Udah Keluar</button>
+  </div>
 </div>
 
 <!-- GAME -->
@@ -205,7 +300,7 @@
     <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
   </div>
 
-  <div class="jar-wrap" id="jar-wrap" onclick="shakeJar()">
+  <button class="jar-wrap" id="jar-wrap" onclick="shakeJar()" aria-label="Kocok toples">
     <!-- SVG Jar -->
     <svg class="jar-svg" viewBox="0 0 220 290" fill="none" xmlns="http://www.w3.org/2000/svg">
       <!-- Lid -->
@@ -246,23 +341,46 @@
     </svg>
     <!-- Notes inside -->
     <div class="jar-inside" id="jar-inside"></div>
-  </div>
+  </button>
 
   <p class="tap-hint" id="tap-hint">👆 Tap toples buat kocok!</p>
   <p class="empty-msg" id="empty-msg" style="display:none">Toples udah kosong! 🎉</p>
 
+  <div class="game-actions">
+    <button class="chip-btn" onclick="openColl()">📜 Koleksi <b id="g-coll">0</b></button>
+    <button class="chip-btn" onclick="showIntro()">🏠 Awal</button>
+  </div>
+</div>
+
+<!-- KOLEKSI -->
+<div id="screen-coll" class="screen">
+  <div class="coll-head">
+    <h2 class="coll-title">📜 Gulungan Kamu</h2>
+    <p class="coll-sub" id="coll-sub">0 dari 34 udah keluar</p>
+  </div>
+  <div class="tabs">
+    <button class="tab on" id="tab-all" onclick="setTab('all')">Semua</button>
+    <button class="tab" id="tab-fav" onclick="setTab('fav')">⭐ Favorit</button>
+  </div>
+  <div class="coll-list" id="coll-list"></div>
+  <p class="locked-note" id="locked-note"></p>
+  <button class="btn btn-rose btn-full" id="coll-go" onclick="backFromColl()">Kocok Lagi 🫙</button>
 </div>
 
 <!-- RESULT OVERLAY -->
 <div id="result-overlay" onclick="handleOverlay(event)">
-  <div class="result-sheet">
+  <div class="result-sheet" role="dialog" aria-modal="true">
+    <button class="result-fav" id="r-fav" onclick="toggleFav()" aria-label="Favorit">⭐</button>
     <div class="result-drag"></div>
     <span class="result-scroll">📜</span>
     <span class="result-num" id="r-num">Alasan #1</span>
     <span class="result-icon" id="r-icon">🤍</span>
     <p class="result-text" id="r-text">...</p>
     <span class="result-sign">— Razan 🤍</span>
-    <button class="result-close" onclick="closeResult()">Simpan di Hati 🤍</button>
+    <button class="result-close" id="r-close" onclick="closeResult()">Simpan di Hati 🤍</button>
+    <div class="result-row">
+      <a class="mini-btn wa" id="r-wa" href="#" target="_blank" rel="noopener">💬 Bales ke Razan</a>
+    </div>
   </div>
 </div>
 
@@ -274,9 +392,14 @@
   <div class="finish-quote">
     Kalau aku harus jelasin satu per satu alasan kenapa aku sayang kamu, mungkin aku bakal kehabisan kata-kata duluan sebelum kehabisan alasan. 🤍
   </div>
-  <button class="btn btn-rose btn-full" onclick="restartGame()">Isi Ulang Toples 🔄</button>
-  <button class="btn btn-ghost btn-full" onclick="showScreen('screen-intro')" style="margin-top:.5rem">Kembali ke Awal</button>
+  <div class="finish-actions">
+    <button class="btn btn-rose btn-full" onclick="openColl()">📜 Baca Ulang Semua Gulungan</button>
+    <button class="btn btn-ghost btn-full" onclick="restartGame()">Isi Ulang Toples 🔄</button>
+    <button class="btn-link" onclick="showIntro()">Kembali ke Awal</button>
+  </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 const reasons = [
@@ -324,44 +447,92 @@ const COLORS=[
   {bg:'rgba(160,180,196,.22)',b:'rgba(160,180,196,.55)'},
 ];
 
-let remaining=[];
+const KEY='memory-jar-dara';
+const WA='6285692740607';
+const TOTAL=reasons.length;
+
+/* state: drawn = urutan index alasan yang udah keluar, fav = index favorit */
+let S={drawn:[],fav:[],done:false};
 let isShaking=false;
-let currentResult=null;
+let current=null;      // index alasan yg lagi dibuka
+let currentFresh=false; // baru keluar dari toples (bukan buka ulang)
+let collTab='all';
+let collFrom='screen-game';
+
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(d&&Array.isArray(d.drawn)){
+      const seen=new Set();
+      S.drawn=d.drawn.filter(i=>Number.isInteger(i)&&i>=0&&i<TOTAL&&!seen.has(i)&&seen.add(i));
+      S.fav=Array.isArray(d.fav)?d.fav.filter(i=>Number.isInteger(i)&&i>=0&&i<TOTAL):[];
+      S.done=!!d.done;
+    }
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function remainingIdx(){const s=new Set(S.drawn);const r=[];for(let i=0;i<TOTAL;i++)if(!s.has(i))r.push(i);return r}
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showIntro(){
+  const n=S.drawn.length;
+  const badge=document.getElementById('intro-badge');
+  const btn=document.getElementById('btn-start');
+  const coll=document.getElementById('btn-coll-intro');
+  if(n===0){
+    badge.innerHTML='Ada <span>34</span> gulungan yang menunggumu';
+    btn.textContent='Kocok Sekarang! 🫙';
+    document.getElementById('intro-prog').classList.remove('show');
+    coll.style.display='none';
+  }else{
+    const left=TOTAL-n;
+    badge.innerHTML=left>0
+      ?`<span>${n}</span> udah keluar · tinggal <span>${left}</span> lagi`
+      :`Semua <span>34</span> gulungan udah keluar ✨`;
+    btn.textContent=left>0?'Lanjut Kocok 🫙':'Lihat Toples 🫙';
+    document.getElementById('intro-prog').classList.add('show');
+    document.getElementById('intro-fill').style.width=(n/TOTAL*100)+'%';
+    coll.style.display='block';
+  }
+  showScreen('screen-intro');
 }
 
 function startGame(){
-  remaining=[...reasons].sort(()=>Math.random()-.5);
+  if(S.drawn.length>=TOTAL){showScreen('screen-finish');return}
+  enterGame();
+}
+function enterGame(){
   renderInsideNotes();
   updateProgress();
   showScreen('screen-game');
 }
 
 function restartGame(){
-  remaining=[...reasons].sort(()=>Math.random()-.5);
-  document.getElementById('tap-hint').style.display='block';
-  document.getElementById('empty-msg').style.display='none';
-  renderInsideNotes();
-  updateProgress();
-  showScreen('screen-game');
+  if(!confirm('Isi ulang toplesnya? Semua 34 gulungan balik ke dalam toples (favorit kamu tetep kesimpen kok).')) return;
+  S.drawn=[];S.done=false;save();
+  enterGame();
 }
 
 /* Render floating notes inside jar */
 function renderInsideNotes(){
   const inside=document.getElementById('jar-inside');
   inside.innerHTML='';
-  // Show up to 20 notes visually (stack effect)
-  const toShow=Math.min(remaining.length,20);
-  const aW=184-36, aH=290-74;
+  const left=TOTAL-S.drawn.length;
+  // Show up to 20 notes visually; makin sedikit sisa, makin numpuk di bawah
+  const toShow=Math.min(left,20);
+  const aW=184, aH=216;
+  const fillTop=aH*(1-Math.max(.28,Math.min(1,left/TOTAL+.15)));
   for(let i=0;i<toShow;i++){
     const c=COLORS[i%COLORS.length];
     const nW=28+Math.random()*14;
     const nH=22+Math.random()*12;
-    const x=Math.random()*(aW-nW);
-    const y=Math.random()*(aH-nH);
+    const x=6+Math.random()*(aW-nW-12);
+    const y=fillTop+Math.random()*Math.max(4,(aH-fillTop-nH-6));
     const r=(Math.random()-.5)*35;
     const dur=2.2+Math.random()*2.5;
     const delay=Math.random()*2;
@@ -381,11 +552,15 @@ function renderInsideNotes(){
 /* SHAKE & DRAW */
 function shakeJar(){
   if(isShaking) return;
-  if(remaining.length===0) return;
-
+  if(S.drawn.length>=TOTAL) return;
   isShaking=true;
   const jar=document.getElementById('jar-wrap');
+  jar.classList.remove('shaking');void jar.offsetWidth;
   jar.classList.add('shaking');
+  try{navigator.vibrate&&navigator.vibrate([30,40,30,40,50])}catch(e){}
+  // satu gulungan "terbang" keluar
+  const notes=document.querySelectorAll('#jar-inside .jar-note');
+  if(notes.length){const n=notes[Math.floor(Math.random()*notes.length)];n.classList.remove('drift');n.classList.add('pop')}
 
   setTimeout(()=>{
     jar.classList.remove('shaking');
@@ -395,31 +570,54 @@ function shakeJar(){
 }
 
 function drawOne(){
-  if(remaining.length===0) return;
+  const rem=remainingIdx();
+  if(!rem.length) return;
+  const idx=rem[Math.floor(Math.random()*rem.length)];
+  S.drawn.push(idx);save();
 
-  // Pick random from remaining
-  const idx=Math.floor(Math.random()*remaining.length);
-  currentResult=remaining[idx];
-  remaining.splice(idx,1);
-
-  // Update notes visual
   renderInsideNotes();
   updateProgress();
+  openResult(idx,true);
+}
 
-  // Show result
-  const total=reasons.length;
-  const opened=total-remaining.length;
-  document.getElementById('r-num').textContent=`Alasan #${opened}`;
-  document.getElementById('r-icon').textContent=currentResult.icon;
-  document.getElementById('r-text').textContent=currentResult.text;
-  document.getElementById('result-overlay').classList.add('active');
+function openResult(idx,fresh){
+  current=idx;currentFresh=fresh;
+  const r=reasons[idx];
+  const order=S.drawn.indexOf(idx)+1;
+  document.getElementById('r-num').textContent=`Alasan #${order}`;
+  document.getElementById('r-icon').textContent=r.icon;
+  document.getElementById('r-text').textContent=r.text;
+  document.getElementById('r-close').textContent=fresh?'Simpan di Hati 🤍':'Tutup 🤍';
+  document.getElementById('r-wa').href='https://wa.me/'+WA+'?text='+encodeURIComponent(
+    `Razan, aku dapet gulungan #${order} dari Memory Jar 🫙\n\n"${r.text}"\n\n`);
+  renderFav();
+  const ov=document.getElementById('result-overlay');
+  ov.classList.remove('active');void ov.offsetWidth;
+  ov.classList.add('active');
+  document.getElementById('r-close').focus({preventScroll:true});
+}
 
-  if(opened===total) confetti();
+function renderFav(){
+  const on=S.fav.includes(current);
+  const b=document.getElementById('r-fav');
+  b.classList.toggle('on',on);
+  b.setAttribute('aria-pressed',on);
+}
+function toggleFav(){
+  if(current==null) return;
+  const i=S.fav.indexOf(current);
+  if(i>=0){S.fav.splice(i,1);toast('Dihapus dari favorit')}
+  else{S.fav.push(current);toast('⭐ Masuk favorit')}
+  save();renderFav();
+  if(document.getElementById('screen-coll').classList.contains('active')) renderColl();
 }
 
 function closeResult(){
-  document.getElementById('result-overlay').classList.remove('active');
-  if(remaining.length===0){
+  const ov=document.getElementById('result-overlay');
+  if(!ov.classList.contains('active')) return;
+  ov.classList.remove('active');
+  if(currentFresh&&S.drawn.length>=TOTAL&&!S.done){
+    S.done=true;save();
     document.getElementById('tap-hint').style.display='none';
     document.getElementById('empty-msg').style.display='block';
     setTimeout(()=>{
@@ -427,16 +625,81 @@ function closeResult(){
       confetti();
     },600);
   }
+  currentFresh=false;
 }
 
 function handleOverlay(e){
   if(e.target===document.getElementById('result-overlay')) closeResult();
 }
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeResult();
+  else if((e.key===' '||e.key==='Enter')&&document.getElementById('screen-game').classList.contains('active')
+    &&!document.getElementById('result-overlay').classList.contains('active')&&e.target===document.body){
+    e.preventDefault();shakeJar();
+  }
+});
 
 function updateProgress(){
-  const opened=reasons.length-remaining.length;
+  const opened=S.drawn.length;
+  const empty=opened>=TOTAL;
   document.getElementById('g-count').textContent=opened;
-  document.getElementById('prog-fill').style.width=(opened/reasons.length*100)+'%';
+  document.getElementById('g-coll').textContent=opened;
+  document.getElementById('prog-fill').style.width=(opened/TOTAL*100)+'%';
+  document.getElementById('tap-hint').style.display=empty?'none':'block';
+  document.getElementById('empty-msg').style.display=empty?'block':'none';
+  document.getElementById('jar-wrap').classList.toggle('empty',empty);
+}
+
+/* KOLEKSI */
+function openColl(){
+  const act=document.querySelector('.screen.active');
+  collFrom=act?act.id:'screen-intro';
+  if(collFrom==='screen-coll') collFrom='screen-intro';
+  renderColl();
+  showScreen('screen-coll');
+}
+function setTab(t){
+  collTab=t;
+  document.getElementById('tab-all').classList.toggle('on',t==='all');
+  document.getElementById('tab-fav').classList.toggle('on',t==='fav');
+  renderColl();
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderColl(){
+  const n=S.drawn.length;
+  document.getElementById('coll-sub').textContent=`${n} dari ${TOTAL} udah keluar · ${S.fav.filter(i=>S.drawn.includes(i)).length} favorit`;
+  let list=S.drawn.map((idx,k)=>({idx,order:k+1}));
+  if(collTab==='fav') list=list.filter(o=>S.fav.includes(o.idx));
+  list.reverse(); // terbaru di atas
+  const box=document.getElementById('coll-list');
+  if(!list.length){
+    box.innerHTML=`<div class="coll-empty">${collTab==='fav'
+      ?'Belum ada favorit. Tap ⭐ di gulungan yang paling kamu suka 🤍'
+      :'Belum ada gulungan yang keluar. Kocok toplesnya dulu yuk 🫙'}</div>`;
+  }else{
+    box.innerHTML=list.map(o=>{
+      const r=reasons[o.idx];
+      return `<button class="coll-item" onclick="openResult(${o.idx},false)">
+        <span class="ci-icon">${esc(r.icon)}</span>
+        <span class="ci-body"><span class="ci-num">Alasan #${o.order}</span><span class="ci-text">${esc(r.text)}</span></span>
+        ${S.fav.includes(o.idx)?'<span class="ci-star">⭐</span>':''}
+      </button>`;
+    }).join('');
+  }
+  const left=TOTAL-n;
+  document.getElementById('locked-note').textContent=left>0?`🔒 ${left} gulungan lagi masih di dalam toples`:'✨ Semua gulungan udah kamu baca';
+  document.getElementById('coll-go').textContent=left>0?'Kocok Lagi 🫙':'Kembali';
+}
+function backFromColl(){
+  if(S.drawn.length<TOTAL) enterGame();
+  else if(collFrom==='screen-finish') showScreen('screen-finish');
+  else showIntro();
+}
+
+let toastT;
+function toast(m){
+  const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);
 }
 
 function confetti(){
@@ -447,6 +710,51 @@ function confetti(){
     document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
   },i*30);
 }
+
+load();
+showIntro();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
