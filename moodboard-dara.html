@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dara — Moodboard 🤍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -20,13 +20,14 @@
     --ink: #2d1f1a;
     --muted: #9a8070;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  button { font-family: inherit; }
   body {
     background: var(--bg);
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    padding: 2.5rem 1.25rem 5rem;
+    padding: calc(3.75rem + env(safe-area-inset-top)) 1.25rem calc(5rem + env(safe-area-inset-bottom));
     overflow-x: hidden;
   }
   body::before {
@@ -38,6 +39,13 @@
   }
   .page { max-width: 520px; margin: 0 auto; position: relative; z-index: 1; }
 
+  .back-link {
+    position: absolute; top: calc(.9rem + env(safe-area-inset-top)); left: 1.25rem; z-index: 5;
+    font-size: 12px; color: var(--muted); text-decoration: none; font-weight: 400;
+    background: rgba(255,255,255,.75); border: 1px solid rgba(196,160,168,.3);
+    padding: .4rem .85rem; border-radius: 50px; backdrop-filter: blur(6px);
+  }
+  .back-link:active { background: var(--soft1); }
   .header { text-align: center; margin-bottom: 2rem; }
   .header-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; display: block; }
   .header-title { font-size: clamp(2rem, 8vw, 3rem); font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 0.5rem; }
@@ -54,16 +62,18 @@
     transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.25s ease;
   }
   .block.visible { opacity: 1; transform: none; }
-  .block:hover { box-shadow: 0 8px 32px rgba(45,31,26,0.12); transform: translateY(-2px); }
+  @media (hover: hover) { .block.visible:hover { box-shadow: 0 8px 32px rgba(45,31,26,0.12); transform: translateY(-2px); } }
+  .block-swatch { cursor: pointer; border: none; text-align: left; font-family: inherit; }
+  .block-swatch:active { filter: brightness(.95); }
 
   .block-hero {
     background: linear-gradient(135deg, var(--soft1), var(--blush));
-    padding: 2.5rem 2rem;
+    padding: 2.25rem 1rem;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    text-align: center; min-height: 160px;
+    text-align: center; min-height: 160px; min-width: 0;
   }
-  .hero-word { font-size: clamp(2.5rem, 10vw, 4rem); font-weight: 700; color: var(--rose-deep); line-height: 1; margin-bottom: 0.4rem; }
+  .hero-word { font-size: clamp(1.9rem, 9vw, 4rem); font-weight: 700; color: var(--rose-deep); line-height: 1; margin-bottom: 0.4rem; }
   .hero-word-sub { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); opacity: 0.7; }
 
   .block-tags {
@@ -131,11 +141,67 @@
   .bg-rose-deep { background: var(--rose-deep); }
   .bg-blush     { background: var(--blush); }
 
+  /* ── WALLPAPER ── */
+  .wp-cta {
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    width: 100%; margin-top: 1.25rem; padding: .95rem; border-radius: 18px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep)); color: #fff;
+    font-size: 14px; font-weight: 600; box-shadow: 0 6px 22px rgba(181,112,106,.3);
+  }
+  .wp-cta:active { transform: scale(.98); }
+  .wp-cta small { font-weight: 300; opacity: .85; font-size: 11px; }
+  #wp-ov {
+    display: none; position: fixed; inset: 0; z-index: 100; background: rgba(45,31,26,.6);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    align-items: center; justify-content: center; padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  #wp-ov.show { display: flex; }
+  .wp-sheet {
+    background: var(--bg); border-radius: 22px; padding: 1.1rem; width: 100%; max-width: 380px;
+    max-height: calc(100dvh - 2rem); overflow-y: auto; text-align: center;
+  }
+  .wp-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: .75rem; }
+  .wp-preview { display: block; margin: 0 auto .85rem; height: min(52vh, 440px); max-width: 100%; aspect-ratio: 9/16; object-fit: contain; border-radius: 14px; box-shadow: 0 8px 28px rgba(45,31,26,.2); background: var(--soft1); }
+  .wp-colors { display: flex; justify-content: center; gap: .55rem; margin-bottom: .85rem; }
+  .wp-colors button { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; box-shadow: 0 0 0 1px rgba(45,31,26,.12); }
+  .wp-colors button.on { box-shadow: 0 0 0 2px var(--ink); }
+  .wp-row { display: flex; gap: .5rem; }
+  .wp-row > * { flex: 1; padding: .8rem .5rem; border-radius: 50px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; white-space: nowrap; }
+  .wp-save { background: var(--rose-deep); color: #fff; border: none; }
+  .wp-close { background: transparent; color: var(--muted); border: 1.5px solid var(--blush); }
+  .wp-hint { font-size: 10.5px; color: var(--muted); margin-top: .6rem; line-height: 1.5; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom)); transform: translate(-50%, 20px);
+    background: var(--ink); color: #fff; font-size: 12.5px; padding: .6rem 1.1rem; border-radius: 50px;
+    opacity: 0; pointer-events: none; transition: all .3s; z-index: 200; max-width: calc(100vw - 2rem); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 380px) {
+    body { padding-left: 1rem; padding-right: 1rem; }
+    .back-link { left: 1rem; }
+    .grid, .row { gap: .65rem; }
+    .row > div[style*="flex-direction:column"] { gap: .65rem !important; }
+    .block-swatch { padding: .85rem .8rem; min-height: 100px; }
+    .swatch-label { font-size: 9px; letter-spacing: .1em; }
+    .block-quote-armani, .block-pattern { padding: 1.2rem 1rem; }
+    .armani-text { font-size: 12px; }
+    .pattern-text { font-size: .95rem; }
+    .block-word-small { padding: 1rem .5rem; }
+    .word-small-sub { font-size: 8.5px; letter-spacing: .08em; }
+    .block-quote-personal { padding: 1.75rem 1.35rem; }
+    .pill { padding: .4rem .9rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .block { opacity: 1; transform: none; transition: none; } }
+
   .footer { text-align: center; margin-top: 2rem; font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
   .footer span { color: var(--rose); }
 </style>
 </head>
 <body>
+<a href="index.html" class="back-link">← Menu utama</a>
 <div class="page">
 
   <div class="header">
@@ -154,8 +220,8 @@
         <p class="hero-word-sub">bukan sekadar wajah</p>
       </div>
       <div style="display:flex;flex-direction:column;gap:0.85rem;flex:1">
-        <div class="block block-swatch bg-rose" style="flex:1"><p class="swatch-label">Rose Blush</p><p class="swatch-hex">#D4908A</p></div>
-        <div class="block block-swatch bg-mauve" style="flex:1"><p class="swatch-label">Soft Mauve</p><p class="swatch-hex">#C4A0A8</p></div>
+        <button class="block block-swatch bg-rose" style="flex:1" onclick="copyHex('#D4908A','Rose Blush')"><p class="swatch-label">Rose Blush</p><p class="swatch-hex">#D4908A</p></button>
+        <button class="block block-swatch bg-mauve" style="flex:1" onclick="copyHex('#C4A0A8','Soft Mauve')"><p class="swatch-label">Soft Mauve</p><p class="swatch-hex">#C4A0A8</p></button>
       </div>
     </div>
 
@@ -201,8 +267,8 @@
         <p class="word-small-main" style="color:var(--rose-deep)">Gemoy</p>
         <p class="word-small-sub" style="color:var(--muted)">tapi tetap karismatik</p>
       </div>
-      <div class="block block-swatch bg-gold" style="flex:1"><p class="swatch-label">Warm Gold</p><p class="swatch-hex">#C9A96E</p></div>
-      <div class="block block-swatch bg-sage" style="flex:1"><p class="swatch-label">Soft Sage</p><p class="swatch-hex">#B5C4B1</p></div>
+      <button class="block block-swatch bg-gold" style="flex:1" onclick="copyHex('#C9A96E','Warm Gold')"><p class="swatch-label">Warm Gold</p><p class="swatch-hex">#C9A96E</p></button>
+      <button class="block block-swatch bg-sage" style="flex:1" onclick="copyHex('#B5C4B1','Soft Sage')"><p class="swatch-label">Soft Sage</p><p class="swatch-hex">#B5C4B1</p></button>
     </div>
 
     <!-- Row 6: Pills -->
@@ -220,16 +286,221 @@
 
   </div>
 
+  <button class="wp-cta" onclick="openWallpaper()">📱 Jadiin wallpaper HP <small>· 1080×1920</small></button>
+
   <div class="footer">Made with <span>🤍</span> — untuk Dara Syifa Aulia</div>
 
 </div>
+
+<div id="wp-ov" onclick="if(event.target===this)closeWallpaper()">
+  <div class="wp-sheet" role="dialog" aria-modal="true">
+    <p class="wp-title">Wallpaper Dara ✨</p>
+    <img class="wp-preview" id="wp-img" alt="Pratinjau wallpaper">
+    <div class="wp-colors" id="wp-colors"></div>
+    <div class="wp-row">
+      <button class="wp-close" onclick="closeWallpaper()">Tutup</button>
+      <a class="wp-save" id="wp-save" href="#" download="wallpaper-dara.png" onclick="return saveWallpaper(event)">⬇ Simpan</a>
+    </div>
+    <p class="wp-hint">Abis disimpen, buka Galeri → pilih fotonya → "Jadikan wallpaper" 🤍</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
 <script>
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), +e.target.dataset.delay || 0);
+  // Muncul pas di-scroll (kalau browser ga dukung, langsung tampil)
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), +e.target.dataset.delay || 0); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.block').forEach((b, i) => { b.dataset.delay = Math.min(i, 6) * 80; observer.observe(b); });
+  } else {
+    document.querySelectorAll('.block').forEach(b => b.classList.add('visible'));
+  }
+
+  let toastT;
+  function toast(m) {
+    const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  function copyHex(hex, name) {
+    const done = () => toast(`🎨 ${name} ${hex} disalin`);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(hex).then(done, () => toast(`🎨 ${name} · ${hex}`));
+    else toast(`🎨 ${name} · ${hex}`);
+    try { navigator.vibrate && navigator.vibrate(10); } catch (e) {}
+  }
+
+  /* ── WALLPAPER 1080×1920 ── */
+  const THEMES = [
+    { key: 'rose',  dot: '#D4908A', bg: ['#fdf8f4', '#f3d9cd'], accent: '#b5706a', ink: '#2d1f1a', muted: '#9a8070' },
+    { key: 'mauve', dot: '#C4A0A8', bg: ['#faf3f4', '#e6cfd4'], accent: '#9a6a76', ink: '#2d1f1a', muted: '#8a7276' },
+    { key: 'gold',  dot: '#C9A96E', bg: ['#fbf7ef', '#ecdcb8'], accent: '#9a7a3e', ink: '#2d1f1a', muted: '#8a7a5e' },
+    { key: 'sage',  dot: '#B5C4B1', bg: ['#f6f8f4', '#d6e0d2'], accent: '#5e7a5a', ink: '#24301f', muted: '#76866e' },
+    { key: 'night', dot: '#2D1F1A', bg: ['#2d1f1a', '#4a302a'], accent: '#ecc5b5', ink: '#fdf8f4', muted: '#c9a99a' },
+  ];
+  let wpTheme = 0;
+  try { wpTheme = Math.max(0, THEMES.findIndex(x => x.key === localStorage.getItem('moodboard-wp'))); } catch (e) {}
+  let wpURL = null;
+
+  function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  async function drawWallpaper() {
+    try { if (document.fonts && document.fonts.load) { await Promise.all(['300','400','600','700'].map(w => document.fonts.load(`${w} 40px Poppins`))); } } catch (e) {}
+    const T = THEMES[wpTheme];
+    const W = 1080, H = 1920;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+    const F = (w, s) => `${w} ${s}px Poppins, sans-serif`;
+
+    const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // bulatan lembut
+    [[920, 260, 380, '#c17a6f', .10], [140, 1650, 330, '#c9a96e', .12], [560, 1000, 240, '#c4a0a8', .08]].forEach(([x, y, r, col, a]) => {
+      ctx.globalAlpha = a; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
     });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.block').forEach((b, i) => { b.dataset.delay = i * 80; observer.observe(b); });
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+
+    // label + nama (area atas dikosongin buat jam di lock screen)
+    ctx.fillStyle = T.muted; ctx.font = F(400, 30);
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '8px';
+    ctx.fillText('A MOODBOARD FOR', W / 2, 760);
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    ctx.fillStyle = T.ink; ctx.font = F(600, 120); ctx.fillText('Dara', W / 2, 900);
+    ctx.fillStyle = T.accent; ctx.font = F(600, 64); ctx.fillText('Syifa Aulia', W / 2, 985);
+
+    // garis
+    ctx.strokeStyle = T.accent; ctx.globalAlpha = .4; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(W / 2 - 60, 1040); ctx.lineTo(W / 2 + 60, 1040); ctx.stroke(); ctx.globalAlpha = 1;
+
+    // kutipan
+    ctx.fillStyle = T.ink; ctx.font = F(400, 46);
+    ctx.fillText('Satu ruangan,', W / 2, 1140);
+    ctx.fillText('tapi semua mata', W / 2, 1205);
+    ctx.fillStyle = T.accent; ctx.font = F(600, 46); ctx.fillText('tetap ke kamu.', W / 2, 1270);
+
+    // tag
+    const tags = ['Soft', 'Elegant', 'Cantik', 'Imut', 'Karismatik'];
+    ctx.font = F(400, 32);
+    const pad = 34, gap = 18, th = 70;
+    const ws = tags.map(s => ctx.measureText(s).width + pad * 2);
+    // bagi 2 baris
+    const rows = [tags.slice(0, 3), tags.slice(3)];
+    let y = 1380, k = 0;
+    rows.forEach(row => {
+      const rw = row.reduce((a, _, i) => a + ws[k + i], 0) + gap * (row.length - 1);
+      let x = (W - rw) / 2;
+      row.forEach((s, i) => {
+        const w = ws[k + i];
+        const filled = (k + i) % 2 === 1;
+        rr(ctx, x, y, w, th, th / 2);
+        if (filled) { ctx.fillStyle = T.accent; ctx.fill(); ctx.fillStyle = T.key === 'night' ? '#2d1f1a' : '#fff'; }
+        else { ctx.fillStyle = T.key === 'night' ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.7)'; ctx.fill(); ctx.strokeStyle = T.accent; ctx.globalAlpha = .35; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1; ctx.fillStyle = T.ink; }
+        ctx.fillText(s, x + w / 2, y + th / 2 + 11);
+        x += w + gap;
+      });
+      k += row.length; y += th + gap;
+    });
+
+    // swatch
+    const sw = ['#D4908A', '#C4A0A8', '#C9A96E', '#B5C4B1', '#B5706A'];
+    const sr = 30, sg = 26, total = sw.length * sr * 2 + (sw.length - 1) * sg;
+    sw.forEach((col, i) => {
+      ctx.fillStyle = col; ctx.beginPath();
+      ctx.arc((W - total) / 2 + sr + i * (sr * 2 + sg), 1610, sr, 0, Math.PI * 2); ctx.fill();
+    });
+
+    ctx.fillStyle = T.muted; ctx.font = F(300, 28); ctx.fillText('— Razan, untuk Dara 🤍', W / 2, 1720);
+    return c;
+  }
+
+  async function renderWallpaper() {
+    const c = await drawWallpaper();
+    const img = document.getElementById('wp-img');
+    await new Promise(res => c.toBlob(b => {
+      if (wpURL) URL.revokeObjectURL(wpURL);
+      wpURL = URL.createObjectURL(b);
+      img.src = wpURL;
+      document.getElementById('wp-save').href = wpURL;
+      res();
+    }, 'image/png'));
+  }
+  function paintColors() {
+    document.getElementById('wp-colors').innerHTML = THEMES.map((th, i) =>
+      `<button class="${i === wpTheme ? 'on' : ''}" style="background:${th.dot}" onclick="setTheme(${i})" aria-label="Warna ${th.key}"></button>`).join('');
+  }
+  function setTheme(i) {
+    wpTheme = i; try { localStorage.setItem('moodboard-wp', THEMES[i].key); } catch (e) {}
+    paintColors(); renderWallpaper();
+  }
+  function openWallpaper() {
+    document.getElementById('wp-ov').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    paintColors(); renderWallpaper();
+  }
+  function closeWallpaper() {
+    document.getElementById('wp-ov').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function saveWallpaper(e) {
+    // di HP yang bisa "share file" (iPhone), pakai share sheet biar bisa langsung "Simpan Gambar"
+    if (!wpURL) { e.preventDefault(); return false; }
+    if (navigator.canShare && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      e.preventDefault();
+      fetch(wpURL).then(r => r.blob()).then(b => {
+        const f = new File([b], 'wallpaper-dara.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: 'Wallpaper Dara' }).catch(() => {});
+        else window.open(wpURL, '_blank');
+      });
+      return false;
+    }
+    toast('⬇ Wallpaper disimpen');
+    return true;
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWallpaper(); });
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
