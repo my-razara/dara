@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Playlist Buat Dara 🤍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -18,7 +18,15 @@
     --sage: #b5c4b1;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  button { font-family: inherit; }
+  .back-link {
+    position: absolute; top: calc(1rem + env(safe-area-inset-top)); left: 1.5rem; z-index: 5;
+    font-size: 12px; color: var(--muted); text-decoration: none; font-weight: 400;
+    background: rgba(255,255,255,.75); border: 1px solid rgba(193,122,111,.18);
+    padding: .4rem .85rem; border-radius: 50px; backdrop-filter: blur(6px);
+  }
+  .back-link:active { background: var(--warm); }
   html { scroll-behavior: smooth; }
 
   body {
@@ -26,7 +34,7 @@
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    padding: 0 0 6rem;
+    padding: 0 0 calc(6rem + env(safe-area-inset-bottom));
     overflow-x: hidden;
   }
 
@@ -110,9 +118,11 @@
 
   .track.visible { opacity: 1; transform: none; }
 
-  .track:hover {
-    border-color: rgba(193,122,111,0.3);
-    box-shadow: 0 4px 24px rgba(193,122,111,0.1);
+  @media (hover: hover) {
+    .track:hover {
+      border-color: rgba(193,122,111,0.3);
+      box-shadow: 0 4px 24px rgba(193,122,111,0.1);
+    }
   }
 
   .track::before {
@@ -123,7 +133,8 @@
     border-radius: 3px 0 0 3px;
   }
 
-  .track:hover::before { transform: scaleY(1); }
+  @media (hover: hover) { .track:hover::before { transform: scaleY(1); } }
+  .track.heard::before { transform: scaleY(1); }
 
   /* Track number */
   .track-num {
@@ -137,10 +148,113 @@
     transition: background 0.2s, color 0.2s;
   }
 
-  .track:hover .track-num {
-    background: rgba(193,122,111,0.12);
-    color: var(--rose);
+  @media (hover: hover) {
+    .track:hover .track-num {
+      background: rgba(193,122,111,0.12);
+      color: var(--rose);
+    }
   }
+  .track.heard .track-num { background: var(--rose); color: #fff; }
+  .track.special.heard .track-num { background: var(--gold); color: #fff; }
+
+  /* ── TOMBOL DENGERIN ── */
+  .listen { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .9rem; align-items: center; }
+  .listen a {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .5rem .9rem; border-radius: 50px; font-size: 12px; font-weight: 500;
+    text-decoration: none; white-space: nowrap; transition: transform .15s;
+  }
+  .listen a:active { transform: scale(.95); }
+  .listen svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .l-sp { background: #1db954; color: #fff; }
+  .l-yt { background: #fff; color: #c4302b; border: 1.5px solid rgba(196,48,43,.35); }
+  .heard-tag { font-size: 10.5px; color: var(--rose); font-weight: 500; margin-left: auto; display: none; white-space: nowrap; }
+  .track.heard .heard-tag { display: inline; }
+
+  /* ── PILIH APP ── */
+  .app-pick {
+    display: flex; align-items: center; justify-content: center; gap: .4rem; flex-wrap: wrap;
+    margin: -0.5rem 0 1.5rem; font-size: 11px; color: var(--muted);
+  }
+  .app-pick button {
+    border: 1px solid rgba(193,122,111,.2); background: #fff; color: var(--muted);
+    border-radius: 50px; padding: .35rem .8rem; font-size: 11px; font-weight: 500; cursor: pointer;
+  }
+  .app-pick button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .play-all {
+    display: none; margin: 0 auto 1.5rem; width: fit-content;
+    padding: .75rem 1.4rem; border-radius: 50px; font-size: 13px; font-weight: 600;
+    text-decoration: none; color: #fff; background: #1db954; box-shadow: 0 4px 16px rgba(29,185,84,.3);
+  }
+  .play-all.show { display: block; }
+
+  /* ── LAGU TAMBAHAN ── */
+  .extra-head { display: flex; align-items: center; gap: .6rem; margin: 2.5rem 0 1rem; }
+  .extra-head h2 { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 500; white-space: nowrap; }
+  .extra-head::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--blush), transparent); }
+  .add-btn {
+    display: flex; align-items: center; justify-content: center; gap: .45rem; width: 100%;
+    padding: 1rem; border-radius: 16px; border: 1.5px dashed var(--blush); background: rgba(255,255,255,.6);
+    color: var(--rose); font-size: 13.5px; font-weight: 500; cursor: pointer; margin-top: 1.25rem;
+  }
+  .add-btn:active { background: var(--warm); }
+  .sync-chip { display: block; text-align: center; font-size: 10.5px; color: var(--muted); margin-top: .6rem; }
+  .sync-chip.err { color: #b5523f; }
+  .sync-chip button { border: none; background: none; color: var(--rose); font-size: 10.5px; text-decoration: underline; cursor: pointer; }
+  .extra-empty { font-size: 12.5px; color: var(--muted); text-align: center; padding: 1.1rem; background: rgba(255,255,255,.6); border-radius: 14px; line-height: 1.7; }
+  .track.extra { opacity: 1; transform: none; }
+  .track.extra .track-num { font-size: 11px; }
+  .by-tag { display: inline-block; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 50px; margin-left: 6px; vertical-align: middle; font-weight: 500; }
+  .by-razan { background: rgba(74,127,193,.12); color: #4a7fc1; }
+  .by-dara { background: rgba(217,119,107,.14); color: #c4605a; }
+  .track .more { position: absolute; top: .75rem; right: .75rem; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: .2rem .45rem; border-radius: 8px; line-height: 1; }
+  .track .more:active { background: var(--warm); }
+  .track.extra .track-title { padding-right: 1.5rem; overflow-wrap: anywhere; }
+  .track.extra .track-reason { overflow-wrap: anywhere; white-space: pre-line; }
+  .pending-dot { font-size: 10px; color: var(--muted); margin-left: .35rem; }
+
+  /* ── FORM ── */
+  #add-ov {
+    display: none; position: fixed; inset: 0; z-index: 100; background: rgba(45,31,26,.45);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    align-items: flex-end; justify-content: center;
+  }
+  #add-ov.show { display: flex; }
+  .add-sheet {
+    background: var(--cream); width: 100%; max-width: 480px; border-radius: 22px 22px 0 0;
+    padding: 1.2rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    max-height: 92dvh; overflow-y: auto; animation: su .3s ease;
+  }
+  @keyframes su { from { transform: translateY(100%); } to { transform: none; } }
+  .add-sheet h3 { font-size: 15px; font-weight: 600; color: var(--ink); text-align: center; margin-bottom: 1rem; }
+  .fld { margin-bottom: .8rem; }
+  .fld label { display: block; font-size: 11px; color: var(--muted); margin-bottom: .3rem; font-weight: 500; }
+  .fld input, .fld textarea {
+    width: 100%; border: 1.5px solid var(--blush); border-radius: 12px; background: #fff;
+    padding: .7rem .85rem; font-family: inherit; font-size: 14px; color: var(--ink); outline: none;
+  }
+  .fld textarea { min-height: 88px; resize: vertical; line-height: 1.6; }
+  .fld input:focus, .fld textarea:focus { border-color: var(--rose); }
+  .fld .hint { font-size: 10.5px; color: var(--muted); margin-top: .25rem; }
+  .fld .err { font-size: 11px; color: #b5523f; margin-top: .25rem; display: none; }
+  .who { display: flex; gap: .5rem; }
+  .who button { flex: 1; padding: .6rem; border-radius: 50px; border: 1.5px solid var(--blush); background: #fff; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .who button.on.r { background: #4a7fc1; border-color: #4a7fc1; color: #fff; }
+  .who button.on.d { background: #d9776b; border-color: #d9776b; color: #fff; }
+  .form-row { display: flex; gap: .5rem; margin-top: 1rem; }
+  .form-row button { flex: 1; padding: .85rem; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .f-cancel { background: transparent; border: 1.5px solid var(--blush); color: var(--muted); }
+  .f-save { background: var(--rose); border: none; color: #fff; box-shadow: 0 4px 14px rgba(193,122,111,.3); }
+  .f-save:disabled { opacity: .5; }
+  .f-del { width: 100%; margin-top: .6rem; border: none; background: none; color: #b5523f; font-size: 12px; cursor: pointer; padding: .4rem; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom)); transform: translate(-50%, 20px);
+    background: var(--ink); color: #fff; font-size: 12.5px; padding: .6rem 1.1rem; border-radius: 50px;
+    opacity: 0; pointer-events: none; transition: all .3s; z-index: 300; max-width: calc(100vw - 2rem); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  .toast a { color: #f0c8b8; margin-left: .4rem; font-weight: 600; }
 
   /* Track content */
   .track-content { min-width: 0; }
@@ -213,12 +327,23 @@
   .footer span { color: var(--rose); }
 
   @media (max-width: 480px) {
-    .track { padding: 1.25rem; gap: 1rem; }
+    .page { padding: 0 1rem; }
+    .back-link { left: 1rem; }
+    .hero { padding: 4.25rem 0 2.25rem; }
+    .track { padding: 1.15rem 1rem; gap: .8rem; }
+    .track-num { width: 34px; height: 34px; font-size: 12px; }
     .track-title { font-size: 14px; }
+    .track-reason { padding: .85rem .95rem; font-size: 12.5px; }
   }
+  @media (max-width: 340px) {
+    .track { grid-template-columns: 1fr; }
+    .track-num { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .track { opacity: 1; transform: none; transition: none; } .hero-icon { animation: none; } }
 </style>
 </head>
 <body>
+<a href="index.html" class="back-link">← Menu utama</a>
 <div class="page">
 
   <!-- HERO -->
@@ -231,6 +356,14 @@
   </div>
 
   <p class="track-count"><span>10</span> lagu yang ingetin aku sama kamu</p>
+  <div class="app-pick">
+    <span>Dengerin pakai:</span>
+    <button id="ap-both" onclick="setApp('both')">Dua-duanya</button>
+    <button id="ap-sp" onclick="setApp('sp')">Spotify</button>
+    <button id="ap-yt" onclick="setApp('yt')">YouTube</button>
+  </div>
+  <a class="play-all" id="play-all" href="#" target="_blank" rel="noopener">▶ Putar semua di Spotify</a>
+  <p class="track-count" id="heard-count" style="margin-top:-.75rem"></p>
 
   <!-- TRACKS -->
   <div class="tracks">
@@ -367,6 +500,12 @@
 
   </div>
 
+  <!-- LAGU TAMBAHAN -->
+  <div class="extra-head"><h2>➕ Lagu tambahan kita</h2></div>
+  <div class="tracks" id="extra-list"></div>
+  <button class="add-btn" onclick="openForm()">➕ Tambah lagu baru</button>
+  <span class="sync-chip" id="sync-chip"></span>
+
   <!-- FOOTER -->
   <div class="footer">
     <p>Dibuat dengan <span>🤍</span> untuk Dara Syifa Aulia</p>
@@ -375,19 +514,358 @@
 
 </div>
 
-<script>
-  // Love Grows - Edison Lighthouse intentionally not in list per request (10 songs listed)
-  // Fade in on scroll
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) e.target.classList.add('visible');
-    });
-  }, { threshold: 0.1 });
+<div id="add-ov" onclick="if(event.target===this)closeForm()">
+  <div class="add-sheet" role="dialog" aria-modal="true">
+    <h3 id="f-title">➕ Tambah lagu</h3>
+    <div class="fld"><label for="f-song">Judul lagu *</label><input id="f-song" maxlength="80" autocomplete="off" placeholder="misal: Kota Ini Tak Sama Tanpamu"><p class="err" id="e-song">Judulnya diisi dulu ya</p></div>
+    <div class="fld"><label for="f-artist">Penyanyi *</label><input id="f-artist" maxlength="60" autocomplete="off" placeholder="misal: Nadhif Basalamah"><p class="err" id="e-artist">Penyanyinya juga ya</p></div>
+    <div class="fld"><label for="f-reason">Kenapa lagu ini? (boleh kosong)</label><textarea id="f-reason" maxlength="400" placeholder="Lagu ini ingetin aku sama kamu karena…"></textarea></div>
+    <div class="fld"><label>Yang nambahin</label>
+      <div class="who"><button class="r" id="w-r" onclick="setWho('Razan')">🙋‍♂️ Razan</button><button class="d" id="w-d" onclick="setWho('Dara')">🙋‍♀️ Dara</button></div>
+    </div>
+    <div class="fld"><label for="f-link">Link Spotify / YouTube (boleh kosong)</label><input id="f-link" maxlength="300" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/track/…">
+      <p class="hint">Kosongin aja kalau ga ada — tombolnya bakal nyari lagunya otomatis.</p><p class="err" id="e-link">Linknya harus dari Spotify atau YouTube</p></div>
+    <div class="form-row"><button class="f-cancel" onclick="closeForm()">Batal</button><button class="f-save" id="f-save" onclick="submitForm()">Simpan 🎵</button></div>
+    <button class="f-del" id="f-del" onclick="deleteSong()">🗑️ Hapus lagu ini</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
-  document.querySelectorAll('.track').forEach((el, i) => {
-    el.style.transitionDelay = `${i * 60}ms`;
-    observer.observe(el);
+<script>
+  /* ═══ LAGU TAMBAHAN — sinkron lewat Google Sheet ═══
+     Pasang playlist.gs di script.google.com (akun razara.my.id@gmail.com), Deploy → Web app
+     (Execute as: Me, Who has access: Anyone), terus tempel URL /exec-nya di sini.
+     Kalau kosong, lagu tambahan cuma kesimpen di HP yang dipakai nambahin. */
+  const PLAYLIST_GS_URL = 'https://script.google.com/macros/s/AKfycbyR2ZOcUe9mw8I6uW7QH7KrX0XHreGzgpti2ZziMpa_7gI16qdtyToYAxgD-RhBlze7Aw/exec';
+  const PLAYLIST_KEY = 'razara-playlist';   // harus sama dengan KEY di playlist.gs
+
+  /* ═══ LINK LAGU ═══
+     Default: tombol buka pencarian lagu itu di Spotify / YouTube (langsung ke aplikasinya kalau ada di HP).
+     Mau langsung ke lagunya persis? Isi link-nya di bawah (Spotify: Share → Copy Song Link,
+     YouTube: Share → Copy link). Yang dikosongin tetap pakai pencarian. */
+  const DIRECT = {
+    1:  { sp: '', yt: '' },  // Monolog — Pamungkas
+    2:  { sp: '', yt: '' },  // Sedia Aku Sebelum Hujan — Idgitaf
+    3:  { sp: '', yt: '' },  // Jantung Aman Kan? — Fani Rahmansyah
+    4:  { sp: '', yt: '' },  // Pengingat — Good Morning Everyone
+    5:  { sp: '', yt: '' },  // Berapa Kali Kita Akan Saling Memaafkan — Pamungkas
+    6:  { sp: '', yt: '' },  // Bahagia Lagi — Piche Kota
+    7:  { sp: '', yt: '' },  // 1000x — Ghea Indrawari
+    8:  { sp: '', yt: '' },  // Meski Takkan Selalu Indah — Adiw
+    9:  { sp: '', yt: '' },  // What Makes You Beautiful — One Direction
+    10: { sp: '', yt: '' },  // Malapetaka — Juicy Luicy
+  };
+  // Kalau udah bikin playlist Spotify isinya 10 lagu ini, tempel link-nya di sini → muncul tombol "Putar semua"
+  const PLAYLIST_SPOTIFY = '';
+
+  const ICON_SP = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm5.5 17.3a.75.75 0 0 1-1 .25c-2.8-1.7-6.4-2.1-10.6-1.2a.75.75 0 1 1-.33-1.46c4.6-1 8.6-.6 11.7 1.4.36.2.47.67.25 1zm1.47-3.27a.94.94 0 0 1-1.29.31c-3.2-2-8.1-2.55-11.9-1.4a.94.94 0 1 1-.55-1.8c4.3-1.3 9.7-.67 13.4 1.6.44.27.58.85.31 1.29zm.13-3.4C15.2 8.3 8.8 8.1 5.1 9.2a1.13 1.13 0 1 1-.65-2.16c4.2-1.27 11.3-1.03 15.8 1.64a1.13 1.13 0 0 1-1.15 1.95z"/></svg>';
+  const ICON_YT = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>';
+
+  const KEY_HEARD = 'playlist-heard', KEY_APP = 'playlist-app';
+  let heard = new Set();
+  try { heard = new Set(JSON.parse(localStorage.getItem(KEY_HEARD)) || []); } catch (e) {}
+  let app = 'both';
+  try { app = localStorage.getItem(KEY_APP) || 'both'; } catch (e) {}
+
+  const tracks = [...document.querySelectorAll('.track')];
+  tracks.forEach((el, i) => {
+    const n = i + 1;
+    const title = el.querySelector('.track-title').textContent.trim();
+    const artist = el.querySelector('.track-artist').textContent.trim();
+    const q = encodeURIComponent(`${title} ${artist}`);
+    const d = DIRECT[n] || {};
+    const sp = d.sp || `https://open.spotify.com/search/${q}`;
+    const yt = d.yt || `https://www.youtube.com/results?search_query=${q}`;
+    const row = document.createElement('div');
+    row.className = 'listen';
+    row.innerHTML = `
+      <a class="l-sp" href="${sp}" target="_blank" rel="noopener" aria-label="Dengerin ${title} di Spotify">${ICON_SP}Spotify</a>
+      <a class="l-yt" href="${yt}" target="_blank" rel="noopener" aria-label="Dengerin ${title} di YouTube">${ICON_YT}YouTube</a>
+      <span class="heard-tag">✓ udah didengerin</span>`;
+    row.querySelectorAll('a').forEach(a => a.addEventListener('click', () => markHeard(n)));
+    el.querySelector('.track-content').appendChild(row);
+    el.classList.toggle('heard', heard.has(n));
   });
+
+  function markHeard(n) {
+    if (heard.has(n)) return;
+    heard.add(n);
+    try { localStorage.setItem(KEY_HEARD, JSON.stringify([...heard])); } catch (e) {}
+    const el = typeof n === 'number' ? tracks[n - 1] : document.getElementById('x-' + n.slice(2));
+    if (el) el.classList.add('heard');
+    updateHeard();
+  }
+  function updateHeard() {
+    const ids = new Set(extras.map(s => 'x:' + s.id));
+    const total = tracks.length + extras.length;
+    const c = [...heard].filter(n => (typeof n === 'number' && n >= 1 && n <= tracks.length) || ids.has(n)).length;
+    document.getElementById('heard-count').innerHTML = c ? (c === total ? '🎧 <span>Semua</span> udah kamu dengerin 🤍' : `🎧 <span>${c}</span> dari ${total} udah didengerin`) : '';
+    const tc = document.querySelector('.track-count span'); if (tc) tc.textContent = total;
+  }
+  function setApp(a) {
+    app = a;
+    try { localStorage.setItem(KEY_APP, a); } catch (e) {}
+    ['both', 'sp', 'yt'].forEach(k => document.getElementById('ap-' + k).classList.toggle('on', k === a));
+    document.querySelectorAll('.l-sp').forEach(x => x.style.display = a === 'yt' ? 'none' : '');
+    document.querySelectorAll('.l-yt').forEach(x => x.style.display = a === 'sp' ? 'none' : '');
+    document.getElementById('play-all').classList.toggle('show', !!PLAYLIST_SPOTIFY && a !== 'yt');
+  }
+  if (PLAYLIST_SPOTIFY) document.getElementById('play-all').href = PLAYLIST_SPOTIFY;
+
+  /* ═══ LAGU TAMBAHAN ═══ */
+  const K_EXTRA = 'playlist-extra', K_QUEUE = 'playlist-extra-queue', K_WHO = 'playlist-who';
+  const WA_RAZAN = '6285692740607';
+  function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  let extras = lsGet(K_EXTRA, []).filter(s => s && s.id && s.title);
+  let queue = lsGet(K_QUEUE, []);          // perubahan yang belum kekirim ke server
+  let who = localStorage.getItem(K_WHO) || 'Dara';
+  let editing = null, syncing = false, syncErr = false, serverOK = false;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function cleanLink(u) {
+    u = String(u || '').trim();
+    if (!u) return '';
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    try {
+      const h = new URL(u).hostname.replace(/^www\.|^m\./, '');
+      if (/^(open\.spotify\.com|spotify\.link|youtu\.be|youtube\.com|music\.youtube\.com)$/.test(h)) return u;
+    } catch (e) {}
+    return null;
+  }
+  function linkKind(u) { return !u ? '' : /spotify/.test(u) ? 'sp' : 'yt'; }
+
+  function renderExtras() {
+    const box = document.getElementById('extra-list');
+    extras.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    // lagu yang belum kekirim (tetap diantriin walau sinkron belum dipasang → nanti otomatis kekirim)
+    const pend = new Set(PLAYLIST_GS_URL ? queue.map(q => q.song ? q.song.id : q.id) : []);
+    if (!extras.length) {
+      box.innerHTML = `<div class="extra-empty">Belum ada lagu tambahan.<br>Nemu lagu yang ingetin ke satu sama lain? Tambahin di sini 🎶</div>`;
+    } else {
+      box.innerHTML = extras.map((s, k) => {
+        const n = tracks.length + k + 1;
+        const q = encodeURIComponent(`${s.title} ${s.artist}`);
+        const kind = linkKind(s.link);
+        const sp = kind === 'sp' ? s.link : `https://open.spotify.com/search/${q}`;
+        const yt = kind === 'yt' ? s.link : `https://www.youtube.com/results?search_query=${q}`;
+        const by = s.by === 'Razan' ? 'razan' : 'dara';
+        return `<div class="track extra${heard.has('x:' + s.id) ? ' heard' : ''}" id="x-${esc(s.id)}">
+          <button class="more" onclick="openForm('${esc(s.id)}')" aria-label="Ubah lagu">⋯</button>
+          <div class="track-num">${n}</div>
+          <div class="track-content">
+            <p class="track-meta">Track ${n} <span class="by-tag by-${by}">dari ${esc(s.by || 'Dara')}</span>${pend.has(s.id) ? '<span class="pending-dot">⏳</span>' : ''}</p>
+            <p class="track-title">${esc(s.title)}</p>
+            <p class="track-artist">${esc(s.artist)}</p>
+            ${s.reason ? `<p class="track-reason">${esc(s.reason)}</p>` : ''}
+            <div class="listen">
+              <a class="l-sp" href="${esc(sp)}" target="_blank" rel="noopener" data-h="x:${esc(s.id)}">${ICON_SP}Spotify</a>
+              <a class="l-yt" href="${esc(yt)}" target="_blank" rel="noopener" data-h="x:${esc(s.id)}">${ICON_YT}YouTube</a>
+              <span class="heard-tag">✓ udah didengerin</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+      box.querySelectorAll('a[data-h]').forEach(a => a.addEventListener('click', () => markHeard(a.dataset.h)));
+    }
+    setApp(app);
+    updateHeard();
+    renderSync();
+  }
+
+  function renderSync() {
+    const el = document.getElementById('sync-chip');
+    if (!PLAYLIST_GS_URL) { el.className = 'sync-chip'; el.textContent = '📱 Lagu tambahan kesimpen di HP ini'; return; }
+    if (syncing) { el.className = 'sync-chip'; el.textContent = '⏳ Nyinkronin…'; return; }
+    if (syncErr) { el.className = 'sync-chip err'; el.innerHTML = `⚠️ Lagi offline${queue.length ? ` · ${queue.length} perubahan nunggu dikirim` : ''} <button onclick="syncNow()">Coba lagi</button>`; return; }
+    el.className = 'sync-chip'; el.textContent = serverOK ? '☁️ Kesinkron — Razan & Dara liat lagu yang sama' : '';
+  }
+
+  /* ── server ── */
+  function api(method, body) {
+    return new Promise((res, rej) => {
+      const x = new XMLHttpRequest();
+      const url = PLAYLIST_GS_URL + (method === 'GET' ? `?action=list&key=${encodeURIComponent(PLAYLIST_KEY)}&t=${Date.now()}` : '');
+      x.open(method, url, true); x.timeout = 20000;
+      if (method === 'POST') x.setRequestHeader('Content-Type', 'text/plain');
+      x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(new Error(r.error || 'gagal')); } catch (e) { rej(e); } };
+      x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+      x.send(method === 'POST' ? JSON.stringify(Object.assign({ key: PLAYLIST_KEY }, body)) : null);
+    });
+  }
+  async function syncNow() {
+    if (!PLAYLIST_GS_URL || syncing) return;
+    syncing = true; renderSync();
+    try {
+      // 1) kirim perubahan yang masih ngantri
+      while (queue.length) {
+        await api('POST', queue[0]);
+        queue.shift(); lsSet(K_QUEUE, queue);
+      }
+      // 2) ambil daftar terbaru dari server
+      const r = await api('GET');
+      extras = (r.songs || []).filter(s => s && s.id && s.title);
+      lsSet(K_EXTRA, extras);
+      serverOK = true; syncErr = false;
+    } catch (e) {
+      syncErr = true;
+    }
+    syncing = false;
+    renderExtras();
+  }
+  function pushOp(op) {
+    // gabungin operasi ke lagu yang sama biar antrian ga numpuk
+    const id = op.song ? op.song.id : op.id;
+    const prev = queue.findIndex(q => (q.song ? q.song.id : q.id) === id);
+    if (prev >= 0) {
+      const p = queue[prev];
+      if (op.action === 'delete' && p.action === 'add') { queue.splice(prev, 1); lsSet(K_QUEUE, queue); return; }
+      if (op.action === 'update' && p.action === 'add') { p.song = op.song; lsSet(K_QUEUE, queue); return; }
+      queue.splice(prev, 1);
+    }
+    queue.push(op); lsSet(K_QUEUE, queue);
+  }
+
+  /* ── form ── */
+  function setWho(w) {
+    who = w; try { localStorage.setItem(K_WHO, w); } catch (e) {}
+    document.getElementById('w-r').classList.toggle('on', w === 'Razan');
+    document.getElementById('w-d').classList.toggle('on', w === 'Dara');
+  }
+  function openForm(id) {
+    editing = id ? extras.find(s => s.id === id) : null;
+    document.getElementById('f-title').textContent = editing ? '✏️ Ubah lagu' : '➕ Tambah lagu';
+    document.getElementById('f-song').value = editing ? editing.title : '';
+    document.getElementById('f-artist').value = editing ? editing.artist : '';
+    document.getElementById('f-reason').value = editing ? (editing.reason || '') : '';
+    document.getElementById('f-link').value = editing ? (editing.link || '') : '';
+    document.getElementById('f-del').style.display = editing ? '' : 'none';
+    ['e-song', 'e-artist', 'e-link'].forEach(i => document.getElementById(i).style.display = 'none');
+    setWho(editing ? (editing.by || 'Dara') : who);
+    document.getElementById('add-ov').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    if (!editing) setTimeout(() => document.getElementById('f-song').focus(), 250);
+  }
+  function closeForm() {
+    document.getElementById('add-ov').classList.remove('show');
+    document.body.style.overflow = '';
+    editing = null;
+  }
+  function submitForm() {
+    const title = document.getElementById('f-song').value.trim().slice(0, 80);
+    const artist = document.getElementById('f-artist').value.trim().slice(0, 60);
+    const reason = document.getElementById('f-reason').value.trim().slice(0, 400);
+    const link = cleanLink(document.getElementById('f-link').value);
+    document.getElementById('e-song').style.display = title ? 'none' : 'block';
+    document.getElementById('e-artist').style.display = artist ? 'none' : 'block';
+    document.getElementById('e-link').style.display = link === null ? 'block' : 'none';
+    if (!title || !artist || link === null) return;
+    const dupe = extras.find(s => s.id !== (editing && editing.id) && s.title.toLowerCase() === title.toLowerCase() && s.artist.toLowerCase() === artist.toLowerCase());
+    if (dupe) { toast('Lagu ini udah ada di daftar 🎵'); return; }
+    let song;
+    if (editing) {
+      song = Object.assign({}, editing, { title, artist, reason, link, by: who });
+      extras = extras.map(s => s.id === song.id ? song : s);
+      pushOp({ action: 'update', song });
+    } else {
+      song = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(), title, artist, reason, link, by: who };
+      extras.push(song);
+      pushOp({ action: 'add', song });
+    }
+    lsSet(K_EXTRA, extras);
+    const wasNew = !editing;
+    closeForm();
+    renderExtras();
+    const el = document.getElementById('x-' + song.id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    if (wasNew && song.by === 'Dara') {
+      const msg = `Razan, aku nambahin lagu ke playlist kita 🎵\n\n"${song.title}" — ${song.artist}${song.reason ? `\n\n${song.reason}` : ''}`;
+      toast(`🎵 Lagu ditambahin <a href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">Kabarin Razan</a>`, 5000);
+    } else toast(wasNew ? '🎵 Lagu ditambahin' : '✏️ Lagu diubah');
+    syncNow();
+  }
+  function deleteSong() {
+    if (!editing) return;
+    if (!confirm(`Hapus "${editing.title}" dari playlist?`)) return;
+    const id = editing.id;
+    extras = extras.filter(s => s.id !== id);
+    lsSet(K_EXTRA, extras);
+    pushOp({ action: 'delete', id });
+    closeForm();
+    renderExtras();
+    toast('🗑️ Lagu dihapus');
+    syncNow();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeForm(); });
+
+  let toastT;
+  function toast(m, ms) {
+    const t = document.getElementById('toast'); t.innerHTML = m; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2200);
+  }
+
+  setApp(app);
+  renderExtras();
+  syncNow();
+  addEventListener('online', syncNow);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncNow(); });
+
+  // Fade in on scroll (kalau browser ga dukung, langsung tampil)
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    tracks.forEach((el, i) => {
+      el.style.transitionDelay = `${Math.min(i, 3) * 60}ms`;
+      observer.observe(el);
+    });
+  } else {
+    tracks.forEach(el => el.classList.add('visible'));
+  }
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
