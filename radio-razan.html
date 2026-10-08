@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Radio Razan 📻</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -17,10 +17,19 @@
     background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.35) 0%,transparent 65%),
     radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.18) 0%,transparent 65%);
     pointer-events:none;z-index:0}
-  .page{max-width:460px;margin:0 auto;padding:0 1.25rem 5rem;position:relative;z-index:1}
+  button{font-family:inherit}
+  .page{max-width:460px;margin:0 auto;padding:0 1.25rem calc(5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+
+  .back-link{
+    position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1.25rem;z-index:5;
+    font-size:12px;color:var(--muted);text-decoration:none;font-weight:400;
+    background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);
+    padding:.4rem .85rem;border-radius:50px;backdrop-filter:blur(6px);
+  }
+  .back-link:active{background:var(--warm)}
 
   /* ── HEADER ── */
-  .header{text-align:center;padding:2.5rem 0 1.75rem}
+  .header{text-align:center;padding:3.6rem 0 1.5rem}
   .header-icon{font-size:2.75rem;display:block;margin-bottom:.85rem;animation:float 3s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .header-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.3rem}
@@ -33,7 +42,7 @@
     background:#fff;
     border:1px solid rgba(193,122,111,.15);
     border-radius:24px;
-    padding:1.5rem 1.5rem 1.25rem;
+    padding:1.35rem 1.35rem 1.15rem;
     margin-bottom:1.25rem;
     box-shadow:0 8px 40px rgba(193,122,111,.12);
     position:relative;overflow:hidden;
@@ -43,25 +52,33 @@
     background:radial-gradient(ellipse at top,rgba(232,196,176,.15),transparent 60%);
     pointer-events:none;
   }
+  .player-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:24px;margin-bottom:.9rem;position:relative}
 
   /* On air badge */
   .on-air{
-    display:none;
+    display:flex;visibility:hidden;
     align-items:center;gap:.4rem;
     background:rgba(193,122,111,.1);border:1px solid rgba(193,122,111,.2);
     border-radius:50px;padding:.25rem .8rem;
     font-size:10px;font-weight:700;color:var(--rose);
     letter-spacing:.08em;text-transform:uppercase;
-    margin-bottom:1rem;width:fit-content;
+    width:fit-content;white-space:nowrap;
   }
-  .on-air.visible{display:flex}
+  .on-air.visible{visibility:visible}
   .on-air-dot{width:7px;height:7px;border-radius:50%;background:var(--rose);animation:blink 1s ease-in-out infinite}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+  .voice-badge{
+    display:none;align-items:center;gap:.3rem;white-space:nowrap;
+    font-size:10px;font-weight:600;color:#4a7a5a;
+    background:rgba(181,196,177,.25);border:1px solid rgba(120,160,120,.3);
+    border-radius:50px;padding:.25rem .7rem;
+  }
+  .voice-badge.show{display:inline-flex}
 
   /* Now playing */
   .now-playing{
-    display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;
-    min-height:56px;
+    display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem;
+    min-height:56px;position:relative;
   }
   .ep-icon{
     width:52px;height:52px;border-radius:16px;
@@ -70,7 +87,7 @@
     font-size:1.6rem;flex-shrink:0;
     transition:all .3s;
   }
-  .ep-info{flex:1}
+  .ep-info{flex:1;min-width:0}
   .ep-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.2rem}
   .ep-title{font-size:14px;font-weight:700;color:var(--ink);display:block}
   .ep-status{font-size:11px;color:var(--muted);display:block;margin-top:.1rem}
@@ -78,23 +95,26 @@
   /* Waveform */
   .waveform{
     display:flex;align-items:center;justify-content:center;
-    gap:3px;height:36px;margin-bottom:1.25rem;
+    gap:3px;height:36px;margin-bottom:1.1rem;overflow:hidden;
   }
   .wave-bar{
-    width:3px;border-radius:2px;background:var(--blush);
+    width:3px;border-radius:2px;background:var(--blush);flex-shrink:0;
     transition:background .3s;
   }
   .waveform.playing .wave-bar{background:var(--rose);animation:wave var(--dur) ease-in-out infinite alternate}
   @keyframes wave{from{height:4px}to{height:var(--h)}}
 
-  /* Progress bar */
-  .progress-wrap{margin-bottom:1.1rem}
-  .progress-bar{height:4px;background:var(--blush);border-radius:2px;overflow:hidden;margin-bottom:.3rem}
-  .progress-fill{height:100%;background:linear-gradient(to right,var(--blush),var(--rose));border-radius:2px;width:0%;transition:width .5s linear}
-  .progress-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+  /* Progress bar (bisa di-tap/geser) */
+  .progress-wrap{margin-bottom:1rem;position:relative}
+  .progress-hit{padding:.55rem 0;cursor:pointer;touch-action:none}
+  .progress-bar{height:4px;background:var(--blush);border-radius:2px;position:relative}
+  .progress-fill{height:100%;background:linear-gradient(to right,var(--blush),var(--rose));border-radius:2px;width:0%}
+  .progress-knob{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--rose);transform:translate(-50%,-50%);left:0%;box-shadow:0 1px 4px rgba(122,63,53,.35);opacity:0;transition:opacity .2s}
+  .radio-player.has-ep .progress-knob{opacity:1}
+  .progress-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:-.15rem}
 
   /* Controls */
-  .controls{display:flex;align-items:center;justify-content:center;gap:1rem}
+  .controls{display:flex;align-items:center;justify-content:center;gap:1rem;position:relative}
   .ctrl-btn{
     width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
     background:var(--warm);color:var(--muted);
@@ -102,6 +122,7 @@
     font-size:1rem;transition:all .15s;
   }
   .ctrl-btn:active{transform:scale(.9)}
+  .ctrl-btn:disabled{opacity:.35;cursor:default}
   .play-btn{
     width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;
     background:var(--rose);color:#fff;
@@ -111,11 +132,17 @@
     transition:all .15s;
   }
   .play-btn:active{background:var(--deep);transform:scale(.93)}
+  .player-opts{display:flex;justify-content:center;gap:.5rem;margin-top:.95rem;flex-wrap:wrap;position:relative}
+  .opt-chip{
+    border:1px solid rgba(193,122,111,.2);background:var(--cream);color:var(--muted);
+    border-radius:50px;padding:.35rem .8rem;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;
+  }
+  .opt-chip.on{background:rgba(193,122,111,.12);color:var(--deep);border-color:var(--rose)}
 
   /* ── MESSAGE AREA ── */
   .message-area{
     background:#fff;border:1px solid rgba(193,122,111,.12);
-    border-radius:20px;padding:1.4rem 1.5rem;
+    border-radius:20px;padding:1.3rem 1.35rem;
     margin-bottom:1.25rem;
     box-shadow:0 4px 20px rgba(193,122,111,.08);
     min-height:120px;
@@ -125,21 +152,28 @@
   .message-area.visible{display:block}
   .message-area::before{content:'';position:absolute;inset:0;
     background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 60%);pointer-events:none}
-
-  .msg-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.75rem}
+  .msg-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.75rem;position:relative;z-index:1}
+  .msg-label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block}
+  .msg-full{border:none;background:none;color:var(--rose);font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;padding:.2rem 0}
   .msg-text{
     font-size:13.5px;color:var(--ink);line-height:1.85;
-    font-weight:300;position:relative;z-index:1;
+    font-weight:300;position:relative;z-index:1;overflow-wrap:anywhere;
   }
   .msg-text .char{opacity:0;transition:opacity .04s}
   .msg-text .char.visible{opacity:1}
-
   .msg-cursor{
     display:inline-block;width:2px;height:1em;
     background:var(--rose);margin-left:2px;vertical-align:text-bottom;
     animation:cursor-blink .7s ease-in-out infinite;
   }
   @keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}
+  .msg-actions{display:none;gap:.5rem;margin-top:1rem;position:relative;z-index:1}
+  .msg-actions.show{display:flex}
+  .msg-actions a{
+    flex:1;text-align:center;text-decoration:none;font-size:12px;font-weight:500;
+    padding:.6rem .5rem;border-radius:50px;border:1.5px solid rgba(37,211,102,.4);color:#1f8f4e;
+  }
+  .msg-actions a:active{background:var(--warm)}
 
   /* ── EPISODE LIST ── */
   .ep-list-title{
@@ -148,6 +182,7 @@
     display:flex;align-items:center;gap:.5rem;
   }
   .ep-list-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+  .ep-list-title b{font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:none;font-size:11px}
 
   .ep-list{display:flex;flex-direction:column;gap:.5rem}
   .ep-item{
@@ -156,13 +191,10 @@
     display:flex;align-items:center;gap:.85rem;
     cursor:pointer;transition:all .15s;
     position:relative;overflow:hidden;
+    width:100%;text-align:left;font-family:inherit;
   }
   .ep-item:active{transform:scale(.97);background:var(--warm)}
   .ep-item.active{border-color:var(--rose);background:rgba(193,122,111,.05)}
-  .ep-item.played::after{
-    content:'✓';position:absolute;top:.5rem;right:.75rem;
-    font-size:10px;color:var(--sage);font-weight:700;
-  }
   .ep-item-icon{
     width:40px;height:40px;border-radius:12px;
     background:rgba(193,122,111,.08);
@@ -170,17 +202,69 @@
     font-size:1.2rem;flex-shrink:0;transition:background .2s;
   }
   .ep-item.active .ep-item-icon{background:rgba(193,122,111,.15)}
-  .ep-item-info{flex:1}
-  .ep-item-title{font-size:12px;font-weight:600;color:var(--ink);display:block}
+  .ep-item-info{flex:1;min-width:0}
+  .ep-item-title{font-size:12px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
   .ep-item-sub{font-size:10px;color:var(--muted);display:block;margin-top:.1rem}
-  .ep-item-dur{font-size:10px;color:var(--muted);flex-shrink:0}
+  .ep-item-side{display:flex;flex-direction:column;align-items:flex-end;gap:.15rem;flex-shrink:0}
+  .ep-item-dur{font-size:10px;color:var(--muted)}
+  .ep-item-check{font-size:10px;color:#7a9a76;font-weight:700;visibility:hidden}
+  .ep-item.played .ep-item-check{visibility:visible}
+  .tag{font-size:9px;font-weight:600;padding:.08rem .45rem;border-radius:50px;letter-spacing:.02em;white-space:nowrap}
+  .tag-now{background:rgba(201,169,110,.18);color:#8a6a30}
+  .tag-voice{background:rgba(181,196,177,.3);color:#4a7a5a}
+  .eq{display:none;align-items:flex-end;gap:2px;height:12px}
+  .ep-item.active.playing .eq{display:inline-flex}
+  .eq i{width:2px;background:var(--rose);border-radius:1px;animation:eqb .6s ease-in-out infinite alternate}
+  .eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}
+  @keyframes eqb{from{height:3px}to{height:12px}}
+
+  .done-card{
+    display:none;margin-top:1.25rem;text-align:center;
+    background:linear-gradient(135deg,#fff,#fdf3ee);border:1px solid rgba(193,122,111,.18);
+    border-radius:18px;padding:1.1rem 1.2rem;font-size:12.5px;color:var(--deep);line-height:1.7;
+  }
+  .done-card.show{display:block}
+  .done-card button{margin-top:.6rem;border:none;background:none;color:var(--muted);font-size:11px;text-decoration:underline;cursor:pointer}
+
+  /* ── STUDIO (khusus Razan: radio-razan.html?studio) ── */
+  #studio{display:none}
+  body.studio #studio{display:block}
+  body.studio #listener{display:none}
+  .st-note{background:#fff;border:1px dashed var(--gold);border-radius:16px;padding:1rem 1.1rem;font-size:12px;color:var(--ink);line-height:1.75;margin-bottom:1rem;font-weight:400}
+  .st-note code{background:var(--warm);padding:.05rem .35rem;border-radius:5px;font-size:11px;overflow-wrap:anywhere}
+  .st-card{background:#fff;border:1.5px solid var(--blush);border-radius:18px;padding:1rem 1.1rem;margin-bottom:.75rem}
+  .st-card.rec{border-color:#d9534f;box-shadow:0 0 0 3px rgba(217,83,79,.12)}
+  .st-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+  .st-head .t{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--ink)}
+  .st-head .s{font-size:10px;color:var(--muted);white-space:nowrap}
+  .st-script{font-size:15px;line-height:1.85;color:var(--ink);font-weight:400;background:var(--cream);border-radius:12px;padding:.8rem .9rem;margin-bottom:.7rem;overflow-wrap:anywhere}
+  .st-row{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center}
+  .st-btn{border:none;border-radius:50px;padding:.55rem .9rem;font-size:12px;font-weight:600;cursor:pointer;background:var(--warm);color:var(--deep);text-decoration:none;white-space:nowrap}
+  .st-btn.red{background:#d9534f;color:#fff}
+  .st-btn:disabled{opacity:.4;cursor:default}
+  .st-time{font-size:12px;color:#d9534f;font-weight:600;font-variant-numeric:tabular-nums;margin-left:auto}
+  .st-audio{width:100%;margin-top:.6rem;display:none}
+  .st-audio.show{display:block}
 
   /* Confetti */
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  @media (max-width:360px){
+    .page{padding-left:1rem;padding-right:1rem}
+    .back-link{left:1rem}
+    .radio-player{padding:1.15rem 1rem 1rem}
+    .controls{gap:.75rem}
+    .message-area{padding:1.15rem 1.05rem}
+    .ep-item{padding:.75rem .8rem;gap:.7rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .header-icon,.waveform.playing .wave-bar,.eq i{animation:none}
+  }
 </style>
 </head>
 <body>
+<a href="index.html" class="back-link">← Menu utama</a>
 <div class="page">
 
   <div class="header">
@@ -190,11 +274,15 @@
     <p class="header-sub">Pilih siaran sesuai perasaanmu sekarang — Razan selalu ada di sini buat kamu 🤍</p>
   </div>
 
+  <div id="listener">
   <!-- Radio Player -->
-  <div class="radio-player">
-    <div class="on-air" id="on-air">
-      <div class="on-air-dot"></div>
-      <span>Sedang Mengudara</span>
+  <div class="radio-player" id="radio-player">
+    <div class="player-top">
+      <div class="on-air" id="on-air">
+        <div class="on-air-dot"></div>
+        <span>Sedang Mengudara</span>
+      </div>
+      <span class="voice-badge" id="voice-badge">🎙️ Suara asli Razan</span>
     </div>
 
     <div class="now-playing">
@@ -211,7 +299,9 @@
 
     <!-- Progress -->
     <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-hit" id="progress-hit">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div><div class="progress-knob" id="progress-knob"></div></div>
+      </div>
       <div class="progress-times">
         <span id="time-cur">0:00</span>
         <span id="time-total">0:00</span>
@@ -220,21 +310,49 @@
 
     <!-- Controls -->
     <div class="controls">
-      <button class="ctrl-btn" onclick="prevEp()" title="Sebelumnya">⏮</button>
-      <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
-      <button class="ctrl-btn" onclick="nextEp()" title="Berikutnya">⏭</button>
+      <button class="ctrl-btn" id="prev-btn" onclick="prevEp()" title="Sebelumnya" aria-label="Sebelumnya">⏮</button>
+      <button class="play-btn" id="play-btn" onclick="togglePlay()" aria-label="Putar">▶</button>
+      <button class="ctrl-btn" id="next-btn" onclick="nextEp()" title="Berikutnya" aria-label="Berikutnya">⏭</button>
+    </div>
+    <div class="player-opts">
+      <button class="opt-chip" id="auto-chip" onclick="toggleAuto()">🔁 Putar terus</button>
     </div>
   </div>
 
   <!-- Message Area -->
   <div class="message-area" id="message-area">
-    <span class="msg-label" id="msg-label">Pesan dari Razan</span>
+    <div class="msg-head">
+      <span class="msg-label" id="msg-label">Pesan dari Razan</span>
+      <button class="msg-full" id="msg-full" onclick="showFullText()">Lihat semua teks</button>
+    </div>
     <p class="msg-text" id="msg-text"></p>
+    <div class="msg-actions" id="msg-actions">
+      <a id="reply-wa" href="#" target="_blank" rel="noopener">💬 Bales siaran ini</a>
+    </div>
   </div>
 
   <!-- Episode List -->
-  <p class="ep-list-title">Semua Siaran</p>
+  <p class="ep-list-title">Semua Siaran <b id="played-count"></b></p>
   <div class="ep-list" id="ep-list"></div>
+
+  <div class="done-card" id="done-card">
+    📻✨ Kamu udah dengerin semua siaran.<br>Radio ini ga pernah tutup — puter lagi kapan aja kamu butuh 🤍
+    <br><button onclick="resetPlayed()">Tandai semua belum didengar</button>
+  </div>
+  </div>
+
+  <!-- STUDIO -->
+  <div id="studio">
+    <div class="st-note">
+      🎙️ <b>Studio Razan</b> — halaman ini cuma kebuka lewat <code>radio-razan.html?studio</code>, Dara ga bakal liat.<br><br>
+      1. Tap <b>Rekam</b>, bacain naskahnya, tap <b>Stop</b>.<br>
+      2. Dengerin dulu, kalau kurang sreg rekam ulang.<br>
+      3. Tap <b>Simpan file</b>, terus upload filenya ke folder <code>audio/radio/</code> (sebelahan sama <code>radio-razan.html</code>).<br><br>
+      Nama file harus persis: <code>pagi</code>, <code>malam</code>, <code>kangen</code>, <code>ngambek</code>, <code>galau</code>, <code>bahagia</code> — boleh <code>.mp3</code> / <code>.m4a</code> / <code>.webm</code>. Biar pasti bisa diputer di semua HP (termasuk iPhone), paling aman <b>.mp3</b> atau <b>.m4a</b>.<br><br>
+      Kalau file suara buat satu siaran belum ada, siaran itu otomatis balik ke mode teks kayak biasa.
+    </div>
+    <div id="st-list"></div>
+  </div>
 
 </div>
 
@@ -272,15 +390,41 @@ const EPISODES = [
   },
 ];
 
-let currentEp = null;
-let isPlaying = false;
-let typeInterval = null;
-let progressInterval = null;
-let typedChars = 0;
-let totalChars = 0;
-let progressSec = 0;
-let totalSec = 0;
-let played = new Set();
+/* nama file suara per siaran → audio/radio/<nama>.mp3|.m4a|.webm|.ogg */
+const VOICE_DIR='audio/radio/';
+const VOICE_FILE=['pagi','malam','kangen','ngambek','galau','bahagia'];
+const VOICE_EXT=['mp3','m4a','webm','ogg'];
+const WA='6285692740607';
+const K_PLAYED='radio-razan-played', K_AUTO='radio-razan-auto', K_DONE='radio-razan-alldone';
+
+let currentEp=null;
+let isPlaying=false;
+let pos=0;            // detik yang udah lewat
+let totalSec=0;
+let lastT=0, raf=0;
+let typedShown=-1;
+let fullText=false;
+let autoNext=false;
+let autoTimer=null;
+let played=new Set();
+const voice={};       // id -> {src, dur}
+const AU=new Audio(); AU.preload='auto';
+let usingVoice=false;
+
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+played=new Set((lsGet(K_PLAYED,[])||[]).filter(i=>EPISODES[i]));
+autoNext=!!lsGet(K_AUTO,false);
+
+function fmt(sec){sec=Math.max(0,Math.floor(sec));return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`}
+function parseDur(d){const p=String(d).split(':');return (parseInt(p[0])||0)*60+(parseInt(p[1])||0)}
+function epTotal(id){return voice[id]?voice[id].dur:parseDur(EPISODES[id].dur)}
+function nowSuggest(){
+  const h=new Date().getHours();
+  if(h>=4&&h<11) return 0;
+  if(h>=20||h<4) return 1;
+  return -1;
+}
 
 // Build waveform
 function buildWave(){
@@ -300,164 +444,304 @@ buildWave();
 function buildList(){
   const list=document.getElementById('ep-list');
   list.innerHTML='';
+  const sug=nowSuggest();
   EPISODES.forEach(ep=>{
-    const el=document.createElement('div');
-    el.className='ep-item'+(played.has(ep.id)?' played':'');
+    const el=document.createElement('button');
+    el.className='ep-item'+(played.has(ep.id)?' played':'')+(ep.id===currentEp?' active':'')+(ep.id===currentEp&&isPlaying?' playing':'');
     el.id=`ep-item-${ep.id}`;
     el.innerHTML=`
       <div class="ep-item-icon">${ep.icon}</div>
       <div class="ep-item-info">
-        <span class="ep-item-title">${ep.title}</span>
+        <span class="ep-item-title">${ep.title} <span class="eq"><i></i><i></i><i></i></span>
+          ${ep.id===sug?'<span class="tag tag-now">✨ Cocok buat sekarang</span>':''}
+          ${voice[ep.id]?'<span class="tag tag-voice">🎙️ suara</span>':''}</span>
         <span class="ep-item-sub">${ep.sub}</span>
       </div>
-      <span class="ep-item-dur">${ep.dur}</span>
+      <span class="ep-item-side"><span class="ep-item-check">✓</span><span class="ep-item-dur">${voice[ep.id]?fmt(voice[ep.id].dur):ep.dur}</span></span>
     `;
-    el.addEventListener('click',()=>selectEp(ep.id));
+    el.addEventListener('click',()=>{
+      if(ep.id===currentEp){togglePlay();return}
+      selectEp(ep.id);
+    });
     list.appendChild(el);
   });
+  document.getElementById('played-count').textContent=`${played.size}/${EPISODES.length} didengar`;
+  const allDone=played.size===EPISODES.length;
+  document.getElementById('done-card').classList.toggle('show',allDone);
+  document.getElementById('prev-btn').disabled=currentEp===null||currentEp===0;
+  document.getElementById('next-btn').disabled=currentEp!==null&&currentEp===EPISODES.length-1;
 }
-buildList();
 
-function selectEp(id){
-  if(isPlaying) stopPlay();
+function selectEp(id,{autoplay=true}={}){
+  clearTimeout(autoTimer);
+  if(isPlaying) pausePlay(true);
   currentEp=id;
   const ep=EPISODES[id];
+  fullText=false;
 
-  // Update player
+  usingVoice=!!voice[id];
+  if(usingVoice){AU.src=voice[id].src;try{AU.currentTime=0}catch(e){}}
+  else{AU.removeAttribute('src');try{AU.load()}catch(e){}}
+
   document.getElementById('player-icon').textContent=ep.icon;
   document.getElementById('player-title').textContent=ep.title;
   document.getElementById('player-status').textContent=ep.sub;
-  document.getElementById('time-total').textContent=ep.dur;
+  document.getElementById('voice-badge').classList.toggle('show',usingVoice);
+  document.getElementById('radio-player').classList.add('has-ep');
+  totalSec=epTotal(id);
+  pos=0;
+  document.getElementById('time-total').textContent=fmt(totalSec);
 
-  // Parse total seconds
-  const parts=ep.dur.split(':');
-  totalSec=parseInt(parts[0])*60+parseInt(parts[1]);
-  progressSec=0;
-  document.getElementById('progress-fill').style.width='0%';
-  document.getElementById('time-cur').textContent='0:00';
-
-  // Update list active
-  document.querySelectorAll('.ep-item').forEach(el=>el.classList.remove('active'));
-  const item=document.getElementById(`ep-item-${id}`);
-  if(item){item.classList.add('active');item.scrollIntoView({behavior:'smooth',block:'nearest'});}
-
-  // Show message area but empty
+  // Message area
   const msgArea=document.getElementById('message-area');
   msgArea.classList.add('visible');
   document.getElementById('msg-label').textContent=`📻 ${ep.title} — dari Razan`;
-  document.getElementById('msg-text').innerHTML='';
+  const msgEl=document.getElementById('msg-text');
+  msgEl.innerHTML='';
+  ep.text.split('').forEach(ch=>{
+    const span=document.createElement('span');
+    span.className='char';span.textContent=ch;msgEl.appendChild(span);
+  });
+  const cursor=document.createElement('span');
+  cursor.className='msg-cursor';cursor.id='msg-cursor';
+  msgEl.appendChild(cursor);
+  typedShown=-1;
+  document.getElementById('msg-full').style.display='';
+  document.getElementById('msg-actions').classList.remove('show');
+  document.getElementById('reply-wa').href='https://wa.me/'+WA+'?text='+encodeURIComponent(`Razan, aku abis dengerin "${ep.title}" di Radio Razan 📻\n\n`);
 
-  // Auto play
-  startPlay();
+  buildList();
+  const item=document.getElementById(`ep-item-${id}`);
+  if(item) item.scrollIntoView({behavior:'smooth',block:'nearest'});
+  render();
+  setupMediaSession();
+  if(autoplay) startPlay();
 }
 
 function startPlay(){
   if(currentEp===null) return;
-  const ep=EPISODES[currentEp];
+  if(pos>=totalSec-0.05){pos=0;typedShown=-1;resetChars()}
   isPlaying=true;
-
+  lastT=performance.now();
+  if(usingVoice){
+    try{AU.currentTime=pos}catch(e){}
+    const pr=AU.play();
+    if(pr&&pr.catch) pr.catch(()=>{
+      // gagal muter suara (misal file rusak) → lanjut mode teks
+      if(isPlaying&&AU.paused){usingVoice=false;document.getElementById('voice-badge').classList.remove('show');totalSec=parseDur(EPISODES[currentEp].dur);document.getElementById('time-total').textContent=fmt(totalSec);lastT=performance.now()}
+    });
+  }
   document.getElementById('play-btn').textContent='⏸';
+  document.getElementById('play-btn').setAttribute('aria-label','Jeda');
   document.getElementById('on-air').classList.add('visible');
   document.getElementById('waveform').classList.add('playing');
   document.getElementById('player-status').textContent='Sedang mengudara...';
-
-  played.add(currentEp);
+  const cur=document.getElementById('msg-cursor');if(cur) cur.style.display='';
   buildList();
-  document.getElementById(`ep-item-${currentEp}`).classList.add('active');
-
-  // Typewriter effect
-  const text=ep.text;
-  const msgEl=document.getElementById('msg-text');
-  msgEl.innerHTML='';
-  typedChars=0;
-  totalChars=text.length;
-
-  // Create char spans
-  text.split('').forEach(ch=>{
-    const span=document.createElement('span');
-    span.className='char';
-    span.textContent=ch;
-    msgEl.appendChild(span);
-  });
-
-  // Add cursor
-  const cursor=document.createElement('span');
-  cursor.className='msg-cursor';
-  cursor.id='msg-cursor';
-  msgEl.appendChild(cursor);
-
-  const charDelay=totalSec>0?(totalSec*1000/totalChars):50;
-
-  typeInterval=setInterval(()=>{
-    if(typedChars<totalChars){
-      msgEl.children[typedChars].classList.add('visible');
-      typedChars++;
-    } else {
-      clearInterval(typeInterval);
-      const cur=document.getElementById('msg-cursor');
-      if(cur) setTimeout(()=>cur.remove(),1500);
-    }
-  },Math.max(20,charDelay));
-
-  // Progress
-  progressSec=0;
-  progressInterval=setInterval(()=>{
-    progressSec++;
-    const pct=Math.min(progressSec/totalSec*100,100);
-    document.getElementById('progress-fill').style.width=pct+'%';
-    const m=Math.floor(progressSec/60);
-    const s=progressSec%60;
-    document.getElementById('time-cur').textContent=`${m}:${s.toString().padStart(2,'0')}`;
-    if(progressSec>=totalSec){
-      clearInterval(progressInterval);
-      onEpEnd();
-    }
-  },1000);
+  if('mediaSession' in navigator) try{navigator.mediaSession.playbackState='playing'}catch(e){}
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);
 }
 
-function stopPlay(){
+function pausePlay(silent){
   isPlaying=false;
-  clearInterval(typeInterval);
-  clearInterval(progressInterval);
+  cancelAnimationFrame(raf);
+  if(usingVoice&&!AU.paused) AU.pause();
   document.getElementById('play-btn').textContent='▶';
+  document.getElementById('play-btn').setAttribute('aria-label','Putar');
   document.getElementById('on-air').classList.remove('visible');
   document.getElementById('waveform').classList.remove('playing');
-  document.getElementById('player-status').textContent=EPISODES[currentEp]?.sub||'';
-  const cur=document.getElementById('msg-cursor');
-  if(cur) cur.remove();
+  if(!silent){
+    document.getElementById('player-status').textContent='Dijeda · '+fmt(pos)+' / '+fmt(totalSec);
+    buildList();
+  }
+  if('mediaSession' in navigator) try{navigator.mediaSession.playbackState='paused'}catch(e){}
+}
+// nama lama tetap ada
+function stopPlay(){pausePlay()}
+
+function tick(t){
+  if(!isPlaying) return;
+  if(usingVoice){
+    pos=AU.currentTime||0;
+    if(isFinite(AU.duration)&&AU.duration>0) totalSec=AU.duration;
+  }else{
+    const dt=Math.min(.25,(t-lastT)/1000);
+    pos=Math.min(totalSec,pos+dt);
+  }
+  lastT=t;
+  render();
+  if(!usingVoice&&pos>=totalSec){onEpEnd();return}
+  raf=requestAnimationFrame(tick);
+}
+
+function resetChars(){
+  document.querySelectorAll('#msg-text .char').forEach(c=>c.classList.remove('visible'));
+}
+function render(){
+  const pct=totalSec>0?Math.min(pos/totalSec*100,100):0;
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-knob').style.left=pct+'%';
+  document.getElementById('time-cur').textContent=fmt(pos);
+  if(currentEp===null) return;
+  const chars=document.querySelectorAll('#msg-text .char');
+  const n=fullText?chars.length:Math.min(chars.length,Math.round(chars.length*(totalSec>0?pos/totalSec:0)));
+  if(n!==typedShown){
+    for(let i=0;i<chars.length;i++) chars[i].classList.toggle('visible',i<n);
+    typedShown=n;
+  }
+}
+
+function showFullText(){
+  fullText=true;typedShown=-1;render();
+  document.getElementById('msg-full').style.display='none';
 }
 
 function togglePlay(){
   if(currentEp===null){
-    // Pick first unplayed or first
-    const first=EPISODES.find(e=>!played.has(e.id))||EPISODES[0];
+    const sug=nowSuggest();
+    const first=(sug>=0&&!played.has(sug))?EPISODES[sug]:(EPISODES.find(e=>!played.has(e.id))||EPISODES[0]);
     selectEp(first.id);return;
   }
-  if(isPlaying) stopPlay();
+  if(isPlaying) pausePlay();
   else startPlay();
 }
 
 function onEpEnd(){
   isPlaying=false;
+  cancelAnimationFrame(raf);
+  pos=totalSec;render();
   document.getElementById('play-btn').textContent='▶';
+  document.getElementById('play-btn').setAttribute('aria-label','Putar lagi');
   document.getElementById('on-air').classList.remove('visible');
   document.getElementById('waveform').classList.remove('playing');
   document.getElementById('player-status').textContent='Selesai diputar ✓';
   const cur=document.getElementById('msg-cursor');
-  if(cur) cur.remove();
+  if(cur) cur.style.display='none';
+  fullText=true;render();
+  document.getElementById('msg-full').style.display='none';
+  document.getElementById('msg-actions').classList.add('show');
 
-  // Check all played
-  if(played.size===EPISODES.length) confetti();
+  played.add(currentEp);
+  lsSet(K_PLAYED,[...played]);
+  buildList();
+
+  // Semua udah didengar → confetti sekali aja
+  if(played.size===EPISODES.length&&!lsGet(K_DONE,false)){lsSet(K_DONE,true);confetti()}
+
+  if(autoNext){
+    const nxt=nextUnplayed();
+    if(nxt!=null){
+      document.getElementById('player-status').textContent='Siaran berikutnya sebentar lagi…';
+      autoTimer=setTimeout(()=>selectEp(nxt),2500);
+    }
+  }
 }
+function nextUnplayed(){
+  for(let k=1;k<=EPISODES.length;k++){const i=(currentEp+k)%EPISODES.length;if(!played.has(i))return i}
+  return currentEp<EPISODES.length-1?currentEp+1:null;
+}
+
+AU.addEventListener('ended',()=>{if(usingVoice&&isPlaying) onEpEnd()});
+AU.addEventListener('waiting',()=>{if(usingVoice&&isPlaying) document.getElementById('player-status').textContent='Memuat suara…'});
+AU.addEventListener('playing',()=>{if(usingVoice&&isPlaying) document.getElementById('player-status').textContent='Sedang mengudara...'});
+AU.addEventListener('pause',()=>{if(usingVoice&&isPlaying&&!AU.ended) pausePlay()});
 
 function prevEp(){
   if(currentEp===null||currentEp===0) return;
   selectEp(currentEp-1);
 }
-
 function nextEp(){
-  if(currentEp===null||currentEp===EPISODES.length-1) return;
+  if(currentEp===null){selectEp(0);return}
+  if(currentEp===EPISODES.length-1) return;
   selectEp(currentEp+1);
+}
+function toggleAuto(){
+  autoNext=!autoNext;lsSet(K_AUTO,autoNext);
+  document.getElementById('auto-chip').classList.toggle('on',autoNext);
+}
+document.getElementById('auto-chip').classList.toggle('on',autoNext);
+
+function resetPlayed(){
+  if(!confirm('Tandai semua siaran jadi belum didengar?')) return;
+  played.clear();lsSet(K_PLAYED,[]);lsSet(K_DONE,false);buildList();
+}
+
+/* Seek: tap / geser progress bar */
+(function(){
+  const hit=document.getElementById('progress-hit');
+  let drag=false;
+  function seekTo(x){
+    if(currentEp===null) return;
+    const r=hit.getBoundingClientRect();
+    const f=Math.max(0,Math.min(1,(x-r.left)/r.width));
+    pos=f*totalSec;
+    if(usingVoice) try{AU.currentTime=pos}catch(e){}
+    if(pos<totalSec) document.getElementById('msg-actions').classList.toggle('show',false);
+    render();
+    if(!isPlaying&&pos<totalSec) document.getElementById('player-status').textContent='Dijeda · '+fmt(pos)+' / '+fmt(totalSec);
+  }
+  hit.addEventListener('pointerdown',e=>{drag=true;try{hit.setPointerCapture(e.pointerId)}catch(_){};seekTo(e.clientX)});
+  hit.addEventListener('pointermove',e=>{if(drag) seekTo(e.clientX)});
+  ['pointerup','pointercancel'].forEach(t=>hit.addEventListener(t,()=>drag=false));
+})();
+
+/* Kontrol dari lock screen / notifikasi (kalau pakai suara asli) */
+function setupMediaSession(){
+  if(!('mediaSession' in navigator)||currentEp===null) return;
+  try{
+    const ep=EPISODES[currentEp];
+    navigator.mediaSession.metadata=new MediaMetadata({title:ep.title,artist:'Radio Razan',album:'Untuk Dara 🤍'});
+    navigator.mediaSession.setActionHandler('play',()=>{if(!isPlaying) startPlay()});
+    navigator.mediaSession.setActionHandler('pause',()=>{if(isPlaying) pausePlay()});
+    navigator.mediaSession.setActionHandler('previoustrack',prevEp);
+    navigator.mediaSession.setActionHandler('nexttrack',nextEp);
+  }catch(e){}
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.body.classList.contains('studio')) return;
+  if(e.target.closest&&e.target.closest('button,a,input,textarea')) return;
+  if(e.key===' '){e.preventDefault();togglePlay()}
+  else if(e.key==='ArrowRight') nextEp();
+  else if(e.key==='ArrowLeft') prevEp();
+});
+
+/* Cari file suara asli. Kalau ga ada → tetap mode teks. */
+function probeVoice(id,cb){
+  const exts=VOICE_EXT.filter(x=>{
+    const t={mp3:'audio/mpeg',m4a:'audio/mp4',webm:'audio/webm',ogg:'audio/ogg'}[x];
+    return !AU.canPlayType||AU.canPlayType(t)!=='';
+  });
+  let k=0;
+  (function next(){
+    if(k>=exts.length){cb(null);return}
+    const src=VOICE_DIR+VOICE_FILE[id]+'.'+exts[k++];
+    const a=new Audio();a.preload='metadata';
+    let done=false;
+    const fin=ok=>{if(done)return;done=true;a.removeAttribute('src');try{a.load()}catch(e){};ok?cb({src,dur:ok}):next()};
+    a.addEventListener('loadedmetadata',()=>{
+      if(isFinite(a.duration)&&a.duration>0) fin(a.duration);
+      else{ // webm dari perekam browser kadang durasinya Infinity
+        a.currentTime=1e7;
+        a.addEventListener('durationchange',()=>{if(isFinite(a.duration)&&a.duration>0) fin(a.duration)},{once:true});
+        setTimeout(()=>fin(isFinite(a.duration)&&a.duration>0?a.duration:0),2500);
+      }
+    });
+    a.addEventListener('error',()=>fin(0));
+    setTimeout(()=>fin(0),6000);
+    a.src=src;
+  })();
+}
+function probeAll(){
+  if(location.protocol==='file:') { /* tetap dicoba */ }
+  EPISODES.forEach(ep=>probeVoice(ep.id,res=>{
+    if(!res) return;
+    voice[ep.id]=res;
+    if(currentEp===ep.id&&!isPlaying&&pos===0){selectEp(ep.id,{autoplay:false})}
+    else if(currentEp!==ep.id) buildList();
+    else buildList();
+    renderStudio();
+  }));
 }
 
 function confetti(){
@@ -468,6 +752,118 @@ function confetti(){
     document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
   },i*25);
 }
+
+/* ═════════ STUDIO: rekam suara langsung dari HP ═════════ */
+const ST={rec:null,id:null,chunks:[],start:0,timer:null,blobs:{}};
+function pickMime(){
+  if(!window.MediaRecorder) return '';
+  const c=['audio/mp4;codecs=mp4a.40.2','audio/aac','audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'];
+  for(const m of c){try{if(MediaRecorder.isTypeSupported(m))return m}catch(e){}}
+  return '';
+}
+function extOf(m){m=m||'';if(m.includes('mp4')||m.includes('aac'))return 'm4a';if(m.includes('ogg'))return 'ogg';return 'webm'}
+function renderStudio(){
+  if(!document.body.classList.contains('studio')) return;
+  const box=document.getElementById('st-list');
+  const canRec=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+  box.innerHTML=(canRec?'':'<div class="st-note" style="border-color:#d9534f">⚠️ Browser ini ga bisa ngerekam. Buka pakai Chrome/Safari terbaru lewat link https (bukan file lokal), atau rekam pakai aplikasi perekam suara di HP lalu kasih nama file sesuai daftar di atas.</div>')+
+  EPISODES.map(ep=>{
+    const b=ST.blobs[ep.id];
+    const recNow=ST.id===ep.id&&ST.rec;
+    const has=voice[ep.id];
+    return `<div class="st-card${recNow?' rec':''}" id="st-${ep.id}">
+      <div class="st-head"><span style="font-size:1.3rem">${ep.icon}</span><span class="t">${ep.title}</span>
+        <span class="s">${has?'✅ udah ada suara ('+fmt(has.dur)+')':'target ± '+ep.dur}</span></div>
+      <div class="st-script">${ep.text}</div>
+      <div class="st-row">
+        ${recNow
+          ?`<button class="st-btn red" onclick="stStop()">⏹ Stop</button>`
+          :`<button class="st-btn red" onclick="stRec(${ep.id})" ${(!canRec||ST.rec)?'disabled':''}>⏺ ${b?'Rekam ulang':'Rekam'}</button>`}
+        ${b?`<a class="st-btn" href="${b.url}" download="${VOICE_FILE[ep.id]}.${b.ext}">⬇ Simpan file (${VOICE_FILE[ep.id]}.${b.ext})</a>`:''}
+        <span class="st-time" id="st-time-${ep.id}">${recNow?fmt((Date.now()-ST.start)/1000):(b?fmt(b.sec):'')}</span>
+      </div>
+      <audio class="st-audio${b?' show':''}" controls ${b?`src="${b.url}"`:''}></audio>
+    </div>`;
+  }).join('');
+}
+async function stRec(id){
+  if(ST.rec) return;
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch(e){alert('Mic-nya belum diizinin. Izinin akses mikrofon dulu ya, terus coba lagi.');return}
+  const mime=pickMime();
+  let rec;
+  try{rec=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream)}
+  catch(e){rec=new MediaRecorder(stream)}
+  ST.rec=rec;ST.id=id;ST.chunks=[];ST.start=Date.now();
+  rec.ondataavailable=e=>{if(e.data&&e.data.size) ST.chunks.push(e.data)};
+  rec.onstop=()=>{
+    stream.getTracks().forEach(t=>t.stop());
+    const type=rec.mimeType||mime||'audio/webm';
+    const blob=new Blob(ST.chunks,{type});
+    const old=ST.blobs[id];if(old) URL.revokeObjectURL(old.url);
+    ST.blobs[id]={url:URL.createObjectURL(blob),ext:extOf(type),sec:(Date.now()-ST.start)/1000};
+    ST.rec=null;ST.id=null;clearInterval(ST.timer);
+    renderStudio();
+  };
+  rec.start(250);
+  clearInterval(ST.timer);
+  ST.timer=setInterval(()=>{const el=document.getElementById('st-time-'+id);if(el) el.textContent='● '+fmt((Date.now()-ST.start)/1000)},250);
+  renderStudio();
+  document.getElementById('st-'+id).scrollIntoView({behavior:'smooth',block:'start'});
+}
+function stStop(){if(ST.rec&&ST.rec.state!=='inactive') ST.rec.stop()}
+
+/* ═════════ START ═════════ */
+if(/[?&]studio\b/.test(location.search)){
+  document.body.classList.add('studio');
+  document.querySelector('.header-sub').textContent='Rekam suara kamu buat tiap siaran 🎙️';
+  renderStudio();
+}
+buildList();
+probeAll();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
