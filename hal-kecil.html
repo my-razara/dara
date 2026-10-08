@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Hal Kecil yang Aku Notice dari Kamu 🤍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -17,7 +17,8 @@
     --muted: #9a8070;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  button { font-family: inherit; }
   html { scroll-behavior: smooth; }
 
   body {
@@ -25,7 +26,7 @@
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
     min-height: 100vh;
-    padding: 0 0 6rem;
+    padding: 0 0 calc(6rem + env(safe-area-inset-bottom));
     overflow-x: hidden;
   }
 
@@ -39,6 +40,17 @@
   }
 
   .page { max-width: 620px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+
+  /* ── TOP BAR ── */
+  .read-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 20; background: rgba(232,196,176,.35); }
+  .read-fill { height: 100%; width: 0; background: linear-gradient(to right, var(--blush), var(--rose)); transition: width .15s linear; }
+  .back-link {
+    position: absolute; top: calc(1rem + env(safe-area-inset-top)); left: 1.5rem; z-index: 5;
+    font-size: 12px; color: var(--muted); text-decoration: none; font-weight: 400;
+    background: rgba(255,255,255,.75); border: 1px solid rgba(193,122,111,.18);
+    padding: .4rem .85rem; border-radius: 50px; backdrop-filter: blur(6px);
+  }
+  .back-link:active { background: var(--warm); }
 
   /* ── HERO ── */
   .hero { text-align: center; padding: 5rem 0 3rem; }
@@ -82,6 +94,13 @@
     font-size: 12px; color: var(--muted); letter-spacing: 0.05em;
   }
   .counter span { color: var(--rose); font-weight: 600; font-size: 1.1rem; }
+  .tools { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; margin: -0.5rem 0 1.5rem; }
+  .tool-btn {
+    border: 1px solid rgba(193,122,111,.2); background: #fff; color: var(--deep);
+    border-radius: 50px; padding: .45rem .95rem; font-size: 12px; font-weight: 500; cursor: pointer;
+  }
+  .tool-btn:active { background: var(--warm); }
+  .tool-btn.on { background: var(--rose); color: #fff; border-color: var(--rose); }
 
   /* ── LIST ── */
   .notice-list { display: flex; flex-direction: column; gap: 0.85rem; }
@@ -99,11 +118,26 @@
 
   .notice-item.keliatan { opacity: 1; transform: none; }
 
-  .notice-item:hover {
-    border-color: rgba(193,122,111,0.3);
-    box-shadow: 0 4px 20px rgba(193,122,111,0.1);
-    transform: translateX(4px);
+  @media (hover: hover) {
+    .notice-item.keliatan:hover {
+      border-color: rgba(193,122,111,0.3);
+      box-shadow: 0 4px 20px rgba(193,122,111,0.1);
+      transform: translateX(4px);
+    }
   }
+  .notice-item.flash { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(193,122,111,.18), 0 6px 24px rgba(193,122,111,.15); }
+  .notice-item.r-y { border-color: rgba(193,122,111,.35); }
+  .notice-item.hide { display: none; }
+
+  .react { display: flex; gap: .4rem; margin-top: .7rem; flex-wrap: wrap; }
+  .react button {
+    border: 1px solid rgba(193,122,111,.18); background: var(--cream); color: var(--muted);
+    border-radius: 50px; padding: .3rem .75rem; font-size: 11px; font-weight: 500; cursor: pointer;
+    transition: all .15s;
+  }
+  .react button:active { transform: scale(.94); }
+  .react button.on.y { background: var(--rose); color: #fff; border-color: var(--rose); }
+  .react button.on.n { background: #f1e6d4; color: #8a6a30; border-color: var(--gold); }
 
   .notice-num {
     font-size: 11px; font-weight: 600;
@@ -117,7 +151,7 @@
     margin-top: -1px;
   }
 
-  .notice-content { flex: 1; }
+  .notice-content { flex: 1; min-width: 0; }
 
   .notice-text {
     font-size: 14px; color: var(--ink);
@@ -158,6 +192,45 @@
     font-weight: 500; position: relative; z-index: 1;
   }
 
+  /* ── RINGKASAN ── */
+  .sum-card {
+    background: linear-gradient(135deg, #fff, #fdf3ee);
+    border: 1px solid rgba(193,122,111,.18); border-radius: 16px;
+    padding: 1.4rem 1.25rem; margin-top: 1.25rem; text-align: center;
+  }
+  .sum-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: .75rem; }
+  .sum-row { display: flex; justify-content: center; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .sum-pill { background: #fff; border: 1px solid rgba(193,122,111,.15); border-radius: 12px; padding: .5rem .8rem; min-width: 76px; }
+  .sum-pill b { display: block; font-size: 1.2rem; color: var(--rose); font-weight: 600; line-height: 1.2; }
+  .sum-pill span { font-size: 10px; color: var(--muted); }
+  .sum-wa {
+    display: inline-block; text-decoration: none; font-size: 13px; font-weight: 600;
+    padding: .75rem 1.4rem; border-radius: 50px; background: var(--rose); color: #fff;
+    box-shadow: 0 4px 16px rgba(193,122,111,.3);
+  }
+  .sum-wa.off { opacity: .45; pointer-events: none; box-shadow: none; }
+  .sum-hint { font-size: 11px; color: var(--muted); margin-top: .6rem; }
+  .toast {
+    position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom)); transform: translate(-50%, 20px);
+    background: var(--ink); color: #fff; font-size: 12.5px; padding: .6rem 1.1rem; border-radius: 50px;
+    opacity: 0; pointer-events: none; transition: all .3s; z-index: 50; max-width: calc(100vw - 2rem); text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 400px) {
+    .page { padding: 0 1rem; }
+    .back-link { left: 1rem; }
+    .hero { padding: 4.25rem 0 2.25rem; }
+    .notice-item { padding: 1rem 1rem; gap: .7rem; }
+    .notice-num { width: 20px; }
+    .notice-text { font-size: 13.5px; }
+    .footer-card { padding: 1.6rem 1.2rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .notice-item { opacity: 1; transform: none; transition: none; }
+    .hero-icon { animation: none; }
+  }
+
   .page-footer {
     text-align: center; margin-top: 3rem;
     font-size: 11px; color: var(--muted); line-height: 2;
@@ -166,6 +239,8 @@
 </style>
 </head>
 <body>
+<div class="read-bar"><div class="read-fill" id="read-fill"></div></div>
+<a href="index.html" class="back-link">← Menu utama</a>
 <div class="page">
 
   <!-- HERO -->
@@ -178,9 +253,25 @@
   </div>
 
   <p class="counter"><span id="total-count">30</span> hal yang aku perhatiin</p>
+  <div class="tools">
+    <button class="tool-btn" onclick="randomOne()">🎲 Satu hal acak</button>
+    <button class="tool-btn" id="f-y" onclick="setFilter('y')">🤍 Yang aku bilang bener</button>
+  </div>
 
   <!-- LIST -->
   <div class="notice-list" id="notice-list"></div>
+
+  <!-- RINGKASAN -->
+  <div class="sum-card" id="sum-card">
+    <p class="sum-title">Jadi, Razan bener ga? 👀</p>
+    <div class="sum-row">
+      <div class="sum-pill"><b id="s-y">0</b><span>🤍 Bener</span></div>
+      <div class="sum-pill"><b id="s-n">0</b><span>🙈 Masa sih</span></div>
+      <div class="sum-pill"><b id="s-z">30</b><span>Belum dijawab</span></div>
+    </div>
+    <a class="sum-wa off" id="sum-wa" href="#" target="_blank" rel="noopener">💬 Kirim jawabanku ke Razan</a>
+    <p class="sum-hint" id="sum-hint">Tap "🤍 Bener" atau "🙈 Masa sih" di tiap hal di atas</p>
+  </div>
 
   <!-- FOOTER CARD -->
   <div class="footer-card">
@@ -198,6 +289,7 @@
   </div>
 
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
 const notices = [
@@ -356,31 +448,167 @@ const notices = [
 // Render list
 const list = document.getElementById('notice-list');
 document.getElementById('total-count').textContent = notices.length;
+document.getElementById('s-z').textContent = notices.length;
+
+const KEY = 'halkecil-react';
+const WA = '6285692740607';
+let react = {};
+try { react = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+let filter = null;
 
 notices.forEach((item, i) => {
   const el = document.createElement('div');
   el.className = 'notice-item';
+  el.id = 'n-' + i;
   el.innerHTML = `
     <span class="notice-num">${String(i+1).padStart(2,'0')}</span>
     <span class="notice-icon">${item.icon}</span>
     <div class="notice-content">
       <p class="notice-text">${item.text}</p>
       ${item.note ? `<p class="notice-note">${item.note}</p>` : ''}
+      <div class="react">
+        <button class="y" onclick="setReact(${i},'y')">🤍 Bener</button>
+        <button class="n" onclick="setReact(${i},'n')">🙈 Masa sih</button>
+      </div>
     </div>
   `;
   list.appendChild(el);
+  paintReact(i);
 });
 
-// Fade in on scroll
-const observer = new IntersectionObserver(entries => {
-  entries.forEach((e, idx) => {
-    if (e.isIntersecting) {
-      setTimeout(() => e.target.classList.add('keliatan'), 60);
-    }
-  });
-}, { threshold: 0.1 });
+function paintReact(i) {
+  const el = document.getElementById('n-' + i);
+  const r = react[i];
+  el.querySelector('.y').classList.toggle('on', r === 'y');
+  el.querySelector('.n').classList.toggle('on', r === 'n');
+  el.classList.toggle('r-y', r === 'y');
+}
+function setReact(i, v) {
+  if (react[i] === v) delete react[i]; else react[i] = v;
+  try { localStorage.setItem(KEY, JSON.stringify(react)); } catch (e) {}
+  paintReact(i);
+  updateSummary();
+  if (react[i] === 'y') { try { navigator.vibrate && navigator.vibrate(12); } catch (e) {} }
+  const n = Object.keys(react).length;
+  if (n === notices.length && react[i]) toast('Semua udah kamu jawab 🤍 Kirim ke Razan di bawah ya');
+  if (filter === 'y') applyFilter();
+}
+function updateSummary() {
+  const vals = Object.entries(react).filter(([k]) => notices[k]);
+  const y = vals.filter(([, v]) => v === 'y').map(([k]) => +k);
+  const n = vals.filter(([, v]) => v === 'n').map(([k]) => +k);
+  document.getElementById('s-y').textContent = y.length;
+  document.getElementById('s-n').textContent = n.length;
+  document.getElementById('s-z').textContent = notices.length - y.length - n.length;
+  const wa = document.getElementById('sum-wa');
+  const any = y.length + n.length > 0;
+  wa.classList.toggle('off', !any);
+  let msg = `Razan, aku udah baca "Hal kecil yang kamu notice dari aku" 👀\n\n🤍 Bener: ${y.length} dari ${notices.length}`;
+  if (n.length) msg += `\n🙈 Masa sih: no. ${n.sort((a,b)=>a-b).map(k => k + 1).join(', ')}`;
+  msg += `\n\n`;
+  wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+  document.getElementById('sum-hint').textContent = any
+    ? (y.length === notices.length ? 'Semuanya bener ya? 🥹' : 'Jawaban kamu kesimpen, bisa diubah kapan aja')
+    : 'Tap "🤍 Bener" atau "🙈 Masa sih" di tiap hal di atas';
+}
+updateSummary();
 
-document.querySelectorAll('.notice-item').forEach(el => observer.observe(el));
+function setFilter(f) {
+  filter = filter === f ? null : f;
+  document.getElementById('f-y').classList.toggle('on', filter === 'y');
+  applyFilter();
+  if (filter === 'y' && !Object.values(react).includes('y')) toast('Belum ada yang kamu tandain "Bener" 🤍');
+}
+function applyFilter() {
+  notices.forEach((_, i) => {
+    const el = document.getElementById('n-' + i);
+    el.classList.toggle('hide', filter === 'y' && react[i] !== 'y');
+    if (!el.classList.contains('hide')) el.classList.add('keliatan');
+  });
+}
+
+function randomOne() {
+  if (filter) setFilter(filter);
+  const i = Math.floor(Math.random() * notices.length);
+  const el = document.getElementById('n-' + i);
+  el.classList.add('keliatan');
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.querySelectorAll('.notice-item.flash').forEach(x => x.classList.remove('flash'));
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 2200);
+}
+
+let toastT;
+function toast(m) {
+  const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// Fade in on scroll (kalau browser ga dukung, langsung tampil semua)
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('keliatan'), 60);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.notice-item').forEach(el => observer.observe(el));
+} else {
+  document.querySelectorAll('.notice-item').forEach(el => el.classList.add('keliatan'));
+}
+
+// progress baca
+function onScroll() {
+  const h = document.documentElement.scrollHeight - innerHeight;
+  document.getElementById('read-fill').style.width = (h > 0 ? Math.min(100, scrollY / h * 100) : 100) + '%';
+}
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('resize', onScroll);
+onScroll();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
