@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Kapsul Waktu — Razan & Dara ⏳</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --dusk:#4b3a6b;--dusk2:#7a6a9e;--lav:#ede8f6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea{font-family:'Poppins',sans-serif}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 70% 45% at 50% 0%,rgba(122,106,158,.18),transparent 70%),
+               radial-gradient(ellipse 50% 50% at 90% 90%,rgba(193,122,111,.14),transparent 70%)}
+  .page{max-width:480px;margin:0 auto;padding:0 1.15rem calc(7rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+
+  .back-link{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1.15rem;z-index:5;font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(122,106,158,.2);padding:.4rem .85rem;border-radius:50px;backdrop-filter:blur(6px)}
+  .back-link:active{background:var(--warm)}
+
+  /* ── HEADER ── */
+  .hero{text-align:center;padding:calc(3.6rem + env(safe-area-inset-top)) 0 1.25rem}
+  .hero-ico{font-size:3rem;display:inline-block;animation:hourglass 5s ease-in-out infinite}
+  @keyframes hourglass{0%,40%{transform:rotate(0)}50%,90%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
+  .hero-label{display:block;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--dusk2);margin:.6rem 0 .3rem}
+  .hero-title{font-size:clamp(1.6rem,6vw,2.1rem);font-weight:700;line-height:1.1}
+  .hero-title span{color:var(--dusk)}
+  .hero-sub{font-size:12.5px;color:var(--muted);line-height:1.7;max-width:310px;margin:.5rem auto 0}
+
+  /* ── TABS ── */
+  .tabs{display:flex;gap:.35rem;background:#fff;border:1px solid rgba(122,106,158,.18);border-radius:50px;padding:.25rem;margin:.4rem 0 1rem}
+  .tab{flex:1;border:none;background:none;border-radius:50px;padding:.55rem .4rem;font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tab.on{background:var(--dusk);color:#fff}
+  .tab b{font-weight:600;opacity:.75;margin-left:.15rem}
+
+  .status{font-size:11px;color:var(--muted);text-align:center;margin:-.3rem 0 .9rem;min-height:1em}
+  .status.err{color:#a8473a}
+  .status button{border:none;background:none;color:var(--rose);text-decoration:underline;font-size:11px;cursor:pointer}
+
+  /* ── LIST ── */
+  .list{display:flex;flex-direction:column;gap:.7rem}
+  .sec-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:500;margin:.6rem 0 -.1rem;display:flex;align-items:center;gap:.5rem}
+  .sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--blush),transparent)}
+  .cap{position:relative;display:flex;gap:.85rem;align-items:center;width:100%;text-align:left;border:1px solid rgba(122,106,158,.16);background:#fff;border-radius:18px;padding:.9rem .95rem;cursor:pointer;box-shadow:0 4px 16px rgba(75,58,107,.06);color:inherit}
+  .cap:active{transform:scale(.98)}
+  .cap-ico{width:50px;height:50px;border-radius:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--lav)}
+  .cap-body{flex:1;min-width:0}
+  .cap-title{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.35;overflow-wrap:anywhere}
+  .cap-meta{font-size:10.5px;color:var(--muted);margin-top:.15rem}
+  .cap-hint{font-size:11px;color:var(--dusk2);font-style:italic;margin-top:.3rem;line-height:1.5;overflow-wrap:anywhere}
+  .cap-prog{height:4px;border-radius:2px;background:var(--lav);margin-top:.5rem;overflow:hidden}
+  .cap-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--dusk2),var(--dusk));border-radius:2px}
+  .cap-cd{font-size:10.5px;font-weight:600;color:var(--dusk);margin-top:.3rem}
+  .cap.ready{border-color:var(--gold);background:linear-gradient(135deg,#fff 40%,#fbf1dc);box-shadow:0 6px 24px rgba(201,169,110,.3);animation:readyGlow 2.2s ease-in-out infinite}
+  @keyframes readyGlow{0%,100%{box-shadow:0 6px 24px rgba(201,169,110,.25)}50%{box-shadow:0 6px 30px rgba(201,169,110,.55)}}
+  .cap.ready .cap-ico{background:linear-gradient(135deg,#f6e3b4,var(--gold));animation:wiggle 1.6s ease-in-out infinite}
+  @keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}}
+  .cap.ready .cap-cd{color:#9a7a3e}
+  .cap.opened .cap-ico{background:var(--warm)}
+  .cap.locked .cap-ico{filter:saturate(.7)}
+  .cap-from{position:absolute;top:.6rem;right:.75rem;font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:.12rem .5rem;border-radius:50px}
+  .from-Razan{background:rgba(74,127,193,.12);color:#4a7fc1}
+  .from-Dara{background:rgba(217,119,107,.14);color:#c4605a}
+  .cap .cap-title{padding-right:4.2rem}
+  .empty{text-align:center;padding:1.6rem 1rem;background:rgba(255,255,255,.65);border:1px dashed var(--blush);border-radius:18px;font-size:12.5px;color:var(--muted);line-height:1.75}
+  .empty b{color:var(--ink);font-weight:600}
+
+  .write-btn{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;border:none;border-radius:50px;padding:.95rem 1.6rem;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--dusk2),var(--dusk));box-shadow:0 8px 26px rgba(75,58,107,.35);cursor:pointer;white-space:nowrap}
+  .write-btn:active{transform:translateX(-50%) scale(.96)}
+
+  /* ── SHEETS ── */
+  .ov{display:none;position:fixed;inset:0;z-index:100;background:rgba(30,22,45,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .sheet{background:var(--cream);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:1.2rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:94dvh;overflow-y:auto;animation:su .3s ease}
+  @keyframes su{from{transform:translateY(100%)}to{transform:none}}
+  .sheet h3{text-align:center;font-size:15px;font-weight:600;margin-bottom:.2rem}
+  .sheet .sub{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:1rem;line-height:1.55}
+  .fld{margin-bottom:.85rem}
+  .fld label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:.3rem}
+  .fld input,.fld textarea{width:100%;border:1.5px solid var(--blush);border-radius:12px;background:#fff;padding:.7rem .85rem;font-size:14px;color:var(--ink);outline:none}
+  .fld textarea{min-height:170px;resize:vertical;line-height:1.7;font-size:14px}
+  .fld input:focus,.fld textarea:focus{border-color:var(--dusk2)}
+  .fld .row-info{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:.25rem}
+  .fld .err{font-size:11px;color:#a8473a;margin-top:.25rem;display:none}
+  .who{display:flex;gap:.5rem}
+  .who button{flex:1;padding:.6rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;font-size:13px;color:var(--muted);cursor:pointer}
+  .who button.on.r{background:#4a7fc1;border-color:#4a7fc1;color:#fff}
+  .who button.on.d{background:#d9776b;border-color:#d9776b;color:#fff}
+  .presets{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.5rem}
+  .presets button{border:1.5px solid rgba(122,106,158,.25);background:#fff;color:var(--dusk);border-radius:50px;padding:.38rem .75rem;font-size:11.5px;cursor:pointer}
+  .presets button.on{background:var(--dusk);border-color:var(--dusk);color:#fff}
+  .date-show{font-size:12px;color:var(--dusk);font-weight:500;margin-top:.35rem}
+  .btn-row{display:flex;gap:.5rem;margin-top:1rem}
+  .btn-row button{flex:1;padding:.85rem;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer}
+  .b-ghost{background:transparent;border:1.5px solid var(--blush);color:var(--muted)}
+  .b-main{background:linear-gradient(135deg,var(--dusk2),var(--dusk));border:none;color:#fff;box-shadow:0 4px 16px rgba(75,58,107,.3)}
+  .b-main:disabled{opacity:.55}
+  .warn{font-size:11px;color:var(--dusk);background:var(--lav);border-radius:12px;padding:.6rem .8rem;line-height:1.6;margin-top:.2rem}
+
+  /* ── BUKA KAPSUL ── */
+  #open-ov{align-items:center;padding:1rem}
+  .opening{display:flex;flex-direction:column;align-items:center;gap:1rem;color:#fff;text-align:center}
+  .pill{position:relative;width:150px;height:64px}
+  .pill .h{position:absolute;top:0;width:50%;height:100%;transition:transform .7s cubic-bezier(.5,-.3,.3,1.3),opacity .6s}
+  .pill .h.l{left:0;border-radius:32px 0 0 32px;background:linear-gradient(160deg,#a99bd0,var(--dusk))}
+  .pill .h.r{right:0;border-radius:0 32px 32px 0;background:linear-gradient(160deg,#f3dfa8,var(--gold))}
+  .pill .shine{position:absolute;left:14px;right:14px;top:9px;height:10px;border-radius:6px;background:rgba(255,255,255,.35);transition:opacity .3s}
+  .pill.shake{animation:pillShake .5s ease-in-out 2}
+  @keyframes pillShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+  .pill.split .h.l{transform:translateX(-46px) rotate(-28deg);opacity:0}
+  .pill.split .h.r{transform:translateX(46px) rotate(28deg);opacity:0}
+  .pill.split .shine{opacity:0}
+  .opening p{font-size:13px;opacity:.85}
+
+  .letter{background:#fffdf8;width:100%;max-width:440px;border-radius:6px;padding:1.6rem 1.35rem 1.35rem;max-height:calc(100dvh - 2rem);overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:letterIn .6s cubic-bezier(.34,1.3,.64,1);
+    background-image:radial-gradient(ellipse at top left,rgba(237,232,246,.7),transparent 60%),radial-gradient(ellipse at bottom right,rgba(245,237,224,.8),transparent 60%);border-top:4px solid var(--dusk2)}
+  @keyframes letterIn{from{transform:translateY(40px) scale(.95);opacity:0}to{transform:none;opacity:1}}
+  .lt-stamp{position:absolute;top:1rem;right:1rem;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--dusk);border:1.5px solid var(--dusk2);border-radius:4px;padding:.2rem .45rem;transform:rotate(6deg);opacity:.75;background:#fffdf8}
+  .lt-meta{font-size:10.5px;color:var(--muted);margin-bottom:.35rem;padding-right:4.5rem}
+  .lt-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:.9rem;line-height:1.35;padding-right:4.5rem;overflow-wrap:anywhere}
+  .lt-body{font-size:14px;line-height:1.9;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;font-weight:400;user-select:text;-webkit-user-select:text}
+  .lt-sign{font-family:'Caveat',cursive;font-size:1.6rem;color:var(--rose);text-align:right;margin-top:.8rem}
+  .lt-gap{font-size:10.5px;color:var(--dusk2);text-align:center;margin-top:1rem;font-style:italic}
+  .lt-actions{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:1rem}
+  .lt-actions > *{text-align:center;text-decoration:none;padding:.7rem .5rem;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;line-height:1.3;display:flex;align-items:center;justify-content:center}
+  .lt-actions .lt-close{grid-column:1 / -1}
+  .lt-close{background:var(--dusk);color:#fff;border:none}
+  .lt-reply{background:#fff;color:var(--dusk);border:1.5px solid rgba(122,106,158,.35)}
+  .lt-wa{background:#fff;color:#1f8f4e;border:1.5px solid rgba(37,211,102,.4)}
+
+  .more{position:absolute;bottom:.55rem;right:.6rem;border:none;background:none;color:var(--muted);font-size:14px;cursor:pointer;padding:.15rem .4rem;border-radius:8px;opacity:.6}
+
+  .toast{position:fixed;left:50%;bottom:calc(5.2rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:12.5px;padding:.6rem 1.1rem;border-radius:50px;opacity:0;pointer-events:none;transition:all .3s;z-index:300;max-width:calc(100vw - 2rem);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .seal{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;flex-direction:column;gap:.8rem;background:rgba(30,22,45,.75);color:#fff;text-align:center;padding:1.5rem}
+  .seal.show{display:flex}
+  .seal .pill{animation:sealIn .9s cubic-bezier(.34,1.4,.64,1)}
+  @keyframes sealIn{0%{transform:scale(.4) rotate(-30deg);opacity:0}60%{transform:scale(1.08) rotate(4deg);opacity:1}100%{transform:none}}
+  .seal b{font-size:16px}
+  .seal small{font-size:12px;opacity:.8;max-width:280px;line-height:1.6}
+
+  @media (max-width:360px){
+    .page{padding-left:.95rem;padding-right:.95rem}
+    .back-link{left:.95rem}
+    .cap{padding:.8rem .8rem;gap:.7rem}
+    .cap-ico{width:44px;height:44px;font-size:1.3rem}
+    .tab{font-size:11.5px}
+    .letter{padding:1.4rem 1.1rem 1.15rem}
+  }
+  @media (prefers-reduced-motion:reduce){.hero-ico,.cap.ready,.cap.ready .cap-ico{animation:none}}
+</style>
+</head>
+<body>
+<a href="index.html" class="back-link">← Menu utama</a>
+
+<div class="page">
+  <div class="hero">
+    <span class="hero-ico">⏳</span>
+    <span class="hero-label">Buat masa depan kita</span>
+    <h1 class="hero-title">Kapsul <span>Waktu</span></h1>
+    <p class="hero-sub">Surat yang dikunci sampai tanggalnya tiba. Bahkan yang nulis pun ga bisa ngintip 🤫</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tab-Dara" onclick="setTab('Dara')">📬 Buat Dara <b id="cnt-Dara"></b></button>
+    <button class="tab" id="tab-Razan" onclick="setTab('Razan')">📮 Buat Razan <b id="cnt-Razan"></b></button>
+  </div>
+  <p class="status" id="status"></p>
+  <div class="list" id="list"></div>
+</div>
+
+<button class="write-btn" id="write-btn" onclick="openWrite()">✍️ Tulis kapsul baru</button>
+
+<!-- TULIS -->
+<div class="ov" id="write-ov" onclick="if(event.target===this)closeWrite()">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <h3>✍️ Tulis kapsul waktu</h3>
+    <p class="sub">Tulis sekarang, dibaca nanti. Setelah dikunci, isinya ga bisa dibuka atau diubah sampai tanggalnya.</p>
+    <div class="fld"><label>Dari</label>
+      <div class="who"><button class="r" id="w-Razan" onclick="setFrom('Razan')">🙋‍♂️ Razan → Dara</button><button class="d" id="w-Dara" onclick="setFrom('Dara')">🙋‍♀️ Dara → Razan</button></div>
+    </div>
+    <div class="fld"><label for="f-title">Judul (keliatan dari luar)</label><input id="f-title" maxlength="80" placeholder="misal: Buat kamu di anniversary ke-2" autocomplete="off"><p class="err" id="e-title">Judulnya diisi dulu ya</p></div>
+    <div class="fld"><label for="f-body">Isi surat (rahasia sampai waktunya)</label><textarea id="f-body" maxlength="4000" placeholder="Hai kamu di masa depan…"></textarea>
+      <div class="row-info"><span id="draft-info"></span><span id="f-count">0/4000</span></div><p class="err" id="e-body">Isi suratnya masih kosong</p></div>
+    <div class="fld"><label>Kapan boleh dibuka?</label>
+      <div class="presets" id="presets"></div>
+      <input type="date" id="f-date">
+      <p class="date-show" id="date-show"></p><p class="err" id="e-date">Pilih tanggal mulai besok ya</p></div>
+    <div class="fld"><label for="f-hint">Petunjuk (opsional, keliatan sebelum dibuka)</label><input id="f-hint" maxlength="140" placeholder="misal: Bacanya pas lagi sendirian ya" autocomplete="off"></div>
+    <p class="warn">🔒 Kapsul yang udah dikunci ga bisa diubah. Kalau salah, cuma bisa dihapus pakai password admin.</p>
+    <div class="btn-row"><button class="b-ghost" onclick="closeWrite()">Nanti dulu</button><button class="b-main" id="f-save" onclick="seal()">🔒 Kunci kapsul</button></div>
+  </div>
+</div>
+
+<!-- HAPUS (admin) -->
+<div class="ov" id="del-ov" onclick="if(event.target===this)closeDel()">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <h3>🗑️ Hapus kapsul</h3>
+    <p class="sub" id="del-sub"></p>
+    <div class="fld"><label for="del-pw">Password admin</label><input id="del-pw" type="password" autocomplete="off"><p class="err" id="e-del">Password salah</p></div>
+    <div class="btn-row"><button class="b-ghost" onclick="closeDel()">Batal</button><button class="b-main" id="del-go" onclick="doDelete()">Hapus</button></div>
+  </div>
+</div>
+
+<!-- BUKA -->
+<div class="ov" id="open-ov" onclick="if(event.target===this&&openReady)closeOpen()">
+  <div class="opening" id="opening">
+    <div class="pill" id="pill"><div class="h l"></div><div class="h r"></div><div class="shine"></div></div>
+    <p id="opening-txt">Ngebuka kapsul…</p>
+  </div>
+  <div class="letter" id="letter" style="display:none" role="dialog" aria-modal="true">
+    <span class="lt-stamp" id="lt-stamp">Kapsul Waktu</span>
+    <p class="lt-meta" id="lt-meta"></p>
+    <p class="lt-title" id="lt-title"></p>
+    <p class="lt-body" id="lt-body"></p>
+    <p class="lt-sign" id="lt-sign"></p>
+    <p class="lt-gap" id="lt-gap"></p>
+    <div class="lt-actions" id="lt-actions"></div>
+  </div>
+</div>
+
+<div class="seal" id="seal"><div class="pill"><div class="h l"></div><div class="h r"></div><div class="shine"></div></div><b>Kapsul dikunci 🔒</b><small id="seal-txt"></small></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ PENGATURAN ═══
+   Pasang kapsul-waktu.gs di script.google.com (akun razara.my.id@gmail.com), Deploy → Web app
+   (Execute as: Me, Who has access: Anyone), terus tempel URL /exec-nya di sini. */
+const KAPSUL_URL = '';
+const KAPSUL_KEY = 'razara-kapsul';      // harus sama dengan KEY di kapsul-waktu.gs
+const WA_RAZAN = '6285692740607';
+const JADIAN = '2025-05-10';
+const ULTAH_DARA = { m: 8, d: 18 };
+
+const K_CACHE = 'kapsul-cache', K_DRAFT = 'kapsul-draft', K_FROM = 'kapsul-from', K_TAB = 'kapsul-tab';
+const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+function day0(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function daysTo(s) { const d = parseYMD(s); return d ? Math.round((d - day0(new Date())) / 864e5) : 0; }
+function fmtDate(s, short) { const d = typeof s === 'string' ? parseYMD(s) : new Date(s); if (!d) return ''; return `${d.getDate()} ${short ? BULAN[d.getMonth()].slice(0, 3) : BULAN[d.getMonth()]} ${d.getFullYear()}`; }
+function humanGap(days) {
+  if (days < 31) return `${days} hari`;
+  if (days < 365) { const m = Math.round(days / 30.4); return `${m} bulan`; }
+  const y = Math.floor(days / 365), m = Math.round((days - y * 365) / 30.4);
+  return m ? `${y} tahun ${m} bulan` : `${y} tahun`;
+}
+
+let items = lsGet(K_CACHE, []);
+let serverToday = null;
+let tab = lsGet(K_TAB, 'Dara');
+let from = lsGet(K_FROM, 'Razan');
+let loading = false, online = false, loadErr = '';
+
+/* ── server ── */
+function api(method, body) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    const url = KAPSUL_URL + (method === 'GET' ? `?action=list&key=${encodeURIComponent(KAPSUL_KEY)}&t=${Date.now()}` : '');
+    x.open(method, url, true); x.timeout = 20000;
+    if (method === 'POST') x.setRequestHeader('Content-Type', 'text/plain');
+    x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(Object.assign(new Error(r.error || 'gagal'), { code: r.error })); } catch (e) { rej(e); } };
+    x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+    x.send(method === 'POST' ? JSON.stringify(Object.assign({ key: KAPSUL_KEY }, body)) : null);
+  });
+}
+async function load() {
+  if (!KAPSUL_URL) { render(); return; }
+  loading = true; render();
+  try {
+    const r = await api('GET');
+    items = r.items || []; serverToday = r.today || null;
+    lsSet(K_CACHE, items);
+    online = true; loadErr = '';
+  } catch (e) { online = false; loadErr = e.message; }
+  loading = false;
+  render();
+}
+
+/* ── tampilan daftar ── */
+function setTab(t) { tab = t; lsSet(K_TAB, t); render(); }
+function render() {
+  ['Dara', 'Razan'].forEach(w => {
+    $('tab-' + w).classList.toggle('on', tab === w);
+    const n = items.filter(i => i.from !== w).length;
+    $('cnt-' + w).textContent = n ? n : '';
+  });
+  const st = $('status');
+  if (!KAPSUL_URL) { st.className = 'status'; st.textContent = ''; }
+  else if (loading) { st.className = 'status'; st.textContent = '⏳ Ngecek kapsul…'; }
+  else if (!online) { st.className = 'status err'; st.innerHTML = `⚠️ Belum nyambung${items.length ? ' — yang tampil data terakhir di HP ini' : ''}. <button onclick="load()">Coba lagi</button>`; }
+  else st.textContent = '';
+
+  const box = $('list');
+  if (!KAPSUL_URL) {
+    box.innerHTML = `<div class="empty">🔧 <b>Kapsul Waktu lagi disiapin</b><br>Bentar lagi bisa dipakai ya 🤍</div>`;
+    $('write-btn').style.display = 'none';
+    return;
+  }
+  $('write-btn').style.display = '';
+  const mine = items.filter(i => i.from !== tab);   // tab "Buat Dara" = kapsul dari Razan
+  if (!mine.length) {
+    box.innerHTML = loading ? '' : `<div class="empty">${tab === 'Dara'
+      ? 'Belum ada kapsul buat Dara.<br><b>Razan</b>, tulis satu buat Dara di masa depan? ✍️'
+      : 'Belum ada kapsul buat Razan.<br><b>Dara</b>, mau nitip surat buat Razan di masa depan? ✍️'}</div>`;
+    return;
+  }
+  const isReady = i => i.unlocked && !i.openedAt;
+  const ready = mine.filter(isReady).sort((a, b) => a.openDate < b.openDate ? -1 : 1);
+  const locked = mine.filter(i => !i.unlocked).sort((a, b) => a.openDate < b.openDate ? -1 : 1);
+  const opened = mine.filter(i => i.unlocked && i.openedAt).sort((a, b) => b.openedAt - a.openedAt);
+  let h = '';
+  if (ready.length) h += `<p class="sec-label">✨ Udah bisa dibuka</p>` + ready.map(capHTML).join('');
+  if (locked.length) h += `<p class="sec-label">🔒 Masih dikunci</p>` + locked.map(capHTML).join('');
+  if (opened.length) h += `<p class="sec-label">📖 Udah dibuka</p>` + opened.map(capHTML).join('');
+  box.innerHTML = h;
+  box.querySelectorAll('.cap').forEach(el => el.addEventListener('click', e => {
+    if (e.target.closest('.more')) return;
+    tapCap(el.dataset.id);
+  }));
+  box.querySelectorAll('.more').forEach(b => b.addEventListener('click', () => openDel(b.dataset.id)));
+}
+function capHTML(i) {
+  const d = daysTo(i.openDate);
+  let cls = 'locked', ico = '💊', meta = '', extra = '';
+  if (i.unlocked && !i.openedAt) {
+    cls = 'ready'; ico = '🎁';
+    meta = `Ditulis ${fmtDate(i.created, true)} · kebuka ${fmtDate(i.openDate, true)}`;
+    extra = `<p class="cap-cd">✨ Tap buat buka kapsulnya!</p>`;
+  } else if (i.unlocked) {
+    cls = 'opened'; ico = '📖';
+    meta = `Dibuka ${fmtDate(i.openedAt, true)} · ditulis ${fmtDate(i.created, true)}`;
+  } else {
+    const total = Math.max(1, Math.round((parseYMD(i.openDate) - day0(new Date(i.created || Date.now()))) / 864e5));
+    const pct = Math.max(3, Math.min(100, Math.round((total - d) / total * 100)));
+    meta = `Kebuka ${fmtDate(i.openDate)}`;
+    extra = `<div class="cap-prog"><i style="width:${pct}%"></i></div><p class="cap-cd">🔒 ${d <= 0 ? 'Sebentar lagi…' : d === 1 ? 'Besok udah bisa dibuka!' : `${d} hari lagi`}</p>`;
+  }
+  return `<div class="cap ${cls}" data-id="${esc(i.id)}" role="button" tabindex="0">
+    <span class="cap-from from-${i.from}">dari ${i.from}</span>
+    <span class="cap-ico">${ico}</span>
+    <span class="cap-body">
+      <p class="cap-title">${esc(i.title)}</p>
+      <p class="cap-meta">${meta}</p>
+      ${i.hint && cls !== 'opened' ? `<p class="cap-hint">💭 ${esc(i.hint)}</p>` : ''}
+      ${extra}
+    </span>
+    <button class="more" data-id="${esc(i.id)}" aria-label="Lainnya">⋯</button>
+  </div>`;
+}
+
+/* ── buka kapsul ── */
+let openReady = false;
+function tapCap(id) {
+  const i = items.find(x => x.id === id);
+  if (!i) return;
+  if (!i.unlocked) {
+    const d = daysTo(i.openDate);
+    toast(d > 0 ? `🔒 Sabar ya… ${d} hari lagi (${fmtDate(i.openDate)})` : '🔒 Tunggu sebentar, coba refresh halamannya');
+    shakeEl(document.querySelector(`.cap[data-id="${CSS.escape(id)}"]`));
+    return;
+  }
+  const first = !i.openedAt;
+  openReady = false;
+  $('open-ov').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  $('letter').style.display = 'none';
+  $('opening').style.display = 'flex';
+  const pill = $('pill');
+  pill.className = 'pill';
+  $('opening-txt').textContent = first ? 'Ngebuka kapsul…' : '';
+  const show = () => { $('opening').style.display = 'none'; showLetter(i); openReady = true; };
+  if (first) {
+    void pill.offsetWidth; pill.classList.add('shake');
+    try { navigator.vibrate && navigator.vibrate([20, 60, 20, 60, 80]); } catch (e) {}
+    setTimeout(() => { pill.classList.remove('shake'); pill.classList.add('split'); }, 1000);
+    setTimeout(show, 1600);
+    // tandain udah dibuka
+    i.openedAt = Date.now(); lsSet(K_CACHE, items);
+    api('POST', { action: 'open', id: i.id }).catch(() => {});
+  } else show();
+}
+function showLetter(i) {
+  const gap = Math.round((parseYMD(i.openDate) - day0(new Date(i.created))) / 864e5);
+  $('lt-meta').textContent = `Ditulis ${fmtDate(i.created)} · dibuka ${fmtDate(i.openDate)}`;
+  $('lt-title').textContent = i.title;
+  $('lt-body').textContent = i.body || '';
+  $('lt-sign').textContent = '— ' + i.from;
+  $('lt-gap').textContent = gap > 0 ? `Surat ini nunggu ${humanGap(gap)} buat sampai ke kamu ⏳` : '';
+  let a = `<button class="lt-close" onclick="closeOpen()">Tutup 🤍</button>`;
+  const other = i.from === 'Razan' ? 'Dara' : 'Razan';
+  a += `<button class="lt-reply" onclick="closeOpen();openWrite('${other}')">✍️ Balas pakai kapsul</button>`;
+  if (i.from === 'Razan') a += `<a class="lt-wa" target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku udah buka kapsul waktu "${i.title}" ⏳\n\n`)}">💬 Bales lewat WA</a>`;
+  $('lt-actions').innerHTML = a;
+  $('letter').style.display = 'block';
+  $('letter').scrollTop = 0;
+  render();
+}
+function closeOpen() { $('open-ov').classList.remove('show'); document.body.style.overflow = ''; }
+function shakeEl(el) { if (!el) return; el.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 300 }); }
+
+/* ── tulis ── */
+let pickDate = '';
+function presets() {
+  const now = new Date(), t = day0(now), out = [];
+  const next = (m, d) => { let x = new Date(t.getFullYear(), m - 1, d); if (x <= t) x = new Date(t.getFullYear() + 1, m - 1, d); return x; };
+  const jad = parseYMD(JADIAN);
+  if (jad) { const a = next(jad.getMonth() + 1, jad.getDate()); out.push([`💍 Anniv ke-${a.getFullYear() - jad.getFullYear()}`, a]); }
+  out.push([`🎂 Ultah Dara ${next(ULTAH_DARA.m, ULTAH_DARA.d).getFullYear()}`, next(ULTAH_DARA.m, ULTAH_DARA.d)]);
+  out.push([`🎆 Tahun baru ${next(1, 1).getFullYear()}`, next(1, 1)]);
+  const add = n => { const x = new Date(t); x.setDate(x.getDate() + n); return x; };
+  const addM = n => { const x = new Date(t); x.setMonth(x.getMonth() + n); return x; };
+  out.push(['📅 1 bulan lagi', addM(1)]);
+  out.push(['💯 100 hari lagi', add(100)]);
+  out.push(['🗓️ 1 tahun lagi', addM(12)]);
+  if (jad) { const x = new Date(jad); x.setDate(x.getDate() + 1000); if (x > t) out.push(['✨ Hari ke-1000', x]); }
+  return out.map(([l, d]) => [l, ymd(d)]);
+}
+function renderPresets() {
+  $('presets').innerHTML = presets().map(([l, d]) => `<button class="${pickDate === d ? 'on' : ''}" data-d="${d}">${l}</button>`).join('');
+  $('presets').querySelectorAll('button').forEach(b => b.onclick = () => { setDate(b.dataset.d); });
+}
+function setDate(d) {
+  pickDate = d; $('f-date').value = d;
+  const n = daysTo(d);
+  $('date-show').textContent = parseYMD(d) && n > 0 ? `📬 Kebuka ${fmtDate(d)} · ${n} hari lagi` : '';
+  $('e-date').style.display = 'none';
+  renderPresets(); saveDraft();
+}
+function setFrom(w) {
+  from = w; lsSet(K_FROM, w);
+  $('w-Razan').classList.toggle('on', w === 'Razan');
+  $('w-Dara').classList.toggle('on', w === 'Dara');
+  saveDraft();
+}
+function openWrite(fromWho) {
+  const dr = lsGet(K_DRAFT, null);
+  if (dr) {
+    $('f-title').value = dr.title || ''; $('f-body').value = dr.body || ''; $('f-hint').value = dr.hint || '';
+    pickDate = dr.openDate || ''; if (dr.from) from = dr.from;
+  }
+  if (fromWho) from = fromWho;
+  setFrom(from);
+  const tm = new Date(); tm.setDate(tm.getDate() + 1); $('f-date').min = ymd(tm);
+  setDate(pickDate);
+  if (!pickDate) $('date-show').textContent = '';
+  ['e-title', 'e-body', 'e-date'].forEach(e => $(e).style.display = 'none');
+  count();
+  $('draft-info').textContent = dr && (dr.body || dr.title) ? '📝 lanjutin draft' : '';
+  $('write-ov').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeWrite() { $('write-ov').classList.remove('show'); document.body.style.overflow = ''; }
+function count() { $('f-count').textContent = `${$('f-body').value.length}/4000`; }
+let draftT;
+function saveDraft() {
+  clearTimeout(draftT);
+  draftT = setTimeout(() => {
+    const d = { title: $('f-title').value, body: $('f-body').value, hint: $('f-hint').value, openDate: pickDate, from };
+    if (d.title || d.body || d.hint) { lsSet(K_DRAFT, d); $('draft-info').textContent = '💾 draft kesimpen'; }
+  }, 400);
+}
+['f-title', 'f-body', 'f-hint'].forEach(id => $(id).addEventListener('input', () => { count(); saveDraft(); }));
+$('f-date').addEventListener('change', () => setDate($('f-date').value));
+
+async function seal() {
+  const title = $('f-title').value.trim(), body = $('f-body').value.trim(), hint = $('f-hint').value.trim();
+  const okDate = parseYMD(pickDate) && daysTo(pickDate) >= 1;
+  $('e-title').style.display = title ? 'none' : 'block';
+  $('e-body').style.display = body ? 'none' : 'block';
+  $('e-date').style.display = okDate ? 'none' : 'block';
+  if (!title || !body || !okDate) return;
+  if (!confirm(`Kunci kapsul ini sampai ${fmtDate(pickDate)}?\n\nSetelah dikunci, isinya ga bisa dibaca atau diubah sampai tanggal itu — termasuk sama kamu sendiri.`)) return;
+  const item = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), created: Date.now(), from, title, hint, openDate: pickDate, body };
+  const btn = $('f-save'); btn.disabled = true; btn.textContent = '⏳ Ngunci…';
+  try {
+    await api('POST', { action: 'add', item });
+  } catch (e) {
+    btn.disabled = false; btn.textContent = '🔒 Kunci kapsul';
+    toast(e.code === 'tanggal' ? 'Tanggalnya harus mulai besok ya' : '⚠️ Gagal ngunci — cek internet terus coba lagi (draft aman kesimpen)', 3500);
+    return;
+  }
+  btn.disabled = false; btn.textContent = '🔒 Kunci kapsul';
+  try { localStorage.removeItem(K_DRAFT); } catch (e) {}
+  $('f-title').value = ''; $('f-body').value = ''; $('f-hint').value = ''; pickDate = '';
+  closeWrite();
+  // tampilin animasi segel
+  $('seal-txt').textContent = `"${title}" bakal kebuka ${fmtDate(item.openDate)} — ${daysTo(item.openDate)} hari lagi.`;
+  $('seal').classList.add('show');
+  try { navigator.vibrate && navigator.vibrate([30, 40, 90]); } catch (e) {}
+  setTimeout(() => $('seal').classList.remove('show'), 2600);
+  // kapsul baru dimasukin tanpa isi (isinya cuma ada di server)
+  items.push({ id: item.id, created: item.created, from, title, hint, openDate: item.openDate, unlocked: false, openedAt: 0 });
+  lsSet(K_CACHE, items);
+  tab = from === 'Razan' ? 'Dara' : 'Razan'; lsSet(K_TAB, tab);
+  render();
+  load();
+  if (from === 'Dara') setTimeout(() => toast(`📮 Kapsul buat Razan dikunci <a style="color:#f0c8b8;font-weight:600" target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Razan, aku nitip kapsul waktu buat kamu ⏳ Bisa dibuka ${fmtDate(item.openDate)} 🤫`)}">Kabarin Razan</a>`, 6000), 2700);
+}
+
+/* ── hapus (admin) ── */
+let delId = null;
+function openDel(id) {
+  const i = items.find(x => x.id === id); if (!i) return;
+  delId = id;
+  $('del-sub').textContent = `"${i.title}" — dari ${i.from}, kebuka ${fmtDate(i.openDate)}. Yang dihapus ga bisa balik lagi.`;
+  $('del-pw').value = ''; $('e-del').style.display = 'none';
+  $('del-ov').classList.add('show');
+}
+function closeDel() { $('del-ov').classList.remove('show'); }
+async function doDelete() {
+  const pw = $('del-pw').value;
+  if (!pw) { $('del-pw').focus(); return; }
+  $('del-go').disabled = true;
+  try {
+    await api('POST', { action: 'delete', id: delId, admin: pw });
+    items = items.filter(i => i.id !== delId); lsSet(K_CACHE, items);
+    closeDel(); render(); toast('🗑️ Kapsul dihapus');
+  } catch (e) {
+    if (e.code === 'admin') $('e-del').style.display = 'block';
+    else toast('⚠️ Gagal ngehapus, cek internet');
+  }
+  $('del-go').disabled = false;
+}
+
+let toastT;
+function toast(m, ms) { const t = $('toast'); t.innerHTML = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2400); }
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if ($('open-ov').classList.contains('show') && openReady) closeOpen();
+  closeWrite(); closeDel();
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+
+render();
+load();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
