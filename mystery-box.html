@@ -2,17 +2,27 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Mystery Box — Dari Razan 🎁</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif}
-  html,body{height:100%;overflow:hidden}
+  html,body{min-height:100%;overflow-x:hidden}
   body{
-    background:radial-gradient(ellipse at top,#1a0f2e,#0d0820);
-    display:flex;align-items:center;justify-content:center;
-    min-height:100vh;
+    background:radial-gradient(ellipse at top,#1a0f2e,#0d0820) fixed;
+    background-color:#0d0820;
+    display:flex;flex-direction:column;align-items:center;
+    min-height:100vh;min-height:100dvh;
+    padding:calc(3.2rem + env(safe-area-inset-top)) 0 calc(1rem + env(safe-area-inset-bottom));
   }
+  button,a{font-family:inherit}
+  .back-link{
+    position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:.9rem;z-index:5;
+    font-size:11.5px;color:rgba(255,255,255,.7);text-decoration:none;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+    padding:.38rem .8rem;border-radius:50px;
+  }
+  .back-link:active{background:rgba(255,255,255,.15)}
   body::before{content:'';position:fixed;inset:0;
     background:radial-gradient(ellipse 60% 60% at 50% 0%,rgba(150,100,255,.12),transparent 60%);
     pointer-events:none}
@@ -26,6 +36,7 @@
     justify-content:center;text-align:center;
     padding:1.5rem;width:100%;max-width:380px;
     position:relative;z-index:1;
+    margin:auto 0;   /* tengah tapi ga kepotong kalau layarnya pendek */
   }
 
   /* Label top */
@@ -47,7 +58,14 @@
     transform-style:preserve-3d;
   }
   .box.shake{animation:shake .3s ease}
-  @keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(4deg)}}
+  /* makin banyak diklik, goyangnya makin heboh (--amp diatur dari JS) */
+  @keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(calc(-6deg * var(--amp,1))) translateY(calc(-2px * var(--amp,1)))}40%{transform:rotate(calc(6deg * var(--amp,1)))}60%{transform:rotate(calc(-4deg * var(--amp,1)))}80%{transform:rotate(calc(4deg * var(--amp,1)))}}
+  .box-body::selection{background:none}
+  .box-crack{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s;
+    background:
+      linear-gradient(115deg,transparent 46%,rgba(255,240,190,.9) 47%,transparent 48.5%) 0 0/50% 60% no-repeat,
+      linear-gradient(60deg,transparent 46%,rgba(255,240,190,.85) 47%,transparent 48.5%) 100% 100%/45% 55% no-repeat;
+    mix-blend-mode:screen;filter:drop-shadow(0 0 4px rgba(255,220,140,.9))}
   .box.pop{animation:boxpop .5s cubic-bezier(.34,1.5,.64,1)}
   @keyframes boxpop{0%{transform:scale(1)}40%{transform:scale(1.15)}70%{transform:scale(.95)}100%{transform:scale(1)}}
 
@@ -124,7 +142,7 @@
 
   /* Question marks floating */
   .qmark{
-    position:absolute;font-size:1.2rem;color:rgba(201,169,110,.6);
+    position:fixed;z-index:3;font-size:1.2rem;color:rgba(201,169,110,.6);
     animation:qfloat linear infinite;pointer-events:none;
     font-weight:700;
   }
@@ -162,7 +180,7 @@
 
   /* Reveal overlay */
   #reveal{
-    position:fixed;inset:0;z-index:50;
+    position:fixed;inset:0;z-index:50;overflow-y:auto;
     display:none;flex-direction:column;align-items:center;justify-content:center;
     padding:1.5rem;text-align:center;
     background:radial-gradient(ellipse at center,#1a0f2e,#050210);
@@ -188,6 +206,16 @@
     box-shadow:0 4px 20px rgba(201,169,110,.4);transition:all .2s;
   }
   .reveal-btn:active{transform:scale(.97)}
+  .reveal-row{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;justify-content:center}
+  .reveal-row a,.reveal-row button{font-size:12px;padding:.6rem 1.1rem;border-radius:50px;text-decoration:none;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.75)}
+  .reveal-row .wa{border-color:rgba(37,211,102,.4);color:#7fe0a6}
+  .skip-link{margin-top:.9rem;background:none;border:none;color:rgba(255,255,255,.45);font-size:11.5px;text-decoration:underline;cursor:pointer;display:none}
+  .skip-link.show{display:inline-block}
+  @media (max-height:600px){
+    .box-wrap{width:150px;height:150px;margin-bottom:1.25rem}
+    .top-sub{margin-bottom:1.25rem}
+  }
+  @media (prefers-reduced-motion:reduce){.star{animation:none}}
 
   :root{--gold:#c9a96e}
 
@@ -208,12 +236,14 @@ for(let i=0;i<50;i++){
 }
 </script>
 
+<a href="index.html" class="back-link">← Menu utama</a>
+
 <div class="wrap">
   <span class="top-label">Dari Razan, buat kamu</span>
   <h1 class="top-title">Mystery <span>Box</span></h1>
   <p class="top-sub">Ada sesuatu di dalam kotak ini. Tapi dia keras kepala — perlu diklik berkali-kali sebelum mau buka 😏</p>
 
-  <div class="box-wrap" id="box-wrap" onclick="onBoxClick()">
+  <div class="box-wrap" id="box-wrap" onclick="onBoxClick()" role="button" aria-label="Kotak misteri, tap buat buka">
     <div class="box-glow"></div>
     <div class="box" id="box">
       <!-- Lid -->
@@ -226,6 +256,7 @@ for(let i=0;i<50;i++){
       <!-- Body -->
       <div class="box-body">
         <div class="box-ribbon-h"></div>
+        <div class="box-crack" id="box-crack"></div>
       </div>
     </div>
   </div>
@@ -233,6 +264,7 @@ for(let i=0;i<50;i++){
   <div class="progress-dots" id="progress-dots"></div>
   <div class="click-counter" id="click-counter">Klik kotak untuk mulai...</div>
   <button class="tap-btn" id="tap-btn" onclick="onBoxClick()">Buka! 🎁</button>
+  <button class="skip-link" id="skip-link" onclick="showReveal()">Udah pernah kebuka — liat isinya langsung</button>
 </div>
 
 <!-- Reveal -->
@@ -242,6 +274,10 @@ for(let i=0;i<50;i++){
   <p class="reveal-main">"Hadiahnya sebenarnya<br>bukan ini.<br><span>Hadiahnya kamu."</span></p>
   <p class="reveal-sub">— Dari Razan, yang bersyukur setiap hari punya kamu 🤍</p>
   <button class="reveal-btn" onclick="resetBox()">Buka Lagi 🔄</button>
+  <div class="reveal-row">
+    <a class="wa" id="reveal-wa" href="#" target="_blank" rel="noopener">💬 Bales ke Razan</a>
+    <a href="index.html">🏠 Menu utama</a>
+  </div>
 </div>
 
 <script>
@@ -262,6 +298,11 @@ const MESSAGES = [
 let clicks = 0;
 let isOpening = false;
 let lastClick = 0;
+const K_OPENED = 'mystery-box-opened';
+let openedCount = 0;
+try { openedCount = +localStorage.getItem(K_OPENED) || 0; } catch (e) {}
+if (openedCount > 0) document.getElementById('skip-link').classList.add('show');
+document.getElementById('reveal-wa').href = 'https://wa.me/6285692740607?text=' + encodeURIComponent('Razan, aku udah buka Mystery Box-nya 🎁\n\n');
 
 // Build progress dots
 function buildDots(){
@@ -289,7 +330,10 @@ function onBoxClick(){
   const counter=document.getElementById('click-counter');
   const wrap=document.getElementById('box-wrap');
 
-  // Shake
+  // Shake — makin lama makin heboh
+  box.style.setProperty('--amp', (1 + clicks / MAX_CLICKS * 1.4).toFixed(2));
+  document.getElementById('box-crack').style.opacity = clicks >= MAX_CLICKS - 3 ? ((clicks - (MAX_CLICKS - 4)) / 4).toFixed(2) : 0;
+  try { navigator.vibrate && navigator.vibrate(clicks >= MAX_CLICKS ? [40, 60, 80] : 12 + clicks * 4); } catch (e) {}
   box.classList.remove('shake');
   void box.offsetWidth;
   box.classList.add('shake');
@@ -331,9 +375,7 @@ function onBoxClick(){
 
       setTimeout(()=>{
         confetti(100);
-        setTimeout(()=>{
-          document.getElementById('reveal').classList.add('show');
-        },400);
+        setTimeout(showReveal,400);
       },500);
     },300);
   }
@@ -357,6 +399,16 @@ function spawnQmark(gold=false){
   setTimeout(()=>el.remove(),1200);
 }
 
+function showReveal(){
+  document.getElementById('reveal').classList.add('show');
+  openedCount++;
+  try { localStorage.setItem(K_OPENED, openedCount); } catch (e) {}
+  document.getElementById('skip-link').classList.add('show');
+}
+document.addEventListener('keydown', e => {
+  if ((e.key === ' ' || e.key === 'Enter') && !document.getElementById('reveal').classList.contains('show') && e.target === document.body) { e.preventDefault(); onBoxClick(); }
+});
+
 function resetBox(){
   clicks=0;isOpening=false;
   document.getElementById('reveal').classList.remove('show');
@@ -367,6 +419,8 @@ function resetBox(){
   document.getElementById('tap-btn').disabled=false;
   const box=document.getElementById('box');
   box.classList.remove('shake','pop');
+  box.style.removeProperty('--amp');
+  document.getElementById('box-crack').style.opacity = 0;
   buildDots();
 }
 
@@ -378,6 +432,48 @@ function confetti(n=60){
     document.body.appendChild(el);setTimeout(()=>el.remove(),5000);
   },i*20);
 }
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
 </script>
 </body>
 </html>
