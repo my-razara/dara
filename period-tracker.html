@@ -555,17 +555,19 @@ function readCache(){try{return JSON.parse(localStorage.getItem(CACHE_KEY)||'nul
 
 function setSync(state,txt){const el=document.getElementById('sync');el.className='sync '+state;el.textContent=txt;}
 function renderOffline(){
-  document.getElementById('offline-wrap').innerHTML=loaded?'':
-    `<div class="offline-bar"><span>⚠️</span><span style="flex:1">Belum nyambung ke server. ${cycles.length?'Yang tampil data terakhir di HP ini.':''} Perubahan baru bisa disimpan kalau udah nyambung.</span><button onclick="loadFromSheets()">Coba lagi</button></div>`;
+  document.getElementById('offline-wrap').innerHTML=(loaded&&!syncErr)?'':
+    `<div class="offline-bar"><span>⚠️</span><span style="flex:1">${getOps().length?`${getOps().length} perubahan disimpen di HP dulu — otomatis kekirim pas nyambung.`:`Belum nyambung ke server.${cycles.length?' Yang tampil data terakhir di HP ini.':''} Tetap bisa nyatet, nanti kekirim sendiri.`}</span><button onclick="pushOps()">Coba lagi</button></div>`;
 }
 
+let _loadingNow=false;
 function loadFromSheets(){
+  if(_loadingNow) return; _loadingNow=true;
   setSync('busy','⏳ Memuat');
   xhrGet(GS_URL+'?action=getAll',(err,rows)=>{
+    _loadingNow=false;
     if(err||!Array.isArray(rows)){
       const c=readCache(); if(c&&!loaded){cycles=c;}
-      loaded=false; setSync('err','⚠️ Offline'); renderOffline(); renderAll();
-      showToast('Gagal muat data — cek koneksi internet');
+      loaded=false; if(getOps().length){ applyOps(getOps()); } setSync('err','⚠️ Offline'); renderOffline(); renderAll();
       return;
     }
     cycles=rows.filter(r=>r[0]&&r[0]!=='').map(r=>({
@@ -576,32 +578,63 @@ function loadFromSheets(){
       syms:r[4]?String(r[4]).split(',').filter(Boolean):[],
     }));
     cycles.sort((a,b)=>a.start.localeCompare(b.start));
+    // [CEPAT] perubahan yang dibikin sebelum data server kebaca → ditimpa lagi di atas data server
+    const ops=getOps();
+    if(ops.length) applyOps(ops);
     loaded=true; syncErr=false; saveCache();
     setSync('ok','☁️ Tersimpan'); renderOffline(); renderAll();
+    if(ops.length) pushOps();
   });
 }
-// [FIX] simpan antre: kalau lagi nyimpen, perubahan berikutnya tetap kekirim setelahnya
-function saveToSheets(){
-  saveCache();
-  if(saving){pending=true;return;}
-  saving=true; setSync('busy','⏳ Menyimpan');
-  xhrPost(GS_URL,{action:'save',cycles},(err)=>{
-    saving=false;
-    if(err){syncErr=true;setSync('err','⚠️ Gagal simpan');showToast('Gagal simpan — tap tombol ⚠️ di atas buat coba lagi');}
-    else{syncErr=false;setSync('ok','☁️ Tersimpan');}
-    if(pending){pending=false;saveToSheets();}
+// ── ANTREAN PERUBAHAN (kayak Keuangan): langsung kepake di HP, dikirim ke Sheets di belakang layar ──
+const OPS_KEY='period-dara-ops';
+function getOps(){try{return JSON.parse(localStorage.getItem(OPS_KEY)||'[]')||[];}catch(e){return [];}}
+function setOps(o){try{localStorage.setItem(OPS_KEY,JSON.stringify(o));}catch(e){}}
+function queueOp(op){const o=getOps();o.push(op);setOps(o);}
+function applyOps(ops){
+  ops.forEach(op=>{
+    if(op.t==='del') cycles=cycles.filter(c=>c.start!==op.s);
+    else if(op.t==='up'&&op.c){ cycles=cycles.filter(c=>c.start!==op.c.start); cycles.push(op.c); }
   });
+  cycles.sort((a,b)=>a.start.localeCompare(b.start));
+}
+let pushAgain=false;
+function pushOps(){
+  if(!loaded){ loadFromSheets(); return; }          // data server belum kebaca → baca dulu, abis itu otomatis dikirim
+  if(saving){ pushAgain=true; return; }
+  const ops=getOps();
+  if(!ops.length){ syncErr=false; setSync('ok','☁️ Tersimpan'); return; }
+  saving=true; setSync('busy','⏳ Menyimpan');
+  const n=ops.length;
+  // yang dihapus (dan beneran udah ga ada) dikirim satu-satu, terus sisanya disimpen sekaligus
+  const dels=[...new Set(ops.filter(o=>o.t==='del').map(o=>o.s))].filter(s=>!cycles.some(c=>c.start===s));
+  const fail=()=>{ saving=false; syncErr=true; setSync('err','⚠️ Belum kekirim'); renderOffline(); };
+  const step=i=>{
+    if(i<dels.length){ xhrPost(GS_URL,{action:'delete',start:dels[i]},err=>err?fail():step(i+1)); return; }
+    xhrPost(GS_URL,{action:'save',cycles},err=>{
+      if(err) return fail();
+      setOps(getOps().slice(n));
+      saving=false; syncErr=false; saveCache();
+      setSync('ok','☁️ Tersimpan'); renderOffline();
+      if(pushAgain||getOps().length){ pushAgain=false; pushOps(); }
+    });
+  };
+  step(0);
+}
+window.addEventListener('online',()=>{ if(getOps().length||!loaded) pushOps(); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&getOps().length) pushOps(); });
+// [FIX] simpan antre: kalau lagi nyimpen, perubahan berikutnya tetap kekirim setelahnya
+// [CEPAT] nyimpen = masuk antrean (langsung kepake), dikirimnya di belakang layar
+function saveToSheets(starts){
+  (starts||cycles.map(c=>c.start)).forEach(s=>{ const c=cycles.find(x=>x.start===s); if(c) queueOp({t:'up',c:JSON.parse(JSON.stringify(c))}); });
+  saveCache(); pushOps();
 }
 function deleteFromSheets(start,cb){
-  setSync('busy','⏳ Menghapus');
-  xhrPost(GS_URL,{action:'delete',start},(err)=>{
-    if(err){setSync('err','⚠️ Gagal hapus');showToast('Gagal hapus — cek koneksi internet');}
-    else setSync('ok','☁️ Tersimpan');
-    if(cb)cb(err);
-  });
+  queueOp({t:'del',s:start}); saveCache(); pushOps();
+  if(cb)cb(null);
 }
-function retrySync(){ if(!loaded)loadFromSheets(); else if(syncErr)saveToSheets(); else showToast('☁️ Semua data udah tersimpan'); }
-function requireOnline(){ if(loaded)return true; showToast('Belum nyambung ke server — tap "Coba lagi" dulu ya'); return false; }
+function retrySync(){ if(!loaded||getOps().length)pushOps(); else showToast('☁️ Semua data udah tersimpan'); }
+function requireOnline(){ return true; }   // dulu nunggu server — sekarang perubahan langsung masuk antrean
 
 const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const MON3=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -780,7 +813,7 @@ function quickStart(){ if(!requireOnline())return; openLog(todayStr()); }
 function quickEnd(){
   if(!requireOnline())return;
   const ap=activePeriod(); if(!ap)return;
-  ap.end=todayStr(); saveToSheets(); renderAll();
+  ap.end=todayStr(); saveToSheets([ap.start]); renderAll();
   showToast('Haid ditandai selesai hari ini ✅');
 }
 
@@ -874,7 +907,7 @@ function openLog(dateStr){
 function choiceContinue(){
   closeChoice();
   const last=cycles[cycles.length-1];
-  if(last){ last.end=_pendingDateStr; saveToSheets(); renderAll(); showToast('Hari haid diperbarui 🌸'); }
+  if(last){ last.end=_pendingDateStr; saveToSheets([last.start]); renderAll(); showToast('Hari haid diperbarui 🌸'); }
 }
 function choiceNew(){ closeChoice(); openLogForm(_pendingDateStr,null); }
 function closeChoice(){ document.getElementById('choice-overlay').style.display='none'; }
@@ -914,7 +947,8 @@ function saveLog(){
   const idx=cycles.findIndex(c=>c.start===start);
   if(idx>=0)cycles[idx]=entry; else cycles.push(entry);
   cycles.sort((a,b)=>a.start.localeCompare(b.start));
-  if(moved)deleteFromSheets(editingStart,()=>saveToSheets()); else saveToSheets();
+  if(moved)deleteFromSheets(editingStart);
+  saveToSheets([start]);
   closeLog();
   showToast('Tersimpan! 🌸');
   renderAll();
@@ -972,7 +1006,7 @@ function showToast(msg){
 }
 
 // Init: tampilin data terakhir di HP dulu biar nggak kosong, terus ambil dari server
-(function(){ const c=readCache(); if(c){cycles=c;} renderAll(); loadFromSheets(); })();
+(function(){ const c=readCache(); if(c){cycles=c;} if(getOps().length) applyOps(getOps()); renderAll(); loadFromSheets(); })();
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
