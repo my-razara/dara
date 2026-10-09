@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Kotak Musik — dari Razan untuk Dara 🎶</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--wood:#8a5a3e;--wood2:#6b4128;--wood3:#a8714f}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  button{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 40% at 50% 35%,rgba(201,169,110,.25),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 95%,rgba(232,196,176,.4),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:460px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .head{text-align:center;margin:1rem 0 .3rem}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0}
+  .title span{color:var(--rose)}
+  .songs{display:flex;gap:.35rem;overflow-x:auto;padding:.5rem 0 .2rem;scrollbar-width:none;justify-content:flex-start}
+  .songs::-webkit-scrollbar{display:none}
+  .songs button{flex-shrink:0;font-size:12px;padding:.42rem .8rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .songs button.on{background:var(--deep);border-color:var(--deep);color:#fff}
+
+  /* kotak */
+  .scene{position:relative;width:min(300px,82vw);margin:2.6rem auto 0;height:250px}
+  .base{position:absolute;left:0;right:0;bottom:0;height:120px;border-radius:10px 10px 14px 14px;background:linear-gradient(180deg,var(--wood3),var(--wood) 30%,var(--wood2));box-shadow:0 18px 30px rgba(90,50,30,.35),inset 0 2px 0 rgba(255,255,255,.2)}
+  .base::before{content:'';position:absolute;left:10%;right:10%;top:34%;height:36%;border-radius:8px;border:2px solid rgba(201,169,110,.65);background:repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 6px,transparent 6px 12px)}
+  .base::after{content:'♡';position:absolute;left:50%;top:44%;transform:translateX(-50%);color:var(--gold);font-size:18px}
+  .inside{position:absolute;left:6%;right:6%;bottom:112px;height:26px;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#e8c4b0,#b07d68);box-shadow:inset 0 4px 10px rgba(0,0,0,.25)}
+  .plate{position:absolute;left:50%;bottom:120px;width:70px;height:14px;margin-left:-35px;border-radius:50%;background:radial-gradient(ellipse,#f6e3b8,#c9a96e);box-shadow:0 2px 4px rgba(0,0,0,.2)}
+  .figure{position:absolute;left:50%;bottom:126px;transform:translateX(-50%) scale(0);transform-origin:bottom center;font-size:2.8rem;line-height:1;transition:transform .5s cubic-bezier(.3,1.6,.5,1) .25s}
+  .scene.open .figure{transform:translateX(-50%) scale(1)}
+  .figure span{display:inline-block}
+  .scene.play .figure span{animation:spin var(--spd,1.6s) linear infinite}
+  @keyframes spin{0%{transform:scaleX(1)}25%{transform:scaleX(.15)}50%{transform:scaleX(-1)}75%{transform:scaleX(-.15)}100%{transform:scaleX(1)}}
+  .lid{position:absolute;left:-2%;right:-2%;bottom:112px;height:46px;border-radius:12px 12px 6px 6px;background:linear-gradient(180deg,#b88560,var(--wood) 70%,var(--wood2));box-shadow:0 4px 0 rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.25);transform-origin:50% 100%;transition:transform .8s cubic-bezier(.3,1.2,.5,1);cursor:pointer;z-index:3;border:none}
+  .lid::after{content:'🎀';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px}
+  .scene.open .lid{transform:translateY(-84px) rotate(-7deg)}
+  .key{position:absolute;right:-30px;bottom:44px;width:56px;height:56px;border-radius:50%;border:none;background:radial-gradient(circle at 35% 30%,#f6e3b8,#c9a96e 60%,#8f6c34);box-shadow:0 4px 10px rgba(0,0,0,.25);cursor:grab;touch-action:none;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:4}
+  .key i{font-style:normal;display:inline-block;transition:transform .05s linear}
+  .notes-fly{position:absolute;inset:0;pointer-events:none;overflow:visible}
+  .nf{position:absolute;font-size:18px;color:var(--rose);animation:nf 2.2s ease-out forwards}
+  @keyframes nf{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-150px) scale(1.1) rotate(var(--r))}}
+
+  .energy{max-width:300px;margin:1.6rem auto 0}
+  .energy p{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:.3rem}
+  .energy .bar{height:10px;border-radius:10px;background:rgba(193,122,111,.15);overflow:hidden}
+  .energy .bar i{display:block;height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,#c9a96e,#c17a6f);transition:width .15s}
+  .hint{text-align:center;font-size:12.5px;color:var(--muted);margin-top:.8rem;min-height:2.6em;line-height:1.6}
+  .wind{display:flex;gap:.5rem;max-width:300px;margin:.7rem auto 0}
+  .wind button{flex:1;padding:.8rem .4rem;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--blush);background:#fff;color:var(--rose)}
+  .wind button.pri{background:linear-gradient(135deg,#d48c80,#a8584c);border:none;color:#fff}
+
+  .scroll{max-width:340px;margin:1.3rem auto 0;background:#fffdf6;border-radius:6px;padding:1rem 1.1rem;box-shadow:0 8px 24px rgba(90,60,40,.12);border:1px solid #e9dcc8;min-height:120px;position:relative}
+  .scroll::before,.scroll::after{content:'';position:absolute;left:-6px;right:-6px;height:12px;border-radius:6px;background:linear-gradient(#e2cfae,#c9a96e)}
+  .scroll::before{top:-6px}.scroll::after{bottom:-6px}
+  .scroll p{font-family:'Caveat',cursive;font-size:1.35rem;line-height:1.3;color:var(--deep);opacity:0;transform:translateY(6px);transition:all .8s}
+  .scroll p.on{opacity:1;transform:none}
+  .scroll .ph{font-size:12px;color:var(--muted);font-family:'Poppins';text-align:center;opacity:1;transform:none;padding-top:1.6rem}
+  .plays{text-align:center;font-size:11px;color:var(--muted);margin-top:1.1rem}
+  @media (max-height:640px){.scene{margin-top:2rem;height:230px}}
+  @media (prefers-reduced-motion:reduce){.scene.play .figure span{animation-duration:4s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
+  <div class="head">
+    <p class="lbl">Dari Razan untuk Dara</p>
+    <h1 class="title">Kotak <span>Musik</span> 🎶</h1>
+  </div>
+  <div class="songs" id="songs"></div>
+
+  <div class="scene" id="scene">
+    <div class="inside"></div>
+    <div class="plate"></div>
+    <div class="figure"><span id="fig">💃</span></div>
+    <div class="base"></div>
+    <button class="lid" id="lid" aria-label="Buka tutup kotak"></button>
+    <button class="key" id="key" aria-label="Putar kunci"><i id="key-i">🗝️</i></button>
+    <div class="notes-fly" id="nfly"></div>
+  </div>
+
+  <div class="energy"><p><span>🔋 Per musik</span><span id="en-t">0%</span></p><div class="bar"><i id="en"></i></div></div>
+  <p class="hint" id="hint">Putar kunci emasnya (geser muter) buat ngisi per, terus buka tutupnya 🎀</p>
+  <div class="wind"><button onclick="windTap()">🔄 Putar kunci</button><button class="pri" id="lid-btn" onclick="toggleLid()">🎀 Buka kotak</button></div>
+
+  <div class="scroll" id="scroll"><p class="ph">Pesannya muncul pelan-pelan pas musiknya main…</p></div>
+  <p class="plays" id="plays"></p>
+</div>
+
+<script>
+// lagu-lagu lama (domain publik). format: [nada, ketukan]
+const N = n => { const m = /^([A-G])(#|b)?(\d)$/.exec(n); const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); return 440 * Math.pow(2, (base + (+m[3] + 1) * 12 - 69) / 12); };
+const p = s => s.trim().split(/\s+/).map(t => { const [n, d] = t.split(':'); return [n, +(d || 1)]; });
+const SONGS = [
+  { k: 'brahms', n: '🌙 Lagu Nina Bobo (Brahms)', fig: '💃', bpm: 150, notes: p(`E4 E4 G4:2 E4 E4 G4:2 E4 G4 C5:2 B4:1.5 A4:.5 A4:2 G4:2 D4 E4 F4:2 D4 D4 E4 F4:2 D4 F4 B4 A4 G4:2 B4:2 C5:3 R:1 C4 C4 C5:3 A4 F4 G4:3 E4 C4 F4 G4 A4 G4:3 C4 C4 C5:3 A4 F4 G4:3 E4 C4 F4 E4 D4 C4:4`) },
+  { k: 'elise', n: '🎹 Für Elise (Beethoven)', fig: '🩰', bpm: 230, notes: p(`E5 D#5 E5 D#5 E5 B4 D5 C5 A4:2 R C4 E4 A4 B4:2 R E4 G#4 B4 C5:2 R E4 E5 D#5 E5 D#5 E5 B4 D5 C5 A4:2 R C4 E4 A4 B4:2 R E4 C5 B4 A4:4`) },
+  { k: 'twinkle', n: '⭐ Twinkle Twinkle', fig: '🧸', bpm: 170, notes: p(`C5 C5 G5 G5 A5 A5 G5:2 F5 F5 E5 E5 D5 D5 C5:2 G5 G5 F5 F5 E5 E5 D5:2 G5 G5 F5 F5 E5 E5 D5:2 C5 C5 G5 G5 A5 A5 G5:2 F5 F5 E5 E5 D5 D5 C5:3`) },
+  { k: 'canon', n: '💍 Canon in D (Pachelbel)', fig: '👰', bpm: 110, notes: p(`F#5:2 E5:2 D5:2 C#5:2 B4:2 A4:2 B4:2 C#5:2 D5 C#5 B4 A4 G4 F#4 G4 E4 D4 F#4 A4 G4 F#4 D4 F#4 E4 D4 B3 D4 A4 G4 B4 A4 G4 F#4 D4 E4 C#5 D5 F#5 A5 A4 B4 G4 A4 F#4 D4 D5:4`) },
+];
+const LINES = [
+  'Dara,', 'kalau kamu lagi dengerin ini,', 'berarti kamu lagi muter kunci kecil', 'cuma buat denger musik dari aku.',
+  'Makasih udah sabar sama aku,', 'udah ketawa sama leluconku yang garing,', 'udah jadi tempat pulang paling nyaman.',
+  'Musiknya bakal pelan terus berhenti —', 'tapi sayangku ke kamu nggak.', 'Putar lagi kapan pun kamu kangen. 🤍', '— Razan',
+];
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+let song = SONGS.find(s => s.k === lsGet('musik-song', 'brahms')) || SONGS[0];
+let energy = 0, open = false, playing = false, idx = 0, nextT = 0, ac = null, master = null, lineIdx = 0, timer = 0, notesPlayed = 0;
+
+function paintSongs() {
+  $('songs').innerHTML = SONGS.map(s => `<button data-k="${s.k}" class="${s === song ? 'on' : ''}">${s.n}</button>`).join('');
+  $('songs').querySelectorAll('button').forEach(b => b.onclick = () => { song = SONGS.find(s => s.k === b.dataset.k); lsSet('musik-song', song.k); idx = 0; $('fig').textContent = song.fig; paintSongs(); });
+  $('fig').textContent = song.fig;
+}
+function paintEnergy() { $('en').style.width = energy + '%'; $('en-t').textContent = Math.round(energy) + '%'; }
+
+/* ── suara kotak musik (disintesis, tanpa file) ── */
+function audio() {
+  if (!ac) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; ac = new C(); master = ac.createGain(); master.gain.value = .5; const comp = ac.createDynamicsCompressor(); master.connect(comp); comp.connect(ac.destination); }
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function tine(freq, when, slow) {
+  const a = audio(); if (!a) return;
+  const det = slow ? -30 * slow : 0;        // makin lemes pernya, makin turun dikit nadanya
+  [[1, .55, 1.6], [2.0, .12, .5], [3.01, .06, .25], [4.2, .03, .15]].forEach(([m, g, dec]) => {
+    const o = a.createOscillator(), v = a.createGain();
+    o.type = 'sine'; o.frequency.value = freq * m; o.detune.value = det;
+    v.gain.setValueAtTime(0, when); v.gain.linearRampToValueAtTime(g, when + .004); v.gain.exponentialRampToValueAtTime(.0001, when + dec);
+    o.connect(v); v.connect(master); o.start(when); o.stop(when + dec + .05);
+  });
+}
+function scheduler() {
+  if (!playing) return;
+  const a = ac;
+  while (nextT < a.currentTime + .15) {
+    if (energy <= 0) { stopPlay(true); return; }
+    const [n, d] = song.notes[idx];
+    const slow = energy < 18 ? (18 - energy) / 18 : 0;      // per mulai abis → tempo melambat
+    const beat = 60 / song.bpm * (1 + slow * 1.6);
+    if (n !== 'R') { tine(N(n), nextT, slow); flyNote(nextT - a.currentTime); notesPlayed++; }
+    nextT += beat * d;
+    energy = Math.max(0, energy - .55 * d); paintEnergy();
+    document.querySelector('.scene').style.setProperty('--spd', (1.6 * (1 + slow * 2.5)).toFixed(2) + 's');
+    idx++;
+    if (idx >= song.notes.length) { idx = 0; nextT += beat * 2; }
+    if (notesPlayed % 8 === 0) revealLine();
+  }
+  timer = setTimeout(scheduler, 40);
+}
+function startPlay() {
+  if (playing || !open) return;
+  if (energy <= 0) { $('hint').textContent = 'Pernya kosong 😢 Putar kuncinya dulu ya'; return; }
+  if (!audio()) { $('hint').textContent = 'HP ini belum bisa muter suara dari browser 😢'; return; }
+  playing = true; nextT = ac.currentTime + .08; if (lineIdx === 0) revealLine(); $('scene').classList.add('play');
+  $('hint').textContent = `🎶 ${song.n.replace(/^\S+\s/, '')}`;
+
+  scheduler();
+}
+function stopPlay(ranOut) {
+  playing = false; clearTimeout(timer); $('scene').classList.remove('play');
+  if (ranOut) {
+    $('hint').textContent = 'Musiknya pelan… terus berhenti. Putar kuncinya lagi buat lanjut 🗝️';
+    lsSet('musik-plays', lsGet('musik-plays', 0) + 1); paintPlays();
+  }
+}
+function revealLine() {
+  if (lineIdx >= LINES.length) return;
+  if (lineIdx === 0) $('scroll').innerHTML = '';
+  const p = document.createElement('p'); p.textContent = LINES[lineIdx++]; $('scroll').appendChild(p);
+  requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('on')));
+}
+function flyNote(delay) {
+  setTimeout(() => {
+    const el = document.createElement('span'); el.className = 'nf'; el.textContent = ['♪', '♫', '♩', '♬'][Math.floor(Math.random() * 4)];
+    el.style.left = (40 + Math.random() * 20) + '%'; el.style.bottom = '150px';
+    el.style.setProperty('--dx', (Math.random() - .5) * 140 + 'px'); el.style.setProperty('--r', (Math.random() - .5) * 60 + 'deg');
+    $('nfly').appendChild(el); setTimeout(() => el.remove(), 2300);
+  }, Math.max(0, delay * 1000));
+}
+
+/* ── tutup kotak ── */
+function toggleLid() {
+  open = !open; $('scene').classList.toggle('open', open);
+  $('lid-btn').textContent = open ? '🎀 Tutup kotak' : '🎀 Buka kotak';
+  vib(15);
+  if (open) { audio(); setTimeout(startPlay, 450); }
+  else { stopPlay(false); $('hint').textContent = 'Kotaknya ditutup. Buka lagi kapan aja 🎀'; }
+}
+$('lid').onclick = toggleLid;
+
+/* ── putar kunci: geser muter di sekitar kunci, atau tap tombol ── */
+let dragging = false, lastAng = null, keyRot = 0, moved = 0;
+const key = $('key');
+function angleOf(e) { const r = key.getBoundingClientRect(); return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)); }
+key.addEventListener('pointerdown', e => { e.preventDefault(); dragging = true; moved = 0; lastAng = angleOf(e); try { key.setPointerCapture(e.pointerId); } catch (x) {} audio(); });
+key.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const a = angleOf(e); let d = a - lastAng; if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; lastAng = a; moved += Math.abs(d);
+  addWind(Math.abs(d) * 4.2, d);
+});
+['pointerup', 'pointercancel'].forEach(ev => key.addEventListener(ev, e => {
+  if (dragging && moved < .15 && energy < 100) windTap();   // cuma ditap → anggap satu putaran kecil
+  dragging = false;
+}));
+let lastClick = 0;
+function addWind(amt, dir = 1) {
+  if (energy >= 100) { $('hint').textContent = 'Pernya udah penuh! Buka kotaknya 🎀'; return; }
+  energy = Math.min(100, energy + amt); paintEnergy();
+  keyRot += dir * amt * 9; $('key-i').style.transform = `rotate(${keyRot}deg)`;
+  const now = performance.now();
+  if (now - lastClick > 90) { lastClick = now; vib(5); click(); }
+  if (!open) $('hint').textContent = energy >= 100 ? 'Pernya penuh! Sekarang buka tutupnya 🎀' : 'Terus putar… krek krek krek';
+  if (open && !playing && energy > 3) startPlay();
+}
+function windTap() { for (let i = 0; i < 6; i++) setTimeout(() => addWind(2.2, 1), i * 50); }
+function click() { const a = audio(); if (!a) return; const o = a.createOscillator(), g = a.createGain(); o.type = 'square'; o.frequency.value = 1800 + Math.random() * 300; g.gain.setValueAtTime(.03, a.currentTime); g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + .03); o.connect(g); g.connect(master); o.start(); o.stop(a.currentTime + .04); }
+
+function paintPlays() { const n = lsGet('musik-plays', 0); $('plays').textContent = n ? `🎶 Kotak musik ini udah diputer sampai habis ${n}x` : ''; }
+document.addEventListener('visibilitychange', () => { if (document.hidden && playing) stopPlay(false); else if (!document.hidden && open && energy > 0) startPlay(); });
+paintSongs(); paintEnergy(); paintPlays();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
