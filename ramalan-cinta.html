@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ramalan Cinta Harian — Razan & Dara 🔮</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--night:#2a2140;--night2:#463463;--lav:#cdb8f0}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button{font-family:'Poppins',sans-serif}
+  html,body{background:var(--night)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:#f4ecff;min-height:100vh;overflow-x:hidden;background:radial-gradient(ellipse 80% 50% at 50% 0%,#4a3870,transparent 70%),linear-gradient(#2a2140,#1c1630)}
+  .stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:tw 3s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.2}50%{opacity:1}}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:460px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:#d9ccf2;text-decoration:none;background:rgba(255,255,255,.08);border:1px solid rgba(205,184,240,.25);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .head{text-align:center;margin:1.2rem 0 .4rem}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .2rem}
+  .title span{color:var(--lav)}
+  .date{font-size:12px;color:#b8a8d8}
+
+  .orb-wrap{display:flex;flex-direction:column;align-items:center;margin:1.4rem 0 .6rem}
+  .orb{width:min(210px,58vw);aspect-ratio:1;border-radius:50%;border:none;cursor:pointer;position:relative;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.85),rgba(205,184,240,.55) 22%,rgba(122,90,190,.55) 55%,rgba(42,33,64,.9) 80%);box-shadow:0 0 60px rgba(205,184,240,.45),inset 0 -12px 30px rgba(0,0,0,.35);animation:float 4s ease-in-out infinite;overflow:hidden}
+  .orb::before{content:'';position:absolute;inset:-30%;background:conic-gradient(from 0deg,transparent,rgba(255,200,230,.35),transparent 30%,rgba(160,200,255,.3),transparent 60%);animation:swirl 6s linear infinite;mix-blend-mode:screen}
+  .orb.shake{animation:sh .09s linear infinite}
+  .orb.shake::before{animation-duration:.8s}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes swirl{to{transform:rotate(360deg)}}
+  @keyframes sh{0%{transform:translate(2px,0)}25%{transform:translate(0,2px)}50%{transform:translate(-2px,0)}75%{transform:translate(0,-2px)}}
+  .orb .q{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.4rem;z-index:1}
+  .stand{width:min(150px,42vw);height:22px;margin-top:-6px;border-radius:0 0 50% 50%/0 0 100% 100%;background:linear-gradient(#c9a96e,#7a5a2e);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+  .hint{font-size:12.5px;color:#b8a8d8;margin-top:.9rem;text-align:center}
+
+  .read{display:none}
+  .read.show{display:block;animation:fi .6s ease}
+  @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .card{background:rgba(255,255,255,.07);border:1px solid rgba(205,184,240,.2);border-radius:20px;padding:1rem;margin-bottom:.7rem;backdrop-filter:blur(4px)}
+  .card h3{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.35rem}
+  .main-txt{font-family:'Caveat',cursive;font-size:1.55rem;line-height:1.25;color:#fff}
+  .energy{display:flex;align-items:center;gap:.8rem}
+  .energy b{font-size:2rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+  .energy .bar{flex:1;height:10px;border-radius:10px;background:rgba(255,255,255,.12);overflow:hidden}
+  .energy .bar i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#9f86d8,#f0a39a);width:0;transition:width 1.4s cubic-bezier(.3,1,.4,1)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.7rem}
+  .grid .card{margin:0;padding:.8rem .8rem}
+  .grid p{font-size:14px;font-weight:600;color:#fff;line-height:1.35}
+  .grid small{font-size:10.5px;color:#b8a8d8;display:block;margin-top:.15rem;line-height:1.4}
+  .sw{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:.35rem;border:1.5px solid rgba(255,255,255,.6)}
+  .mission{display:flex;gap:.7rem;align-items:flex-start}
+  .mission .ck{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:2px solid var(--lav);background:transparent;color:#fff;font-size:14px;cursor:pointer}
+  .mission.done .ck{background:#9f86d8;border-color:#9f86d8}
+  .mission p{font-size:13.5px;line-height:1.55;color:#fff}
+  .mission.done p{text-decoration:line-through;opacity:.6}
+  .warn{font-size:12.5px;line-height:1.6;color:#f4ecff}
+  .match{text-align:center}
+  .match .pp{display:flex;align-items:center;justify-content:center;gap:.6rem;font-size:13px;font-weight:600}
+  .match .pp .r{color:#9cc3f7}.match .pp .d{color:#f7b3aa}
+  .match b{display:block;font-size:2.6rem;font-weight:700;color:#fff;line-height:1.1;margin-top:.2rem}
+  .match small{font-size:11.5px;color:#b8a8d8}
+  .btn{display:block;width:100%;padding:.95rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#2a2140;background:linear-gradient(135deg,#e9dcff,#cdb8f0);cursor:pointer;margin-top:.4rem;text-align:center;text-decoration:none}
+  .streak{text-align:center;font-size:11.5px;color:#b8a8d8;margin-top:.9rem}
+  .tmr{text-align:center;font-size:11.5px;color:#8f80b0;margin-top:.3rem}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.grid{gap:.45rem}.main-txt{font-size:1.4rem}}
+  @media (prefers-reduced-motion:reduce){.orb,.orb::before,.stars i{animation:none}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
+  <div class="head">
+    <p class="lbl">Ramalan Cinta Harian</p>
+    <h1 class="title">Bintang <span>Razara</span> 🔮</h1>
+    <p class="date" id="date"></p>
+  </div>
+  <div class="orb-wrap" id="orb-wrap">
+    <button class="orb" id="orb" aria-label="Lihat ramalan hari ini"><span class="q">✨</span></button>
+    <div class="stand"></div>
+    <p class="hint" id="hint">Tap bola kristalnya buat liat ramalan kalian hari ini</p>
+  </div>
+  <div class="read" id="read"></div>
+</div>
+
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const READINGS = [
+  'Hari ini semesta lagi baik sama kalian. Satu chat kecil bisa bikin hari dia jauh lebih cerah.',
+  'Ada energi kangen yang kuat banget hari ini. Jangan ditahan — bilang aja.',
+  'Bintang bilang: hari yang cocok buat ngobrol panjang tanpa buru-buru.',
+  'Hati-hati salah paham kecil. Kalau ragu, tanya baik-baik — jangan nebak.',
+  'Hari ini cocok buat bikin rencana kencan. Tulis di Bucket List!',
+  'Ada kejutan kecil yang nunggu. Bisa dari kata-kata, bisa dari perhatian kecil.',
+  'Energi kalian hari ini lagi sinkron banget. Jangan kaget kalau mikirin hal yang sama.',
+  'Hari yang pas buat saling muji. Satu pujian tulus = mood naik seharian.',
+  'Bulan lagi bilang: istirahat yang cukup, biar besok bisa sayang-sayangan dengan semangat.',
+  'Hari ini salah satu dari kalian butuh didengerin. Siapin telinga, bukan solusi.',
+  'Kosmos lagi pro romantis. Kirim satu foto lama yang bikin senyum.',
+  'Ada rindu yang numpuk. Cara ngeredainnya: telpon 10 menit aja.',
+  'Hari yang cocok buat ketawa bareng. Kirim meme paling receh yang kamu punya.',
+  'Bintang kalian lagi deket banget hari ini — secara harfiah dan perasaan.',
+  'Bagus buat ngingetin hal kecil: udah makan? udah minum? udah istirahat?',
+  'Ada energi sabar yang lagi diuji. Lulus = dapet pelukan bonus.',
+  'Hari ini cocok buat jujur soal perasaan. Yang manis juga, yang bikin sebel juga.',
+  'Semesta nyaranin: kurangin scroll, perbanyak chat sama dia.',
+  'Hari yang pas buat nostalgia. Inget-inget lagi gimana awal kalian kenal.',
+  'Bintang jatuh malam ini (katanya). Siapin satu harapan berdua.',
+  'Hari ini kalian lagi kompak. Main game bareng, peluang menang tinggi!',
+  'Hati-hati: kemungkinan besar ada yang pengen dimanja. Penuhi tanpa syarat.',
+  'Ramalan hari ini simpel: kalian cocok. Udah, itu aja. 🤍',
+  'Ada kabar baik yang bakal kalian bagi berdua. Sabar ya.',
+  'Hari yang cocok buat bilang "makasih udah ada". Jarang diucapin, besar artinya.',
+  'Planet lagi rapi. Saatnya beresin satu hal yang selama ini ditunda bareng.',
+  'Hari ini energi cemburunya agak tinggi. Kasih kabar lebih sering ya biar adem.',
+  'Bintang ngasih bocoran: dia lagi mikirin kamu. Iya, sekarang.',
+];
+const WEATHER = [['☀️', 'Cerah banget'], ['🌤️', 'Cerah berawan manja'], ['🌈', 'Pelangi abis hujan'], ['🌙', 'Tenang & adem'], ['🌸', 'Berbunga-bunga'], ['⛅', 'Agak mendung, butuh pelukan'], ['🔥', 'Panas (rindu)'], ['🌬️', 'Sejuk kayak pelukannya']];
+const COLORS = [['Pink salem', '#f0a39a'], ['Biru langit', '#7eb3f5'], ['Krem', '#f5ede0'], ['Lavender', '#cdb8f0'], ['Hijau sage', '#b5c4b1'], ['Emas', '#c9a96e'], ['Merah bata', '#c17a6f'], ['Putih', '#ffffff'], ['Hitam elegan', '#2d1f1a'], ['Kuning mentega', '#f5dc8c']];
+const FOODS = ['Mie ayam 🍜', 'Martabak manis 🥞', 'Es krim 🍦', 'Seblak 🌶️', 'Bakso 🍲', 'Sate ayam 🍢', 'Boba 🧋', 'Nasi goreng 🍳', 'Donat 🍩', 'Croissant 🥐', 'Sushi 🍣', 'Pisang goreng 🍌', 'Kopi susu ☕', 'Cokelat 🍫', 'Dimsum 🥟', 'Indomie telor 🍜'];
+const MISSIONS = [
+  'Kirim satu foto selfie random sekarang juga 🤳', 'Bilang "aku sayang kamu" dengan cara yang belum pernah dipakai', 'Telponan minimal 10 menit',
+  'Kirim lagu yang lagi kamu suka', 'Ceritain satu hal kecil yang bikin kamu seneng hari ini', 'Tanyain "hari ini capek ga?" dan dengerin jawabannya',
+  'Kirim voice note bilang selamat tidur', 'Puji satu hal dari dia yang jarang kamu sebut', 'Tulis satu impian baru di Bucket List',
+  'Kirim emoji favorit kamu 10x berturut-turut', 'Ingetin dia minum air putih 💧', 'Kirim foto makanan kamu hari ini',
+  'Bilang satu hal yang kamu syukuri dari hubungan ini', 'Main satu game bareng di menu utama', 'Kirim stiker paling lucu yang kamu punya',
+  'Rencanain satu hal yang mau dilakuin pas ketemu', 'Video call sambil ngelakuin kegiatan masing-masing', 'Kirim satu kenangan foto lama',
+];
+const WARNS = [
+  ['Kemungkinan dia jawab "terserah" pas ditanya mau makan apa', 80, 99], ['Peluang salting kalau dipuji tiba-tiba', 85, 100],
+  ['Kemungkinan ngambek gara-gara hal sepele (tapi lucu)', 20, 60], ['Peluang kangen sebelum jam 9 malam', 88, 100],
+  ['Kemungkinan chat dibales "wkwk" doang', 10, 45], ['Peluang ketawa bareng hari ini', 90, 100], ['Kemungkinan nanya "lagi apa?" lebih dari 3x', 60, 95],
+  ['Risiko ketiduran pas lagi telponan', 30, 75], ['Peluang ngirim meme yang sama tanpa janjian', 15, 40],
+];
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+// angka acak yang tetap buat tanggal yang sama (Razan & Dara dapet ramalan yang sama)
+function seeded(s) { let h = 1779033703 ^ s.length; for (let i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
+function reading(ds) {
+  const r = seeded('razara-' + ds), pick = a => a[Math.floor(r() * a.length)];
+  const w = pick(WARNS);
+  return {
+    text: pick(READINGS), energy: 62 + Math.floor(r() * 39), weather: pick(WEATHER), color: pick(COLORS), food: pick(FOODS),
+    num: 1 + Math.floor(r() * 99), mission: pick(MISSIONS), warn: [w[0], w[1] + Math.floor(r() * (w[2] - w[1] + 1))], match: 96 + Math.floor(r() * 5),
+    hour: `${pad(7 + Math.floor(r() * 15))}.${pick(['00', '11', '17', '18', '30', '45'])}`,
+  };
+}
+
+function init() {
+  const st = $('stars'); for (let i = 0; i < 60; i++) { const s = document.createElement('i'); s.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${Math.random() * 3}s;opacity:${Math.random()}`; st.appendChild(s); }
+  const d = new Date(); $('date').textContent = `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
+  const seen = lsGet('ramalan-seen', {});
+  if (seen[ymd(d)]) { show(false); }
+  $('orb').onclick = reveal;
+}
+let revealing = false;
+function reveal() {
+  if (revealing) return; const ds = ymd(new Date());
+  if (lsGet('ramalan-seen', {})[ds]) { $('read').scrollIntoView({ behavior: 'smooth' }); return; }
+  revealing = true; $('orb').classList.add('shake'); $('hint').textContent = 'Lagi baca bintang…'; vib([10, 30, 10, 30, 10, 30, 60]);
+  setTimeout(() => { $('orb').classList.remove('shake'); revealing = false; const seen = lsGet('ramalan-seen', {}); seen[ds] = Date.now(); const ks = Object.keys(seen).sort(); while (ks.length > 120) delete seen[ks.shift()]; lsSet('ramalan-seen', seen); show(true); }, 1600);
+}
+function streak() { const seen = lsGet('ramalan-seen', {}); const d = new Date(); let n = 0; while (seen[ymd(d)]) { n++; d.setDate(d.getDate() - 1); } return n; }
+function show(anim) {
+  const ds = ymd(new Date()), R = reading(ds);
+  const done = lsGet('ramalan-misi', {})[ds];
+  $('orb').querySelector('.q').textContent = R.weather[0];
+  $('hint').textContent = 'Ramalan hari ini udah kebuka ✨';
+  const share = `🔮 Ramalan cinta kita hari ini (${ds}):\n"${R.text}"\n\n⚡ Energi cinta: ${R.energy}%\n${R.weather[0]} Cuaca hati: ${R.weather[1]}\n🎨 Warna: ${R.color[0]} · 🍽️ Makanan: ${R.food}\n🎯 Misi: ${R.mission}\n💞 Kecocokan: ${R.match}%`;
+  const me = lsGet('ramalan-me', 'Dara'), to = me === 'Razan' ? 'Dara' : 'Razan';
+  $('read').innerHTML = `
+    <div class="card"><h3>✨ Kata bintang hari ini</h3><p class="main-txt">${R.text}</p></div>
+    <div class="card"><h3>⚡ Energi cinta</h3><div class="energy"><b id="en">0%</b><div class="bar"><i id="en-bar"></i></div></div></div>
+    <div class="grid">
+      <div class="card"><h3>Cuaca hati</h3><p>${R.weather[0]} ${R.weather[1]}</p></div>
+      <div class="card"><h3>Warna hoki</h3><p><span class="sw" style="background:${R.color[1]}"></span>${R.color[0]}</p><small>Pake ini, auto makin cakep</small></div>
+      <div class="card"><h3>Makanan hoki</h3><p>${R.food}</p><small>Lebih enak kalau berdua</small></div>
+      <div class="card"><h3>Jam keramat</h3><p>🕰️ ${R.hour}</p><small>Waktu terbaik buat bilang kangen</small></div>
+    </div>
+    <div class="card"><h3>🎯 Misi kecil hari ini</h3><div class="mission${done ? ' done' : ''}" id="misi"><button class="ck" onclick="toggleMisi()" aria-label="Misi selesai">${done ? '✓' : ''}</button><p>${R.mission}</p></div></div>
+    <div class="card"><h3>⚠️ Peringatan bintang</h3><p class="warn">${R.warn[0]}: <b>${R.warn[1]}%</b></p></div>
+    <div class="card match"><h3>💞 Kecocokan hari ini</h3><div class="pp"><span class="r">Razan</span>×<span class="d">Dara</span></div><b id="mt">${R.match}%</b><small>${R.match === 100 ? 'Sempurna. Bintang pun iri.' : 'Sisanya buat ruang berantem lucu 😆'}</small><br><small>Angka hoki: <b style="display:inline;font-size:inherit;color:#fff">${R.num}</b></small></div>
+    <a class="btn" target="_blank" rel="noopener" href="https://wa.me/${WA[to]}?text=${encodeURIComponent(share)}">💬 Kirim ramalannya ke ${to}</a>
+    <p class="streak">🔥 Udah buka ramalan ${streak()} hari berturut-turut · <a href="#" onclick="event.preventDefault();switchMe()" style="color:#cdb8f0">aku ${me}</a></p>
+    <p class="tmr">Ramalan baru muncul besok jam 00.00 🌙</p>`;
+  $('read').classList.add('show');
+  setTimeout(() => { $('en-bar').style.width = R.energy + '%'; countUp($('en'), R.energy); }, anim ? 300 : 0);
+  if (anim) setTimeout(() => $('read').scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+}
+function switchMe() { lsSet('ramalan-me', lsGet('ramalan-me', 'Dara') === 'Razan' ? 'Dara' : 'Razan'); show(false); }
+function countUp(el, to) { const t0 = performance.now(); const f = n => { const p = Math.min(1, (n - t0) / 1200); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + '%'; if (p < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+function toggleMisi() { const ds = ymd(new Date()), m = lsGet('ramalan-misi', {}); m[ds] = !m[ds]; lsSet('ramalan-misi', m); vib(m[ds] ? [20, 30, 50] : 10); const el = $('misi'); el.classList.toggle('done', !!m[ds]); el.querySelector('.ck').textContent = m[ds] ? '✓' : ''; }
+let day = ymd(new Date());
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && ymd(new Date()) !== day) location.reload(); });
+init();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
