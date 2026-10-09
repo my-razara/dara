@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Gosok Berhadiah — dari Razan 🪙</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 50% 25%,rgba(201,169,110,.28),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 95%,rgba(232,196,176,.4),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:460px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .head{text-align:center;margin:1rem 0 .8rem}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .2rem}
+  .title span{color:var(--gold)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6}
+
+  .ticket{position:relative;width:100%;aspect-ratio:1.55;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#fffaf0,#f7ead6);border:2px solid #e2cfae;box-shadow:0 14px 34px rgba(122,90,50,.18)}
+  .ticket::before{content:'';position:absolute;inset:8px;border-radius:16px;border:1.5px dashed rgba(201,169,110,.6);pointer-events:none}
+  .prize{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem 1.4rem}
+  .prize .rar{font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:2px 10px;border-radius:20px;margin-bottom:.4rem}
+  .rar.c{background:#efe6da;color:var(--muted)} .rar.r{background:#dbe7f7;color:#3f6ea9} .rar.e{background:#efdcf7;color:#7b4aa0} .rar.j{background:linear-gradient(90deg,#c9a96e,#e7c98b,#c9a96e);color:#fff}
+  .prize .e{font-size:clamp(2.2rem,11vw,3rem);line-height:1}
+  .prize .t{font-size:clamp(1.25rem,6vw,1.55rem);color:var(--deep);line-height:1.2;margin-top:.3rem}
+  .prize .d{font-size:11px;color:var(--muted);margin-top:.25rem;line-height:1.45}
+  canvas.scr{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer;transition:opacity .6s}
+  canvas.scr.gone{opacity:0;pointer-events:none}
+  .pct{text-align:center;font-size:11.5px;color:var(--muted);margin-top:.6rem;min-height:1.3em}
+  .after{display:none;margin-top:.7rem}
+  .after.show{display:block;animation:fi .4s ease}
+  @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .btn{display:block;width:100%;padding:.9rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d6b77c,#a7834a);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(167,131,74,.3);margin-top:.5rem}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.3)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .next{text-align:center;font-size:12px;color:var(--muted);margin-top:.7rem}
+
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.8rem 0 .3rem}
+  .stats{display:flex;justify-content:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem}
+  .stats span{font-size:10.5px;padding:.25rem .65rem;border-radius:20px;background:#fff;border:1px solid rgba(193,122,111,.13);color:var(--muted)}
+  .coll{display:flex;flex-direction:column;gap:.5rem}
+  .ci{display:flex;align-items:center;gap:.7rem;background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:16px;padding:.65rem .8rem}
+  .ci .e{font-size:1.5rem;width:34px;text-align:center;flex-shrink:0}
+  .ci .b{flex:1;min-width:0}
+  .ci .b b{font-size:13px;font-weight:600;display:block;line-height:1.35}
+  .ci .b small{font-size:10.5px;color:var(--muted)}
+  .ci .cl{flex-shrink:0;font-size:11px;font-weight:600;padding:.35rem .7rem;border-radius:50px;border:1.5px solid #25a35a;color:#25a35a;background:#fff;text-decoration:none;white-space:nowrap}
+  .ci .cl.done{border-color:var(--blush);color:var(--muted)}
+  .empty{text-align:center;font-size:12px;color:var(--muted);padding:.8rem}
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.prize{padding:.8rem 1rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="streak" style="cursor:default"></span></div>
+  <div class="head">
+    <p class="lbl">Satu kartu tiap hari</p>
+    <h1 class="title">Gosok <span>Berhadiah</span> 🪙</h1>
+    <p class="sub" id="sub">Gosok bagian emasnya pake jari — isinya bisa pesan, voucher, sampai jackpot!</p>
+  </div>
+  <div class="ticket" id="ticket"><div class="prize" id="prize"></div><canvas class="scr" id="scr"></canvas></div>
+  <p class="pct" id="pct"></p>
+  <div class="after" id="after"></div>
+
+  <p class="sec">🎟️ Koleksi hadiah</p>
+  <div class="stats" id="stats"></div>
+  <div class="coll" id="coll"></div>
+</div>
+
+<script>
+const WA_RAZAN = '6285692740607';
+// r: c = biasa, r = langka, e = epik, j = jackpot · v: true = voucher yang bisa diklaim
+const PRIZES = [
+  { r: 'c', e: '💌', t: 'Kamu cantik hari ini', d: 'Kayak kemarin. Kayak besok juga.' },
+  { r: 'c', e: '🌷', t: 'Semangat ya sayang!', d: 'Aku bangga sama kamu, beneran.' },
+  { r: 'c', e: '🫶', t: 'Peluk virtual +1', d: 'Ditukar jadi peluk beneran pas ketemu.' },
+  { r: 'c', e: '😘', t: 'Cium jauh 💨', d: 'Udah dikirim, tinggal ditangkap.' },
+  { r: 'c', e: '☀️', t: 'Kamu = alasan aku senyum', d: 'Hari ini juga, pasti.' },
+  { r: 'c', e: '🍀', t: 'Hoki hari ini: 100%', d: 'Karena kamu punya aku 😎' },
+  { r: 'c', e: '🧸', t: 'Boleh manja seharian', d: 'Aku bales chat paling cepet hari ini.' },
+  { r: 'c', e: '🌙', t: 'Tidur nyenyak ya', d: 'Mimpiin aku, kalau sempet.' },
+  { r: 'c', e: '💭', t: 'Aku lagi mikirin kamu', d: 'Iya, sekarang ini.' },
+  { r: 'c', e: '🐣', t: 'Kamu lucu', d: 'Itu aja. Faktanya emang gitu.' },
+  { r: 'r', e: '🍦', t: 'Voucher es krim', d: 'Ditraktir 1 es krim pilihan kamu.', v: true },
+  { r: 'r', e: '🎬', t: 'Voucher film', d: 'Kamu pilih filmnya, aku nonton tanpa protes.', v: true },
+  { r: 'r', e: '📞', t: 'Voucher telpon 30 menit', d: 'Kapan pun kamu mau, aku angkat.', v: true },
+  { r: 'r', e: '🎤', t: 'Voucher dinyanyiin', d: 'Aku nyanyi 1 lagu request kamu (lewat VN).', v: true },
+  { r: 'r', e: '🍜', t: 'Voucher jajan', d: 'Satu jajanan apa aja, aku yang bayar.', v: true },
+  { r: 'r', e: '💆', t: 'Voucher pijat 10 menit', d: 'Ditukar pas ketemu.', v: true },
+  { r: 'r', e: '🗳️', t: 'Voucher menang debat', d: 'Satu kali, kamu otomatis bener.', v: true },
+  { r: 'e', e: '💐', t: 'Voucher bunga', d: 'Satu buket bunga beneran buat kamu.', v: true },
+  { r: 'e', e: '🍽️', t: 'Voucher dinner date', d: 'Makan malem spesial, kamu yang pilih tempatnya.', v: true },
+  { r: 'e', e: '📸', t: 'Voucher fotografer pribadi', d: 'Aku fotoin kamu sampai dapet yang paling bagus.', v: true },
+  { r: 'e', e: '🛍️', t: 'Voucher nemenin belanja', d: 'Ga ngeluh, ga buru-buru, ga bete.', v: true },
+  { r: 'j', e: '👑', t: 'JACKPOT! Satu permintaan bebas', d: 'Apa pun (yang masuk akal 😆) aku turutin.', v: true },
+  { r: 'j', e: '🎁', t: 'JACKPOT! Kado kejutan', d: 'Ada kado yang lagi aku siapin. Tunggu ya 🤫', v: true },
+];
+const RAR = { c: ['Biasa', 66], r: ['Langka', 24], e: ['Epik', 8], j: ['Jackpot', 2] };
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const fmt = s => { const [y, m, d] = s.split('-').map(Number); return `${d} ${BULAN[m - 1]} ${y}`; };
+
+// hist: {date: {i: index hadiah, s: udah digosok, c: udah diklaim}}
+let hist = lsGet('gosok-hist', {});
+const today = () => ymd(new Date());
+function streak() { let n = 0; const d = new Date(); if (!(hist[ymd(d)] && hist[ymd(d)].s)) d.setDate(d.getDate() - 1); while (hist[ymd(d)] && hist[ymd(d)].s) { n++; d.setDate(d.getDate() - 1); } return n; }
+function pickPrize() {
+  // tiap 7 hari beruntun, rarity minimal Langka
+  const bonus = (streak() + 1) % 7 === 0;
+  let roll = Math.random() * 100, rr = 'c';
+  for (const [k, [, w]] of Object.entries(RAR)) { if (roll < w) { rr = k; break; } roll -= w; }
+  if (bonus && rr === 'c') rr = 'r';
+  // hindari dapet yang sama kayak 5 kartu terakhir
+  const recent = Object.keys(hist).sort().slice(-5).map(k => hist[k].i);
+  let pool = PRIZES.map((p, i) => [p, i]).filter(([p, i]) => p.r === rr && !recent.includes(i));
+  if (!pool.length) pool = PRIZES.map((p, i) => [p, i]).filter(([p]) => p.r === rr);
+  return pool[Math.floor(Math.random() * pool.length)][1];
+}
+
+function render() {
+  const t = today();
+  if (!hist[t]) { hist[t] = { i: pickPrize(), s: false, c: false }; lsSet('gosok-hist', hist); }
+  const h = hist[t], P = PRIZES[h.i];
+  $('prize').innerHTML = `<span class="rar ${P.r}">${RAR[P.r][0]}</span><span class="e">${P.e}</span><p class="t hand">${P.t}</p><p class="d">${P.d}</p>`;
+  $('streak').textContent = `🔥 ${streak()} hari`;
+  if (h.s) { $('scr').classList.add('gone'); showAfter(false); } else { $('scr').classList.remove('gone'); $('after').classList.remove('show'); drawCover(); $('pct').textContent = 'Gosok bagian emasnya ✨'; }
+  renderColl();
+}
+function showAfter(fresh) {
+  const t = today(), h = hist[t], P = PRIZES[h.i];
+  $('pct').textContent = fresh ? '' : 'Kartu hari ini udah digosok';
+  const nextIn = (() => { const n = new Date(); const m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1); const ms = m - n; return `${Math.floor(ms / 36e5)} jam ${Math.floor(ms % 36e5 / 6e4)} menit`; })();
+  $('after').innerHTML = (P.v ? `<a class="btn wa" target="_blank" rel="noopener" href="${claimUrl(t)}" onclick="markClaim('${t}')">${h.c ? '✓ Udah diklaim · kirim lagi' : '💬 Klaim ke Razan lewat WA'}</a>` : `<a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`Aku dapet "${P.t}" dari Gosok Berhadiah hari ini ${P.e}`)}">💬 Pamerin ke Razan</a>`)
+    + `<p class="next">Kartu baru ${nextIn} lagi 🪙${(streak() + 1) % 7 === 0 ? '<br>✨ Besok hari ke-7 beruntun: hadiahnya minimal Langka!' : ''}</p>`;
+  $('after').classList.add('show');
+}
+function claimUrl(d) { const P = PRIZES[hist[d].i]; return `https://wa.me/${WA_RAZAN}?text=${encodeURIComponent(`🎟️ Aku mau klaim "${P.t}" ${P.e} dari Gosok Berhadiah (${fmt(d)}) ya! ${P.d}`)}`; }
+function markClaim(d) { hist[d].c = true; lsSet('gosok-hist', hist); setTimeout(() => { renderColl(); if (d === today()) showAfter(false); }, 300); }
+
+function renderColl() {
+  const days = Object.keys(hist).filter(k => hist[k].s).sort().reverse();
+  const cnt = { c: 0, r: 0, e: 0, j: 0 }; days.forEach(k => cnt[PRIZES[hist[k].i].r]++);
+  $('stats').innerHTML = days.length ? Object.entries(cnt).map(([k, n]) => `<span>${RAR[k][0]} ${n}</span>`).join('') + `<span>Total ${days.length}</span>` : '';
+  $('coll').innerHTML = days.length ? days.slice(0, 40).map(k => { const P = PRIZES[hist[k].i]; return `<div class="ci"><span class="e">${P.e}</span><div class="b"><b>${P.t}</b><small>${fmt(k)} · <span class="rar ${P.r}" style="font-size:9px;padding:0 6px;border-radius:10px">${RAR[P.r][0]}</span></small></div>${P.v ? `<a class="cl${hist[k].c ? ' done' : ''}" target="_blank" rel="noopener" href="${claimUrl(k)}" data-d="${k}">${hist[k].c ? '✓ Diklaim' : 'Klaim'}</a>` : ''}</div>`; }).join('') : '<p class="empty">Belum ada. Gosok kartu pertama di atas ✨</p>';
+  $('coll').querySelectorAll('.cl').forEach(a => a.addEventListener('click', () => markClaim(a.dataset.d)));
+}
+
+/* ── lapisan gosok ── */
+const cv = $('scr'); let cx, W, H, scratching = false, last = null, done = false, checkT = 0;
+function drawCover() {
+  const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr;
+  cx = cv.getContext('2d'); cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cx.globalCompositeOperation = 'source-over';
+  const g = cx.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#d9bd84'); g.addColorStop(.45, '#f3e2b5'); g.addColorStop(.55, '#e3c88f'); g.addColorStop(1, '#b8945a');
+  cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+  cx.globalAlpha = .18; cx.fillStyle = '#fff';
+  for (let y = 0; y < H; y += 26) for (let x = (y / 26 % 2) * 20; x < W; x += 40) { cx.font = '16px serif'; cx.fillText('♡', x, y + 18); }
+  cx.globalAlpha = 1; cx.fillStyle = 'rgba(122,90,50,.75)'; cx.textAlign = 'center'; cx.font = '700 clamp(16px,5vw,20px) Poppins, sans-serif'; cx.font = `700 ${Math.round(Math.min(22, W / 16))}px Poppins, sans-serif`;
+  cx.fillText('GOSOK DI SINI', W / 2, H / 2 - 4); cx.font = `500 ${Math.round(Math.min(14, W / 26))}px Poppins, sans-serif`; cx.fillText('🪙  hadiah dari Razan  🪙', W / 2, H / 2 + 20);
+  done = false;
+}
+function pos(e) { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+function scratch(a, b) {
+  cx.globalCompositeOperation = 'destination-out'; cx.lineCap = 'round'; cx.lineJoin = 'round'; cx.lineWidth = Math.max(28, W / 9);
+  cx.beginPath(); cx.moveTo(a[0], a[1]); cx.lineTo(b[0], b[1]); cx.stroke();
+  cx.beginPath(); cx.arc(b[0], b[1], cx.lineWidth / 2, 0, 7); cx.fill();
+}
+cv.addEventListener('pointerdown', e => { if (done) return; e.preventDefault(); scratching = true; try { cv.setPointerCapture(e.pointerId); } catch (x) {} last = pos(e); scratch(last, last); });
+cv.addEventListener('pointermove', e => { if (!scratching || done) return; const p = pos(e); scratch(last, p); last = p; const n = performance.now(); if (n - checkT > 140) { checkT = n; vib(4); check(); } });
+['pointerup', 'pointercancel'].forEach(ev => cv.addEventListener(ev, () => { scratching = false; if (!done) check(); }));
+function check() {
+  const img = cx.getImageData(0, 0, cv.width, cv.height).data; let clear = 0, tot = 0;
+  for (let i = 3; i < img.length; i += 4 * 16) { tot++; if (img[i] < 40) clear++; }
+  const f = clear / tot; $('pct').textContent = f > .05 ? `${Math.round(f * 100)}% kegosok…` : 'Gosok bagian emasnya ✨';
+  if (f > .55) reveal();
+}
+function reveal() {
+  if (done) return; done = true; cv.classList.add('gone');
+  const t = today(); hist[t].s = true; lsSet('gosok-hist', hist);
+  const P = PRIZES[hist[t].i];
+  vib(P.r === 'j' ? [60, 40, 60, 40, 200] : P.r === 'c' ? [20, 30, 40] : [30, 40, 30, 40, 90]);
+  confetti(P.r === 'j' ? 140 : P.r === 'e' ? 90 : P.r === 'r' ? 60 : 30, P.r === 'j');
+  $('streak').textContent = `🔥 ${streak()} hari`;
+  showAfter(true); renderColl();
+}
+function confetti(n, gold) {
+  const colors = gold ? ['#c9a96e', '#e7c98b', '#fff3c4', '#b8945a'] : ['#c17a6f', '#b5c4b1', '#c9a96e', '#f0a39a', '#7eb3f5', '#fff'];
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 15);
+}
+let rT; window.addEventListener('resize', () => { clearTimeout(rT); rT = setTimeout(() => { const w = cv.getBoundingClientRect().width; if (!hist[today()].s && Math.abs(w - W) > 2) drawCover(); }, 200); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !hist[today()]) render(); });
+render();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
