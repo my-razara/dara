@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hitung Mundur Ketemu — Razan & Dara ⏰</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--dr:#d9776b}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+
+  .hero{text-align:center;margin:1.2rem 0 1rem}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;line-height:1.15;margin:.2rem 0}
+  .title span{color:var(--rose)}
+  .when{font-size:12.5px;color:var(--muted)}
+  .when button{background:none;border:none;color:var(--rose);text-decoration:underline;font-size:12px;cursor:pointer;margin-left:.2rem}
+  .cd{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem;margin:1rem 0 .4rem}
+  .cd div{background:#fff;border:1px solid rgba(193,122,111,.14);border-radius:16px;padding:.7rem .2rem .55rem;text-align:center;box-shadow:0 4px 16px rgba(193,122,111,.08)}
+  .cd b{display:block;font-size:clamp(1.4rem,7vw,1.9rem);font-weight:700;color:var(--deep);line-height:1;font-variant-numeric:tabular-nums}
+  .cd small{font-size:10px;color:var(--muted)}
+  .bar{height:8px;border-radius:8px;background:rgba(193,122,111,.15);overflow:hidden;margin:.6rem 0 .3rem}
+  .bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--sage),var(--rose));transition:width .6s}
+  .bar-t{font-size:11px;color:var(--muted);text-align:center}
+
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.6rem 0 .3rem}
+  .sec-sub{font-size:11.5px;color:var(--muted);text-align:center;margin-bottom:.8rem}
+  .boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:.45rem}
+  .bx{aspect-ratio:1;border-radius:14px;border:none;position:relative;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(1.1rem,5.5vw,1.5rem);line-height:1;color:var(--deep);transition:transform .15s}
+  .bx small{font-size:9px;margin-top:.25rem;font-weight:600;letter-spacing:.02em}
+  .bx.lock{background:rgba(255,255,255,.55);border:1.5px dashed var(--blush);color:var(--muted);cursor:default;filter:grayscale(.6);opacity:.7}
+  .bx.today{background:linear-gradient(145deg,#f7d9cf,#d48c80);color:#fff;box-shadow:0 6px 16px rgba(193,122,111,.35);animation:wig 2s ease-in-out infinite}
+  @keyframes wig{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-7deg)}90%{transform:rotate(7deg)}95%{transform:rotate(-4deg)}}
+  .bx.avail{background:linear-gradient(145deg,#fff,#f5ede0);border:1.5px solid var(--blush)}
+  .bx.open{background:#fff;border:1.5px solid rgba(181,196,177,.8)}
+  .bx.open::after{content:'✓';position:absolute;top:3px;right:6px;font-size:10px;color:#6f9a6a;font-weight:700}
+  .bx.meet{background:linear-gradient(145deg,#f6e3b8,#c9a96e);color:#fff}
+  .bx:not(.lock):active{transform:scale(.92)}
+
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;box-shadow:0 4px 18px rgba(193,122,111,.07)}
+  .plan{display:flex;align-items:center;gap:.6rem;padding:.55rem 0;border-top:1px dashed rgba(193,122,111,.2)}
+  .plan:first-child{border-top:none}
+  .plan input[type=checkbox]{width:20px;height:20px;accent-color:var(--rose);flex-shrink:0}
+  .plan span{flex:1;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+  .plan.done span{text-decoration:line-through;color:var(--muted)}
+  .plan button{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:0 .2rem}
+  .add{display:flex;gap:.45rem;margin-top:.7rem}
+  .add input{flex:1;min-width:0;font-size:13.5px;padding:.65rem .8rem;border-radius:12px;border:1.5px solid var(--blush);outline:none;background:var(--cream)}
+  .add input:focus{border-color:var(--rose);background:#fff}
+  .add button,.small-btn{border:none;border-radius:12px;background:var(--rose);color:#fff;font-weight:600;font-size:13px;padding:0 .95rem;cursor:pointer}
+  .from-bl{display:block;margin:.6rem auto 0;background:none;border:none;color:var(--rose);font-size:12px;text-decoration:underline;cursor:pointer}
+  .empty-p{font-size:12px;color:var(--muted);text-align:center;padding:.4rem 0}
+
+  .setup{text-align:center;padding:2rem 1rem}
+  .setup .ico{font-size:3.4rem;display:block;animation:bob 2.6s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .setup p{font-size:13px;color:var(--muted);line-height:1.7;margin:.6rem 0 1rem}
+  .inp{width:100%;font-size:15px;padding:.8rem .9rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;outline:none;color:var(--ink)}
+  .btn{display:block;width:100%;padding:.95rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;margin-top:.8rem;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.25)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+
+  .party{text-align:center;padding:1.4rem 1rem;background:linear-gradient(145deg,#fff,#f7e4d8);border-radius:24px;border:1px solid var(--blush);margin:1rem 0}
+  .party .big{font-size:4rem;display:block;animation:bob 2s ease-in-out infinite}
+  .party h2{font-size:1.6rem;color:var(--deep);margin:.3rem 0}
+  .party p{font-size:13px;color:var(--muted);line-height:1.7}
+
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.2rem}
+  .ov.show{display:flex}
+  .pop{width:100%;max-width:360px;background:var(--cream);border-radius:24px;padding:1.5rem 1.3rem 1.2rem;text-align:center;animation:pop .45s cubic-bezier(.3,1.5,.5,1)}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+  .pop .e{font-size:3.2rem;display:block}
+  .pop .k{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin:.4rem 0 .2rem}
+  .pop .t{font-size:1.5rem;color:var(--deep);line-height:1.3;margin:.2rem 0 .4rem}
+  .pop .s{font-size:12px;color:var(--muted);line-height:1.6}
+  .pop .btn{margin-top:1rem}
+  .pop .close{background:none;border:none;color:var(--muted);font-size:12.5px;margin-top:.6rem;cursor:pointer;text-decoration:underline}
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.boxes{gap:.35rem}.cd{gap:.3rem}}
+  @media (prefers-reduced-motion:reduce){.bx.today,.setup .ico,.party .big{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn" onclick="toggleWho()"></button></div>
+  <div id="main"></div>
+</div>
+
+<div class="ov" id="ov" onclick="if(event.target===this)closePop()"><div class="pop" id="pop"></div></div>
+
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+// isi kotak kejutan harian — satu per hari, urutannya tetap
+const SURPRISES = [
+  { e: '💌', k: 'Pesan', t: 'Satu hari lebih deket sama pelukan kamu.' },
+  { e: '📸', k: 'Misi', t: 'Kirim foto langit di tempat kamu sekarang.', wa: 'Ini langit di tempat aku sekarang ☁️ (misi dari kotak kejutan)' },
+  { e: '🍜', k: 'Rencana', t: 'Pas ketemu, kita makan apa? Tulis di rencana di bawah!' },
+  { e: '🫶', k: 'Pesan', t: 'Aku udah ngitung harinya. Serius, tiap hari.' },
+  { e: '🎤', k: 'Misi', t: 'Kirim voice note nyebut 3 hal yang paling kamu kangenin.', wa: 'Aku kirim voice note ya, 3 hal yang aku kangenin 🎤' },
+  { e: '😴', k: 'Pesan', t: 'Tidur yang cukup ya. Biar pas ketemu kamu ga ngantuk dan aku bisa ngobrol sepuasnya.' },
+  { e: '👗', k: 'Rencana', t: 'Pikirin mau pake baju apa pas ketemu. Kasih bocoran warnanya dong 👀', wa: 'Bocoran warna baju aku pas ketemu nanti: …' },
+  { e: '🌙', k: 'Pesan', t: 'Malam ini, liat bulan. Aku juga lagi liat yang sama.' },
+  { e: '🎲', k: 'Misi', t: 'Buka Bucket List Berdua, terus pilih satu buat dilakuin pas ketemu.', link: 'bucket-list.html' },
+  { e: '🥹', k: 'Pesan', t: 'Yang paling aku tunggu bukan tempatnya, tapi liat kamu senyum langsung.' },
+  { e: '🎶', k: 'Misi', t: 'Kirim satu lagu buat diputer pas kita ketemu nanti.', wa: 'Lagu buat diputer pas kita ketemu: 🎶 …' },
+  { e: '🤝', k: 'Pesan', t: 'Siapin tangan kamu. Rencananya mau aku genggam lama.' },
+  { e: '😆', k: 'Misi', t: 'Ceritain hal paling lucu yang kejadian minggu ini.', wa: 'Hal paling lucu minggu ini: 😆 …' },
+  { e: '📍', k: 'Rencana', t: 'Ada tempat baru yang pengen kamu datengin bareng? Masukin ke rencana!' },
+  { e: '💭', k: 'Pesan', t: 'Aku udah bayangin momen pertama liat kamu nanti. Kayaknya aku bakal senyum kayak orang aneh.' },
+  { e: '🍫', k: 'Misi', t: 'Sebutin satu jajanan yang wajib dibeliin pas ketemu.', wa: 'Pas ketemu, wajib beliin aku: 🍫 …' },
+  { e: '🌻', k: 'Pesan', t: 'Semangat ya hari ini. Satu kotak lagi kebuka, satu hari lagi kelewat.' },
+  { e: '🫂', k: 'Misi', t: 'Tahan tombol peluk di Tombol Kangen selama mungkin.', link: 'tombol-kangen.html' },
+  { e: '📝', k: 'Misi', t: 'Tulis 3 pertanyaan yang mau kamu tanyain langsung ke aku pas ketemu.' },
+  { e: '✨', k: 'Pesan', t: 'Jarak cuma angka. Yang ini angkanya makin kecil tiap hari.' },
+  { e: '🎬', k: 'Rencana', t: 'Mau nonton apa pas ketemu? Film atau series, kamu yang pilih.' },
+  { e: '😘', k: 'Pesan', t: 'Simpen dulu kangennya. Nanti dibayar lunas.' },
+  { e: '🧸', k: 'Misi', t: 'Peluk boneka/bantal terdekat sekarang. Itu titipan dari aku.' },
+  { e: '📷', k: 'Rencana', t: 'Pas ketemu kita wajib foto berdua minimal 10 kali. Deal?', wa: 'Deal, pas ketemu foto minimal 10x 📷' },
+  { e: '💗', k: 'Pesan', t: 'Kalau kangen banget, inget: aku juga, mungkin lebih.' },
+  { e: '☕', k: 'Misi', t: 'Bikin minuman hangat, terus kirim fotonya.', wa: 'Lagi minum ini nih ☕ (misi kotak kejutan)' },
+  { e: '🎁', k: 'Pesan', t: 'Ada sesuatu yang lagi aku siapin buat pas ketemu. Ga ada bocoran 🤫' },
+  { e: '🌈', k: 'Pesan', t: 'Besok kotaknya beda lagi. Tapi isinya tetep: aku sayang kamu.' },
+  { e: '🗓️', k: 'Misi', t: 'Bikin satu jadwal kecil buat hari ketemu nanti — jam berapa ngapain.' },
+  { e: '🥰', k: 'Pesan', t: 'Kotak terakhir sebelum ketemu: siap-siap ya, aku udah ga sabar.' },
+];
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const dayDiff = (a, b) => Math.round((b - a) / 864e5);
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const fmtL = d => `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+let me = lsGet('hk-me', 'Dara');
+const other = () => me === 'Razan' ? 'Dara' : 'Razan';
+function toggleWho() { me = other(); lsSet('hk-me', me); render(); }
+
+function meetDate() { return parseYMD(lsGet('idx-meet', '')); }   // sama kayak di menu utama
+function meetTime() { return lsGet('hk-time', '10:00'); }
+function today0() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+
+function render() {
+  $('who-btn').textContent = `🙋 ${me} ▾`;
+  const m = meetDate(), t0 = today0();
+  if (!m || dayDiff(t0, m) < 0) return renderSetup(m && dayDiff(t0, m) < 0);
+  const dd = dayDiff(t0, m);
+  // mulai hitung dari kapan tanggal diatur (maks 30 kotak)
+  if (!parseYMD(lsGet('hk-start', '')) || lsGet('hk-for', '') !== lsGet('idx-meet', '')) { lsSet('hk-start', ymd(t0)); lsSet('hk-for', lsGet('idx-meet', '')); }
+  let start = parseYMD(lsGet('hk-start', ''));
+  if (start > t0) start = t0;
+  let total = dayDiff(start, m);
+  if (total > 30) { start = new Date(m); start.setDate(start.getDate() - 30); total = 30; }
+  const opened = lsGet('hk-opened', {});
+  let boxes = '';
+  for (let k = 0; k <= total; k++) {
+    const d = new Date(start); d.setDate(d.getDate() + k);
+    const ds = ymd(d), isMeet = k === total, diff = dayDiff(t0, d);
+    const cls = isMeet ? (diff <= 0 ? 'meet' : 'lock') : diff > 0 ? 'lock' : opened[ds] ? 'open' : diff === 0 ? 'today' : 'avail';
+    const label = isMeet ? 'H' : `H-${total - k}`;
+    boxes += `<button class="bx ${cls}" data-d="${ds}" ${cls === 'lock' ? 'aria-disabled="true"' : ''}>${isMeet ? '🤝' : cls === 'lock' ? '🔒' : opened[ds] ? SURPRISES[surIdx(ds)].e : '🎁'}<small>${label}</small></button>`;
+  }
+  const plan = lsGet('hk-plan', []);
+  const passed = Math.max(0, total - dd), prog = total ? passed / total : 1;
+  $('main').innerHTML = `
+    <div class="hero">
+      <p class="lbl">Hitung mundur</p>
+      <h1 class="title">${dd === 0 ? 'Hari ini <span>ketemu!</span> 🤝' : `Ketemu <span>${me === 'Dara' ? 'Razan' : 'Dara'}</span> lagi`}</h1>
+      <p class="when">${fmtL(m)} · jam ${meetTime()}<button onclick="openSetup()">ubah</button></p>
+    </div>
+    ${dd === 0 ? partyHTML() : ''}
+    <div class="cd" id="cd"><div><b id="c-d">–</b><small>hari</small></div><div><b id="c-h">–</b><small>jam</small></div><div><b id="c-m">–</b><small>menit</small></div><div><b id="c-s">–</b><small>detik</small></div></div>
+    <div class="bar"><i style="width:${Math.round(prog * 100)}%"></i></div>
+    <p class="bar-t">${dd === 0 ? 'Penantiannya selesai 🥹' : `${passed} dari ${total} hari penantian udah kelewat`}</p>
+
+    <p class="sec">🎁 Kotak kejutan harian</p>
+    <p class="sec-sub">Satu kotak kebuka tiap hari sampai hari ketemu</p>
+    <div class="boxes" id="boxes">${boxes}</div>
+
+    <p class="sec">📝 Rencana pas ketemu</p>
+    <p class="sec-sub">Biar ga bingung mau ngapain — tulis dari sekarang</p>
+    <div class="card">
+      <div id="plans">${plan.length ? plan.map((p, i) => `<div class="plan${p.done ? ' done' : ''}"><input type="checkbox" ${p.done ? 'checked' : ''} data-i="${i}" aria-label="selesai"><span>${esc(p.t)}</span><button data-del="${i}" aria-label="hapus">✕</button></div>`).join('') : '<p class="empty-p">Belum ada rencana. Makan apa? Ke mana? Foto di mana?</p>'}</div>
+      <div class="add"><input id="plan-in" maxlength="120" placeholder="Contoh: Makan mie ayam favorit" enterkeyhint="done"><button onclick="addPlan()">＋</button></div>
+      <button class="from-bl" onclick="fromBucket()">🪣 Ambil satu dari Bucket List</button>
+      ${plan.length ? `<a class="btn ghost" style="margin-top:.8rem;font-size:13px" target="_blank" rel="noopener" href="https://wa.me/${WA[other()]}?text=${encodeURIComponent(`Rencana kita pas ketemu ${m.getDate()} ${BULAN[m.getMonth()]} 📝\n` + plan.map(p => `${p.done ? '✅' : '▫️'} ${p.t}`).join('\n'))}">💬 Kirim rencananya ke ${other()}</a>` : ''}
+    </div>`;
+  $('boxes').querySelectorAll('.bx').forEach(b => b.onclick = () => openBox(b.dataset.d, b.classList.contains('lock'), b.classList.contains('meet')));
+  $('plans').querySelectorAll('input[type=checkbox]').forEach(c => c.onchange = () => { const p = lsGet('hk-plan', []); p[+c.dataset.i].done = c.checked; lsSet('hk-plan', p); render(); });
+  $('plans').querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const p = lsGet('hk-plan', []); p.splice(+b.dataset.del, 1); lsSet('hk-plan', p); render(); });
+  $('plan-in').addEventListener('keydown', e => { if (e.key === 'Enter') addPlan(); });
+  tick();
+  if (dd === 0 && !sessionStorage.getItem('hk-party')) { sessionStorage.setItem('hk-party', '1'); confetti(); }
+}
+function partyHTML() {
+  return `<div class="party"><span class="big">🥳</span><h2 class="hand">Akhirnya hari ini!</h2><p>Semua kotak udah kelewat. Sekarang tinggal satu hal: nikmatin harinya berdua 🤍<br>Abis ketemu, jangan lupa <a href="rating-ketemu.html" style="color:var(--rose)">kasih rating ⭐</a></p></div>`;
+}
+let tickT;
+function tick() {
+  clearTimeout(tickT);
+  const m = meetDate(); if (!m || !$('c-d')) return;
+  const [hh, mm] = meetTime().split(':').map(Number);
+  const target = new Date(m); target.setHours(hh || 0, mm || 0, 0, 0);
+  let ms = Math.max(0, target - new Date());
+  const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+  const h = Math.floor(ms / 36e5); ms -= h * 36e5;
+  const mi = Math.floor(ms / 6e4); ms -= mi * 6e4;
+  const s = Math.floor(ms / 1e3);
+  $('c-d').textContent = d; $('c-h').textContent = pad(h); $('c-m').textContent = pad(mi); $('c-s').textContent = pad(s);
+  // ganti hari → gambar ulang
+  if (ymd(today0()) !== lastDay) { lastDay = ymd(today0()); render(); return; }
+  tickT = setTimeout(tick, 1000 - Date.now() % 1000);
+}
+let lastDay = ymd(today0());
+
+function surIdx(ds) {
+  // urutan kotak: dihitung mundur dari hari ketemu biar kotak terakhir selalu yang "terakhir"
+  const m = meetDate(); const n = m ? dayDiff(parseYMD(ds), m) : 0;
+  if (n === 1) return SURPRISES.length - 1;
+  let h = 0; for (const ch of lsGet('idx-meet', '') + ds) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h % (SURPRISES.length - 1);
+}
+function openBox(ds, locked, isMeet) {
+  if (isMeet) { showPop(`<span class="e">🤝</span><p class="k">Hari H</p><p class="t hand">Hari ini kita ketemu!</p><p class="s">Ga ada kotak lagi — kadonya kamu sendiri 🤍</p><button class="close" onclick="closePop()">Tutup</button>`); confetti(); return; }
+  if (locked) { const n = dayDiff(today0(), parseYMD(ds)); vib(20); toast(`🔒 Kebuka ${n === 1 ? 'besok' : n + ' hari lagi'} ya, sabar 😆`); return; }
+  const op = lsGet('hk-opened', {}), first = !op[ds];
+  op[ds] = Date.now(); lsSet('hk-opened', op);
+  const s = SURPRISES[surIdx(ds)];
+  showPop(`<span class="e">${s.e}</span><p class="k">${s.k} · ${parseYMD(ds).getDate()} ${BULAN[parseYMD(ds).getMonth()]}</p><p class="t hand">${esc(s.t)}</p>
+    ${s.wa ? `<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${WA[other()]}?text=${encodeURIComponent(s.wa)}">💬 Kerjain lewat WA</a>` : ''}
+    ${s.link ? `<a class="btn" href="${s.link}">Buka sekarang →</a>` : ''}
+    <button class="close" onclick="closePop()">Tutup</button>`);
+  if (first) { vib([20, 40, 60]); confetti(30); }
+  render();
+}
+function showPop(h) { $('pop').innerHTML = h; $('ov').classList.add('show'); }
+function closePop() { $('ov').classList.remove('show'); }
+
+/* ── atur tanggal ── */
+function renderSetup(passed) {
+  $('main').innerHTML = `<div class="setup"><span class="ico">${passed ? '🥹' : '🗓️'}</span>
+    <h1 class="title">${passed ? 'Udah <span>ketemu</span> ya?' : 'Kapan <span>ketemu</span> lagi?'}</h1>
+    <p>${passed ? 'Semoga seru! Atur tanggal ketemu berikutnya biar hitung mundurnya mulai lagi.' : 'Atur tanggal ketemu berikutnya — nanti ada hitung mundur & kotak kejutan tiap hari sampai harinya.'}</p>
+    ${setupForm()}
+    ${passed ? `<a class="btn ghost" href="rating-ketemu.html">⭐ Kasih rating ketemuan kemarin</a>` : ''}</div>`;
+  bindSetup();
+}
+function setupForm() {
+  const v = lsGet('idx-meet', ''), m = parseYMD(v), t0 = today0();
+  return `<div style="text-align:left"><label style="font-size:11px;font-weight:600;color:var(--deep)">Tanggal</label>
+    <input class="inp" type="date" id="s-date" min="${ymd(t0)}" value="${m && m >= t0 ? v : ''}">
+    <label style="font-size:11px;font-weight:600;color:var(--deep);display:block;margin-top:.7rem">Jam (kira-kira)</label>
+    <input class="inp" type="time" id="s-time" value="${meetTime()}"></div>
+    <button class="btn" id="s-save">Mulai hitung mundur ⏰</button>`;
+}
+function bindSetup() { $('s-save').onclick = () => {
+  const v = $('s-date').value; const d = parseYMD(v);
+  if (!d || d < today0()) { $('s-date').focus(); toast('Pilih tanggalnya dulu ya 🗓️'); return; }
+  if (v !== lsGet('idx-meet', '')) { lsSet('hk-start', ymd(today0())); lsSet('hk-for', v); lsSet('hk-opened', {}); }
+  lsSet('idx-meet', v); lsSet('hk-time', $('s-time').value || '10:00');
+  closePop(); render(); vib(20);
+}; }
+function openSetup() { showPop(`<p class="k" style="margin-top:0">Atur tanggal ketemu</p>${setupForm()}<button class="close" onclick="clearMeet()">Hapus tanggal</button>`); bindSetup(); }
+function clearMeet() { if (!confirm('Hapus tanggal ketemunya?')) return; lsSet('idx-meet', ''); closePop(); render(); }
+
+/* ── rencana ── */
+function addPlan(t) {
+  const v = (t || $('plan-in').value).trim(); if (!v) return;
+  const p = lsGet('hk-plan', []); if (p.some(x => x.t.toLowerCase() === v.toLowerCase())) { toast('Udah ada di rencana 😉'); return; }
+  p.push({ t: v, done: false }); lsSet('hk-plan', p); render(); vib(10);
+}
+function fromBucket() {
+  // baca isi Bucket List Berdua yang kesimpen di HP ini
+  const srv = lsGet('bl-cache', []), q = lsGet('bl-queue', []);
+  const m = new Map((Array.isArray(srv) ? srv : []).map(x => [x.id, x]));
+  (Array.isArray(q) ? q : []).forEach(x => m.set(x.id, x));
+  const have = new Set(lsGet('hk-plan', []).map(p => p.t.toLowerCase()));
+  const todo = [...m.values()].filter(x => x && !x.done && !x.deleted && !have.has(String(x.text).toLowerCase()));
+  if (!todo.length) { toast('Bucket List-nya belum ada isi (atau udah kepake semua) — <a href="bucket-list.html" style="color:#ffd9c9">buka Bucket List</a>', 4000); return; }
+  const pick = todo[Math.floor(Math.random() * todo.length)];
+  addPlan(pick.text); toast(`🪣 “${esc(pick.text)}” masuk rencana!`);
+}
+
+let toastT;
+function toast(m, ms = 2600) {
+  let t = $('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.style.cssText = 'position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0'; document.body.appendChild(t); }
+  t.innerHTML = m; t.style.opacity = '1'; clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = '0', ms);
+}
+function confetti(n = 70) {
+  const colors = ['#c17a6f', '#b5c4b1', '#c9a96e', '#f0a39a', '#7eb3f5', '#fff'];
+  for (let i = 0; i < n; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 4200);
+  }, i * 18);
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') render(); });
+render();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
