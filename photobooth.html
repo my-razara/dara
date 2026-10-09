@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Photobooth — Razan & Dara 📸</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(240,163,154,.25),transparent 70%)}
+  .wrap{max-width:460px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .head{text-align:center;margin:.9rem 0 .7rem}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.45rem,7vw,1.8rem);font-weight:700;margin:.1rem 0}
+  .title span{color:var(--rose)}
+  .screen{display:none}.screen.on{display:block}
+
+  .cam{position:relative;width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:#2d1f1a;box-shadow:0 12px 30px rgba(90,50,30,.25)}
+  .cam video,.cam img.still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .cam video.mirror{transform:scaleX(-1)}
+  .cam canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .cam .msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#f3e2d8;font-size:13px;line-height:1.6;padding:1.2rem}
+  .cam .msg b{font-size:1.6rem;display:block;margin-bottom:.3rem}
+  .cd{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:5rem;font-weight:700;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.4);pointer-events:none}
+  .cd.show{display:flex;animation:pulse .9s ease}
+  @keyframes pulse{from{transform:scale(1.6);opacity:0}30%{opacity:1}to{transform:scale(1);opacity:.9}}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+  .flash.on{animation:fl .45s ease}
+  @keyframes fl{0%{opacity:.95}100%{opacity:0}}
+  .shots{position:absolute;left:.5rem;bottom:.5rem;display:flex;gap:.3rem}
+  .shots i{width:34px;height:26px;border-radius:5px;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.7);background-size:cover;background-position:center}
+
+  .lbl2{font-size:11px;font-weight:600;color:var(--deep);margin:.9rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.2rem}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{flex-shrink:0;font-size:12px;padding:.42rem .8rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .shoot{display:flex;align-items:center;justify-content:center;gap:1.4rem;margin-top:1rem}
+  .shutter{width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:radial-gradient(circle,#e98d82 0 58%,#c1665a 60%);box-shadow:0 0 0 3px var(--rose),0 8px 20px rgba(193,102,90,.4);cursor:pointer;font-size:1.6rem}
+  .shutter:active{transform:scale(.93)}
+  .shutter:disabled{opacity:.5}
+  .sbtn{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;font-size:1.2rem;cursor:pointer}
+  .hint{text-align:center;font-size:11.5px;color:var(--muted);margin-top:.6rem}
+
+  .result{text-align:center}
+  .result img{max-width:100%;max-height:70vh;border-radius:8px;box-shadow:0 12px 30px rgba(90,50,30,.25)}
+  .row{display:flex;gap:.5rem;margin-top:1rem}.row>*{flex:1}
+  .btn{display:block;padding:.9rem .4rem;border-radius:50px;border:none;font-size:13.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;white-space:nowrap}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush)}
+  .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-top:.5rem}
+  .gal img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;cursor:pointer;background:var(--warm)}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.shutter{width:68px;height:68px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
+  <div class="head"><p class="lbl">Photobooth Razara</p><h1 class="title">Cekrek <span>bareng</span> 📸</h1></div>
+
+  <div class="screen on" id="s-cam">
+    <div class="cam" id="cam">
+      <video id="vid" playsinline muted autoplay class="mirror"></video>
+      <img class="still" id="still" alt="" style="display:none">
+      <canvas id="ovl"></canvas>
+      <div class="msg" id="cam-msg"><b>📸</b>Tap <u>Nyalain kamera</u> buat mulai<br><span style="font-size:11.5px;opacity:.8">Ga bisa pake kamera? Pilih foto dari galeri juga bisa</span></div>
+      <div class="flash" id="flash"></div>
+      <div class="cd" id="cd"></div>
+      <div class="shots" id="shots"></div>
+    </div>
+    <p class="lbl2">Mode</p>
+    <div class="chips" id="modes"></div>
+    <p class="lbl2">Bingkai</p>
+    <div class="chips" id="frames"></div>
+    <p class="lbl2">Filter</p>
+    <div class="chips" id="filters"></div>
+    <div class="shoot">
+      <button class="sbtn" onclick="pickFile()" aria-label="Pilih dari galeri">🖼️</button>
+      <button class="shutter" id="shutter" aria-label="Jepret">📷</button>
+      <button class="sbtn" id="flip" onclick="flipCam()" aria-label="Ganti kamera">🔄</button>
+    </div>
+    <p class="hint" id="hint">Strip = 4 jepretan otomatis, ada hitung mundurnya</p>
+    <input type="file" id="file" accept="image/*" multiple style="display:none">
+    <div id="gal-wrap" style="display:none"><p class="lbl2" style="margin-top:1.4rem">🖼️ Hasil terakhir</p><div class="gal" id="gal"></div></div>
+  </div>
+
+  <div class="screen" id="s-res">
+    <div class="result"><img id="res" alt="Hasil photobooth"></div>
+    <div class="row"><button class="btn ghost" onclick="again()">🔁 Foto lagi</button><button class="btn" onclick="saveOut()">⬇️ Simpan</button></div>
+    <a class="btn ghost" id="wa" style="margin-top:.5rem" target="_blank" rel="noopener">💬 Bilang ke Razan ada foto baru</a>
+  </div>
+</div>
+
+<script>
+const WA_RAZAN = '6285692740607';
+const MODES = { strip: '🎞️ Strip 4 foto', single: '🖼️ 1 foto' };
+const FRAMES = {
+  polaroid: { n: '🤍 Polaroid', bg: '#fffdf8', ink: '#7a3f35' },
+  hearts: { n: '💗 Hati-hati', bg: '#ffe3ea', ink: '#c1465f', em: ['💗', '💕', '💖', '🤍'] },
+  bunga: { n: '🌸 Bunga', bg: '#fdf1e6', ink: '#a8584c', em: ['🌸', '🌷', '🌼', '🍃'] },
+  bintang: { n: '✨ Bintang malam', bg: '#262044', ink: '#f6e3b8', em: ['✨', '⭐', '🌙', '💫'] },
+  pita: { n: '🎀 Pita lucu', bg: '#e8f0fb', ink: '#4a7fc1', em: ['🎀', '🧸', '🍓', '☁️'] },
+};
+const FILTERS = { normal: 'Normal', hangat: '🌅 Hangat', pink: '🌷 Pink', bw: '🖤 Hitam putih', vintage: '📜 Vintage' };
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+let mode = lsGet('pb-mode', 'strip'), frame = lsGet('pb-frame', 'polaroid'), filt = lsGet('pb-filter', 'normal');
+let stream = null, facing = 'user', shots = [], busy = false, outURL = null, outBlob = null;
+
+function chips(id, obj, cur, set) {
+  $(id).innerHTML = Object.entries(obj).map(([k, v]) => `<button data-k="${k}" class="${k === cur ? 'on' : ''}">${typeof v === 'string' ? v : v.n}</button>`).join('');
+  $(id).querySelectorAll('button').forEach(b => b.onclick = () => { set(b.dataset.k); paint(); });
+}
+function paint() {
+  chips('modes', MODES, mode, v => { mode = v; lsSet('pb-mode', v); });
+  chips('frames', FRAMES, frame, v => { frame = v; lsSet('pb-frame', v); });
+  chips('filters', FILTERS, filt, v => { filt = v; lsSet('pb-filter', v); });
+  $('hint').textContent = mode === 'strip' ? 'Strip = 4 jepretan otomatis, ada hitung mundurnya' : 'Satu jepretan, hitung mundur 3 detik';
+  $('vid').style.filter = { normal: 'none', hangat: 'sepia(.25) saturate(1.2) brightness(1.03)', pink: 'saturate(1.1) hue-rotate(-12deg) brightness(1.05)', bw: 'grayscale(1) contrast(1.1)', vintage: 'sepia(.55) contrast(.95) brightness(1.05)' }[filt];
+  drawOverlay(); paintGal();
+}
+// stiker tipis di pinggir preview, biar kebayang hasilnya
+function drawOverlay() {
+  const c = $('ovl'), r = c.getBoundingClientRect(); c.width = r.width * 2; c.height = r.height * 2;
+  const x = c.getContext('2d'), F = FRAMES[frame]; x.clearRect(0, 0, c.width, c.height);
+  if (!F.em) return;
+  x.font = `${Math.round(c.width / 12)}px serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+  [[.07, .1], [.93, .1], [.07, .9], [.93, .9]].forEach(([px, py], i) => x.fillText(F.em[i % F.em.length], c.width * px, c.height * py));
+}
+
+async function startCam() {
+  if (stream) return true;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+    const v = $('vid'); v.srcObject = stream; v.classList.toggle('mirror', facing === 'user'); await v.play().catch(() => {});
+    $('cam-msg').style.display = 'none'; $('still').style.display = 'none';
+    return true;
+  } catch (e) {
+    $('cam-msg').style.display = ''; $('cam-msg').innerHTML = '<b>🙈</b>Kameranya ga bisa dibuka.<br>Izinin akses kamera, atau tap 🖼️ buat pilih foto dari galeri.';
+    return false;
+  }
+}
+function stopCam() { if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } }
+async function flipCam() { facing = facing === 'user' ? 'environment' : 'user'; stopCam(); await startCam(); }
+
+/* ── jepret ── */
+$('shutter').onclick = async () => {
+  if (busy) return;
+  if (!stream && !(await startCam())) return;
+  busy = true; $('shutter').disabled = true; shots = []; paintShots();
+  const n = mode === 'strip' ? 4 : 1;
+  for (let i = 0; i < n; i++) {
+    await countdown(i === 0 ? 3 : 2);
+    shots.push(grab()); paintShots();
+    $('flash').classList.remove('on'); void $('flash').offsetWidth; $('flash').classList.add('on'); click(); vib(30);
+    await wait(500);
+  }
+  busy = false; $('shutter').disabled = false;
+  compose();
+};
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function countdown(s) { const cd = $('cd'); for (let k = s; k > 0; k--) { cd.textContent = k; cd.classList.remove('show'); void cd.offsetWidth; cd.classList.add('show'); vib(10); await wait(900); } cd.classList.remove('show'); }
+function grab() {
+  const v = $('vid'), W = 960, H = 720, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const vw = v.videoWidth || 640, vh = v.videoHeight || 480, s = Math.max(W / vw, H / vh), dw = vw * s, dh = vh * s;
+  if (facing === 'user') { x.translate(W, 0); x.scale(-1, 1); }
+  x.drawImage(v, (W - dw) / 2, (H - dh) / 2, dw, dh);
+  return c;
+}
+function paintShots() { $('shots').innerHTML = shots.map(c => `<i style="background-image:url(${c.toDataURL('image/jpeg', .5)})"></i>`).join(''); }
+function click() { try { const a = new (window.AudioContext || window.webkitAudioContext)(), n = a.createBufferSource(), b = a.createBuffer(1, a.sampleRate * .08, a.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length); n.buffer = b; const g = a.createGain(); g.gain.value = .3; n.connect(g); g.connect(a.destination); n.start(); setTimeout(() => a.close(), 300); } catch (e) {} }
+
+/* ── dari galeri ── */
+function pickFile() { $('file').click(); }
+$('file').onchange = async () => {
+  const files = [...$('file').files].slice(0, mode === 'strip' ? 4 : 1); if (!files.length) return;
+  const cs = [];
+  for (const f of files) {
+    const img = new Image(); img.src = URL.createObjectURL(f); await img.decode().catch(() => {});
+    const W = 960, H = 720, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    const s = Math.max(W / (img.width || 1), H / (img.height || 1)); x.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+    URL.revokeObjectURL(img.src); cs.push(c);
+  }
+  $('file').value = '';
+  const n = mode === 'strip' ? 4 : 1; shots = Array.from({ length: n }, (_, i) => cs[i % cs.length]);
+  compose();
+};
+
+/* ── filter (dihitung manual biar sama di semua HP) ── */
+function applyFilter(c) {
+  if (filt === 'normal') return c;
+  const x = c.getContext('2d'), im = x.getImageData(0, 0, c.width, c.height), d = im.data;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i + 1], b = d[i + 2];
+    if (filt === 'bw') { const l = .3 * r + .59 * g + .11 * b; const k = (l - 128) * 1.12 + 128; r = g = b = k; }
+    else if (filt === 'hangat') { r = r * 1.08 + 6; g = g * 1.02 + 2; b = b * .9; }
+    else if (filt === 'pink') { r = r * 1.06 + 10; g = g * .97 + 2; b = b * 1.02 + 8; }
+    else if (filt === 'vintage') { const tr = .393 * r + .769 * g + .189 * b, tg = .349 * r + .686 * g + .168 * b, tb = .272 * r + .534 * g + .131 * b; r = r * .4 + tr * .6; g = g * .4 + tg * .6; b = b * .4 + tb * .6; r = r * .95 + 10; g = g * .95 + 8; b = b * .95 + 4; }
+    d[i] = Math.min(255, r); d[i + 1] = Math.min(255, g); d[i + 2] = Math.min(255, b);
+  }
+  const o = document.createElement('canvas'); o.width = c.width; o.height = c.height; o.getContext('2d').putImageData(im, 0, 0); return o;
+}
+
+/* ── susun hasil ── */
+async function compose() {
+  try { await document.fonts.load('60px Caveat'); } catch (e) {}
+  const F = FRAMES[frame], strip = shots.length > 1;
+  const PW = strip ? 560 : 900, PH = PW * .75, pad = strip ? 34 : 46, gap = strip ? 22 : 0, foot = strip ? 150 : 170;
+  const W = PW + pad * 2, H = pad + shots.length * PH + (shots.length - 1) * gap + foot;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = F.bg; x.fillRect(0, 0, W, H);
+  if (frame === 'bintang') { for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(255,255,255,${Math.random() * .7})`; x.beginPath(); x.arc(Math.random() * W, Math.random() * H, Math.random() * 2, 0, 7); x.fill(); } }
+  shots.forEach((s, i) => {
+    const y = pad + i * (PH + gap), f = applyFilter(s);
+    x.save(); x.beginPath(); roundRect(x, pad, y, PW, PH, strip ? 10 : 14); x.clip(); x.drawImage(f, pad, y, PW, PH); x.restore();
+  });
+  if (F.em) {
+    x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `${Math.round(W / 11)}px serif`;
+    const pts = [[pad * .9, pad * .9], [W - pad * .9, pad * 1.3], [pad * 1.2, H - foot * .65], [W - pad * 1.1, H - foot * .55]];
+    pts.forEach(([px, py], i) => { x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * .25); x.fillText(F.em[i % F.em.length], 0, 0); x.restore(); });
+  }
+  const d = new Date();
+  x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = F.ink;
+  x.font = `700 ${strip ? 56 : 70}px Caveat, 'Segoe Script', cursive`; x.fillText('Razan ♡ Dara', W / 2, H - foot + (strip ? 78 : 92));
+  x.font = `500 ${strip ? 20 : 24}px Poppins, sans-serif`; x.globalAlpha = .75; x.fillText(`${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()} · photobooth razara`, W / 2, H - foot + (strip ? 116 : 136)); x.globalAlpha = 1;
+  c.toBlob(b => {
+    outBlob = b; if (outURL) URL.revokeObjectURL(outURL); outURL = URL.createObjectURL(b);
+    $('res').src = outURL;
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 's-res'));
+    stopCam(); window.scrollTo(0, 0);
+    lsSet('pb-count', lsGet('pb-count', 0) + 1);
+    // simpen versi kecil buat galeri (3 terakhir)
+    const t = document.createElement('canvas'), sc = 300 / W; t.width = 300; t.height = Math.round(H * sc); t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
+    const g = lsGet('pb-gal', []); g.unshift(t.toDataURL('image/jpeg', .7)); if (!lsSet('pb-gal', g.slice(0, 3))) lsSet('pb-gal', g.slice(0, 1));
+    $('wa').href = `https://wa.me/${WA_RAZAN}?text=${encodeURIComponent('📸 Aku abis foto di Photobooth Razara! Nanti aku kirim fotonya ya 🤍')}`;
+    vib([20, 40, 60]);
+  }, 'image/jpeg', .92);
+}
+function roundRect(x, a, b, w, h, r) { x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
+async function saveOut() {
+  if (!outBlob) return;
+  const file = new File([outBlob], `photobooth-razara-${Date.now()}.jpg`, { type: 'image/jpeg' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Photobooth Razara' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = outURL; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+}
+function again() { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 's-cam')); shots = []; paintShots(); paint(); startCam(); }
+function paintGal() { const g = lsGet('pb-gal', []); $('gal-wrap').style.display = g.length ? '' : 'none'; $('gal').innerHTML = g.map(u => `<img src="${u}" alt="">`).join(''); }
+$('cam').addEventListener('click', () => { if (!stream && !busy) startCam(); });
+$('cam-msg').innerHTML = '<b>📸</b>Tap di sini buat nyalain kamera<br><span style="font-size:11.5px;opacity:.8">Ga bisa pake kamera? Tap 🖼️ buat pilih foto dari galeri (strip: bisa pilih sampai 4)</span>';
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopCam(); });
+window.addEventListener('resize', drawOverlay);
+paint();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
