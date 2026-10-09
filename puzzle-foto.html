@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Puzzle Foto Kita 🧩</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  button{font-family:'Poppins',sans-serif}
+  html,body{min-height:100%}
+  body{background:var(--cream);font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 45% at 20% 10%,rgba(232,196,176,.4),transparent 65%),radial-gradient(ellipse 55% 50% at 85% 90%,rgba(181,196,177,.25),transparent 65%)}
+  .wrap{max-width:460px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(1.5rem + env(safe-area-inset-bottom));position:relative;z-index:1;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .back-link,.top-btn{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .screen{display:none;flex:1;flex-direction:column}
+  .screen.on{display:flex}
+
+  /* ── MENU ── */
+  .menu{margin:auto 0;text-align:center;padding:1rem 0}
+  .m-ico{font-size:3rem;display:block;animation:wig 3s ease-in-out infinite}
+  @keyframes wig{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+  .m-title{font-size:clamp(1.7rem,6.5vw,2.2rem);font-weight:700;line-height:1.1;margin-top:.5rem}
+  .m-title span{color:var(--rose)}
+  .m-sub{font-size:12.5px;color:var(--muted);line-height:1.7;max-width:300px;margin:.5rem auto 1rem}
+  .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:1rem 0 .45rem;text-align:left}
+  .pills{display:flex;gap:.4rem}
+  .pills button{flex:1;border:1.5px solid var(--blush);background:#fff;border-radius:16px;padding:.55rem .3rem;font-size:12px;color:var(--muted);cursor:pointer;line-height:1.35}
+  .pills button b{display:block;font-size:14px;color:var(--ink);font-weight:600}
+  .pills button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .pills button.on b{color:#fff}
+  .pick-photo{display:flex;align-items:center;gap:.75rem;background:#fff;border:1px solid rgba(193,122,111,.16);border-radius:18px;padding:.6rem;text-align:left;cursor:pointer;width:100%}
+  .pick-photo .thumb{width:62px;height:62px;border-radius:12px;background:var(--warm) center/cover;flex-shrink:0}
+  .pick-photo b{display:block;font-size:13px;font-weight:600}
+  .pick-photo small{font-size:11px;color:var(--muted)}
+  .pick-photo .chg{margin-left:auto;font-size:11.5px;color:var(--rose);font-weight:500;white-space:nowrap}
+  .big{width:100%;margin-top:1.2rem;padding:1rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 6px 22px rgba(193,122,111,.35)}
+  .big:active{transform:scale(.97)}
+  .best{font-size:11.5px;color:var(--muted);margin-top:.8rem}
+  .best b{color:var(--rose)}
+  .note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:.7rem}
+  .note a{color:var(--rose);font-weight:600}
+
+  /* ── MAIN ── */
+  .hud{display:flex;justify-content:space-between;align-items:center;margin:.9rem 0 .7rem;gap:.5rem}
+  .stat{background:#fff;border:1px solid rgba(193,122,111,.14);border-radius:14px;padding:.4rem .75rem;font-size:11px;color:var(--muted);text-align:center;min-width:76px}
+  .stat b{display:block;font-size:16px;color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .board-wrap{position:relative;align-self:center;width:100%;max-width:400px}
+  .board{position:relative;width:100%;aspect-ratio:1;background:#2d1f1a;border-radius:16px;padding:4px;box-shadow:0 14px 40px rgba(45,31,26,.28);touch-action:manipulation;overflow:hidden}
+  .tile{position:absolute;border-radius:6px;background-repeat:no-repeat;cursor:pointer;transition:left .14s ease,top .14s ease;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .tile .n{position:absolute;left:4px;top:2px;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);opacity:0;transition:opacity .2s}
+  .board.nums .tile .n{opacity:1}
+  .tile.ok{box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+  .peek{position:absolute;inset:4px;border-radius:12px;background:center/cover no-repeat;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5}
+  .peek.on{opacity:1}
+  .solved .tile{transition:all .5s ease;border-radius:0;box-shadow:none}
+  .actions{display:flex;gap:.45rem;margin-top:.9rem}
+  .actions button{flex:1;padding:.65rem .3rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap}
+  .actions button.on{background:var(--warm);color:var(--deep);border-color:var(--rose)}
+
+  /* ── PILIH FOTO ── */
+  .ov{display:none;position:fixed;inset:0;z-index:60;background:rgba(45,31,26,.5);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .sheet{background:var(--cream);width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));max-height:88dvh;display:flex;flex-direction:column;animation:su .3s ease}
+  @keyframes su{from{transform:translateY(100%)}to{transform:none}}
+  .sheet h3{text-align:center;font-size:14px;font-weight:600;margin-bottom:.6rem}
+  .alb{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.6rem;scrollbar-width:none;flex-shrink:0}
+  .alb::-webkit-scrollbar{display:none}
+  .alb button{flex-shrink:0;border:1px solid var(--blush);background:#fff;color:var(--muted);border-radius:50px;padding:.35rem .8rem;font-size:11px;cursor:pointer;white-space:nowrap}
+  .alb button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .gridp{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;overflow-y:auto;flex:1;min-height:120px}
+  .gridp button{aspect-ratio:1;border:none;padding:0;background:var(--warm) center/cover;cursor:pointer;border-radius:4px}
+  .gridp button.sel{outline:3px solid var(--rose);outline-offset:-3px}
+  .close{margin-top:.7rem;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;flex-shrink:0}
+
+  /* ── MENANG ── */
+  .win{display:none;position:fixed;inset:0;z-index:70;background:rgba(45,31,26,.55);align-items:center;justify-content:center;padding:1.2rem}
+  .win.show{display:flex}
+  .win-card{background:#fff;padding:.7rem .7rem 1.1rem;border-radius:6px;width:100%;max-width:340px;text-align:center;transform:rotate(-1.5deg);box-shadow:0 20px 50px rgba(0,0,0,.35);animation:pop .5s cubic-bezier(.34,1.4,.64,1)}
+  @keyframes pop{from{transform:rotate(-8deg) scale(.6);opacity:0}to{transform:rotate(-1.5deg) scale(1);opacity:1}}
+  .win-img{width:100%;aspect-ratio:1;background:center/cover;border-radius:2px}
+  .win-cap{font-family:'Caveat',cursive;font-size:1.5rem;color:var(--deep);margin:.35rem 0 .1rem;line-height:1.2}
+  .win-stat{font-size:12px;color:var(--muted)}
+  .win-stat b{color:var(--rose)}
+  .win-btns{display:flex;gap:.45rem;margin-top:.8rem}
+  .win-btns button{flex:1;padding:.7rem .3rem;border-radius:50px;font-size:12.5px;font-weight:600;cursor:pointer}
+  .w-main{background:var(--rose);color:#fff;border:none}
+  .w-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+  @media (max-width:360px){ .wrap{padding-left:.75rem;padding-right:.75rem} .actions button{font-size:11px} .stat{min-width:66px} }
+  @media (max-height:620px){ .board-wrap{max-width:320px} }
+  @media (prefers-reduced-motion:reduce){ .m-ico{animation:none} .tile{transition:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="index.html" class="back-link">← Menu utama</a>
+    <button class="top-btn" id="menu-btn" style="display:none" onclick="toMenu()">☰ Menu</button>
+  </div>
+
+  <!-- MENU -->
+  <div class="screen on" id="s-menu">
+    <div class="menu">
+      <span class="m-ico">🧩</span>
+      <h1 class="m-title">Puzzle <span>Foto Kita</span></h1>
+      <p class="m-sub">Fotonya diacak jadi kotak-kotak — geser balik sampai utuh lagi 📸</p>
+      <p class="lbl">Fotonya</p>
+      <button class="pick-photo" onclick="openPicker()"><span class="thumb" id="m-thumb"></span><span><b id="m-pname">Foto acak</b><small id="m-psub"></small></span><span class="chg">Ganti ›</span></button>
+      <p class="lbl">Ukuran</p>
+      <div class="pills" id="p-size">
+        <button data-v="3"><b>3×3</b>santai</button>
+        <button data-v="4"><b>4×4</b>lumayan</button>
+        <button data-v="5"><b>5×5</b>susah 😵</button>
+      </div>
+      <button class="big" onclick="start()">Mulai 🧩</button>
+      <p class="best" id="best"></p>
+      <p class="note" id="note"></p>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="screen" id="s-game">
+    <div class="hud">
+      <div class="stat"><b id="moves">0</b>langkah</div>
+      <div class="stat"><b id="time">0:00</b>waktu</div>
+      <div class="stat"><b id="right">0</b>pas</div>
+    </div>
+    <div class="board-wrap"><div class="board" id="board"><div class="peek" id="peek"></div></div></div>
+    <div class="actions">
+      <button id="peek-btn">👁️ Intip</button>
+      <button id="num-btn" onclick="toggleNums()">🔢 Angka</button>
+      <button onclick="shuffleAgain()">🔀 Acak ulang</button>
+    </div>
+  </div>
+</div>
+
+<!-- PILIH FOTO -->
+<div class="ov" id="pick-ov" onclick="if(event.target===this)closePicker()">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <h3>📸 Pilih foto buat puzzle</h3>
+    <div class="alb" id="alb"></div>
+    <div class="gridp" id="gridp"></div>
+    <button class="close" onclick="closePicker()">Tutup</button>
+  </div>
+</div>
+
+<!-- MENANG -->
+<div class="win" id="win">
+  <div class="win-card">
+    <div class="win-img" id="win-img"></div>
+    <p class="win-cap" id="win-cap"></p>
+    <p class="win-stat" id="win-stat"></p>
+    <div class="win-btns"><button class="w-ghost" onclick="closeWin();toMenu()">Menu</button><button class="w-main" onclick="closeWin();start(true)">Foto lain 🔁</button></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const thumb = (id, w) => `https://lh3.googleusercontent.com/d/${id}=w${w}-rw`;
+const thumbAlt = (id, w) => `https://drive.google.com/thumbnail?id=${id}&sz=w${w}`;
+
+let size = lsGet('pz-size', 3);
+let albums = [];         // [{name, photos:[id]}]
+let choice = null;       // {id, name} — null = acak
+let pickAlbum = 0;
+
+/* ── foto: dari Memories (yang kesimpen di HP); kalau belum ada, pakai gambar bawaan ── */
+function readAlbums() {
+  const own = lsGet('tk-albums', null), D = lsGet('mem-idx', null);
+  const list = Array.isArray(own) && own.length ? own : (D && Array.isArray(D.albums) ? D.albums : []);
+  const out = list.map(a => {
+    let photos = (a.items || []).filter(x => x.type === 'image').map(x => x.id);
+    if (!photos.length && a.cover && a.coverType !== 'video') photos = [a.cover];
+    return photos.length ? { name: a.name, photos } : null;
+  }).filter(Boolean);
+  const rnd = D && D.random && Array.isArray(D.random.items) ? D.random.items.filter(x => x.type === 'image').map(x => x.id) : [];
+  if (rnd.length) out.push({ name: 'Random', photos: rnd });
+  return out;
+}
+// gambar bawaan (dibikin pakai canvas) — dipakai kalau HP ini belum pernah buka Memories
+function builtin(k) {
+  const c = document.createElement('canvas'); c.width = c.height = 600;
+  const x = c.getContext('2d');
+  const sets = [
+    ['#f7d9cf', '#c17a6f', '💞'], ['#dfe9f7', '#7a6a9e', '🌙'], ['#f6ecd6', '#c9a96e', '🌻'], ['#e3eedf', '#6f8f6a', '🍀']
+  ][k % 4];
+  const g = x.createLinearGradient(0, 0, 600, 600); g.addColorStop(0, sets[0]); g.addColorStop(1, sets[1]);
+  x.fillStyle = g; x.fillRect(0, 0, 600, 600);
+  for (let i = 0; i < 26; i++) { x.globalAlpha = .18; x.fillStyle = '#fff'; x.beginPath(); x.arc((i * 137) % 600, (i * 251) % 600, 18 + (i * 7) % 40, 0, 7); x.fill(); }
+  x.globalAlpha = 1; x.font = '260px serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(sets[2], 300, 290);
+  x.font = '600 54px Poppins, sans-serif'; x.fillStyle = 'rgba(255,255,255,.92)'; x.fillText('Razan & Dara', 300, 520);
+  return { url: c.toDataURL('image/jpeg', .9), name: 'Razan & Dara ' + sets[2] };
+}
+function photoUrl(p, w) { return p.builtin ? p.url : thumb(p.id, w); }
+
+function renderMenu() {
+  albums = readAlbums();
+  document.querySelectorAll('#p-size button').forEach(b => b.classList.toggle('on', +b.dataset.v === size));
+  const t = $('m-thumb');
+  if (choice) { t.style.backgroundImage = `url("${choice.builtin ? choice.url : thumb(choice.id, 200)}")`; $('m-pname').textContent = 'Foto pilihan'; $('m-psub').textContent = choice.name || ''; }
+  else { t.style.backgroundImage = 'linear-gradient(135deg,#f7d9cf,#c17a6f)'; t.textContent = ''; $('m-pname').textContent = '🎲 Foto acak'; $('m-psub').textContent = albums.length ? `dari ${albums.reduce((s, a) => s + a.photos.length, 0)} foto Memories` : 'gambar bawaan'; }
+  const best = lsGet('pz-best', {})[size];
+  $('best').innerHTML = best ? `🏆 Rekor ${size}×${size}: <b>${best.moves} langkah</b> · <b>${fmtT(best.secs)}</b>` : `Belum ada rekor ${size}×${size}`;
+  $('note').innerHTML = albums.length ? '' : 'Mau pakai foto kalian? Buka <a href="memories.html">Kenangan Kita</a> sekali terus login, abis itu fotonya bisa dipakai di sini 🤍';
+}
+document.querySelectorAll('#p-size button').forEach(b => b.onclick = () => { size = +b.dataset.v; lsSet('pz-size', size); renderMenu(); });
+
+function openPicker() {
+  albums = readAlbums();
+  const alb = $('alb'), grid = $('gridp');
+  const bi = [0, 1, 2, 3].map(builtin);
+  const lists = [{ name: '🎲 Acak', photos: [] }, ...albums, { name: '🎨 Bawaan', photos: bi }];
+  pickAlbum = Math.min(pickAlbum, lists.length - 1);
+  const paint = () => {
+    alb.innerHTML = lists.map((a, k) => `<button class="${k === pickAlbum ? 'on' : ''}" data-k="${k}">${a.name.replace(/[<>&]/g, '')}${k && a.photos.length ? ' · ' + a.photos.length : ''}</button>`).join('');
+    alb.querySelectorAll('button').forEach(b => b.onclick = () => { pickAlbum = +b.dataset.k; paint(); });
+    const a = lists[pickAlbum];
+    if (pickAlbum === 0) { grid.innerHTML = `<button style="grid-column:1/-1;aspect-ratio:auto;padding:1.4rem;background:#fff;border:1.5px dashed var(--blush);border-radius:14px;font-size:13px;color:var(--deep)" id="pk-rnd">🎲 Pakai foto acak tiap main</button>`; $('pk-rnd').onclick = () => { choice = null; closePicker(); renderMenu(); }; return; }
+    grid.innerHTML = a.photos.map((p, i) => `<button data-i="${i}" class="${choice && (choice.id === p || choice.url === p.url) ? 'sel' : ''}" style="background-image:url('${p.url ? p.url : thumb(p, 300)}')"></button>`).join('');
+    grid.querySelectorAll('button').forEach(b => b.onclick = () => {
+      const p = a.photos[+b.dataset.i];
+      choice = p.url ? { builtin: true, url: p.url, name: p.name } : { id: p, name: a.name };
+      closePicker(); renderMenu();
+    });
+  };
+  paint();
+  $('pick-ov').classList.add('show');
+}
+function closePicker() { $('pick-ov').classList.remove('show'); }
+
+/* ── game ── */
+let tiles = [], empty = 0, N = 3, moves = 0, secs = 0, timer = null, photo = null, won = false, startedAt = 0;
+function fmtT(s) { return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); $('menu-btn').style.display = id === 's-game' ? '' : 'none'; }
+function toMenu() { clearInterval(timer); show('s-menu'); renderMenu(); }
+function randomPhoto() {
+  albums = readAlbums();
+  const all = albums.flatMap(a => a.photos.map(id => ({ id, name: a.name })));
+  if (!all.length) { const b = builtin(Math.floor(Math.random() * 4)); return { builtin: true, url: b.url, name: b.name }; }
+  const last = lsGet('pz-last', null);
+  let p; for (let k = 0; k < 6; k++) { p = all[Math.floor(Math.random() * all.length)]; if (p.id !== last) break; }
+  lsSet('pz-last', p.id);
+  return p;
+}
+function start(forceRandom) {
+  N = size;
+  photo = (!forceRandom && choice) ? choice : randomPhoto();
+  if (forceRandom && choice && !choice.builtin) photo = randomPhoto();
+  show('s-game');
+  // tunggu fotonya kebuka dulu biar ga main pakai kotak kosong
+  const url = photoUrl(photo, 900);
+  const img = new Image();
+  img.onload = () => setup(url);
+  img.onerror = () => { if (!photo.builtin && !photo.tried) { photo.tried = 1; const u = thumbAlt(photo.id, 900); const i2 = new Image(); i2.onload = () => setup(u); i2.onerror = () => { const b = builtin(0); photo = { builtin: true, url: b.url, name: b.name }; setup(b.url); }; i2.src = u; } };
+  img.src = url;
+  $('board').innerHTML = '<div class="peek" id="peek"></div><p style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px">📷 Ngambil foto…</p>';
+}
+let photoURL = '';
+function setup(url) {
+  photoURL = url;
+  won = false; moves = 0; secs = 0; startedAt = 0;
+  clearInterval(timer); $('time').textContent = '0:00'; $('moves').textContent = '0';
+  // posisi: tiles[i] = nomor kotak yang ada di slot i; nomor N*N-1 = kosong
+  tiles = Array.from({ length: N * N }, (_, i) => i);
+  empty = N * N - 1;
+  // acak pakai langkah sah (dijamin bisa diselesain)
+  let prev = -1;
+  for (let k = 0; k < N * N * 40; k++) {
+    const nb = neighbors(empty).filter(s => s !== prev);
+    const s = nb[Math.floor(Math.random() * nb.length)];
+    prev = empty; swap(s, empty, true);
+  }
+  if (solved()) return setup(url);
+  const b = $('board');
+  b.className = 'board' + ($('num-btn').classList.contains('on') ? ' nums' : '');
+  b.innerHTML = `<div class="peek" id="peek" style="background-image:url('${url}')"></div>`;
+  for (let n = 0; n < N * N - 1; n++) {
+    const t = document.createElement('div');
+    t.className = 'tile'; t.id = 't' + n;
+    t.style.backgroundImage = `url('${url}')`;
+    t.innerHTML = `<span class="n">${n + 1}</span>`;
+    t.onclick = () => tapTile(n);
+    b.appendChild(t);
+  }
+  layout();
+  bindPeek();
+}
+function neighbors(s) { const r = Math.floor(s / N), c = s % N, out = []; if (r > 0) out.push(s - N); if (r < N - 1) out.push(s + N); if (c > 0) out.push(s - 1); if (c < N - 1) out.push(s + 1); return out; }
+function swap(a, b, silent) { [tiles[a], tiles[b]] = [tiles[b], tiles[a]]; if (tiles[a] === N * N - 1) empty = a; else if (tiles[b] === N * N - 1) empty = b; }
+function solved() { return tiles.every((v, i) => v === i); }
+function layout() {
+  const b = $('board'), W = b.clientWidth - 8, gap = N >= 5 ? 2 : 3, sz = (W - gap * (N - 1)) / N;
+  let right = 0;
+  tiles.forEach((n, slot) => {
+    if (n === N * N - 1) return;
+    const t = $('t' + n); if (!t) return;
+    const r = Math.floor(slot / N), c = slot % N, hr = Math.floor(n / N), hc = n % N;
+    t.style.width = t.style.height = sz + 'px';
+    t.style.left = (4 + c * (sz + gap)) + 'px'; t.style.top = (4 + r * (sz + gap)) + 'px';
+    t.style.backgroundSize = `${W}px ${W}px`;
+    t.style.backgroundPosition = `${-hc * (W / N)}px ${-hr * (W / N)}px`;
+    if (n === slot) right++;
+  });
+  $('right').textContent = `${right}/${N * N - 1}`;
+}
+function tapTile(n) {
+  if (won) return;
+  const slot = tiles.indexOf(n);
+  const r = Math.floor(slot / N), c = slot % N, er = Math.floor(empty / N), ec = empty % N;
+  // satu baris/kolom sama kotak kosong → geser semua sekaligus
+  if (r !== er && c !== ec) { nudge(n); return; }
+  const step = r === er ? (ec > c ? -1 : 1) : (er > r ? -N : N);
+  let moved = 0;
+  while (empty !== slot) { const s = empty + step; swap(s, empty); moved++; }
+  moves += moved;
+  if (!startedAt) { startedAt = Date.now(); timer = setInterval(() => { secs = Math.floor((Date.now() - startedAt) / 1000); $('time').textContent = fmtT(secs); }, 250); }
+  $('moves').textContent = moves;
+  try { navigator.vibrate && navigator.vibrate(6); } catch (e) {}
+  layout();
+  if (solved()) win();
+}
+function nudge(n) { const t = $('t' + n); if (t) t.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(3px)' }, { transform: 'translateX(0)' }], { duration: 200 }); }
+function win() {
+  won = true; clearInterval(timer);
+  secs = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0;
+  $('board').classList.add('solved');
+  // kotak terakhir diisi biar fotonya utuh
+  const b = $('board'), W = b.clientWidth - 8;
+  const t = document.createElement('div'); t.className = 'tile';
+  const sz = W / N; t.style.cssText = `width:${sz}px;height:${sz}px;left:${4 + (N - 1) * sz}px;top:${4 + (N - 1) * sz}px;background-image:url('${photoURL}');background-size:${W}px ${W}px;background-position:${-(N - 1) * sz}px ${-(N - 1) * sz}px;opacity:0;transition:opacity .5s`;
+  b.appendChild(t); requestAnimationFrame(() => t.style.opacity = 1);
+  const bestAll = lsGet('pz-best', {}), best = bestAll[size];
+  const rec = !best || moves < best.moves || (moves === best.moves && secs < best.secs);
+  if (rec) { bestAll[size] = { moves, secs }; lsSet('pz-best', bestAll); }
+  const done = lsGet('pz-done', 0) + 1; lsSet('pz-done', done);
+  try { navigator.vibrate && navigator.vibrate([20, 50, 60]); } catch (e) {}
+  setTimeout(() => {
+    $('win-img').style.backgroundImage = `url('${photoURL}')`;
+    $('win-cap').textContent = photo.name || 'Kenangan kita 🤍';
+    $('win-stat').innerHTML = `${size}×${size} · <b>${moves}</b> langkah · <b>${fmtT(secs)}</b>${rec ? '<br>🎉 Rekor baru!' : ''}`;
+    $('win').classList.add('show');
+    confetti();
+  }, 900);
+}
+function closeWin() { $('win').classList.remove('show'); }
+function shuffleAgain() { if (moves && !won && !confirm('Acak ulang dari awal?')) return; setup(photoURL); }
+function toggleNums() { $('num-btn').classList.toggle('on'); $('board').classList.toggle('nums', $('num-btn').classList.contains('on')); }
+function bindPeek() {
+  const btn = $('peek-btn');
+  const on = e => { e.preventDefault(); const p = $('peek'); if (p) p.classList.add('on'); };
+  const off = () => { const p = $('peek'); if (p) p.classList.remove('on'); };
+  btn.onpointerdown = on; btn.onpointerup = off; btn.onpointerleave = off; btn.onpointercancel = off;
+  btn.onclick = e => e.preventDefault();
+}
+window.addEventListener('resize', () => { if ($('s-game').classList.contains('on') && !won) layout(); });
+document.addEventListener('keydown', e => {
+  if (!$('s-game').classList.contains('on') || won) return;
+  const map = { ArrowUp: N, ArrowDown: -N, ArrowLeft: 1, ArrowRight: -1 };
+  if (!(e.key in map)) return;
+  e.preventDefault();
+  const s = empty + map[e.key];
+  if (s < 0 || s >= N * N) return;
+  if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && Math.floor(s / N) !== Math.floor(empty / N)) return;
+  tapTile(tiles[s]);
+});
+function confetti() {
+  const colors = ['#c17a6f', '#e8c4b0', '#c9a96e', '#b5c4b1', '#fff'];
+  for (let i = 0; i < 70; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 4200);
+  }, i * 20);
+}
+renderMenu();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
