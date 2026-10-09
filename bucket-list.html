@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bucket List Berdua — Razan & Dara 🪣</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a;
+    --grn:#6f9a6a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(181,196,177,.35),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(232,196,176,.4),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(6rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .me-btn.Razan{color:var(--rz);border-color:rgba(74,127,193,.35)} .me-btn.Dara{color:var(--dr);border-color:rgba(217,119,107,.35)}
+
+  /* hero */
+  .hero{display:flex;align-items:center;gap:1rem;margin:1rem 0 .4rem}
+  .ring{width:92px;height:92px;flex-shrink:0;position:relative}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring .bg{fill:none;stroke:rgba(193,122,111,.15);stroke-width:9}
+  .ring .fg{fill:none;stroke:url(#gr);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.3,1,.4,1)}
+  .ring-t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+  .ring-t b{font-size:1.3rem;font-weight:700;color:var(--deep)}
+  .ring-t small{font-size:9.5px;color:var(--muted)}
+  .h-txt{min-width:0}
+  .h-lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .h-title{font-size:clamp(1.45rem,6.5vw,1.85rem);font-weight:700;line-height:1.1;margin:.1rem 0 .3rem}
+  .h-title span{color:var(--rose)}
+  .h-sub{font-size:11.5px;color:var(--muted);line-height:1.5}
+  .h-sub b.r{color:var(--rz);font-weight:600} .h-sub b.d{color:var(--dr);font-weight:600}
+  .status{font-size:11.5px;color:var(--muted);text-align:center;min-height:1.2em;margin:.3rem 0 .2rem}
+  .status.err{color:var(--deep)}
+  .status button{background:none;border:none;color:var(--rose);text-decoration:underline;font-size:11.5px;cursor:pointer}
+
+  .acts{display:flex;gap:.55rem;margin:.6rem 0 .9rem}
+  .btn{flex:1;padding:.85rem .5rem;border-radius:50px;font-size:13.5px;font-weight:600;cursor:pointer;border:none;white-space:nowrap}
+  .btn.pri{color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);box-shadow:0 6px 18px rgba(168,88,76,.25)}
+  .btn.sec{background:#fff;color:var(--rose);border:1.5px solid var(--blush)}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.45}
+
+  .tabs{display:flex;background:rgba(255,255,255,.7);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px;margin-bottom:.6rem}
+  .tabs button{flex:1;border:none;background:none;border-radius:50px;padding:.5rem .3rem;font-size:12.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tabs button.on{background:var(--rose);color:#fff;font-weight:600}
+  .cats{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.4rem;margin-bottom:.4rem;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cats button{flex-shrink:0;font-size:11.5px;padding:.38rem .75rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .cats button.on{background:var(--deep);border-color:var(--deep);color:#fff}
+
+  /* kartu */
+  .list{display:flex;flex-direction:column;gap:.6rem}
+  .it{display:flex;gap:.75rem;align-items:flex-start;background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:18px;padding:.85rem .85rem .8rem;box-shadow:0 3px 14px rgba(193,122,111,.06);cursor:pointer;position:relative;overflow:hidden}
+  .it:active{transform:scale(.99)}
+  .chk{width:30px;height:30px;border-radius:50%;flex-shrink:0;border:2px solid var(--blush);background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;cursor:pointer;transition:all .2s;margin-top:1px}
+  .chk:active{transform:scale(.88)}
+  .it.done .chk{background:var(--grn);border-color:var(--grn)}
+  .it-b{flex:1;min-width:0}
+  .it-t{font-size:13.5px;font-weight:500;line-height:1.45;overflow-wrap:anywhere}
+  .it.done .it-t{color:var(--muted)}
+  .it-m{display:flex;flex-wrap:wrap;gap:.3rem .5rem;margin-top:.3rem;font-size:10.5px;color:var(--muted);align-items:center}
+  .tag{display:inline-flex;align-items:center;gap:.2rem;background:var(--warm);border-radius:20px;padding:1px 8px;white-space:nowrap}
+  .by{display:inline-flex;align-items:center;gap:.25rem;white-space:nowrap}
+  .by i{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .by.Razan i{background:var(--rz)} .by.Dara i{background:var(--dr)}
+  .soon{color:var(--deep);font-weight:500}
+  .it-note{font-size:12px;color:var(--ink);background:var(--cream);border-radius:12px;padding:.5rem .7rem;margin-top:.5rem;line-height:1.55;font-style:italic;overflow-wrap:anywhere}
+  .it-ph{width:100%;height:130px;border-radius:12px;margin-top:.55rem;background:var(--warm) center/cover no-repeat}
+  .pend{font-size:10px;color:var(--gold)}
+  .stamp{position:absolute;right:.7rem;top:.6rem;font-size:8.5px;font-weight:800;letter-spacing:.12em;color:var(--grn);border:1.5px solid var(--grn);border-radius:4px;padding:1px 6px;transform:rotate(8deg);opacity:.85}
+  .empty{text-align:center;padding:2rem 1rem;color:var(--muted);font-size:13px;line-height:1.7;background:rgba(255,255,255,.6);border:1.5px dashed var(--blush);border-radius:20px}
+  .empty b{color:var(--deep)}
+  .empty .btn{margin-top:.9rem;flex:none;padding:.75rem 1.4rem}
+
+  /* sheet */
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:up .3s cubic-bezier(.3,1.2,.5,1)}
+  @keyframes up{from{transform:translateY(100%)}to{transform:none}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .s-h{font-size:15px;font-weight:700;margin-bottom:.15rem}
+  .s-sub{font-size:11.5px;color:var(--muted);margin-bottom:.9rem;line-height:1.5}
+  .lbl{display:block;font-size:11px;font-weight:600;color:var(--deep);margin:.8rem 0 .35rem}
+  .lbl small{font-weight:400;color:var(--muted)}
+  .inp{width:100%;font-size:14px;padding:.75rem .9rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;color:var(--ink);outline:none;resize:none}
+  .inp:focus{border-color:var(--rose)}
+  .chips{display:flex;flex-wrap:wrap;gap:.35rem}
+  .chips button{font-size:12px;padding:.42rem .75rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .idea{display:inline-flex;align-items:center;gap:.3rem;margin-top:.45rem;background:none;border:none;color:var(--rose);font-size:12px;cursor:pointer;text-decoration:underline;padding:0}
+  .row{display:flex;gap:.55rem;margin-top:1.1rem}
+  .row .btn{padding:.9rem .4rem}
+  .ph-pick{display:flex;align-items:center;gap:.7rem;padding:.6rem;border-radius:14px;border:1.5px dashed var(--blush);background:#fff;cursor:pointer;width:100%;text-align:left;color:var(--muted);font-size:12.5px}
+  .ph-pick .th{width:52px;height:52px;border-radius:10px;background:var(--warm) center/cover no-repeat;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+  .ph-pick .x{margin-left:auto;font-size:11px;text-decoration:underline;color:var(--rose)}
+
+  .det-t{font-size:1.15rem;font-weight:700;line-height:1.35;margin:.2rem 0 .5rem;overflow-wrap:anywhere}
+  .det-m{font-size:12px;color:var(--muted);line-height:1.8}
+  .det-ph{width:100%;aspect-ratio:4/3;border-radius:16px;margin-top:.8rem;background:var(--warm) center/cover no-repeat}
+  .links{display:flex;justify-content:center;gap:1.2rem;margin-top:.9rem}
+  .links button,.links a{background:none;border:none;font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer}
+  .links .danger{color:#b34a3e}
+
+  .pick-who{display:flex;gap:.6rem;margin-top:.6rem}
+  .pick-who button{flex:1;padding:1rem .5rem;border-radius:18px;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+  .pick-who .r{background:linear-gradient(135deg,var(--rz2),var(--rz))} .pick-who .d{background:linear-gradient(135deg,var(--dr2),var(--dr))}
+
+  /* pilih foto */
+  .alb{display:flex;gap:.35rem;overflow-x:auto;padding-bottom:.5rem;scrollbar-width:none}
+  .alb::-webkit-scrollbar{display:none}
+  .alb button{flex-shrink:0;font-size:11.5px;padding:.38rem .75rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .alb button.on{background:var(--deep);border-color:var(--deep);color:#fff}
+  .gridp{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:.4rem}
+  .gridp button{aspect-ratio:1;border:none;border-radius:10px;background:var(--warm) center/cover no-repeat;cursor:pointer}
+
+  /* acak */
+  .roll{text-align:center;padding:.5rem 0 .2rem}
+  .roll .dice{font-size:3rem;display:inline-block}
+  .roll .dice.spin{animation:spin .7s ease}
+  @keyframes spin{to{transform:rotate(720deg) scale(1.1)}}
+  .roll .pick{font-size:1.15rem;font-weight:700;line-height:1.4;margin:.6rem 0 .2rem;min-height:2.8em;display:flex;align-items:center;justify-content:center}
+  .roll .why{font-size:12px;color:var(--muted)}
+
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;opacity:0;pointer-events:none;transition:all .3s;z-index:60;max-width:calc(100% - 2rem);text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){ .wrap{padding-left:.75rem;padding-right:.75rem} .ring{width:78px;height:78px} .ring-t b{font-size:1.1rem} .btn{font-size:12.5px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="index.html" class="pill">← Menu utama</a>
+    <button class="pill me-btn" id="me-btn" onclick="openWho()">🙋 <span id="me-name">?</span> ▾</button>
+  </div>
+
+  <div class="hero">
+    <div class="ring">
+      <svg viewBox="0 0 100 100"><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b5c4b1"/><stop offset="1" stop-color="#c17a6f"/></linearGradient></defs>
+        <circle class="bg" cx="50" cy="50" r="42"/><circle class="fg" id="ring-fg" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"/></svg>
+      <div class="ring-t"><b id="ring-n">0/0</b><small>kesampaian</small></div>
+    </div>
+    <div class="h-txt">
+      <p class="h-lbl">Razan &amp; Dara</p>
+      <h1 class="h-title">Bucket List <span>Berdua</span> 🪣</h1>
+      <p class="h-sub" id="h-sub">Hal-hal yang mau kita lakuin bareng, satu-satu dicentang 🤍</p>
+    </div>
+  </div>
+  <p class="status" id="status"></p>
+
+  <div class="acts">
+    <button class="btn pri" onclick="openEdit()">＋ Tambah impian</button>
+    <button class="btn sec" id="roll-btn" onclick="openRoll()">🎲 Pilihin</button>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-v="todo">Belum <span id="n-todo"></span></button>
+    <button data-v="done">Udah ✓ <span id="n-done"></span></button>
+    <button data-v="all">Semua</button>
+  </div>
+  <div class="cats" id="cats"></div>
+  <div class="list" id="list"></div>
+</div>
+
+<!-- siapa -->
+<div class="ov" id="who-ov">
+  <div class="sheet" style="text-align:center">
+    <div class="drag"></div>
+    <p class="s-h">Kamu siapa? 👀</p>
+    <p class="s-sub">Biar ketahuan siapa yang nambahin & nyentang</p>
+    <div class="pick-who"><button class="r" onclick="setMe('Razan')">🙋‍♂️ Razan</button><button class="d" onclick="setMe('Dara')">🙋‍♀️ Dara</button></div>
+  </div>
+</div>
+
+<!-- tambah / ubah -->
+<div class="ov" id="edit-ov" onclick="if(event.target===this)closeOv('edit-ov')">
+  <div class="sheet">
+    <div class="drag"></div>
+    <p class="s-h" id="e-h">Tambah impian baru ✨</p>
+    <p class="s-sub">Yang kecil-kecil juga boleh — semua dihitung 🤍</p>
+    <label class="lbl" for="e-text">Mau ngapain bareng?</label>
+    <textarea class="inp" id="e-text" rows="2" maxlength="200" placeholder="Contoh: Liat sunrise di Bromo berdua"></textarea>
+    <button class="idea" onclick="idea()">💡 Butuh ide? Kasih contoh acak</button>
+    <label class="lbl">Kategori</label>
+    <div class="chips" id="e-cat"></div>
+    <label class="lbl" for="e-target">Target kapan? <small>(opsional)</small></label>
+    <input class="inp" id="e-target" type="month">
+    <div class="row"><button class="btn sec" onclick="closeOv('edit-ov')">Batal</button><button class="btn pri" id="e-save" onclick="saveEdit()">Simpan</button></div>
+  </div>
+</div>
+
+<!-- centang -->
+<div class="ov" id="done-ov" onclick="if(event.target===this)closeOv('done-ov')">
+  <div class="sheet">
+    <div class="drag"></div>
+    <p class="s-h">🎉 Kesampaian!</p>
+    <p class="s-sub" id="d-what"></p>
+    <label class="lbl" for="d-date">Kapan?</label>
+    <input class="inp" id="d-date" type="date">
+    <label class="lbl" for="d-note">Kesannya gimana? <small>(opsional)</small></label>
+    <textarea class="inp" id="d-note" rows="3" maxlength="800" placeholder="Seru banget, apalagi pas…"></textarea>
+    <label class="lbl">Foto kenangannya <small>(opsional, dari Kenangan Kita)</small></label>
+    <button class="ph-pick" id="d-ph" onclick="openPhotos()"></button>
+    <div class="row"><button class="btn sec" onclick="closeOv('done-ov')">Batal</button><button class="btn pri" onclick="saveDone()">Centang ✓</button></div>
+  </div>
+</div>
+
+<!-- detail -->
+<div class="ov" id="det-ov" onclick="if(event.target===this)closeOv('det-ov')">
+  <div class="sheet" id="det"></div>
+</div>
+
+<!-- pilih foto -->
+<div class="ov" id="ph-ov" onclick="if(event.target===this)closeOv('ph-ov')" style="z-index:45">
+  <div class="sheet">
+    <div class="drag"></div>
+    <p class="s-h">Pilih foto 📸</p>
+    <p class="s-sub" id="ph-sub">Dari album Kenangan Kita</p>
+    <div class="alb" id="ph-alb"></div>
+    <div class="gridp" id="ph-grid"></div>
+  </div>
+</div>
+
+<!-- acak -->
+<div class="ov" id="roll-ov" onclick="if(event.target===this)closeOv('roll-ov')">
+  <div class="sheet">
+    <div class="drag"></div>
+    <div class="roll">
+      <span class="dice" id="dice">🎲</span>
+      <p class="pick" id="roll-pick"></p>
+      <p class="why" id="roll-why"></p>
+    </div>
+    <div class="row"><button class="btn sec" onclick="doRoll()">Acak lagi 🎲</button><a class="btn pri" id="roll-wa" style="text-align:center;text-decoration:none" target="_blank" rel="noopener">💬 Ajak lewat WA</a></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SETELAN ──
+const BUCKET_URL = '';                 // ← tempel URL /exec dari bucket-list.gs di sini
+const BUCKET_KEY = 'razara-bucket';    // harus sama dengan KEY di bucket-list.gs
+const WA = { Razan: '6285692740607', Dara: '' };   // nomor WA Dara kosong → WA kebuka tanpa tujuan, tinggal pilih kontak
+
+const CATS = [
+  { k: 'jalan', e: '✈️', n: 'Jalan-jalan' }, { k: 'kuliner', e: '🍜', n: 'Kuliner' }, { k: 'seru', e: '🎢', n: 'Seru-seruan' },
+  { k: 'romantis', e: '💞', n: 'Romantis' }, { k: 'rumah', e: '🏠', n: 'Di rumah' }, { k: 'lain', e: '🌱', n: 'Lainnya' },
+];
+const IDEAS = [
+  ['Liat sunrise di Bromo berdua', 'jalan'], ['Liburan ke Bali, cuma berdua', 'jalan'], ['Naik kereta jauh tanpa rencana', 'jalan'],
+  ['Ke Jepang pas musim sakura', 'jalan'], ['Snorkeling di Karimunjawa', 'jalan'], ['Staycation di villa yang ada kolam renangnya', 'jalan'],
+  ['Road trip ke kota yang belum pernah kita datengin', 'jalan'], ['Camping & liat bintang jauh dari kota', 'jalan'],
+  ['Nyobain omakase berdua', 'kuliner'], ['Masak bareng resep yang belum pernah dicoba', 'kuliner'], ['Bikin kue ulang tahun sendiri', 'kuliner'],
+  ['Nyobain 10 warung mie ayam & bikin ranking', 'kuliner'], ['Kulineran malem di Bandung', 'kuliner'], ['Sarapan bubur ayam jam 6 pagi abis jogging', 'kuliner'],
+  ['Main ke Dufan & naik Halilintar', 'seru'], ['Nonton konser band favorit', 'seru'], ['Ikut kelas pottery berdua', 'seru'],
+  ['Karaoke 3 jam nonstop', 'seru'], ['Arung jeram bareng', 'seru'], ['Bikin vlog satu hari bareng', 'seru'], ['Naik bianglala malem-malem', 'seru'],
+  ['Piknik di taman pas sore', 'romantis'], ['Dinner pake baju paling rapi', 'romantis'], ['Saling nulis surat tangan', 'romantis'],
+  ['Foto studio berdua', 'romantis'], ['Dansa pelan di dapur', 'romantis'], ['Bikin scrapbook satu tahun bareng', 'romantis'],
+  ['Maraton satu series sampai tamat', 'rumah'], ['Bikin benteng selimut & piknik di kamar', 'rumah'], ['Main board game semaleman', 'rumah'],
+  ['Rawat satu tanaman bareng sampai gede', 'rumah'], ['Bikin playlist bareng 50 lagu', 'rumah'],
+  ['Nabung bareng buat sesuatu yang gede', 'lain'], ['Olahraga bareng 30 hari berturut-turut', 'lain'], ['Belajar bahasa baru bareng', 'lain'],
+  ['Donor darah bareng', 'lain'], ['Ikut volunteer sehari', 'lain'],
+];
+const STARTER = [0, 8, 14, 21, 22, 27, 29, 32];
+
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const thumb = (id, w) => `https://lh3.googleusercontent.com/d/${id}=w${w}-rw`;
+const catOf = k => CATS.find(c => c.k === k) || CATS[CATS.length - 1];
+const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const BULAN_L = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function fmtD(s) { if (!s) return ''; const [y, m, d] = s.split('-').map(Number); return `${d} ${BULAN[m - 1]} ${y}`; }
+function fmtM(s) { if (!s) return ''; const [y, m] = s.split('-').map(Number); return `${BULAN_L[m - 1]} ${y}`; }
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+let toastT;
+function toast(m, ms = 2600) { const t = $('toast'); t.innerHTML = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
+
+const K_ME = 'bl-me', K_CACHE = 'bl-cache', K_QUEUE = 'bl-queue', K_VIEW = 'bl-view';
+let me = lsGet(K_ME, null);
+let server = lsGet(K_CACHE, []);       // isi terakhir dari server
+let view = Object.assign({ tab: 'todo', cat: '' }, lsGet(K_VIEW, {}));
+let loading = false, online = false;
+
+/* ── data: server + antrean perubahan yang belum kekirim ── */
+function getQueue() { return lsGet(K_QUEUE, []) || []; }
+function items() {
+  const m = new Map(server.map(x => [x.id, x]));
+  for (const q of getQueue()) { const o = m.get(q.id); if (!o || (q.updated || 0) >= (o.updated || 0)) m.set(q.id, Object.assign({}, q, { pending: true })); }
+  return [...m.values()].filter(x => !x.deleted);
+}
+function put(it) {
+  it.updated = Date.now();
+  const q = getQueue().filter(x => x.id !== it.id); q.push(it); lsSet(K_QUEUE, q);
+  render(); flush();
+}
+function api(method, body) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    x.open(method, BUCKET_URL + (method === 'GET' ? `?action=list&key=${encodeURIComponent(BUCKET_KEY)}&t=${Date.now()}` : ''), true);
+    x.timeout = 20000;
+    if (method === 'POST') x.setRequestHeader('Content-Type', 'text/plain');
+    x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(Object.assign(new Error(r.error || 'gagal'), { code: r.error })); } catch (e) { rej(e); } };
+    x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+    x.send(method === 'POST' ? JSON.stringify(Object.assign({ key: BUCKET_KEY }, body)) : null);
+  });
+}
+async function load() {
+  if (!BUCKET_URL) { render(); return; }
+  loading = true; renderStatus();
+  try { const r = await api('GET'); server = r.items || []; lsSet(K_CACHE, server); online = true; }
+  catch (e) { online = false; }
+  loading = false; render();
+}
+let flushing = false;
+async function flush() {
+  if (flushing || !BUCKET_URL) return;
+  flushing = true; let sent = 0;
+  try {
+    while (getQueue().length) {
+      const it = getQueue()[0];
+      const body = Object.assign({}, it); delete body.pending;
+      try { await api('POST', { action: 'save', item: body }); }
+      catch (e) { if (e.code === 'data') { lsSet(K_QUEUE, getQueue().slice(1)); continue; } online = false; break; }
+      // kalau item yang sama diubah lagi pas lagi ngirim, jangan dibuang
+      lsSet(K_QUEUE, getQueue().filter(x => !(x.id === it.id && x.updated === it.updated)));
+      const k = server.findIndex(x => x.id === it.id); if (k >= 0) server[k] = body; else server.push(body);
+      lsSet(K_CACHE, server.filter(x => !x.deleted)); sent++;
+    }
+  } finally { flushing = false; }
+  if (sent) { online = true; render(); } else renderStatus();
+}
+window.addEventListener('online', flush);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { flush(); load(); } });
+
+/* ── siapa ── */
+function openWho() { $('who-ov').classList.add('show'); }
+function setMe(w) { me = w; lsSet(K_ME, w); $('who-ov').classList.remove('show'); render(); }
+function closeOv(id) { $(id).classList.remove('show'); document.body.style.overflow = ''; }
+function openOv(id) { $(id).classList.add('show'); document.body.style.overflow = 'hidden'; }
+
+/* ── tampilan ── */
+function renderStatus() {
+  const st = $('status'), q = getQueue().length;
+  st.className = 'status';
+  if (!BUCKET_URL) { st.textContent = '📱 Sementara kesimpen di HP ini dulu — nanti otomatis nyambung berdua'; return; }
+  if (loading && !server.length) { st.textContent = '⏳ Ngambil daftar…'; return; }
+  if (!online && !loading) { st.className = 'status err'; st.innerHTML = `⚠️ Belum nyambung${q ? ` · ${q} perubahan nunggu dikirim` : ''}. <button onclick="load();flush()">Coba lagi</button>`; return; }
+  st.textContent = q ? `⏳ Ngirim ${q} perubahan…` : '';
+}
+function render() {
+  $('me-name').textContent = me || 'Siapa?';
+  $('me-btn').className = 'pill me-btn ' + (me || '');
+  renderStatus();
+  const all = items(), done = all.filter(x => x.done), todo = all.filter(x => !x.done);
+  // cincin progres
+  const f = all.length ? done.length / all.length : 0;
+  $('ring-fg').style.strokeDashoffset = 263.9 * (1 - f);
+  $('ring-n').textContent = `${done.length}/${all.length}`;
+  const nR = all.filter(x => x.by === 'Razan').length, nD = all.filter(x => x.by === 'Dara').length;
+  $('h-sub').innerHTML = all.length ? `${todo.length ? `${todo.length} impian lagi nunggu dicoret.` : 'Semua udah kesampaian! Tambahin lagi yuk ✨'}<br>Ditambahin <b class="r">Razan ${nR}</b> · <b class="d">Dara ${nD}</b>` : 'Hal-hal yang mau kita lakuin bareng, satu-satu dicentang 🤍';
+  $('n-todo').textContent = todo.length ? `(${todo.length})` : '';
+  $('n-done').textContent = done.length ? `(${done.length})` : '';
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === view.tab));
+  $('roll-btn').disabled = !todo.length;
+  // kategori (cuma yang ada isinya)
+  const base = view.tab === 'todo' ? todo : view.tab === 'done' ? done : all;
+  const used = CATS.filter(c => base.some(x => (catOf(x.cat).k) === c.k));
+  if (view.cat && !used.some(c => c.k === view.cat)) view.cat = '';
+  $('cats').innerHTML = used.length > 1 ? [`<button data-k="" class="${!view.cat ? 'on' : ''}">Semua</button>`].concat(used.map(c => `<button data-k="${c.k}" class="${view.cat === c.k ? 'on' : ''}">${c.e} ${c.n} · ${base.filter(x => catOf(x.cat).k === c.k).length}</button>`)).join('') : '';
+  $('cats').querySelectorAll('button').forEach(b => b.onclick = () => { view.cat = b.dataset.k; lsSet(K_VIEW, view); render(); });
+  // daftar
+  let list = base.filter(x => !view.cat || catOf(x.cat).k === view.cat);
+  list.sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.done) return (b.doneDate || '').localeCompare(a.doneDate || '') || (b.updated || 0) - (a.updated || 0);
+    if (!!a.target !== !!b.target) return a.target ? -1 : 1;
+    if (a.target && b.target && a.target !== b.target) return a.target.localeCompare(b.target);
+    return b.created - a.created;
+  });
+  if (!all.length) {
+    $('list').innerHTML = `<div class="empty">🪣 <b>Bucket list kalian masih kosong</b><br>Tambahin hal yang mau kalian lakuin bareng — atau mulai dari ide-ide ini dulu.<br><button class="btn pri" onclick="starter()">✨ Isi 8 ide awal</button></div>`;
+    return;
+  }
+  if (!list.length) {
+    $('list').innerHTML = `<div class="empty">${view.tab === 'done' ? '✨ <b>Belum ada yang kesampaian</b><br>Pilih satu dari tab “Belum”, terus wujudin pas ketemu nanti!' : '🎉 <b>Semua udah kesampaian!</b><br>Saatnya nambahin impian baru.'}</div>`;
+    return;
+  }
+  const thisMonth = ymd(new Date()).slice(0, 7);
+  $('list').innerHTML = list.map(x => {
+    const c = catOf(x.cat);
+    const late = !x.done && x.target && x.target < thisMonth, soon = !x.done && x.target && x.target === thisMonth;
+    return `<div class="it${x.done ? ' done' : ''}" data-id="${esc(x.id)}">
+      <button class="chk" data-chk="${esc(x.id)}" aria-label="${x.done ? 'Udah' : 'Centang'}">${x.done ? '✓' : ''}</button>
+      <div class="it-b">
+        <p class="it-t">${esc(x.text)}</p>
+        <div class="it-m"><span class="tag">${c.e} ${c.n}</span>${x.by ? `<span class="by ${x.by}"><i></i>${x.by}</span>` : ''}${x.done ? `<span>✓ ${fmtD(x.doneDate)}${x.doneBy ? ' · ' + x.doneBy : ''}</span>` : x.target ? `<span class="${late || soon ? 'soon' : ''}">🎯 ${late ? 'lewat target · ' : soon ? 'bulan ini! · ' : ''}${fmtM(x.target)}</span>` : ''}${x.pending ? '<span class="pend">⏳</span>' : ''}</div>
+        ${x.done && x.note ? `<p class="it-note">“${esc(x.note)}”</p>` : ''}
+        ${x.done && x.photo ? `<div class="it-ph" style="background-image:url('${thumb(x.photo, 600)}')"></div>` : ''}
+      </div>
+      ${x.done ? '<span class="stamp">DONE</span>' : ''}
+    </div>`;
+  }).join('');
+  $('list').querySelectorAll('.it').forEach(el => el.onclick = e => {
+    const id = el.dataset.id;
+    if (e.target.closest('[data-chk]')) { const x = items().find(i => i.id === id); if (!x) return; x.done ? openDetail(id) : openDone(id); return; }
+    openDetail(id);
+  });
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { view.tab = b.dataset.v; view.cat = ''; lsSet(K_VIEW, view); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+/* ── tambah / ubah ── */
+let editId = null, eCat = 'jalan';
+function needMe() { if (!me) { openWho(); return true; } return false; }
+function openEdit(id) {
+  if (needMe()) return;
+  editId = id || null;
+  const x = id ? items().find(i => i.id === id) : null;
+  $('e-h').textContent = x ? 'Ubah impian ✏️' : 'Tambah impian baru ✨';
+  $('e-text').value = x ? x.text : '';
+  $('e-target').value = x ? x.target : '';
+  eCat = x ? catOf(x.cat).k : (view.cat || 'jalan');
+  paintCats();
+  closeOv('det-ov'); openOv('edit-ov');
+  setTimeout(() => { if (!x) $('e-text').focus(); }, 320);
+}
+function paintCats() {
+  $('e-cat').innerHTML = CATS.map(c => `<button class="${c.k === eCat ? 'on' : ''}" data-k="${c.k}">${c.e} ${c.n}</button>`).join('');
+  $('e-cat').querySelectorAll('button').forEach(b => b.onclick = () => { eCat = b.dataset.k; paintCats(); });
+}
+function idea() {
+  const have = new Set(items().map(x => x.text.toLowerCase()));
+  const pool = IDEAS.filter(i => !have.has(i[0].toLowerCase()));
+  const p = (pool.length ? pool : IDEAS)[Math.floor(Math.random() * (pool.length || IDEAS.length))];
+  $('e-text').value = p[0]; eCat = p[1]; paintCats(); vib(8);
+}
+const newId = () => 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function saveEdit() {
+  const text = $('e-text').value.trim();
+  if (!text) { toast('Tulis dulu impiannya ✨'); $('e-text').focus(); return; }
+  const target = $('e-target').value || '';
+  if (editId) {
+    const x = Object.assign({}, items().find(i => i.id === editId)); delete x.pending;
+    x.text = text; x.cat = eCat; x.target = target; put(x); toast('✏️ Diubah');
+  } else {
+    put({ id: newId(), text, cat: eCat, by: me, created: Date.now(), target, done: false, doneBy: '', doneDate: '', note: '', photo: '', deleted: false });
+    if (view.tab === 'done') { view.tab = 'todo'; lsSet(K_VIEW, view); render(); }
+    toast('✨ Masuk bucket list!'); vib([15, 30, 15]);
+  }
+  closeOv('edit-ov');
+}
+function starter() {
+  if (needMe()) return;
+  const t = Date.now();
+  const q = getQueue();
+  STARTER.forEach((k, i) => q.push({ id: newId() + i, text: IDEAS[k][0], cat: IDEAS[k][1], by: me, created: t - i, target: '', done: false, doneBy: '', doneDate: '', note: '', photo: '', deleted: false, updated: t }));
+  lsSet(K_QUEUE, q); render(); flush(); toast('✨ 8 ide masuk — hapus/ubah sesuka kalian');
+}
+
+/* ── centang ── */
+let doneId = null, donePhoto = '';
+function openDone(id) {
+  if (needMe()) return;
+  const x = items().find(i => i.id === id); if (!x) return;
+  doneId = id; donePhoto = x.photo || '';
+  $('d-what').textContent = `“${x.text}”`;
+  $('d-date').value = x.doneDate || ymd(new Date());
+  $('d-date').max = ymd(new Date());
+  $('d-note').value = x.note || '';
+  paintPh();
+  closeOv('det-ov'); openOv('done-ov');
+}
+function paintPh() {
+  $('d-ph').innerHTML = donePhoto
+    ? `<span class="th" style="background-image:url('${thumb(donePhoto, 200)}')"></span><span>Foto kepilih</span><span class="x" onclick="event.stopPropagation();donePhoto='';paintPh()">hapus</span>`
+    : `<span class="th">📸</span><span>${readAlbums().length ? 'Pilih dari album' : 'Buka Kenangan Kita sekali dulu biar fotonya bisa dipilih'}</span>`;
+}
+function saveDone() {
+  const x = Object.assign({}, items().find(i => i.id === doneId)); if (!x.id) return;
+  delete x.pending;
+  x.done = true; x.doneBy = me; x.doneDate = $('d-date').value || ymd(new Date()); x.note = $('d-note').value.trim(); x.photo = donePhoto;
+  const first = !items().find(i => i.id === doneId).done;
+  put(x); closeOv('done-ov');
+  if (first) { confetti(); vib([30, 40, 30, 40, 120]); const n = items().filter(i => i.done).length; toast(`🎉 Kesampaian! Udah ${n} impian dicoret`); }
+  else toast('✏️ Disimpan');
+}
+
+/* ── detail ── */
+function openDetail(id) {
+  const x = items().find(i => i.id === id); if (!x) return;
+  const c = catOf(x.cat);
+  const other = me === 'Razan' ? 'Dara' : 'Razan';
+  const wa = `https://wa.me/${WA[other] || ''}?text=${encodeURIComponent(x.done ? `Inget ga pas kita "${x.text}"? 🥹 ${x.note ? '\n"' + x.note + '"' : ''}` : `Yuk wujudin bucket list kita: "${x.text}" ✨ Kapan bisa?`)}`;
+  $('det').innerHTML = `<div class="drag"></div>
+    <span class="tag" style="font-size:11px">${c.e} ${c.n}</span>
+    <p class="det-t">${esc(x.text)}</p>
+    <p class="det-m">${x.by ? `Ditambahin <b class="by ${x.by}" style="font-weight:600"><i></i> ${x.by}</b>` : ''}${x.created ? ` · ${fmtD(ymd(new Date(x.created)))}` : ''}
+      ${x.target ? `<br>🎯 Target: ${fmtM(x.target)}` : ''}
+      ${x.done ? `<br>✓ Kesampaian ${fmtD(x.doneDate)}${x.doneBy ? ` (dicentang ${x.doneBy})` : ''}` : ''}</p>
+    ${x.done && x.note ? `<p class="it-note" style="font-size:13px">“${esc(x.note)}”</p>` : ''}
+    ${x.done && x.photo ? `<div class="det-ph" style="background-image:url('${thumb(x.photo, 900)}')"></div>` : ''}
+    <div class="row">
+      ${x.done ? `<button class="btn sec" onclick="openDone('${x.id}')">✏️ Ubah kesan</button>` : `<button class="btn sec" onclick="openEdit('${x.id}')">✏️ Ubah</button><button class="btn pri" onclick="openDone('${x.id}')">✓ Udah!</button>`}
+    </div>
+    <a class="btn sec" style="display:block;text-align:center;text-decoration:none;margin-top:.55rem" target="_blank" rel="noopener" href="${wa}">💬 ${x.done ? 'Kenang bareng' : 'Ajak'} ${other} lewat WA</a>
+    <div class="links">${x.done ? `<button onclick="undoDone('${x.id}')">Batalin centang</button>` : ''}<button class="danger" onclick="delItem('${x.id}')">Hapus</button></div>`;
+  openOv('det-ov');
+}
+function undoDone(id) {
+  const x = Object.assign({}, items().find(i => i.id === id)); delete x.pending;
+  if (!confirm('Batalin centangnya? Kesan & fotonya ikut kehapus.')) return;
+  x.done = false; x.doneBy = ''; x.doneDate = ''; x.note = ''; x.photo = '';
+  put(x); closeOv('det-ov'); toast('↩️ Balik ke “Belum”');
+}
+function delItem(id) {
+  const x = Object.assign({}, items().find(i => i.id === id)); delete x.pending;
+  if (!confirm(`Hapus “${x.text}” dari bucket list?`)) return;
+  x.deleted = true; put(x); closeOv('det-ov'); toast('🗑️ Dihapus');
+}
+
+/* ── foto dari Kenangan Kita ── */
+function readAlbums() {
+  const own = lsGet('tk-albums', null), D = lsGet('mem-idx', null);
+  const list = Array.isArray(own) && own.length ? own : (D && Array.isArray(D.albums) ? D.albums : []);
+  const out = list.map(a => {
+    let photos = (a.items || []).filter(x => x.type === 'image').map(x => x.id);
+    if (!photos.length && a.cover && a.coverType !== 'video') photos = [a.cover];
+    return photos.length ? { name: a.name, photos } : null;
+  }).filter(Boolean);
+  const rnd = D && D.random && Array.isArray(D.random.items) ? D.random.items.filter(x => x.type === 'image').map(x => x.id) : [];
+  if (rnd.length) out.push({ name: 'Random', photos: rnd });
+  return out;
+}
+let phAlbum = 0;
+function openPhotos() {
+  const albums = readAlbums();
+  if (!albums.length) { toast('Buka <a href="memories.html">Kenangan Kita</a> sekali & login dulu, abis itu fotonya bisa dipilih 🤍', 5000); return; }
+  phAlbum = Math.min(phAlbum, albums.length - 1);
+  const paint = () => {
+    $('ph-alb').innerHTML = albums.map((a, k) => `<button class="${k === phAlbum ? 'on' : ''}" data-k="${k}">${esc(a.name)} · ${a.photos.length}</button>`).join('');
+    $('ph-alb').querySelectorAll('button').forEach(b => b.onclick = () => { phAlbum = +b.dataset.k; paint(); });
+    $('ph-grid').innerHTML = albums[phAlbum].photos.map(p => `<button data-p="${esc(p)}" style="background-image:url('${thumb(p, 300)}')"></button>`).join('');
+    $('ph-grid').querySelectorAll('button').forEach(b => b.onclick = () => { donePhoto = b.dataset.p; paintPh(); closeOv('ph-ov'); document.body.style.overflow = 'hidden'; });
+  };
+  paint(); openOv('ph-ov');
+}
+
+/* ── pilihin satu ── */
+let lastRoll = null;
+function openRoll() { openOv('roll-ov'); doRoll(); }
+function doRoll() {
+  const todo = items().filter(x => !x.done); if (!todo.length) return;
+  const d = $('dice'); d.classList.remove('spin'); void d.offsetWidth; d.classList.add('spin');
+  let n = 0; const pool = todo.length > 1 ? todo.filter(x => x.id !== lastRoll) : todo;
+  const t = setInterval(() => {
+    const x = todo[Math.floor(Math.random() * todo.length)];
+    $('roll-pick').textContent = x.text; $('roll-why').textContent = '';
+    if (++n > 9) {
+      clearInterval(t);
+      const pick = pool[Math.floor(Math.random() * pool.length)]; lastRoll = pick.id;
+      $('roll-pick').textContent = pick.text;
+      $('roll-why').textContent = `${catOf(pick.cat).e} ${catOf(pick.cat).n}${pick.by ? ` · idenya ${pick.by}` : ''} — wujudin pas ketemu nanti yuk!`;
+      const other = me === 'Razan' ? 'Dara' : 'Razan';
+      $('roll-wa').href = `https://wa.me/${WA[other] || ''}?text=${encodeURIComponent(`Bucket list kita milih ini buat kencan berikutnya 🎲\n"${pick.text}"\nGas ga? 😆`)}`;
+      vib([10, 20, 40]);
+    }
+  }, 70);
+}
+
+function confetti() {
+  const colors = ['#c17a6f', '#b5c4b1', '#c9a96e', '#f0a39a', '#7eb3f5', '#fff'];
+  for (let i = 0; i < 70; i++) setTimeout(() => {
+    const el = document.createElement('div'); el.className = 'cp';
+    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 4200);
+  }, i * 18);
+}
+
+render();
+if (!me) openWho();
+load().then(flush);
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
