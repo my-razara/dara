@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Lampion Harapan — Razan & Dara 🏮</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--gold:#c9a96e;--rz:#7eb3f5;--dr:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea{font-family:'Poppins',sans-serif}
+  html,body{background:#141a33;height:100%;overflow:hidden;overscroll-behavior:none}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:#f3ecff}
+  .sky{position:fixed;inset:0;background:linear-gradient(#0d1230 0%,#232b57 55%,#4a3b66 80%,#7a5068 100%);overflow:hidden}
+  .star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:tw 3s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.25}50%{opacity:1}}
+  .moon{position:absolute;right:9%;top:24%;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fffbe8,#f3e3b0);box-shadow:0 0 40px rgba(255,240,200,.5)}
+  .hills{position:absolute;left:0;right:0;bottom:0;height:22%;background:radial-gradient(ellipse 60% 100% at 20% 100%,#1b1630 60%,transparent 61%),radial-gradient(ellipse 70% 90% at 85% 100%,#221a38 60%,transparent 61%),linear-gradient(transparent 55%,#160f26 56%)}
+  .water{position:absolute;left:0;right:0;bottom:0;height:9%;background:linear-gradient(#2a2148,#120d22);opacity:.9}
+  .water::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 30px,rgba(255,200,120,.08) 30px 60px);animation:wv 6s linear infinite}
+  @keyframes wv{to{background-position:120px 0}}
+
+  .lan{position:absolute;width:34px;height:44px;margin-left:-17px;cursor:pointer;border:none;background:none;padding:0;animation:sway var(--sw,6s) ease-in-out infinite;transition:top 1.2s ease}
+  @keyframes sway{0%,100%{transform:translateX(-6px) rotate(-3deg)}50%{transform:translateX(6px) rotate(3deg)}}
+  .lan i{position:absolute;inset:0;border-radius:40% 40% 30% 30%/50% 50% 30% 30%;background:radial-gradient(ellipse at 50% 70%,#fff3c4 0,var(--c,#ffb35c) 45%,var(--c2,#e0662e) 100%);box-shadow:0 0 18px 4px var(--g,rgba(255,170,80,.55));animation:glow 2.4s ease-in-out infinite alternate}
+  .lan i::after{content:'';position:absolute;left:30%;right:30%;bottom:-4px;height:5px;border-radius:2px;background:#5a3a22}
+  @keyframes glow{from{filter:brightness(.92)}to{filter:brightness(1.12)}}
+  .lan.mine i{outline:2px solid rgba(255,255,255,.0)}
+  .lan.new{animation:rise 6s cubic-bezier(.3,.1,.3,1) forwards}
+  @keyframes rise{0%{transform:translateY(0) scale(1.6)}100%{transform:translateY(calc(var(--to) * -1)) scale(1)}}
+
+  .ui{position:fixed;inset:0;display:flex;flex-direction:column;pointer-events:none;max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom))}
+  .ui > *{pointer-events:auto}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:#e3dbf7;text-decoration:none;background:rgba(255,255,255,.1);border:1px solid rgba(220,210,255,.25);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap;backdrop-filter:blur(4px)}
+  .head{text-align:center;margin-top:.8rem;pointer-events:none}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-family:'Caveat',cursive;font-size:clamp(2rem,9vw,2.4rem);color:#fff;line-height:1.1}
+  .sub{font-size:12px;color:#c9c0e6}
+  .spacer{flex:1;pointer-events:none}
+  .composer{background:rgba(20,18,45,.72);border:1px solid rgba(220,210,255,.2);border-radius:22px;padding:.9rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .composer textarea{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid rgba(220,210,255,.25);background:rgba(0,0,0,.25);outline:none;color:#fff;resize:none}
+  .composer textarea::placeholder{color:#a79fc6}
+  .opts{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.6rem 0 .1rem}
+  .cols{display:flex;gap:.35rem}
+  .cols button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+  .cols button.on{border-color:#fff}
+  .who{display:flex;gap:.3rem}
+  .who button{font-size:11.5px;padding:.3rem .65rem;border-radius:50px;border:1.5px solid rgba(220,210,255,.3);background:transparent;color:#d8d0f0;cursor:pointer}
+  .who button.on.Razan{background:var(--rz);border-color:var(--rz);color:#13183a;font-weight:600}
+  .who button.on.Dara{background:var(--dr);border-color:var(--dr);color:#3a1a18;font-weight:600}
+  .light{width:100%;margin-top:.6rem;padding:.9rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#3a2410;background:linear-gradient(135deg,#ffe9b0,#ffb35c);cursor:pointer;position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+  .light span{position:relative;z-index:1}
+  .light .fill{position:absolute;inset:0;width:0;background:linear-gradient(90deg,#ffcf7a,#ff8a3c)}
+  .count{text-align:center;font-size:11.5px;color:#c9c0e6;margin-top:.5rem}
+  .count button{background:none;border:none;color:#ffcf7a;font-size:11.5px;text-decoration:underline;cursor:pointer}
+
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(5,6,20,.55);display:none;align-items:center;justify-content:center;padding:1.2rem}
+  .ov.show{display:flex}
+  .pop{width:100%;max-width:340px;background:linear-gradient(160deg,#2b2556,#1d1940);border:1px solid rgba(220,210,255,.25);border-radius:24px;padding:1.4rem 1.2rem 1rem;text-align:center;animation:pop .4s cubic-bezier(.3,1.5,.5,1);color:#f3ecff}
+  @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .pop .e{font-size:2.6rem}
+  .pop .t{font-family:'Caveat',cursive;font-size:1.65rem;line-height:1.25;color:#fff;margin:.4rem 0;overflow-wrap:anywhere}
+  .pop .m{font-size:11.5px;color:#b5acd6}
+  .pop a,.pop button{display:block;width:100%;margin-top:.6rem;padding:.8rem;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+  .pop a{background:#25a35a;color:#fff;border:none}
+  .pop .x{background:transparent;border:1.5px solid rgba(220,210,255,.3);color:#d8d0f0}
+  .pop .del{background:none;border:none;color:#e89a9a;font-size:11.5px;text-decoration:underline;padding:.2rem}
+  .list{max-height:60vh;overflow-y:auto;text-align:left;margin-top:.5rem}
+  .list div{padding:.55rem .2rem;border-bottom:1px dashed rgba(220,210,255,.2);font-size:12.5px;color:#eae4ff;overflow-wrap:anywhere}
+  .list small{display:block;font-size:10px;color:#a79fc6}
+  @media (max-height:600px){.head .sub{display:none}.moon{width:40px;height:40px}}
+  @media (prefers-reduced-motion:reduce){.lan,.lan i,.star{animation:none}}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"><div class="moon"></div><div class="hills"></div><div class="water"></div></div>
+<div class="ui">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
+  <div class="head"><p class="lbl">Lampion Harapan</p><h1 class="title">Lepasin harapan kamu 🏮</h1><p class="sub">Tap lampion di langit buat baca harapannya lagi</p></div>
+  <div class="spacer"></div>
+  <div class="composer">
+    <textarea id="wish" rows="2" maxlength="120" placeholder="Tulis harapan kamu…"></textarea>
+    <div class="opts"><div class="cols" id="cols"></div><div class="who" id="who"></div></div>
+    <button class="light" id="light"><div class="fill" id="fill"></div><span id="light-t">🔥 Tahan buat nyalain & lepas</span></button>
+    <p class="count" id="count"></p>
+  </div>
+</div>
+
+<div class="ov" id="ov" onclick="if(event.target===this)closePop()"><div class="pop" id="pop"></div></div>
+
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const COLS = [['#ffb35c', '#e0662e', 'rgba(255,170,80,.55)'], ['#ff9fb0', '#d9576f', 'rgba(255,150,170,.55)'], ['#ffe27a', '#d9a520', 'rgba(255,220,110,.55)'], ['#b9d8ff', '#5f8fd6', 'rgba(150,200,255,.5)'], ['#d9c2ff', '#8f62d6', 'rgba(200,170,255,.5)']];
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmt = t => { const d = new Date(t); return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
+
+let col = lsGet('lampion-col', 0), me = lsGet('lampion-me', 'Dara');
+function stars() { const s = $('sky'); for (let i = 0; i < 70; i++) { const e = document.createElement('i'); e.className = 'star'; e.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 62}%;animation-delay:${Math.random() * 3}s;opacity:${Math.random()}`; s.appendChild(e); } }
+function paintOpts() {
+  $('cols').innerHTML = COLS.map((c, i) => `<button data-i="${i}" class="${i === col ? 'on' : ''}" style="background:radial-gradient(${c[0]},${c[1]})" aria-label="warna ${i + 1}"></button>`).join('');
+  $('cols').querySelectorAll('button').forEach(b => b.onclick = () => { col = +b.dataset.i; lsSet('lampion-col', col); paintOpts(); });
+  $('who').innerHTML = ['Razan', 'Dara'].map(w => `<button class="${w} ${w === me ? 'on' : ''}" data-w="${w}">${w}</button>`).join('');
+  $('who').querySelectorAll('button').forEach(b => b.onclick = () => { me = b.dataset.w; lsSet('lampion-me', me); paintOpts(); });
+  const n = lsGet('lampion', []).length;
+  $('count').innerHTML = n ? `🏮 ${n} lampion udah dilepas · <button onclick="showList()">liat semua</button>` : 'Lampion pertama kalian nunggu dilepas ✨';
+}
+
+// posisi lampion di langit: dari id-nya, biar tetep di tempat yang sama tiap dibuka
+function posOf(l, i) {
+  let h = 0; for (const c of l.id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const x = 8 + (h % 840) / 10, y = 16 + ((h >>> 10) % 420) / 10;   // x 8–92%, y 16–58%
+  return [x, y];
+}
+function lanEl(l, i) {
+  const c = COLS[l.c] || COLS[0], [x, y] = posOf(l, i);
+  const b = document.createElement('button'); b.className = 'lan';
+  b.style.cssText = `left:${x}%;top:${y}%;--c:${c[0]};--c2:${c[1]};--g:${c[2]};--sw:${5 + (i % 4)}s;animation-delay:-${i % 5}s`;
+  const s = .7 + ((y - 16) / 42) * .5; b.style.width = 34 * s + 'px'; b.style.height = 44 * s + 'px'; b.style.marginLeft = -17 * s + 'px';
+  b.innerHTML = '<i></i>'; b.setAttribute('aria-label', 'Baca harapan');
+  b.onclick = () => openLan(l.id);
+  return b;
+}
+function drawSky() {
+  document.querySelectorAll('.sky .lan').forEach(e => e.remove());
+  lsGet('lampion', []).slice(0, 60).forEach((l, i) => $('sky').appendChild(lanEl(l, i)));
+}
+
+/* ── nyalain: tahan tombol ── */
+let holdT = 0, holdRaf = 0, holding = false;
+const btn = $('light');
+btn.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (!$('wish').value.trim()) { $('wish').focus(); $('light-t').textContent = '✍️ Tulis harapannya dulu'; vib(20); setTimeout(() => $('light-t').textContent = '🔥 Tahan buat nyalain & lepas', 1500); return; }
+  holding = true; holdT = performance.now();
+  const loop = n => { if (!holding) return; const f = Math.min(1, (n - holdT) / 1200); $('fill').style.width = f * 100 + '%'; if (f >= 1) { holding = false; release(); return; } holdRaf = requestAnimationFrame(loop); };
+  holdRaf = requestAnimationFrame(loop); vib(10);
+});
+['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => btn.addEventListener(ev, () => { if (!holding) return; holding = false; cancelAnimationFrame(holdRaf); $('fill').style.transition = 'width .25s'; $('fill').style.width = '0'; setTimeout(() => $('fill').style.transition = '', 260); }));
+function release() {
+  const w = $('wish').value.trim(); if (!w) return;
+  const l = { id: 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), w, c: col, by: me, at: Date.now() };
+  const list = lsGet('lampion', []); list.unshift(l); lsSet('lampion', list.slice(0, 200));
+  $('wish').value = ''; $('fill').style.width = '0';
+  vib([20, 40, 60]);
+  // lampion baru naik dari bawah
+  const el = lanEl(l, 0); const [, y] = posOf(l, 0);
+  const startTop = window.innerHeight * .8;
+  el.style.top = startTop + 'px'; el.classList.add('new');
+  el.style.setProperty('--to', (startTop - window.innerHeight * y / 100) + 'px');
+  $('sky').appendChild(el);
+  setTimeout(() => { drawSky(); }, 6200);
+  paintOpts();
+  $('light-t').textContent = '🏮 Lampion terbang… harapannya terkirim';
+  setTimeout(() => $('light-t').textContent = '🔥 Tahan buat nyalain & lepas', 3000);
+}
+function openLan(id) {
+  const l = lsGet('lampion', []).find(x => x.id === id); if (!l) return;
+  const to = l.by === 'Razan' ? 'Dara' : 'Razan';
+  $('pop').innerHTML = `<div class="e">🏮</div><p class="t">“${esc(l.w)}”</p><p class="m">Harapan ${l.by} · ${fmt(l.at)}</p>
+    <a target="_blank" rel="noopener" href="https://wa.me/${WA[to]}?text=${encodeURIComponent(`🏮 Aku ngelepas lampion harapan:\n"${l.w}"`)}">💬 Ceritain ke ${to}</a>
+    <button class="x" onclick="closePop()">Tutup</button><button class="del" onclick="delLan('${l.id}')">Turunin lampion ini</button>`;
+  $('ov').classList.add('show'); vib(10);
+}
+function delLan(id) { if (!confirm('Turunin lampion ini dari langit?')) return; lsSet('lampion', lsGet('lampion', []).filter(x => x.id !== id)); closePop(); drawSky(); paintOpts(); }
+function showList() {
+  const list = lsGet('lampion', []);
+  $('pop').innerHTML = `<div class="e">🌌</div><p class="t" style="font-size:1.4rem">${list.length} harapan di langit</p><div class="list">${list.map(l => `<div>“${esc(l.w)}”<small>${l.by} · ${fmt(l.at)}</small></div>`).join('')}</div><button class="x" onclick="closePop()">Tutup</button>`;
+  $('ov').classList.add('show');
+}
+function closePop() { $('ov').classList.remove('show'); }
+stars(); paintOpts(); drawSky();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
