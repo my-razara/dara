@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kode Rahasia Kita — Razan & Dara 🔐</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--dr:#d9776b;--agent:#2f3b4c}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,textarea,input{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(47,59,76,.08),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(232,196,176,.4),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .badge{display:inline-block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#fff;background:var(--agent);padding:3px 12px;border-radius:4px;font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.35rem 0 .2rem}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:320px;margin:0 auto}
+  .tabs{display:flex;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px;margin-bottom:.9rem}
+  .tabs button{flex:1;border:none;background:none;border-radius:50px;padding:.6rem .3rem;font-size:13px;color:var(--muted);cursor:pointer}
+  .tabs button.on{background:var(--agent);color:#fff;font-weight:600}
+  .pane{display:none}.pane.on{display:block;animation:fi .3s ease}
+  @keyframes fi{from{opacity:0}to{opacity:1}}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;box-shadow:0 4px 18px rgba(193,122,111,.06);margin-bottom:.8rem}
+  .card label{display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;color:var(--deep);margin-bottom:.4rem}
+  .card label small{font-weight:400;color:var(--muted)}
+  .ta{width:100%;font-size:14px;padding:.75rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;resize:none;color:var(--ink);line-height:1.5}
+  .ta:focus{border-color:var(--rose);background:#fff}
+  .code{font-size:1.45rem;line-height:1.55;letter-spacing:.06em;word-break:break-all;min-height:3.2rem;padding:.6rem .7rem;border-radius:14px;background:var(--agent);color:#fff;user-select:all;-webkit-user-select:all}
+  .code.empty{font-size:12.5px;color:#aab5c4;letter-spacing:0;display:flex;align-items:center}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}
+  .row>*{flex:1}
+  .btn{display:block;padding:.85rem .4rem;border-radius:50px;border:none;font-size:13px;font-weight:600;color:#fff;background:var(--agent);cursor:pointer;text-align:center;text-decoration:none;white-space:nowrap}
+  .btn.wa{background:#25a35a}
+  .btn.ghost{background:#fff;color:var(--agent);border:1.5px solid #c9d0da}
+  .btn.rose{background:linear-gradient(135deg,#d48c80,#a8584c)}
+  .btn:disabled,.btn.off{opacity:.45;pointer-events:none}
+  .letter{display:none;background:#fffdf6;border:1px solid #e9dcc8;border-radius:8px;padding:1.2rem 1.1rem;box-shadow:0 8px 24px rgba(90,60,40,.1);position:relative;background-image:repeating-linear-gradient(transparent 0 29px,rgba(193,122,111,.12) 29px 30px)}
+  .letter.show{display:block;animation:fi .4s ease}
+  .letter .stamp{position:absolute;right:12px;top:-10px;font-size:9px;font-weight:800;letter-spacing:.14em;color:#fff;background:var(--rose);padding:3px 9px;border-radius:4px;transform:rotate(4deg)}
+  .letter p{font-family:'Caveat',cursive;font-size:1.5rem;line-height:30px;color:var(--deep);white-space:pre-wrap;overflow-wrap:anywhere;min-height:30px}
+  .letter p .cur{display:inline-block;width:2px;height:1.1em;background:var(--deep);vertical-align:-3px;animation:bl .7s step-end infinite}
+  @keyframes bl{50%{opacity:0}}
+  .err{display:none;text-align:center;font-size:12.5px;color:var(--deep);background:#fbeee9;border-radius:14px;padding:.8rem;margin-top:.6rem;line-height:1.6}
+  .err.show{display:block}
+  .key-box{font-size:11.5px;color:var(--muted);text-align:center;margin-top:1.2rem;line-height:1.7}
+  .key-box b{color:var(--agent)}
+  .key-box button{background:none;border:none;color:var(--rose);text-decoration:underline;font-size:11.5px;cursor:pointer}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1.2rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));animation:up .3s ease}
+  @keyframes up{from{transform:translateY(100%)}to{transform:none}}
+  .sheet h3{font-size:15px;font-weight:700}
+  .sheet p{font-size:12px;color:var(--muted);line-height:1.6;margin:.3rem 0 .8rem}
+  .inp{width:100%;font-size:15px;padding:.75rem .9rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;outline:none}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:12px}.code{font-size:1.3rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who" onclick="toggleWho()"></button></div>
+  <div class="head">
+    <span class="badge">🔐 Sangat rahasia</span>
+    <h1 class="title">Kode Rahasia <span>Kita</span></h1>
+    <p class="sub">Ubah pesan jadi deretan emoji. Orang lain cuma liat buah & hewan — cuma kita yang bisa baca 🤫</p>
+  </div>
+  <div class="tabs"><button data-t="enc" class="on">✍️ Bikin kode</button><button data-t="dec">🔎 Baca kode</button></div>
+
+  <div class="pane on" id="p-enc">
+    <div class="card">
+      <label for="plain">Pesan rahasia <small id="cnt">0/300</small></label>
+      <textarea class="ta" id="plain" rows="3" maxlength="300" placeholder="Tulis pesan rahasia kamu…"></textarea>
+    </div>
+    <div class="card">
+      <label>Jadinya <small>ketuk buat nyalin</small></label>
+      <div class="code empty" id="code">Kodenya muncul di sini</div>
+      <div class="row"><button class="btn ghost" id="copy" onclick="copyCode()">📋 Salin</button><a class="btn wa" id="send" target="_blank" rel="noopener">💬 Kirim ke <span id="to">Razan</span></a></div>
+    </div>
+  </div>
+
+  <div class="pane" id="p-dec">
+    <div class="card">
+      <label for="cipher">Tempel kode di sini <small><button style="background:none;border:none;color:var(--rose);text-decoration:underline;font-size:11px;cursor:pointer" onclick="pasteCode()">📋 tempel</button></small></label>
+      <textarea class="ta" id="cipher" rows="3" placeholder="🔐🐱🍓…"></textarea>
+      <div class="row"><button class="btn rose" onclick="decode()">🔎 Pecahin kodenya</button></div>
+    </div>
+    <div class="letter" id="letter"><span class="stamp">TERPECAHKAN</span><p id="out"></p></div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <p class="key-box">Kata kunci: <b id="key-show"></b> · <button onclick="openKey()">ganti</button><br>Dua-duanya harus pakai kata kunci yang sama ya</p>
+</div>
+
+<div class="ov" id="key-ov" onclick="if(event.target===this)closeKey()">
+  <div class="sheet">
+    <h3>🔑 Kata kunci rahasia</h3>
+    <p>Kata kunci ngacak susunan emojinya. Kalau diganti, kode lama ga bisa dibaca lagi — dan pasangan kamu harus pakai kata kunci yang sama.</p>
+    <input class="inp" id="key-in" maxlength="30" autocomplete="off" autocapitalize="none">
+    <div class="row"><button class="btn ghost" onclick="setKey('razara')">Balik ke bawaan</button><button class="btn" onclick="setKey($('key-in').value)">Simpan</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789 .,!?';
+const EMOJI = [...'🍎🍌🍇🍉🍓🍒🍑🍍🥝🥑🌽🥕🍄🌸🌻🌼🌷🌹🍀🌙🌈🔥💧🐱🐶🐰🐻🐼🐨🐯🦁🐸🐧🐥🦋🐝🐞🐢🐙🐳🐬🦄🍩🍪🍰🧁🍭🍫🍿🎈'];
+const HEAD = '🔐';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+let toastT; function toast(m) { const t = $('toast'); t.textContent = m; t.style.opacity = '1'; clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = '0', 2400); }
+
+let key = lsGet('kode-key', 'razara');
+let me = lsGet('kode-me', 'Dara');
+const other = () => me === 'Razan' ? 'Dara' : 'Razan';
+function toggleWho() { me = other(); lsSet('kode-me', me); paintWho(); encode(); }
+function paintWho() { $('who').textContent = `🙋 ${me} ▾`; $('who').className = 'pill ' + me; $('to').textContent = other(); }
+
+// susunan emoji diacak pakai kata kunci (sama di dua HP kalau kuncinya sama)
+let ENC = {}, DEC = {};
+function buildMap() {
+  let h = 2166136261; for (const c of 'kunci:' + key.toLowerCase()) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return (h >>> 0) / 4294967296; };
+  const pool = EMOJI.slice(); for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  ENC = {}; DEC = {}; [...CHARS].forEach((c, i) => { ENC[c] = pool[i]; DEC[pool[i]] = c; });
+  $('key-show').textContent = key;
+}
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function check2(plain) { let h = 7; for (const c of plain) h = (h * 31 + c.charCodeAt(0)) % 1681; return [CHARS[Math.floor(h / 41)], CHARS[h % 41]]; }
+function toCode(text) {
+  const plain = norm(text);
+  const body = [...plain].map(c => ENC[c] || c).join('');
+  return HEAD + check2([...plain].filter(c => ENC[c]).join('')).map(c => ENC[c]).join('') + body;
+}
+function fromCode(code) {
+  const arr = [...code.replace(/️/g, '').trim()];
+  if (arr[0] === HEAD) arr.shift();
+  const sum = arr.splice(0, 2).map(e => DEC[e]);
+  const out = arr.map(e => DEC[e] != null ? DEC[e] : e).join('');
+  const ok = sum.every(x => x != null) && check2([...out].filter(c => ENC[c]).join('')).join('') === sum.join('');
+  return { out, ok };
+}
+
+/* ── bikin ── */
+function encode() {
+  const v = $('plain').value; $('cnt').textContent = `${v.length}/300`;
+  const c = $('code');
+  if (!v.trim()) { c.className = 'code empty'; c.textContent = 'Kodenya muncul di sini'; $('send').classList.add('off'); $('copy').disabled = true; lsSet('kode-draft', ''); return; }
+  const code = toCode(v.trim());
+  c.className = 'code'; c.textContent = code;
+  $('copy').disabled = false; $('send').classList.remove('off');
+  $('send').href = `https://wa.me/${WA[other()]}?text=${encodeURIComponent(code + '\n\n(pesan rahasia — buka "Kode Rahasia Kita" buat baca 🔐)')}`;
+  lsSet('kode-draft', v);
+}
+$('plain').addEventListener('input', encode);
+$('code').addEventListener('click', copyCode);
+async function copyCode() {
+  const t = $('code').textContent; if ($('code').classList.contains('empty')) return;
+  try { await navigator.clipboard.writeText(t); toast('📋 Kode disalin!'); }
+  catch (e) { const r = document.createRange(); r.selectNodeContents($('code')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); try { document.execCommand('copy'); toast('📋 Kode disalin!'); } catch (x) { toast('Tahan kodenya buat nyalin manual'); } }
+  vib(10);
+}
+
+/* ── baca ── */
+async function pasteCode() { try { const t = await navigator.clipboard.readText(); if (t) { $('cipher').value = t; decode(); } } catch (e) { toast('Tahan kolomnya, terus pilih Tempel'); $('cipher').focus(); } }
+let typeT;
+function decode() {
+  const v = $('cipher').value.trim();
+  $('err').classList.remove('show'); $('letter').classList.remove('show'); clearTimeout(typeT);
+  if (!v) { toast('Tempel kodenya dulu 🔐'); return; }
+  const { out, ok } = fromCode(v);
+  const known = [...v.replace(/️/g, '')].filter(e => DEC[e] != null).length;
+  if (known < 3) { $('err').innerHTML = '🤔 Ini kayaknya bukan kode rahasia kita.<br>Pastiin yang ditempel deretan emoji dari pasangan kamu.'; $('err').classList.add('show'); vib(30); return; }
+  if (!ok) { $('err').innerHTML = `🔑 Kodenya kebaca tapi kayaknya <b>kata kuncinya beda</b>.<br>Kata kunci kamu sekarang: <b>${key}</b> — samain sama pasangan kamu ya.<br><br><span style="color:var(--muted)">Hasil tebakan: “${out.replace(/[<>&]/g, '')}”</span>`; $('err').classList.add('show'); vib(30); return; }
+  $('letter').classList.add('show'); vib([20, 40, 20]);
+  // efek ngetik
+  const p = $('out'); let i = 0; const chars = [...out];
+  const step = () => { p.innerHTML = chars.slice(0, i).join('').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c])) + '<span class="cur"></span>'; if (i++ < chars.length) typeT = setTimeout(step, 35 + Math.random() * 40); else p.querySelector('.cur').remove(); };
+  step();
+  const n = lsGet('kode-read', 0) + 1; lsSet('kode-read', n);
+}
+
+/* ── kata kunci ── */
+function openKey() { $('key-in').value = key; $('key-ov').classList.add('show'); }
+function closeKey() { $('key-ov').classList.remove('show'); }
+function setKey(k) { k = (k || '').trim(); if (k.length < 3) { toast('Minimal 3 huruf ya'); return; } key = k; lsSet('kode-key', key); buildMap(); encode(); closeKey(); toast('🔑 Kata kunci diganti'); }
+
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  $('p-enc').classList.toggle('on', b.dataset.t === 'enc'); $('p-dec').classList.toggle('on', b.dataset.t === 'dec');
+  lsSet('kode-tab', b.dataset.t);
+});
+
+buildMap(); paintWho();
+$('plain').value = lsGet('kode-draft', '') || ''; encode();
+// pertama kali buka: ada pesan rahasia dari Razan buat dipecahin
+if (!lsGet('kode-intro', false)) {
+  lsSet('kode-intro', true);
+  const k0 = key; key = 'razara'; buildMap();
+  $('cipher').value = toCode('Kalau kamu bisa baca ini, berarti kamu udah resmi jadi agen rahasia aku. Tugas pertama: bales pakai kode juga ya! Aku sayang kamu.');
+  key = k0; buildMap();
+  document.querySelector('.tabs button[data-t=dec]').click();
+  setTimeout(() => toast('🕵️ Ada pesan rahasia dari Razan — tap "Pecahin kodenya"!'), 500);
+} else if (lsGet('kode-tab', 'enc') === 'dec') document.querySelector('.tabs button[data-t=dec]').click();
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
