@@ -113,6 +113,7 @@
   @media (max-height:600px){ #s-game .board{max-width:330px;align-self:center} }
   @media (prefers-reduced-motion:reduce){ .p-ico,.pc.can,.sq.tgt::after{animation:none} }
 </style>
+<script src="sfx.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -380,6 +381,7 @@ function nudge(t) {
   const b = $('board'); b.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }], { duration: 220 });
 }
 function commit(m) {
+  window.SFX && SFX.play(m.caps.length ? 'pop' : 'seed');
   hist.push({ b: B.slice(), turn, quiet, last, captured: Object.assign({}, captured) });
   const wasMan = Math.abs(B[m.path[0]]) === 1;
   const to = m.path[m.path.length - 1];
@@ -510,6 +512,7 @@ function finish(winSide, why) {
   const rec = lsGet('dam-record', { Razan: 0, Dara: 0, seri: 0, beat: [0, 0, 0] });
   const w = winSide ? NAME(winSide) : null;
   const humanWon = MODE === 'bot' && w === HUMAN;
+  if (MODE === 'bot' && w && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
   if (MODE === 'duo') { if (w) rec[w]++; else rec.seri++; }
   else if (humanWon) rec.beat[level]++;
   lsSet('dam-record', rec);
