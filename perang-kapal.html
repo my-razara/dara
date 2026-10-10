@@ -121,6 +121,7 @@
   @media (max-height:700px){ #s-game .target-wrap{max-width:270px;align-self:center;width:100%} }
   @media (prefers-reduced-motion:reduce){ .p-ico,.pass .ico{animation:none} }
 </style>
+<script src="sfx.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -342,6 +343,7 @@ function shoot(shooter, i) {
   const op = other(shooter), st = S[op];
   const si = st.board[i];
   st.recv[i] = si >= 0 ? 2 : 1;
+  window.SFX && SFX.play(si >= 0 ? 'boom' : 'splash');
   lastShot[shooter] = i; shotsCount[shooter]++;
   let msg;
   const who = MODE === 'bot' && shooter === BOT ? '🤖 Komputer' : MODE === 'bot' ? 'Kamu' : shooter;
@@ -439,6 +441,7 @@ function finish(winner) {
   over = true; busy = false;
   const rec = lsGet('bs-record', { Razan: 0, Dara: 0, beat: [0, 0, 0] });
   const humanWon = MODE === 'bot' && winner === HUMAN;
+  if (MODE === 'bot' && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
   if (MODE === 'duo') rec[winner]++; else if (humanWon) rec.beat[level]++;
   lsSet('bs-record', rec);
   const shots = shotsCount[winner];
