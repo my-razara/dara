@@ -17,7 +17,8 @@
   // halaman yang tombolnya udah bunyi sendiri → ga usah bunyi "tik" tambahan
   const NO_TAP = 'pop-it kalkulator-cinta kotak-musik pengantar-tidur jendela-embun tiup-lilin napas-bareng menit-bisu detak-jantung slot-cinta rodasayang tantangan-kecepatan time-bomb truth-or-dare 36-questions jar-of-questions peta-emosi'.split(' ');
   const base = page.replace('.html', '');
-  const theme = NO_BGM.includes(base) ? null : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
+  // window.__sfxTheme = tema khusus (misal hari spesial di menu utama)
+  const theme = NO_BGM.includes(base) ? null : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
   const tapOn = !NO_TAP.includes(base);
 
   // ── setelan (kesimpen di HP) ──
@@ -66,6 +67,7 @@
     main:     { bpm: 112, progs: [[C, G, Am, F], [F, G, Em, Am], [C, Am, F, G]], arp: [0, 1, 2, 1, 0, 2, 1, 2], oct: 12, lead: .3, drums: true, inst: 'pluck', vol: .13 },
     santai:   { bpm: 88, progs: [[Fmaj7, Em, Am, G], [C, Am, Dm, G]], arp: [0, 2, 1, 3, 2, 1, 0, 2], oct: 12, lead: .2, drums: false, inst: 'pluck', vol: .11 },
     romantis: { bpm: 76, progs: [[C, Am, F, G], [F, G, Em, Am], [Fmaj7, G, Cadd9, Am]], arp: [0, 1, 2, 3, 2, 1, 2, 1], oct: 12, lead: .25, drums: false, inst: 'bell', vol: .1 },
+    pesta:    { bpm: 118, progs: [[C, F, G, C], [Am, F, C, G], [F, G, Em, Am]], arp: [0, 1, 2, 3, 2, 1, 2, 3], oct: 12, lead: .45, drums: true, inst: 'bell', vol: .11 },
     malam:    { bpm: 60, progs: [[Am, F, C, G], [Dm, Am, F, Em]], arp: [0, 2, 1, 2, 0, 2, 1, 2], oct: 24, lead: .15, drums: false, inst: 'bell', vol: .09, pad: true },
   };
   const PENTA = [0, 2, 4, 7, 9];
