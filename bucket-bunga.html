@@ -88,6 +88,7 @@
   .toast{position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:50px;padding:.5rem 1.25rem;font-size:12px;font-weight:500;z-index:999;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s}
   .toast.show{opacity:1}
 </style>
+<script src="sfx.js" defer></script>
 </head>
 <body>
 <div class="page">
@@ -140,13 +141,6 @@
   <p class="section-label">Warna Pita</p>
   <div class="ribbon-row" id="ribbon-row"></div>
 
-  <p class="section-label">Kartu Ucapan</p>
-  <div class="msg-inputs">
-    <input type="text" class="msg-input" id="msg-to" placeholder="Untuk: Dara Syifa Aulia 🌸" maxlength="40">
-    <textarea class="msg-input" id="msg-text" placeholder="Tulis pesan di sini..." rows="2" maxlength="90"></textarea>
-    <span class="counter" id="msg-count">0/90</span>
-    <input type="text" class="msg-input" id="msg-from" placeholder="Dari: Razan 🤍" maxlength="30">
-  </div>
 
   <div class="action-row">
     <button class="btn btn-outline" onclick="undoLast()">↩ Undo</button>
@@ -245,10 +239,6 @@ function buildRibbons() {
 }
 function buildAllPickers() { buildDots('wrap-colors', WRAPS, 'wrap'); buildDots('bg-colors', BG_COLORS, 'bg'); buildRibbons(); }
 $('size-slider').addEventListener('input', e => { newSize = parseInt(e.target.value); $('size-val').textContent = newSize; });
-['to', 'msg', 'from'].forEach(k => {
-  const el = $(k === 'msg' ? 'msg-text' : 'msg-' + k);
-  el.addEventListener('input', () => { S[k] = el.value; if (k === 'msg') $('msg-count').textContent = `${el.value.length}/90`; draw(); save(); });
-});
 
 // ═════════ CANVAS ═════════
 function setupCanvas() {
@@ -276,7 +266,7 @@ function draw(c = ctx, w = W, h = H, showSel = true) {
   const ny = GEO.neckY * h, nx0 = GEO.neckX0 * w, nx1 = GEO.neckX1 * w;
   // tangkai di bawah ikatan
   c.strokeStyle = '#6d8f5a'; c.lineWidth = 3; c.lineCap = 'round';
-  for (let i = 0; i < 7; i++) { const x = nx0 + 6 + i * ((nx1 - nx0 - 12) / 6); c.beginPath(); c.moveTo(x, ny); c.lineTo(x + (i - 3) * 1.5, GEO.cardY * h - 8); c.stroke(); }
+  for (let i = 0; i < 7; i++) { const x = nx0 + 6 + i * ((nx1 - nx0 - 12) / 6); c.beginPath(); c.moveTo(x, ny); c.lineTo(x + (i - 3) * 2.4, h * .93); c.stroke(); }
 
   // kertas belakang (kipas lebar)
   const wb = S.wrap, wbDark = shade(wb, -28);
@@ -336,20 +326,6 @@ function draw(c = ctx, w = W, h = H, showSel = true) {
   c.beginPath(); c.ellipse(w * .5 - br * .95, ny - br * .1, br, br * .6, -.35, 0, Math.PI * 2); c.stroke();
   c.beginPath(); c.ellipse(w * .5 + br * .95, ny - br * .1, br, br * .6, .35, 0, Math.PI * 2); c.stroke();
   c.beginPath(); c.arc(w * .5, ny, br * .4, 0, Math.PI * 2); c.fillStyle = rbD; c.fill();
-
-  // kartu ucapan
-  const cy = GEO.cardY * h, cw = w * .84, cx = (w - cw) / 2, chh = h - cy - h * .03;
-  c.save(); c.shadowColor = 'rgba(0,0,0,.12)'; c.shadowBlur = 12; c.shadowOffsetY = 3;
-  rr(c, cx, cy, cw, chh, 14); c.fillStyle = dark ? 'rgba(255,255,255,.1)' : '#fffdf9'; c.fill(); c.restore();
-  rr(c, cx, cy, cw, chh, 14); c.strokeStyle = (S.ribbon === '#ffffff' ? '#c9a96e' : S.ribbon) + '66'; c.lineWidth = 1.2; c.stroke();
-  const txt = dark ? '#fff' : '#2d1f1a', mut = dark ? 'rgba(255,255,255,.6)' : '#9a8070', accent = S.ribbon === '#ffffff' ? '#c17a6f' : S.ribbon;
-  const to = S.to || 'Untuk: Dara Syifa Aulia 🌸', msg = S.msg, from = S.from || 'Dari: Razan 🤍';
-  c.textAlign = 'center'; c.textBaseline = 'middle';
-  c.font = `600 ${Math.round(w * .038)}px Poppins, sans-serif`; c.fillStyle = accent;
-  c.fillText(fit(c, to, cw * .9), w / 2, cy + chh * .2);
-  if (msg) { c.font = `${Math.round(w * .031)}px Poppins, sans-serif`; c.fillStyle = txt; wrapText(c, msg, w / 2, cy + chh * .5, cw * .88, Math.round(w * .04), 2); }
-  c.font = `${Math.round(w * .029)}px Poppins, sans-serif`; c.fillStyle = mut;
-  c.fillText(fit(c, from, cw * .9), w / 2, cy + chh * .82);
 }
 function fit(c, s, max) { if (c.measureText(s).width <= max) return s; while (s.length > 1 && c.measureText(s + '…').width > max) s = s.slice(0, -1); return s + '…'; }
 function wrapText(c, text, x, y, maxW, lh, maxLines) {
@@ -442,7 +418,7 @@ function undoLast() {
   S.flowers = JSON.parse(history.pop()); selIdx = -1; showSelBar(); draw(); save();
 }
 function clearAll() {
-  if (!S.flowers.length && !S.msg) return;
+  if (!S.flowers.length) return;
   if (!confirm('Hapus semua bunga & mulai dari awal?')) return;
   pushHistory(); S.flowers = []; selIdx = -1; showSelBar(); draw(); save();
   toast('Canvas dibersihkan · masih bisa Undo');
@@ -459,7 +435,7 @@ async function exportImage() {
   const file = new File([blob], 'bucket-bunga-dara.png', { type: 'image/png' });
   try {
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Bucket Bunga 🌸', text: 'Buat kamu 💐' });
+      await navigator.share({ files: [file], title: 'Bucket Bunga 🌸' });
       toast('✓ Terkirim!'); return;
     }
   } catch (e) { if (e && e.name === 'AbortError') return; }
@@ -473,8 +449,6 @@ async function exportImage() {
 // ═════════ INIT ═════════
 function init() {
   load();
-  $('msg-to').value = S.to; $('msg-text').value = S.msg; $('msg-from').value = S.from;
-  $('msg-count').textContent = `${S.msg.length}/90`;
   buildGrid(); buildAllPickers();
   setupCanvas(); lastW = W;
   if (!S.flowers.length) autoArrange(), history = [];   // biar nggak kosong pas pertama buka
