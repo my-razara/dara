@@ -5,7 +5,7 @@
 (function () {
   const URL = 'https://script.google.com/macros/s/AKfycbyCq294yq71M-BDzouyLttp2Kki0aumPAP0JzII0fvvnBakSQ5_eHkNTawXA01fQ3dC/exec';
   const KEY = 'razara-berdua';
-  const APPS = { mood: w => 'mood-' + w, syukur: w => 'syukur-' + w, ritual: w => 'ritual-' + w, kangen: w => 'kangen-' + w };
+  const APPS = { mood: w => 'mood-' + w, syukur: w => 'syukur-' + w, ritual: w => 'ritual-' + w, kangen: w => 'kangen-' + w, ajak: w => 'ajak-' + w };
   const WHO = ['Razan', 'Dara'];
 
   const g = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
@@ -91,6 +91,7 @@
       setState('ok');
       if (changed.size) emit([...changed]);
       if (changed.has('kangen')) kangenCheck();
+      if (changed.has('ajak')) ajakCheck();
     } catch (e) { setState('err'); }
     finally { busy = false; }
   }
@@ -128,9 +129,8 @@
     Object.keys(seen).sort().slice(0, -7).forEach(k => delete seen[k]); s('kangen-seen', seen);
     showKangen(o, row, nNew);
   }
-  function showKangen(o, row, nNew) {
-    const L = row.last || {}, m = KM[L.k] || KM.peluk;
-    if (!document.getElementById('kg-css')) {
+  function kgCss() {
+    if (document.getElementById('kg-css')) return;
       const st = document.createElement('style'); st.id = 'kg-css';
       st.textContent = `.kg-ov{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(45,31,26,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:kgF .3s ease}
       @keyframes kgF{from{opacity:0}}
@@ -145,7 +145,11 @@
       .kg-fl{position:fixed;bottom:-40px;z-index:9599;pointer-events:none;font-size:26px;animation:kgU linear forwards}
       @keyframes kgU{to{transform:translate(var(--dx),-115vh) rotate(var(--r));opacity:.2}}`;
       document.head.appendChild(st);
-    }
+  }
+  function showKangen(o, row, nNew) {
+    const L = row.last || {}, m = KM[L.k] || KM.peluk;
+    kgCss();
+
     const em = [m[0], '💗', '🤍', '💕'];
     for (let i = 0; i < 26; i++) setTimeout(() => { const f = document.createElement('div'); f.className = 'kg-fl'; f.textContent = em[i % em.length]; f.style.left = Math.random() * 92 + 'vw'; f.style.animationDuration = 2.6 + Math.random() * 2 + 's'; f.style.setProperty('--dx', (Math.random() - .5) * 120 + 'px'); f.style.setProperty('--r', (Math.random() - .5) * 90 + 'deg'); document.body.appendChild(f); setTimeout(() => f.remove(), 5000); }, i * 70);
     const ov = document.createElement('div'); ov.className = 'kg-ov';
@@ -159,7 +163,40 @@
   }
   function fast(ms) { every = Math.max(15e3, ms || 6e4); }
 
-  window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, on: f => subs.push(f), enabled: !!URL };
+  // ── game online ──
+  const GNAME = { congklak: ['🐚', 'Congklak'], 'perang-kapal': ['⚓', 'Perang Kapal'], dam: ['⚫', 'Dam'], 'empat-sejajar': ['🔴', 'Empat Sejajar'] };
+  function room(g) {
+    return new Promise((res, rej) => {
+      const x = new XMLHttpRequest();
+      x.open('GET', `${URL}?action=room&key=${KEY}&g=${encodeURIComponent(g)}&t=${Date.now()}`, true); x.timeout = 15000;
+      x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r.room) : rej(new Error(r.error)); } catch (e) { rej(e); } };
+      x.onerror = x.ontimeout = () => rej(new Error('jaringan')); x.send();
+    });
+  }
+  function roomPost(body) {
+    return new Promise((res, rej) => {
+      const x = new XMLHttpRequest();
+      x.open('POST', URL, true); x.timeout = 20000; x.setRequestHeader('Content-Type', 'text/plain');
+      x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } };
+      x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+      x.send(JSON.stringify(Object.assign({ key: KEY, action: 'room' }, body)));
+    });
+  }
+  function ajakCheck() {
+    const o = other(me()), t = tday(), a = (g('ajak-' + o, {}) || {})[t];
+    if (!a || !a.at || Date.now() - a.at > 15 * 60e3) return;
+    const seen = g('ajak-seen', 0); if (seen >= a.at) return; s('ajak-seen', a.at);
+    if (window.__onlineGame === a.g) return;            // udah di halaman game-nya
+    const N = GNAME[a.g] || ['🎮', a.g];
+    const ov = document.createElement('div'); ov.className = 'kg-ov';
+    ov.innerHTML = `<div class="kg-card"><span class="e">${N[0]}</span><h3>${o} ngajak main ${N[1]}!</h3><p>Online, dari HP masing-masing 🎮<br>${o} lagi nunggu kamu gabung.</p><a href="${a.g}.html?online=1">🎮 Gas main</a><button type="button">Nanti dulu</button></div>`;
+    ov.querySelector('button').onclick = () => ov.remove(); ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    kgCss(); document.body.appendChild(ov);
+    try { navigator.vibrate && navigator.vibrate([40, 40, 40]); } catch (e) {}
+    try { window.SFX && SFX.play && SFX.play('open'); } catch (e) {}
+  }
+
+  window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL };
 
   seed();
   const kick = force => { flush(); pull(force); };
@@ -167,6 +204,6 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(false); });
   window.addEventListener('online', () => kick(true));
   setInterval(() => { if (!document.hidden) pull(false); }, 5e3);
-  const firstCheck = () => setTimeout(kangenCheck, 900);
+  const firstCheck = () => setTimeout(() => { kangenCheck(); ajakCheck(); }, 900);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', firstCheck); else firstCheck();
 })();
