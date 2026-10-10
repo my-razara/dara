@@ -3,123 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Tantangan Kecepatan ⏱️</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<title>Tarik Pilihan 🧲</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--blue:#4a7fc1;--pink:#d9776b}
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation;user-select:none}
-  html,body{min-height:100%;background:var(--cream);overflow-x:hidden}
-  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(232,196,176,.3),transparent 70%),radial-gradient(ellipse 50% 60% at 80% 80%,rgba(193,122,111,.15),transparent 70%);pointer-events:none;z-index:0}
-  .screen{display:none;min-height:100vh;position:relative;z-index:1;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem 1rem}
+  :root{
+    --cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;
+    --rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;
+    --gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;
+    --blue:#3a5cb5;--blue-l:rgba(74,124,199,.1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Poppins',sans-serif;touch-action:manipulation}
+  html,body{height:100%;overflow:hidden;background:var(--cream)}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(232,196,176,.35),transparent 60%),radial-gradient(ellipse 50% 50% at 80% 90%,rgba(193,122,111,.15),transparent 60%);pointer-events:none;z-index:0}
+
+  .screen{display:none;position:fixed;inset:0;z-index:1;flex-direction:column;align-items:center;padding:1.25rem;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .screen.active{display:flex}
-  .wrap{width:100%;max-width:460px;margin:0 auto}
+  .screen-inner{width:100%;max-width:380px;margin:auto 0;display:flex;flex-direction:column;align-items:center}
+  .screen-top{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes qin{from{transform:translateY(8px) scale(.97);opacity:0}to{transform:none;opacity:1}}
 
   /* INTRO */
-  #s-intro{text-align:center}
-  .intro-icon{font-size:3.5rem;display:block;margin-bottom:.85rem;animation:float 3s ease-in-out infinite}
-  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .intro-icon{font-size:3.3rem;display:block;margin-bottom:.75rem;animation:float 3s ease-in-out infinite}
   .intro-label{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.35rem}
-  .intro-title{font-size:clamp(1.5rem,5vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.35rem}
+  .intro-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:700;color:var(--ink);margin-bottom:.25rem}
   .intro-title span{color:var(--rose)}
-  .intro-sub{font-size:12.5px;color:var(--muted);line-height:1.75;max-width:320px;margin:.4rem auto 1.2rem}
-  .cat-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;display:block}
-  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.9rem}
-  .cat-opt{background:#fff;border:2px solid var(--blush);border-radius:14px;padding:.75rem .65rem;cursor:pointer;text-align:center;box-shadow:0 2px 8px rgba(193,122,111,.05);opacity:.55}
-  .cat-opt:active{transform:scale(.95)}
-  .cat-opt.sel{border-color:var(--rose);background:rgba(193,122,111,.05);opacity:1}
-  .co-emoji{font-size:1.4rem;display:block;margin-bottom:.2rem}
-  .co-label{font-size:12px;font-weight:700;color:var(--ink);display:block}
-  .co-count{font-size:9px;color:var(--muted)}
-  .cat-all{grid-column:1/-1}
-  .round-opts{display:flex;gap:.45rem;margin-bottom:.5rem}
-  .round-opt{flex:1;background:#fff;border:1.5px solid var(--blush);border-radius:12px;padding:.55rem .3rem;cursor:pointer;text-align:center}
-  .round-opt.sel{border-color:var(--rose);background:rgba(193,122,111,.05)}
-  .ro-num{font-size:1.1rem;font-weight:900;color:var(--rose);display:block}
-  .ro-lbl{font-size:9px;color:var(--muted)}
-  .pool-note{font-size:11px;color:var(--muted);min-height:1.2em;margin-bottom:1rem}
-  .start-btn{width:100%;padding:.95rem;border-radius:50px;border:none;cursor:pointer;font-size:15px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 18px rgba(193,122,111,.4)}
-  .start-btn:active{transform:scale(.97);background:var(--deep)}
-
-  /* PICK FIRST */
-  #s-first{text-align:center}
-  .pick-btns{display:flex;gap:.65rem;margin:1.2rem 0 .65rem}
-  .pick-btn{flex:1;background:#fff;border:2px solid var(--blush);border-radius:16px;padding:1.1rem .75rem;cursor:pointer;text-align:center}
-  .pick-btn:active{transform:scale(.95);border-color:var(--rose)}
-  .rand-btn{width:100%;padding:.75rem;border-radius:50px;border:1.5px dashed var(--rose);background:rgba(193,122,111,.05);color:var(--rose);font-size:13px;font-weight:600;cursor:pointer}
+  .intro-sub{font-size:12px;color:var(--muted);line-height:1.7;margin:.35rem auto 1.1rem}
+  .panel{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:16px;padding:.9rem 1rem;margin-bottom:.75rem;box-shadow:0 2px 10px rgba(193,122,111,.06);width:100%;text-align:left}
+  .panel-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+  .chip{padding:.4rem .75rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .15s}
+  .chip.on{background:rgba(193,122,111,.1);border-color:var(--rose);color:var(--rose);font-weight:600}
+  .pills{display:flex;gap:.45rem}
+  .pill{flex:1;padding:.55rem 0;border-radius:12px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s}
+  .pill small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+  .pill.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .pool-info{font-size:11px;color:var(--muted);margin-top:.5rem}
+  .pool-info b{color:var(--rose)}
+  .rule{display:flex;align-items:flex-start;gap:.55rem;font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:.35rem}
+  .rule:last-child{margin-bottom:0}
+  .rule-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:.35rem}
+  .btn-main{width:100%;padding:.9rem;border-radius:50px;border:none;cursor:pointer;font-size:14.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.35);transition:all .15s}
+  .btn-main:active{transform:scale(.97);background:var(--deep)}
+  .btn-main.gold{background:linear-gradient(135deg,var(--gold),#e8b870);box-shadow:0 4px 16px rgba(201,169,110,.35)}
+  .btn-main:disabled{opacity:.45;cursor:not-allowed}
+  .btn-ghost{width:100%;padding:.75rem;border-radius:50px;border:1.5px solid var(--blush);background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;cursor:pointer;margin-top:.5rem}
 
   /* GAME */
-  #s-game{justify-content:flex-start;padding-top:1rem}
-  .g-head{width:100%;max-width:460px;margin:0 auto .75rem}
-  .g-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem;gap:.5rem}
-  .exit{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;flex-shrink:0}
-  .g-turn{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .75rem;border-radius:50px;font-size:11px;font-weight:700}
-  .g-turn.razan{background:rgba(126,179,245,.12);color:#1a3a6a}
-  .g-turn.dara{background:rgba(232,160,144,.12);color:#6a1a1a}
-  .g-turn.both{background:rgba(201,169,110,.15);color:#7a5000}
-  .g-scores{display:flex;gap:.6rem;align-items:center}
-  .gs-item{text-align:center}
-  .gs-num{font-size:1.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .gs-lbl{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-  .gs-vs{color:var(--blush)}
-  .prog-wrap{background:var(--warm);border-radius:50px;height:5px;overflow:hidden;border:1px solid var(--blush)}
-  .prog-fill{height:100%;background:linear-gradient(to right,var(--rose),var(--gold));border-radius:50px;transition:width .4s ease}
-  .prog-txt{font-size:10px;color:var(--muted);text-align:right;margin-top:.2rem}
-  .cat-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .65rem;border-radius:50px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-  .cb-kata{background:rgba(126,179,245,.12);color:#1a3a6a}.cb-aksi{background:rgba(193,122,111,.1);color:var(--rose)}.cb-ingat{background:rgba(201,169,110,.12);color:#7a5000}.cb-rasa{background:rgba(181,196,177,.2);color:#3a6040}.cb-duel{background:rgba(122,63,53,.1);color:var(--deep)}
-  .timer-wrap{display:flex;align-items:center;justify-content:center;gap:.5rem;margin:.5rem 0}
-  .timer-ring{position:relative;width:60px;height:60px;flex-shrink:0}
-  .timer-svg{width:60px;height:60px;transform:rotate(-90deg)}
-  .timer-track{fill:none;stroke:var(--blush);stroke-width:4}
-  .timer-fill{fill:none;stroke:var(--rose);stroke-width:4;stroke-linecap:round;stroke-dasharray:163.4;transition:stroke-dashoffset .25s linear,stroke .3s}
-  .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;color:var(--ink)}
-  .timer-num.warn{color:#e53935;animation:pulse .4s ease infinite alternate}
-  @keyframes pulse{from{opacity:1}to{opacity:.4}}
-  .timer-label{font-size:11px;color:var(--muted);font-style:italic}
-  .mini-timer{display:none;padding:.35rem .8rem;border-radius:50px;border:1.5px solid var(--rose);background:#fff;color:var(--rose);font-size:11.5px;font-weight:700;cursor:pointer}
-  .mini-timer.show{display:inline-block}
-  .challenge-card{background:#fff;border:1.5px solid rgba(193,122,111,.15);border-radius:20px;padding:1.4rem 1.2rem;margin-bottom:.75rem;box-shadow:0 4px 20px rgba(45,31,26,.07);animation:cardin .3s cubic-bezier(.34,1.2,.64,1);position:relative;overflow:hidden}
-  @keyframes cardin{from{transform:scale(.92) translateY(8px);opacity:0}to{transform:none;opacity:1}}
-  .card-for{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.6rem}
-  .card-text{font-size:clamp(.95rem,3.5vw,1.1rem);font-weight:600;color:var(--ink);line-height:1.55;margin:.5rem 0 .65rem}
-  .card-desc{font-size:11.5px;color:var(--muted);line-height:1.65;font-style:italic;padding:.6rem .75rem;background:var(--warm);border-radius:10px;border-left:2.5px solid var(--blush)}
-  .ready-overlay{display:none;position:absolute;inset:0;background:rgba(250,246,240,.97);z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:.75rem;border-radius:20px;text-align:center;padding:1rem}
-  .ready-overlay.show{display:flex}
-  .ready-text{font-size:1rem;font-weight:700;color:var(--ink)}
-  .ready-sub{font-size:11.5px;color:var(--muted);margin-top:-.4rem}
-  .ready-btn{padding:.7rem 1.6rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.35)}
-  .card-actions{display:flex;flex-direction:column;gap:.5rem;width:100%}
-  .action-row{display:flex;gap:.5rem}
-  .btn{padding:.8rem 1rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;flex:1;text-align:center}
-  .btn:disabled{opacity:.4;cursor:not-allowed}
-  .btn-done{background:var(--rose);color:#fff;box-shadow:0 3px 12px rgba(193,122,111,.3)}
-  .btn-done:active{background:var(--deep)}
-  .btn-skip{background:transparent;color:var(--muted);border:1.5px solid var(--blush);font-size:12px}
-  .btn-r{background:rgba(74,127,193,.12);color:var(--blue);border:1.5px solid rgba(74,127,193,.35)}
-  .btn-d{background:rgba(217,119,107,.12);color:var(--pink);border:1.5px solid rgba(217,119,107,.4)}
-  .btn-tie{background:rgba(201,169,110,.15);color:#7a5000;border:1.5px solid rgba(201,169,110,.45)}
-  .judge-q{text-align:center;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:.1rem}
-  .result-flash{display:none;text-align:center;padding:.65rem 1rem;border-radius:14px;margin-bottom:.5rem;font-size:13px;font-weight:700;animation:popin .3s cubic-bezier(.34,1.4,.64,1)}
-  .result-flash.show{display:block}
-  .result-flash.success{background:rgba(181,196,177,.2);color:#3a6040;border:1px solid rgba(181,196,177,.4)}
-  .result-flash.skip{background:rgba(193,122,111,.1);color:var(--rose);border:1px solid rgba(193,122,111,.2)}
-  @keyframes popin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-  .pause{display:none;position:fixed;inset:0;z-index:60;background:rgba(250,246,240,.96);flex-direction:column;align-items:center;justify-content:center;gap:.7rem;padding:2rem;text-align:center}
-  .pause.show{display:flex}
+  .game-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.8rem}
+  .gh-scores{display:flex;gap:.5rem;font-size:12px;font-weight:700}
+  .gh-scores .r{color:var(--blue)}.gh-scores .d{color:var(--rose)}
+  .gh-mid{font-size:10.5px;color:var(--muted)}
+  .gh-btns{display:flex;gap:.35rem}
+  .gh-btn{background:#fff;border:1.5px solid var(--blush);border-radius:50px;padding:.28rem .7rem;font-size:10.5px;color:var(--muted);cursor:pointer}
+  .gh-btn:active{background:var(--warm)}
 
-  /* END */
-  #s-end{text-align:center}
-  .end-emoji{font-size:3.5rem;display:block;margin-bottom:.85rem;animation:float 3s ease-in-out infinite}
-  .end-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.35rem}
-  .end-sub{font-size:13px;color:var(--muted);line-height:1.75;max-width:300px;margin:.4rem auto 1.1rem}
-  .score-cards{display:flex;gap:.65rem;margin-bottom:1rem}
-  .sc-card{flex:1;background:#fff;border:1.5px solid rgba(193,122,111,.12);border-radius:14px;padding:1rem .75rem;text-align:center;box-shadow:0 2px 8px rgba(193,122,111,.06)}
-  .sc-card.win{border-color:var(--rose)}
-  .sc-name{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.25rem}
-  .sc-num{font-size:2.2rem;font-weight:700;color:var(--rose);display:block;line-height:1}
-  .sc-detail{font-size:10px;color:var(--muted);display:block;margin-top:.35rem;line-height:1.6}
-  .verdict-card{background:rgba(193,122,111,.05);border:1px solid rgba(193,122,111,.15);border-radius:14px;padding:.9rem 1.1rem;font-size:13px;color:var(--ink);line-height:1.75;margin-bottom:1.2rem}
-  .verdict-card strong{color:var(--rose)}
-  .end-btns{display:flex;flex-direction:column;gap:.5rem}
+  .question-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:1.2rem 1.3rem;width:100%;box-shadow:0 4px 20px rgba(193,122,111,.08);margin-bottom:.9rem;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top,rgba(232,196,176,.12),transparent 65%);pointer-events:none}
+  .q-num{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.45rem;position:relative}
+  .q-emoji{font-size:2rem;display:block;margin-bottom:.45rem;position:relative}
+  .q-text{font-size:clamp(14px,4vw,17px);font-weight:600;color:var(--ink);line-height:1.45;position:relative}
+  .q-text.animate{animation:qin .35s cubic-bezier(.34,1.2,.64,1)}
+  .q-swap{margin-top:.6rem;background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;position:relative}
+
+  .answer-box{width:100%}
+  .locked-card{background:#fff;border:1.5px dashed rgba(193,122,111,.3);border-radius:14px;padding:.7rem 1rem;margin-bottom:.7rem;font-size:12px;color:var(--muted);display:none}
+  .locked-card.show{display:block;animation:qin .3s ease}
+  .locked-card b{color:var(--ink)}
+  .turn-label{font-size:11.5px;font-weight:600;text-align:center;padding:.45rem .85rem;border-radius:10px;margin-bottom:.6rem;display:block}
+  .turn-label.razan{background:var(--blue-l);color:var(--blue)}
+  .turn-label.dara{background:rgba(193,122,111,.1);color:var(--rose)}
+  .answer-input{width:100%;padding:.85rem 1rem;border:1.5px solid var(--blush);border-radius:16px;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s;resize:none;line-height:1.5;margin-bottom:.3rem}
+  .answer-input:focus{border-color:var(--rose)}
+  .char-count{font-size:9.5px;color:var(--muted);text-align:right;margin-bottom:.5rem;min-height:12px}
+  .pass-hint{font-size:10.5px;color:var(--muted);margin-top:.5rem}
+
+  /* REVEAL */
+  .reveal-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .reveal-q{font-size:12px;color:var(--muted);line-height:1.55;margin:0 auto .9rem}
+  .reveal-cards{width:100%;display:flex;flex-direction:column;gap:.55rem;margin-bottom:.8rem}
+  .reveal-card{background:#fff;border:1.5px solid rgba(193,122,111,.15);border-radius:18px;padding:1rem 1.2rem;text-align:center;box-shadow:0 2px 10px rgba(193,122,111,.06);animation:revealin .4s cubic-bezier(.34,1.3,.64,1) both;transition:border-color .3s,box-shadow .3s}
+  .reveal-card:nth-child(2){animation-delay:.15s}
+  .reveal-card.win{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,169,110,.2)}
+  @keyframes revealin{from{transform:scale(.85) translateY(10px);opacity:0}to{transform:none;opacity:1}}
+  .reveal-player{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.35rem}
+  .reveal-player.blue{color:var(--blue)}.reveal-player.rose{color:var(--rose)}
+  .reveal-answer{font-size:clamp(14px,4.3vw,17px);font-weight:600;color:var(--ink);line-height:1.45;overflow-wrap:anywhere}
+  .debate-bar{width:100%;margin-bottom:.8rem}
+  .debate-label{font-size:11px;color:var(--muted);margin-bottom:.35rem;display:block}
+  .debate-label.done{color:var(--rose);font-weight:700}
+  .debate-progress{height:5px;background:var(--warm);border-radius:3px;overflow:hidden}
+  .debate-fill{height:100%;background:var(--rose);border-radius:3px;width:100%}
+  .debate-fill.low{background:#e57373}
+
+  .vote-box{width:100%}
+  .vote-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+  .vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+  .vote-btn{padding:.75rem .4rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .15s}
+  .vote-btn:active{transform:scale(.96)}
+  .vote-btn.r{border-color:rgba(58,92,181,.35);color:var(--blue)}
+  .vote-btn.d{border-color:rgba(193,122,111,.45);color:var(--rose)}
+  .vote-btn.full{grid-column:1/-1;font-size:11.5px;color:var(--muted);font-weight:600}
+  .vote-btn.sehati{background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(193,122,111,.1));border-color:rgba(201,169,110,.5);color:var(--deep)}
+
+  .after-box{width:100%;display:none}
+  .after-box.show{display:block;animation:qin .3s ease}
+  .after-verdict{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.6rem}
+  .after-verdict span{color:var(--rose)}
+  .demand{background:linear-gradient(135deg,rgba(201,169,110,.16),rgba(193,122,111,.1));border:1px solid rgba(201,169,110,.45);border-radius:16px;padding:.8rem 1rem;font-size:13px;color:var(--ink);line-height:1.6;margin-bottom:.8rem;text-align:left}
+  .demand-tag{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:.25rem}
+  .demand b{color:var(--rose)}
+
+  /* RESULT */
+  .end-icon{font-size:3.5rem;display:block;margin-bottom:.7rem;animation:float 3s ease-in-out infinite}
+  .end-title{font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .end-sub{font-size:12.5px;color:var(--muted);line-height:1.7;margin:.3rem auto 1rem}
+  .score-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:1rem;margin-bottom:.7rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;width:100%}
+  .sc-nm{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;display:block}
+  .sc-v{font-size:2.2rem;font-weight:700;display:block;line-height:1.1}
+  .sc-v.r{color:var(--blue)}.sc-v.d{color:var(--rose)}
+  .sc-vs{font-size:.8rem;color:var(--blush);font-weight:700}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;margin-bottom:.7rem}
+  .stat{background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:12px;padding:.55rem .3rem}
+  .stat-v{font-size:1rem;font-weight:700;color:var(--ink);display:block}
+  .stat-l{font-size:9.5px;color:var(--muted);line-height:1.3;display:block}
+  .highlight-card{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:1rem 1.1rem;margin-bottom:.7rem;width:100%;box-shadow:0 4px 20px rgba(193,122,111,.06);text-align:left}
+  .hl-title{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:.5rem}
+  .hl-item{padding:.6rem 0;border-bottom:1px solid rgba(193,122,111,.08)}
+  .hl-item:last-child{border-bottom:none}
+  .hl-q{font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:.25rem}
+  .hl-a{font-size:12px;color:var(--ink);line-height:1.55;overflow-wrap:anywhere}
+  .hl-a .r{color:var(--blue);font-weight:600}.hl-a .d{color:var(--rose);font-weight:600}
+  .hl-badge{font-size:9.5px;font-weight:700;color:var(--gold);margin-left:.25rem}
+  .end-btns{display:flex;gap:.6rem;width:100%;margin-top:.2rem}
+  .end-btn{flex:1;padding:.85rem;border-radius:50px;border:none;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s}
+  .end-btn-p{background:var(--rose);color:#fff;box-shadow:0 4px 14px rgba(193,122,111,.3)}
+  .end-btn-p:active{background:var(--deep);transform:scale(.97)}
+  .end-btn-o{background:transparent;color:var(--muted);border:1.5px solid var(--blush)}
+
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:.45rem 1rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
@@ -129,444 +152,536 @@
 
 <!-- INTRO -->
 <div id="s-intro" class="screen active">
-  <div class="wrap">
-    <span class="intro-icon">⏱️</span>
+  <div class="screen-inner">
+    <span class="intro-icon">🧲</span>
     <span class="intro-label">Game Berdua</span>
-    <h1 class="intro-title">Tantangan <span>Kecepatan</span></h1>
-    <p class="intro-sub">Tantangan waktu terbatas — kata, aksi, ingatan, rasa, dan duel. Selesai = poin, skip = -1 poin. Siapa yang paling cepat dan tanggap?</p>
-    <span class="cat-title">Pilih kategori:</span>
-    <div class="cat-grid">
-      <div class="cat-opt sel" id="co-kata" onclick="toggleCat('kata')"><span class="co-emoji">💬</span><span class="co-label">Kata</span><span class="co-count">12 tantangan</span></div>
-      <div class="cat-opt sel" id="co-aksi" onclick="toggleCat('aksi')"><span class="co-emoji">🎭</span><span class="co-label">Aksi</span><span class="co-count">12 tantangan</span></div>
-      <div class="cat-opt sel" id="co-ingat" onclick="toggleCat('ingat')"><span class="co-emoji">🧠</span><span class="co-label">Ingatan</span><span class="co-count">10 tantangan</span></div>
-      <div class="cat-opt sel" id="co-rasa" onclick="toggleCat('rasa')"><span class="co-emoji">💭</span><span class="co-label">Rasa</span><span class="co-count">8 tantangan</span></div>
-      <div class="cat-opt cat-all sel" id="co-duel" onclick="toggleCat('duel')"><span class="co-emoji">⚔️</span><span class="co-label">Duel</span><span class="co-count">8 tantangan · head-to-head</span></div>
-    </div>
-    <span class="cat-title">Jumlah tantangan:</span>
-    <div class="round-opts">
-      <div class="round-opt" id="ro-5" onclick="selRounds(5)"><span class="ro-num">5</span><span class="ro-lbl">tantangan</span></div>
-      <div class="round-opt sel" id="ro-10" onclick="selRounds(10)"><span class="ro-num">10</span><span class="ro-lbl">tantangan</span></div>
-      <div class="round-opt" id="ro-15" onclick="selRounds(15)"><span class="ro-num">15</span><span class="ro-lbl">tantangan</span></div>
-      <div class="round-opt" id="ro-20" onclick="selRounds(20)"><span class="ro-num">20</span><span class="ro-lbl">tantangan</span></div>
-    </div>
-    <p class="pool-note" id="pool-note"></p>
-    <button class="start-btn" onclick="goFirst()">Mulai! ⏱️</button>
-  </div>
-</div>
+    <h1 class="intro-title">Tarik <span>Pilihan</span></h1>
+    <p class="intro-sub">Jawab diam-diam, reveal barengan, debat, terus voting jawaban siapa yang paling bagus! 😄</p>
 
-<!-- PICK FIRST -->
-<div id="s-first" class="screen">
-  <div class="wrap" style="text-align:center">
-    <span style="font-size:2.5rem;display:block;margin-bottom:.75rem">🎲</span>
-    <p style="font-size:1.1rem;font-weight:700;color:var(--ink)">Siapa yang mulai duluan?</p>
-    <p style="font-size:12px;color:var(--muted);margin-top:.25rem;line-height:1.6">Giliran otomatis bergantian setelah itu</p>
-    <div class="pick-btns">
-      <div class="pick-btn" onclick="startGame('razan')"><span style="font-size:2rem;display:block;margin-bottom:.35rem">🧑</span><span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Razan</span></div>
-      <div class="pick-btn" onclick="startGame('dara')"><span style="font-size:2rem;display:block;margin-bottom:.35rem">👧</span><span style="font-size:14px;font-weight:700;color:var(--ink);display:block">Dara</span></div>
+    <div class="panel">
+      <span class="panel-title">Kategori</span>
+      <div class="chips" id="cat-chips"></div>
+      <p class="pool-info" id="pool-info"></p>
     </div>
-    <button class="rand-btn" onclick="startGame(Math.random()<.5?'razan':'dara')">🎲 Acak aja</button>
+
+    <div class="panel">
+      <span class="panel-title">Target Poin</span>
+      <div class="pills" id="target-pills">
+        <button class="pill" data-n="3">3<small>cepat</small></button>
+        <button class="pill on" data-n="5">5<small>normal</small></button>
+        <button class="pill" data-n="7">7<small>panjang</small></button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <span class="panel-title">Cara Main</span>
+      <div class="rule"><span class="rule-dot"></span>Gantian siapa yang jawab duluan — jawab diam-diam, kunci, oper HP</div>
+      <div class="rule"><span class="rule-dot"></span>Reveal barengan → 30 detik debat</div>
+      <div class="rule"><span class="rule-dot"></span>Voting bareng: jawaban terbaik dapet <b>+1 poin</b></div>
+      <div class="rule"><span class="rule-dot"></span>Jawaban sama/mirip? Pilih <b>Sehati</b> 🔗</div>
+      <div class="rule"><span class="rule-dot"></span>Yang kalah voting dapet tantangan kecil 😏</div>
+    </div>
+
+    <button class="btn-main" onclick="startGame()">Mulai! 🧲</button>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="s-game" class="screen">
-  <div class="g-head">
-    <div class="g-row">
-      <button class="exit" onclick="askExit()">✕</button>
-      <span class="g-turn razan" id="g-turn">🧑 Giliran Razan</span>
-      <div class="g-scores"><div class="gs-item"><span class="gs-num" id="sc-r">0</span><span class="gs-lbl">Razan</span></div><span class="gs-vs">vs</span><div class="gs-item"><span class="gs-num" id="sc-d">0</span><span class="gs-lbl">Dara</span></div></div>
-    </div>
-    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-    <div class="prog-txt" id="prog-txt">1/10</div>
-  </div>
-  <div class="wrap">
-    <div class="timer-wrap">
-      <div class="timer-ring"><svg class="timer-svg" viewBox="0 0 60 60"><circle class="timer-track" cx="30" cy="30" r="26"/><circle class="timer-fill" id="timer-fill" cx="30" cy="30" r="26"/></svg><div class="timer-num" id="timer-num">—</div></div>
-      <span class="timer-label" id="timer-label">Siap-siap...</span>
-      <button class="mini-timer" id="mini-timer" onclick="startDuelTimer()">⏱️ Pakai timer</button>
-    </div>
-    <div class="challenge-card" id="challenge-card">
-      <span class="card-for" id="card-for">Tantangan</span>
-      <div class="cat-badge cb-kata" id="card-cat-badge">💬 Kata</div>
-      <p class="card-text" id="card-text">...</p>
-      <div class="card-desc" id="card-desc">...</div>
-      <div class="ready-overlay show" id="ready-overlay">
-        <span class="ready-text" id="ready-text">🧑 Giliran Razan</span>
-        <span class="ready-sub" id="ready-sub"></span>
-        <button class="ready-btn" id="ready-btn" onclick="startChallenge()">Aku Siap! ⏱️</button>
+  <div class="screen-top">
+    <div class="game-header">
+      <div class="gh-scores"><span class="r">🧑 <span id="hs-r">0</span></span><span class="d">👧 <span id="hs-d">0</span></span></div>
+      <span class="gh-mid" id="gh-mid">Target 5</span>
+      <div class="gh-btns">
+        <button class="gh-btn" onclick="finishEarly()">🏁</button>
+        <button class="gh-btn" onclick="exitGame()">✕</button>
       </div>
     </div>
-    <div class="result-flash" id="result-flash"></div>
-    <div class="card-actions" id="actions"></div>
+
+    <div class="question-card">
+      <span class="q-num" id="q-num-label">Pertanyaan 1</span>
+      <span class="q-emoji" id="q-emoji">🤔</span>
+      <p class="q-text" id="q-text">...</p>
+      <button class="q-swap" id="q-swap" onclick="swapQuestion()">🔄 Ganti pertanyaan</button>
+    </div>
+
+    <div class="answer-box">
+      <div class="locked-card" id="locked-card"></div>
+      <span class="turn-label razan" id="turn-label">✍️ Giliran Razan — jawab diam-diam!</span>
+      <textarea class="answer-input" id="answer-input" placeholder="Tulis jawabanmu di sini..." rows="2" maxlength="160"></textarea>
+      <div class="char-count" id="char-count"></div>
+      <button class="btn-main" id="submit-btn" onclick="submitAnswer()">Kunci Jawaban 🔒</button>
+      <p class="pass-hint" id="pass-hint">Enter buat kunci · Shift+Enter baris baru</p>
+    </div>
   </div>
 </div>
 
-<!-- END -->
-<div id="s-end" class="screen">
-  <div class="wrap">
-    <span class="end-emoji" id="end-emoji">🏆</span>
-    <h2 class="end-title" id="end-title">Razan Menang!</h2>
-    <p class="end-sub" id="end-sub"></p>
-    <div class="score-cards">
-      <div class="sc-card" id="sc-card-r"><span class="sc-name">🧑 Razan</span><span class="sc-num" id="end-r">0</span><span class="sc-detail" id="det-r">poin</span></div>
-      <div class="sc-card" id="sc-card-d"><span class="sc-name">Dara 👧</span><span class="sc-num" id="end-d">0</span><span class="sc-detail" id="det-d">poin</span></div>
+<!-- REVEAL -->
+<div id="s-reveal" class="screen">
+  <div class="screen-top">
+    <p class="reveal-title">✨ Reveal!</p>
+    <p class="reveal-q" id="reveal-q">...</p>
+
+    <div class="reveal-cards">
+      <div class="reveal-card" id="rc-razan"><span class="reveal-player blue">🧑 Razan</span><p class="reveal-answer" id="reveal-razan">...</p></div>
+      <div class="reveal-card" id="rc-dara"><span class="reveal-player rose">👧 Dara</span><p class="reveal-answer" id="reveal-dara">...</p></div>
     </div>
-    <div class="verdict-card" id="verdict-card">...</div>
-    <div class="end-btns">
-      <button class="btn btn-done" onclick="goFirst()">Main Lagi 🔄</button>
-      <button class="btn btn-skip" onclick="showScreen('s-intro')">Ganti Kategori</button>
+
+    <div class="debate-bar">
+      <span class="debate-label" id="debate-label">⏱️ Waktu debat: 30 detik</span>
+      <div class="debate-progress"><div class="debate-fill" id="debate-fill"></div></div>
+    </div>
+
+    <div class="vote-box" id="vote-box">
+      <p class="vote-title">Jawaban siapa yang paling bagus? (sepakatin berdua 😏)</p>
+      <div class="vote-grid">
+        <button class="vote-btn r" onclick="vote('razan')">🧑 Razan</button>
+        <button class="vote-btn d" onclick="vote('dara')">👧 Dara</button>
+        <button class="vote-btn sehati full" onclick="vote('sehati')">🔗 Sehati — jawabannya sama/mirip!</button>
+        <button class="vote-btn full" onclick="vote('draw')">🤝 Dua-duanya bagus (nggak ada poin)</button>
+      </div>
+    </div>
+
+    <div class="after-box" id="after-box">
+      <p class="after-verdict" id="after-verdict"></p>
+      <div class="demand">
+        <span class="demand-tag" id="after-tag">😈 Tantangan</span>
+        <div id="after-demand"></div>
+      </div>
+      <button class="btn-main" id="next-btn" onclick="nextQuestion()">Pertanyaan Berikutnya →</button>
     </div>
   </div>
 </div>
-<div class="pause" id="pause"><h2 style="font-size:1.3rem;color:var(--ink)">⏸️ Dijeda</h2><p style="font-size:12.5px;color:var(--muted)">Waktu berhenti dulu</p><button class="start-btn" style="max-width:260px" onclick="resume()">Lanjut</button></div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="screen-inner">
+    <span class="end-icon" id="end-icon">🧲</span>
+    <h2 class="end-title" id="end-title">Selesai! 🎉</h2>
+    <p class="end-sub" id="end-sub">...</p>
+    <div class="score-card">
+      <div><span class="sc-nm">🧑 Razan</span><span class="sc-v r" id="end-r">0</span></div>
+      <span class="sc-vs">VS</span>
+      <div><span class="sc-nm">👧 Dara</span><span class="sc-v d" id="end-d">0</span></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><span class="stat-v" id="st-best-r">0</span><span class="stat-l">🔥 Streak terbaik Razan</span></div>
+      <div class="stat"><span class="stat-v" id="st-sehati">0</span><span class="stat-l">🔗 Momen sehati</span></div>
+      <div class="stat"><span class="stat-v" id="st-best-d">0</span><span class="stat-l">🔥 Streak terbaik Dara</span></div>
+    </div>
+    <div class="demand" style="width:100%">
+      <span class="demand-tag" id="fd-tag">👑 Tantangan Final</span>
+      <div id="fd-text">...</div>
+    </div>
+    <div class="highlight-card">
+      <span class="hl-title">Semua Jawaban Kalian</span>
+      <div id="hl-list"></div>
+    </div>
+    <button class="btn-ghost" style="margin:0 0 .6rem" onclick="copyAnswers()">📋 Salin Semua Jawaban</button>
+    <div class="end-btns">
+      <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// ── CHALLENGES — 50 total (isi tetap) ──
-const ALL_CHALLENGES = [
-  // ── KATA (12) ──
-  {cat:'kata',for:'self',timer:30,
-   text:'Sebutkan 10 hal yang kamu suka dari pasanganmu dalam 30 detik — tanpa berhenti, tanpa ngulang.',
-   desc:'Pasanganmu yang hitung. Harus genap 10, kurang = gagal.'},
-  {cat:'kata',for:'self',timer:45,
-   text:'Ceritakan momen pertama kamu sadar beneran sayang sama pasanganmu — dengan detail lengkap dalam 45 detik.',
-   desc:'Harus ada lokasi, situasi, dan perasaannya. Yang dengerin ga boleh potong.'},
-  {cat:'kata',for:'self',timer:30,
-   text:'Buat pantun 4 baris tentang pasanganmu — langsung, tanpa mikir lama.',
-   desc:'Harus nyambung dan ada rimanya. Pasanganmu yang nilai.'},
-  {cat:'kata',for:'self',timer:20,
-   text:'Sebutkan 5 kebiasaan kecil pasanganmu yang kamu notice tapi belum pernah kamu bilang ke dia.',
-   desc:'Harus hal yang beneran kamu observe. Pasanganmu konfirmasi beneran atau ga.'},
-  {cat:'kata',for:'self',timer:30,
-   text:'Jelaskan pasanganmu ke "orang asing" dalam 30 detik — bukan fisiknya, tapi siapa dia sebenernya.',
-   desc:'Pasanganmu dengerin dan nilai seberapa akurat. 1-10.'},
-  {cat:'kata',for:'self',timer:25,
-   text:'Sebutkan 5 tempat yang pengen kamu datengin bareng pasanganmu dan kenapa masing-masing.',
-   desc:'Harus 5, harus ada alasannya. Waktu 25 detik.'},
-  {cat:'kata',for:'self',timer:30,
-   text:'Sebutkan 7 kata sifat yang paling menggambarkan pasanganmu — dalam 30 detik. Harus berbeda semua.',
-   desc:'Pasanganmu catat. Kata yang sama dihitung sekali.'},
-  {cat:'kata',for:'self',timer:40,
-   text:'Ceritakan hari pertama kamu dan pasanganmu benar-benar ngobrol serius — detail, dalam 40 detik.',
-   desc:'Pasanganmu konfirmasi apakah ingatannya sama atau beda.'},
-  {cat:'kata',for:'self',timer:20,
-   text:'Sebut 5 hal yang bikin kamu ketawa paling keras gara-gara pasanganmu.',
-   desc:'Harus hal nyata, bukan generik. Waktu 20 detik.'},
-  {cat:'kata',for:'self',timer:35,
-   text:'Ucapkan 3 kalimat tulus ke pasanganmu — bukan yang biasa kamu bilang, tapi yang jarang terucap.',
-   desc:'Pasanganmu tidak boleh ngomong apa-apa dulu sampai selesai.'},
-  {cat:'kata',for:'self',timer:25,
-   text:'Sebutkan 5 hal yang pasanganmu lebih jago dari kamu — jujur, bukan basa-basi.',
-   desc:'Pasanganmu catat dan konfirmasi apakah setuju.'},
-  {cat:'kata',for:'self',timer:30,
-   text:'Ceritakan satu momen ketika pasanganmu bikin kamu bangga — dengan konteks lengkap dalam 30 detik.',
-   desc:'Harus spesifik. Pasanganmu boleh senyum tapi ga boleh ngomong dulu.'},
+// ═════════ DATA ═════════
+const CATS = {
+  absurd: { label:'🤪 Absurd' },
+  kalau:  { label:'🔮 Kalau-kalau' },
+  deep:   { label:'💭 Deep' },
+  kita:   { label:'💑 Tentang Kita' },
+};
+const RAW = {
+  absurd: [
+    ['🍔','Kalau bisa jadi satu makanan, kamu jadi apa? Kenapa?'],
+    ['🎬','Kalau hidupmu jadi judul film, judulnya apa?'],
+    ['🐾','Kalau kamu jadi hewan, kamu jadi hewan apa?'],
+    ['🎭','Kalau harus ganti nama, kamu mau nama apa?'],
+    ['🧞','Ketemu jin, dikasih 3 permintaan — minta apa aja?'],
+    ['🏝️','Terdampar di pulau terpencil, benda apa yang paling mau kamu bawa?'],
+    ['💰','Tiba-tiba dapet Rp1 miliar hari ini — yang pertama kamu lakuin apa?'],
+    ['🐱','Kalau kucing bisa ngomong, kalimat pertamanya apa?'],
+    ['👻','Kalau jadi hantu, mau gentayangin tempat mana?'],
+    ['🛋️','Barang di kamarmu yang paling mungkin hidup diam-diam?'],
+    ['🌌','Kalau bisa ganti warna langit, pilih warna apa?'],
+    ['🎸','Kalau kita bikin band, nama band-nya apa?'],
+  ],
+  kalau: [
+    ['🦸','Kalau punya satu kekuatan super, kamu pilih apa?'],
+    ['🌍','Kalau bisa tinggal di mana aja di dunia, kamu pilih mana?'],
+    ['⏰','Kalau bisa balik ke satu momen di hidupmu, pilih kapan?'],
+    ['🔮','Kalau bisa lihat masa depan, kamu mau tau apa?'],
+    ['🪐','Ada planet lain yang bisa ditinggali — mau pindah ke sana?'],
+    ['📵','Mending nggak pegang HP seminggu atau nggak makan nasi sebulan?'],
+    ['🕊️','Mending bisa terbang atau bisa teleport?'],
+    ['🗣️','Mending bisa semua bahasa atau jago semua alat musik?'],
+    ['⭐','Kalau bisa ketemu 1 orang terkenal, siapa?'],
+    ['🏛️','Jadi presiden sehari — bikin aturan apa?'],
+    ['🕰️','Kalau bisa hidup di era lain, pilih era apa?'],
+    ['🎮','Kalau jadi karakter game, kamu jadi siapa?'],
+  ],
+  deep: [
+    ['🎵','Kalau hidupmu punya soundtrack, lagu apa yang paling cocok?'],
+    ['🌈','Describe dirimu dalam 3 kata — jujur ya!'],
+    ['🌙','Hal terakhir yang biasanya kamu pikirin sebelum tidur?'],
+    ['🤝','Hal apa yang paling kamu banggain dari dirimu?'],
+    ['😬','Hal apa yang paling bikin kamu malu kalau diinget?'],
+    ['💭','Kalau bisa ngobrol sama dirimu 10 tahun lalu, mau bilang apa?'],
+    ['🎁','Hadiah terbaik yang pernah kamu terima itu apa?'],
+    ['☀️','Hal kecil yang pasti bikin harimu jadi baik?'],
+    ['😰','Ketakutan terbesarmu sekarang apa?'],
+    ['🎯','Satu hal yang pengen banget kamu capai tahun ini?'],
+    ['🧑‍💼','Momen kapan kamu paling ngerasa dewasa?'],
+    ['🔁','Kebiasaan apa yang pengen banget kamu ubah?'],
+  ],
+  kita: [
+    ['💕','Kencan ideal kita versi kamu kayak gimana?'],
+    ['🎶','Lagu yang paling pas buat kita?'],
+    ['🦸‍♀️','Kalau kita duo superhero, nama duo kita apa?'],
+    ['👀','Hal pertama yang kamu perhatiin dari aku?'],
+    ['🏪','Kalau kita bikin usaha bareng, usaha apa?'],
+    ['✈️','Tempat yang pengen banget kita datengin berdua?'],
+    ['😂','Kejadian paling lucu yang pernah kita alamin?'],
+    ['🔍','Kebiasaan aku yang paling kamu hafal?'],
+    ['🎞️','Kalau hubungan kita jadi film, judulnya apa?'],
+    ['🍜','Makanan yang paling "kita banget"?'],
+    ['🎀','Hadiah yang pengen kamu kasih ke aku tapi belum sempat?'],
+    ['💬','Satu kata buat gambarin kita?'],
+  ],
+};
+const QUESTIONS = Object.entries(RAW).flatMap(([cat, arr]) => arr.map(([emoji, text], i) => ({ id: cat + '-' + i, cat, emoji, text })));
 
-  // ── AKSI (12) ──
-  {cat:'aksi',for:'self',timer:30,
-   text:'Tiru ekspresi wajah pasanganmu saat dia lagi senang banget — selama 15 detik tanpa ngomong.',
-   desc:'Pasanganmu nilai kemiripannya dari 1-10.'},
-  {cat:'aksi',for:'self',timer:45,
-   text:'Komunikasikan 3 hal ini ke pasanganmu hanya pakai gestur: "aku kangen", "aku lapar", "aku sayang kamu".',
-   desc:'Pasanganmu harus bisa nebak ketiganya. Waktu 45 detik.'},
-  {cat:'aksi',for:'self',timer:30,
-   text:'Gambar muka pasanganmu di udara pakai jari — sebesar mungkin, se-detail mungkin.',
-   desc:'Pasanganmu nilai hasilnya. Ga boleh protes kalau jelek.'},
-  {cat:'aksi',for:'both',timer:60,
-   text:'Peragakan adegan "ketemuan setelah lama pisah" — tanpa dialog, hanya ekspresi dan gestur.',
-   desc:'Harus melibatkan dua-duanya. Kreativitas dinilai oleh kalian sendiri.'},
-  {cat:'aksi',for:'self',timer:25,
-   text:'Tiru cara pasanganmu ngomong dan gestur tangan khasnya selama 25 detik.',
-   desc:'Pasanganmu yang jadi juri — seberapa akurat tiruannya.'},
-  {cat:'aksi',for:'self',timer:30,
-   text:'Peragakan ulang satu kejadian lucu yang pernah terjadi sama kalian berdua — hanya pakai aksi.',
-   desc:'Pasanganmu harus bisa tebak kejadian apa itu.'},
-  {cat:'aksi',for:'self',timer:20,
-   text:'Tunjukkan dengan gestur dan ekspresi saja: bagaimana reaksimu pertama kali lihat pasanganmu hari ini.',
-   desc:'Pasanganmu tebak: apa yang kamu rasakan. Benar atau salah, lanjut.'},
-  {cat:'aksi',for:'both',timer:45,
-   text:'Berdua lakuin "mirror challenge" — satu orang gerak, yang lain ikutin seperti cermin. 45 detik.',
-   desc:'Harus kompak. Gantian yang memimpin setelah 20 detik.'},
-  {cat:'aksi',for:'self',timer:30,
-   text:'Tunjukkan bagaimana caramu biasanya minta maaf ke pasanganmu — tanpa kata-kata.',
-   desc:'Pasanganmu bilang: "Ya, itu beneran caranya" atau "Hmm, ga gitu".'},
-  {cat:'aksi',for:'self',timer:25,
-   text:'Peragakan bagaimana pasanganmu bergerak waktu dia lagi nervous atau gugup.',
-   desc:'Pasanganmu konfirmasi akurasinya.'},
-  {cat:'aksi',for:'both',timer:60,
-   text:'Dua-duanya lakuin "slow motion" versi adegan favorit dari film atau series yang pernah kalian tonton bareng.',
-   desc:'Yang lain tebak film apa. Satu petunjuk boleh kalau stuck.'},
-  {cat:'aksi',for:'self',timer:30,
-   text:'Tiru cara pasanganmu ketawa paling keras — suara dan ekspresi.',
-   desc:'Pasanganmu nilai: "Itu gue banget!" atau "Sama sekali beda!". Berdua pasti ketawa.'},
-
-  // ── INGATAN (10) ──
-  {cat:'ingat',for:'self',timer:30,
-   text:'Sebutkan 5 lagu yang paling sering pasanganmu dengerin belakangan ini — urutan terserah.',
-   desc:'Pasanganmu konfirmasi: betul berapa dari 5.'},
-  {cat:'ingat',for:'self',timer:20,
-   text:'Apa warna baju yang dipakai pasanganmu terakhir kali kalian ketemu? Dan apa yang dia lakukan saat itu?',
-   desc:'Pasanganmu konfirmasi. Kalau salah = tidak berhasil.'},
-  {cat:'ingat',for:'self',timer:25,
-   text:'Sebutkan 3 makanan/minuman favorit pasanganmu saat ini — yang dia paling sering minta atau pesan.',
-   desc:'Pasanganmu konfirmasi ketiganya. Harus benar semua untuk berhasil.'},
-  {cat:'ingat',for:'self',timer:30,
-   text:'Ceritakan hal terakhir yang bikin pasanganmu stress atau khawatir yang dia ceritain ke kamu.',
-   desc:'Pasanganmu konfirmasi: apakah kamu ingat dengan benar.'},
-  {cat:'ingat',for:'self',timer:25,
-   text:'Kapan ulang tahun pasanganmu? Hari apa? Dan apa yang dia minta tahun lalu?',
-   desc:'Harus jawab ketiganya. Pasanganmu konfirmasi.'},
-  {cat:'ingat',for:'self',timer:30,
-   text:'Apa mimpi atau goal pasanganmu yang dia ceritakan belakangan ini — yang belum terwujud?',
-   desc:'Pasanganmu konfirmasi apakah kamu betul-betul dengerin.'},
-  {cat:'ingat',for:'self',timer:20,
-   text:'Sebutkan nama lengkap orang tua pasanganmu — semua dari kedua sisi.',
-   desc:'Pasanganmu konfirmasi. Kalau salah satu saja salah = tidak berhasil.'},
-  {cat:'ingat',for:'self',timer:30,
-   text:'Ceritakan 3 hal yang pasanganmu bilang ke kamu dalam seminggu terakhir yang menurutmu penting.',
-   desc:'Pasanganmu konfirmasi: apakah kamu benar-benar memperhatikan.'},
-  {cat:'ingat',for:'self',timer:25,
-   text:'Apa aplikasi yang paling sering pasanganmu buka di HP? Sebutkan 3 teratas.',
-   desc:'Pasanganmu konfirmasi. Harus benar 2 dari 3 untuk berhasil.'},
-  {cat:'ingat',for:'self',timer:30,
-   text:'Ceritakan kejadian terakhir yang bikin pasanganmu tertawa keras-keras — konteks lengkap.',
-   desc:'Pasanganmu konfirmasi apakah ingatannya sama dengan versimu.'},
-
-  // ── RASA (8) ──
-  {cat:'rasa',for:'self',timer:45,
-   text:'Jelaskan rasa sayang kamu ke pasanganmu pakai analogi makanan — harus spesifik dan masuk akal.',
-   desc:'Misalnya: "Kayak es krim vanilla — selalu bikin tenang" bukan jawaban yang cukup. Harus lebih dalam.'},
-  {cat:'rasa',for:'self',timer:30,
-   text:'Kalau hubungan kalian adalah sebuah lagu, lagu apa itu dan kenapa? Jelaskan dalam 30 detik.',
-   desc:'Harus ada alasan yang spesifik, bukan hanya "enak didengar".'},
-  {cat:'rasa',for:'self',timer:40,
-   text:'Ceritakan satu momen ketika kamu merasa paling takut kehilangan pasanganmu — apa yang terjadi saat itu?',
-   desc:'Harus jujur dan spesifik. Pasanganmu hanya mendengar.'},
-  {cat:'rasa',for:'self',timer:35,
-   text:'Kalau kamu bisa kasih pasanganmu satu "superpower" untuk hidupnya, apa itu dan kenapa?',
-   desc:'Harus ada alasan yang nyambung dengan siapa pasanganmu, bukan random.'},
-  {cat:'rasa',for:'self',timer:30,
-   text:'Gambarkan perasaanmu hari ini dengan satu warna dan satu cuaca — lalu jelaskan kenapa.',
-   desc:'Pasanganmu tebak dulu sebelum kamu jelaskan.'},
-  {cat:'rasa',for:'self',timer:40,
-   text:'Apa hal terkecil yang pasanganmu lakukan yang paling sering bikin hati kamu hangat tanpa kamu sadari?',
-   desc:'Harus hal yang benar-benar kecil dan spesifik. Bukan "dia sayang aku".'},
-  {cat:'rasa',for:'self',timer:35,
-   text:'Kalau kamu harus deskripsikan pasanganmu pakai tiga elemen alam (api, air, tanah, udara, dll), apa dan kenapa?',
-   desc:'Harus ada penjelasan nyata untuk masing-masing elemen.'},
-  {cat:'rasa',for:'self',timer:30,
-   text:'Satu hal yang ingin kamu pastikan pasanganmu rasakan setiap harinya — apa itu dan sudah kamu lakukan?',
-   desc:'Jujur — apakah kamu sudah konsisten melakukannya?'},
-
-  // ── DUEL (8) — head-to-head ──
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL: Siapa yang bisa lebih cepat sebutkan 10 angka genap dari 100 ke bawah? Mulai bareng!',
-   desc:'Hitung mundur dari 100: 100, 98, 96... Siapa yang selesai duluan menang +2 poin.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL: Masing-masing tulis di HP — 5 kata yang menggambarkan satu sama lain. Tunjukkan bersamaan. Kata yang sama = +1 poin untuk keduanya.',
-   desc:'Tulis dulu sebelum lihat punya yang lain. Kata yang overlap = bonus.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL SUIT: Suit 5 kali. Setiap menang = +1 poin. Yang menang lebih banyak dapat total poin rondenya.',
-   desc:'Suit biasa — gunting batu kertas. 5 ronde, hitung total menang.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL: Masing-masing tulis angka 1-10 di HP tanpa lihat. Siapa yang paling dekat ke angka yang dipilih yang satunya = menang.',
-   desc:'Reveal bersamaan. Yang selisihnya paling kecil menang +2 poin.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL TEBAK: Pasanganmu pilih satu kata dalam hati. Kamu punya 5 pertanyaan yes/no untuk nebak. Gantian. Siapa yang benar = +2 poin.',
-   desc:'Kata harus benda nyata. Pertanyaan hanya yes/no. Waktunya habis kalau 5 pertanyaan sudah dipakai.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL: Siapa yang paling banyak sebutkan makanan dari A-Z dalam 30 detik? Gantian, tidak boleh ngulang.',
-   desc:'A: Ayam, B: Bakso, dst. Timer 30 detik masing-masing. Hitung berapa yang berhasil disebut.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL EMPATI: Masing-masing jawab — "Hal yang paling aku inginkan dari pasanganku sekarang adalah..." Tulis di HP, reveal bersamaan.',
-   desc:'Tidak ada yang menang atau kalah. Tapi diskusikan jawaban kalian — ini yang paling penting.'},
-  {cat:'duel',for:'both',timer:0,
-   text:'DUEL MEMORI: Siapa yang lebih ingat — tanggal pertama kali kalian jadian? Jam berapa? Di mana? Tulis jawaban masing-masing dulu sebelum reveal.',
-   desc:'Siapa yang paling detail dan akurat menang. Pasanganmu yang jadi juri kebenaran.'},
+const DEMAND_LOSE = [
+  '<b>{l}</b> kasih 30 detik pembelaan kenapa jawabannya tetap paling bener 😤',
+  '<b>{w}</b> boleh nanya 1 pertanyaan lanjutan — <b>{l}</b> wajib jawab jujur',
+  '<b>{l}</b> kasih standing ovation buat jawaban <b>{w}</b> 👏',
+  '<b>{l}</b> ulang jawaban <b>{w}</b> pakai gaya presenter berita 📺',
+  '<b>{l}</b> kasih <b>{w}</b> 1 pujian yang spesifik ✨',
+  '<b>{l}</b> gambar jawaban <b>{w}</b> di udara pakai jari 🎨',
+  '<b>{w}</b> boleh minta <b>{l}</b> jawab ulang versi yang lebih serius 🧐',
 ];
-const CAT_META = { kata: ['💬 Kata', 'cb-kata'], aksi: ['🎭 Aksi', 'cb-aksi'], ingat: ['🧠 Ingatan', 'cb-ingat'], rasa: ['💭 Rasa', 'cb-rasa'], duel: ['⚔️ Duel', 'cb-duel'] };
-const NAME = { razan: 'Razan', dara: 'Dara' };
+const DEMAND_SEHATI = [
+  'Sehati! Tos + pelukan 3 detik 🤗',
+  'Jawaban kalian sama — foto berdua sebagai bukti jodoh 📸',
+  'Sehati! Masing-masing jelasin kenapa milih jawaban itu 💞',
+];
+const DEMAND_DRAW = [
+  'Dua-duanya juara — saling kasih 1 pujian ✨',
+  'Nggak ada yang kalah! Masing-masing tambahin 1 detail ke jawabanmu 😄',
+];
+const FINAL_WIN = [
+  '<b>{l}</b> traktir <b>{w}</b> minuman favorit minggu ini 🧋',
+  '<b>{w}</b> pilih 1 pertanyaan tadi — <b>{l}</b> jawab versi panjang 1 menit 🎤',
+  '<b>{l}</b> tulis jawaban terbaik <b>{w}</b> di notes HP + kasih judul lucu 📝',
+  '<b>{l}</b> pijitin <b>{w}</b> 5 menit 💆',
+  '<b>{w}</b> boleh minta 1 hal kecil ke <b>{l}</b> — nggak boleh ditolak 😏',
+];
+const FINAL_TIE = [
+  'Seri! Pilih 1 pertanyaan tadi yang paling seru, bahas lagi lebih dalam 💬',
+  'Seri! Saling kasih 1 pertanyaan buatan sendiri, jawab jujur 🤍',
+  'Seri! Pelukan 10 detik — jawaban kalian sama-sama keren 🤗',
+];
 
-// ── STATE ──
+// ═════════ STATE ═════════
+const NAMES = { razan:'Razan', dara:'Dara' };
+const DEBATE_TIME = 30;
+const SEEN_KEY = 'tp_seen_v2';
+let selectedCats = new Set(Object.keys(CATS));
+let target = 5;
+let G = null;
+let debateTimer = null, debateToken = 0;
+const decks = {};
+
+// ═════════ HELPERS ═════════
 const $ = id => document.getElementById(id);
-let selectedCats = new Set(['kata', 'aksi', 'ingat', 'rasa', 'duel']), totalRounds = 10;
-let G = null, timer = null, paused = false;
-function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch {} }
-function shuffle(a0) { const a = [...a0]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0, 0); }
-function poolSize() { return ALL_CHALLENGES.filter(c => selectedCats.has(c.cat)).length; }
-function renderNote() { const n = poolSize(); $('pool-note').textContent = n < totalRounds ? `ℹ️ Kategori yang dipilih cuma punya ${n} tantangan — mainnya ${n} ronde` : `${n} tantangan tersedia`; }
-function toggleCat(cat) {
-  if (selectedCats.has(cat)) { if (selectedCats.size <= 1) return; selectedCats.delete(cat); } else selectedCats.add(cat);
-  $('co-' + cat).classList.toggle('sel', selectedCats.has(cat)); renderNote();
+function setText(id, v) { const e = $(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
+function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fill(t, m) { return t.replace(/\{(\w)\}/g, (_, k) => m[k] || ''); }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function draw(key, pool) { if (!decks[key] || !decks[key].length) decks[key] = shuffle(pool.map((_, i) => i)); return pool[decks[key].pop()]; }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = $(id); if (el) { el.classList.add('active'); el.scrollTop = 0; }
 }
-function selRounds(n) { totalRounds = n; [5, 10, 15, 20].forEach(x => $('ro-' + x).classList.toggle('sel', x === n)); renderNote(); }
-renderNote();
+let toastT = null;
+function toast(msg) { const t = $('toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
+function stopDebate() { debateToken++; clearInterval(debateTimer); }
 
-function goFirst() {
-  const pool = ALL_CHALLENGES.filter(c => selectedCats.has(c.cat));
-  const st = () => ({ ok: 0, fail: 0, skip: 0, duel: 0 });
-  G = { queue: shuffle(pool).slice(0, Math.min(totalRounds, pool.length)), i: 0, player: 'razan', scores: { razan: 0, dara: 0 }, stats: { razan: st(), dara: st() } };
-  stopTimer(); showScreen('s-first');
+// ═════════ DECK PERTANYAAN (tanpa repeat antar game) ═════════
+function getSeen() { try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)) || []); } catch { return new Set(); } }
+function saveSeen(s) { try { localStorage.setItem(SEEN_KEY, JSON.stringify([...s])); } catch {} }
+function getPool() { return QUESTIONS.filter(q => selectedCats.has(q.cat)); }
+function nextQ() {
+  const pool = getPool(); if (!pool.length) return null;
+  const seen = getSeen();
+  const used = new Set(G ? G.usedIds : []);
+  let fresh = pool.filter(q => !seen.has(q.id) && !used.has(q.id));
+  if (!fresh.length) { pool.forEach(q => seen.delete(q.id)); fresh = pool.filter(q => !used.has(q.id)); }
+  if (!fresh.length) fresh = pool; // semua udah kepake di game ini → boleh ulang
+  const q = fresh[Math.floor(Math.random() * fresh.length)];
+  seen.add(q.id); saveSeen(seen);
+  if (G) G.usedIds.push(q.id);
+  return q;
 }
-function startGame(first) { G.player = first; showScreen('s-game'); loadChallenge(); }
 
-// ── TANTANGAN ──
-function loadChallenge() {
-  stopTimer();
-  if (G.i >= G.queue.length) return showEnd();
-  const c = G.cur = G.queue[G.i]; G.active = false; G.judging = false;
-  const total = G.queue.length;
-  $('prog-fill').style.width = (G.i / total * 100) + '%'; $('prog-txt').textContent = `${G.i + 1}/${total}`;
-  const both = c.for === 'both', m = CAT_META[c.cat];
-  $('card-cat-badge').textContent = m[0]; $('card-cat-badge').className = 'cat-badge ' + m[1];
-  $('card-for').textContent = both ? 'Untuk Kalian Berdua' : 'Tantangan ' + NAME[G.player];
-  $('card-text').textContent = c.text; $('card-desc').textContent = c.desc;
-  const gt = $('g-turn'); gt.textContent = both ? '👫 Berdua' : (G.player === 'razan' ? '🧑' : '👧') + ' Giliran ' + NAME[G.player]; gt.className = 'g-turn ' + (both ? 'both' : G.player);
-  updateScoreUI();
-  $('timer-num').textContent = c.timer > 0 ? `${c.timer}s` : '⚔️'; $('timer-num').className = 'timer-num';
-  $('timer-fill').style.strokeDashoffset = '0'; $('timer-fill').style.stroke = 'var(--rose)';
-  $('timer-label').textContent = c.timer > 0 ? `${c.timer} detik` : 'Duel tanpa batas waktu';
-  $('mini-timer').classList.remove('show');
-  $('result-flash').className = 'result-flash';
-  $('ready-text').textContent = both ? (c.cat === 'duel' ? '⚔️ Duel Berdua' : '👫 Tantangan Berdua') : `${G.player === 'razan' ? '🧑' : '👧'} Giliran ${NAME[G.player]}`;
-  $('ready-sub').textContent = c.timer > 0 ? `Waktu jalan begitu tap tombol · ${c.timer} detik` : 'Baca tantangannya bareng dulu';
-  $('ready-btn').textContent = c.cat === 'duel' ? 'Mulai Duel! ⚔️' : 'Aku Siap! ⏱️';
-  $('ready-overlay').classList.add('show');
-  $('actions').innerHTML = '';
-  const card = $('challenge-card'); card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+// ═════════ INTRO ═════════
+function renderChips() {
+  const wrap = $('cat-chips'); if (!wrap) return;
+  wrap.innerHTML = Object.entries(CATS).map(([k, c]) => `<button class="chip ${selectedCats.has(k) ? 'on' : ''}" data-cat="${k}">${c.label}</button>`).join('');
+  wrap.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.cat;
+    if (selectedCats.has(k)) { if (selectedCats.size === 1) { toast('Minimal pilih 1 kategori'); return; } selectedCats.delete(k); }
+    else selectedCats.add(k);
+    renderChips();
+  }));
+  setHTML('pool-info', `📚 <b>${getPool().length}</b> pertanyaan tersedia`);
 }
-function startChallenge() {
-  $('ready-overlay').classList.remove('show'); G.active = true; vib([20, 10, 30]);
-  const c = G.cur;
-  if (c.cat === 'duel') {
-    renderDuelButtons();
-    const d = c.text.match(/(\d+)\s*detik/);   // duel yang nyebut waktu (mis. 30 detik) → timer opsional
-    if (d) { $('mini-timer').textContent = `⏱️ Timer ${d[1]} detik`; $('mini-timer').dataset.s = d[1]; $('mini-timer').classList.add('show'); }
+document.querySelectorAll('#target-pills .pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('#target-pills .pill').forEach(x => x.classList.remove('on'));
+  p.classList.add('on'); target = parseInt(p.dataset.n) || 5;
+}));
+
+// ═════════ GAME ═════════
+function startGame() {
+  stopDebate();
+  const firstStarter = G ? other(G.firstStarter) : 'razan';
+  G = {
+    firstStarter, starter: firstStarter, qCount: 0,
+    q: null, ans: {}, phase: 'answer', cur: firstStarter,
+    scores: { razan:0, dara:0 }, streak: { razan:0, dara:0 }, best: { razan:0, dara:0 },
+    sehati: 0, history: [], usedIds: [],
+  };
+  updateHud();
+  showScreen('s-game');
+  loadQuestion(true);
+}
+
+function updateHud() {
+  if (!G) return;
+  setText('hs-r', G.scores.razan);
+  setText('hs-d', G.scores.dara);
+  setText('gh-mid', `Target ${target}`);
+}
+
+function loadQuestion(isNew) {
+  if (!G) return;
+  if (isNew) G.qCount++;
+  const q = nextQ(); if (!q) return;
+  G.q = q; G.ans = {}; G.cur = G.starter; G.phase = 'answer';
+  setText('q-num-label', `Pertanyaan ${G.qCount}`);
+  setText('q-emoji', q.emoji);
+  const qt = $('q-text');
+  if (qt) { qt.textContent = q.text; qt.classList.remove('animate'); void qt.offsetWidth; qt.classList.add('animate'); }
+  const sw = $('q-swap'); if (sw) sw.style.display = '';
+  const lc = $('locked-card'); if (lc) lc.classList.remove('show');
+  renderTurn();
+}
+
+function swapQuestion() {
+  if (!G || G.phase !== 'answer' || Object.keys(G.ans).length) return;
+  loadQuestion(false);
+  toast('🔄 Pertanyaan diganti');
+}
+
+function renderTurn() {
+  const p = G.cur;
+  const tl = $('turn-label');
+  if (tl) { tl.textContent = `✍️ Giliran ${NAMES[p]} — jawab diam-diam!`; tl.className = 'turn-label ' + p; }
+  const inp = $('answer-input');
+  if (inp) { inp.value = ''; inp.placeholder = `${NAMES[p]}, tulis jawabanmu...`; }
+  updateCount();
+  const second = Object.keys(G.ans).length === 1;
+  const sb = $('submit-btn');
+  if (sb) { sb.textContent = second ? 'Reveal Jawaban! ✨' : 'Kunci Jawaban 🔒'; sb.className = 'btn-main' + (second ? ' gold' : ''); }
+  setText('pass-hint', second ? 'Jawab dulu, baru reveal barengan 👀' : `Abis dikunci, oper HP ke ${NAMES[other(p)]} 📱`);
+}
+
+function updateCount() {
+  const inp = $('answer-input'), cc = $('char-count'); if (!inp || !cc) return;
+  cc.textContent = inp.value.length ? `${inp.value.length}/160` : '';
+}
+
+function submitAnswer() {
+  if (!G || G.phase !== 'answer') return;
+  const inp = $('answer-input'); if (!inp) return;
+  const val = inp.value.trim().replace(/\s+/g, ' ');
+  if (!val) { inp.focus(); toast('Tulis jawabannya dulu ✍️'); return; }
+  G.ans[G.cur] = val;
+  inp.blur();
+
+  if (Object.keys(G.ans).length === 1) {
+    // Jawaban pertama dikunci — nggak ditaruh di DOM biar nggak bisa diintip
+    const sw = $('q-swap'); if (sw) sw.style.display = 'none';
+    const lc = $('locked-card');
+    if (lc) { lc.innerHTML = `🔒 Jawaban <b>${NAMES[G.cur]}</b> udah dikunci. Sekarang giliran <b>${NAMES[other(G.cur)]}</b>!`; lc.classList.add('show'); }
+    G.cur = other(G.cur);
+    renderTurn();
     return;
   }
-  renderPlayButtons(); startTimer(c.timer);
+  showReveal();
 }
-function renderPlayButtons() {
-  const both = G.cur.for === 'both';
-  $('actions').innerHTML = `<div class="action-row"><button class="btn btn-done" onclick="doDone()">✓ Berhasil! +1${both ? ' berdua' : ''}</button><button class="btn btn-skip" onclick="doSkip()">✗ Skip -1</button></div>`;
-}
-// [FIX] waktu habis dulu langsung dianggap gagal & lanjut sendiri. Sekarang dinilai dulu
-function renderJudgeButtons() {
-  const both = G.cur.for === 'both';
-  $('actions').innerHTML = `<p class="judge-q">⏰ Waktu habis! ${both ? 'Berhasil nggak?' : `${NAME[G.player]} berhasil nggak?`}</p><div class="action-row"><button class="btn btn-done" onclick="doDone()">✓ Berhasil +1${both ? ' berdua' : ''}</button><button class="btn btn-skip" onclick="doFail()">✗ Gagal (0)</button></div>`;
-}
-// [FIX] Duel dulu cuma ngasih +1 ke yang lagi giliran. Sekarang pilih pemenangnya
-function renderDuelButtons() {
-  const noWin = /Tidak ada yang menang/i.test(G.cur.desc);
-  $('actions').innerHTML = noWin
-    ? `<p class="judge-q">Udah saling reveal & ngobrolin jawabannya?</p><div class="action-row"><button class="btn btn-tie" onclick="duelResult('both')">💬 Udah dibahas · +1 berdua</button></div>`
-    : `<p class="judge-q">Siapa pemenang duelnya?</p><div class="action-row"><button class="btn btn-r" onclick="duelResult('razan')">🧑 Razan +2</button><button class="btn btn-d" onclick="duelResult('dara')">👧 Dara +2</button></div><button class="btn btn-tie" onclick="duelResult('both')">🤝 Seri / kompak · +1 berdua</button>`;
-}
-function startDuelTimer() { $('mini-timer').classList.remove('show'); startTimer(+$('mini-timer').dataset.s, true); }
 
-function finish(msg, ok, ms = 1300) {
-  stopTimer(); G.active = false; $('actions').innerHTML = '';
-  const rf = $('result-flash'); rf.textContent = msg; rf.className = 'result-flash show ' + (ok ? 'success' : 'skip');
-  updateScoreUI(); setTimeout(next, ms);
+function showReveal() {
+  G.phase = 'vote';
+  setText('reveal-q', `${G.q.emoji} ${G.q.text}`);
+  setText('reveal-razan', G.ans.razan || '—');
+  setText('reveal-dara', G.ans.dara || '—');
+  ['rc-razan', 'rc-dara'].forEach(id => { const e = $(id); if (e) e.classList.remove('win'); });
+  const vb = $('vote-box'); if (vb) vb.style.display = '';
+  const ab = $('after-box'); if (ab) ab.classList.remove('show');
+  showScreen('s-reveal');
+  startDebate();
+  confetti(25);
 }
-function doDone() {
-  if (!G.active && !G.judging) return; G.judging = false;
-  if (G.cur.for === 'both') { G.scores.razan++; G.scores.dara++; G.stats.razan.ok++; G.stats.dara.ok++; finish('✅ Berhasil! +1 buat berdua', true); }
-  else { G.scores[G.player]++; G.stats[G.player].ok++; finish(`✅ ${NAME[G.player]} berhasil! +1 poin`, true); }
-  vib([20, 10, 60]); confetti(15);
-}
-function doFail() { if (!G.judging) return; G.judging = false; if (G.cur.for !== 'both') G.stats[G.player].fail++; finish('⏰ Belum berhasil — nggak ada poin', false); }
-function doSkip() {
-  if (!G.active) return;
-  G.scores[G.player]--; G.stats[G.player].skip++;   // [FIX] dulu nggak bisa minus → skip gratis kalau poin 0
-  vib(60); finish(`✗ ${NAME[G.player]} skip — -1 poin`, false);
-}
-function duelResult(w) {
-  if (!G.active) return;
-  if (w === 'both') { G.scores.razan++; G.scores.dara++; finish('🤝 +1 buat berdua', true); }
-  else { G.scores[w] += 2; G.stats[w].duel++; finish(`⚔️ ${NAME[w]} menang duel! +2`, true); confetti(30); }
-  vib([30, 15, 60]);
-}
-function next() { G.i++; G.player = G.player === 'razan' ? 'dara' : 'razan'; loadChallenge(); }
 
-// ── TIMER ──
-function startTimer(sec, duel) {
-  stopTimer(); timer = { max: sec, left: sec, duel, last: performance.now() }; updateTimerUI();
-  timer.iv = setInterval(() => {
-    if (paused) { timer.last = performance.now(); return; }
-    const now = performance.now(); timer.left = Math.max(0, timer.left - (now - timer.last) / 1000); timer.last = now; updateTimerUI();
-    if (timer.left <= 0) {
-      const wasDuel = timer.duel; stopTimer(); vib([80, 30, 80]); beep();
-      if (wasDuel) { $('timer-label').textContent = '⏰ Waktu habis!'; return; }
-      G.active = false; G.judging = true; renderJudgeButtons();
-    }
-  }, 200);
+function startDebate() {
+  stopDebate();
+  const my = debateToken, start = Date.now();
+  const lbl = $('debate-label'), fillEl = $('debate-fill');
+  if (lbl) lbl.classList.remove('done');
+  debateTimer = setInterval(() => {
+    if (my !== debateToken) return;
+    const left = Math.max(0, DEBATE_TIME - (Date.now() - start) / 1000);
+    const pct = left / DEBATE_TIME * 100;
+    if (fillEl) { fillEl.style.width = pct + '%'; fillEl.classList.toggle('low', pct < 30); }
+    if (lbl) lbl.textContent = left > 0 ? `⏱️ Waktu debat: ${Math.ceil(left)} detik` : '⏰ Debat selesai — waktunya voting!';
+    if (left <= 0) { clearInterval(debateTimer); if (lbl) lbl.classList.add('done'); }
+  }, 100);
 }
-function stopTimer() { if (timer && timer.iv) clearInterval(timer.iv); timer = null; }
-function updateTimerUI() {
-  const t = Math.ceil(timer.left), pct = timer.left / timer.max;
-  $('timer-num').textContent = t + 's'; $('timer-num').className = 'timer-num' + (t <= 5 ? ' warn' : '');
-  $('timer-fill').style.strokeDashoffset = 163.4 * (1 - pct);
-  $('timer-fill').style.stroke = pct < .3 ? '#e53935' : pct < .6 ? '#ffb300' : 'var(--rose)';
-  $('timer-label').textContent = 'Waktu jalan...';
-}
-function beep() { try { const a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; g.gain.value = .15; o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + .35); } catch {} }
-function updateScoreUI() { $('sc-r').textContent = G.scores.razan; $('sc-d').textContent = G.scores.dara; }
-function resume() { paused = false; $('pause').classList.remove('show'); }
-document.addEventListener('visibilitychange', () => { if (document.hidden && timer && $('s-game').classList.contains('active')) { paused = true; $('pause').classList.add('show'); } });
-function quitGame() { if (!confirm('Keluar dari permainan?')) return; stopTimer(); showScreen('s-intro'); }
 
-// ── AKHIR ──
-function showEnd() {
-  stopTimer(); $('prog-fill').style.width = '100%';
-  const r = G.scores.razan, d = G.scores.dara, tie = r === d, winner = r > d ? 'razan' : 'dara', wName = NAME[winner];
-  $('end-emoji').textContent = tie ? '🤝' : '🏆'; $('end-title').textContent = tie ? 'Seri!' : wName + ' Menang!';
-  $('end-sub').textContent = tie ? `${r} vs ${d} — sama-sama tanggap!` : `${wName} lebih cepat dan tanggap hari ini!`;
-  $('end-r').textContent = r; $('end-d').textContent = d;
-  const det = k => { const s = G.stats[k]; return `✓ ${s.ok} berhasil · ⚔️ ${s.duel} duel<br>✗ ${s.skip} skip · ⏰ ${s.fail} gagal`; };
-  $('det-r').innerHTML = det('razan'); $('det-d').innerHTML = det('dara');
-  const diff = Math.abs(r - d);
-  $('verdict-card').innerHTML = tie ? `Seri ${r}-${d}! Dua-duanya sama tanggapnya — atau sama-sama sering skip? 😄`
-    : `<strong>${wName}</strong> menang ${Math.max(r, d)}-${Math.min(r, d)}! ${diff <= 2 ? 'Mepet banget — seru!' : diff <= 5 ? 'Cukup jelas pemenangnya!' : 'Dominan nih!'}`;
-  $('sc-card-r').classList.toggle('win', !tie && winner === 'razan'); $('sc-card-d').classList.toggle('win', !tie && winner === 'dara');
-  showScreen('s-end'); if (r > 0 || d > 0) confetti(60);
+function vote(result) {
+  if (!G || G.phase !== 'vote') return;
+  G.phase = 'after';
+  stopDebate();
+  const lbl = $('debate-label'); if (lbl) lbl.textContent = '✅ Voting selesai';
+
+  let verdict, tag, demand;
+  if (result === 'razan' || result === 'dara') {
+    const w = result, l = other(w);
+    G.scores[w]++; G.streak[w]++; G.streak[l] = 0;
+    G.best[w] = Math.max(G.best[w], G.streak[w]);
+    const card = $('rc-' + w); if (card) card.classList.add('win');
+    verdict = `🏆 Jawaban <span>${NAMES[w]}</span> menang! (+1)` + (G.streak[w] >= 2 ? ` · 🔥${G.streak[w]}x beruntun` : '');
+    tag = `😈 Tantangan buat ${NAMES[l]}`;
+    demand = fill(draw('lose', DEMAND_LOSE), { w: NAMES[w], l: NAMES[l] });
+    if ([2, 3, 5].includes(G.streak[w])) { toast(`🔥 ${NAMES[w]} ${G.streak[w]}x beruntun!`); confetti(20); }
+  } else if (result === 'sehati') {
+    G.sehati++;
+    ['rc-razan', 'rc-dara'].forEach(id => { const e = $(id); if (e) e.classList.add('win'); });
+    verdict = '🔗 <span>Sehati!</span> Jawaban kalian nyambung banget';
+    tag = '💞 Bonus Sehati';
+    demand = draw('sehati', DEMAND_SEHATI);
+    confetti(30);
+  } else {
+    verdict = '🤝 Dua-duanya bagus — nggak ada poin';
+    tag = '✨ Bonus';
+    demand = draw('draw', DEMAND_DRAW);
+  }
+  G.history.push({ q: G.q, razan: G.ans.razan, dara: G.ans.dara, result });
+  updateHud();
+
+  setHTML('after-verdict', verdict);
+  setText('after-tag', tag);
+  setHTML('after-demand', demand);
+  const done = G.scores.razan >= target || G.scores.dara >= target;
+  setText('next-btn', done ? 'Lihat Hasil 🏆' : 'Pertanyaan Berikutnya →');
+  const vb = $('vote-box'); if (vb) vb.style.display = 'none';
+  const ab = $('after-box'); if (ab) ab.classList.add('show');
+  setTimeout(() => { const s = $('s-reveal'); if (s) s.scrollTo({ top: s.scrollHeight, behavior: 'smooth' }); }, 80);
 }
-function confetti(n = 50) {
-  const colors = ['#c17a6f', '#e8c4b0', '#c9a96e', '#b5c4b1', '#faf6f0'];
+
+function nextQuestion() {
+  if (!G || G.phase !== 'after') return;
+  if (G.scores.razan >= target || G.scores.dara >= target) { showResult(); return; }
+  G.starter = other(G.starter); // gantian yang jawab duluan
+  showScreen('s-game');
+  loadQuestion(true);
+}
+
+function finishEarly() {
+  if (!G) return;
+  if (!G.history.length) { toast('Belum ada pertanyaan yang selesai'); return; }
+  if (!confirm('Akhiri game sekarang dan lihat hasil?')) return;
+  showResult();
+}
+
+function exitGame() {
+  if (!confirm('Keluar dari game? Semua jawaban hilang.')) return;
+  stopDebate(); G = null;
+  showScreen('s-intro');
+}
+
+// ═════════ RESULT ═════════
+function showResult() {
+  if (!G) return;
+  stopDebate();
+  const r = G.scores.razan, d = G.scores.dara, tie = r === d;
+  const w = r > d ? 'Razan' : 'Dara', l = r > d ? 'Dara' : 'Razan';
+  setText('end-icon', tie ? '🤝' : '🏆');
+  setText('end-title', tie ? 'Seri!' : `${w} Menang!`);
+  setText('end-sub', tie
+    ? `Skor imbang ${r}-${d} dari ${G.history.length} pertanyaan — jawaban kalian sama-sama keren 🤍`
+    : `${w} punya jawaban paling juara dari ${G.history.length} pertanyaan! Simpan semua jawaban buat kenangan ya 🤍`);
+  setText('end-r', r); setText('end-d', d);
+  setText('st-best-r', G.best.razan); setText('st-best-d', G.best.dara);
+  setText('st-sehati', G.sehati);
+  setText('fd-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
+  setHTML('fd-text', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
+
+  const badge = res => res === 'razan' ? '🏆 Razan' : res === 'dara' ? '🏆 Dara' : res === 'sehati' ? '🔗 Sehati' : '🤝';
+  setHTML('hl-list', G.history.map(h => `
+    <div class="hl-item">
+      <div class="hl-q">${h.q.emoji} ${esc(h.q.text)}<span class="hl-badge">${badge(h.result)}</span></div>
+      <div class="hl-a"><span class="r">Razan:</span> ${esc(h.razan)}<br><span class="d">Dara:</span> ${esc(h.dara)}</div>
+    </div>`).join(''));
+
+  showScreen('s-result');
+  confetti(tie ? 30 : 60);
+}
+
+function copyAnswers() {
+  if (!G || !G.history.length) return;
+  const txt = '🧲 Tarik Pilihan — Razan & Dara\n\n' + G.history.map((h, i) =>
+    `${i + 1}. ${h.q.text}\n   Razan: ${h.razan}\n   Dara: ${h.dara}`).join('\n\n');
+  const done = () => toast('📋 Jawaban disalin!');
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(done).catch(() => fallbackCopy(txt, done));
+  else fallbackCopy(txt, done);
+}
+function fallbackCopy(txt, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch { toast('Gagal nyalin 😢'); }
+  ta.remove();
+}
+
+// ═════════ INPUT ═════════
+(function bindInput() {
+  const inp = $('answer-input'); if (!inp) return;
+  inp.addEventListener('input', updateCount);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); submitAnswer(); }
+  });
+})();
+
+function confetti(n) {
+  const colors = ['#c17a6f','#c9a96e','#e8c4b0','#b5c4b1','#3a5cb5'];
   for (let i = 0; i < n; i++) setTimeout(() => {
-    const el = document.createElement('div'); el.className = 'cp';
-    el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${1.5 + Math.random() * 2.5}s;animation-delay:${Math.random() * .5}s;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`;
-    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
-  }, i * 22);
+    const el = document.createElement('div');
+    el.className = 'cp';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }, i * 20);
 }
-</script>
 
-<!-- TAMBAHAN: konfirmasi keluar (pengganti pop-up bawaan browser yang suka nggak muncul di mode aplikasi) -->
-<style>
-  .xq-ov{position:fixed;inset:0;z-index:9000;background:rgba(45,31,26,.45);display:none;align-items:flex-end;justify-content:center}
-  .xq-ov.show{display:flex}
-  .xq{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.2rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:xqUp .25s ease;font-family:'Poppins',sans-serif}
-  @keyframes xqUp{from{transform:translateY(100%)}to{transform:none}}
-  .xq h3{font-size:1.05rem;color:#2d1f1a;text-align:center;margin-bottom:.2rem}
-  .xq p{font-size:12px;color:#9a8070;text-align:center;margin-bottom:1rem}
-  .xq button{width:100%;padding:.85rem;border-radius:50px;border:none;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:.5rem}
-  .xq .xq-home{background:#c17a6f;color:#fff}
-  .xq .xq-restart{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
-  .xq .xq-cancel{background:none;color:#9a8070;font-weight:500;margin-bottom:0}
-</style>
-<div class="xq-ov" id="xq-ov" onclick="if(event.target===this)xqClose()">
-  <div class="xq">
-    <h3>Keluar dari permainan?</h3>
-    <p>Progres permainan yang sekarang bakal hilang</p>
-    <button class="xq-home" onclick="location.href='index.html'">🏠 Keluar ke menu</button>
-    <button class="xq-restart" onclick="xqRestart()">↺ Balik ke awal game</button>
-    <button class="xq-cancel" onclick="xqClose()">Lanjut main</button>
-  </div>
-</div>
-<script>
-function askExit() { document.getElementById('xq-ov').classList.add('show'); }
-function xqClose() { document.getElementById('xq-ov').classList.remove('show'); }
-function xqRestart() { xqClose(); const c = window.confirm; window.confirm = () => true; try { quitGame(); } finally { window.confirm = c; } }
+renderChips();
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
