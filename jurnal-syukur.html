@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Jurnal Syukur — Razan & Dara 🙏</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -70,14 +72,25 @@
   .day small{font-size:10.5px;color:var(--gold);font-weight:600;letter-spacing:.06em}
   .day li{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--ink);line-height:1.3;margin-left:1rem;overflow-wrap:anywhere}
 
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}.bd-st button{border:none;background:none;color:var(--rose);font-weight:600;text-decoration:underline;font-size:11px;cursor:pointer}
+  .who.Razan{color:var(--rz)}.who.Dara{color:var(--dr)}
+  .ot{background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:20px;padding:.9rem 1rem;margin-bottom:.8rem;box-shadow:0 4px 14px rgba(193,122,111,.06)}
+  .ot h3{font-size:13px;font-weight:600;margin-bottom:.3rem}
+  .ot li{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--ink);line-height:1.3;margin-left:1.1rem;overflow-wrap:anywhere}
+  .btn.sm{padding:.6rem .5rem;font-size:12.5px;margin-top:.6rem}
+  .seg{display:flex;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px;margin-bottom:.7rem}
+  .seg button{flex:1;min-width:0;border:none;background:none;border-radius:50px;padding:.5rem .3rem;font-size:12.5px;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seg button.on{background:var(--rose);color:#fff;font-weight:600}
+
 </style>
-<script src="sfx.js" defer></script>
 </head>
 <body>
 
 <div class="wrap">
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
   <div class="head"><p class="lbl">Jurnal Syukur</p><h1 class="title">3 hal baik <span>hari ini</span> 🙏</h1><p class="sub">Sekecil apa pun boleh — kopi yang enak, chat yang bikin senyum, langit yang cerah.</p></div>
+  <p class="bd-st" id="bd-st"></p>
   <div class="stats"><div><b id="s1">0</b><small>hari</small></div><div><b id="s2">0</b><small>hal disyukuri</small></div><div><b id="s3">0</b><small>hari beruntun</small></div></div>
   <div class="today"><h3>Hari ini aku bersyukur karena… <small id="dt"></small></h3>
     <div class="ln"><b>1</b><input id="g0" maxlength="120" placeholder="…"></div>
@@ -85,8 +98,10 @@
     <div class="ln"><b>3</b><input id="g2" maxlength="120" placeholder="…"></div>
     <div class="row"><button class="btn" onclick="saveToday()">Simpan 🙏</button><a class="btn wa" id="wa" target="_blank" rel="noopener">💬 Bagi</a></div>
   </div>
+  <div class="ot" id="ot"></div>
   <div class="memo" id="memo" style="display:none"></div>
   <p class="sec">📖 Halaman-halaman sebelumnya</p>
+  <div class="seg" id="seg"></div>
   <div id="hist"></div>
 </div>
 
@@ -132,30 +147,47 @@ function whoBtn(key, onChange) {
   paint(); return lsGet(key, 'Dara');
 }
 
-let me = whoBtn('syukur-me', () => { load(); render(); });
-const key = () => 'syukur-' + lsGet('syukur-me', 'Dara');
-function data() { return lsGet(key(), {}); }
-function load() { const d = data()[ymd(today0())] || []; [0, 1, 2].forEach(i => $('g' + i).value = d[i] || ''); }
+// sinkron berdua (sync.js) — kalau gagal kemuat, tetep jalan di HP ini aja
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, pull() {}, enabled: false };
+function bdStatus() { const el = $('bd-st'); if (el) { const t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); if (/⚠️/.test(t)) { el.innerHTML = esc(t) + ' · <button onclick="BD.pull(true);BD.flush&&BD.flush()">Coba lagi</button>'; } } }
+if (lsGet('syukur-me', null) == null) lsSet('syukur-me', BD.me());
+let whose;
+let me = whoBtn('syukur-me', () => { me = lsGet('syukur-me', 'Dara'); BD.setMe(me); whose = me; load(); render(); });
+BD.setMe(me);
+whose = me;
+const data = w => lsGet('syukur-' + (w || whose), {}) || {};
+function load() { const d = data(me)[ymd(today0())] || []; [0, 1, 2].forEach(i => $('g' + i).value = d[i] || ''); }
 function saveToday() {
   const v = [0, 1, 2].map(i => $('g' + i).value.trim()).filter(Boolean);
   if (!v.length) { toast('Tulis minimal satu hal ya 🙏'); $('g0').focus(); return; }
-  const D = data(), first = !D[ymd(today0())]; D[ymd(today0())] = v; lsSet(key(), D); render(); vib([10, 30, 10]);
-  toast(v.length === 3 ? '🙏 Tersimpan. Hari ini ternyata banyak hal baiknya ya' : '🙏 Tersimpan'); if (first && v.length === 3) confetti(30);
+  const first = !data(me)[ymd(today0())]; BD.put('syukur', me, ymd(today0()), v); render(); vib([10, 30, 10]);
+  toast(v.length === 3 ? `🙏 Tersimpan${BD.enabled ? ` · ${otherOf(me)} bisa baca juga` : ''}. Hari ini ternyata banyak hal baiknya ya` : `🙏 Tersimpan${BD.enabled ? ` · ${otherOf(me)} bisa baca juga` : ''}`); if (first && v.length === 3) confetti(30);
+}
+function renderOther() {
+  const o = otherOf(me), t = ymd(today0()), d = data(o)[t];
+  $('ot').innerHTML = d ? `<h3><span class="who ${o}">💞 ${o}</span> hari ini bersyukur karena…</h3><ul>${d.map(x => `<li>${esc(x)}</li>`).join('')}</ul><a class="btn ghost sm" target="_blank" rel="noopener" href="${waLink(o, `Aku baca jurnal syukur kamu hari ini 🥹🙏\n“${d[0]}”\nIkut seneng sayang 🤍`)}">🤍 Bilang ikut seneng</a>`
+    : `<h3><span class="who ${o}">💞 ${o}</span> belum nulis hari ini</h3><p class="empty" style="padding:.3rem 0 .5rem">Nanti kalau ${o} udah nulis, langsung muncul di sini.</p><a class="btn ghost sm" target="_blank" rel="noopener" href="${waLink(o, `Hari ini kamu bersyukur karena apa? 🙏 Tulis di Jurnal Syukur yuk, aku mau baca 🥹`)}">💬 Ajak ${o} nulis</a>`;
+  $('seg').innerHTML = `<button data-w="${me}" class="${whose === me ? 'on' : ''}">📖 Punya aku</button><button data-w="${o}" class="${whose === me ? '' : 'on'}">👀 Punya ${o}</button>`;
+  $('seg').querySelectorAll('button').forEach(b => b.onclick = () => { whose = b.dataset.w; render(); });
 }
 function render() {
-  const D = data(), days = Object.keys(D).sort().reverse();
+  renderOther(); bdStatus();
+  const M = data(me), days = Object.keys(M).sort().reverse();
   $('dt').textContent = fmtD(today0());
-  $('s1').textContent = days.length; $('s2').textContent = days.reduce((a, k) => a + D[k].length, 0);
-  let st = 0; const c = today0(); if (!D[ymd(c)]) c.setDate(c.getDate() - 1); while (D[ymd(c)]) { st++; c.setDate(c.getDate() - 1); } $('s3').textContent = st;
+  $('s1').textContent = days.length; $('s2').textContent = days.reduce((a, k) => a + (M[k] || []).length, 0);
+  let st = 0; const c = today0(); if (!M[ymd(c)]) c.setDate(c.getDate() - 1); while (M[ymd(c)]) { st++; c.setDate(c.getDate() - 1); } $('s3').textContent = st;
   updWa();
-  const past = days.filter(k => k !== ymd(today0()));
-  if (past.length) { const k = past[Math.floor(Math.random() * past.length)], it = D[k][Math.floor(Math.random() * D[k].length)]; $('memo').style.display = ''; $('memo').innerHTML = `✨ Inget ga, ${fmtD(parseYMD(k))} kamu bersyukur karena:<p>“${esc(it)}”</p>`; } else $('memo').style.display = 'none';
-  $('hist').innerHTML = days.length ? days.slice(0, 30).map(k => `<div class="day"><small>${HARI[parseYMD(k).getDay()]}, ${fmtD(parseYMD(k))}</small><ul>${D[k].map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('') : '<p class="empty">Halaman pertama nunggu ditulis ✍️</p>';
+  const past = days.filter(k => k !== ymd(today0()) && (M[k] || []).length);
+  if (past.length) { const k = past[Math.floor(Math.random() * past.length)], it = M[k][Math.floor(Math.random() * M[k].length)]; $('memo').style.display = ''; $('memo').innerHTML = `✨ Inget ga, ${fmtD(parseYMD(k))} kamu bersyukur karena:<p>“${esc(it)}”</p>`; } else $('memo').style.display = 'none';
+  const D = data(), hd = Object.keys(D).sort().reverse();
+  $('hist').innerHTML = hd.length ? hd.slice(0, 30).map(k => `<div class="day"><small>${HARI[parseYMD(k).getDay()]}, ${fmtD(parseYMD(k))}</small><ul>${(D[k] || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('') : `<p class="empty">${whose === me ? 'Halaman pertama nunggu ditulis ✍️' : whose + ' belum nulis apa-apa'}</p>`;
 }
-function updWa() { const v = [0, 1, 2].map(i => $('g' + i).value.trim()).filter(Boolean); $('wa').href = waLink(otherOf(lsGet('syukur-me', 'Dara')), `🙏 Hal-hal yang aku syukuri hari ini:\n${(v.length ? v : ['…']).map((x, i) => `${i + 1}. ${x}`).join('\n')}`); }
+function updWa() { const v = [0, 1, 2].map(i => $('g' + i).value.trim()).filter(Boolean); $('wa').href = waLink(otherOf(me), `🙏 Hal-hal yang aku syukuri hari ini:\n${(v.length ? v : ['…']).map((x, i) => `${i + 1}. ${x}`).join('\n')}`); }
 [0, 1, 2].forEach(i => $('g' + i).addEventListener('input', updWa));
+BD.on(ev => { if (ev.apps && ev.apps.includes('syukur')) { const typing = [0, 1, 2].some(i => document.activeElement === $('g' + i)); if (!typing) load(); render(); } else bdStatus(); });
 load(); render();
 
+</script>
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
