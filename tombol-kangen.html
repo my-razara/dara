@@ -50,6 +50,21 @@
   .week{display:flex;gap:4px;align-items:flex-end;height:54px;margin-top:.5rem}
   .week div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
   .week i{width:100%;border-radius:5px 5px 2px 2px;background:linear-gradient(var(--dr),#f0a39a);min-height:3px}
+  .week .pr{display:flex;flex-direction:row;gap:2px;align-items:flex-end;justify-content:center;width:100%;height:100%}
+  .week .pr i{flex:1 1 0;width:auto}
+  .week .pr i.o{background:linear-gradient(#7eb3f5,#4a7fc1)}
+  .week .pr i.o.Dara{background:linear-gradient(#f0a39a,#d9776b)}.week .pr i.m.Razan{background:linear-gradient(#7eb3f5,#4a7fc1)}
+  .leg{display:flex;gap:.7rem;justify-content:flex-end;font-size:10px;color:var(--muted);margin-top:.35rem}
+  .leg b{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:3px;vertical-align:0}
+  .inbox{margin-top:.6rem;background:linear-gradient(135deg,#fff,#fdeee8);border:1px solid rgba(193,122,111,.2);border-radius:16px;padding:.7rem .9rem;display:flex;align-items:center;gap:.7rem}
+  .inbox .e{font-size:1.7rem;flex:0 0 auto}
+  .inbox .tx{flex:1;min-width:0}
+  .inbox b{display:block;font-size:12.5px;font-weight:600;color:var(--deep)}
+  .inbox small{display:block;font-size:11px;color:var(--muted);line-height:1.45}
+  .inbox.none{background:#fff}
+  .bd-st{font-size:10.5px;color:var(--muted);text-align:center;margin-top:.35rem;min-height:1em}
+  .ghostbtn{display:block;margin-top:.5rem;padding:.75rem;border-radius:50px;border:1.5px solid #25a35a;color:#25a35a;font-weight:600;font-size:13px;text-decoration:none}
+  .sent-ok{display:inline-block;margin-top:.7rem;font-size:12.5px;font-weight:600;color:#2f7a4f;background:#e6f4ea;border-radius:50px;padding:.4rem .9rem}
   .week span{font-size:9px;color:var(--muted)}
 
   .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.2rem}
@@ -63,6 +78,7 @@
   .close{background:none;border:none;color:var(--muted);font-size:12.5px;margin-top:.7rem;cursor:pointer;text-decoration:underline}
   @media (max-height:640px){.stage{min-height:280px}.ring{width:min(200px,58vw)}.pct{margin-top:.6rem}}
 </style>
+<script src="sync.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -81,8 +97,10 @@
     <p class="pct" id="pct"></p>
     <p class="lvl" id="lvl">Tahan tombolnya — makin lama, makin erat</p>
   </div>
+  <div class="inbox none" id="inbox"></div>
   <div class="stats"><div><b id="st-today">0</b><small>hari ini</small></div><div><b id="st-total">0</b><small>total</small></div><div><b id="st-best">0%</b><small>paling erat</small></div></div>
-  <div class="meter"><p><span>📈 Kangen 7 hari terakhir</span><b id="st-week"></b></p><div class="week" id="week"></div></div>
+  <div class="meter"><p><span>📈 Kangen 7 hari terakhir</span><b id="st-week"></b></p><div class="week" id="week"></div><div class="leg" id="leg"></div></div>
+  <p class="bd-st" id="bd-st"></p>
 </div>
 
 <div class="ov" id="ov" onclick="if(event.target===this)closePop()"><div class="pop" id="pop"></div></div>
@@ -107,9 +125,11 @@ const pad = n => String(n).padStart(2, '0');
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
 
-let me = lsGet('kangen-me', 'Dara'), mode = lsGet('kangen-mode', 'peluk');
+const BD = window.Berdua || null;
+let me = lsGet('kangen-me', null) || (BD ? BD.me() : 'Dara'), mode = lsGet('kangen-mode', 'peluk');
+if (BD) { BD.setMe(me); BD.fast(20000); }
 const other = () => me === 'Razan' ? 'Dara' : 'Razan';
-function toggleWho() { me = other(); lsSet('kangen-me', me); paint(); }
+function toggleWho() { me = other(); lsSet('kangen-me', me); if (BD) BD.setMe(me); paint(); }
 function paint() {
   $('who').textContent = `🙋 ${me} ▾`; $('who').className = 'pill ' + me;
   $('to-name').textContent = other();
@@ -126,9 +146,22 @@ function stats() {
   $('st-best').textContent = lsGet('kangen-best', 0) + '%';
   const days = []; for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); days.push([ymd(d), d]); }
   const vals = days.map(([k]) => sum(log[k])), mx = Math.max(1, ...vals);
-  $('week').innerHTML = days.map(([k, d], i) => `<div><i style="height:${Math.max(4, vals[i] / mx * 100)}%"></i><span>${['M', 'S', 'S', 'R', 'K', 'J', 'S'][d.getDay()]}</span></div>`).join('');
-  $('st-week').textContent = `${vals.reduce((a, b) => a + b, 0)}x`;
+  const O = lsGet('kangen-' + other(), {}) || {}, ov = days.map(([k]) => (O[k] && O[k].n) || 0);
+  const both = BD && BD.enabled, mx2 = Math.max(mx, ...ov);
+  $('week').innerHTML = days.map(([k, d], i) => `<div>${both ? `<div class="pr"><i class="m ${me}" style="height:${Math.max(4, vals[i] / mx2 * 100)}%"></i><i class="o ${other()}" style="height:${Math.max(4, ov[i] / mx2 * 100)}%"></i></div>` : `<i style="height:${Math.max(4, vals[i] / mx * 100)}%"></i>`}<span>${['M', 'S', 'S', 'R', 'K', 'J', 'S'][d.getDay()]}</span></div>`).join('');
+  $('st-week').textContent = both ? `kamu ${vals.reduce((a, b) => a + b, 0)}× · ${other()} ${ov.reduce((a, b) => a + b, 0)}×` : `${vals.reduce((a, b) => a + b, 0)}x`;
+  $('leg').innerHTML = both ? `<span><b style="background:${me === 'Dara' ? '#d9776b' : '#4a7fc1'}"></b>Kamu</span><span><b style="background:${me === 'Dara' ? '#4a7fc1' : '#d9776b'}"></b>${other()}</span>` : '';
+  inbox();
 }
+function inbox() {
+  const el = $('inbox'); if (!BD || !BD.enabled) { el.style.display = 'none'; return; }
+  const o = other(), r = (lsGet('kangen-' + o, {}) || {})[ymd(new Date())];
+  const E = { peluk: '🫂', cium: '😘', tangan: '🤝', puk: '🥺' };
+  if (!r || !r.n) { el.className = 'inbox none'; el.innerHTML = `<span class="e">📭</span><span class="tx"><b>Belum ada kangen dari ${o} hari ini</b><small>Kalau ${o} pencet tombolnya, langsung muncul di sini 💗</small></span>`; }
+  else { const L = r.last || {}, at = L.at ? new Date(L.at) : null; el.className = 'inbox'; el.innerHTML = `<span class="e">${E[L.k] || '💗'}</span><span class="tx"><b>${o} kangen kamu ${r.n}× hari ini</b><small>${Object.entries(r.m || {}).map(([k, v]) => `${E[k] || '💗'}×${v}`).join(' ')}${at ? ` · terakhir ${pad(at.getHours())}:${pad(at.getMinutes())}${L.p ? ` (${L.p}% erat)` : ''}` : ''}</small></span>`; }
+  $('bd-st').textContent = BD.status();
+}
+if (BD) BD.on(ev => { if (!ev.apps || !ev.apps.length || ev.apps.includes('kangen')) stats(); });
 function lvlOf(p) { let l = LEVELS[0]; for (const x of LEVELS) if (p >= x[0]) l = x; return l; }
 
 /* ── tahan ── */
@@ -174,12 +207,20 @@ function send(p) {
   const keys = Object.keys(log).sort(); while (keys.length > 60) delete log[keys.shift()];
   lsSet('kangen-log', log);
   const best = lsGet('kangen-best', 0); const nb = p > best; if (nb) lsSet('kangen-best', p);
+  let synced = false;
+  if (BD && BD.enabled) {
+    const R = lsGet('kangen-' + me, {}) || {}, r = Object.assign({ n: 0, m: {} }, R[t] || {}); r.m = Object.assign({}, r.m);
+    r.n++; r.m[mode] = (r.m[mode] || 0) + 1; r.last = { k: mode, p, at: Date.now() };
+    BD.put('kangen', me, t, r); synced = true;
+  }
   stats();
   const msg = `${m.e} ${me} ngirim ${m.verb} virtual ${p}% erat!\nLevel: ${l[1]} — ${l[2]} sama kamu 🥺\n(dari Tombol Kangen)`;
   $('pop').innerHTML = `<span class="e">${m.e}</span><p class="t hand">${m.verb[0].toUpperCase() + m.verb.slice(1)} ${p}% erat!</p>
     <p class="s">${l[1]} — ${l[2]}.${nb ? '<br>🏆 Rekor baru paling erat!' : ''}<br>Hari ini udah ${Object.values(log[t]).reduce((a, b) => a + b, 0)}x kangen.</p>
-    <a class="wa" href="https://wa.me/${WA[other()]}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" onclick="setTimeout(closePop,400)">💬 Kirim ke ${other()}</a>
-    <button class="close" onclick="closePop()">Simpen aja dulu</button>`;
+    ${synced ? `<span class="sent-ok">✓ Langsung nyampe ke HP ${other()} 💗</span>
+    <a class="ghostbtn" href="https://wa.me/${WA[other()]}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" onclick="setTimeout(closePop,400)">💬 Kirim juga lewat WA</a>
+    <button class="close" onclick="closePop()">Oke</button>` : `<a class="wa" href="https://wa.me/${WA[other()]}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" onclick="setTimeout(closePop,400)">💬 Kirim ke ${other()}</a>
+    <button class="close" onclick="closePop()">Simpen aja dulu</button>`}`;
   $('ov').classList.add('show');
   vib(p >= 100 ? [60, 40, 60, 40, 200] : [30, 40, 60]);
   if (p >= 100) for (let i = 0; i < 24; i++) setTimeout(floaty, i * 40);
