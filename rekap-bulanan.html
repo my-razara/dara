@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Rekap Bulanan — Razan & Dara 📊</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script>window.__sfxTheme = 'pesta';</script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  body{overflow:hidden}
+  .story{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;color:#fff;background:var(--bg,linear-gradient(160deg,#d48c80,#7a3f35));transition:background .6s}
+  .bars{display:flex;gap:4px;padding:calc(.7rem + env(safe-area-inset-top)) .8rem .5rem}
+  .bars i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.3);overflow:hidden;position:relative}
+  .bars i b{position:absolute;inset:0;width:0;background:#fff}
+  .bars i.done b{width:100%}
+  .bars i.on b{animation:fill var(--dur,7s) linear forwards}
+  .story.paused .bars i.on b{animation-play-state:paused}
+  @keyframes fill{to{width:100%}}
+  .tb{display:flex;align-items:center;justify-content:space-between;padding:0 .8rem;gap:.5rem}
+  .tb a,.tb button{font-size:11.5px;color:#fff;text-decoration:none;background:rgba(255,255,255,.18);border:none;padding:.4rem .8rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .tb select{font-size:11.5px;color:#fff;background:rgba(255,255,255,.18);border:none;padding:.4rem .6rem;border-radius:50px;max-width:55%;font-family:inherit}
+  .tb select option{color:#2d1f1a}
+  .stage{flex:1;position:relative;overflow:hidden}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1rem 1.4rem 4.5rem;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .45s,transform .45s}
+  .slide.on{opacity:1;transform:none;pointer-events:auto}
+  .k{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:600;opacity:.85}
+  .big{font-size:clamp(3.4rem,20vw,5rem);font-weight:700;line-height:1;margin:.3rem 0 .2rem;letter-spacing:-.02em}
+  .h{font-size:clamp(1.25rem,6.5vw,1.6rem);font-weight:700;line-height:1.25;margin:.35rem 0}
+  .p{font-size:13px;line-height:1.65;opacity:.92;max-width:320px}
+  .em{font-size:3.6rem;line-height:1.1}
+  .hand{font-family:'Caveat',cursive;font-size:1.55rem;line-height:1.3}
+  .quote{margin-top:.9rem;background:rgba(255,255,255,.16);border-radius:18px;padding:.8rem 1rem;max-width:330px}
+  .duo2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;width:100%;max-width:340px;margin-top:1rem}
+  .duo2 div{background:rgba(255,255,255,.16);border-radius:18px;padding:.8rem .4rem}
+  .duo2 small{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:600}
+  .duo2 b{display:block;font-size:2rem;line-height:1.2;margin:.2rem 0}
+  .duo2 span{font-size:11.5px;opacity:.9}
+  .mix{display:flex;height:16px;border-radius:9px;overflow:hidden;width:100%;max-width:320px;margin:.9rem 0 .4rem;background:rgba(255,255,255,.2)}
+  .mix i{height:100%}
+  .legend{display:flex;flex-wrap:wrap;gap:.25rem .6rem;justify-content:center;font-size:11px;opacity:.9;max-width:320px}
+  .rank{width:100%;max-width:330px;margin-top:.9rem;display:flex;flex-direction:column;gap:.45rem;text-align:left}
+  .rank div{display:flex;align-items:center;gap:.7rem;background:rgba(255,255,255,.15);border-radius:16px;padding:.6rem .8rem}
+  .rank b{font-size:1.3rem;width:1.6rem;text-align:center;opacity:.9}
+  .rank span{flex:1;min-width:0;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rank small{font-size:11px;opacity:.85;white-space:nowrap}
+  .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;width:100%;max-width:340px;margin-top:1rem}
+  .stats3 div{background:rgba(255,255,255,.16);border-radius:16px;padding:.7rem .2rem}
+  .stats3 b{display:block;font-size:1.5rem;line-height:1.1}
+  .stats3 small{font-size:10px;opacity:.88}
+  .nav{position:absolute;top:0;bottom:4rem;width:34%;z-index:2;background:none;border:none;cursor:pointer}
+  .nav.l{left:0}.nav.r{right:0;width:66%}
+  .acts{position:absolute;left:0;right:0;bottom:calc(1rem + env(safe-area-inset-bottom));display:flex;gap:.5rem;justify-content:center;padding:0 1rem;z-index:3}
+  .acts button,.acts a{flex:1;max-width:170px;border:none;border-radius:50px;padding:.8rem .4rem;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;white-space:nowrap}
+  .acts .w{background:#fff;color:var(--deep)}
+  .acts .g{background:rgba(255,255,255,.2);color:#fff}
+  .acts .wa{background:#25a35a;color:#fff}
+  .hint{position:absolute;bottom:calc(1.3rem + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-size:11px;opacity:.7;pointer-events:none}
+  .floaty{position:absolute;font-size:1.4rem;opacity:.25;animation:fl 9s ease-in-out infinite}
+  @keyframes fl{50%{transform:translateY(-14px) rotate(10deg)}}
+  @media (max-height:600px){.big{font-size:3rem}.em{font-size:2.6rem}.p{font-size:12px}.slide{padding-bottom:4rem}}
+
+</style>
+</head>
+<body>
+
+<div class="story" id="story">
+  <div class="bars" id="bars"></div>
+  <div class="tb"><a href="index.html">✕ Tutup</a><select id="pick" aria-label="pilih bulan"></select></div>
+  <div class="stage" id="stage"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { me: () => lsGet('berdua-me', 'Dara'), other: w => w === 'Razan' ? 'Dara' : 'Razan', pull() {}, on() {} };
+const MOODS = [['🥰', 'Bahagia', '#ffd1dc'], ['😄', 'Seneng', '#ffe6a7'], ['🙂', 'Biasa aja', '#d9e7c4'], ['😴', 'Capek', '#c9d6ea'], ['😔', 'Sedih', '#b8c4dd'], ['😢', 'Nangis', '#a5b4d6'], ['😤', 'Kesel', '#f2a38f'], ['😰', 'Cemas', '#d8c3e6']];
+const BG = ['linear-gradient(160deg,#d48c80,#7a3f35)', 'linear-gradient(160deg,#e9a07a,#b4554a)', 'linear-gradient(160deg,#c48bb5,#6a3f6e)', 'linear-gradient(160deg,#c9a96e,#8a5a2e)', 'linear-gradient(160deg,#7eb3a8,#2f6a5f)', 'linear-gradient(160deg,#7f9fd6,#3b4f8a)', 'linear-gradient(160deg,#e98fa4,#9c3d5a)', 'linear-gradient(160deg,#f0a39a,#c1665a)', 'linear-gradient(160deg,#8a6fc4,#3e2a6e)'];
+const J = parseYMD(JADIAN);
+const addM = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, d.getDate());
+const fmtS = d => `${d.getDate()} ${BLN[d.getMonth()]}`;
+// bulan ke-k = [jadian + (k-1) bulan, jadian + k bulan)
+function monthsDone() { const t = today0(); let k = 0; while (addM(J, k + 1) <= t) k++; return k; }
+const per = k => ({ k, a: addM(J, k - 1), b: addM(J, k) });   // b = eksklusif
+const inP = (s, P) => { const d = parseYMD(s); return d && d >= P.a && d < P.b; };
+const nameOf = link => String(link || '').replace(/\.html.*$/, '').split('-').map(w => w[0] ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
+
+function gather(P) {
+  const me = BD.me(), ot = BD.other(me), R = { P, me, ot, cur: P.b > today0() };
+  const end = R.cur ? new Date(today0().getTime() + 864e5) : P.b;
+  R.days = Math.round((end - P.a) / 864e5);
+  R.total = Math.round((Math.min(end, today0().getTime() + 864e5) - J) / 864e5);
+  // mood
+  R.mood = {};
+  for (const w of ['Dara', 'Razan']) {
+    const M = lsGet('mood-' + w, {}) || {}, c = MOODS.map(() => 0); let n = 0;
+    Object.entries(M).forEach(([k, v]) => { if (inP(k, P) && v && MOODS[v.m]) { c[v.m]++; n++; } });
+    const top = n ? c.indexOf(Math.max(...c)) : -1;
+    R.mood[w] = { c, n, top, happy: n ? Math.round((c[0] + c[1]) / n * 100) : 0 };
+  }
+  // syukur
+  R.sy = {};
+  for (const w of ['Dara', 'Razan']) {
+    const S = lsGet('syukur-' + w, {}) || {}; let d = 0, it = 0; const all = [];
+    Object.entries(S).forEach(([k, v]) => { if (inP(k, P) && Array.isArray(v) && v.length) { d++; it += v.length; v.forEach(x => all.push([k, x])); } });
+    R.sy[w] = { d, it, pick: all.length ? all[Math.floor(Math.random() * all.length)] : null };
+  }
+  // ritual
+  const log = lsGet('idx-ritual-log', {}) || {}; R.ritFull = Object.keys(log).filter(k => inP(k, P)).length;
+  let best = 0, run = 0; for (let d = new Date(P.a); d < end; d.setDate(d.getDate() + 1)) { if (log[ymd(d)]) { run++; best = Math.max(best, run); } else run = 0; }
+  R.ritBest = best;
+  R.ritOt = (() => { const m = lsGet('ritual-' + ot, {}) || {}; const v = Object.entries(m).filter(([k]) => inP(k, P)).map(([, x]) => x); return v.length ? { days: v.length, full: v.filter(x => x.n && x.n === x.t).length } : null; })();
+  // paling sering dibuka
+  const hist = lsGet('idx-opens-hist', {}) || {}, now = lsGet('idx-opens', {}) || {};
+  const start = hist[P.k], stop = R.cur ? now : hist[P.k + 1];
+  R.opensAll = !(start && stop);
+  const base = R.opensAll ? {} : start, cur = R.opensAll ? now : stop;
+  R.top = Object.keys(cur).map(l => [l, (cur[l] || 0) - (base[l] || 0)]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  R.opensN = R.top.length ? Object.keys(cur).reduce((a, l) => a + Math.max(0, (cur[l] || 0) - (base[l] || 0)), 0) : 0;
+  // surat
+  const sr = (lsGet('sr-cache', []) || []).filter(x => x && !x.deleted), loc = lsGet('sr-local', {}) || {};
+  const rd = sr.map(x => Object.assign({}, x, loc[x.id] || {}, { readAt: x.readAt || (loc[x.id] || {}).readAt })).filter(x => x.readAt && x.readAt >= P.a.getTime() && x.readAt < end.getTime());
+  const rc = {}; rd.forEach(x => { if (x.reaction) rc[x.reaction] = (rc[x.reaction] || 0) + 1; });
+  R.surat = { n: rd.length, rep: rd.filter(x => x.reply).length, fav: Object.entries(rc).sort((a, b) => b[1] - a[1])[0] };
+  // bucket list
+  R.bucket = (lsGet('bl-cache', []) || []).filter(x => x && x.done && !x.deleted && inP(x.doneDate, P));
+  // kangen & pertanyaan
+  const kl = lsGet('kangen-log', {}) || {}; R.kangen = Object.entries(kl).filter(([k]) => inP(k, P)).reduce((a, [, v]) => a + Object.values(v || {}).reduce((x, y) => x + (+y || 0), 0), 0);
+  const qa = lsGet('qa-cache', null); R.qa = qa && Array.isArray(qa.days) ? qa.days.filter(d => inP(d.date, P) && d.mine).length : 0;
+  return R;
+}
+
+function slides(R) {
+  const S = [], P = R.P, range = `${fmtS(P.a)} – ${fmtS(new Date(P.b - 864e5))} ${new Date(P.b - 864e5).getFullYear()}`;
+  S.push(`<span class="floaty" style="top:12%;left:10%">💗</span><span class="floaty" style="top:22%;right:12%;animation-delay:-3s">✨</span><span class="floaty" style="bottom:22%;left:16%;animation-delay:-5s">🤍</span>
+    <p class="k">${R.cur ? 'Rekap sementara' : 'Rekap bulan'}</p><div class="big">ke-${P.k}</div><p class="h">Razan & Dara</p><p class="p">${range}<br>${R.cur ? `Bulan ini masih jalan — rekap lengkapnya kebuka tanggal ${P.b.getDate()} ${BULAN[P.b.getMonth()]} 🤫` : 'Yuk liat bulan kemarin kita ngapain aja 👀'}</p>`);
+  S.push(`<p class="k">Bulan ini kita bareng</p><div class="big">${R.days}</div><p class="h">hari 🤍</p><p class="p">Totalnya udah <b>${R.total} hari</b> sejak 10 Mei 2025.<br>${R.days} hari lagi yang aku syukuri karena ada kamu.</p>`);
+  const md = R.mood.Dara, mr = R.mood.Razan;
+  if (md.n || mr.n) {
+    const one = (w, m) => `<div><small>${w}</small><b>${m.n ? MOODS[m.top][0] : '🫥'}</b><span>${m.n ? `paling sering ${MOODS[m.top][1].toLowerCase()}<br>${m.n} hari dicatat` : 'belum nyatet'}</span></div>`;
+    const tot = MOODS.map((_, i) => md.c[i] + mr.c[i]), n = tot.reduce((a, b) => a + b, 0), hp = n ? Math.round((tot[0] + tot[1]) / n * 100) : 0;
+    S.push(`<p class="k">Mood bulan ini</p><div class="em">${hp >= 60 ? '🌈' : hp >= 35 ? '🌤️' : '🌧️'}</div><p class="h">${hp}% hari kita bahagia</p>
+      <div class="mix">${tot.map((c, i) => c ? `<i style="width:${c / n * 100}%;background:${MOODS[i][2]}"></i>` : '').join('')}</div>
+      <div class="legend">${tot.map((c, i) => c ? `<span>${MOODS[i][0]} ${c}</span>` : '').join('')}</div>
+      <div class="duo2">${one('Dara', md)}${one('Razan', mr)}</div>
+      <p class="p" style="margin-top:.8rem">${hp >= 60 ? 'Bulan yang bahagia. Pertahanin ya 🥰' : 'Ada hari-hari berat juga ya bulan ini. Makasih udah tetep bertahan bareng 🫂'}</p>`);
+  }
+  const sd = R.sy.Dara, sr = R.sy.Razan;
+  if (sd.d || sr.d) {
+    const q = sd.pick || sr.pick, qw = sd.pick ? 'Dara' : 'Razan';
+    S.push(`<p class="k">Jurnal syukur</p><div class="big">${sd.it + sr.it}</div><p class="h">hal baik yang kita syukuri 🙏</p>
+      <div class="duo2"><div><small>Dara</small><b>${sd.d}</b><span>hari nulis</span></div><div><small>Razan</small><b>${sr.d}</b><span>hari nulis</span></div></div>
+      ${q ? `<div class="quote"><p class="k" style="font-size:9.5px">${qw} · ${fmtS(parseYMD(q[0]))}</p><p class="hand">“${esc(q[1])}”</p></div>` : ''}`);
+  }
+  if (R.ritFull || R.ritOt) {
+    S.push(`<p class="k">Ritual harian</p><div class="em">☀️</div><div class="big" style="font-size:clamp(2.8rem,16vw,4rem)">${R.ritFull}×</div><p class="h">semua ritual beres</p>
+      <p class="p">${R.ritBest > 1 ? `Streak terpanjang bulan ini: <b>${R.ritBest} hari</b> berturut-turut 🔥` : 'Bulan depan coba kejar streak ya 🔥'}${R.ritOt ? `<br>${R.ot} ${R.ritOt.days} hari ngelakuin ritual${R.ritOt.full ? `, ${R.ritOt.full}× beres semua` : ''} 💞` : ''}</p>`);
+  }
+  if (R.top.length) {
+    S.push(`<p class="k">${R.opensAll ? 'Paling sering dibuka (sepanjang masa)' : 'Paling sering dibuka bulan ini'}</p><div class="em">🏆</div><p class="h">${esc(nameOf(R.top[0][0]))}</p><p class="p">dibuka ${R.top[0][1]}× ${R.opensAll ? 'sejauh ini' : 'bulan ini'}</p>
+      <div class="rank">${R.top.map((x, i) => `<div><b>${['🥇', '🥈', '🥉', '4', '5'][i]}</b><span>${esc(nameOf(x[0]))}</span><small>${x[1]}×</small></div>`).join('')}</div>`);
+  }
+  if (R.surat.n) {
+    S.push(`<p class="k">Surat dari Razan</p><div class="em">💌</div><div class="big">${R.surat.n}</div><p class="h">surat dibaca</p><p class="p">${R.surat.fav ? `Reaksi paling sering: <span style="font-size:1.5rem">${R.surat.fav[0]}</span><br>` : ''}${R.surat.rep ? `${R.surat.rep} surat dibales 🥹` : 'Bulan depan bales suratnya ya 🤭'}</p>`);
+  }
+  const extra = [[R.kangen, '💗', 'kali tombol kangen'], [R.qa, '💬', 'pertanyaan harian dijawab'], [R.bucket.length, '🪣', 'bucket list kecentang']].filter(x => x[0]);
+  if (extra.length) {
+    S.push(`<p class="k">Hal-hal kecil lainnya</p><div class="em">✨</div><p class="h">Bulan ini juga ada…</p>
+      <div class="stats3" style="grid-template-columns:repeat(${extra.length},1fr)">${extra.map(x => `<div><b>${x[1]} ${x[0]}</b><small>${x[2]}</small></div>`).join('')}</div>
+      ${R.bucket.length ? `<div class="rank">${R.bucket.slice(0, 3).map(x => `<div><b>✓</b><span>${esc(x.text)}</span></div>`).join('')}</div>` : ''}`);
+  }
+  S.push(`<span class="floaty" style="top:14%;left:12%">🎉</span><span class="floaty" style="top:20%;right:10%;animation-delay:-4s">💞</span>
+    <p class="k">Sampai jumpa bulan ke-${P.k + 1}</p><div class="em">🫶</div><p class="h">Makasih udah jadi bagian<br>${R.days} hari ini</p><p class="hand" style="max-width:300px;margin-top:.4rem">Bulan depan kita bikin lebih banyak cerita lagi ya, sayang.</p>
+    <div style="height:3.5rem"></div>`);
+  return S;
+}
+
+let cur = 0, SL = [], timer = null, R = null;
+const DUR = 7000;
+function build(k) {
+  R = gather(per(k)); SL = slides(R);
+  $('bars').innerHTML = SL.map(() => '<i><b></b></i>').join('');
+  $('stage').innerHTML = SL.map((h, i) => `<div class="slide" data-i="${i}">${h}</div>`).join('') + '<button class="nav l" aria-label="sebelumnya" onclick="go(-1)"></button><button class="nav r" aria-label="berikutnya" onclick="go(1)"></button><div class="acts" id="acts"></div><p class="hint" id="hint">tap kanan buat lanjut ›</p>';
+  cur = 0; show();
+}
+function show() {
+  document.querySelectorAll('.slide').forEach((s, i) => s.classList.toggle('on', i === cur));
+  document.querySelectorAll('#bars i').forEach((b, i) => { b.className = i < cur ? 'done' : ''; void b.offsetWidth; if (i === cur) b.className = 'on'; });
+  $('story').style.setProperty('--bg', BG[cur % BG.length]); $('story').style.setProperty('--dur', DUR + 'ms');
+  const last = cur === SL.length - 1;
+  $('acts').innerHTML = last ? `<button class="g" onclick="build(R.P.k)">↺ Ulang</button><button class="w" onclick="shareImg()">📸 Simpan gambar</button>` : '';
+  $('hint').style.display = cur === 0 ? '' : 'none';
+  clearTimeout(timer); if (!last) timer = setTimeout(() => go(1), DUR);
+  if (last) { confetti(90); vib([30, 40, 60]); }
+  try { window.SFX && SFX.play && SFX.play(last ? 'win' : 'whoosh'); } catch (e) {}
+}
+function go(d) { const n = cur + d; if (n < 0 || n >= SL.length) return; cur = n; show(); }
+// tahan buat pause
+let hold = null;
+$('story').addEventListener('pointerdown', e => { if (e.target.closest('.acts,.tb')) return; hold = setTimeout(() => { $('story').classList.add('paused'); clearTimeout(timer); hold = 'p'; }, 280); });
+$('story').addEventListener('pointerup', e => { if (hold === 'p') { e.preventDefault(); $('story').classList.remove('paused'); const left = DUR * .5; clearTimeout(timer); if (cur < SL.length - 1) timer = setTimeout(() => go(1), left); setTimeout(() => hold = null, 50); return; } clearTimeout(hold); hold = null; }, true);
+$('stage').addEventListener('click', e => { if (hold === 'p') { e.stopPropagation(); e.preventDefault(); } }, true);
+document.addEventListener('keydown', e => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
+
+async function shareImg() {
+  await fontsReady();
+  const W = 1080, H = 1350, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#d48c80'); g.addColorStop(1, '#7a3f35'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.fillStyle = '#fff'; c.textAlign = 'center';
+  c.font = '600 30px Poppins'; c.fillText('REKAP BULAN KE-' + R.P.k, W / 2, 130);
+  c.font = '700 64px Poppins'; c.fillText('Razan & Dara', W / 2, 215);
+  c.font = '400 30px Poppins'; c.globalAlpha = .85; c.fillText(`${fmtS(R.P.a)} – ${fmtS(new Date(R.P.b - 864e5))} ${new Date(R.P.b - 864e5).getFullYear()}`, W / 2, 268); c.globalAlpha = 1;
+  const md = R.mood.Dara, mr = R.mood.Razan, tot = MOODS.map((_, i) => md.c[i] + mr.c[i]), n = tot.reduce((a, b) => a + b, 0);
+  const tiles = [[R.days, 'hari bareng', '🤍'], [n ? Math.round((tot[0] + tot[1]) / n * 100) + '%' : '–', 'hari bahagia', '🌈'], [R.sy.Dara.it + R.sy.Razan.it, 'hal disyukuri', '🙏'], [R.ritFull + '×', 'ritual beres', '☀️'], [R.surat.n, 'surat dibaca', '💌'], [R.kangen || R.qa || R.bucket.length, R.kangen ? 'kali kangen' : R.qa ? 'pertanyaan dijawab' : 'bucket list ✓', '✨']];
+  tiles.forEach((t, i) => {
+    const col = i % 2, row = Math.floor(i / 2), x = 90 + col * 465, y = 340 + row * 255, w = 435, h = 225;
+    c.fillStyle = 'rgba(255,255,255,.16)'; c.beginPath(); c.roundRect ? c.roundRect(x, y, w, h, 36) : c.rect(x, y, w, h); c.fill();
+    c.fillStyle = '#fff'; c.font = '56px sans-serif'; c.fillText(t[2], x + w / 2, y + 78);
+    c.font = '700 66px Poppins'; c.fillText(String(t[0]), x + w / 2, y + 152);
+    c.font = '400 28px Poppins'; c.globalAlpha = .9; c.fillText(t[1], x + w / 2, y + 196); c.globalAlpha = 1;
+  });
+  const top = R.top[0];
+  c.font = '700 54px Caveat'; c.fillText(top ? `Favorit: ${nameOf(top[0])} 🏆` : 'Bulan depan lebih seru lagi 🫶', W / 2, 1180);
+  c.font = '400 26px Poppins'; c.globalAlpha = .75; c.fillText('my-razara.github.io/dara', W / 2, 1270); c.globalAlpha = 1;
+  shareCanvas(cv, `rekap-bulan-${R.P.k}.png`, 'Rekap bulan ke-' + R.P.k);
+}
+
+// pilih bulan
+const done = monthsDone(), startK = (() => { const q = location.search.match(/[?&]bulan=(\d+)/); return q ? Math.min(Math.max(1, +q[1]), done + 1) : Math.max(1, done); })();
+$('pick').innerHTML = Array.from({ length: done + 1 }, (_, i) => done + 1 - i).map(k => `<option value="${k}" ${k === startK ? 'selected' : ''}>${k === done + 1 ? `Bulan ke-${k} (sementara)` : `Bulan ke-${k}`}</option>`).join('');
+$('pick').onchange = () => build(+$('pick').value);
+$('pick').addEventListener('pointerdown', e => e.stopPropagation());
+lsSet('rekap-seen', done);
+build(startK);
+BD.on(ev => { if (ev.apps && ev.apps.length && cur === 0) build(R.P.k); });
+
+</script>
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
