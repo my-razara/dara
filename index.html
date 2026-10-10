@@ -428,6 +428,7 @@
 if(m===7&&d===18)sp={type:'ultah'};else if(m===4&&d===10&&y>2025)sp={type:'anniv',n:y-2025};else if(days>0&&days%100===0)sp={type:'ratus',n:days};else if(d===10&&mo>0)sp={type:'mensive',n:mo};
 var q=(location.search.match(/[?&]spesial=(\w+)/)||[])[1];if(q){sp={mensive:{type:'mensive',n:Math.max(1,mo)},anniv:{type:'anniv',n:Math.max(1,y-2025)},ultah:{type:'ultah'},ratus:{type:'ratus',n:Math.max(100,Math.floor(days/100)*100)}}[q]||sp;}
 if(sp){sp.date=y+'-'+(m+1)+'-'+d;window.__spesial=sp;window.__sfxTheme='pesta';document.documentElement.classList.add('spesial');}}catch(e){}})();</script>
+<script src="sync.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -1940,12 +1941,29 @@ setTimeout(() => {
     return { list, shown: st, off, n: st.filter(r => r.d).length };
   }
   function streak(log) { let s = 0; const d = new Date(); if (!log[dk(d)]) d.setDate(d.getDate() - 1); while (log[dk(d)]) { s++; d.setDate(d.getDate() - 1); } return s; }
+  // ── sinkron berdua: kirim progres ritual + liat kabar pasangan ──
+  const BD_MOOD = ['🥰', '😄', '🙂', '😴', '😔', '😢', '😤', '😰'];
+  function bdRit(R) {
+    const B = window.Berdua; if (!B || !B.enabled) return;
+    const me = B.me(), cur = (get('ritual-' + me, {}) || {})[today()];
+    const v = { n: R.n, t: R.shown.length, d: R.shown.filter(r => r.d).map(r => r.ico).join('') };
+    if (!cur && !v.n) return;
+    if (JSON.stringify(cur) !== JSON.stringify(v)) B.put('ritual', me, today(), v);
+  }
+  function bdLine() {
+    const B = window.Berdua; if (!B || !B.enabled) return '';
+    const o = B.other(B.me()), t = today();
+    const r = (get('ritual-' + o, {}) || {})[t], m = (get('mood-' + o, {}) || {})[t], sy = (get('syukur-' + o, {}) || {})[t];
+    const bits = [m && BD_MOOD[m.m] ? `mood ${BD_MOOD[m.m]}` : '', r ? `ritual ${r.n}/${r.t}${r.n && r.n === r.t ? ' 🎉' : ''}` : 'ritual belum mulai', sy ? '🙏 udah nulis syukur' : ''].filter(Boolean);
+    return `<a class="rit-duo" href="kalender-mood.html"><span class="rd-w ${o}">💞 ${o} hari ini</span><span class="rd-b">${bits.join(' · ')}</span></a>`;
+  }
   function ritualHTML() {
     const R = ritualState(); if (!R.list.length) return '';
     const log = get('idx-ritual-log', {});
     const all = R.shown.length && R.n === R.shown.length;
     if (all && !log[today()]) { log[today()] = 1; const ks = Object.keys(log).sort(); while (ks.length > 90) delete log[ks.shift()]; set('idx-ritual-log', log); }
     const st = streak(log);
+    if (!editRit) bdRit(R);
     if (editRit) {
       return `<div class="hx-sec rit"><div class="hx-title"><span>☀️ Atur ritual harian</span><button onclick="ritEdit()">Selesai</button></div>
         <p class="rit-note">Tap buat nyalain / matiin ritual yang mau dimunculin di sini</p>
@@ -1957,6 +1975,7 @@ setTimeout(() => {
         <div class="rit-top"><b>${all ? '🎉 Semua beres hari ini!' : R.n ? `Tinggal ${R.shown.length - R.n} lagi ✨` : 'Yuk mulai hari ini 🤍'}</b><span>${st ? `🔥 ${st} hari beruntun` : 'Beresin semua buat mulai streak'}</span></div>
         <div class="rit-bar"><i style="width:${Math.round(R.n / R.shown.length * 100)}%"></i></div>
         <div class="rit-row">${R.shown.map(r => `<button class="rit-pill ${r.d ? 'done' : ''}" data-link="${r.link}"><span>${r.ico}</span>${r.n}<i>${r.d ? '✓' : ''}</i></button>`).join('')}</div>
+        ${bdLine()}
       </div></div>`;
   }
   window.ritEdit = () => { editRit = !editRit; renderRows(); };
@@ -1990,6 +2009,7 @@ setTimeout(() => {
   const refresh = () => { try { if ($('home') && $('home').classList.contains('active')) renderRows(); } catch (e) {} };
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
   window.addEventListener('pageshow', e => { if (e.persisted) refresh(); });
+  if (window.Berdua) window.Berdua.on(ev => { if (ev.apps && ev.apps.length) refresh(); });
 
   const css = document.createElement('style');
   css.textContent = `
@@ -1998,6 +2018,10 @@ setTimeout(() => {
   .cf-bar .chip small{font-size:9.5px;opacity:.75;margin-left:.1rem}
   .rit-card{background:#fff;border:1px solid rgba(193,122,111,.16);border-radius:20px;padding:.85rem .9rem .8rem;box-shadow:0 6px 18px rgba(193,122,111,.08)}
   .rit-card.full{background:linear-gradient(135deg,#fff,#eef6ec);border-color:#bcd7b5}
+  .rit-duo{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem .5rem;margin-top:.65rem;padding:.55rem .7rem;border-radius:14px;background:rgba(193,122,111,.07);text-decoration:none;color:inherit;font-size:11.5px}
+  .rit-duo .rd-w{font-weight:600}.rit-duo .rd-w.Razan{color:var(--rz)}.rit-duo .rd-w.Dara{color:var(--dr)}
+  .rit-duo .rd-b{color:var(--muted)}
+  html.night .rit-duo{background:rgba(255,255,255,.06)}
   .rit-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
   .rit-top b{font-size:13px;font-weight:600;color:var(--deep)}
   .rit-top span{font-size:10.5px;color:var(--muted)}
