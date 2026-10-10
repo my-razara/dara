@@ -2122,6 +2122,85 @@ setTimeout(() => {
   renderRows();
 })();
 
+// ═══ Surat dari Razan — kartu kotak surat di menu utama ═══
+(function () {
+  const SURAT_URL = 'https://script.google.com/macros/s/AKfycbz14RB_aXdOTeLU23ffbclpi4IaPSW_35L5asbdd9x6Lnuw92XmiyEIWju8xy4nL973/exec';
+  const SURAT_KEY = 'razara-surat';
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const p2 = n => String(n).padStart(2, '0');
+  const tday = () => { const d = new Date(); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
+  const daysTo = s => { const [y, m, d] = s.split('-').map(Number), n = new Date(); return Math.round((new Date(y, m - 1, d) - new Date(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5); };
+
+  function state() {
+    const admin = get('sr-pin', '') === '1718', loc = get('sr-local', {}), t = tday();
+    const all = (get('sr-cache', []) || []).filter(x => x && !x.deleted).map(x => Object.assign({}, x, loc[x.id] && !x.readAt ? { readAt: loc[x.id].readAt } : {}));
+    const dated = all.filter(x => x.kind !== 'kalau');
+    const unread = dated.filter(x => !x.locked && x.date <= t && !x.readAt);
+    const next = dated.filter(x => x.locked || x.date > t).sort((a, b) => a.date.localeCompare(b.date))[0];
+    const seen = get('sr-seen-reply', {});
+    const replies = all.filter(x => x.reply && seen[x.id] !== x.reply);
+    return { admin, all, unread, next, replies };
+  }
+  function cardHTML() {
+    const S = state();
+    if (S.admin) {
+      const r = S.replies.length;
+      return `<a class="sr-card ${r ? 'hot' : ''}" href="surat-razan.html" onclick="__srSeen()"><span class="sr-e">${r ? '💬' : '✍️'}</span><span class="sr-t"><b>${r ? `Dara bales ${r} surat kamu!` : 'Kotak surat buat Dara'}</b><small>${S.all.length} surat · ${S.all.filter(x => x.readAt).length} udah dibaca · tulis surat baru ›</small></span></a>`;
+    }
+    if (S.unread.length) {
+      const f = S.unread[0];
+      return `<a class="sr-card hot" href="surat-razan.html"><span class="sr-e">${f.emoji || '💌'}</span><span class="sr-t"><b>${S.unread.length > 1 ? `Ada ${S.unread.length} surat baru dari Razan!` : 'Ada surat baru dari Razan!'}</b><small>${f.date === tday() ? 'Khusus buat hari ini' : 'Belum kamu buka'} · tap buat baca 💌</small></span></a>`;
+    }
+    const n = S.next ? daysTo(S.next.date) : null;
+    return `<a class="sr-card" href="surat-razan.html"><span class="sr-e">📬</span><span class="sr-t"><b>Surat dari Razan</b><small>${n != null ? (n <= 1 ? 'Ada surat yang kebuka besok 🤫' : `Surat berikutnya kebuka ${n} hari lagi 🔒`) : 'Ada surat “buka kalau…” buat kamu 🫧'}</small></span></a>`;
+  }
+  window.__srSeen = () => { const s = {}; state().all.forEach(x => { if (x.reply) s[x.id] = x.reply; }); set('sr-seen-reply', s); };
+
+  const _rr3 = renderRows;
+  renderRows = function () {
+    _rr3();
+    const s = $('today-slot'); if (!s || s.querySelector('.sr-card')) return;
+    const sp = s.querySelector('.sp-banner');
+    if (sp) sp.insertAdjacentHTML('afterend', cardHTML()); else s.insertAdjacentHTML('afterbegin', cardHTML());
+  };
+
+  // ambil data terbaru (paling sering tiap 3 menit)
+  let busy = false;
+  function fetchS(force) {
+    if (!SURAT_URL || busy) return;
+    if (!force && Date.now() - get('sr-fetched', 0) < 18e4) return;
+    busy = true;
+    const pin = get('sr-pin', '');
+    const x = new XMLHttpRequest();
+    x.open('GET', `${SURAT_URL}?action=list&key=${SURAT_KEY}${pin ? '&pin=' + encodeURIComponent(pin) : ''}&t=${Date.now()}`, true);
+    x.timeout = 15000;
+    x.onload = () => { busy = false; try { const r = JSON.parse(x.responseText); if (r.ok) { const before = JSON.stringify(get('sr-cache', [])); set('sr-cache', r.items || []); set('sr-fetched', Date.now()); if (before !== JSON.stringify(r.items || [])) { try { if ($('home') && $('home').classList.contains('active')) renderRows(); } catch (e) {} } } } catch (e) {} };
+    x.onerror = x.ontimeout = () => { busy = false; };
+    x.send();
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) fetchS(); });
+
+  const css = document.createElement('style');
+  css.textContent = `
+  .sr-card{display:flex;align-items:center;gap:.75rem;margin:0 0 .75rem;padding:.75rem .9rem;border-radius:18px;background:rgba(255,255,255,.85);border:1px solid rgba(193,122,111,.18);text-decoration:none;color:inherit;box-shadow:0 4px 14px rgba(193,122,111,.08)}
+  .sr-card .sr-e{flex:0 0 44px;height:44px;border-radius:14px;background:#fdeee8;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+  .sr-card .sr-t{flex:1;min-width:0}
+  .sr-card b{display:block;font-size:13px;font-weight:600;color:var(--deep);line-height:1.3}
+  .sr-card small{display:block;font-size:11px;color:var(--muted);margin-top:.1rem;line-height:1.4}
+  .sr-card.hot{background:linear-gradient(135deg,#fff 0%,#fdeee8 60%,#f6d6cc 100%);border-color:rgba(193,122,111,.35);box-shadow:0 8px 22px rgba(193,122,111,.2)}
+  .sr-card.hot .sr-e{background:#fff;animation:srBob 2s ease-in-out infinite}
+  @keyframes srBob{50%{transform:translateY(-3px) rotate(-6deg)}}
+  html.night .sr-card{background:var(--card);border-color:rgba(193,122,111,.25)}
+  html.night .sr-card.hot{background:linear-gradient(140deg,var(--card) 10%,#3a2630 70%)}
+  html.night .sr-card .sr-e{background:rgba(255,255,255,.08)}
+  html.night .sr-card b{color:#f3d9d2}
+  @media (prefers-reduced-motion:reduce){.sr-card.hot .sr-e{animation:none}}`;
+  document.head.appendChild(css);
+  renderRows();
+  fetchS(true);
+})();
+
 })();
 </script>
 </body>
