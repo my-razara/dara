@@ -423,6 +423,11 @@
 })();
 </script>
 <style>.no-welcome #s-welcome{display:none!important}.restoring body{visibility:hidden}</style>
+<script>/* hari spesial: dicek duluan biar musik & tema langsung nyesuain */
+(function(){try{var n=new Date(),d0=new Date(n.getFullYear(),n.getMonth(),n.getDate()),J=new Date(2025,4,10),days=Math.round((d0-J)/864e5),y=n.getFullYear(),m=n.getMonth(),d=n.getDate(),sp=null,mo=(y-2025)*12+m-4;
+if(m===7&&d===18)sp={type:'ultah'};else if(m===4&&d===10&&y>2025)sp={type:'anniv',n:y-2025};else if(days>0&&days%100===0)sp={type:'ratus',n:days};else if(d===10&&mo>0)sp={type:'mensive',n:mo};
+var q=(location.search.match(/[?&]spesial=(\w+)/)||[])[1];if(q){sp={mensive:{type:'mensive',n:Math.max(1,mo)},anniv:{type:'anniv',n:Math.max(1,y-2025)},ultah:{type:'ultah'},ratus:{type:'ratus',n:Math.max(100,Math.floor(days/100)*100)}}[q]||sp;}
+if(sp){sp.date=y+'-'+(m+1)+'-'+d;window.__spesial=sp;window.__sfxTheme='pesta';document.documentElement.classList.add('spesial');}}catch(e){}})();</script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -2020,6 +2025,101 @@ setTimeout(() => {
   // kalau dibuka lagi pas lagi di layar kategori, pasang filternya juga
   try { if ($('cat-screen').classList.contains('active')) { const i = CATS.findIndex(c => c.name === $('cat-hname').textContent); if (i >= 0 && FILTERS[CATS[i].key]) { const y = $('cat-body').scrollTop; renderCatScreen(i); $('cat-body').scrollTop = y; } } } catch (e) {}
   window.__ritRender = () => renderRows();
+})();
+
+
+// ═════════ MODE HARI SPESIAL: tiap tanggal 10 (mensive), 10 Mei (anniv), 18 Agustus (ultah Dara), tiap 100 hari ═════════
+// coba liat duluan: index.html?spesial=mensive / anniv / ultah / ratus
+(function () {
+  const sp = window.__spesial; if (!sp) return;
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const T = {
+    mensive: { e: '💞', title: `Happy mensive ke-${sp.n}!`, sub: `${sp.n} bulan bareng sejak 10 Mei 2025`, fx: ['💞', '🎈', '✨', '💗', '🌸'], c1: '#ffe3ea', c2: '#f0a39a',
+      letter: `Dara sayang,\n\nhari ini tepat ${sp.n} bulan kita bareng. ${sp.n} kali tanggal 10, dan aku masih ngerasa beruntung kayak pertama kali.\n\nMakasih udah sabar sama aku, udah ketawa sama leluconku yang garing, udah tetep milih aku tiap hari.\n\nKe bulan-bulan berikutnya — bareng terus ya.\n\nHappy mensive, sayangku 🤍\n— Razan` },
+    anniv: { e: '💍', title: `Happy anniversary ke-${sp.n}!`, sub: `${sp.n} tahun bareng — sejak 10 Mei 2025`, fx: ['💍', '🥂', '✨', '💞', '🌹'], c1: '#f6e3b8', c2: '#c9a96e',
+      letter: `Dara sayang,\n\n${sp.n} tahun yang lalu, hari ini, kita mulai semuanya. Dan aku masih inget rasanya.\n\nSetahun ini isinya banyak: ketawa, kangen, berantem lucu, baikan, dan makin sayang.\n\nMakasih udah jadi rumah buat aku. Aku mau lewatin tahun-tahun berikutnya sama kamu.\n\nHappy anniversary 🥂\n— Razan` },
+    ultah: { e: '🎂', title: 'Selamat ulang tahun, Dara!', sub: 'Hari ini harinya kamu 🎉', fx: ['🎂', '🎈', '🎁', '🎉', '✨'], c1: '#e3eefb', c2: '#f0a39a',
+      letter: `Selamat ulang tahun, sayangku 🎂\n\nHari ini dunia ngerayain lahirnya orang paling aku sayang.\n\nSemoga tahun ini isinya sehat, ketawa, dan semua yang kamu doain pelan-pelan jadi nyata. Kalau ada hari yang berat, inget aku selalu di pihak kamu.\n\nMakasih udah lahir. Makasih udah jadi kamu.\n\n— Razan, yang sayang banget sama kamu 🤍` },
+    ratus: { e: '🏆', title: `Hari ke-${sp.n} kita!`, sub: `${sp.n} hari bareng — angka cantik!`, fx: ['🏆', '✨', '💯', '💞', '🎈'], c1: '#eef6ec', c2: '#b5c4b1',
+      letter: `Dara,\n\nhari ini hari ke-${sp.n} kita. Angkanya bulet, cantik — kayak kamu 😌\n\n${sp.n} hari, dan aku belum bosen sedetik pun.\n\nMakasih buat semua harinya. Ayo bikin ribuan hari lagi.\n\n— Razan 🤍` },
+  }[sp.type];
+  if (!T) return;
+  const key = sp.type + ':' + sp.date;
+
+  // ── banner di atas kartu "hari ini" ──
+  function bannerHTML() {
+    const read = get('idx-spesial-read', {})[key];
+    return `<div class="sp-banner" style="--c1:${T.c1};--c2:${T.c2}">
+      <span class="sp-ico">${T.e}</span>
+      <p class="sp-k">Hari spesial</p><h2>${T.title}</h2><p class="sp-sub">${T.sub}</p>
+      <button class="sp-btn" onclick="spOpen()">${read ? '💌 Baca lagi suratnya' : '💌 Ada surat buat kamu — buka!'}</button>
+    </div>`;
+  }
+  const _rr2 = renderRows;
+  renderRows = function () { _rr2(); const s = $('today-slot'); if (s && !s.querySelector('.sp-banner')) s.insertAdjacentHTML('afterbegin', bannerHTML()); };
+
+  // ── surat ──
+  const ov = document.createElement('div'); ov.className = 'sp-ov'; ov.innerHTML = `<div class="sp-letter" style="--c1:${T.c1};--c2:${T.c2}"><span class="sp-seal">${T.e}</span><p class="sp-text" id="sp-text"></p><a class="sp-wa" id="sp-wa" target="_blank" rel="noopener">💬 Bales ke Razan</a><button class="sp-close" onclick="spClose()">Tutup</button></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) spClose(); });
+  let typeT;
+  window.spOpen = () => {
+    ov.classList.add('show'); const p = $('sp-text'); clearTimeout(typeT);
+    $('sp-wa').href = `https://wa.me/6285692740607?text=${encodeURIComponent(sp.type === 'ultah' ? 'Makasih sayang udah ngucapin 🥹🎂 Aku sayang kamu 🤍' : `${T.title} juga sayang 🥹🤍 Makasih suratnya!`)}`;
+    const r = get('idx-spesial-read', {});
+    if (r[key]) { p.textContent = T.letter; return; }
+    let i = 0; const step = () => { p.innerHTML = escH(T.letter.slice(0, i)) + '<span class="sp-cur"></span>'; if (i++ < T.letter.length) typeT = setTimeout(step, T.letter[i - 1] === '\n' ? 160 : 28); else { p.textContent = T.letter; } }; step();
+    r[key] = Date.now(); const ks = Object.keys(r); if (ks.length > 40) delete r[ks[0]]; set('idx-spesial-read', r);
+    burst(70);
+  };
+  window.spClose = () => { ov.classList.remove('show'); clearTimeout(typeT); renderRows(); };
+
+  // ── hiasan melayang + confetti ──
+  const layer = document.createElement('div'); layer.className = 'sp-layer'; layer.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 14; i++) { const s = document.createElement('span'); s.textContent = T.fx[i % T.fx.length]; s.style.cssText = `left:${(i * 37) % 100}%;animation-duration:${9 + (i * 7) % 8}s;animation-delay:-${(i * 3) % 12}s;font-size:${14 + (i * 5) % 12}px`; layer.appendChild(s); }
+  document.body.appendChild(layer);
+  function burst(n) {
+    const colors = [T.c2, '#c9a96e', '#fff', '#f0a39a', '#7eb3f5'];
+    for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `position:fixed;z-index:9999;pointer-events:none;left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'};animation:ritCf ${1.6 + Math.random() * 2}s linear forwards`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 16);
+  }
+  // pertama kali buka di hari itu → confetti
+  const seen = get('idx-spesial-seen', '');
+  const kick = () => { if (seen !== key) { set('idx-spesial-seen', key); setTimeout(() => burst(90), 500); } };
+  if (document.getElementById('s-welcome') && getComputedStyle(document.getElementById('s-welcome')).display !== 'none') {
+    const _ea = window.enterApp; if (typeof _ea === 'function') window.enterApp = function () { _ea.apply(this, arguments); kick(); }; else kick();
+  } else kick();
+
+  const css = document.createElement('style');
+  css.textContent = `
+  .sp-banner{position:relative;overflow:hidden;text-align:center;border-radius:22px;padding:1.1rem 1rem 1rem;margin-bottom:.8rem;background:linear-gradient(140deg,#fff 10%,var(--c1) 60%,var(--c2));border:1px solid rgba(193,122,111,.2);box-shadow:0 10px 28px rgba(193,122,111,.18)}
+  .sp-banner::after{content:'';position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,.35),transparent 30%);animation:spSpin 8s linear infinite;pointer-events:none}
+  .sp-ico{position:relative;z-index:1;font-size:2.6rem;display:block;animation:spBob 2.4s ease-in-out infinite}
+  .sp-k{position:relative;z-index:1;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-top:.2rem}
+  .sp-banner h2{position:relative;z-index:1;font-family:'Poppins',sans-serif;font-size:clamp(1.2rem,6vw,1.45rem);font-weight:700;color:var(--deep);line-height:1.2;margin:.15rem 0}
+  .sp-sub{position:relative;z-index:1;font-size:12px;color:var(--muted)}
+  .sp-btn{position:relative;z-index:1;margin-top:.75rem;border:none;border-radius:50px;padding:.7rem 1.2rem;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 6px 16px rgba(122,63,53,.25);cursor:pointer;animation:spPulse 2s ease-in-out infinite}
+  @keyframes spSpin{to{transform:rotate(360deg)}}
+  @keyframes spBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes spPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  .sp-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .sp-layer span{position:absolute;bottom:-30px;opacity:.55;animation:spFloat linear infinite}
+  @keyframes spFloat{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(-115vh) rotate(25deg)}}
+  .sp-ov{position:fixed;inset:0;z-index:9500;background:rgba(45,31,26,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.2rem}
+  .sp-ov.show{display:flex}
+  .sp-letter{position:relative;width:100%;max-width:380px;max-height:86vh;overflow-y:auto;background:#fffdf8;border-radius:20px;padding:2.2rem 1.3rem 1.1rem;box-shadow:0 20px 50px rgba(0,0,0,.3);background-image:repeating-linear-gradient(transparent 0 31px,rgba(193,122,111,.1) 31px 32px);animation:spIn .45s cubic-bezier(.3,1.4,.5,1)}
+  @keyframes spIn{from{transform:scale(.7) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+  .sp-seal{position:absolute;top:-4px;left:50%;transform:translate(-50%,-30%);width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--c1) 50%,var(--c2));display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .sp-text{font-family:'Caveat',cursive;font-size:1.45rem;line-height:32px;color:#7a3f35;white-space:pre-wrap;min-height:64px}
+  .sp-cur{display:inline-block;width:2px;height:1.1em;background:#7a3f35;vertical-align:-3px;animation:spBl .7s step-end infinite}
+  @keyframes spBl{50%{opacity:0}}
+  .sp-wa{display:block;margin-top:1rem;padding:.85rem;border-radius:50px;background:#25a35a;color:#fff;font-family:'Poppins',sans-serif;font-size:13.5px;font-weight:700;text-align:center;text-decoration:none}
+  .sp-close{display:block;width:100%;margin-top:.45rem;padding:.7rem;border:none;background:none;font-family:'Poppins',sans-serif;font-size:12.5px;color:#9a8070;cursor:pointer}
+  html.night .sp-banner{background:linear-gradient(140deg,var(--card) 10%,#3a2630 60%,#5a3540);border-color:rgba(193,122,111,.3)}
+  html.night .sp-letter{background-color:#fffdf8}
+  @media (prefers-reduced-motion:reduce){.sp-layer,.sp-banner::after{display:none}.sp-ico,.sp-btn{animation:none}}`;
+  document.head.appendChild(css);
+  renderRows();
 })();
 
 })();
