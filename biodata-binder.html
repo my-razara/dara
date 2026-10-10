@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Biodata Binder — Razan & Dara 📒</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .tabs{display:flex;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px;margin-bottom:.9rem}
+  .tabs button{flex:1;border:none;background:none;border-radius:50px;padding:.55rem .3rem;font-size:12.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tabs button.on{background:var(--rose);color:#fff;font-weight:600}
+  .paper{position:relative;background:#fff;border-radius:8px;padding:1.1rem 1rem 1rem 2.6rem;box-shadow:0 8px 24px rgba(90,60,40,.12);background-image:linear-gradient(90deg,transparent 2.1rem,#f3b7b7 2.1rem,#f3b7b7 2.2rem,transparent 2.2rem),repeating-linear-gradient(transparent 0 31px,#cfe0f3 31px 32px);background-color:var(--pc,#fffdf8)}
+  .paper::before{content:'';position:absolute;left:.65rem;top:1rem;bottom:1rem;width:14px;background:radial-gradient(circle,#efe8de 5px,transparent 6px) 0 0/14px 64px repeat-y}
+  .paper h2{font-family:'Caveat',cursive;font-size:1.9rem;color:var(--deep);line-height:32px;margin-bottom:0}
+  .paper .row2{display:flex;align-items:flex-end;gap:.4rem;min-height:32px;border-bottom:none}
+  .paper label{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0;line-height:32px}
+  .paper input{flex:1;min-width:0;border:none;background:transparent;font-family:'Caveat',cursive;font-size:1.3rem;color:#2f4f8a;line-height:32px;height:32px;outline:none;padding:0 .2rem}
+  .paper input:focus{background:rgba(255,240,200,.5)}
+  .stk{position:absolute;right:10px;top:8px;font-size:1.6rem;transform:rotate(12deg)}
+  .cmp{display:flex;flex-direction:column;gap:.5rem}
+  .cm{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:14px;padding:.6rem .8rem}
+  .cm small{font-size:10px;color:var(--gold);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+  .cm div{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.2rem}
+  .cm p{font-family:'Caveat',cursive;font-size:1.25rem;line-height:1.2;overflow-wrap:anywhere}
+  .cm p.r{color:var(--rz)}.cm p.d{color:var(--dr)}
+  .cm.same{border-color:#a9cfa3;background:#f3faf1}
+  .score{text-align:center;margin-bottom:.8rem}
+  .score b{font-size:2rem;color:var(--deep)}
+  .score p{font-size:12px;color:var(--muted)}
+
+</style>
+<script src="sfx.js" defer></script>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
+  <div class="head"><p class="lbl">Nostalgia jaman SD</p><h1 class="title">Biodata <span>Binder</span> 📒</h1><p class="sub">Isi biodata kayak dulu di kertas binder — terus bandingin punya Razan & Dara!</p></div>
+  <div class="tabs" id="tabs"><button data-t="Dara">🙋‍♀️ Dara</button><button data-t="Razan">🙋‍♂️ Razan</button><button data-t="cmp">💞 Bandingin</button></div>
+  <div id="view"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const Q = [['nama', 'Nama lengkap'], ['panggilan', 'Panggilan sayang'], ['ttl', 'Tempat, tgl lahir'], ['zodiak', 'Zodiak'], ['hobi', 'Hobi'], ['makanan', 'Makanan favorit'], ['minuman', 'Minuman favorit'], ['warna', 'Warna favorit'], ['lagu', 'Lagu favorit'], ['film', 'Film favorit'], ['hewan', 'Hewan favorit'], ['cita', 'Cita-cita'], ['takut', 'Paling takut sama'], ['benci', 'Paling ga suka'], ['motto', 'Motto hidup'], ['pertama', 'Kesan pertama ke dia'], ['suka', 'Yang paling disuka dari dia'], ['pesan', 'Pesan buat dia']];
+const PAPERS = { Dara: ['#fff4f6', '🎀'], Razan: ['#f3f8ff', '⭐'] };
+let tab = lsGet('binder-tab', 'Dara');
+const get = w => lsGet('binder-' + w, {});
+function render() {
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+  if (tab === 'cmp') return renderCmp();
+  const d = get(tab), [pc, stk] = PAPERS[tab];
+  const filled = Q.filter(([k]) => (d[k] || '').trim()).length;
+  $('view').innerHTML = `<div class="paper" style="--pc:${pc}"><span class="stk">${stk}</span><h2>Biodata ${tab} ✍️</h2>${Q.map(([k, l]) => `<div class="row2"><label for="q-${k}">${l} :</label><input id="q-${k}" maxlength="60" value="${esc(d[k] || '')}"></div>`).join('')}</div>
+    <p style="text-align:center;font-size:11.5px;color:var(--muted);margin:.6rem 0" id="cnt">${filled}/${Q.length} keisi · otomatis kesimpen</p>
+    <div class="row"><button class="btn" onclick="savePng()">⬇️ Simpan gambar</button><a class="btn wa" target="_blank" rel="noopener" id="wa">💬 Kirim</a></div>`;
+  Q.forEach(([k]) => $('q-' + k).addEventListener('input', e => { const x = get(tab); x[k] = e.target.value; lsSet('binder-' + tab, x); $('cnt').textContent = `${Q.filter(([q]) => (x[q] || '').trim()).length}/${Q.length} keisi · otomatis kesimpen`; upWa(); }));
+  upWa();
+}
+function upWa() { const d = get(tab); const w = $('wa'); if (!w) return; w.href = waLink(otherOf(tab), `📒 BIODATA ${tab.toUpperCase()}\n` + Q.filter(([k]) => (d[k] || '').trim()).map(([k, l]) => `${l}: ${d[k]}`).join('\n')); }
+function renderCmp() {
+  const r = get('Razan'), d = get('Dara');
+  const both = Q.filter(([k]) => (r[k] || '').trim() && (d[k] || '').trim());
+  const same = both.filter(([k]) => r[k].trim().toLowerCase() === d[k].trim().toLowerCase());
+  $('view').innerHTML = (both.length ? `<div class="score"><b>${same.length}</b><p>jawaban yang sama persis dari ${both.length} yang diisi berdua${same.length ? ' — jodoh 😌' : ''}</p></div>` : '<p class="empty">Isi biodata Razan & Dara dulu (bisa di HP ini dua-duanya, gantian) — nanti dibandingin di sini 💞</p>') +
+    `<div class="cmp">${Q.map(([k, l]) => { const a = (r[k] || '').trim(), b = (d[k] || '').trim(); if (!a && !b) return ''; return `<div class="cm ${a && b && a.toLowerCase() === b.toLowerCase() ? 'same' : ''}"><small>${l}</small><div><p class="r">${a ? esc(a) : '…'}</p><p class="d">${b ? esc(b) : '…'}</p></div></div>`; }).join('')}</div>`;
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; lsSet('binder-tab', tab); render(); });
+async function savePng() {
+  await fontsReady(); const d = get(tab), [pc, stk] = PAPERS[tab];
+  const W = 1080, LH = 64, H = 260 + Q.length * LH + 80, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  x.fillStyle = pc; x.fillRect(0, 0, W, H);
+  x.strokeStyle = '#cfe0f3'; x.lineWidth = 2; for (let y = 200; y < H; y += LH) { x.beginPath(); x.moveTo(0, y); x.lineTo(W, y); x.stroke(); }
+  x.strokeStyle = '#f3b7b7'; x.lineWidth = 3; x.beginPath(); x.moveTo(110, 0); x.lineTo(110, H); x.stroke();
+  x.fillStyle = '#efe8de'; for (let y = 60; y < H; y += 130) { x.beginPath(); x.arc(52, y, 16, 0, 7); x.fill(); }
+  x.fillStyle = '#7a3f35'; x.font = "700 84px Caveat, 'Segoe Script', cursive"; x.fillText(`Biodata ${tab} ✍️`, 140, 150); x.font = '64px serif'; x.fillText(stk, W - 120, 120);
+  Q.forEach(([k, l], i) => { const y = 200 + (i + 1) * LH - 16; x.fillStyle = '#9a8070'; x.font = '400 24px Poppins, sans-serif'; x.fillText(l + ' :', 140, y); const lw = x.measureText(l + ' :').width; x.fillStyle = '#2f4f8a'; x.font = "700 40px Caveat, 'Segoe Script', cursive"; let v = d[k] || ''; while (x.measureText(v).width > W - 200 - lw && v.length > 3) v = v.slice(0, -2) + '…'; x.fillText(v, 155 + lw, y); });
+  shareCanvas(c, `biodata-${tab.toLowerCase()}.png`, 'Biodata Binder');
+}
+render();
+
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
