@@ -809,7 +809,7 @@ const CATS = [
         {icon:'🤖',wrap:'sage',label:'Mesin Gombal AI',sub:'58 gombalan',desc:'Teknologi tercanggih ditenagai perasaan Razan — 5 mode gombal, simpan favorit, dan gombalin balik Razan! 🤖',link:'mesin-gombal.html'},
         {icon:'🧸',wrap:'pink',label:'Mesin Capit',sub:'3 koin / hari',desc:'Capit hadiah dari Razan — 3 koin tiap hari, makin pas di tengah makin kuat capitnya! Ada hadiah langka 🌟 dan lemari koleksi 🧸',link:'mesin-boneka.html'},
         {icon:'🛒',wrap:'warm',label:'Marketplace Pacar',sub:'16 produk',desc:'Belanja hadiah dari Razan — 16 produk 100% gratis, stok unlimited! Ada flash sale, voucher rahasia, dan lacak pesanan 🛒',link:'marketplace-pacar.html'},
-        {icon:'💐',wrap:'pink',label:'Bucket Bunga',sub:'Rangkai & kirim',desc:'Rangkai bucket bunga sendiri — taruh, geser, putar, pilih kertas & pita, tulis kartu ucapan, terus simpan atau kirim! 🌸',link:'bucket-bunga.html'},
+        {icon:'💐',wrap:'pink',label:'Bucket Bunga',sub:'Rangkai & kirim',desc:'Rangkai bucket bunga sendiri — taruh, geser, putar, pilih kertas & pita, terus simpan atau kirim! 🌸',link:'bucket-bunga.html'},
         {icon:'🪞',wrap:'mauve',label:'Mirror of Us',sub:'7 pertanyaan · bisa berdua',desc:'Jawab 7 pertanyaan visual — dapat Relationship Portrait khusus buat kamu, atau main berdua dan lihat seberapa cocok kalian! 🪞',link:'mirror-of-us.html'},
         {icon:'🧠',wrap:'mauve',label:'Mind Reader',sub:'Trik sulap',desc:'Pikirkan sesuatu — biarkan aku membacanya. Beberapa trik sulap berbasis matematika! 🧠',link:'mind-reader.html'},
         {icon:'📒',wrap:'warm',label:'Buku Cek Cinta',sub:'13 lembar cek',desc:'12 cek spesial + 1 cek kosong yang kamu tulis sendiri — cairkan kapanpun, Razan langsung dikabarin! 📒',link:'buku-cek.html'},
@@ -1251,7 +1251,7 @@ const UPDATED = {
   'bangun-rumah.html':          '2026-09-30',
   'bikin-ketawa.html':          '2026-09-30',
   'bowling.html':               '2026-10-07',
-  'bucket-bunga.html':          '2026-09-30',
+  'bucket-bunga.html':          '2026-10-10',
   'buku-cek.html':              '2026-09-30',
   'bunuh-serangga.html':        '2026-10-07',
   'cermin.html':                '2026-09-30',
@@ -1827,6 +1827,201 @@ setTimeout(() => {
   try { if (sessionStorage.getItem('keu-warm')) return; sessionStorage.setItem('keu-warm', '1'); } catch (e) {}
   Object.keys(KEU_CONFIG).forEach(u => { const c = KEU_CONFIG[u]; if (c && c.url) keuXhr('GET', c.url + '?key=' + c.key + '&action=hasPassword', null, () => {}); });
 }, 1500);
+
+// ═════════ MENU LEBIH RAPI: filter di layar kategori + "Paling sering dibuka" + RITUAL HARIAN ═════════
+(function () {
+  const dk = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+  // ── 1. hitung berapa kali tiap halaman dibuka ──
+  let opens = get('idx-opens', {});
+  const _ol = openLink;
+  openLink = function () { if (curLink) { opens[curLink] = (opens[curLink] || 0) + 1; set('idx-opens', opens); } _ol(); };
+  const popular = () => ALL.filter(it => (opens[it.link] || 0) >= 2).sort((a, b) => opens[b.link] - opens[a.link]).slice(0, 8);
+
+  // ── 2. label buat filter ──
+  // hadiah: h = harian, r = romantis, s = seru, k = bisa dikirim, t = nenangin, m = kenangan
+  const HT = {
+    'open-when.html': 'rt', 'rating-ketemu.html': 'rk', 'taman-bunga.html': 'ht', 'period-tracker.html': 'h', 'kupon-maaf.html': 'rk', 'cloud-wishes.html': 'r', 'jar-of-reasons.html': 'r',
+    'radio-razan.html': 'rt', 'lucky-dip.html': 'sr', 'dna-hubungan.html': 'r', 'hal-kecil.html': 'r', 'polaroid-wall.html': 'mr', 'moodboard-dara.html': 's', 'playlist-dara.html': 'rt',
+    'bintang-jatuh.html': 'rt', 'koran-dara.html': 'sr', 'mystery-box.html': 's', 'love-quest.html': 'hs', 'kapsul-waktu.html': 'rm', 'pertanyaan-harian.html': 'hr', 'bucket-list.html': 'mr',
+    'hitung-ketemu.html': 'hr', 'tombol-kangen.html': 'kr', 'ramalan-cinta.html': 'hs', 'gosok-hadiah.html': 'hsk', 'kotak-musik.html': 'rt', 'rapor-razan.html': 'sk', 'kode-rahasia.html': 'sk',
+    'kartu-ucapan.html': 'kr', 'timeline-kita.html': 'mr', 'tiup-lilin.html': 'rs', 'lampion-harapan.html': 'rt', 'pencapaian.html': 'sm', 'photobooth.html': 'sm', 'mesin-gombal.html': 'sr',
+    'mesin-boneka.html': 's', 'marketplace-pacar.html': 's', 'bucket-bunga.html': 'rk', 'mirror-of-us.html': 's', 'mind-reader.html': 's', 'buku-cek.html': 'rk', 'peta-bintang.html': 'rm',
+    'peta-kenangan.html': 'm', 'gembok-cinta.html': 'r', 'teka-teki-surat.html': 'rs', 'jendela-embun.html': 'tr', 'pagi-sayang.html': 'ht', 'pengantar-tidur.html': 't', 'napas-bareng.html': 't',
+    'kalender-mood.html': 'ht', 'jurnal-syukur.html': 'ht', 'stiker-wa.html': 'ks', 'bahasa-cinta.html': 'sk', 'kartu-pacar.html': 'sk', 'penghargaan.html': 'sk', 'tarot-cinta.html': 's',
+    'kalkulator-cinta.html': 's', 'pop-it.html': 'ts', 'mesin-terserah.html': 's', 'biodata-binder.html': 'sm',
+  };
+  const isBot = it => { const m = META[it.link] || {}; return /komputer|\bbot\b/i.test((m.kw || '') + ' ' + it.sub + ' ' + it.desc); };
+  const FILTERS = {
+    games: [['all', '✨ Semua'], ['b', '👫 Berdua'], ['s', '🙋 Sendiri'], ['bot', '🤖 Lawan komputer'], ['cepat', '⚡ Cepet'], ['santai', '💬 Ngobrol'], ['pop', '🔥 Sering dibuka']],
+    hadiah: [['all', '✨ Semua'], ['h', '☀️ Harian'], ['r', '💞 Romantis'], ['s', '🎉 Seru'], ['k', '💌 Bisa dikirim'], ['t', '🌙 Nenangin'], ['m', '📸 Kenangan'], ['pop', '🔥 Sering dibuka']],
+  };
+  const TALK = 'deep-talk 36-questions jar-of-questions peta-emosi aku-belum-pernah lanjut-cerita who-knows-me aku-adalah truth-or-dare tarik-pilihan cermin frekuensi bikin-ketawa'.split(' ').map(x => x + '.html');
+  function match(it, f) {
+    if (f === 'all') return true;
+    if (f === 'pop') return (opens[it.link] || 0) >= 1;
+    if (it.cat === 'games') {
+      const m = META[it.link] || {};
+      if (f === 'b') return m.p === 'b' || m.p === 'sb';
+      if (f === 's') return m.p === 's' || m.p === 'sb';
+      if (f === 'bot') return isBot(it);
+      if (f === 'cepat') return (m.t || 99) <= 5;
+      if (f === 'santai') return TALK.includes(it.link);
+    }
+    return (HT[it.link] || '').includes(f);
+  }
+  function gridItem(item) {
+    return `<div class="grid-item${item.feat ? ' grid-item-featured' : ''}" data-link="${item.link}">${item.badge ? `<div class="featured-badge">${item.badge}</div>` : ''}<div class="item-icon-wrap ${item.wrap}">${item.icon}</div><p class="item-label">${item.label}</p><p class="item-sublabel">${item.sub}</p></div>`;
+  }
+  // tanda BARU / ⭐ di grid → pakai link kalau ada (biar tetep bener pas difilter)
+  decorateGrid = function () {
+    const hname = $('cat-hname').textContent, cat = CATS.find(c => c.name === hname);
+    if (!cat || cat.key === 'secret') return;
+    const items = cat.sections.flatMap(s => s.items);
+    document.querySelectorAll('#cat-body .grid-item').forEach((el, i) => {
+      const it = el.dataset.link ? byLink(el.dataset.link) : items[i]; if (!it) return;
+      el.querySelectorAll('.new-dot,.fav-mark').forEach(x => x.remove());
+      if (isNew({ ...it, cat: cat.key })) el.insertAdjacentHTML('beforeend', '<span class="new-dot">BARU</span>');
+      if (favs.includes(it.link)) el.insertAdjacentHTML('beforeend', '<span class="fav-mark">⭐</span>');
+    });
+  };
+  const _rcs = renderCatScreen;
+  renderCatScreen = function (i) {
+    _rcs(i);
+    const cat = CATS[i]; if (!FILTERS[cat.key]) return;
+    const f = get('idx-catf-' + cat.key, 'all');
+    const body = $('cat-body');
+    const bar = document.createElement('div'); bar.className = 'cf-bar';
+    const items = ALL.filter(it => it.cat === cat.key);
+    bar.innerHTML = FILTERS[cat.key].map(([k, l]) => { const n = k === 'all' ? items.length : items.filter(it => match(it, k)).length; return n || k === 'pop' ? `<button class="chip ${k === f ? 'on' : ''}" data-k="${k}">${l}${k === 'all' ? '' : ` <small>${n}</small>`}</button>` : ''; }).join('');
+    body.insertBefore(bar, body.firstChild);
+    bar.querySelectorAll('.chip').forEach(b => b.onclick = () => { set('idx-catf-' + cat.key, b.dataset.k); renderCatScreen(i); });
+    if (f !== 'all') {
+      let list = items.filter(it => match(it, f));
+      if (f === 'pop') list.sort((a, b) => (opens[b.link] || 0) - (opens[a.link] || 0));
+      body.querySelectorAll('.section').forEach(s => s.remove());
+      const sec = document.createElement('div'); sec.className = 'section';
+      const lbl = FILTERS[cat.key].find(x => x[0] === f)[1];
+      sec.innerHTML = list.length ? `<p class="section-label">${lbl} · ${list.length}</p><div class="grid">${list.map(gridItem).join('')}</div>`
+        : `<div class="empty-hint" style="margin-top:1rem">${f === 'pop' ? 'Belum ada yang sering dibuka. Main-main dulu ya, nanti yang paling sering muncul di sini 🔥' : 'Belum ada yang cocok 😅'}</div>`;
+      body.appendChild(sec);
+      sec.querySelectorAll('.grid-item').forEach(el => el.onclick = () => openItem(byLink(el.dataset.link)));
+      decorateGrid();
+    }
+    const on = bar.querySelector('.chip.on'); if (on) bar.scrollLeft = on.offsetLeft - 40;
+  };
+
+  // ── 3. RITUAL HARIAN ──
+  const today = () => dk();
+  const meOf = k => get(k, 'Dara');
+  const RITUALS = [
+    { link: 'pagi-sayang.html', ico: '☀️', n: 'Pagi Sayang', done: () => { const d = (get('pagi-log', {}) || {})[today()]; return !!d && ((d.w || 0) > 0 || Object.values(d.t || {}).some(Boolean)); } },
+    { link: 'ramalan-cinta.html', ico: '🔮', n: 'Ramalan', done: () => !!(get('ramalan-seen', {}) || {})[today()] },
+    { link: 'gosok-hadiah.html', ico: '🪙', n: 'Gosok kartu', done: () => { const d = (get('gosok-hist', {}) || {})[today()]; return !!(d && d.s); } },
+    { link: 'pertanyaan-harian.html', ico: '💬', n: 'Pertanyaan', done: () => { const q = get('qa-cache', null); const d = q && Array.isArray(q.days) && q.days.find(x => x.date === today()); return !!(d && d.mine); } },
+    { link: 'kalender-mood.html', ico: '📅', n: 'Catat mood', done: () => !!(get('mood-' + meOf('mood-me'), {}) || {})[today()] },
+    { link: 'jurnal-syukur.html', ico: '🙏', n: 'Syukur', done: () => !!(get('syukur-' + meOf('syukur-me'), {}) || {})[today()] },
+    { link: 'love-quest.html', ico: '⚔️', n: 'Daily quest', done: () => { const d = get('lq-v2', null); return !!(d && d.daily && (d.daily[today()] || []).length); } },
+    { link: 'hitung-ketemu.html', ico: '⏰', n: 'Kotak ketemu', show: () => { const m = get('idx-meet', ''); return !!m && m >= today(); }, done: () => !!(get('hk-opened', {}) || {})[today()] },
+  ];
+  let editRit = false;
+  function ritualState() {
+    const off = get('idx-ritual-off', []);
+    const list = RITUALS.filter(r => (!r.show || r.show()) && byLink(r.link));
+    const shown = list.filter(r => !off.includes(r.link));
+    const st = shown.map(r => { let d = false; try { d = r.done(); } catch (e) {} return { ...r, d }; });
+    return { list, shown: st, off, n: st.filter(r => r.d).length };
+  }
+  function streak(log) { let s = 0; const d = new Date(); if (!log[dk(d)]) d.setDate(d.getDate() - 1); while (log[dk(d)]) { s++; d.setDate(d.getDate() - 1); } return s; }
+  function ritualHTML() {
+    const R = ritualState(); if (!R.list.length) return '';
+    const log = get('idx-ritual-log', {});
+    const all = R.shown.length && R.n === R.shown.length;
+    if (all && !log[today()]) { log[today()] = 1; const ks = Object.keys(log).sort(); while (ks.length > 90) delete log[ks.shift()]; set('idx-ritual-log', log); }
+    const st = streak(log);
+    if (editRit) {
+      return `<div class="hx-sec rit"><div class="hx-title"><span>☀️ Atur ritual harian</span><button onclick="ritEdit()">Selesai</button></div>
+        <p class="rit-note">Tap buat nyalain / matiin ritual yang mau dimunculin di sini</p>
+        <div class="rit-row">${R.list.map(r => `<button class="rit-pill ${R.off.includes(r.link) ? 'off' : ''}" data-tog="${r.link}"><span>${r.ico}</span>${r.n}<i>${R.off.includes(r.link) ? '✕' : '✓'}</i></button>`).join('')}</div></div>`;
+    }
+    if (!R.shown.length) return `<div class="hx-sec rit"><div class="hx-title"><span>☀️ Ritual hari ini</span><button onclick="ritEdit()">Atur</button></div><div class="empty-hint">Semua ritual lagi dimatiin. Tap “Atur” buat nyalain lagi.</div></div>`;
+    return `<div class="hx-sec rit"><div class="hx-title"><span>☀️ Ritual hari ini · ${R.n}/${R.shown.length}</span><button onclick="ritEdit()">Atur</button></div>
+      <div class="rit-card${all ? ' full' : ''}">
+        <div class="rit-top"><b>${all ? '🎉 Semua beres hari ini!' : R.n ? `Tinggal ${R.shown.length - R.n} lagi ✨` : 'Yuk mulai hari ini 🤍'}</b><span>${st ? `🔥 ${st} hari beruntun` : 'Beresin semua buat mulai streak'}</span></div>
+        <div class="rit-bar"><i style="width:${Math.round(R.n / R.shown.length * 100)}%"></i></div>
+        <div class="rit-row">${R.shown.map(r => `<button class="rit-pill ${r.d ? 'done' : ''}" data-link="${r.link}"><span>${r.ico}</span>${r.n}<i>${r.d ? '✓' : ''}</i></button>`).join('')}</div>
+      </div></div>`;
+  }
+  window.ritEdit = () => { editRit = !editRit; renderRows(); };
+  function bindRit(root) {
+    root.querySelectorAll('.rit-pill[data-link]').forEach(b => b.onclick = () => { const it = byLink(b.dataset.link); if (it) openItem(it); });
+    root.querySelectorAll('.rit-pill[data-tog]').forEach(b => b.onclick = () => { let off = get('idx-ritual-off', []); const l = b.dataset.tog; off = off.includes(l) ? off.filter(x => x !== l) : off.concat(l); set('idx-ritual-off', off); renderRows(); });
+    const full = root.querySelector('.rit-card.full');
+    if (full && get('idx-ritual-cele', '') !== today()) { set('idx-ritual-cele', today()); celebrate(); }
+  }
+  function celebrate() {
+    const colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#fff'];
+    for (let i = 0; i < 60; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `position:fixed;z-index:9999;pointer-events:none;left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};width:${6 + Math.random() * 6}px;height:${6 + Math.random() * 6}px;border-radius:${Math.random() > .5 ? '50%' : '2px'};animation:ritCf ${1.6 + Math.random() * 2}s linear forwards`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+  }
+
+  // ── pasang di home ──
+  const _rr = renderRows;
+  renderRows = function () {
+    _rr();
+    const host = $('home-rows'); if (!host) return;
+    const wrap = document.createElement('div'); wrap.innerHTML = ritualHTML();
+    if (wrap.firstElementChild) { host.insertBefore(wrap.firstElementChild, host.firstChild); bindRit(host); }
+    const pop = popular();
+    if (pop.length >= 3) {
+      const d = document.createElement('div'); d.className = 'hx-sec';
+      d.innerHTML = `<div class="hx-title"><span>🔥 Paling sering dibuka</span></div><div class="row">${pop.map(miniHTML).join('')}</div>`;
+      const fav = [...host.querySelectorAll('.hx-sec')].find(s => /Favorit kamu/.test(s.textContent));
+      host.insertBefore(d, fav ? fav.nextSibling : null); bindMinis(d);
+    }
+  };
+  // balik dari game/hadiah → ritual langsung kecentang
+  const refresh = () => { try { if ($('home') && $('home').classList.contains('active')) renderRows(); } catch (e) {} };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+  window.addEventListener('pageshow', e => { if (e.persisted) refresh(); });
+
+  const css = document.createElement('style');
+  css.textContent = `
+  .cf-bar{position:sticky;top:-.75rem;z-index:5;display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;margin:-.75rem -1.1rem 0;padding:.7rem 1.1rem .55rem;background:var(--cream)}
+  .cf-bar::-webkit-scrollbar{display:none}
+  .cf-bar .chip small{font-size:9.5px;opacity:.75;margin-left:.1rem}
+  .rit-card{background:#fff;border:1px solid rgba(193,122,111,.16);border-radius:20px;padding:.85rem .9rem .8rem;box-shadow:0 6px 18px rgba(193,122,111,.08)}
+  .rit-card.full{background:linear-gradient(135deg,#fff,#eef6ec);border-color:#bcd7b5}
+  .rit-top{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+  .rit-top b{font-size:13px;font-weight:600;color:var(--deep)}
+  .rit-top span{font-size:10.5px;color:var(--muted)}
+  .rit-bar{height:7px;border-radius:7px;background:rgba(193,122,111,.13);overflow:hidden;margin:.5rem 0 .65rem}
+  .rit-bar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#b5c4b1,#6f9a6a);transition:width .6s}
+  .rit-row{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.1rem}
+  .rit-row::-webkit-scrollbar{display:none}
+  .rit-pill{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:.42rem .55rem .42rem .5rem;border-radius:50px;border:1.5px solid var(--blush);background:var(--cream);font-family:'Poppins',sans-serif;font-size:11.5px;color:var(--ink);cursor:pointer;white-space:nowrap}
+  .rit-pill span{font-size:14px}
+  .rit-pill i{font-style:normal;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--blush);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;margin-left:.1rem}
+  .rit-pill.done{background:#eef6ec;border-color:#a9cfa3;color:#4f7a4a}
+  .rit-pill.done i{background:#6f9a6a;border-color:#6f9a6a}
+  .rit-pill.off{opacity:.45}
+  .rit-pill.off i{background:#c9b8ae;border-color:#c9b8ae}
+  .rit-pill[data-tog] i{background:#6f9a6a;border-color:#6f9a6a}
+  .rit-note{font-size:11px;color:var(--muted);margin:-.2rem 0 .5rem}
+  @keyframes ritCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  html.night .rit-card{background:var(--card);border-color:rgba(193,122,111,.25)}
+  html.night .rit-card.full{background:linear-gradient(135deg,var(--card),#24332a);border-color:#4f7a4a}
+  html.night .rit-pill{background:var(--card2);color:var(--ink)}
+  html.night .rit-pill.done{background:#24332a;border-color:#4f7a4a;color:#a9cfa3}`;
+  document.head.appendChild(css);
+
+  renderRows();
+  // kalau dibuka lagi pas lagi di layar kategori, pasang filternya juga
+  try { if ($('cat-screen').classList.contains('active')) { const i = CATS.findIndex(c => c.name === $('cat-hname').textContent); if (i >= 0 && FILTERS[CATS[i].key]) { const y = $('cat-body').scrollTop; renderCatScreen(i); $('cat-body').scrollTop = y; } } } catch (e) {}
+  window.__ritRender = () => renderRows();
+})();
+
 })();
 </script>
 </body>
