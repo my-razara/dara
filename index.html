@@ -2252,6 +2252,76 @@ setTimeout(() => {
   renderRows();
 })();
 
+// ═══ Pengingat ringan — notif kecil di atas menu (dari data yang udah nyambung) ═══
+(function () {
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const p2 = n => String(n).padStart(2, '0');
+  const dk = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+  const MOOD = [['🥰', 'bahagia'], ['😄', 'seneng'], ['🙂', 'biasa aja'], ['😴', 'capek'], ['😔', 'sedih'], ['😢', 'nangis'], ['😤', 'kesel'], ['😰', 'cemas']];
+  function list() {
+    const B = window.Berdua, me = B ? B.me() : 'Dara', o = me === 'Razan' ? 'Dara' : 'Razan';
+    const now = new Date(), t = dk(now), h = now.getHours(), tm = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1), tmr = dk(tm);
+    const day = (k, w) => (get(k + '-' + w, {}) || {})[t];
+    const N = [], on = !!(B && B.enabled);
+    if (on) {
+      const mo = day('mood', o);
+      if (mo && mo.m >= 3 && MOOD[mo.m]) N.push({ id: 'sad', e: '🫂', t: `${o} lagi ${MOOD[mo.m][1]} hari ini`, s: mo.n ? `“${mo.n}”` : 'Peluk dulu yuk, tanyain kenapa', href: 'kalender-mood.html', hot: 1 });
+      const ko = day('kangen', o), km = day('kangen', me);
+      if (ko && ko.n && !(km && km.n)) N.push({ id: 'kangen', e: '💗', t: `${o} udah kangen ${ko.n}× hari ini`, s: 'Bales kangennya yuk 🥺', href: 'tombol-kangen.html', hot: 1 });
+    }
+    const meet = get('idx-meet', '');
+    if (meet) { const [y, m, d] = meet.split('-').map(Number), n = Math.round((new Date(y, m - 1, d) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5); if (n >= 0 && n <= 3) N.push({ id: 'meet', e: n ? '⏰' : '🥰', t: n ? `${n} hari lagi ketemu!` : 'Hari ini ketemu!', s: n ? 'Udah siapin apa aja? 😆' : 'Have fun ya berdua 🤍', href: 'hitung-ketemu.html' }); }
+    const sr = (get('sr-cache', []) || []).filter(x => x && !x.deleted && x.kind !== 'kalau');
+    if (get('sr-pin', '') === '1718') {
+      const wk = dk(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));
+      if (get('sr-fetched', 0) && !sr.some(x => x.date >= t && x.date <= wk)) N.push({ id: 'surat-tulis', e: '✍️', t: `Belum ada surat buat ${o} minggu ini`, s: 'Tulis satu buat besok pagi? 🤫', href: 'surat-razan.html' });
+    } else if (sr.some(x => x.date === tmr)) N.push({ id: 'surat-besok', e: '🤫', t: 'Ada surat dari Razan yang kebuka besok', s: 'Sabar ya, isinya masih rahasia 💌', href: 'surat-razan.html' });
+    if (on) {
+      const r = day('ritual', me);
+      if (h >= 7 && h < 12 && !(r && r.n)) N.push({ id: 'rit-pagi', e: '☀️', t: 'Ritual pagi belum diisi', s: 'Mulai dari Pagi Sayang dulu yuk', href: 'pagi-sayang.html' });
+      else if (h >= 19 && r && r.t && r.n < r.t) N.push({ id: 'rit-malam', e: '🌙', t: `Tinggal ${r.t - r.n} ritual lagi hari ini`, s: 'Beresin biar streak-nya jalan 🔥', href: '#rit' });
+      if (h >= 17 && !day('mood', me)) N.push({ id: 'mood', e: '📅', t: 'Mood hari ini belum dicatat', s: `${o} bisa liat juga lho`, href: 'kalender-mood.html' });
+      const so = day('syukur', o);
+      if (so && so.length && !day('syukur', me)) N.push({ id: 'syukur', e: '🙏', t: `${o} udah nulis hal yang dia syukuri`, s: 'Giliran kamu, 1 hal juga boleh', href: 'jurnal-syukur.html' });
+    }
+    const x = (get('idx-nudge-x', {}) || {})[t] || [];
+    return N.filter(n => !x.includes(n.id)).slice(0, 2);
+  }
+  window.__nudgeX = id => {
+    const t = dk(new Date()), all = get('idx-nudge-x', {}) || {}; all[t] = (all[t] || []).concat(id);
+    Object.keys(all).sort().slice(0, -3).forEach(k => delete all[k]); set('idx-nudge-x', all);
+    const el = document.querySelector(`.ng[data-id="${id}"]`); if (el) { el.classList.add('out'); setTimeout(() => { try { renderRows(); } catch (e) {} }, 260); }
+  };
+  window.__nudgeGo = (id, href) => { if (href === '#rit') { const r = document.querySelector('.rit'); if (r) r.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; } location.href = href; };
+  const _rr5 = renderRows;
+  renderRows = function () {
+    _rr5();
+    const s = $('today-slot'); if (!s) return;
+    s.querySelectorAll('.ng-wrap').forEach(x => x.remove());
+    const L = list(); if (!L.length) return;
+    s.insertAdjacentHTML('afterbegin', `<div class="ng-wrap">${L.map((n, i) => `<div class="ng ${n.hot ? 'hot' : ''}" data-id="${n.id}" style="animation-delay:${i * .12}s"><button class="ng-main" onclick="__nudgeGo('${n.id}','${n.href}')"><span class="ng-e">${n.e}</span><span class="ng-t"><b>${escH(n.t)}</b><small>${escH(n.s)}</small></span></button><button class="ng-x" aria-label="tutup" onclick="__nudgeX('${n.id}')">✕</button></div>`).join('')}</div>`);
+  };
+  const css = document.createElement('style');
+  css.textContent = `
+  .ng-wrap{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem}
+  .ng{display:flex;align-items:center;background:rgba(255,255,255,.92);border:1px solid rgba(193,122,111,.16);border-radius:16px;box-shadow:0 4px 14px rgba(193,122,111,.08);animation:ngIn .4s cubic-bezier(.3,1.3,.5,1) both;transition:opacity .25s,transform .25s}
+  .ng.out{opacity:0;transform:translateX(30px)}
+  .ng.hot{border-color:rgba(193,122,111,.4);background:linear-gradient(135deg,#fff,#fdeee8)}
+  @keyframes ngIn{from{opacity:0;transform:translateY(-8px)}}
+  .ng-main{flex:1;min-width:0;display:flex;align-items:center;gap:.6rem;border:none;background:none;padding:.55rem .2rem .55rem .75rem;text-align:left;cursor:pointer;font-family:inherit;color:inherit}
+  .ng-e{font-size:1.3rem;flex:0 0 auto}
+  .ng-t{min-width:0}
+  .ng-t b{display:block;font-size:12.5px;font-weight:600;color:var(--deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ng-t small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ng-x{flex:0 0 36px;height:36px;border:none;background:none;color:var(--muted);font-size:12px;cursor:pointer}
+  html.night .ng{background:var(--card);border-color:rgba(193,122,111,.25)}
+  html.night .ng.hot{background:linear-gradient(140deg,var(--card) 10%,#3a2630)}
+  html.night .ng-t b{color:#f3d9d2}`;
+  document.head.appendChild(css);
+  renderRows();
+})();
+
 })();
 </script>
 </body>
