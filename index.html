@@ -2225,6 +2225,33 @@ setTimeout(() => {
   fetchS(true);
 })();
 
+// ═══ Rekap Bulanan — kartu tiap tanggal 10–16 + catat jumlah buka per bulan ═══
+(function () {
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const J = new Date(2025, 4, 10), addM = n => new Date(J.getFullYear(), J.getMonth() + n, J.getDate());
+  const n0 = new Date(), t = new Date(n0.getFullYear(), n0.getMonth(), n0.getDate());
+  let k = 0; while (addM(k + 1) <= t) k++;
+  // foto jumlah "dibuka" di awal tiap bulan, biar rekap bisa ngitung per bulan
+  const hist = get('idx-opens-hist', {});
+  if (!hist[k + 1]) { hist[k + 1] = get('idx-opens', {}); const ks = Object.keys(hist).map(Number).sort((a, b) => a - b); while (ks.length > 14) delete hist[ks.shift()]; set('idx-opens-hist', hist); }
+  const sinceM = Math.round((t - addM(k)) / 864e5);
+  const show = k >= 1 && sinceM <= 6;
+  function cardHTML() {
+    const fresh = get('rekap-seen', 0) < k;
+    return `<a class="sr-card rk-card ${fresh ? 'hot' : ''}" href="rekap-bulanan.html"><span class="sr-e">📊</span><span class="sr-t"><b>${fresh ? `Rekap bulan ke-${k} udah siap!` : `Rekap bulan ke-${k}`}</b><small>${fresh ? 'Mood, syukur, ritual & favorit kita sebulan ini 👀' : 'Tap buat liat lagi · simpen jadi gambar 📸'}</small></span></a>`;
+  }
+  if (!show) return;
+  const _rr4 = renderRows;
+  renderRows = function () {
+    _rr4();
+    const s = $('today-slot'); if (!s || s.querySelector('.rk-card')) return;
+    const after = s.querySelector('.sr-card') || s.querySelector('.sp-banner');
+    if (after) after.insertAdjacentHTML('afterend', cardHTML()); else s.insertAdjacentHTML('afterbegin', cardHTML());
+  };
+  renderRows();
+})();
+
 })();
 </script>
 </body>
