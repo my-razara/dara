@@ -121,6 +121,8 @@
   @media (max-height:700px){ #s-game .target-wrap{max-width:270px;align-self:center;width:100%} }
   @media (prefers-reduced-motion:reduce){ .p-ico,.pass .ico{animation:none} }
 </style>
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -152,12 +154,14 @@
     <p class="hint">Posisi kapal diacak. Ga suka? Tap <b>🔀 Acak lagi</b> sampai pas — terus <b>Siap!</b></p>
     <div class="sea locked" id="pl-sea"></div>
     <div class="fleet" id="pl-fleet"></div>
-    <div class="row2"><button class="ghost" onclick="reroll()">🔀 Acak lagi</button><button class="main" onclick="ready()">Siap! ⚓</button></div>
+    <div class="row2" id="pl-btns"><button class="ghost" onclick="reroll()">🔀 Acak lagi</button><button class="main" onclick="ready()">Siap! ⚓</button></div>
+    <p class="hint" id="pl-wait" style="display:none;margin-top:.8rem"></p>
   </div>
 
   <!-- MAIN -->
   <div class="screen" id="s-game">
     <div class="turnbar"><span class="tb-who" id="tb-who"></span><span class="tb-stat" id="tb-stat"></span></div>
+    <p class="ol-st" id="ol-st"></p>
     <p class="log" id="log"></p>
     <div class="target-wrap">
       <div class="sea-lbl"><span id="tg-lbl">Laut lawan</span><span id="tg-left"></span></div>
@@ -218,6 +222,7 @@ const other = p => p === 'Razan' ? 'Dara' : 'Razan';
 let level = lsGet('bs-level', 1);
 let MODE = 'duo', BOT = null, HUMAN = null;
 let S = {};                    // S[p] = { ships:[{...,cells:[], hit:Set}], board:Int8Array(64) (-1 kosong / index kapal), recv:Int8Array(64) (0 belum,1 meleset,2 kena) }
+let REPLAY = false, fleetSent = false;
 let turn = 'Razan', over = false, busy = false, placing = [], placeIdx = 0, lastShot = { Razan: -1, Dara: -1 }, shotsCount = { Razan: 0, Dara: 0 };
 
 /* ── pilih ── */
@@ -228,8 +233,8 @@ function paintPick() {
 }
 document.querySelectorAll('#p-level button').forEach(b => b.onclick = () => { level = +b.dataset.v; lsSet('bs-level', level); paintPick(); });
 function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); $('menu-btn').style.display = id === 's-pick' ? 'none' : ''; window.scrollTo(0, 0); }
-function toMenu() { over = true; busy = false; $('pass').classList.remove('show'); show('s-pick'); paintPick(); }
-function quit() { if (!over && !confirm('Udahan mainnya?')) return; toMenu(); }
+function toMenu() { if (MODE === 'online' && window.Online) Online.leave(true); MODE = 'duo'; over = true; busy = false; $('pass').classList.remove('show'); show('s-pick'); paintPick(); }
+function quit() { if (!over && !confirm(MODE === 'online' ? `Keluar dari game online? ${other(HUMAN)} bakal dikabarin.` : 'Udahan mainnya?')) return; if (MODE === 'online' && window.Online) Online.leave(); toMenu(); }
 
 /* ── atur kapal ── */
 function randomFleet() {
@@ -255,7 +260,7 @@ function randomFleet() {
 function neigh8(i) { const r = Math.floor(i / N), c = i % N, out = []; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { if (!dr && !dc) continue; const rr = r + dr, cc = c + dc; if (rr >= 0 && rr < N && cc >= 0 && cc < N) out.push(rr * N + cc); } return out; }
 function startDuo() { MODE = 'duo'; BOT = null; HUMAN = null; S = {}; placing = ['Razan', 'Dara']; placeIdx = 0; beginPlace(); }
 function startBot(me) { MODE = 'bot'; HUMAN = me; BOT = other(me); S = {}; S[BOT] = randomFleet(); placing = [me]; placeIdx = 0; beginPlace(); }
-function again() { MODE === 'bot' ? startBot(HUMAN) : startDuo(); }
+function again() { if (MODE === 'online') { Online.invite(); return; } MODE === 'bot' ? startBot(HUMAN) : startDuo(); }
 function beginPlace() {
   const p = placing[placeIdx];
   S[p] = randomFleet();
@@ -266,12 +271,19 @@ function paintPlace() {
   const p = placing[placeIdx];
   show('s-place');
   $('pl-title').className = 'who-title ' + p;
-  $('pl-title').textContent = MODE === 'bot' ? '⚓ Atur kapal kamu' : `⚓ Kapal ${p}`;
+  $('pl-title').textContent = MODE !== 'duo' ? '⚓ Atur kapal kamu' : `⚓ Kapal ${p}`;
+  $('pl-btns').style.display = ''; $('pl-wait').style.display = 'none';
   renderSea($('pl-sea'), p, { showShips: true });
   $('pl-fleet').innerHTML = FLEET.map(f => `<span>${f.ico} ${f.name} · ${f.len}</span>`).join('');
 }
 function reroll() { S[placing[placeIdx]] = randomFleet(); paintPlace(); try { navigator.vibrate && navigator.vibrate(8); } catch (e) {} }
 function ready() {
+  if (MODE === 'online') {
+    if (fleetSent) return;
+    fleetSent = true; Online.move({ t: 'f', w: HUMAN, s: S[HUMAN].ships.map(x => x.cells) }, { retry: true });
+    if (S[other(HUMAN)]) startOnline(); else { $('pl-btns').style.display = 'none'; $('pl-wait').style.display = ''; $('pl-wait').innerHTML = `⏳ Kapal kamu udah siap! Nunggu <b>${other(HUMAN)}</b> selesai ngatur kapal…`; Online.waiting(true); }
+    return;
+  }
   placeIdx++;
   if (placeIdx < placing.length) { beginPlace(); return; }
   over = false; busy = false; shotsCount = { Razan: 0, Dara: 0 }; lastShot = { Razan: -1, Dara: -1 };
@@ -312,10 +324,10 @@ const isSunk = s => s.hit.size === s.len;
 function fleetHTML(owner) { return S[owner].ships.map(s => `<span class="${isSunk(s) ? 'dead' : ''}">${s.ico} ${s.name}</span>`).join(''); }
 function shooterNow() { return turn; }
 function renderGame(lastIdx) {
-  const me = MODE === 'bot' ? HUMAN : turn, op = other(me);
+  const me = MODE !== 'duo' ? HUMAN : turn, op = other(me);
   const myTurn = MODE === 'duo' || turn === HUMAN;
   $('tb-who').className = 'tb-who ' + turn;
-  $('tb-who').textContent = over ? '🏁 Selesai' : MODE === 'bot' ? (turn === HUMAN ? '🎯 Giliran kamu nembak' : '🤖 Komputer lagi bidik…') : `🎯 Giliran ${turn}`;
+  $('tb-who').textContent = over ? '🏁 Selesai' : MODE === 'online' ? (turn === HUMAN ? '🎯 Giliran kamu nembak' : `⏳ Nunggu ${turn} nembak…`) : MODE === 'bot' ? (turn === HUMAN ? '🎯 Giliran kamu nembak' : '🤖 Komputer lagi bidik…') : `🎯 Giliran ${turn}`;
   $('tb-stat').textContent = `${shotsCount[me]} tembakan`;
   $('tg-lbl').textContent = MODE === 'bot' ? '🌊 Laut komputer' : `🌊 Laut ${op}`;
   const left = S[op].ships.filter(s => !isSunk(s)).length;
@@ -334,29 +346,31 @@ function renderGame(lastIdx) {
 /* ── nembak ── */
 function fire(i) {
   if (over || busy) return;
-  if (MODE === 'bot' && turn !== HUMAN) return;
+  if (MODE !== 'duo' && turn !== HUMAN) return;
   const op = other(turn);
   if (S[op].recv[i]) return;
+  if (MODE === 'online') Online.move({ t: 's', w: HUMAN, i });
   shoot(turn, i);
 }
 function shoot(shooter, i) {
   const op = other(shooter), st = S[op];
   const si = st.board[i];
   st.recv[i] = si >= 0 ? 2 : 1;
-  window.SFX && SFX.play(si >= 0 ? 'boom' : 'splash');
+  if (!REPLAY) window.SFX && SFX.play(si >= 0 ? 'boom' : 'splash');
   lastShot[shooter] = i; shotsCount[shooter]++;
   let msg;
-  const who = MODE === 'bot' && shooter === BOT ? '🤖 Komputer' : MODE === 'bot' ? 'Kamu' : shooter;
+  const who = MODE === 'bot' && shooter === BOT ? '🤖 Komputer' : MODE !== 'duo' && shooter === HUMAN ? 'Kamu' : shooter;
   if (si >= 0) {
     const ship = st.ships[si]; ship.hit.add(i);
     msg = isSunk(ship) ? `💥 ${who} nenggelamin ${ship.name}!` : `🔥 ${who} kena!`;
-    try { navigator.vibrate && navigator.vibrate(isSunk(ship) ? [40, 40, 80] : 30); } catch (e) {}
-  } else { msg = `💧 ${who} meleset`; try { navigator.vibrate && navigator.vibrate(8); } catch (e) {} }
+    if (!REPLAY) try { navigator.vibrate && navigator.vibrate(isSunk(ship) ? [40, 40, 80] : 30); } catch (e) {}
+  } else { msg = `💧 ${who} meleset`; if (!REPLAY) try { navigator.vibrate && navigator.vibrate(8); } catch (e) {} }
   $('log').textContent = msg;
   const won = st.ships.every(isSunk);
-  if (won) { over = true; renderGame(i); setTimeout(() => finish(shooter), 900); return; }
+  if (won) { over = true; if (REPLAY) { winnerReplay = shooter; return; } renderGame(i); if (MODE === 'online') Online.waiting(false); setTimeout(() => finish(shooter), 900); return; }
   // gantian
   turn = op;
+  if (MODE === 'online') { if (REPLAY) return; busy = false; renderGame(shooter === HUMAN ? i : undefined); Online.waiting(turn !== HUMAN); if (turn === HUMAN) vib0([20, 30, 20]); return; }
   if (MODE === 'bot') {
     busy = true; renderGame(shooter === HUMAN ? i : undefined);
     if (turn === BOT) setTimeout(botTurn, 650 + Math.random() * 350);
@@ -440,22 +454,22 @@ function lineTargets(hits, recv) {
 function finish(winner) {
   over = true; busy = false;
   const rec = lsGet('bs-record', { Razan: 0, Dara: 0, beat: [0, 0, 0] });
-  const humanWon = MODE === 'bot' && winner === HUMAN;
-  if (MODE === 'bot' && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
-  if (MODE === 'duo') rec[winner]++; else if (humanWon) rec.beat[level]++;
+  const humanWon = MODE !== 'duo' && winner === HUMAN;
+  if (MODE !== 'duo' && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
+  if (MODE !== 'bot') rec[winner]++; else if (humanWon) rec.beat[level]++;
   lsSet('bs-record', rec);
   const shots = shotsCount[winner];
-  $('s-ico').textContent = MODE === 'bot' ? (humanWon ? '🏆' : '🤖') : '🏆';
+  $('s-ico').textContent = MODE === 'bot' ? (humanWon ? '🏆' : '🤖') : MODE === 'online' && !humanWon ? '🥲' : '🏆';
   const t = $('s-title'); t.className = 's-title ' + (MODE === 'bot' && !humanWon ? '' : winner);
-  t.textContent = MODE === 'bot' ? (humanWon ? 'Kamu menang! ⚓' : 'Komputer menang…') : `${winner} menang! ⚓`;
+  t.textContent = MODE === 'bot' ? (humanWon ? 'Kamu menang! ⚓' : 'Komputer menang…') : MODE === 'online' && humanWon ? 'Kamu menang! ⚓' : `${winner} menang! ⚓`;
   $('s-sub').textContent = `Semua kapal lawan tenggelam dalam ${shots} tembakan (akurasi ${Math.round(FLEET.reduce((a, f) => a + f.len, 0) / shots * 100)}%)`;
   const box = $('s-box');
   if (MODE === 'bot') box.innerHTML = `<small>${humanWon ? 'Keren!' : 'Semangat!'}</small>${humanWon ? (level < 2 ? `Coba level ${LEVELS[level + 1]} yuk 😏` : 'Komputer level Jago pun kalah. Juara! 🧠✨') : 'Komputernya cuma lagi hoki 😤 Balas dendam yuk!'}`;
   else box.innerHTML = `<small>Tantangan buat ${other(winner)}</small>${DEMANDS[Math.floor(Math.random() * DEMANDS.length)]}`;
   // tunjukin semua kapal di akhir
-  if (MODE === 'bot') { renderSea($('tg-sea'), BOT, { showShips: true, target: false }); $('tg-sea').className = 'sea locked'; }
+  if (MODE !== 'duo') { renderSea($('tg-sea'), other(HUMAN), { showShips: true, target: false }); $('tg-sea').className = 'sea locked'; }
   $('res-ov').classList.add('show');
-  if (MODE === 'duo' || humanWon) confetti(winner);
+  if (MODE !== 'bot' || humanWon) confetti(winner);
 }
 function closeRes() { $('res-ov').classList.remove('show'); }
 function confetti(w) {
@@ -467,6 +481,58 @@ function confetti(w) {
   }, i * 20);
 }
 paintPick();
+
+/* ── main online (beda HP) ── */
+let winnerReplay = null;
+function vib0(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+function fleetFrom(cells) {
+  const board = new Int8Array(N * N).fill(-1);
+  const ships = FLEET.map((f, k) => { (cells[k] || []).forEach(i => board[i] = k); return Object.assign({}, f, { cells: cells[k] || [], hit: new Set() }); });
+  return { board, ships, recv: new Int8Array(N * N) };
+}
+function startOnline() {
+  over = false; busy = false; $('pass').classList.remove('show');
+  show('s-game'); renderGame();
+  $('log').textContent = turn === HUMAN ? '🎲 Kamu jalan duluan! Tembak laut lawan 🎯' : `🎲 ${turn} jalan duluan — tunggu ya`;
+  Online.waiting(turn !== HUMAN);
+}
+if (window.Online) Online.setup({
+  g: 'perang-kapal', panelAfter: '#s-pick .big', statusEl: 'ol-st',
+  makeCfg: () => ({ first: Math.random() < .5 ? 'Razan' : 'Dara' }),
+  onStart(room, me) {
+    closeRes(); $('pass').classList.remove('show');
+    MODE = 'online'; HUMAN = me; BOT = null; S = {}; over = false; busy = false; winnerReplay = null;
+    shotsCount = { Razan: 0, Dara: 0 }; lastShot = { Razan: -1, Dara: -1 };
+    turn = room.cfg && room.cfg.first || 'Razan';
+    REPLAY = true;
+    try {
+      for (const mv of room.moves) {
+        if (mv.t === 'f' && !S[mv.w]) S[mv.w] = fleetFrom(mv.s);
+        else if (mv.t === 's' && S.Razan && S.Dara && !over && mv.w === turn && !S[other(mv.w)].recv[mv.i]) shoot(mv.w, mv.i);
+      }
+    } finally { REPLAY = false; }
+    fleetSent = !!S[HUMAN];
+    if (!S[HUMAN]) { placing = [HUMAN]; placeIdx = 0; S[HUMAN] = randomFleet(); paintPlace(); Online.waiting(false); return; }
+    if (!S[other(HUMAN)]) { paintPlace(); $('pl-btns').style.display = 'none'; $('pl-wait').style.display = ''; $('pl-wait').innerHTML = `⏳ Nunggu <b>${other(HUMAN)}</b> selesai ngatur kapal…`; Online.waiting(true); return; }
+    startOnline();
+    if (winnerReplay) { over = true; renderGame(); finish(winnerReplay); }
+  },
+  async onMove(mv) {
+    if (MODE !== 'online') return;
+    if (mv.t === 'f') {
+      if (mv.w === HUMAN || S[mv.w] && fleetSent) return;
+      S[mv.w] = fleetFrom(mv.s);
+      if (fleetSent) { vib0([30, 30, 30]); startOnline(); }
+      return;
+    }
+    if (mv.t === 's') {
+      if (mv.w === HUMAN || over || mv.w !== turn || !S.Razan || !S.Dara) return;
+      if (S[other(mv.w)].recv[mv.i]) return;
+      shoot(mv.w, mv.i);
+    }
+  },
+  onLeft() { toMenu(); },
+});
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
