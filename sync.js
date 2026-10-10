@@ -1,17 +1,17 @@
-/* ═══ Berdua Sync — Kalender Mood, Jurnal Syukur & Ritual nyambung antar HP ═══
+/* ═══ Berdua Sync — Kalender Mood, Jurnal Syukur, Ritual & Tombol Kangen nyambung antar HP ═══
    Cara kerjanya: semua tetep disimpen di HP dulu (jadi langsung kebuka, ga nunggu),
    abis itu dikirim/diambil dari Google Sheet di belakang layar.
    URL dari data-berdua.gs ditempel di bawah ini. */
 (function () {
   const URL = 'https://script.google.com/macros/s/AKfycbyCq294yq71M-BDzouyLttp2Kki0aumPAP0JzII0fvvnBakSQ5_eHkNTawXA01fQ3dC/exec';
   const KEY = 'razara-berdua';
-  const APPS = { mood: w => 'mood-' + w, syukur: w => 'syukur-' + w, ritual: w => 'ritual-' + w };
+  const APPS = { mood: w => 'mood-' + w, syukur: w => 'syukur-' + w, ritual: w => 'ritual-' + w, kangen: w => 'kangen-' + w };
   const WHO = ['Razan', 'Dara'];
 
   const g = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const s = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const id = (app, who, date) => `${app}|${who}|${date}`;
-  let state = 'idle', busy = false, flushing = false;
+  let state = 'idle', busy = false, flushing = false, every = 6e4;
   const subs = [];
 
   function me() { return g('berdua-me', null) || (g('sr-pin', '') ? 'Razan' : 'Dara'); }
@@ -66,7 +66,7 @@
   // ── ambil: cuma yang berubah sejak terakhir ──
   async function pull(force) {
     if (!URL || busy) return;
-    if (!force && Date.now() - g('bd-pulled-at', 0) < 6e4) return;
+    if (!force && Date.now() - g('bd-pulled-at', 0) < every) return;
     busy = true; if (state !== 'ok') setState('sync');
     try {
       const since = g('bd-since', 0);
@@ -90,6 +90,7 @@
       s('bd-stamp', st); s('bd-since', max);
       setState('ok');
       if (changed.size) emit([...changed]);
+      if (changed.has('kangen')) kangenCheck();
     } catch (e) { setState('err'); }
     finally { busy = false; }
   }
@@ -115,12 +116,57 @@
     return '';
   }
 
-  window.Berdua = { put, pull, flush, me, setMe, other, status, on: f => subs.push(f), enabled: !!URL };
+  // ── kangen masuk: muncul di halaman mana aja ──
+  const KM = { peluk: ['🫂', 'pelukan'], cium: ['😘', 'ciuman'], tangan: ['🤝', 'genggaman tangan'], puk: ['🥺', 'puk-puk'] };
+  function tday() { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; }
+  function kangenCheck() {
+    if (window.__noKangenPop) return;
+    const o = other(me()), t = tday(), row = (g('kangen-' + o, {}) || {})[t];
+    if (!row || !row.n) return;
+    const seen = g('kangen-seen', {}); if ((seen[t] || 0) >= row.n) return;
+    const nNew = row.n - (seen[t] || 0); seen[t] = row.n;
+    Object.keys(seen).sort().slice(0, -7).forEach(k => delete seen[k]); s('kangen-seen', seen);
+    showKangen(o, row, nNew);
+  }
+  function showKangen(o, row, nNew) {
+    const L = row.last || {}, m = KM[L.k] || KM.peluk;
+    if (!document.getElementById('kg-css')) {
+      const st = document.createElement('style'); st.id = 'kg-css';
+      st.textContent = `.kg-ov{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:1.2rem;background:rgba(45,31,26,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:kgF .3s ease}
+      @keyframes kgF{from{opacity:0}}
+      .kg-card{position:relative;width:100%;max-width:330px;background:#fffaf6;border-radius:26px;padding:1.5rem 1.2rem 1.1rem;text-align:center;font-family:'Poppins',system-ui,sans-serif;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:kgP .5s cubic-bezier(.3,1.5,.5,1)}
+      @keyframes kgP{from{transform:scale(.6);opacity:0}}
+      .kg-card .e{font-size:3.6rem;line-height:1;display:block;animation:kgB 1s ease-in-out infinite}
+      @keyframes kgB{50%{transform:scale(1.12)}}
+      .kg-card h3{font-size:1.15rem;font-weight:700;color:#7a3f35;margin:.6rem 0 .25rem;line-height:1.3}
+      .kg-card p{font-size:12.5px;color:#9a8070;line-height:1.55;margin:0}
+      .kg-card a{display:block;margin-top:1rem;padding:.85rem;border-radius:50px;background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;font-weight:700;font-size:14px;text-decoration:none}
+      .kg-card button{display:block;width:100%;margin-top:.4rem;padding:.6rem;border:none;background:none;color:#9a8070;font-family:inherit;font-size:12.5px;cursor:pointer}
+      .kg-fl{position:fixed;bottom:-40px;z-index:9599;pointer-events:none;font-size:26px;animation:kgU linear forwards}
+      @keyframes kgU{to{transform:translate(var(--dx),-115vh) rotate(var(--r));opacity:.2}}`;
+      document.head.appendChild(st);
+    }
+    const em = [m[0], '💗', '🤍', '💕'];
+    for (let i = 0; i < 26; i++) setTimeout(() => { const f = document.createElement('div'); f.className = 'kg-fl'; f.textContent = em[i % em.length]; f.style.left = Math.random() * 92 + 'vw'; f.style.animationDuration = 2.6 + Math.random() * 2 + 's'; f.style.setProperty('--dx', (Math.random() - .5) * 120 + 'px'); f.style.setProperty('--r', (Math.random() - .5) * 90 + 'deg'); document.body.appendChild(f); setTimeout(() => f.remove(), 5000); }, i * 70);
+    const ov = document.createElement('div'); ov.className = 'kg-ov';
+    const at = L.at ? new Date(L.at) : null, jam = at ? `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}` : '';
+    ov.innerHTML = `<div class="kg-card"><span class="e">${m[0]}</span><h3>${o} kangen kamu!</h3><p>${o} ngirim ${m[1]}${L.p ? ` <b>${L.p}% erat</b>` : ''}${jam ? ` jam ${jam}` : ''}.<br>${nNew > 1 ? `Ada ${nNew} kangen baru · ` : ''}hari ini udah ${row.n}× 🥺</p><a href="tombol-kangen.html">💗 Bales kangennya</a><button type="button">Nanti dulu</button></div>`;
+    const close = () => ov.remove();
+    ov.querySelector('button').onclick = close; ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    (document.body || document.documentElement).appendChild(ov);
+    try { navigator.vibrate && navigator.vibrate([60, 60, 60, 60, 160]); } catch (e) {}
+    try { window.SFX && SFX.play && SFX.play('win'); } catch (e) {}
+  }
+  function fast(ms) { every = Math.max(15e3, ms || 6e4); }
+
+  window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, on: f => subs.push(f), enabled: !!URL };
 
   seed();
   const kick = force => { flush(); pull(force); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => kick(true)); else setTimeout(() => kick(true), 0);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(false); });
   window.addEventListener('online', () => kick(true));
-  setInterval(() => { if (!document.hidden) pull(false); }, 65e3);
+  setInterval(() => { if (!document.hidden) pull(false); }, 5e3);
+  const firstCheck = () => setTimeout(kangenCheck, 900);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', firstCheck); else firstCheck();
 })();
