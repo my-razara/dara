@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v8';
+const VERSI = 'v9';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "./",
@@ -131,7 +131,7 @@ const HALAMAN = [
 "who-knows-me.html",
 "word-search.html"
 ];
-const ASET = ['sfx.js', 'sync.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
+const ASET = ['sfx.js', 'sync.js', 'online.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
 // ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
 const SYNC_BAR = `<script>(function(){
