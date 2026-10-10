@@ -87,6 +87,7 @@
   @media (max-width:350px){.wrap{padding-left:.7rem;padding-right:.7rem}.seeds i{width:8px;height:8px}}
   
 </style>
+<script src="sfx.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -288,8 +289,8 @@ async function play(i) {
   for (const ev of log) {
     if (over) return;
     if (ev[0] === 'pick') { hand = ev[1]; B[ev[1]] = 0; render(); await wait(Math.min(fast ? 80 : 260, dt * 2.2)); }
-    else if (ev[0] === 'drop') { B[ev[1]]++; hand = ev[1]; render(); if (!fast && dt > 60) vib(4); await wait(dt); }
-    else if (ev[0] === 'cap') { const [, a, o, got] = ev; render([a, o]); setMsg(`🎯 Nembak! +${got} biji ke lumbung`); vib([30, 30, 60]); await wait(fast ? 350 : 700); B[o] = 0; B[a] = 0; B[STORE[turn]] += got; render(); await wait(200); }
+    else if (ev[0] === 'drop') { B[ev[1]]++; hand = ev[1]; render(); window.SFX && SFX.play('seed'); if (!fast && dt > 60) vib(4); await wait(dt); }
+    else if (ev[0] === 'cap') { const [, a, o, got] = ev; render([a, o]); window.SFX && SFX.play('coin'); setMsg(`🎯 Nembak! +${got} biji ke lumbung`); vib([30, 30, 60]); await wait(fast ? 350 : 700); B[o] = 0; B[a] = 0; B[STORE[turn]] += got; render(); await wait(200); }
   }
   B = res.b; busy = false;
   if (res.extra && !isOver(B)) { setMsg(`🎉 Masuk lumbung! ${MODE === 'bot' ? (turn === BOT ? 'Komputer' : 'Kamu') : NAME[turn]} jalan lagi`); vib([20, 30, 20]); await wait(fast ? 300 : 700); nextTurn(); return; }
@@ -314,6 +315,7 @@ function finish() {
   const a = B[7], d = B[15], w = a === d ? null : a > d ? 0 : 1;
   const rec = lsGet('ck-record', { Razan: 0, Dara: 0, seri: 0, beat: [0, 0, 0] });
   const humanWon = MODE === 'bot' && w === HUMAN;
+  if (MODE === 'bot' && w != null && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
   if (MODE === 'duo') { if (w == null) rec.seri++; else rec[NAME[w]]++; } else if (humanWon) rec.beat[level]++;
   lsSet('ck-record', rec);
   const t = $('s-title');
