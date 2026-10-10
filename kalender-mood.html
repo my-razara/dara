@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Kalender Mood — Razan & Dara 📅</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -75,22 +77,41 @@
   .bars{display:flex;align-items:flex-end;gap:5px;height:70px;margin-top:.6rem}
   .bars div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;gap:2px}
   .bars i{width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(var(--dr2),var(--rose));min-height:3px}
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}.bd-st button{border:none;background:none;color:var(--rose);font-weight:600;text-decoration:underline;font-size:11px;cursor:pointer}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem}
+  .duo button{border:1px solid rgba(193,122,111,.15);background:#fff;border-radius:18px;padding:.75rem .5rem .7rem;cursor:pointer;text-align:center;font-family:inherit;color:inherit;min-width:0;box-shadow:0 4px 14px rgba(193,122,111,.06)}
+  .duo .who{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .who.Razan{color:var(--rz)}.who.Dara{color:var(--dr)}
+  .duo .e{display:block;font-size:2.1rem;line-height:1.2;margin:.15rem 0}
+  .duo b{display:block;font-size:12.5px;font-weight:600;color:var(--deep)}
+  .duo small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.1rem}
+  .duo .none .e{opacity:.35;filter:grayscale(1)}
+  .seg{display:flex;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px;margin-bottom:.7rem}
+  .seg button{flex:1;min-width:0;border:none;background:none;border-radius:50px;padding:.5rem .3rem;font-size:12.5px;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seg button.on{background:var(--rose);color:#fff;font-weight:600}
+  .ro{text-align:center}
+  .ro .e{font-size:3.2rem;line-height:1.2}
+  .ro b{display:block;font-size:15px;color:var(--deep);margin-top:.2rem}
+  .ro p:not(.lbl){font-family:'Caveat',cursive;font-size:1.4rem;color:var(--deep);line-height:1.3;margin-top:.5rem;white-space:pre-wrap}
 
 </style>
-<script src="sfx.js" defer></script>
 </head>
 <body>
 
 <div class="wrap">
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
   <div class="head"><p class="lbl">Kalender Mood</p><h1 class="title">Hari ini <span>gimana</span>? 📅</h1><p class="sub">Catat mood tiap hari — lama-lama keliatan bulan mana yang paling bahagia 🌈</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="duo" id="duo"></div>
+  <div class="seg" id="seg"></div>
   <div class="card">
     <div class="nav"><button id="prev" aria-label="bulan sebelumnya">‹</button><b id="mon"></b><button id="next" aria-label="bulan berikutnya">›</button></div>
     <div class="dow"><span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span></div>
     <div class="grid" id="grid"></div>
   </div>
   <div class="card"><h3>📊 Bulan ini</h3><div class="sum" id="sum"></div><div class="bars" id="bars"></div></div>
-  <button class="btn" onclick="openDay(ymd(today0()))">＋ Catat mood hari ini</button>
+  <button class="btn" id="add" onclick="openDay(ymd(today0()))">＋ Catat mood hari ini</button>
 </div>
 <div class="ov" id="ov" onclick="if(event.target===this)closeOv()">
   <div class="sheet">
@@ -102,6 +123,11 @@
     <div class="row"><button class="btn ghost" id="del" onclick="delDay()">Hapus</button><button class="btn" onclick="saveDay()">Simpan</button></div>
     <a class="btn wa" id="wa" style="margin-top:.5rem" target="_blank" rel="noopener">💬 Ceritain ke pasangan</a>
   </div>
+</div>
+<div class="ov" id="ov2" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="sheet"><div class="drag"></div><div class="ro" id="ro"></div>
+    <a class="btn wa" id="ro-wa" style="margin-top:.9rem" target="_blank" rel="noopener"></a>
+    <button class="btn ghost" style="margin-top:.45rem" onclick="$('ov2').classList.remove('show')">Tutup</button></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -146,44 +172,72 @@ function whoBtn(key, onChange) {
   paint(); return lsGet(key, 'Dara');
 }
 
+// sinkron berdua (sync.js) — kalau gagal kemuat, tetep jalan di HP ini aja
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, pull() {}, enabled: false };
+function bdStatus() { const el = $('bd-st'); if (el) { const t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); if (/⚠️/.test(t)) { el.innerHTML = esc(t) + ' · <button onclick="BD.pull(true);BD.flush&&BD.flush()">Coba lagi</button>'; } } }
 const MOODS = [['🥰', 'Bahagia'], ['😄', 'Seneng'], ['🙂', 'Biasa aja'], ['😴', 'Capek'], ['😔', 'Sedih'], ['😢', 'Nangis'], ['😤', 'Kesel'], ['😰', 'Cemas']];
-let me = whoBtn('mood-me', () => render()), view = today0(); view.setDate(1);
+const SAD = [3, 4, 5, 6, 7];
+if (lsGet('mood-me', null) == null) lsSet('mood-me', BD.me());
+let whose;
+let me = whoBtn('mood-me', () => { me = lsGet('mood-me', 'Dara'); BD.setMe(me); whose = me; render(); });
+BD.setMe(me);
+whose = me;
+let view = today0(); view.setDate(1);
 let sel = null, curDay = null;
-const key = () => 'mood-' + lsGet('mood-me', 'Dara');
-function data() { return lsGet(key(), {}); }
+const data = w => lsGet('mood-' + (w || whose), {}) || {};
+const mine = () => whose === me;
+function renderDuo() {
+  const t = ymd(today0());
+  $('duo').innerHTML = [me, otherOf(me)].map(w => { const e = data(w)[t]; return `<button data-w="${w}" class="${e ? '' : 'none'}"><span class="who ${w}">${w === me ? 'Kamu' : w}</span><span class="e">${e ? MOODS[e.m][0] : '🫥'}</span><b>${e ? MOODS[e.m][1] : 'Belum dicatat'}</b><small>${e && e.n ? '“' + esc(e.n) + '”' : e ? '&nbsp;' : w === me ? 'tap buat catat' : 'tap buat nanya kabar'}</small></button>`; }).join('');
+  $('duo').querySelectorAll('button').forEach(b => b.onclick = () => { const w = b.dataset.w; if (w === me) { whose = me; render(); openDay(t); } else openRO(w, t); });
+  $('seg').innerHTML = `<button data-w="${me}" class="${mine() ? 'on' : ''}">📅 Punya aku</button><button data-w="${otherOf(me)}" class="${mine() ? '' : 'on'}">👀 Punya ${otherOf(me)}</button>`;
+  $('seg').querySelectorAll('button').forEach(b => b.onclick = () => { whose = b.dataset.w; render(); });
+}
 function render() {
+  renderDuo(); bdStatus();
   const D = data(), y = view.getFullYear(), m = view.getMonth(), first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate(), t0 = today0();
   $('mon').textContent = `${BULAN[m]} ${y}`;
   $('next').disabled = y === t0.getFullYear() && m === t0.getMonth();
   let h = ''; for (let i = 0; i < first; i++) h += '<span class="d blank"></span>';
-  for (let d = 1; d <= n; d++) { const dt = new Date(y, m, d), k = ymd(dt), e = D[k], fut = dt > t0; h += `<button class="d${e ? ' has' : ''}${+dt === +t0 ? ' today' : ''}${fut ? ' fut' : ''}" data-k="${k}" ${fut ? 'disabled' : ''}><span class="n">${d}</span><span class="e">${e ? MOODS[e.m][0] : ''}</span></button>`; }
+  for (let d = 1; d <= n; d++) { const dt = new Date(y, m, d), k = ymd(dt), e = D[k], fut = dt > t0; h += `<button class="d${e ? ' has' : ''}${+dt === +t0 ? ' today' : ''}${fut ? ' fut' : ''}" data-k="${k}" ${fut ? 'disabled' : ''}><span class="n">${d}</span><span class="e">${e && MOODS[e.m] ? MOODS[e.m][0] : ''}</span></button>`; }
   $('grid').innerHTML = h;
-  $('grid').querySelectorAll('.d[data-k]:not(.fut)').forEach(b => b.onclick = () => openDay(b.dataset.k));
-  const cnt = MOODS.map(() => 0); let tot = 0; Object.entries(D).forEach(([k, v]) => { const p = parseYMD(k); if (p.getFullYear() === y && p.getMonth() === m) { cnt[v.m]++; tot++; } });
+  $('grid').querySelectorAll('.d[data-k]:not(.fut)').forEach(b => b.onclick = () => mine() ? openDay(b.dataset.k) : (data()[b.dataset.k] ? openRO(whose, b.dataset.k) : toast(`${whose} belum nyatet hari itu`)));
+  const cnt = MOODS.map(() => 0); let tot = 0; Object.entries(D).forEach(([k, v]) => { const p = parseYMD(k); if (p && p.getFullYear() === y && p.getMonth() === m && v && MOODS[v.m]) { cnt[v.m]++; tot++; } });
   const top = cnt.indexOf(Math.max(...cnt));
-  $('sum').innerHTML = tot ? `<span>📝 ${tot} hari dicatat</span><span>Paling sering: ${MOODS[top][0]} ${MOODS[top][1]}</span><span>😊 ${Math.round((cnt[0] + cnt[1]) / tot * 100)}% hari bahagia</span>` : '<span>Belum ada catatan bulan ini</span>';
+  $('sum').innerHTML = tot ? `<span>📝 ${tot} hari dicatat</span><span>Paling sering: ${MOODS[top][0]} ${MOODS[top][1]}</span><span>😊 ${Math.round((cnt[0] + cnt[1]) / tot * 100)}% hari bahagia</span>` : `<span>${mine() ? 'Belum ada catatan bulan ini' : whose + ' belum nyatet bulan ini'}</span>`;
   const mx = Math.max(1, ...cnt); $('bars').innerHTML = MOODS.map((mo, i) => `<div><i style="height:${cnt[i] / mx * 100}%"></i>${mo[0]}</div>`).join('');
+  $('add').style.display = mine() ? '' : 'none';
 }
 $('prev').onclick = () => { view.setMonth(view.getMonth() - 1); render(); };
 $('next').onclick = () => { view.setMonth(view.getMonth() + 1); render(); };
+function dayName(k) { const d = parseYMD(k); return `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]}${k === ymd(today0()) ? ' (hari ini)' : ''}`; }
 function openDay(k) {
-  curDay = k; const e = data()[k]; sel = e ? e.m : null; const d = parseYMD(k);
-  $('d-h').textContent = `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]}${k === ymd(today0()) ? ' (hari ini)' : ''}`;
+  curDay = k; const e = data(me)[k]; sel = e ? e.m : null;
+  $('d-h').textContent = dayName(k);
   $('note').value = e ? e.n || '' : ''; $('del').style.display = e ? '' : 'none'; paintMoods(); $('ov').classList.add('show');
+}
+function openRO(w, k) {
+  const e = data(w)[k], today = k === ymd(today0());
+  $('ro').innerHTML = e ? `<p class="lbl">${esc(w)} · ${dayName(k)}</p><div class="e">${MOODS[e.m][0]}</div><b>${MOODS[e.m][1]}</b>${e.n ? `<p>“${esc(e.n)}”</p>` : ''}` : `<p class="lbl">${esc(w)} · ${dayName(k)}</p><div class="e">🫥</div><b>Belum nyatet mood</b>`;
+  const msg = !e ? `Hai ${w}, hari ini mood kamu gimana? 🥺 Catat di Kalender Mood ya` : SAD.includes(e.m) ? `Aku liat mood kamu ${today ? 'hari ini' : 'tanggal ' + fmtD(parseYMD(k))} ${MOODS[e.m][0]} ${MOODS[e.m][1].toLowerCase()}… kenapa sayang? Sini cerita 🫂` : `Ikut seneng liat mood kamu ${MOODS[e.m][0]}${today ? ' hari ini' : ''} 🥰`;
+  $('ro-wa').href = waLink(w, msg); $('ro-wa').textContent = !e ? `💬 Tanya kabar ${w}` : SAD.includes(e.m) ? `🫂 Peluk ${w} lewat WA` : `💬 Bales ke ${w}`;
+  $('ov2').classList.add('show');
 }
 function paintMoods() {
   $('moods').innerHTML = MOODS.map(([e, n], i) => `<button data-i="${i}" class="${i === sel ? 'on' : ''}"><span>${e}</span>${n}</button>`).join('');
   $('moods').querySelectorAll('button').forEach(b => b.onclick = () => { sel = +b.dataset.i; vib(8); paintMoods(); });
-  const to = otherOf(lsGet('mood-me', 'Dara'));
+  const to = otherOf(me);
   $('wa').style.display = sel == null ? 'none' : ''; if (sel != null) $('wa').href = waLink(to, `Mood aku ${curDay === ymd(today0()) ? 'hari ini' : 'tanggal ' + fmtD(parseYMD(curDay))}: ${MOODS[sel][0]} ${MOODS[sel][1]}${$('note').value.trim() ? `\n"${$('note').value.trim()}"` : ''}`);
   $('wa').textContent = `💬 Ceritain ke ${to}`;
 }
 $('note').addEventListener('input', paintMoods);
-function saveDay() { if (sel == null) { toast('Pilih mood-nya dulu ya'); return; } const D = data(); D[curDay] = { m: sel, n: $('note').value.trim() }; lsSet(key(), D); closeOv(); render(); vib([10, 20, 10]); if (sel <= 1) confetti(20); }
-function delDay() { const D = data(); delete D[curDay]; lsSet(key(), D); closeOv(); render(); }
+function saveDay() { if (sel == null) { toast('Pilih mood-nya dulu ya'); return; } BD.put('mood', me, curDay, { m: sel, n: $('note').value.trim() }); closeOv(); whose = me; render(); vib([10, 20, 10]); if (sel <= 1) confetti(20); if (BD.enabled) toast(`✓ Kesimpen · ${otherOf(me)} bisa liat juga`); }
+function delDay() { BD.put('mood', me, curDay, null); closeOv(); render(); }
 function closeOv() { $('ov').classList.remove('show'); }
+BD.on(ev => { if (ev.apps && ev.apps.includes('mood')) render(); else bdStatus(); });
 render();
 
+</script>
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
