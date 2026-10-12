@@ -50,7 +50,8 @@
   }
 
   // ── server ──
-  async function getRoom() { try { const r = await B().room(O.g); O.net = 'ok'; return r; } catch (e) { O.net = 'err'; return undefined; } }
+  const sig = r => r ? [r.id, r.moves.length, r.end ? 1 : 0, Object.keys(r.joined || {}).length].join(':') : 'null';
+  async function getRoom(since) { try { const r = await B().room(O.g, since); O.net = 'ok'; return r; } catch (e) { O.net = 'err'; return undefined; } }
   async function post(body) {
     for (let i = 0; i < 6; i++) {
       try { const r = await B().roomPost(Object.assign({ g: O.g, who: me() }, body)); O.net = 'ok'; status(); return r; }
@@ -158,24 +159,31 @@
   }
 
   // ── cek berkala ──
-  function every() { if (!O.on) return O.waitingJoin ? 2000 : 6000; return O.wait ? 2000 : 6000; }
+  // lagi nunggu lawan → "nunggu langkah" (server langsung jawab begitu ada langkah baru)
+  const longWait = () => (O.on && O.wait) || O.waitingJoin;
+  let quick = false;
+  function every() { return longWait() ? (O.net === 'err' ? 1500 : quick ? 700 : 30) : 6000; }
   async function poll(now) {
     clearTimeout(pollT);
     if (document.hidden) return;
     if (!now) { pollT = setTimeout(() => poll(true), every()); return; }
-    if (polling) { pollT = setTimeout(() => poll(true), 800); return; }
+    if (polling) return;                                  // yang lagi jalan nanti jadwalin ulang sendiri
     polling = true;
-    const r = await getRoom(); polling = false; status();
+    let since = null;
+    if (longWait()) since = O.on && O.room ? [O.room.id, O.applied, O.room.end ? 1 : 0, Object.keys(O.room.joined || {}).length].join(':') : sig(lastRoom);
+    const t0 = Date.now(), before = O.applied;
+    const r = await getRoom(since); polling = false; status();
     if (r !== undefined) {
       lastRoom = r;
       if (O.on && O.room) {
         if (!r || r.id !== O.room.id) {
           if (r && fresh(r) && r.host === op()) { overlay(`<span class="e">🔁</span><h3>${op()} ngajak main lagi!</h3><p>Gabung ke game baru?</p><button class="ol-btn pink" onclick="Online.join()">🎮 Gabung</button><button class="ol-x" onclick="document.getElementById('ol-ov').remove()">Nanti</button>`); O.on = false; }
         } else if (r.end) ended(r);
-        else await deliver(r);
+        else { O.room = Object.assign({}, r, { moves: r.moves }); await deliver(r); }
       } else if (O.waitingJoin && r && r.host === me() && both(r) && fresh(r)) { vib([40, 40, 80]); try { window.SFX && SFX.play('open'); } catch (e) {} enter(r); }
       else if (!O.on) panel();
     }
+    quick = since != null && Date.now() - t0 < 500 && O.applied === before;   // balik cepet tanpa langkah baru → jangan muter-muter
     pollT = setTimeout(() => poll(true), every());
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(true); });
@@ -186,7 +194,7 @@
     el.className = 'ol-st' + (O.net === 'err' ? ' err' : '');
     el.textContent = O.net === 'err' ? '⚠️ Koneksi putus — nyoba nyambung lagi…' : `🌐 Online · kamu (${me()}) vs ${op()}`;
   }
-  function waiting(v) { const was = O.wait; O.wait = !!v; if (v && !was) poll(false); }
+  function waiting(v) { const was = O.wait; O.wait = !!v; if (v && !was) poll(true); }
 
   function setup(h) {
     O.g = h.g; O.h = h; window.__onlineGame = h.g; css();
