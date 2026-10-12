@@ -116,6 +116,7 @@
   async function resume() { const r = await getRoom(); if (r) { lastRoom = r; if (fresh(r)) enter(r); else panel(); } }
   function enter(room) {
     closeOv(); O.waitingJoin = false;
+    try { localStorage.setItem('ajak-seen', JSON.stringify(Date.now())); } catch (e) {}
     O.on = true; O.room = room; O.applied = room.moves.length; O.wait = false;
     O.h.onStart(room, me(), op());
     status(); poll(true);
