@@ -6,6 +6,9 @@
   const URL = 'https://script.google.com/macros/s/AKfycbyCq294yq71M-BDzouyLttp2Kki0aumPAP0JzII0fvvnBakSQ5_eHkNTawXA01fQ3dC/exec';
   const KEY = 'razara-berdua';
   const APPS = { mood: w => 'mood-' + w, syukur: w => 'syukur-' + w, ritual: w => 'ritual-' + w, kangen: w => 'kangen-' + w, ajak: w => 'ajak-' + w };
+  // fitur baru otomatis ikut: kunci di HP = '<app>-<Razan/Dara>'
+  const okApp = a => /^[a-z]{2,14}$/.test(a || '');
+  const keyOf = (a, w) => a + '-' + w;
   const WHO = ['Razan', 'Dara'];
 
   const g = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
@@ -35,8 +38,8 @@
 
   // ── tulis: langsung ke HP, kirimnya nyusul ──
   function put(app, who, date, data) {
-    if (!APPS[app] || !WHO.includes(who) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-    const lk = APPS[app](who), m = g(lk, {}) || {};
+    if (!okApp(app) || !WHO.includes(who) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    const lk = keyOf(app, who), m = g(lk, {}) || {};
     if (data == null) delete m[date]; else m[date] = data;
     s(lk, m);
     const now = Date.now(), st = g('bd-stamp', {}); st[id(app, who, date)] = now; s('bd-stamp', st);
@@ -77,10 +80,10 @@
       let max = since;
       for (const row of r.rows || []) {
         max = Math.max(max, row.srv || 0);
-        if (!APPS[row.app] || !WHO.includes(row.who)) continue;
+        if (!okApp(row.app) || !WHO.includes(row.who)) continue;
         const k = id(row.app, row.who, row.date);
         if (pend.has(k) || (st[k] || 0) > row.updated) continue;
-        const lk = APPS[row.app](row.who), m = maps[lk] || (maps[lk] = g(lk, {}) || {});
+        const lk = keyOf(row.app, row.who), m = maps[lk] || (maps[lk] = g(lk, {}) || {});
         const before = JSON.stringify(m[row.date]);
         if (row.data == null) delete m[row.date]; else m[row.date] = row.data;
         st[k] = row.updated;
@@ -199,11 +202,18 @@
   window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL };
 
   seed();
-  const kick = force => { flush(); pull(force); };
+  // tanda "lagi buka web" (paling sering tiap 4 menit)
+  function beat() {
+    if (!URL || document.hidden) return;
+    const t = tday(), cur = (g('seen-' + me(), {}) || {})[t];
+    if (cur && Date.now() - cur.at < 4 * 60e3) return;
+    put('seen', me(), t, { at: Date.now() });
+  }
+  const kick = force => { beat(); flush(); pull(force); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => kick(true)); else setTimeout(() => kick(true), 0);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(false); });
   window.addEventListener('online', () => kick(true));
-  setInterval(() => { if (!document.hidden) pull(false); }, 5e3);
+  setInterval(() => { if (!document.hidden) { pull(false); beat(); } }, 5e3);
   const firstCheck = () => setTimeout(() => { kangenCheck(); ajakCheck(); }, 900);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', firstCheck); else firstCheck();
 })();
