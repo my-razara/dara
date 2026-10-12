@@ -113,6 +113,8 @@
   @media (max-height:600px){ #s-game .board{max-width:330px;align-self:center} }
   @media (prefers-reduced-motion:reduce){ .p-ico,.pc.can,.sq.tgt::after{animation:none} }
 </style>
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -159,6 +161,7 @@
       <span class="vs">vs</span>
       <div class="side" id="side-bot"><span class="dot"></span><span class="n"></span></div>
     </div>
+    <p class="ol-st" id="ol-st"></p>
     <p class="msg" id="msg"></p>
     <div class="board" id="board"></div>
     <div class="tools">
@@ -205,7 +208,7 @@ const DIRS = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
 let level = lsGet('dam-level', 1);
 let OPT = Object.assign({ force: true, fly: true }, lsGet('dam-opt', {}));
-let MODE = 'duo', HUMAN = null, BOT = null;
+let MODE = 'duo', HUMAN = null, BOT = null, REPLAY = false;
 let B, turn, quiet, hist, moves, sel = null, prefix = [], over = true, busy = false, last = null, hinted = null, captured = { 1: 0, '-1': 0 };
 
 /* ── ATURAN ── */
@@ -269,8 +272,8 @@ function paintPick() {
 document.querySelectorAll('#p-level button').forEach(b => b.onclick = () => { level = +b.dataset.v; lsSet('dam-level', level); paintPick(); });
 function toggleOpt(k) { OPT[k] = !OPT[k]; lsSet('dam-opt', OPT); paintPick(); }
 function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); $('menu-btn').style.display = id === 's-pick' ? 'none' : ''; window.scrollTo(0, 0); }
-function toMenu() { over = true; busy = false; show('s-pick'); paintPick(); }
-function quit() { if (!over && hist.length && !confirm('Udahan mainnya? Game ini ga dihitung.')) return; toMenu(); }
+function toMenu() { if (MODE === 'online' && window.Online) Online.leave(true); if (MODE === 'online') OPT = Object.assign({ force: true, fly: true }, lsGet('dam-opt', {})); MODE = 'duo'; over = true; busy = false; show('s-pick'); paintPick(); }
+function quit() { if (MODE === 'online') { if (!over && !confirm(`Keluar dari game online? ${other(HUMAN)} bakal dikabarin.`)) return; Online.leave(); toMenu(); return; } if (!over && hist.length && !confirm('Udahan mainnya? Game ini ga dihitung.')) return; toMenu(); }
 
 function newBoard() {
   const b = new Array(64).fill(0);
@@ -283,19 +286,20 @@ function startDuo() {
   begin(SIDE[first]);
 }
 function startBot(me) { MODE = 'bot'; HUMAN = me; BOT = other(me); begin(SIDE[me]); }
-function again() { MODE === 'bot' ? startBot(HUMAN) : startDuo(); }
+function again() { if (MODE === 'online') { Online.invite(); return; } MODE === 'bot' ? startBot(HUMAN) : startDuo(); }
 function begin(first) {
   B = newBoard(); turn = first; quiet = 0; hist = []; last = null; sel = null; prefix = []; over = false; busy = false; hinted = null;
   captured = { 1: 0, '-1': 0 };
   show('s-game'); startTurn();
 }
-const flip = () => MODE === 'bot' && HUMAN === 'Dara';
+const flip = () => MODE !== 'duo' && HUMAN === 'Dara';
 function startTurn() {
   moves = gen(B, turn); sel = null; prefix = []; hinted = null;
   if (!moves.length) { render(); return finish(-turn, 'stuck'); }
   if (quiet >= 40) { render(); return finish(0, 'quiet'); }
   render();
   if (MODE === 'bot' && NAME(turn) === BOT) { busy = true; render(); setTimeout(botMove, 380); }
+  if (MODE === 'online' && !REPLAY) Online.waiting(NAME(turn) !== HUMAN);
 }
 
 /* ── GAMBAR ── */
@@ -304,7 +308,7 @@ function render() {
   [['side-top', top], ['side-bot', bot]].forEach(([id, p]) => {
     const el = $(id); el.className = 'side ' + p + (!over && NAME(turn) === p ? ' now' : '');
     const left = B.filter(v => Math.sign(v) === SIDE[p]).length;
-    const label = MODE === 'bot' ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
+    const label = MODE === 'bot' ? (p === BOT ? '🤖 Komputer' : 'Kamu') : MODE === 'online' ? (p === HUMAN ? 'Kamu' : p) : p;
     el.querySelector('.n').textContent = `${label} · ${left}`;
   });
   // papan yang ditampilin (kalau lagi makan beruntun, bidaknya udah pindah)
@@ -347,27 +351,28 @@ function render() {
   msg.className = 'msg';
   if (over) msg.textContent = '';
   else if (busy && MODE === 'bot') msg.textContent = '🤖 Komputer lagi mikir…';
+  else if (MODE === 'online' && NAME(turn) !== HUMAN) msg.textContent = `⏳ Nunggu ${NAME(turn)} jalan…`;
   else if (prefix.length > 1) { msg.textContent = '🔥 Masih bisa makan lagi — terusin lompatnya!'; msg.className = 'msg warn'; }
   else if (mustCap) { msg.textContent = (MODE === 'duo' ? NAME(turn) + ': ' : '') + '⚡ Wajib makan! Bidak yang nyala harus dipakai'; msg.className = 'msg warn'; }
-  else msg.textContent = MODE === 'bot' ? 'Giliran kamu — tap bidak, terus tap tujuannya' : `Giliran ${NAME(turn)} — tap bidak, terus tujuannya`;
+  else msg.textContent = MODE !== 'duo' ? 'Giliran kamu — tap bidak, terus tap tujuannya' : `Giliran ${NAME(turn)} — tap bidak, terus tujuannya`;
   if (hinted && !over && !busy) msg.textContent = '💡 Coba gerakin bidak yang ditandain';
-  $('b-undo').disabled = over || busy || !hist.length || (MODE === 'bot' && !hist.some(h => h.turn === SIDE[HUMAN]));
+  $('b-undo').disabled = MODE === 'online' || over || busy || !hist.length || (MODE === 'bot' && !hist.some(h => h.turn === SIDE[HUMAN]));
   $('b-hint').disabled = over || busy || !human;
-  $('b-draw').disabled = over || busy || !hist.length;
+  $('b-draw').disabled = MODE === 'online' || over || busy || !hist.length;
 }
 const startsWith = (path, pre) => pre.every((x, k) => path[k] === x);
 
 /* ── INPUT ── */
 function tap(i) {
   if (over || busy) return;
-  if (MODE === 'bot' && NAME(turn) !== HUMAN) return;
+  if (MODE !== 'duo' && NAME(turn) !== HUMAN) return;
   hinted = null;
   const cand = prefix.length ? moves.filter(m => startsWith(m.path, prefix)) : [];
   const next = cand.filter(m => m.path[prefix.length] === i);
   if (next.length) {
     prefix.push(i);
     const done = next.find(m => m.path.length === prefix.length);
-    if (done) return commit(done);
+    if (done) { if (MODE === 'online') Online.move(done.path); return commit(done); }
     try { navigator.vibrate && navigator.vibrate(15); } catch (e) {}
     return render();
   }
@@ -381,7 +386,7 @@ function nudge(t) {
   const b = $('board'); b.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }], { duration: 220 });
 }
 function commit(m) {
-  window.SFX && SFX.play(m.caps.length ? 'pop' : 'seed');
+  if (!REPLAY) window.SFX && SFX.play(m.caps.length ? 'pop' : 'seed');
   hist.push({ b: B.slice(), turn, quiet, last, captured: Object.assign({}, captured) });
   const wasMan = Math.abs(B[m.path[0]]) === 1;
   const to = m.path[m.path.length - 1];
@@ -390,7 +395,7 @@ function commit(m) {
   B = apply(B, m);
   captured[turn] += m.caps.length;
   last = { from: m.path[0], to, pop: true };
-  try { navigator.vibrate && navigator.vibrate(m.caps.length ? [25, 30, 25] : 10); } catch (e) {}
+  if (!REPLAY) try { navigator.vibrate && navigator.vibrate(m.caps.length ? [25, 30, 25] : 10); } catch (e) {}
   turn = -turn;
   if (promo) toast(`👑 ${NAME(-turn) === BOT && MODE === 'bot' ? 'Komputer' : NAME(-turn)} dapet raja!`);
   if (!B.some(v => Math.sign(v) === turn)) { moves = []; sel = null; prefix = []; render(); return finish(-turn, 'habis'); }
@@ -511,15 +516,17 @@ function finish(winSide, why) {
   over = true; busy = false; render();
   const rec = lsGet('dam-record', { Razan: 0, Dara: 0, seri: 0, beat: [0, 0, 0] });
   const w = winSide ? NAME(winSide) : null;
-  const humanWon = MODE === 'bot' && w === HUMAN;
-  if (MODE === 'bot' && w && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
-  if (MODE === 'duo') { if (w) rec[w]++; else rec.seri++; }
+  const humanWon = MODE !== 'duo' && w === HUMAN;
+  if (MODE === 'online') Online.waiting(false);
+  if (MODE !== 'duo' && w && !humanWon) setTimeout(() => window.SFX && SFX.play('lose'), 400);
+  if (MODE !== 'bot') { if (w) rec[w]++; else rec.seri++; }
   else if (humanWon) rec.beat[level]++;
   lsSet('dam-record', rec);
   const t = $('s-title');
   const whyTxt = { habis: 'Bidak lawan abis dimakan 🍽️', stuck: 'Lawan udah ga bisa jalan lagi 🔒', quiet: 'Lama ga ada yang makan — seri aja', agree: 'Sepakat seri 🤝' }[why];
   if (!w) { $('s-ico').textContent = '🤝'; t.className = 's-title'; t.textContent = 'Seri!'; }
   else if (MODE === 'bot') { $('s-ico').textContent = humanWon ? '🏆' : '🤖'; t.className = 's-title ' + (humanWon ? w : ''); t.textContent = humanWon ? 'Kamu menang! 👑' : 'Komputer menang…'; }
+  else if (MODE === 'online') { $('s-ico').textContent = humanWon ? '🏆' : '🥲'; t.className = 's-title ' + w; t.textContent = humanWon ? 'Kamu menang! 👑' : `${w} menang! 👑`; }
   else { $('s-ico').textContent = '🏆'; t.className = 's-title ' + w; t.textContent = `${w} menang! 👑`; }
   const moved = hist.length;
   $('s-sub').textContent = `${whyTxt} · ${moved} langkah · Razan makan ${captured[1]}, Dara makan ${captured[-1]}`;
@@ -527,7 +534,7 @@ function finish(winSide, why) {
   if (!w) box.innerHTML = `<small>Seri berarti…</small>Dua-duanya harus kasih satu pujian ke satu sama lain 🥰`;
   else if (MODE === 'bot') box.innerHTML = `<small>${humanWon ? 'Keren!' : 'Semangat!'}</small>${humanWon ? (level < 2 ? `Coba level ${LEVELS[level + 1]} yuk 😏` : 'Komputer level Jago pun keok. Ratu/Raja Dam! 👑') : 'Komputernya cuma lagi beruntung 😤 Coba pakai 💡 Bantuin atau Undo!'}`;
   else box.innerHTML = `<small>Tantangan buat ${other(w)}</small>${DEMANDS[Math.floor(Math.random() * DEMANDS.length)]}`;
-  setTimeout(() => { $('res-ov').classList.add('show'); if (w && (MODE === 'duo' || humanWon)) confetti(w); }, 500);
+  setTimeout(() => { $('res-ov').classList.add('show'); if (w && (MODE !== 'bot' || humanWon)) confetti(w); }, 500);
 }
 function closeRes() { $('res-ov').classList.remove('show'); }
 function confetti(w) {
@@ -539,6 +546,49 @@ function confetti(w) {
   }, i * 20);
 }
 paintPick();
+
+/* ── main online (beda HP) ── */
+if (window.Online) Online.setup({
+  g: 'dam', panelAfter: '#s-pick .big', statusEl: 'ol-st',
+  makeCfg: () => ({ first: Math.random() < .5 ? 'Razan' : 'Dara', force: OPT.force, fly: OPT.fly }),
+  onStart(room, me) {
+    closeRes();
+    MODE = 'online'; HUMAN = me; BOT = null;
+    const cf = room.cfg || {};
+    OPT = { force: cf.force !== false, fly: cf.fly !== false };
+    B = newBoard(); turn = SIDE[cf.first || 'Dara']; quiet = 0; hist = []; last = null; sel = null; prefix = []; over = false; busy = false; hinted = null;
+    captured = { 1: 0, '-1': 0 };
+    show('s-game');
+    REPLAY = true;
+    try {
+      for (const path of room.moves) {
+        if (over) break;
+        moves = gen(B, turn);
+        const m = moves.find(x => x.path.length === path.length && x.path.every((v, k) => v === path[k]));
+        if (!m) break;
+        commit(m);
+      }
+    } finally { REPLAY = false; }
+    if (!over) startTurn();
+  },
+  async onMove(path) {
+    while (busy) await new Promise(r => setTimeout(r, 120));
+    if (MODE !== 'online' || over || NAME(turn) === HUMAN) return;
+    const m = moves.find(x => x.path.length === path.length && x.path.every((v, k) => v === path[k]));
+    if (!m) return;
+    busy = true;
+    await new Promise(done => {
+      let k = 1; sel = m.path[0]; prefix = [m.path[0]]; render();
+      const step = () => {
+        if (over || MODE !== 'online') return done();
+        if (k < m.path.length - 1) { prefix = m.path.slice(0, ++k); render(); setTimeout(step, 330); return; }
+        busy = false; prefix = []; sel = null; commit(m); done();
+      };
+      setTimeout(step, 380);
+    });
+  },
+  onLeft() { toMenu(); },
+});
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
