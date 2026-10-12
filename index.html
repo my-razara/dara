@@ -2271,7 +2271,7 @@ setTimeout(() => {
       if (ko && ko.n && !(km && km.n)) N.push({ id: 'kangen', e: '💗', t: `${o} udah kangen ${ko.n}× hari ini`, s: 'Bales kangennya yuk 🥺', href: 'tombol-kangen.html', hot: 1 });
     }
     const meet = get('idx-meet', '');
-    if (meet) { const [y, m, d] = meet.split('-').map(Number), n = Math.round((new Date(y, m - 1, d) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5); if (n >= 0 && n <= 3) N.push({ id: 'meet', e: n ? '⏰' : '🥰', t: n ? `${n} hari lagi ketemu!` : 'Hari ini ketemu!', s: n ? 'Udah siapin apa aja? 😆' : 'Have fun ya berdua 🤍', href: 'hitung-ketemu.html' }); }
+    if (meet) { const [y, m, d] = meet.split('-').map(Number), n = Math.round((new Date(y, m - 1, d) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5); if (n >= 0 && n <= 3) N.push({ id: 'meet', e: n ? '⏰' : '🥰', t: n ? `${n} hari lagi ketemu!` : 'Hari ini ketemu!', s: n ? 'Udah siapin apa aja? 😆' : 'Have fun ya berdua 🤍', href: 'rencana-ketemu.html' }); }
     const sr = (get('sr-cache', []) || []).filter(x => x && !x.deleted && x.kind !== 'kalau');
     if (get('sr-pin', '') === '1718') {
       const wk = dk(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));
@@ -2437,6 +2437,37 @@ setTimeout(() => {
   renderRows();
   // umur "aktif x menit lalu" ikut keupdate
   setInterval(() => { try { if (!document.hidden && $('home') && $('home').classList.contains('active')) { const s = $('today-slot'), c = s && s.querySelector('.st-card'); if (c) { c.outerHTML = cardHTML(); } } } catch (e) {} }, 60e3);
+})();
+
+// ═══ Rencana Ketemu → hitung mundur "ketemu" di depan ikut otomatis ═══
+(function () {
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const p2 = n => String(n).padStart(2, '0');
+  function nextPlan() {
+    const n = new Date(), t = `${n.getFullYear()}-${p2(n.getMonth() + 1)}-${p2(n.getDate())}`;
+    const ds = [];
+    ['Razan', 'Dara'].forEach(w => Object.entries(get('ketemu-' + w, {}) || {}).forEach(([d, r]) => { if (d >= t && r && r.items && r.items.length) ds.push(d); }));
+    return ds.sort()[0] || null;
+  }
+  function syncMeet() {
+    const np = nextPlan(); if (!np) return;
+    const cur = get('idx-meet', ''), n = new Date(), t = `${n.getFullYear()}-${p2(n.getMonth() + 1)}-${p2(n.getDate())}`;
+    if (!cur || cur < t || np < cur) set('idx-meet', np);
+  }
+  const _rr7 = renderRows;
+  renderRows = function () { try { syncMeet(); } catch (e) {} _rr7(); };
+  // udah ada rencana → tombol hitung mundur langsung buka Rencana Ketemu
+  const _om = window.openMeet;
+  window.openMeet = () => { if (nextPlan()) location.href = 'rencana-ketemu.html'; else _om(); };
+  // tombol ke Rencana Ketemu di lembar "Kapan ketemuan lagi?"
+  const sh = document.querySelector('#meet-ov .meet-sheet');
+  if (sh && !sh.querySelector('.meet-plan')) sh.insertAdjacentHTML('beforeend', '<a class="meet-plan" href="rencana-ketemu.html">📅 Buka Rencana Ketemu — atur bareng & checklist mau ngapain aja →</a>');
+  const css = document.createElement('style');
+  css.textContent = `.meet-plan{display:block;margin-top:.7rem;padding:.7rem .8rem;border-radius:14px;background:#fdeee8;color:#7a3f35;font-size:12.5px;font-weight:600;text-decoration:none;text-align:center;line-height:1.4}
+  html.night .meet-plan{background:rgba(255,255,255,.08);color:#f3d9d2}`;
+  document.head.appendChild(css);
+  renderRows();
 })();
 
 })();
