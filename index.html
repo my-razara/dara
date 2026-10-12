@@ -2322,6 +2322,123 @@ setTimeout(() => {
   renderRows();
 })();
 
+// ═══ Status "lagi ngapain" + terakhir aktif ═══
+(function () {
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const p2 = n => String(n).padStart(2, '0');
+  const dk = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+  const PRE = [['📚', 'Lagi kuliah'], ['💼', 'Lagi kerja'], ['😴', 'Lagi tidur'], ['🍜', 'Lagi makan'], ['🚗', 'Di jalan'], ['🏠', 'Santai di rumah'], ['🎮', 'Lagi main game'], ['🛁', 'Lagi mandi'], ['🙏', 'Lagi ibadah'], ['📵', 'Ga pegang HP dulu'], ['🤒', 'Lagi ga enak badan'], ['💭', 'Lagi kangen kamu']];
+  const DUR = [[30, '30 menit'], [60, '1 jam'], [120, '2 jam'], [240, '4 jam'], ['pagi', 'Sampai besok pagi'], [0, 'Ga dibatesin']];
+  const B = () => window.Berdua;
+  const latest = (app, w) => { const m = get(app + '-' + w, {}) || {}; const ks = Object.keys(m).sort(); return ks.length ? m[ks[ks.length - 1]] : null; };
+  function statusOf(w) { const s = latest('status', w); if (!s || !s.e) return null; if (s.until && Date.now() > s.until) return null; return s; }
+  function seenOf(w) { const s = latest('seen', w); return s && s.at || 0; }
+  function ago(ms) {
+    if (!ms) return '';
+    const m = Math.round((Date.now() - ms) / 60e3);
+    if (m < 5) return '🟢 lagi buka web';
+    if (m < 60) return `aktif ${m} menit lalu`;
+    const h = Math.round(m / 60); if (h < 24) return `aktif ${h} jam lalu`;
+    return `aktif ${Math.round(h / 24)} hari lalu`;
+  }
+  function since(ms) { const m = Math.round((Date.now() - ms) / 60e3); return m < 1 ? 'barusan' : m < 60 ? `${m} mnt lalu` : `${Math.round(m / 60)} jam lalu`; }
+  function cardHTML() {
+    if (!B() || !B().enabled) return '';
+    const me = B().me(), o = B().other(me), so = statusOf(o), sm = statusOf(me), seen = seenOf(o);
+    return `<div class="st-card">
+      <div class="st-o"><span class="st-e">${so ? escH(so.e) : '💞'}</span><span class="st-t"><small class="${o}">${o}</small><b>${so ? escH(so.t) : 'Belum pasang status'}</b><i>${[so ? 'sejak ' + since(so.at) : '', ago(seen)].filter(Boolean).join(' · ')}</i></span></div>
+      <button class="st-me" onclick="__stOpen()"><span>${sm ? escH(sm.e) : '＋'}</span><em>${sm ? 'Status kamu' : 'Pasang status'}</em></button>
+    </div>`;
+  }
+  const _rr6 = renderRows;
+  renderRows = function () {
+    _rr6();
+    const s = $('today-slot'); if (!s || s.querySelector('.st-card')) return;
+    const h = cardHTML(); if (!h) return;
+    const ng = s.querySelector('.ng-wrap');
+    if (ng) ng.insertAdjacentHTML('afterend', h); else s.insertAdjacentHTML('afterbegin', h);
+  };
+
+  // ── pilih status ──
+  let selE = null, selT = '', selD = 120;
+  const ov = document.createElement('div'); ov.className = 'st-ov'; ov.id = 'st-ov';
+  ov.innerHTML = `<div class="st-sheet"><div class="st-drag"></div><h3>Lagi ngapain? 👀</h3><p class="st-sub">Biar pasangan tau kapan enak buat chat 🤍</p>
+    <div class="st-grid" id="st-grid"></div>
+    <input class="st-inp" id="st-txt" maxlength="40" placeholder="…atau tulis sendiri">
+    <p class="st-lbl">Berapa lama?</p><div class="st-dur" id="st-dur"></div>
+    <button class="st-go" onclick="__stSave()">Pasang status</button>
+    <button class="st-clr" id="st-clr" onclick="__stClear()">Hapus status</button>
+    <button class="st-x" onclick="__stClose()">Batal</button></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click', e => { if (e.target === ov) __stClose(); });
+  function paint() {
+    $('st-grid').innerHTML = PRE.map(([e, t], i) => `<button data-i="${i}" class="${selE === e && selT === t ? 'on' : ''}"><span>${e}</span>${t}</button>`).join('');
+    $('st-grid').querySelectorAll('button').forEach(b => b.onclick = () => { const [e, t] = PRE[+b.dataset.i]; selE = e; selT = t; $('st-txt').value = ''; if (e === '😴') selD = 'pagi'; paint(); });
+    $('st-dur').innerHTML = DUR.map(([v, t]) => `<button data-v="${v}" class="${String(selD) === String(v) ? 'on' : ''}">${t}</button>`).join('');
+    $('st-dur').querySelectorAll('button').forEach(b => b.onclick = () => { selD = isNaN(+b.dataset.v) ? b.dataset.v : +b.dataset.v; paint(); });
+  }
+  $('st-txt').addEventListener('input', () => { const v = $('st-txt').value.trim(); if (v) { selE = '💬'; selT = v; } paint(); });
+  window.__stOpen = () => {
+    const sm = statusOf(B().me()); selE = sm ? sm.e : null; selT = sm ? sm.t : ''; selD = 120;
+    $('st-txt').value = sm && !PRE.some(p => p[1] === sm.t) ? sm.t : '';
+    $('st-clr').style.display = sm ? '' : 'none';
+    paint(); ov.classList.add('show');
+  };
+  window.__stClose = () => ov.classList.remove('show');
+  function untilOf(d) {
+    if (!d) return 0;
+    if (d === 'pagi') { const n = new Date(), t = new Date(n.getFullYear(), n.getMonth(), n.getDate() + (n.getHours() >= 6 ? 1 : 0), 7, 0); return t.getTime(); }
+    return Date.now() + d * 60e3;
+  }
+  window.__stSave = () => {
+    if (!selE || !selT) { $('st-txt').focus(); return; }
+    B().put('status', B().me(), dk(new Date()), { e: selE, t: selT, at: Date.now(), until: untilOf(selD) });
+    __stClose(); renderRows();
+    try { window.SFX && SFX.play('pop'); } catch (e) {}
+  };
+  window.__stClear = () => { B().put('status', B().me(), dk(new Date()), { e: '', t: '', at: Date.now(), until: 1 }); __stClose(); renderRows(); };
+
+  const css = document.createElement('style');
+  css.textContent = `
+  .st-card{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;padding:.6rem .6rem .6rem .8rem;border-radius:18px;background:rgba(255,255,255,.88);border:1px solid rgba(193,122,111,.16);box-shadow:0 4px 14px rgba(193,122,111,.07)}
+  .st-o{flex:1;min-width:0;display:flex;align-items:center;gap:.6rem}
+  .st-e{flex:0 0 40px;height:40px;border-radius:13px;background:#fdeee8;display:flex;align-items:center;justify-content:center;font-size:1.35rem}
+  .st-t{min-width:0;display:flex;flex-direction:column}
+  .st-t small{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .st-t small.Razan{color:var(--rz,#4a7fc1)}.st-t small.Dara{color:#d9776b}
+  .st-t b{font-size:13px;font-weight:600;color:var(--deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .st-t i{font-style:normal;font-size:10.5px;color:var(--muted);line-height:1.35}
+  .st-me{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.1rem;border:1.5px dashed rgba(193,122,111,.35);background:none;border-radius:14px;padding:.35rem .55rem;cursor:pointer;font-family:inherit}
+  .st-me span{font-size:1.15rem;line-height:1.1;color:var(--rose)}
+  .st-me em{font-style:normal;font-size:9.5px;color:var(--muted);white-space:nowrap}
+  .st-ov{position:fixed;inset:0;z-index:9400;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .st-ov.show{display:flex}
+  .st-sheet{width:100%;max-width:480px;max-height:90vh;overflow-y:auto;background:#faf6f0;border-radius:24px 24px 0 0;padding:.9rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom));animation:stUp .28s ease;font-family:'Poppins',sans-serif}
+  @keyframes stUp{from{transform:translateY(100%)}}
+  .st-drag{width:38px;height:4px;border-radius:2px;background:#e8c4b0;margin:0 auto .8rem}
+  .st-sheet h3{font-size:15px;font-weight:700;text-align:center;color:#2d1f1a;margin:0}
+  .st-sub{font-size:11.5px;color:#9a8070;text-align:center;margin:.2rem 0 .8rem}
+  .st-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem}
+  .st-grid button{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.55rem .2rem;border-radius:14px;border:1.5px solid #e8c4b0;background:#fff;font-family:inherit;font-size:10.5px;color:#7a6050;cursor:pointer;line-height:1.25;min-width:0}
+  .st-grid button span{font-size:1.35rem}
+  .st-grid button.on{border-color:#c17a6f;background:#fdeee8;color:#7a3f35;font-weight:600}
+  .st-inp{width:100%;margin-top:.6rem;font-family:inherit;font-size:14px;padding:.65rem .85rem;border-radius:14px;border:1.5px solid #e8c4b0;background:#fff;outline:none;box-sizing:border-box}
+  .st-lbl{font-size:11.5px;font-weight:600;color:#7a3f35;margin:.8rem 0 .35rem}
+  .st-dur{display:flex;flex-wrap:wrap;gap:.3rem}
+  .st-dur button{font-family:inherit;font-size:11.5px;padding:.4rem .7rem;border-radius:50px;border:1.5px solid #e8c4b0;background:#fff;color:#9a8070;cursor:pointer}
+  .st-dur button.on{background:#c17a6f;border-color:#c17a6f;color:#fff;font-weight:600}
+  .st-go{display:block;width:100%;margin-top:1rem;padding:.85rem;border:none;border-radius:50px;font-family:inherit;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer}
+  .st-clr{display:block;width:100%;margin-top:.4rem;padding:.6rem;border:1.5px solid #e8c4b0;border-radius:50px;background:#fff;font-family:inherit;font-size:12.5px;color:#a8584c;cursor:pointer}
+  .st-x{display:block;width:100%;margin-top:.3rem;padding:.55rem;border:none;background:none;font-family:inherit;font-size:12.5px;color:#9a8070;cursor:pointer}
+  html.night .st-card{background:var(--card);border-color:rgba(193,122,111,.25)}
+  html.night .st-e{background:rgba(255,255,255,.08)}
+  html.night .st-t b{color:#f3d9d2}`;
+  document.head.appendChild(css);
+  renderRows();
+  // umur "aktif x menit lalu" ikut keupdate
+  setInterval(() => { try { if (!document.hidden && $('home') && $('home').classList.contains('active')) { const s = $('today-slot'), c = s && s.querySelector('.st-card'); if (c) { c.outerHTML = cardHTML(); } } } catch (e) {} }, 60e3);
+})();
+
 })();
 </script>
 </body>
