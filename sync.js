@@ -184,7 +184,7 @@
   }
   function ajakCheck() {
     const o = other(me()), t = tday(), a = (g('ajak-' + o, {}) || {})[t];
-    if (!a || !a.at || Date.now() - a.at > 15 * 60e3) return;
+    if (!a || !a.at || Date.now() - a.at > 10 * 60e3) return;
     const seen = g('ajak-seen', 0); if (seen >= a.at) return; s('ajak-seen', a.at);
     if (window.__onlineGame === a.g) return;            // udah di halaman game-nya
     const N = GNAME[a.g] || ['🎮', a.g];
