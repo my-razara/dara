@@ -93,7 +93,12 @@
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     overlay(`<span class="e">⏳</span><h3>Nyiapin meja…</h3><p class="ol-dots"><i></i><i></i><i></i></p>`);
     const r = await post({ op: 'new', id, cfg });
-    if (!r.ok) { overlay(`<span class="e">😵</span><h3>Gagal nyambung</h3><p>Cek internet terus coba lagi ya.</p><button class="ol-x" onclick="document.getElementById('ol-ov').remove()">Tutup</button>`); return; }
+    if (!r.ok) {
+      const why = r.error === 'action' || r.error === 'game' ? 'Server (Apps Script Data Berdua) masih versi lama — belum ada fitur game online. Update kodenya & deploy <b>Versi baru</b> dulu ya.'
+        : r.error === 'jaringan' ? 'Server Google-nya ga bisa dihubungi. Cek internet, atau cek Apps Script-nya udah di-deploy dengan akses "Siapa saja".'
+        : 'Server-nya bilang: <b>' + esc(r.error || 'error') + '</b>';
+      overlay(`<span class="e">😵</span><h3>Gagal bikin meja</h3><p>${why}</p><button class="ol-x" onclick="document.getElementById('ol-ov').remove()">Tutup</button>`); return;
+    }
     lastRoom = r.room;
     try { B().put('ajak', me(), tday(), { g: O.g, id, at: Date.now() }); } catch (e) {}
     waitJoin();
