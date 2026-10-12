@@ -106,13 +106,15 @@
   @media (max-height:620px){ .board-wrap{max-width:330px} .bar{margin:.6rem 0 .4rem} }
   @media (prefers-reduced-motion:reduce){ .cell .disc.drop{animation:none} .hint-row .disc{animation:none} }
 </style>
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <a href="index.html" class="back-link">← Menu utama</a>
-    <button class="top-btn" id="menu-btn" style="display:none" onclick="toMenu()">☰ Menu game</button>
+    <button class="top-btn" id="menu-btn" style="display:none" onclick="quitGame()">☰ Menu game</button>
   </div>
 
   <!-- PILIH -->
@@ -141,6 +143,7 @@
       <div class="pl Dara" id="pl-Dara"><span class="disc Dara"></span><span class="nm" id="nm-Dara">Dara</span><span class="wins" id="w-Dara">0</span></div>
     </div>
     <p class="round-info" id="round-info"></p>
+    <p class="ol-st" id="ol-st"></p>
     <p class="status" id="status"></p>
     <div class="board-wrap">
       <div class="hint-row" id="hint"></div>
@@ -149,7 +152,7 @@
         <div class="cols" id="cols"></div>
       </div>
     </div>
-    <div class="actions">
+    <div class="actions" id="acts">
       <button id="undo-btn" onclick="undo()">↩️ Batalin langkah</button>
       <button onclick="restartRound()">🔄 Ulang ronde</button>
     </div>
@@ -179,6 +182,7 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 let bestOf = lsGet('c4-rounds', 3), level = lsGet('c4-level', 1);
 let BOT = null;                                   // 'Razan' / 'Dara' kalau lawan komputer
 let grid, turn, firstTurn = 'Dara', moves, over, wins, roundNo, busy = false;
+let ONLINE = false, HUMAN = null, REPLAY = false, lastWinner = null;
 
 // tantangan kecil buat yang kalah (mode berdua) — mode komputer diganti kata semangat
 const DEMANDS = [
@@ -205,12 +209,14 @@ document.querySelectorAll('#p-rounds button').forEach(b => b.onclick = () => { b
 document.querySelectorAll('#p-level button').forEach(b => b.onclick = () => { level = +b.dataset.v; lsSet('c4-level', level); paintPills(); });
 
 function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id)); $('menu-btn').style.display = id === 's-game' ? '' : 'none'; }
-function toMenu() { busy = false; show('s-pick'); paintPills(); }
+function toMenu() { if (ONLINE && window.Online) Online.leave(true); if (ONLINE) bestOf = lsGet('c4-rounds', 3); ONLINE = false; HUMAN = null; $('acts').style.display = ''; busy = false; show('s-pick'); paintPills(); }
+function quitGame() { if (ONLINE) { if (!(over && matchOver()) && !confirm(`Keluar dari game online? ${HUMAN === 'Razan' ? 'Dara' : 'Razan'} bakal dikabarin.`)) return; Online.leave(); } toMenu(); }
 
 function start(bot) {
   BOT = bot;
   NAMES.Razan = BOT === 'Razan' ? `🤖 Komputer` : 'Razan';
   NAMES.Dara = BOT === 'Dara' ? `🤖 Komputer` : 'Dara';
+  $('acts').style.display = '';
   $('nm-Razan').textContent = NAMES.Razan; $('nm-Dara').textContent = NAMES.Dara;
   wins = { Razan: 0, Dara: 0 }; roundNo = 0;
   firstTurn = BOT ? (BOT === 'Razan' ? 'Dara' : 'Razan') : (Math.random() < .5 ? 'Razan' : 'Dara');   // lawan komputer: kamu jalan duluan
@@ -230,7 +236,13 @@ function restartRound() {
   if (moves.length && !over && !confirm('Ulang ronde ini dari awal?')) return;
   roundNo--; newRound();
 }
-function nextRound() {
+function nextRound(remote) {
+  if (ONLINE) {
+    if (matchOver()) { closeRes(); Online.invite(); return; }
+    if (!over) { closeRes(); return; }
+    if (!remote) Online.move({ t: 'n' });
+    closeRes(); firstTurn = firstTurn === 'Razan' ? 'Dara' : 'Razan'; newRound(); return;
+  }
   closeRes();
   if (matchOver()) { start(BOT); return; }
   firstTurn = firstTurn === 'Razan' ? 'Dara' : 'Razan';   // gantian jalan duluan
@@ -257,7 +269,7 @@ let hoverCol = -1;
 function hover(c) {
   hoverCol = c;
   const h = $('hint');
-  const show = !over && !busy && (!BOT || turn !== BOT);
+  const show = !over && !busy && (!BOT || turn !== BOT) && (!ONLINE || turn === HUMAN);
   h.innerHTML = Array.from({ length: COLS }, (_, i) => `<span>${show && i === c && topRow(i) >= 0 ? `<span class="disc ${turn}"></span>` : ''}</span>`).join('');
 }
 function topRow(c) { for (let r = ROWS - 1; r >= 0; r--) if (!grid[r][c]) return r; return -1; }
@@ -267,27 +279,30 @@ function updateUI() {
   const st = $('status');
   if (!over) {
     st.className = 'status ' + turn;
-    st.textContent = BOT && turn === BOT ? '🤖 Komputer lagi mikir…' : BOT ? 'Giliran kamu — tap kolomnya 👇' : `Giliran ${NAMES[turn]} 👇`;
+    st.textContent = ONLINE ? (turn === HUMAN ? 'Giliran kamu — tap kolomnya 👇' : `⏳ Nunggu ${turn} jalan…`) : BOT && turn === BOT ? '🤖 Komputer lagi mikir…' : BOT ? 'Giliran kamu — tap kolomnya 👇' : `Giliran ${NAMES[turn]} 👇`;
   }
+  if (ONLINE && !REPLAY) Online.waiting(!over && turn !== HUMAN);
   $('undo-btn').disabled = !moves.length || over || busy || (BOT && moves.length < 2 && moves[0] && moves[0].p === BOT);
-  document.querySelectorAll('#cols button').forEach((b, c) => b.disabled = over || busy || (BOT && turn === BOT) || topRow(c) < 0);
+  document.querySelectorAll('#cols button').forEach((b, c) => b.disabled = over || busy || (BOT && turn === BOT) || (ONLINE && turn !== HUMAN) || topRow(c) < 0);
 }
 
 function place(c, p) {
   const r = topRow(c); if (r < 0) return -1;
   grid[r][c] = p; moves.push({ r, c, p });
-  setTimeout(() => window.SFX && SFX.play('seed'), 180);
+  if (!REPLAY) setTimeout(() => window.SFX && SFX.play('seed'), 180);
   const cell = $(`c${r}${c}`);
   const d = document.createElement('span'); d.className = `disc ${p} drop`;
   d.style.setProperty('--from', `${-(r + 1) * 112}%`);
   d.style.setProperty('--t', `${.18 + r * .05}s`);
   cell.appendChild(d);
-  try { navigator.vibrate && navigator.vibrate(10); } catch (e) {}
+  if (!REPLAY) try { navigator.vibrate && navigator.vibrate(10); } catch (e) {}
   return r;
 }
 function humanDrop(c) {
   if (over || busy || (BOT && turn === BOT)) return;
+  if (ONLINE && turn !== HUMAN) return;
   if (topRow(c) < 0) return;
+  if (ONLINE) Online.move(c);
   play(c);
 }
 function play(c) {
@@ -326,23 +341,25 @@ function endRound(winner, line) {
   const rec = lsGet('c4-record', { Razan: 0, Dara: 0, bot: [0, 0, 0], beat: [0, 0, 0] });
   if (winner) {
     wins[winner]++;
-    if (!BOT) rec[winner]++;
+    if (!BOT && !REPLAY) rec[winner]++;
     else if (winner === BOT) rec.bot[level]++; else rec.beat[level]++;
     lsSet('c4-record', rec);
   }
   $('status').className = 'status ' + (winner || '');
   $('status').textContent = winner ? `${NAMES[winner]} bikin 4 sejajar! 🎉` : 'Papannya penuh — seri! 🤝';
-  updateUI();
+  updateUI(); lastWinner = winner;
+  if (REPLAY) return;
   setTimeout(() => showRes(winner), line ? 1300 : 600);
 }
 function showRes(winner) {
   const done = matchOver();
-  const humanWon = BOT && winner && winner !== BOT;
-  if (BOT && winner === BOT) setTimeout(() => window.SFX && SFX.play('lose'), 300);
+  const humanWon = ONLINE ? winner === HUMAN : BOT && winner && winner !== BOT;
+  if ((BOT && winner === BOT) || (ONLINE && winner && winner !== HUMAN)) setTimeout(() => window.SFX && SFX.play('lose'), 300);
   $('s-ico').textContent = !winner ? '🤝' : done ? '🏆' : BOT ? (humanWon ? '🎉' : '🤖') : '🎉';
   const t = $('s-title');
   t.className = 's-title ' + (winner || '');
-  t.textContent = !winner ? 'Seri!' : done ? `${NAMES[winner]} juara!` : `${NAMES[winner]} menang ronde ${roundNo}!`;
+  const nmW = ONLINE && winner === HUMAN ? 'Kamu' : NAMES[winner];
+  t.textContent = !winner ? 'Seri!' : done ? `${nmW} juara!` : `${nmW} menang ronde ${roundNo}!`;
   $('s-sub').textContent = bestOf > 1 ? `Skor: Razan ${wins.Razan} — ${wins.Dara} Dara${done ? '' : ` · main sampai ${need()} menang`}` : '';
   const box = $('s-box');
   if (!winner) { box.style.display = 'none'; }
@@ -351,7 +368,7 @@ function showRes(winner) {
     if (BOT) box.innerHTML = `<small>${humanWon ? 'Keren!' : 'Semangat!'}</small>${(humanWon ? HUMAN_WIN : BOT_WIN)[Math.floor(Math.random() * 3)]}${humanWon && level < 2 ? `<br><span style="font-size:11.5px;color:var(--muted)">Coba level ${LEVELS[level + 1]} yuk 😏</span>` : ''}`;
     else box.innerHTML = `<small>Tantangan buat yang kalah</small>${DEMANDS[Math.floor(Math.random() * DEMANDS.length)]}`;
   }
-  $('s-next').textContent = done ? 'Main lagi dari awal 🔁' : 'Ronde berikutnya →';
+  $('s-next').textContent = done ? (ONLINE ? 'Ajak main lagi 🔁' : 'Main lagi dari awal 🔁') : 'Ronde berikutnya →';
   $('res-ov').classList.add('show');
   if (winner && (!BOT || humanWon) && done) confetti(winner);
 }
@@ -448,6 +465,39 @@ document.addEventListener('keydown', e => {
 });
 
 paintPills();
+
+/* ── main online (beda HP) ── */
+if (window.Online) Online.setup({
+  g: 'empat-sejajar', panelAfter: '#s-pick .big', statusEl: 'ol-st',
+  makeCfg: () => ({ first: Math.random() < .5 ? 'Razan' : 'Dara', bestOf }),
+  onStart(room, me) {
+    closeRes();
+    ONLINE = true; HUMAN = me; BOT = null;
+    const cf = room.cfg || {};
+    bestOf = cf.bestOf || 3;
+    NAMES.Razan = me === 'Razan' ? 'Razan (kamu)' : 'Razan'; NAMES.Dara = me === 'Dara' ? 'Dara (kamu)' : 'Dara';
+    $('nm-Razan').textContent = NAMES.Razan; $('nm-Dara').textContent = NAMES.Dara;
+    $('acts').style.display = 'none';
+    wins = { Razan: 0, Dara: 0 }; roundNo = 0; firstTurn = cf.first || 'Dara'; lastWinner = null;
+    show('s-game');
+    REPLAY = true;
+    try {
+      newRound();
+      for (const mv of room.moves) {
+        if (typeof mv === 'number') { if (!over && topRow(mv) >= 0) play(mv); }
+        else if (mv && mv.t === 'n' && over && !matchOver()) { firstTurn = firstTurn === 'Razan' ? 'Dara' : 'Razan'; newRound(); }
+      }
+    } finally { REPLAY = false; }
+    updateUI(); hover(-1);
+    if (over) showRes(lastWinner);
+  },
+  async onMove(mv) {
+    if (!ONLINE) return;
+    if (typeof mv === 'number') { if (over || turn === HUMAN || topRow(mv) < 0) return; play(mv); return; }
+    if (mv && mv.t === 'n' && over && !matchOver()) nextRound(true);
+  },
+  onLeft() { toMenu(); },
+});
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
