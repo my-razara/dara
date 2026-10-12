@@ -165,10 +165,10 @@
 
   // ── game online ──
   const GNAME = { congklak: ['🐚', 'Congklak'], 'perang-kapal': ['⚓', 'Perang Kapal'], dam: ['⚫', 'Dam'], 'empat-sejajar': ['🔴', 'Empat Sejajar'] };
-  function room(g) {
+  function room(g, since) {
     return new Promise((res, rej) => {
       const x = new XMLHttpRequest();
-      x.open('GET', `${URL}?action=room&key=${KEY}&g=${encodeURIComponent(g)}&t=${Date.now()}`, true); x.timeout = 15000;
+      x.open('GET', `${URL}?action=room&key=${KEY}&g=${encodeURIComponent(g)}${since != null ? '&wait=1&since=' + encodeURIComponent(since) : ''}&t=${Date.now()}`, true); x.timeout = since != null ? 40000 : 15000;
       x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r.room) : rej(new Error(r.error)); } catch (e) { rej(e); } };
       x.onerror = x.ontimeout = () => rej(new Error('jaringan')); x.send();
     });
