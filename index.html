@@ -2342,14 +2342,19 @@ setTimeout(() => {
     return `aktif ${Math.round(h / 24)} hari lalu`;
   }
   function since(ms) { const m = Math.round((Date.now() - ms) / 60e3); return m < 1 ? 'barusan' : m < 60 ? `${m} mnt lalu` : `${Math.round(m / 60)} jam lalu`; }
+  function half(w, isMe) {
+    const st = statusOf(w), seen = isMe ? 0 : seenOf(w);
+    return `<div class="st-h ${isMe ? 'me' : ''}" ${isMe ? 'onclick="__stOpen()"' : ''}>
+      <span class="st-e">${st ? escH(st.e) : isMe ? '＋' : '💞'}</span>
+      <span class="st-t"><small class="${w}">${isMe ? 'Kamu · ' + w : w}</small><b>${st ? escH(st.t) : isMe ? 'Pasang status' : 'Belum pasang'}</b><i>${isMe ? (st ? 'sejak ' + since(st.at) + ' · ubah' : 'tap buat pasang') : [st ? 'sejak ' + since(st.at) : '', ago(seen)].filter(Boolean).join(' · ') || 'belum ada kabar'}</i></span></div>`;
+  }
   function cardHTML() {
     if (!B() || !B().enabled) return '';
-    const me = B().me(), o = B().other(me), so = statusOf(o), sm = statusOf(me), seen = seenOf(o);
-    return `<div class="st-card">
-      <div class="st-o"><span class="st-e">${so ? escH(so.e) : '💞'}</span><span class="st-t"><small class="${o}">${o}</small><b>${so ? escH(so.t) : 'Belum pasang status'}</b><i>${[so ? 'sejak ' + since(so.at) : '', ago(seen)].filter(Boolean).join(' · ')}</i></span></div>
-      <button class="st-me" onclick="__stOpen()"><span>${sm ? escH(sm.e) : '＋'}</span><em>${sm ? 'Status kamu' : 'Pasang status'}</em></button>
-    </div>`;
+    const me = B().me(), o = B().other(me);
+    if (!get('berdua-me', null)) return `<div class="st-card st-ask"><b>👋 Ini HP siapa?</b><p>Biar status, kangen & fitur berdua nyambung ke orang yang bener</p><div><button class="Razan" onclick="__stWho('Razan')">🙋‍♂️ Aku Razan</button><button class="Dara" onclick="__stWho('Dara')">🙋‍♀️ Aku Dara</button></div></div>`;
+    return `<div class="st-card"><div class="st-two">${half(o, false)}${half(me, true)}</div><p class="st-foot">📍 Status sekarang · HP ini punya <b class="${me}">${me}</b> · <button onclick="__stWho('${o}')">bukan aku</button></p></div>`;
   }
+  window.__stWho = w => { B().setMe(w); ['mood-me', 'syukur-me', 'kangen-me', 'ketemu-me', 'wish-me'].forEach(k => { try { localStorage.setItem(k, JSON.stringify(w)); } catch (e) {} }); renderRows(); };
   const _rr6 = renderRows;
   renderRows = function () {
     _rr6();
@@ -2400,7 +2405,25 @@ setTimeout(() => {
 
   const css = document.createElement('style');
   css.textContent = `
-  .st-card{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;padding:.6rem .6rem .6rem .8rem;border-radius:18px;background:rgba(255,255,255,.88);border:1px solid rgba(193,122,111,.16);box-shadow:0 4px 14px rgba(193,122,111,.07)}
+  .st-card{margin-bottom:.75rem;padding:.6rem;border-radius:18px;background:rgba(255,255,255,.88);border:1px solid rgba(193,122,111,.16);box-shadow:0 4px 14px rgba(193,122,111,.07)}
+  .st-two{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+  .st-h{min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.25rem;padding:.55rem .4rem .5rem;border-radius:14px;background:rgba(253,238,232,.55)}
+  .st-h .st-t{align-items:center;width:100%}
+  .st-h .st-t b{white-space:normal;line-height:1.3}
+  .st-h.me{background:none;border:1.5px dashed rgba(193,122,111,.3);cursor:pointer}
+  .st-h .st-e{flex:0 0 34px;height:34px;font-size:1.15rem;border-radius:11px}
+  .st-h.me .st-e{background:#fff;color:var(--rose)}
+  .st-h .st-t b{font-size:12px}
+  .st-foot{font-size:10px;color:var(--muted);text-align:center;margin:.45rem 0 0}
+  .st-foot b.Razan{color:var(--rz,#4a7fc1)}.st-foot b.Dara{color:#d9776b}
+  .st-foot button{border:none;background:none;color:var(--rose);text-decoration:underline;font-size:10px;cursor:pointer;padding:0;font-family:inherit}
+  .st-ask{text-align:center}
+  .st-ask b{font-size:13.5px;color:var(--deep)}
+  .st-ask p{font-size:11px;color:var(--muted);margin:.2rem 0 .55rem}
+  .st-ask div{display:flex;gap:.45rem}
+  .st-ask button{flex:1;padding:.6rem .3rem;border-radius:50px;border:none;color:#fff;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer}
+  .st-ask button.Razan{background:#4a7fc1}.st-ask button.Dara{background:#d9776b}
+  html.night .st-h{background:rgba(255,255,255,.05)}
   .st-o{flex:1;min-width:0;display:flex;align-items:center;gap:.6rem}
   .st-e{flex:0 0 40px;height:40px;border-radius:13px;background:#fdeee8;display:flex;align-items:center;justify-content:center;font-size:1.35rem}
   .st-t{min-width:0;display:flex;flex-direction:column}
