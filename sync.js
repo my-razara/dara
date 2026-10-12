@@ -177,7 +177,7 @@
     return new Promise((res, rej) => {
       const x = new XMLHttpRequest();
       x.open('POST', URL, true); x.timeout = 20000; x.setRequestHeader('Content-Type', 'text/plain');
-      x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } };
+      x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { res({ ok: false, error: 'balasan server aneh (' + x.status + ') — cek deploy Apps Script' }); } };
       x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
       x.send(JSON.stringify(Object.assign({ key: KEY, action: 'room' }, body)));
     });
