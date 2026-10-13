@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v24';
+const VERSI = 'v25';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "titik-kotak.html",
@@ -191,3 +191,38 @@ function staleWhileRevalidate(req) {
     return hit || net;
   }));
 }
+
+// ═══ NOTIF "ADA YANG BARU" ═══
+// HP ngecek sendiri secara berkala (Chrome Android, kalau web-nya udah dipasang jadi aplikasi & notif dinyalain).
+// Sumbernya daftar UPDATED + KABAR di index.html — jadi tiap upload update baru, notifnya otomatis.
+async function metaGet() { try { const c = await caches.open('untuk-dara-meta'); const r = await c.match('/__kabar'); return r ? await r.json() : {}; } catch (e) { return {}; } }
+async function metaSet(o) { try { const c = await caches.open('untuk-dara-meta'); await c.put('/__kabar', new Response(JSON.stringify(o))); } catch (e) {} }
+async function cekKabar() {
+  if (self.Notification && Notification.permission !== 'granted') return;
+  let html = '';
+  try { const r = await fetch('index.html?cek=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return; html = await r.text(); } catch (e) { return; }
+  const now = new Date(), today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const upd = {}; const ub = /const UPDATED = \{([\s\S]*?)\};/.exec(html);
+  if (ub) for (const m of ub[1].matchAll(/'([\w-]+\.html)':\s*'(\d{4}-\d{2}-\d{2})'/g)) upd[m[1]] = m[2];
+  const kabar = []; const kb = /const KABAR = \[([\s\S]*?)\];/.exec(html);
+  if (kb) for (const m of kb[1].matchAll(/d:\s*'(\d{4}-\d{2}-\d{2})',\s*t:\s*'((?:[^'\\]|\\.)*)'/g)) kabar.push({ d: m[1], t: m[2].replace(/\\'/g, "'") });
+  const dates = Object.values(upd).concat(kabar.map(k => k.d)).filter(d => d <= today).sort(), maxD = dates[dates.length - 1];
+  if (!maxD) return;
+  const meta = await metaGet();
+  if (!meta.d) { await metaSet({ d: maxD }); return; }      // pertama kali: catat aja, jangan langsung notif
+  if (maxD <= meta.d) return;
+  const names = [], label = l => { const m = new RegExp("label:'((?:[^'\\\\]|\\\\.)*)'[^\\n]*?link:'" + l.replace(/[.]/g, '\\.') + "'").exec(html); return m ? m[1] : null; };
+  Object.entries(upd).filter(([, d]) => d > meta.d && d <= today).sort((a, b) => b[1].localeCompare(a[1])).forEach(([l]) => { const n = label(l); if (n) names.push(n); });
+  const news = kabar.filter(k => k.d > meta.d && k.d <= today);
+  const body = news.length ? news[0].t + (names.length ? `\n${names.slice(0, 3).join(', ')}${names.length > 3 ? ` +${names.length - 3} lagi` : ''}` : '')
+    : names.length ? `${names.slice(0, 3).join(', ')}${names.length > 3 ? ` & ${names.length - 3} lainnya` : ''} — cobain yuk!` : 'Ada update baru di web kita 💝';
+  await self.registration.showNotification('🎁 Ada yang baru buat kamu!', { body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'kabar-baru', renotify: true, data: { url: './' } });
+  await metaSet({ d: maxD });
+}
+self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(cekKabar()); });
+self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); });
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => { for (const c of cs) { if ('focus' in c) { c.navigate && c.navigate(url).catch(() => {}); return c.focus(); } } return self.clients.openWindow(url); }));
+});
