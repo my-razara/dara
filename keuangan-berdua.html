@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Keuangan Berdua — Razan & Dara 🤑</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}
+  .tabs{display:flex;gap:.25rem;margin-bottom:.9rem;background:var(--warm);border-radius:50px;padding:.25rem;position:sticky;top:.4rem;z-index:5;box-shadow:0 4px 14px rgba(193,122,111,.08)}
+  .tabs button{flex:1;border:none;background:none;padding:.5rem .15rem;border-radius:50px;font-size:11.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tabs button.on{background:#fff;color:var(--deep);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .bal{border-radius:24px;padding:1.1rem 1rem;text-align:center;color:#fff;margin-bottom:.8rem;background:linear-gradient(135deg,#8a9a7b,#5f7d63);box-shadow:0 10px 26px rgba(95,125,99,.25)}
+  .bal.R{background:linear-gradient(135deg,#7eb3f5,#4a7fc1);box-shadow:0 10px 26px rgba(74,127,193,.25)}
+  .bal.D{background:linear-gradient(135deg,#f0a39a,#d9776b);box-shadow:0 10px 26px rgba(217,119,107,.25)}
+  .bal small{font-size:11.5px;opacity:.9;display:block}
+  .bal b{display:block;font-size:1.9rem;font-weight:700;margin:.15rem 0;letter-spacing:-.01em}
+  .bal button{margin-top:.55rem;border:none;background:rgba(255,255,255,.25);color:#fff;font-weight:600;font-size:12px;border-radius:50px;padding:.45rem 1rem;cursor:pointer}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.8rem}
+  .mini{background:#fff;border-radius:18px;padding:.8rem;border:1px solid rgba(193,122,111,.13);min-width:0}
+  .mini small{display:block;font-size:10.5px;color:var(--muted)}
+  .mini b{display:block;font-size:.95rem;font-weight:700;margin-top:.1rem;line-height:1.3}
+  .bar{height:8px;border-radius:4px;background:rgba(193,122,111,.13);overflow:hidden;margin-top:.45rem}
+  .bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#8fc27a,#5f9d63);transition:width .4s}
+  .bar.warn i{background:linear-gradient(90deg,#f3c46b,#e09a3a)}.bar.over i{background:linear-gradient(90deg,#f08a7a,#d9534f)}
+  .hd{display:flex;justify-content:space-between;align-items:center;margin:1rem 0 .5rem}
+  .hd h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .hd button{font-size:11.5px;border:none;background:none;color:var(--rose);font-weight:600;cursor:pointer}
+  .tx{display:flex;align-items:center;gap:.65rem;background:#fff;border-radius:16px;padding:.65rem .75rem;margin-bottom:.45rem;border:1px solid rgba(193,122,111,.1);cursor:pointer}
+  .tx .ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;background:var(--warm)}
+  .tx .m{flex:1;min-width:0}
+  .tx .m b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tx .m small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tx .a{text-align:right;flex-shrink:0}
+  .tx .a b{display:block;font-size:13px;font-weight:700}
+  .tx .a small{display:block;font-size:10px;color:var(--muted)}
+  .who{font-weight:700}.who.Razan{color:var(--rz)}.who.Dara{color:var(--dr)}
+  .day{font-size:11px;color:var(--muted);font-weight:600;margin:.8rem 0 .35rem .2rem}
+  .mon{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.8rem}
+  .mon b{font-size:14px}
+  .mon button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;cursor:pointer;font-size:14px;color:var(--deep)}
+  .fab{position:fixed;right:max(1rem,calc(50% - 225px));bottom:calc(1.1rem + env(safe-area-inset-bottom));z-index:20;border:none;border-radius:50px;padding:.85rem 1.15rem;font-weight:700;font-size:14px;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);box-shadow:0 10px 24px rgba(168,88,76,.35);cursor:pointer}
+  .goal{background:#fff;border-radius:20px;padding:.9rem;margin-bottom:.6rem;border:1px solid rgba(193,122,111,.13)}
+  .goal .t{display:flex;align-items:center;gap:.6rem}
+  .goal .t span{font-size:1.8rem}
+  .goal .t b{display:block;font-size:14px;font-weight:600}
+  .goal .t small{font-size:11px;color:var(--muted)}
+  .goal .nums{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:.35rem}
+  .goal .nums b{color:var(--ink)}
+  .goal .who2{display:flex;gap:.4rem;margin-top:.5rem;font-size:11px}
+  .goal .who2 span{flex:1;border-radius:10px;padding:.3rem .5rem;text-align:center}
+  .goal .who2 .R{background:#eef4fd;color:var(--rz)}.goal .who2 .D{background:#fdf0ec;color:var(--dr)}
+  .goal .acts{display:flex;gap:.4rem;margin-top:.6rem}
+  .goal .acts button{flex:1;font-size:12px;padding:.5rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--deep);cursor:pointer;font-weight:600}
+  .goal .acts button.p{background:var(--rose);border-color:var(--rose);color:#fff}
+  .goal.done{background:linear-gradient(135deg,#fff,#f1f8ec)}
+  .money{font-size:1.5rem !important;font-weight:700;text-align:center;letter-spacing:.02em}
+  .seg{display:flex;gap:.3rem}
+  .seg button{flex:1;padding:.6rem .3rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;font-size:12.5px;cursor:pointer;color:var(--muted);font-weight:600}
+  .seg button.on.R{background:#eef4fd;border-color:var(--rz);color:var(--rz)}.seg button.on.D{background:#fdf0ec;border-color:var(--dr);color:var(--dr)}
+  .seg button.on.X{background:#fdeee8;border-color:var(--rose);color:var(--deep)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:.4rem;line-height:1.5;background:var(--warm);border-radius:12px;padding:.5rem .7rem}
+  .cats{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem}
+  .cats button{padding:.45rem .1rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;font-size:10.5px;color:var(--muted);cursor:pointer;line-height:1.3}
+  .cats button span{display:block;font-size:1.2rem}
+  .cats button.on{border-color:var(--rose);background:#fdeee8;color:var(--deep);font-weight:600}
+  .rk{background:#fff;border-radius:18px;padding:.9rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.7rem}
+  .rk .row1{display:flex;align-items:center;gap:.55rem;font-size:12.5px;margin-bottom:.5rem}
+  .rk .row1 span:first-child{width:1.5rem;text-align:center}
+  .rk .row1 .nm{width:5.6rem;flex-shrink:0}
+  .rk .row1 .bb{flex:1;height:10px;border-radius:5px;background:var(--warm);overflow:hidden}
+  .rk .row1 .bb i{display:block;height:100%;background:linear-gradient(90deg,#e8b4a8,#c17a6f);border-radius:5px}
+  .rk .row1 .v{width:4.6rem;text-align:right;font-weight:600;font-size:11.5px;flex-shrink:0}
+  .split{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:.4rem 0}
+  .split i{display:block;height:100%}
+  .split .R{background:var(--rz)}.split .D{background:var(--dr)}
+  .lg{display:flex;justify-content:space-between;font-size:11.5px}
+  .del{color:#b4554a !important;border-color:#f0c4bc !important}
+  .empty2{text-align:center;color:var(--muted);font-size:12.5px;padding:1.3rem .5rem;background:#fff;border-radius:18px;border:1px dashed rgba(193,122,111,.3);line-height:1.6}
+
+</style>
+</head>
+<body>
+
+<div class="wrap" style="padding-bottom:6rem">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
+  <div class="head"><span class="ico">🤑</span><p class="lbl">Dompet bersama</p><h1 class="title">Keuangan <span>Berdua</span></h1><p class="sub">Catat patungan, siapa nalangin siapa, budget jalan bareng, sampai tabungan impian — nyambung di HP kalian berdua 💸</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="tabs" id="tabs"><button data-t="home">🏠 Ringkas</button><button data-t="log">🧾 Catatan</button><button data-t="save">🐷 Tabungan</button><button data-t="rekap">📊 Rekap</button></div>
+  <div id="main"></div>
+</div>
+<button class="fab" id="fab" onclick="openTx()">＋ Catat</button>
+
+<div class="ov" id="tx-ov"><div class="sheet">
+  <div class="drag"></div><h3 style="text-align:center;font-size:15px;margin-bottom:.6rem" id="tx-h">Catat pengeluaran</h3>
+  <div class="seg" id="tx-kind"></div>
+  <div id="tx-body"></div>
+  <div class="row"><button class="btn ghost" onclick="closeOv('tx-ov')">Batal</button><button class="btn" onclick="saveTx()">Simpan</button></div>
+  <button class="btn ghost del" id="tx-del" style="margin-top:.5rem;display:none" onclick="delTx()">🗑 Hapus catatan ini</button>
+</div></div>
+
+<div class="ov" id="g-ov"><div class="sheet">
+  <div class="drag"></div><h3 style="text-align:center;font-size:15px;margin-bottom:.4rem" id="g-h">Tabungan baru</h3>
+  <label class="lab">Mau nabung buat apa?</label><input class="inp" id="g-n" maxlength="40" placeholder="Contoh: Liburan ke Bali">
+  <label class="lab">Ikon</label><div class="chips" id="g-e"></div>
+  <label class="lab">Target</label><input class="inp money" id="g-t" inputmode="numeric" placeholder="Rp 0">
+  <label class="lab">Pengen kecapai kapan? (opsional)</label><input class="inp" id="g-d" type="date">
+  <div class="row"><button class="btn ghost" onclick="closeOv('g-ov')">Batal</button><button class="btn" onclick="saveGoal()">Simpan</button></div>
+  <button class="btn ghost del" id="g-del" style="margin-top:.5rem;display:none" onclick="delGoal()">🗑 Hapus tabungan ini</button>
+</div></div>
+
+<div class="ov" id="b-ov"><div class="sheet">
+  <div class="drag"></div><h3 style="text-align:center;font-size:15px;margin-bottom:.4rem">💳 Budget jalan bareng</h3>
+  <p class="sub" style="margin-bottom:.4rem" id="b-s"></p>
+  <input class="inp money" id="b-v" inputmode="numeric" placeholder="Rp 0">
+  <div class="chips" style="margin-top:.6rem;justify-content:center" id="b-q"></div>
+  <p class="hint">Budget dipakai buat semua pengeluaran berdua di bulan ini (yang dicatat di sini). Kosongin = ga pakai budget.</p>
+  <div class="row"><button class="btn ghost" onclick="closeOv('b-ov')">Batal</button><button class="btn" onclick="saveBudget()">Simpan</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
+const WHO = ['Razan', 'Dara'], SLOT = '2000-01-01';
+const CAT = [['makan', '🍜', 'Makan'], ['jajan', '🧋', 'Jajan'], ['jalan', '🎡', 'Jalan'], ['nonton', '🎬', 'Nonton'], ['transport', '🛵', 'Transport'], ['belanja', '🛍️', 'Belanja'], ['hadiah', '🎁', 'Hadiah'], ['lain', '📦', 'Lainnya']];
+const GEMO = ['🏝️', '💍', '✈️', '🏠', '🚗', '📱', '🎂', '🎄', '🎓', '🐱', '💻', '🎸'];
+if (lsGet('kb-me', null) == null) lsSet('kb-me', BD.me());
+let me = whoBtn('kb-me', () => { me = lsGet('kb-me', 'Dara'); BD.setMe(me); render(); });
+BD.setMe(me);
+let tab = lsGet('kb-tab', 'home'), mon = monKey(new Date()), ed = null, gEd = null;
+// ── angka ──
+const rp = n => 'Rp ' + Math.round(Math.abs(n) || 0).toLocaleString('id-ID');
+const rpS = n => { n = Math.abs(n); return n >= 1e6 ? 'Rp ' + (n / 1e6).toFixed(n >= 1e7 ? 0 : 1).replace('.', ',') + ' jt' : n >= 1e3 ? 'Rp ' + Math.round(n / 1e3) + 'rb' : 'Rp ' + n; };
+const num = s => +String(s || '').replace(/[^\d]/g, '') || 0;
+function moneyInput(el) { el.addEventListener('input', () => { const v = num(el.value); el.value = v ? rp(v) : ''; }); }
+function monKey(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; }
+const monName = k => { const [y, m] = k.split('-').map(Number); return `${BULAN[m - 1]} ${y}`; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+// ── data: tiap orang nulis di barisnya sendiri (per tanggal), dibaca gabungan ──
+function rows(app, w) { return lsGet(app + '-' + w, {}) || {}; }
+function allTx() { const out = []; WHO.forEach(w => Object.entries(rows('kbx', w)).forEach(([date, r]) => (r && r.items || []).forEach(x => out.push(Object.assign({}, x, { owner: w, date }))))); return out.sort((a, b) => b.date.localeCompare(a.date) || (b.at || 0) - (a.at || 0)); }
+function putTx(x) { const r = rows('kbx', x.owner)[x.date], arr = (r && r.items || []).filter(y => y.id !== x.id), o = Object.assign({}, x); delete o.owner; delete o.date; arr.push(o); BD.put('kbx', x.owner, x.date, { items: arr }); }
+function rmTx(x) { const r = rows('kbx', x.owner)[x.date], arr = (r && r.items || []).filter(y => y.id !== x.id); BD.put('kbx', x.owner, x.date, arr.length ? { items: arr } : null); }
+function goals() { const out = []; WHO.forEach(w => ((rows('kbg', w)[SLOT] || {}).goals || []).forEach(g => out.push(Object.assign({}, g, { owner: w })))); return out.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.at || 0) - (b.at || 0)); }
+function putGoal(g) { const arr = ((rows('kbg', g.owner)[SLOT] || {}).goals || []).filter(y => y.id !== g.id), o = Object.assign({}, g); delete o.owner; arr.push(o); BD.put('kbg', g.owner, SLOT, { goals: arr }); }
+function rmGoal(g) { const arr = ((rows('kbg', g.owner)[SLOT] || {}).goals || []).filter(y => y.id !== g.id); BD.put('kbg', g.owner, SLOT, arr.length ? { goals: arr } : null); }
+function budgetOf(k) { let best = null; WHO.forEach(w => { const r = rows('kbb', w)[k + '-01']; if (r && (!best || (r.at || 0) > (best.at || 0))) best = r; }); return best ? best.v : 0; }
+// ── hitung ──
+// saldo > 0 → Dara masih ngutang ke Razan; < 0 → Razan ngutang ke Dara
+function owedOf(x) { if (x.k !== 'bayar') return 0; if (x.s === 'rata') return x.amt / 2; if (x.s === 'talang') return x.amt; if (x.s === 'atur') return Math.min(x.amt, x.part || 0); return 0; }
+function bal() {
+  let b = 0;
+  for (const x of allTx()) {
+    if (x.k === 'bayar') b += (x.by === 'Razan' ? 1 : -1) * owedOf(x);
+    else if (x.k === 'lunas') b += (x.by === 'Dara' ? -1 : 1) * x.amt;   // Dara bayar utang → utang Dara berkurang
+  }
+  return Math.round(b);
+}
+function goalSum(id) { const s = { Razan: 0, Dara: 0 }; allTx().forEach(x => { if (x.k === 'setor' && x.g === id) s[x.by] += x.amt; else if (x.k === 'tarik' && x.g === id) s[x.by] -= x.amt; }); return s; }
+const spendOf = list => list.filter(x => x.k === 'bayar').reduce((a, x) => a + x.amt, 0);
+const inMon = (x, k) => x.date.slice(0, 7) === k;
+const catOf = k => CAT.find(c => c[0] === k) || CAT[CAT.length - 1];
+// ── tampilan ──
+function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
+function closeOv(id) { $(id).classList.remove('show'); }
+document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); }));
+function render() {
+  bdStatus(); lsSet('kb-tab', tab);
+  $('tabs').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = b.dataset.t; render(); window.scrollTo(0, 0); }; });
+  $('fab').textContent = tab === 'save' ? '＋ Tabungan' : '＋ Catat'; $('fab').onclick = tab === 'save' ? () => openGoal() : () => openTx();
+  ({ home, log, save, rekap })[tab]();
+}
+function balCard() {
+  const b = bal(), o = otherOf(me);
+  if (!b) return `<div class="bal"><small>Status utang-piutang</small><b>Impas 🤝</b><small>Ga ada yang ngutang. Mantap!</small></div>`;
+  const debtor = b > 0 ? 'Dara' : 'Razan', creditor = otherOf(debtor);
+  const txt = debtor === me ? `Kamu masih ngutang ke ${creditor}` : `${debtor} masih ngutang ke kamu`;
+  return `<div class="bal ${creditor[0]}"><small>${txt}</small><b>${rp(b)}</b><small>${debtor} → ${creditor}</small><button onclick="openTx('lunas')">💸 Catat pelunasan</button></div>`;
+}
+function txHTML(x) {
+  const c = catOf(x.c), o = otherOf(x.by);
+  if (x.k === 'lunas') return `<div class="tx" data-id="${x.id}"><span class="ic">💸</span><span class="m"><b>Pelunasan</b><small><span class="who ${x.by}">${x.by}</span> bayar utang ke ${o}${x.n ? ' · ' + esc(x.n) : ''}</small></span><span class="a"><b>${rp(x.amt)}</b><small>lunas</small></span></div>`;
+  if (x.k === 'setor' || x.k === 'tarik') { const g = goals().find(y => y.id === x.g); return `<div class="tx" data-id="${x.id}"><span class="ic">${g ? g.e : '🐷'}</span><span class="m"><b>${x.k === 'setor' ? 'Nabung' : 'Ambil tabungan'} · ${esc(g ? g.n : 'tabungan')}</b><small><span class="who ${x.by}">${x.by}</span>${x.n ? ' · ' + esc(x.n) : ''}</small></span><span class="a"><b style="color:${x.k === 'setor' ? '#5f9d63' : '#b4554a'}">${x.k === 'setor' ? '+' : '−'}${rp(x.amt)}</b></span></div>`; }
+  const ow = owedOf(x), sl = { rata: 'bagi 2', talang: 'ditalangin', traktir: 'ditraktir', atur: 'atur sendiri' }[x.s];
+  return `<div class="tx" data-id="${x.id}"><span class="ic">${c[1]}</span><span class="m"><b>${esc(x.n || c[2])}</b><small>dibayar <span class="who ${x.by}">${x.by}</span> · ${sl}</small></span><span class="a"><b>${rp(x.amt)}</b><small>${ow ? `${o} utang ${rpS(ow)}` : '🎁 traktiran'}</small></span></div>`;
+}
+function bindTx(root) { root.querySelectorAll('.tx').forEach(el => el.onclick = () => openTx(null, el.dataset.id)); }
+function home() {
+  const k = monKey(new Date()), L = allTx(), mL = L.filter(x => inMon(x, k)), sp = spendOf(mL), bud = budgetOf(k), pct = bud ? sp / bud * 100 : 0;
+  const G = goals().filter(g => !g.done), gTot = G.reduce((a, g) => { const s = goalSum(g.id); return a + s.Razan + s.Dara; }, 0);
+  $('main').innerHTML = balCard() + `
+    <div class="grid2"><div class="mini" onclick="openBudget()" style="cursor:pointer"><small>💳 Budget ${BULAN[new Date().getMonth()]}</small><b>${bud ? rpS(Math.max(0, bud - sp)) + ' sisa' : 'Atur budget 👉'}</b>${bud ? `<div class="bar ${pct > 100 ? 'over' : pct > 80 ? 'warn' : ''}"><i style="width:${Math.min(100, pct)}%"></i></div><small style="margin-top:.3rem">${rpS(sp)} dari ${rpS(bud)}</small>` : `<small style="margin-top:.3rem">Kepake bulan ini ${rpS(sp)}</small>`}</div>
+    <div class="mini" onclick="tab='save';render()" style="cursor:pointer"><small>🐷 Total tabungan</small><b>${rpS(gTot)}</b><small style="margin-top:.3rem">${G.length ? G.length + ' impian lagi dikejar' : 'Belum ada — bikin yuk'}</small></div></div>
+    ${bud && pct > 100 ? `<div class="hint" style="margin-bottom:.6rem">⚠️ Budget bulan ini udah lewat ${rpS(sp - bud)}. Bulan ini masak di rumah dulu yuk 😆</div>` : ''}
+    <div class="hd"><h3>Catatan terakhir</h3>${L.length ? '<button onclick="tab=\'log\';render()">Semua →</button>' : ''}</div>
+    <div id="rec">${L.slice(0, 5).map(txHTML).join('') || `<div class="empty2">Belum ada catatan 🧾<br>Tap <b>＋ Catat</b> tiap kali patungan, nalangin, atau ditraktir.</div>`}</div>`;
+  bindTx($('main'));
+}
+function monNav() { return `<div class="mon"><button onclick="shiftMon(-1)">‹</button><b>${monName(mon)}</b><button onclick="shiftMon(1)" ${mon >= monKey(new Date()) ? 'disabled style="opacity:.3"' : ''}>›</button></div>`; }
+function shiftMon(d) { const [y, m] = mon.split('-').map(Number), n = new Date(y, m - 1 + d, 1); if (monKey(n) > monKey(new Date())) return; mon = monKey(n); render(); }
+function log() {
+  const L = allTx().filter(x => inMon(x, mon)); let h = monNav(), last = '';
+  if (!L.length) h += `<div class="empty2">Ga ada catatan di ${monName(mon)}.</div>`;
+  L.forEach(x => { if (x.date !== last) { last = x.date; const d = parseYMD(x.date); h += `<p class="day">${HARI[d.getDay()]}, ${fmtD(d)}</p>`; } h += txHTML(x); });
+  $('main').innerHTML = h; bindTx($('main'));
+}
+function save() {
+  const G = goals();
+  $('main').innerHTML = G.length ? G.map(g => {
+    const s = goalSum(g.id), tot = s.Razan + s.Dara, p = g.t ? Math.min(100, tot / g.t * 100) : 0;
+    let dl = ''; if (g.d && !g.done) { const left = Math.round((parseYMD(g.d) - today0()) / 864e5); const mo = Math.max(1, Math.ceil(left / 30)); dl = left < 0 ? ' · lewat target' : ` · ${left} hari lagi${tot < g.t ? ` · ±${rpS((g.t - tot) / mo)}/bln` : ''}`; }
+    return `<div class="goal ${g.done ? 'done' : ''}"><div class="t"><span>${g.e}</span><span style="flex:1;min-width:0"><b>${esc(g.n)}${g.done ? ' ✅' : ''}</b><small>${g.d ? 'target ' + fmtD(parseYMD(g.d)) : 'tanpa tenggat'}${dl}</small></span><button class="pill" onclick="openGoal('${g.id}')">✏️</button></div>
+      <div class="bar"><i style="width:${p}%"></i></div><div class="nums"><span><b>${rp(tot)}</b> / ${rp(g.t)}</span><span>${Math.floor(p)}%</span></div>
+      <div class="who2"><span class="R">💙 Razan ${rpS(s.Razan)}</span><span class="D">💗 Dara ${rpS(s.Dara)}</span></div>
+      ${g.done ? '' : `<div class="acts"><button onclick="openTx('tarik',null,'${g.id}')">Ambil</button><button class="p" onclick="openTx('setor',null,'${g.id}')">＋ Nabung</button></div>`}</div>`;
+  }).join('') : `<div class="empty2">🐷 Belum ada tabungan bareng.<br>Mau nabung buat liburan, nikah, atau beli sesuatu bareng?<br><br><button class="btn" onclick="openGoal()">＋ Bikin tabungan pertama</button></div>`;
+}
+function rekap() {
+  const L = allTx().filter(x => inMon(x, mon) && x.k === 'bayar'), tot = spendOf(L);
+  let h = monNav();
+  if (!L.length) { $('main').innerHTML = h + `<div class="empty2">Belum ada pengeluaran di ${monName(mon)}.</div>`; return; }
+  const byC = {}; L.forEach(x => byC[x.c] = (byC[x.c] || 0) + x.amt);
+  const mx = Math.max(...Object.values(byC)), paid = { Razan: 0, Dara: 0 }; L.forEach(x => paid[x.by] += x.amt);
+  const tr = L.filter(x => x.s === 'traktir'), trB = { Razan: 0, Dara: 0 }; tr.forEach(x => trB[x.by] += x.amt);
+  const big = L.slice().sort((a, b) => b.amt - a.amt)[0], bud = budgetOf(mon);
+  const prevK = (() => { const [y, m] = mon.split('-').map(Number); return monKey(new Date(y, m - 2, 1)); })(), prev = spendOf(allTx().filter(x => inMon(x, prevK) && x.k === 'bayar'));
+  h += `<div class="bal" style="background:linear-gradient(135deg,#b58b6a,#7a4a33)"><small>Total pengeluaran berdua</small><b>${rp(tot)}</b><small>${L.length} catatan${bud ? ` · budget ${rpS(bud)} (${Math.round(tot / bud * 100)}%)` : ''}${prev ? ` · ${tot > prev ? '▲' : '▼'} ${Math.abs(Math.round((tot - prev) / prev * 100))}% dari bulan lalu` : ''}</small></div>
+    <div class="rk"><p class="lab" style="margin-top:0">Per kategori</p>${Object.entries(byC).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const c = catOf(k); return `<div class="row1"><span>${c[1]}</span><span class="nm">${c[2]}</span><span class="bb"><i style="width:${v / mx * 100}%"></i></span><span class="v">${rpS(v)}</span></div>`; }).join('')}</div>
+    <div class="rk"><p class="lab" style="margin-top:0">Siapa yang lebih sering bayar</p><div class="split"><i class="R" style="width:${paid.Razan / tot * 100}%"></i><i class="D" style="width:${paid.Dara / tot * 100}%"></i></div><div class="lg"><span class="who Razan">Razan ${rpS(paid.Razan)}</span><span class="who Dara">Dara ${rpS(paid.Dara)}</span></div>
+    ${tr.length ? `<p class="hint" style="margin-top:.6rem">🎁 Traktiran bulan ini: Razan ${rpS(trB.Razan)} · Dara ${rpS(trB.Dara)}</p>` : ''}</div>
+    <div class="rk" style="font-size:12.5px;line-height:1.6">💥 Paling mahal: <b>${esc(big.n || catOf(big.c)[2])}</b> (${rp(big.amt)}, dibayar ${big.by})<br>📅 Rata-rata per catatan: <b>${rp(tot / L.length)}</b></div>
+    <button class="btn ghost" onclick="shareRekap()">💬 Kirim rekap ke ${otherOf(me)}</button>`;
+  $('main').innerHTML = h;
+}
+function shareRekap() {
+  const L = allTx().filter(x => inMon(x, mon) && x.k === 'bayar'), tot = spendOf(L), byC = {}; L.forEach(x => byC[x.c] = (byC[x.c] || 0) + x.amt);
+  const b = bal(), t = `🤑 *Rekap Keuangan Berdua — ${monName(mon)}*\nTotal: ${rp(tot)} (${L.length} catatan)\n\n${Object.entries(byC).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${catOf(k)[1]} ${catOf(k)[2]}: ${rp(v)}`).join('\n')}\n\n${b ? `💸 ${b > 0 ? 'Dara' : 'Razan'} masih ngutang ${rp(b)} ke ${b > 0 ? 'Razan' : 'Dara'}` : '🤝 Utang-piutang: impas!'}`;
+  window.open(waLink(otherOf(me), t), '_blank');
+}
+// ── form catatan ──
+function openTx(kind, id, gid) {
+  const x = id ? allTx().find(y => y.id === id) : null;
+  ed = x ? Object.assign({}, x) : { id: uid(), owner: me, date: ymd(new Date()), k: kind || 'bayar', by: me, s: 'rata', c: 'makan', g: gid || (goals().find(g => !g.done) || {}).id };
+  if (!x && kind === 'lunas') { const b = bal(); ed.by = b > 0 ? 'Dara' : b < 0 ? 'Razan' : me; ed.amt = Math.abs(b); }
+  $('tx-del').style.display = x ? '' : 'none'; paintTx(); $('tx-ov').classList.add('show');
+}
+function paintTx() {
+  const K = [['bayar', '🧾 Bayar'], ['lunas', '💸 Lunasin'], ['setor', '🐷 Nabung']];
+  if (ed.k === 'tarik') K[2] = ['tarik', '🐷 Ambil'];
+  $('tx-h').textContent = { bayar: 'Catat pengeluaran', lunas: 'Catat pelunasan', setor: 'Nabung', tarik: 'Ambil tabungan' }[ed.k];
+  $('tx-kind').innerHTML = K.map(([k, n]) => `<button class="X ${ed.k === k ? 'on' : ''}" data-k="${k}">${n}</button>`).join('');
+  $('tx-kind').querySelectorAll('button').forEach(b => b.onclick = () => { grab(); ed.k = b.dataset.k; paintTx(); });
+  const whoSeg = (lbl) => `<label class="lab">${lbl}</label><div class="seg" id="t-by">${WHO.map(w => `<button class="${w[0]} ${ed.by === w ? 'on' : ''}" data-w="${w}">${w === 'Razan' ? '💙' : '💗'} ${w}</button>`).join('')}</div>`;
+  let h = `<label class="lab">Jumlah</label><input class="inp money" id="t-amt" inputmode="numeric" placeholder="Rp 0" value="${ed.amt ? rp(ed.amt) : ''}">`;
+  if (ed.k === 'bayar') {
+    h += whoSeg('Siapa yang bayar?') + `<label class="lab">Dibaginya gimana?</label><div class="chips" id="t-s">${[['rata', '➗ Bagi 2'], ['talang', '🤲 Ditalangin semua'], ['traktir', '🎁 Traktiran'], ['atur', '✍️ Atur sendiri']].map(([k, n]) => `<button class="${ed.s === k ? 'on' : ''}" data-s="${k}">${n}</button>`).join('')}</div>
+      ${ed.s === 'atur' ? `<label class="lab">Bagian ${otherOf(ed.by)} (yang harus diganti)</label><input class="inp" id="t-part" inputmode="numeric" placeholder="Rp 0" value="${ed.part ? rp(ed.part) : ''}">` : ''}
+      <p class="hint" id="t-hint"></p>
+      <label class="lab">Kategori</label><div class="cats" id="t-c">${CAT.map(([k, e, n]) => `<button class="${ed.c === k ? 'on' : ''}" data-c="${k}"><span>${e}</span>${n}</button>`).join('')}</div>
+      <label class="lab">Keterangan</label><input class="inp" id="t-n" maxlength="50" placeholder="Contoh: Sushi pas anniv" value="${esc(ed.n || '')}">`;
+  } else if (ed.k === 'lunas') {
+    h += whoSeg('Siapa yang bayar utangnya?') + `<p class="hint" id="t-hint"></p><label class="lab">Keterangan (opsional)</label><input class="inp" id="t-n" maxlength="50" placeholder="Contoh: transfer BCA" value="${esc(ed.n || '')}">`;
+  } else {
+    const G = goals().filter(g => !g.done || g.id === ed.g);
+    if (!G.length) h = `<div class="empty2" style="margin-top:.8rem">Belum ada tabungan. Bikin dulu di tab 🐷 Tabungan ya.</div>`;
+    else h += whoSeg(ed.k === 'setor' ? 'Siapa yang nabung?' : 'Siapa yang ambil?') + `<label class="lab">Tabungan</label><div class="chips" id="t-g">${G.map(g => `<button class="${ed.g === g.id ? 'on' : ''}" data-g="${g.id}">${g.e} ${esc(g.n)}</button>`).join('')}</div><label class="lab">Keterangan (opsional)</label><input class="inp" id="t-n" maxlength="50" value="${esc(ed.n || '')}">`;
+  }
+  h += `<label class="lab">Tanggal</label><input class="inp" id="t-d" type="date" value="${ed.date}" max="${ymd(new Date())}">`;
+  $('tx-body').innerHTML = h;
+  if ($('t-amt')) { moneyInput($('t-amt')); $('t-amt').addEventListener('input', hint); }
+  if ($('t-part')) { moneyInput($('t-part')); $('t-part').addEventListener('input', hint); }
+  $('tx-body').querySelectorAll('[data-w]').forEach(b => b.onclick = () => { grab(); ed.by = b.dataset.w; paintTx(); });
+  $('tx-body').querySelectorAll('[data-s]').forEach(b => b.onclick = () => { grab(); ed.s = b.dataset.s; paintTx(); });
+  $('tx-body').querySelectorAll('[data-c]').forEach(b => b.onclick = () => { grab(); ed.c = b.dataset.c; paintTx(); });
+  $('tx-body').querySelectorAll('[data-g]').forEach(b => b.onclick = () => { grab(); ed.g = b.dataset.g; paintTx(); });
+  hint();
+}
+function grab() { if ($('t-amt')) ed.amt = num($('t-amt').value); if ($('t-part')) ed.part = num($('t-part').value); if ($('t-n')) ed.n = $('t-n').value.trim(); if ($('t-d')) ed.date = $('t-d').value || ed.date; }
+function hint() {
+  const h = $('t-hint'); if (!h) return; grab(); const o = otherOf(ed.by), a = ed.amt || 0;
+  if (ed.k === 'lunas') { const b = bal(), debtor = b > 0 ? 'Dara' : 'Razan'; h.innerHTML = !b ? '🤝 Sekarang lagi impas, ga ada utang.' : `Utang sekarang: <b>${debtor}</b> → ${otherOf(debtor)} ${rp(b)}${ed.by !== debtor ? '<br>⚠️ Yang ngutang kan ' + debtor + ', yakin?' : ''}`; return; }
+  const ow = owedOf(Object.assign({}, ed, { amt: a }));
+  h.innerHTML = ed.s === 'traktir' ? `🎁 ${ed.by} traktir ${o} — ga ada yang perlu diganti 🥰` : a ? `${o} nanti ganti <b>${rp(ow)}</b> ke ${ed.by}` : `${o} nanti ganti ${ed.s === 'rata' ? 'setengahnya' : ed.s === 'talang' ? 'semuanya' : 'sesuai bagiannya'} ke ${ed.by}`;
+}
+function saveTx() {
+  grab(); if (!ed.amt) { toast('Isi jumlahnya dulu ya'); return; }
+  if ((ed.k === 'setor' || ed.k === 'tarik') && !ed.g) { toast('Pilih tabungannya dulu'); return; }
+  if (ed.k === 'bayar' && ed.s === 'atur' && ed.part > ed.amt) { toast('Bagiannya kebanyakan'); return; }
+  const old = allTx().find(y => y.id === ed.id);
+  if (old && (old.date !== ed.date || old.owner !== ed.owner)) rmTx(old);
+  ed.at = ed.at || Date.now(); ed.ed = me;
+  const x = Object.assign({}, ed); if (x.k !== 'bayar') { delete x.s; delete x.c; delete x.part; } if (x.k !== 'setor' && x.k !== 'tarik') delete x.g;
+  putTx(x); closeOv('tx-ov'); vib(15);
+  toast(ed.k === 'setor' ? '🐷 Celengan nambah!' : ed.k === 'lunas' ? '💸 Pelunasan dicatat' : `🧾 Kecatat${BD.enabled ? ` · ${otherOf(me)} bisa liat` : ''}`);
+  if (ed.k === 'setor') { const g = goals().find(y => y.id === ed.g), s = goalSum(ed.g); if (g && !g.done && s.Razan + s.Dara >= g.t) { setTimeout(() => { confetti(90); toast(`🎉 Tabungan "${g.n}" udah kecapai!`, 3500); }, 300); g.done = 1; putGoal(g); } }
+  if (ed.k === 'lunas' && !bal()) setTimeout(() => { confetti(50); toast('🤝 Impas! Ga ada utang lagi'); }, 300);
+  render();
+}
+function delTx() { const x = allTx().find(y => y.id === ed.id); if (!x || !confirm('Hapus catatan ini?')) return; rmTx(x); closeOv('tx-ov'); toast('🗑 Dihapus'); render(); }
+// ── tabungan ──
+function openGoal(id) {
+  const g = id ? goals().find(y => y.id === id) : null;
+  gEd = g ? Object.assign({}, g) : { id: uid(), owner: me, e: GEMO[0] };
+  $('g-h').textContent = g ? 'Edit tabungan' : 'Tabungan baru'; $('g-n').value = gEd.n || ''; $('g-t').value = gEd.t ? rp(gEd.t) : ''; $('g-d').value = gEd.d || '';
+  const p = () => { $('g-e').innerHTML = GEMO.map(e => `<button class="${gEd.e === e ? 'on' : ''}" data-e="${e}">${e}</button>`).join(''); $('g-e').querySelectorAll('button').forEach(b => b.onclick = () => { gEd.e = b.dataset.e; p(); }); }; p();
+  $('g-del').style.display = g ? '' : 'none'; $('g-ov').classList.add('show');
+}
+moneyInput($('g-t'));
+function saveGoal() {
+  const n = $('g-n').value.trim(), t = num($('g-t').value); if (!n || !t) { toast('Nama & targetnya diisi dulu'); return; }
+  Object.assign(gEd, { n, t, d: $('g-d').value || '', at: gEd.at || Date.now() }); const s = goalSum(gEd.id); gEd.done = s.Razan + s.Dara >= t ? 1 : 0;
+  putGoal(gEd); closeOv('g-ov'); tab = 'save'; render(); toast('🐷 Tabungan disimpan');
+}
+function delGoal() { const g = goals().find(y => y.id === gEd.id); if (!g || !confirm(`Hapus tabungan "${g.n}"? Catatan setorannya juga ikut kehapus.`)) return; allTx().filter(x => x.g === g.id).forEach(rmTx); rmGoal(g); closeOv('g-ov'); render(); }
+// ── budget ──
+function openBudget() { const k = monKey(new Date()), v = budgetOf(k); $('b-s').textContent = `Bulan ${monName(k)}`; $('b-v').value = v ? rp(v) : ''; $('b-q').innerHTML = [5e5, 1e6, 15e5, 2e6].map(x => `<button data-v="${x}">${rpS(x)}</button>`).join(''); $('b-q').querySelectorAll('button').forEach(b => b.onclick = () => $('b-v').value = rp(+b.dataset.v)); $('b-ov').classList.add('show'); }
+moneyInput($('b-v'));
+function saveBudget() { const k = monKey(new Date()); BD.put('kbb', me, k + '-01', { v: num($('b-v').value), at: Date.now() }); closeOv('b-ov'); toast('💳 Budget disimpan'); render(); }
+BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.some(a => /^kb[xgb]$/.test(a)) && !document.querySelector('.ov.show')) render(); });
+render();
+
+</script>
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
