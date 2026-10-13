@@ -2550,6 +2550,101 @@ setTimeout(() => {
   renderRows();
 })();
 
+
+// ═══ KABAR BARU: popup "ada yang baru" + notifikasi HP ═══
+// Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
+(function () {
+  const KABAR = [
+    { d: '2026-10-13', t: '4 game & 10 hadiah baru — sekarang total 60 game & 60 hadiah! 🎉' },
+  ];
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const today = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
+  const allDates = Object.values(UPDATED).concat(KABAR.map(k => k.d)).filter(d => d <= today).sort();
+  const maxD = allDates[allDates.length - 1] || '';
+  // pertama kali fitur ini ada: tampilin update paling terakhir aja
+  let seen = get('idx-news-seen', null);
+  if (seen == null) { const older = allDates.filter(d => d < maxD); seen = older[older.length - 1] || '2000-01-01'; }
+  // kasih tau service worker tanggal update terakhir yang udah diliat (biar ga dobel notif)
+  const tellSW = d => { try { caches.open('untuk-dara-meta').then(c => c.put('/__kabar', new Response(JSON.stringify({ d })))); } catch (e) {} };
+  const css = document.createElement('style');
+  css.textContent = `#kb-ov{position:fixed;inset:0;z-index:9000;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.1rem}
+  #kb-ov.show{display:flex}
+  #kb{width:100%;max-width:370px;max-height:86vh;overflow-y:auto;background:#fffaf5;border-radius:26px;padding:1.2rem 1.1rem 1rem;box-shadow:0 20px 50px rgba(45,31,26,.3);animation:kbPop .45s cubic-bezier(.3,1.5,.5,1);font-family:'Poppins',sans-serif;color:#2d1f1a}
+  @keyframes kbPop{from{transform:scale(.75);opacity:0}to{transform:none;opacity:1}}
+  #kb .kb-h{text-align:center}
+  #kb .kb-h span{font-size:2.6rem;display:block;animation:kbW 1.6s ease-in-out infinite}
+  @keyframes kbW{50%{transform:rotate(-10deg) scale(1.08)}}
+  #kb .kb-h b{display:block;font-size:1.2rem;font-weight:700;margin:.2rem 0 .1rem}
+  #kb .kb-h small{font-size:12px;color:#9a8070}
+  #kb .kb-n{background:linear-gradient(135deg,#fff,#fdeee8);border:1px solid rgba(193,122,111,.2);border-radius:14px;padding:.55rem .75rem;font-size:12.5px;margin:.8rem 0 .2rem;line-height:1.5}
+  #kb .kb-sec{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#c9a96e;font-weight:600;margin:.85rem 0 .4rem}
+  #kb .kb-it{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:14px;padding:.5rem .65rem;margin-bottom:.35rem;cursor:pointer;font-family:inherit;color:inherit}
+  #kb .kb-it i{font-style:normal;font-size:1.45rem;flex-shrink:0;width:1.8rem;text-align:center}
+  #kb .kb-it b{display:block;font-size:13px;font-weight:600}
+  #kb .kb-it small{display:block;font-size:10.5px;color:#9a8070;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #kb .kb-it span{min-width:0;flex:1}
+  #kb .kb-more{font-size:12px;color:#9a8070;text-align:center;margin:.2rem 0}
+  #kb .kb-b{display:block;width:100%;border:none;border-radius:50px;padding:.8rem;font-weight:700;font-size:13.5px;cursor:pointer;margin-top:.5rem;font-family:inherit}
+  #kb .kb-b.p{background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff}
+  #kb .kb-b.g{background:#fff;color:#c17a6f;border:1.5px solid #e8c4b0}
+  #kb .kb-b.bell{background:#fff8e6;color:#8a6a20;border:1.5px dashed #e3c77a;font-weight:600}
+  html.night #kb{background:#2a1f24;color:#f3d9d2} html.night #kb .kb-it,html.night #kb .kb-n{background:#33262c;border-color:rgba(193,122,111,.25)} html.night #kb .kb-b.g{background:#33262c}`;
+  document.head.appendChild(css);
+  function notifState() { if (!('Notification' in window) || !('serviceWorker' in navigator)) return 'no'; return Notification.permission; }
+  async function enableNotif() {
+    try {
+      const p = await Notification.requestPermission(); if (p !== 'granted') { paintBell(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      if ('periodicSync' in reg) { try { await reg.periodicSync.register('cek-kabar', { minInterval: 6 * 3600 * 1000 }); } catch (e) {} }
+      reg.showNotification('🔔 Notif nyala!', { body: 'Nanti kalau ada game, hadiah, atau update baru, kamu dikasih tau di sini 💌', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'kabar-tes' });
+      set('idx-notif-on', 1); tellSW(maxD);
+    } catch (e) {}
+    paintBell();
+  }
+  function paintBell() {
+    const b = document.getElementById('kb-bell'); if (!b) return; const s = notifState();
+    b.style.display = s === 'default' ? '' : 'none';
+  }
+  function show(force) {
+    const fresh = d => d > seen && d <= today;
+    let items = ALL.filter(it => UPDATED[it.link] && fresh(UPDATED[it.link]));
+    const news = KABAR.filter(k => fresh(k.d));
+    if (force && !items.length && !news.length) { items = ALL.filter(it => UPDATED[it.link]).sort((a, b) => UPDATED[b.link].localeCompare(UPDATED[a.link])).slice(0, 6); }
+    if (!items.length && !news.length) return;
+    items.sort((a, b) => UPDATED[b.link].localeCompare(UPDATED[a.link]));
+    const nG = items.filter(i => i.cat === 'games').length, nH = items.filter(i => i.cat === 'hadiah').length, other = items.length - nG - nH;
+    const sub = [nG ? `${nG} game` : '', nH ? `${nH} hadiah` : '', other ? `${other} fitur` : ''].filter(Boolean).join(' · ');
+    const MAX = 8, it = items.slice(0, MAX);
+    let ov = document.getElementById('kb-ov'); if (!ov) { ov = document.createElement('div'); ov.id = 'kb-ov'; document.body.appendChild(ov); ov.addEventListener('click', e => { if (e.target === ov) close(); }); }
+    ov.innerHTML = `<div id="kb"><div class="kb-h"><span>🎁</span><b>Ada yang baru buat kamu!</b><small>${sub || 'Update terbaru'}</small></div>
+      ${news.map(n => `<div class="kb-n">📣 ${n.t}</div>`).join('')}
+      ${it.length ? `<p class="kb-sec">Baru ditambah / diupdate</p>${it.map(x => `<button class="kb-it" data-l="${x.link}"><i>${x.icon}</i><span><b>${x.label}</b><small>${x.sub || ''}</small></span></button>`).join('')}` : ''}
+      ${items.length > MAX ? `<p class="kb-more">+ ${items.length - MAX} lagi…</p>` : ''}
+      <button class="kb-b bell" id="kb-bell" style="display:none">🔔 Nyalain notif biar ga ketinggalan update</button>
+      ${items.length > 1 ? '<button class="kb-b p" id="kb-all">Liat semua yang baru ✨</button>' : ''}
+      <button class="kb-b ${items.length > 1 ? 'g' : 'p'}" id="kb-ok">Oke, nanti aku cobain 🤍</button></div>`;
+    ov.querySelectorAll('.kb-it').forEach(b => b.onclick = () => { const x = byLink(b.dataset.l); close(); if (x) setTimeout(() => openPopup(x.icon, x.label, x.desc, x.link), 150); });
+    const all = document.getElementById('kb-all'); if (all) all.onclick = () => { close(); try { filter = 'new'; renderChips(); runSearch(); const q = $('q'); q && q.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} };
+    document.getElementById('kb-ok').onclick = close;
+    document.getElementById('kb-bell').onclick = enableNotif;
+    paintBell(); ov.classList.add('show');
+    try { navigator.vibrate && navigator.vibrate([20, 40, 20]); } catch (e) {}
+    try { window.SFX && SFX.play('open'); } catch (e) {}
+  }
+  function close() { const ov = document.getElementById('kb-ov'); if (ov) ov.classList.remove('show'); seen = maxD; set('idx-news-seen', maxD); tellSW(maxD); }
+  window.showKabar = () => show(true);
+  // tunggu layar welcome ditutup dulu
+  const welcomeOpen = () => { const w = document.getElementById('s-welcome'); return w && getComputedStyle(w).display !== 'none' && !w.classList.contains('hide'); };
+  const go = () => setTimeout(() => show(false), 900);
+  if (maxD > seen) {
+    if (welcomeOpen()) { const _e = enterApp; enterApp = function () { _e.apply(this, arguments); go(); }; }
+    else if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
+  }
+  // kalau notif udah nyala, pastiin cek berkala tetep kedaftar
+  if (notifState() === 'granted') navigator.serviceWorker.ready.then(reg => { if ('periodicSync' in reg) reg.periodicSync.register('cek-kabar', { minInterval: 6 * 3600 * 1000 }).catch(() => {}); }).catch(() => {});
+})();
+
 })();
 </script>
 </body>
