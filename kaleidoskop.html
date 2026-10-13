@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Kaleidoskop — Razan & Dara 🌀</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .cvw{position:relative;border-radius:50%;overflow:hidden;box-shadow:0 10px 30px rgba(45,31,26,.25),inset 0 0 0 6px rgba(255,255,255,.2);margin:.7rem auto;width:100%;max-width:420px;aspect-ratio:1;touch-action:none;background:#14121f}
+  .cvw.sq{border-radius:24px}
+  #cv{display:block;width:100%;height:100%;will-change:transform}
+  #guide{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;opacity:.35}
+  .hint{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.4rem}
+  .tl{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin:.3rem 0 .7rem}
+  .tl button{font-size:12px;padding:.45rem .8rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--deep);cursor:pointer}
+  .sw{display:flex;gap:.4rem;flex-wrap:wrap}
+  .sw button{width:32px;height:32px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.15);cursor:pointer;padding:0}
+  .sw button.on{outline:2.5px solid var(--rose);outline-offset:1px}
+  .sw .rb{background:conic-gradient(#ff6b6b,#ffd25a,#8be09b,#6ec6ff,#c58cff,#ff6b6b)}
+  .rng{width:100%;accent-color:var(--rose)}
+  .lab2{font-size:11.5px;font-weight:600;color:var(--deep);margin:.75rem 0 .35rem;display:flex;justify-content:space-between}
+  .lab2:first-child{margin-top:0}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
+  <div class="head"><span class="ico">🌀</span><p class="lbl">Seni cermin</p><h1 class="title">Kaleido<span>skop</span></h1><p class="sub">Coret satu garis — langsung jadi pola simetris kayak mandala. Ga bisa gambar pun hasilnya pasti cantik ✨</p></div>
+  <div class="cvw" id="cvw"><canvas id="cv"></canvas><svg id="guide" viewBox="0 0 100 100"></svg></div>
+  <p class="hint">Gambar pakai jari di dalam lingkaran</p>
+  <div class="tl"><button onclick="undo()">↩️ Batal</button><button onclick="clearAll()">🧽 Hapus</button><button onclick="replay()">▶️ Putar ulang</button><button onclick="spinIt()" id="spin-b">🔄 Muter</button></div>
+  <div class="card">
+    <p class="lab2">✨ Cermin <span id="sym-n"></span></p>
+    <div class="chips" id="sym"></div>
+    <p class="lab2">🎨 Warna kuas</p><div class="sw" id="cols"></div>
+    <p class="lab2">🖌 Ukuran <span id="sz-n"></span></p><input type="range" class="rng" id="sz" min="2" max="28">
+    <div class="chips" style="margin-top:.7rem" id="opts"></div>
+    <p class="lab2">🌌 Latar</p><div class="sw" id="bgs"></div>
+  </div>
+  <button class="btn" onclick="saveImg()">📸 Simpan / kirim</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+let me = whoBtn('kl-me', () => { me = lsGet('kl-me', 'Dara'); });
+// koordinat logis 0..1000, kanvas aslinya dikecilin sesuai layar biar ringan
+const cv = $('cv'), g = cv.getContext('2d', { alpha: false }), S = 1000, C = S / 2;
+const RES = Math.max(400, Math.min(720, Math.round(($('cvw').clientWidth || 360) * Math.min(window.devicePixelRatio || 1, 2))));
+cv.width = cv.height = RES; const K = RES / S;
+const COLS = ['rb', '#ffffff', '#ff6b8b', '#ffb36b', '#ffe066', '#8be09b', '#6ec6ff', '#9b8cff', '#f0a39a', '#c9a96e', '#2d1f1a'];
+const BGS = ['#14121f', '#1f2a44', '#3a1f33', '#fffaf4', '#fdeee8', '#eef4fd'];
+let st = Object.assign({ n: 8, mirror: true, col: 'rb', size: 8, glow: true, dots: false, bg: BGS[0], strokes: [] }, lsGet('kl-cur', {}));
+let cur = null, hue = 0, spin = false, ang = 0, raf = 0, replaying = false;
+function paintSym() {
+  $('sym').innerHTML = [4, 6, 8, 12, 16].map(n => `<button class="${st.n === n ? 'on' : ''}" data-n="${n}">${n}</button>`).join('');
+  $('sym').querySelectorAll('button').forEach(b => b.onclick = () => { st.n = +b.dataset.n; persist(); ui(); redraw(); });
+  $('sym-n').textContent = st.n + ' sisi' + (st.mirror ? ' + pantulan' : '');
+  $('guide').innerHTML = Array.from({ length: st.n }, (_, i) => { const a = i / st.n * Math.PI * 2 - Math.PI / 2; return `<line x1="50" y1="50" x2="${50 + Math.cos(a) * 50}" y2="${50 + Math.sin(a) * 50}" stroke="${isLight() ? '#c17a6f' : '#fff'}" stroke-width=".2" stroke-dasharray="1 1.5"/>`; }).join('');
+}
+const isLight = () => ['#fffaf4', '#fdeee8', '#eef4fd'].includes(st.bg);
+function ui() {
+  paintSym();
+  $('cols').innerHTML = COLS.map(c => `<button class="${c === 'rb' ? 'rb' : ''} ${st.col === c ? 'on' : ''}" style="${c === 'rb' ? '' : 'background:' + c}" data-c="${c}"></button>`).join('');
+  $('cols').querySelectorAll('button').forEach(b => b.onclick = () => { st.col = b.dataset.c; persist(); ui(); });
+  $('sz').value = st.size; $('sz-n').textContent = st.size + 'px';
+  $('opts').innerHTML = `<button class="${st.mirror ? 'on' : ''}" data-o="mirror">🪞 Pantulan</button><button class="${st.glow ? 'on' : ''}" data-o="glow">💡 Nyala</button><button class="${st.dots ? 'on' : ''}" data-o="dots">⚪ Titik-titik</button>`;
+  $('opts').querySelectorAll('button').forEach(b => b.onclick = () => { st[b.dataset.o] = !st[b.dataset.o]; persist(); ui(); if (b.dataset.o !== 'dots') redraw(); });
+  $('bgs').innerHTML = BGS.map(c => `<button class="${st.bg === c ? 'on' : ''}" style="background:${c}" data-c="${c}"></button>`).join('');
+  $('bgs').querySelectorAll('button').forEach(b => b.onclick = () => { st.bg = b.dataset.c; persist(); ui(); redraw(); });
+  $('cvw').style.background = st.bg;
+}
+$('sz').oninput = () => { st.size = +$('sz').value; $('sz-n').textContent = st.size + 'px'; persist(); };
+let TF = [];
+function buildTF(n, mirror) { TF = []; for (let i = 0; i < n; i++) { const an = i / n * Math.PI * 2, co = Math.cos(an), si = Math.sin(an); for (const m of mirror ? [1, -1] : [1]) TF.push([K * co, K * si, -K * si * m, K * co * m, K * C, K * C]); } }
+// satu jalur titik (satu warna) digambar sekali per sisi cermin — jauh lebih hemat daripada per-garis
+function path(pts, size, dots, col, glow) {
+  if (!pts.length) return;
+  g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = g.fillStyle = col;
+  const passes = glow ? [[.22, 2.6], [1, 1]] : [[1, 1]];
+  for (const [al, wm] of passes) {
+    g.globalAlpha = al; g.lineWidth = size * wm;
+    for (const t of TF) {
+      g.setTransform(t[0], t[1], t[2], t[3], t[4], t[5]); g.beginPath();
+      if (dots) { for (const q of pts) { g.moveTo(q.x + size * wm / 2, q.y); g.arc(q.x, q.y, size * wm / 2, 0, 6.2832); } g.fill(); }
+      else if (pts.length === 1) { g.arc(pts[0].x, pts[0].y, size * wm / 2, 0, 6.2832); g.fill(); }
+      else { g.moveTo(pts[0].x, pts[0].y); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y); g.stroke(); }
+    }
+  }
+  g.globalAlpha = 1; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+// pecah per warna (pelangi berubah warna per potongan)
+function drawPts(P, s, glow) {
+  let st0 = 0;
+  for (let i = 1; i <= P.length; i++) {
+    if (i === P.length || P[i].c !== P[st0].c) {
+      const run = s.dots ? P.slice(st0, i) : P.slice(Math.max(0, st0 - 1), i);
+      path(run, s.size, s.dots, P[st0].c, glow); st0 = i;
+    }
+  }
+}
+function base() { g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.fillStyle = st.bg; g.fillRect(0, 0, RES, RES); }
+function redraw() { buildTF(st.n, st.mirror); base(); st.strokes.forEach(s => drawPts(s.p, s, st.glow)); }
+// pelangi: warna geser pelan sesuai jarak coretan, dibulatin per 15° biar jalurnya panjang (lebih sedikit gambar ulang)
+function colorNow(dist = 0) { if (st.col !== 'rb') return st.col; hue = (hue + dist * .07) % 360; return `hsl(${Math.round(hue / 15) * 15},90%,${isLight() ? 55 : 66}%)`; }
+function pt(e) { const r = cv.getBoundingClientRect(); return { x: Math.round((e.clientX - r.left) / r.width * S - C), y: Math.round((e.clientY - r.top) / r.height * S - C) }; }
+let pend = [], drawn = 0, frame = 0, saveT = 0;
+const persist = () => { clearTimeout(saveT); saveT = setTimeout(() => { try { lsSet('kl-cur', st); } catch (e) {} }, 500); };
+window.addEventListener('pagehide', () => { clearTimeout(saveT); try { lsSet('kl-cur', st); } catch (e) {} });
+function flush() {
+  frame = 0; if (!cur || !pend.length) return;
+  let d = 0, l = cur.p[cur.p.length - 1]; for (const q of pend) { d += Math.hypot(q.x - l.x, q.y - l.y); l = q; }
+  const c = colorNow(d); pend.forEach(q => q.c = c); cur.p.push(...pend); pend = [];
+  const from = cur.dots ? drawn : Math.max(0, drawn - 1);
+  drawPts(cur.p.slice(from), cur, st.glow); drawn = cur.p.length;
+}
+cv.addEventListener('pointerdown', e => { if (replaying) return; e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch (x) {} buildTF(st.n, st.mirror); const p = pt(e); p.c = colorNow(); cur = { p: [p], size: st.size, dots: st.dots }; drawn = 0; pend = []; drawPts(cur.p, cur, st.glow); drawn = 1; });
+cv.addEventListener('pointermove', e => {
+  if (!cur) return; const p = pt(e), l = pend.length ? pend[pend.length - 1] : cur.p[cur.p.length - 1];
+  if (Math.hypot(p.x - l.x, p.y - l.y) < (cur.dots ? cur.size * 2.2 : 5)) return;
+  pend.push(p); if (!frame) frame = requestAnimationFrame(flush);
+});
+const end = () => { if (!cur) return; if (frame) { cancelAnimationFrame(frame); } flush(); st.strokes.push({ p: cur.p, size: cur.size, dots: cur.dots }); if (st.strokes.length > 300) st.strokes.shift(); cur = null; persist(); };
+cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+function undo() { if (!st.strokes.length) return; st.strokes.pop(); persist(); redraw(); }
+function clearAll() { if (!st.strokes.length) return; if (!confirm('Hapus semua gambar?')) return; st.strokes = []; persist(); redraw(); }
+async function replay() {
+  if (replaying || !st.strokes.length) return; replaying = true; buildTF(st.n, st.mirror); base();
+  const total = st.strokes.reduce((a, s) => a + s.p.length, 0), per = Math.max(2, Math.ceil(total / 150));
+  for (const s of st.strokes) { for (let i = 0; i < s.p.length; i += per) { drawPts(s.p.slice(s.dots ? i : Math.max(0, i - 1), i + per), s, st.glow); await new Promise(r => requestAnimationFrame(r)); } }
+  replaying = false; redraw();
+}
+function spinIt() { spin = !spin; $('spin-b').textContent = spin ? '⏸ Berhenti' : '🔄 Muter'; if (spin) { const f = () => { ang += .25; cv.style.transform = `rotate(${ang.toFixed(1)}deg)`; if (spin) raf = requestAnimationFrame(f); }; f(); } else { cancelAnimationFrame(raf); } }
+async function saveImg() {
+  if (!st.strokes.length) { toast('Gambar dulu dong 🌀'); return; }
+  await fontsReady(); const c2 = document.createElement('canvas'); c2.width = c2.height = 1080; const g2 = c2.getContext('2d');
+  g2.fillStyle = st.bg; g2.fillRect(0, 0, 1080, 1080); g2.save(); g2.beginPath(); g2.arc(540, 520, 470, 0, 7); g2.clip(); g2.drawImage(cv, 70, 50, 940, 940); g2.restore();
+  g2.fillStyle = isLight() ? '#7a3f35' : 'rgba(255,255,255,.85)'; g2.font = '700 40px Caveat,cursive'; g2.textAlign = 'center'; g2.fillText(`kaleidoskop buat ${otherOf(me)} · dari ${me}`, 540, 1050);
+  await shareCanvas(c2, 'kaleidoskop.png', 'Kaleidoskop');
+}
+ui(); redraw();
+
+</script>
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
