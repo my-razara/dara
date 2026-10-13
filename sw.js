@@ -1,10 +1,12 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v22';
+const VERSI = 'v23';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "./",
 "index.html",
+"kotak-surat.html",
+"ketemuan.html",
 "kuis-kita.html",
 "tenangin-diri.html",
 "voucher-razan.html",
@@ -14,16 +16,13 @@ const HALAMAN = [
 "misi-acak.html",
 "kartu-ngobrol.html",
 "wishlist.html",
-"rencana-ketemu.html",
 "rekap-bulanan.html",
-"surat-razan.html",
 "air-hockey.html",
 "aku-adalah.html",
 "aku-belum-pernah.html",
 "aquarium.html",
 "archery.html",
 "badminton.html",
-"bahasa-cinta.html",
 "balance-beam.html",
 "balon-pompa.html",
 "bangun-rumah.html",
@@ -49,7 +48,6 @@ const HALAMAN = [
 "hal-kecil.html",
 "heart-catch.html",
 "high-card.html",
-"hitung-ketemu.html",
 "jendela-embun.html",
 "jurnal-syukur.html",
 "kalender-mood.html",
@@ -74,7 +72,6 @@ const HALAMAN = [
 "mesin-terserah.html",
 "mind-reader.html",
 "moodboard-dara.html",
-"open-when.html",
 "pagi-sayang.html",
 "panas-dingin.html",
 "penalty.html",
