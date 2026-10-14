@@ -10,13 +10,12 @@
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;background:var(--cream);font-family:'Poppins',sans-serif;color:#2d1f1a;overflow:hidden}
   .hub{display:flex;flex-direction:column;height:100vh;height:100dvh}
-  .bar{flex:0 0 auto;padding:calc(.6rem + env(safe-area-inset-top)) .8rem .55rem;background:var(--cream);border-bottom:1px solid rgba(193,122,111,.15);box-shadow:0 4px 14px rgba(193,122,111,.06);position:relative;z-index:2}
-  .row1{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem}
-  .back{font-size:12px;color:var(--muted);text-decoration:none;background:#fff;border:1px solid rgba(193,122,111,.18);padding:.35rem .8rem;border-radius:50px;white-space:nowrap}
-  .ttl{font-size:13.5px;font-weight:700;color:var(--deep);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ttl small{display:block;font-size:10px;font-weight:400;color:var(--muted);text-align:right}
-  .tabs{display:flex;background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px}
-  .tabs button{flex:1;min-width:0;border:none;background:none;border-radius:50px;padding:.5rem .25rem;font-family:inherit;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /*hub-ringkas*/
+  .bar{padding:calc(.45rem + env(safe-area-inset-top)) .6rem .45rem;background:var(--cream);border-bottom:1px solid rgba(193,122,111,.15);box-shadow:0 4px 14px rgba(193,122,111,.06);position:relative;z-index:2;display:flex;align-items:center;gap:.45rem;flex:0 0 auto}
+  .back{flex:0 0 auto;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--deep);text-decoration:none;background:#fff;border:1px solid rgba(193,122,111,.18);border-radius:50%}
+  .tabs{flex:1;min-width:0;display:flex;gap:2px;background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:3px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{flex:1 0 auto;border:none;background:none;border-radius:50px;padding:.5rem .7rem;font-family:inherit;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
   .tabs button.on{background:var(--rose);color:#fff;font-weight:600}
   .frame{flex:1;position:relative}
   .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--cream)}
@@ -27,7 +26,7 @@
 <body>
 <div class="hub">
   <div class="bar">
-    <div class="row1"><a href="index.html" class="back">← Menu utama</a><span class="ttl">🃏 Kartu Ngobrol<small>Deep Talk · 36 Pertanyaan · Toples</small></span></div>
+    <a href="index.html" class="back" aria-label="Menu utama" title="Menu utama">←</a>
     <div class="tabs" id="tabs"></div>
   </div>
   <div class="frame" id="frame"><div class="load" id="load">🃏</div></div>
@@ -48,13 +47,37 @@ function paint() {
 }
 function go(i) {
   if (i === cur) return;
-  cur = i; lsSet(K, i); paint();
+  cur = i; lsSet(K, i); paint(); try { const t = document.querySelector('#tabs .on'); t && t.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) {}
   const f = document.getElementById('frame');
   f.querySelectorAll('iframe').forEach(x => x.remove());          // cuma 1 yang jalan, biar musiknya ga dobel
   document.getElementById('load').style.display = '';
   const fr = document.createElement('iframe');
   fr.srcdoc = PAGES[i]; fr.title = TABS[i][1];
-  fr.onload = () => document.getElementById('load').style.display = 'none';
+  fr.onload = () => {
+    document.getElementById('load').style.display = 'none';
+    // halaman yang aslinya dibikin pas satu layar penuh: kalau layar HP lebih pendek, biar tetep bisa discroll (ga kepotong)
+    try {
+      const d = fr.contentDocument, de = d.documentElement, bd = d.body, st = d.createElement('style');
+      st.textContent = 'html,body{overflow-x:hidden}';
+      d.head.appendChild(st);
+      const W = fr.contentWindow;
+      const fit = () => {
+        const H = W.innerHeight;
+        if (de.scrollHeight > de.clientHeight + 4 && (W.getComputedStyle(bd).overflowY === 'hidden' || W.getComputedStyle(de).overflowY === 'hidden')) { de.style.overflowY = 'auto'; bd.style.overflowY = 'auto'; bd.style.height = 'auto'; bd.style.minHeight = '100%'; }
+        // layar penuh (fixed/absolute) yang isinya lebih panjang dari layar HP → bikin bisa discroll
+        bd.querySelectorAll('*').forEach(el => {
+          if (el.__fit || el.tagName === 'CANVAS') return;
+          const cs = W.getComputedStyle(el); if (cs.position !== 'fixed' && cs.position !== 'absolute') return;
+          if (el.clientHeight < H * .6 || el.scrollHeight <= el.clientHeight + 4) return;
+          if (cs.overflowY === 'auto' || cs.overflowY === 'scroll') return;
+          el.__fit = 1; el.style.overflowY = 'auto'; el.style.webkitOverflowScrolling = 'touch';
+        });
+      };
+      let ft = 0; const later = () => { clearTimeout(ft); ft = setTimeout(fit, 250); };
+      fit(); setTimeout(fit, 600); W.addEventListener('resize', later);
+      try { new W.MutationObserver(later).observe(bd, { attributes: true, attributeFilter: ['class'], subtree: true }); } catch (e) {}
+    } catch (e) {}
+  };
   f.appendChild(fr);
   try { history.replaceState(null, '', location.pathname + '?m=' + i); } catch (e) {}
 }
