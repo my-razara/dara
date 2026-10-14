@@ -134,7 +134,7 @@
   let btn = null;
   function addButton() {
     const css = document.createElement('style');
-    css.textContent = `.sfx-btn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;width:38px;height:38px;border-radius:50%;border:1px solid rgba(193,122,111,.25);background:rgba(255,255,255,.82);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:.85;transition:transform .15s}
+    css.textContent = `.sfx-btn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;width:38px;height:38px;border-radius:50%;border:1px solid rgba(193,122,111,.25);background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;opacity:.85;transition:transform .15s}
     .sfx-btn:active{transform:scale(.9)}
     .sfx-btn.mini{transform:translateX(-62%) scale(.85);opacity:.4;transition:transform .35s,opacity .35s}
     .sfx-btn.pulse{animation:sfxP 1.2s ease 2}
@@ -208,4 +208,36 @@
   // dipakai halaman lain kalau mau: SFX.play('win'), SFX.play('coin'), SFX.music(false)
   window.SFX = { play, music: on => on ? startBgm() : stopBgm(), get mode() { return mode; }, get playing() { return playing; }, _tap: () => out };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { addButton(); observe(); }); else { addButton(); observe(); }
+})();
+
+/* ═══ PENJAGA PERFORMA ═══
+   Banyak halaman punya puluhan bintang/partikel kecil yang kedip-kedip (60–80 elemen animasi).
+   Di HP biasa itu bikin berat. Di sini: kalau ada >24 elemen dengan animasi berulang yang sama,
+   sebagian dibekukan di posisinya (tetep keliatan, cuma ga gerak). HP yang spek-nya rendah → batasnya 12. */
+(function () {
+  if (window.__perfGuard) return; window.__perfGuard = 1;
+  const low = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 3;
+  const MAX = low ? 12 : 24;
+  function thin() {
+    try {
+      if (!document.getAnimations) return;
+      const groups = {};
+      document.getAnimations().forEach(a => {
+        if (typeof CSSAnimation === 'undefined' || !(a instanceof CSSAnimation)) return;
+        const t = a.effect && a.effect.target; if (!t || t.__pg) return;
+        const it = a.effect.getTiming ? a.effect.getTiming().iterations : 0; if (it !== Infinity) return;
+        const k = a.animationName + '|' + (typeof t.className === 'string' ? t.className : '');
+        (groups[k] = groups[k] || []).push(t);
+      });
+      Object.values(groups).forEach(ts => {
+        if (ts.length <= MAX) return;
+        const step = Math.ceil(ts.length / MAX);
+        ts.forEach((t, i) => { t.__pg = 1; if (i % step) t.style.animationPlayState = 'paused'; });
+      });
+    } catch (e) {}
+  }
+  // HP spek rendah: efek kaca buram (blur di belakang panel) dimatiin — paling berat pas scroll
+  if (low) { try { const st = document.createElement('style'); st.textContent = '*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'; (document.head || document.documentElement).appendChild(st); } catch (e) {} }
+  const go = () => { setTimeout(thin, 700); setTimeout(thin, 2500); };
+  if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
 })();
