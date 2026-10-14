@@ -1,8 +1,10 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v26';
+const VERSI = 'v28';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
+"pengingat.html",
+"cadangan.html",
 "keuangan-berdua.html",
 "titik-kotak.html",
 "bolak-balik.html",
@@ -132,7 +134,7 @@ const HALAMAN = [
 "who-knows-me.html",
 "word-search.html"
 ];
-const ASET = ['sfx.js', 'sync.js', 'online.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
+const ASET = ['sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
 // ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
 const SYNC_BAR = `<script>(function(){
@@ -168,7 +170,7 @@ self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(HALAMAN.concat(ASET).map(u => c.add(u).catch(() => {})))));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('untuk-dara-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('untuk-dara-') && k !== CACHE && k !== 'untuk-dara-meta').map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', e => {
@@ -220,8 +222,26 @@ async function cekKabar() {
   await self.registration.showNotification('🎁 Ada yang baru buat kamu!', { body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: 'kabar-baru', renotify: true, data: { url: './' } });
   await metaSet({ d: maxD });
 }
-self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(cekKabar()); });
-self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); });
+// ═══ PENGINGAT HARI SPESIAL ═══ (jadwalnya dititip menu utama lewat pengingat.js)
+async function cekIngat() {
+  if (self.Notification && Notification.permission !== 'granted') return;
+  try {
+    const c = await caches.open('untuk-dara-meta'), r = await c.match('/__ingat'); if (!r) return;
+    const { list } = await r.json(), sr = await c.match('/__ingat-sent'), sent = sr ? await sr.json() : {};
+    const p = n => String(n).padStart(2, '0'), d = new Date(), today = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    const y = new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1), yday = `${y.getFullYear()}-${p(y.getMonth() + 1)}-${p(y.getDate())}`;
+    // yang jadwalnya hari ini (atau kemarin kalau HP telat ngecek), satu notif per acara
+    const due = {}; (list || []).forEach(n => { if ((n.on === today || n.on === yday) && !sent[n.id]) { const ev = n.id.split('@')[0]; if (!due[ev] || n.on > due[ev].on) due[ev] = n; } });
+    for (const n of Object.values(due)) {
+      await self.registration.showNotification(n.title, { body: n.body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: n.id.split('@')[0], renotify: true, data: { url: 'pengingat.html' } });
+      list.filter(x => x.id.split('@')[0] === n.id.split('@')[0] && x.on <= n.on).forEach(x => sent[x.id] = x.on);
+    }
+    Object.keys(sent).forEach(k => { if (sent[k] < yday) delete sent[k]; });
+    await c.put('/__ingat-sent', new Response(JSON.stringify(sent)));
+  } catch (e) {}
+}
+self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(Promise.all([cekKabar(), cekIngat()])); });
+self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); if (e.data === 'cek-ingat') e.waitUntil(cekIngat()); });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
