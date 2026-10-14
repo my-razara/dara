@@ -210,6 +210,39 @@ function whoBtn(key, onChange) {
   paint(); return lsGet(key, 'Dara');
 }
 
+// ── penyimpanan per-item: tiap item 1 baris di database (server nolak data > 3000 huruf per baris) ──
+// tanggal baris = tanggal "palsu" mulai 1901-01-01 (cuma buat nomor urut), isinya item itu sendiri.
+// format lama (semua item numpuk di 1 baris '2000-01-01') tetep kebaca & otomatis dipindah.
+const LEGACY_D = '2000-01-01', ROW0 = Date.UTC(1901, 0, 1);
+const rowDate = i => new Date(ROW0 + i * 864e5).toISOString().slice(0, 10);
+function itemRows(app, w, lk) {
+  const m = lsGet(app + '-' + w, {}) || {}, out = [];
+  Object.entries(m).forEach(([d, v]) => {
+    if (!v) return;
+    if (d === LEGACY_D && v[lk || 'items']) v[lk || 'items'].forEach(x => out.push(Object.assign({}, x, { owner: w, _d: null })));
+    else if (v.id && d < '1990-01-01') out.push(Object.assign({}, v, { owner: w, _d: d }));
+  });
+  return out;
+}
+function legacyDrop(app, w, id, lk) {
+  const s = (lsGet(app + '-' + w, {}) || {})[LEGACY_D]; if (!s || !s[lk || 'items']) return;
+  const arr = s[lk || 'items'].filter(y => y.id !== id); if (arr.length === s[lk || 'items'].length) return;
+  BD.put(app, w, LEGACY_D, arr.length ? { [lk || 'items']: arr } : null);
+}
+function itemPut(app, x, lk) {
+  const o = Object.assign({}, x); delete o.owner; delete o._d;
+  if (JSON.stringify(o).length > 2900) return false;
+  let d = x._d;
+  if (!d) {
+    // kalau item ini udah punya baris (misal diedit dari data lama), pakai baris itu
+    const m = lsGet(app + '-' + x.owner, {}) || {}, hit = Object.entries(m).find(([k, v]) => v && v.id === x.id && k < '1990-01-01');
+    if (hit) d = hit[0]; else { let i = 0; while (m[rowDate(i)]) i++; d = rowDate(i); }
+  }
+  x._d = d; BD.put(app, x.owner, d, o); legacyDrop(app, x.owner, x.id, lk); return true;
+}
+function itemDel(app, x, lk) { if (x._d) BD.put(app, x.owner, x._d, null); legacyDrop(app, x.owner, x.id, lk); }
+function itemMigrate(app, w, lk) { itemRows(app, w, lk).filter(x => !x._d).forEach(x => itemPut(app, x, lk)); }
+
 const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
 const WHO = ['Razan', 'Dara'], SLOT = '2000-01-01';
 const CAT = [['makan', '🍜', 'Makan'], ['jajan', '🧋', 'Jajan'], ['jalan', '🎡', 'Jalan'], ['nonton', '🎬', 'Nonton'], ['transport', '🛵', 'Transport'], ['belanja', '🛍️', 'Belanja'], ['hadiah', '🎁', 'Hadiah'], ['lain', '📦', 'Lainnya']];
@@ -228,12 +261,22 @@ const monName = k => { const [y, m] = k.split('-').map(Number); return `${BULAN[
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 // ── data: tiap orang nulis di barisnya sendiri (per tanggal), dibaca gabungan ──
 function rows(app, w) { return lsGet(app + '-' + w, {}) || {}; }
-function allTx() { const out = []; WHO.forEach(w => Object.entries(rows('kbx', w)).forEach(([date, r]) => (r && r.items || []).forEach(x => out.push(Object.assign({}, x, { owner: w, date }))))); return out.sort((a, b) => b.date.localeCompare(a.date) || (b.at || 0) - (a.at || 0)); }
-function putTx(x) { const r = rows('kbx', x.owner)[x.date], arr = (r && r.items || []).filter(y => y.id !== x.id), o = Object.assign({}, x); delete o.owner; delete o.date; arr.push(o); BD.put('kbx', x.owner, x.date, { items: arr }); }
-function rmTx(x) { const r = rows('kbx', x.owner)[x.date], arr = (r && r.items || []).filter(y => y.id !== x.id); BD.put('kbx', x.owner, x.date, arr.length ? { items: arr } : null); }
-function goals() { const out = []; WHO.forEach(w => ((rows('kbg', w)[SLOT] || {}).goals || []).forEach(g => out.push(Object.assign({}, g, { owner: w })))); return out.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.at || 0) - (b.at || 0)); }
-function putGoal(g) { const arr = ((rows('kbg', g.owner)[SLOT] || {}).goals || []).filter(y => y.id !== g.id), o = Object.assign({}, g); delete o.owner; arr.push(o); BD.put('kbg', g.owner, SLOT, { goals: arr }); }
-function rmGoal(g) { const arr = ((rows('kbg', g.owner)[SLOT] || {}).goals || []).filter(y => y.id !== g.id); BD.put('kbg', g.owner, SLOT, arr.length ? { goals: arr } : null); }
+function allTx() {
+  const out = [];
+  WHO.forEach(w => Object.entries(rows('kbx', w)).forEach(([d, v]) => {
+    if (!v) return;
+    if (d < '1990-01-01' && v.id) out.push(Object.assign({}, v, { owner: w, _d: d }));
+    else if (v.items) v.items.forEach(x => out.push(Object.assign({}, x, { owner: w, date: d, _d: null, _old: d })));   // format lama: per tanggal
+  }));
+  return out.sort((a, b) => b.date.localeCompare(a.date) || (b.at || 0) - (a.at || 0));
+}
+function dropOldTx(x) { if (!x._old) return; const r = rows('kbx', x.owner)[x._old], arr = (r && r.items || []).filter(y => y.id !== x.id); BD.put('kbx', x.owner, x._old, arr.length ? { items: arr } : null); }
+function putTx(x) { const o = Object.assign({}, x); delete o._old; const ok = itemPut('kbx', o); if (ok) dropOldTx(x); return ok; }
+function rmTx(x) { if (x._d) BD.put('kbx', x.owner, x._d, null); dropOldTx(x); }
+function goals() { return itemRows('kbg', 'Razan', 'goals').concat(itemRows('kbg', 'Dara', 'goals')).sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.at || 0) - (b.at || 0)); }
+function putGoal(g) { return itemPut('kbg', g, 'goals'); }
+function rmGoal(g) { itemDel('kbg', g, 'goals'); }
+function migrateKB() { itemMigrate('kbg', me, 'goals'); allTx().filter(x => x._old && x.owner === me).forEach(putTx); }
 function budgetOf(k) { let best = null; WHO.forEach(w => { const r = rows('kbb', w)[k + '-01']; if (r && (!best || (r.at || 0) > (best.at || 0))) best = r; }); return best ? best.v : 0; }
 // ── hitung ──
 // saldo > 0 → Dara masih ngutang ke Razan; < 0 → Razan ngutang ke Dara
@@ -376,11 +419,9 @@ function saveTx() {
   grab(); if (!ed.amt) { toast('Isi jumlahnya dulu ya'); return; }
   if ((ed.k === 'setor' || ed.k === 'tarik') && !ed.g) { toast('Pilih tabungannya dulu'); return; }
   if (ed.k === 'bayar' && ed.s === 'atur' && ed.part > ed.amt) { toast('Bagiannya kebanyakan'); return; }
-  const old = allTx().find(y => y.id === ed.id);
-  if (old && (old.date !== ed.date || old.owner !== ed.owner)) rmTx(old);
   ed.at = ed.at || Date.now(); ed.ed = me;
   const x = Object.assign({}, ed); if (x.k !== 'bayar') { delete x.s; delete x.c; delete x.part; } if (x.k !== 'setor' && x.k !== 'tarik') delete x.g;
-  putTx(x); closeOv('tx-ov'); vib(15);
+  if (!putTx(x)) { toast('⚠️ Keterangannya kepanjangan'); return; } closeOv('tx-ov'); vib(15);
   toast(ed.k === 'setor' ? '🐷 Celengan nambah!' : ed.k === 'lunas' ? '💸 Pelunasan dicatat' : `🧾 Kecatat${BD.enabled ? ` · ${otherOf(me)} bisa liat` : ''}`);
   if (ed.k === 'setor') { const g = goals().find(y => y.id === ed.g), s = goalSum(ed.g); if (g && !g.done && s.Razan + s.Dara >= g.t) { setTimeout(() => { confetti(90); toast(`🎉 Tabungan "${g.n}" udah kecapai!`, 3500); }, 300); g.done = 1; putGoal(g); } }
   if (ed.k === 'lunas' && !bal()) setTimeout(() => { confetti(50); toast('🤝 Impas! Ga ada utang lagi'); }, 300);
@@ -407,7 +448,7 @@ function openBudget() { const k = monKey(new Date()), v = budgetOf(k); $('b-s').
 moneyInput($('b-v'));
 function saveBudget() { const k = monKey(new Date()); BD.put('kbb', me, k + '-01', { v: num($('b-v').value), at: Date.now() }); closeOv('b-ov'); toast('💳 Budget disimpan'); render(); }
 BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.some(a => /^kb[xgb]$/.test(a)) && !document.querySelector('.ov.show')) render(); });
-render();
+migrateKB(); render();
 
 </script>
 </script>
