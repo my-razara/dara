@@ -178,6 +178,39 @@ function whoBtn(key, onChange) {
   paint(); return lsGet(key, 'Dara');
 }
 
+// ── penyimpanan per-item: tiap item 1 baris di database (server nolak data > 3000 huruf per baris) ──
+// tanggal baris = tanggal "palsu" mulai 1901-01-01 (cuma buat nomor urut), isinya item itu sendiri.
+// format lama (semua item numpuk di 1 baris '2000-01-01') tetep kebaca & otomatis dipindah.
+const LEGACY_D = '2000-01-01', ROW0 = Date.UTC(1901, 0, 1);
+const rowDate = i => new Date(ROW0 + i * 864e5).toISOString().slice(0, 10);
+function itemRows(app, w, lk) {
+  const m = lsGet(app + '-' + w, {}) || {}, out = [];
+  Object.entries(m).forEach(([d, v]) => {
+    if (!v) return;
+    if (d === LEGACY_D && v[lk || 'items']) v[lk || 'items'].forEach(x => out.push(Object.assign({}, x, { owner: w, _d: null })));
+    else if (v.id && d < '1990-01-01') out.push(Object.assign({}, v, { owner: w, _d: d }));
+  });
+  return out;
+}
+function legacyDrop(app, w, id, lk) {
+  const s = (lsGet(app + '-' + w, {}) || {})[LEGACY_D]; if (!s || !s[lk || 'items']) return;
+  const arr = s[lk || 'items'].filter(y => y.id !== id); if (arr.length === s[lk || 'items'].length) return;
+  BD.put(app, w, LEGACY_D, arr.length ? { [lk || 'items']: arr } : null);
+}
+function itemPut(app, x, lk) {
+  const o = Object.assign({}, x); delete o.owner; delete o._d;
+  if (JSON.stringify(o).length > 2900) return false;
+  let d = x._d;
+  if (!d) {
+    // kalau item ini udah punya baris (misal diedit dari data lama), pakai baris itu
+    const m = lsGet(app + '-' + x.owner, {}) || {}, hit = Object.entries(m).find(([k, v]) => v && v.id === x.id && k < '1990-01-01');
+    if (hit) d = hit[0]; else { let i = 0; while (m[rowDate(i)]) i++; d = rowDate(i); }
+  }
+  x._d = d; BD.put(app, x.owner, d, o); legacyDrop(app, x.owner, x.id, lk); return true;
+}
+function itemDel(app, x, lk) { if (x._d) BD.put(app, x.owner, x._d, null); legacyDrop(app, x.owner, x.id, lk); }
+function itemMigrate(app, w, lk) { itemRows(app, w, lk).filter(x => !x._d).forEach(x => itemPut(app, x, lk)); }
+
 const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
 const SLOT = '2000-01-01';
 const EMO = ['🍳', '🍜', '🍝', '🍛', '🍲', '🥗', '🍔', '🌮', '🍕', '🍗', '🐟', '🍤', '🥟', '🍰', '🍪', '🧁', '🍮', '🥞', '🍹', '🧋', '☕', '🍌', '🥭', '🌶️'];
@@ -192,11 +225,9 @@ let me = whoBtn('resep-me', () => { me = lsGet('resep-me', 'Dara'); BD.setMe(me)
 BD.setMe(me);
 let cat = '', q = '', cur = null, ed = null, cook = null, tmr = null;
 const uid = () => 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-function mine(w) { return ((lsGet('resep-' + w, {}) || {})[SLOT] || {}).items || []; }
-function all() { return mine('Razan').map(x => Object.assign({ owner: 'Razan' }, x)).concat(mine('Dara').map(x => Object.assign({ owner: 'Dara' }, x))); }
-function strip(x) { const o = Object.assign({}, x); delete o.owner; return o; }
-function save(x) { const own = x.owner || me, arr = mine(own).filter(y => y.id !== x.id); arr.push(strip(x)); BD.put('resep', own, SLOT, { items: arr }); }
-function remove(x) { const arr = mine(x.owner).filter(y => y.id !== x.id); BD.put('resep', x.owner, SLOT, arr.length ? { items: arr } : null); }
+function all() { return itemRows('resep', 'Razan').concat(itemRows('resep', 'Dara')); }
+function save(x) { x.owner = x.owner || me; if (!itemPut('resep', x)) { toast('⚠️ Resepnya kepanjangan — singkatin langkah/catatannya dikit ya'); return false; } return true; }
+function remove(x) { itemDel('resep', x); }
 const find = id => all().find(x => x.id === id);
 function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
 function closeOv(id) { $(id).classList.remove('show'); }
@@ -215,7 +246,7 @@ function renderList() {
   const none = !all().length;
   $('starter').innerHTML = none ? `<p class="empty">Buku resepnya masih kosong 📖<br>Tulis resep pertama kalian, atau mulai dari contoh:</p><button class="btn ghost" onclick="addStarter()">➕ Tambahin 3 resep contoh</button>` : (!L.length ? '<p class="empty">Ga ketemu resep yang cocok 🤔</p>' : '');
 }
-function addStarter() { const arr = mine(me); STARTER.forEach(s => arr.push(Object.assign({ id: uid(), by: 'Berdua', at: Date.now() }, s))); BD.put('resep', me, SLOT, { items: arr }); renderList(); toast('📖 3 resep contoh ditambah — edit sesukanya ya'); }
+function addStarter() { STARTER.forEach((s, i) => itemPut('resep', Object.assign({ id: uid() + i, by: 'Berdua', at: Date.now() + i, owner: me }, s))); renderList(); toast('📖 3 resep contoh ditambah — edit sesukanya ya'); }
 function timeIn(s) { const m = /(\d+)\s*(menit|mnt|min|detik|dtk|jam)/i.exec(s); if (!m) return 0; const n = +m[1], u = m[2].toLowerCase(); return u.startsWith('j') ? n * 3600 : u.startsWith('d') ? n : n * 60; }
 function openDet(id) {
   const x = find(id); if (!x) return; cur = id;
@@ -253,7 +284,7 @@ function saveEd() {
   const t = $('ed-t').value.trim(); if (!t) { toast('Nama masakannya diisi dulu ya'); return; }
   const lines = id => $(id).value.split('\n').map(s => s.trim().replace(/^[-•*\d.)\s]+(?=\S)/, '')).filter(Boolean);
   Object.assign(ed, { t, w: +$('ed-w').value || 0, p: +$('ed-p').value || 0, b: lines('ed-b'), s: lines('ed-s'), n: $('ed-n').value.trim(), at: ed.at || Date.now() });
-  save(ed); closeOv('ed-ov'); vib(15); toast(`🥘 Kesimpen${BD.enabled ? ` · ${otherOf(me)} bisa liat` : ''}`);
+  if (!save(ed)) return; closeOv('ed-ov'); vib(15); toast(`🥘 Kesimpen${BD.enabled ? ` · ${otherOf(me)} bisa liat` : ''}`);
   cur ? openDet(ed.id) : renderList();
 }
 // ── mode masak ──
@@ -276,7 +307,7 @@ function cookGo(d) {
 }
 function closeCook() { stopT(); try { cook && cook.lock && cook.lock.release(); } catch (e) {} cook = null; $('cook').classList.remove('show'); document.documentElement.style.overflow = ''; }
 BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes('resep')) { if (cur && $('v-det').style.display !== 'none' && find(cur)) openDet(cur); else if (!cook) renderList(); } });
-renderList();
+itemMigrate('resep', me); renderList();
 
 </script>
 </script>
