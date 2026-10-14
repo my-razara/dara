@@ -434,6 +434,8 @@ var g=function(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null
 ['idx-favs','idx-recent'].forEach(function(k){var a=g(k,null);if(!Array.isArray(a))return;var o=[];a.forEach(function(l){l=M[l]||l;if(o.indexOf(l)<0)o.push(l)});if(JSON.stringify(o)!==JSON.stringify(a))s(k,o)});
 var op=g('idx-opens',null);if(op){var ch=0;Object.keys(M).forEach(function(l){if(op[l]){op[M[l]]=(op[M[l]]||0)+op[l];delete op[l];ch=1}});if(ch)s('idx-opens',op)}}catch(e){}})();</script>
 <script src="sync.js"></script>
+<script src="cadangan.js" defer></script>
+<script src="pengingat.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -1498,14 +1500,14 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) appl
 
 // ── baris di home ──
 function renderRows() {
-  const favItems = favs.map(byLink).filter(Boolean), recItems = recent.map(byLink).filter(Boolean), newItems = ALL.filter(isNew);
+  const favItems = favs.map(byLink).filter(Boolean), recItems = recent.map(byLink).filter(Boolean), newItems = ALL.filter(isNew).sort((a, b) => (updDate(b.link) || 0) - (updDate(a.link) || 0)).slice(0, 16);   // [RINGAN] cukup 16 yang paling baru
   $('today-slot').innerHTML = todayHTML();
   let h = `<button class="install-card${canInstall() ? ' show' : ''}" id="install-card" onclick="doInstall(event)"><img src="icons/icon-192.png" alt=""><span><b>Pasang jadi aplikasi 📱</b><small>Ada ikonnya di HP, kebuka full screen</small></span><span class="ic-x" onclick="event.stopPropagation();hideInstall()">✕</span></button>` + memCardHTML() + `<button class="rnd-btn" onclick="openRnd()"><span class="rb-ico">🎲</span><span><b>Main apa ya?</b><small>Bingung mau main apa — biar dipilihin</small></span></button>`;
   h += continueHTML();
   h += `<div class="hx-sec"><div class="hx-title"><span>⭐ Favorit kamu</span>${favItems.length ? `<button onclick="navGo('fav')">Lihat semua</button>` : ''}</div>`
     + (favItems.length ? `<div class="row">${favItems.map(miniHTML).join('')}</div>` : `<div class="empty-hint">Belum ada favorit. Buka game atau hadiah, terus tap ☆ di pojok kanan atas 🤍</div>`) + '</div>';
   if (recItems.length) h += `<div class="hx-sec"><div class="hx-title"><span>🕘 Terakhir dibuka</span><button onclick="clearRecent()">Hapus</button></div><div class="row">${recItems.map(miniHTML).join('')}</div></div>`;
-  if (newItems.length) h += `<div class="hx-sec"><div class="hx-title"><span>🆕 Baru diupdate · ${newItems.length}</span></div><div class="row">${newItems.map(miniHTML).join('')}</div></div>`;
+  if (newItems.length) h += `<div class="hx-sec"><div class="hx-title"><span>🆕 Baru diupdate · ${ALL.filter(isNew).length}</span></div><div class="row">${newItems.map(miniHTML).join('')}</div></div>`;
   $('home-rows').innerHTML = h; bindMinis($('home-rows'));
   const mi = $('home-rows').querySelector('.mem-photo img'); if (mi) { mi.onload = () => mi.classList.add('ok'); mi.onerror = () => { if (!mi.dataset.t) { mi.dataset.t = 1; mi.src = mi.dataset.alt; } else mi.remove(); }; }
 }
@@ -2554,11 +2556,63 @@ setTimeout(() => {
 })();
 
 
+
+// ═══ CADANGAN DATA: link di home + cadangan online otomatis ═══
+(function () {
+  const _rr = renderRows;
+  renderRows = function () {
+    _rr();
+    const host = $('home-rows'); if (!host || host.querySelector('.cad-link')) return;
+    let t = 0; try { t = JSON.parse(localStorage.getItem('cad-online-at')) || 0; } catch (e) {}
+    const d = Math.floor((Date.now() - t) / 864e5);
+    const a = document.createElement('a'); a.className = 'cad-link'; a.href = 'cadangan.html';
+    a.innerHTML = `<span>💾</span><b>Cadangan & pindah HP<small>${t ? (d < 1 ? 'Dicadangin hari ini ✓' : `Dicadangin ${d} hari lalu`) : 'Simpen data biar ga ilang'}</small></b><i>›</i>`;
+    host.appendChild(a);
+  };
+  const css = document.createElement('style');
+  css.textContent = `.cad-link{display:flex;align-items:center;gap:.7rem;margin:1.2rem 0 .4rem;padding:.75rem .95rem;border-radius:18px;background:rgba(255,255,255,.75);border:1px dashed rgba(193,122,111,.35);text-decoration:none;color:var(--ink,#2d1f1a)}
+  .cad-link span{font-size:1.4rem}.cad-link b{flex:1;font-size:13px;font-weight:600}.cad-link small{display:block;font-size:10.5px;color:var(--muted,#9a8070);font-weight:400}.cad-link i{font-style:normal;color:var(--muted,#9a8070);font-size:1.2rem}
+  html.night .cad-link{background:var(--card);color:#f3d9d2;border-color:rgba(193,122,111,.3)}`;
+  document.head.appendChild(css);
+  renderRows();
+  // cadangan online otomatis (tiap 3 hari), nunggu halaman tenang dulu
+  setTimeout(() => { try { window.Cadangan && Cadangan.auto(); } catch (e) {} }, 8000);
+})();
+
+
+// ═══ PENGINGAT: banner "bentar lagi" di home + jadwal notif ═══
+(function () {
+  if (!window.Ingat) return;
+  const _rr = renderRows;
+  renderRows = function () {
+    _rr();
+    const host = $('home-rows'); if (!host || host.querySelector('.ig-sec')) return;
+    let E = []; try { E = Ingat.events(7); } catch (e) {}
+    const d = document.createElement('a'); d.className = 'ig-sec'; d.href = 'pengingat.html';
+    d.innerHTML = E.length ? `<p class="ig-h">⏰ Bentar lagi</p>${E.slice(0, 3).map(e => `<div class="ig ${e.left === 0 ? 'now' : ''}"><span>${e.e}</span><b>${e.t}</b><i>${Ingat.when(e.left)}</i></div>`).join('')}${E.length > 3 ? `<small>+${E.length - 3} lagi</small>` : ''}`
+      : `<div class="ig"><span>⏰</span><b>Pengingat hari spesial</b><i>Atur ›</i></div>`;
+    const rit = host.querySelector('.bx-sec') || host.querySelector('.rit');
+    if (E.length) { if (rit) rit.insertAdjacentElement('beforebegin', d); else host.insertBefore(d, host.firstChild); }
+    else { const cad = host.querySelector('.cad-link'); cad ? cad.insertAdjacentElement('beforebegin', d) : host.appendChild(d); }
+  };
+  const css = document.createElement('style');
+  css.textContent = `.ig-sec{display:block;margin:.2rem 0 1rem;padding:.7rem .9rem;border-radius:20px;background:linear-gradient(135deg,#fff,#fdf0ec);border:1px solid rgba(193,122,111,.22);text-decoration:none;color:var(--ink,#2d1f1a);box-shadow:0 4px 16px rgba(193,122,111,.08)}
+  .ig-h{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold,#c9a96e);font-weight:600;margin-bottom:.35rem}
+  .ig{display:flex;align-items:center;gap:.55rem;padding:.25rem 0;font-size:13px}.ig span{font-size:1.25rem;width:1.6rem;text-align:center}.ig b{flex:1;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ig i{font-style:normal;font-size:11px;color:var(--rose,#c17a6f);font-weight:600;white-space:nowrap}.ig.now i{background:var(--rose,#c17a6f);color:#fff;padding:.1rem .5rem;border-radius:20px}
+  .ig-sec small{display:block;font-size:10.5px;color:var(--muted,#9a8070);margin-top:.2rem;text-align:right}
+  html.night .ig-sec{background:var(--card);color:#f3d9d2;border-color:rgba(193,122,111,.3)}`;
+  document.head.appendChild(css);
+  renderRows();
+  setTimeout(() => { try { Ingat.schedule(); if ('Notification' in window && Notification.permission === 'granted') navigator.serviceWorker.ready.then(r => { r.active && r.active.postMessage('cek-ingat'); if ('periodicSync' in r) r.periodicSync.register('cek-kabar', { minInterval: 6 * 3600 * 1000 }).catch(() => {}); }).catch(() => {}); } catch (e) {} }, 3000);
+  window.addEventListener('berdua', ev => { try { if ((ev.detail.apps || []).some(a => /^(ingat|ingatset|ketemu)$/.test(a))) Ingat.schedule(); } catch (e) {} });
+})();
+
 // ═══ KABAR BARU: popup "ada yang baru" + notifikasi HP ═══
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
-    { d: '2026-10-13', t: '4 game & 10 hadiah baru — sekarang total 60 game & 60 hadiah! 🎉 Plus 🤑 Keuangan Berdua buat patungan & nabung bareng.' },
+    { d: '2026-10-13', t: '4 game & 10 hadiah baru — sekarang total 60 game & 60 hadiah! 🎉 Plus 🤑 Keuangan Berdua, 💾 Cadangan data, ⏰ Pengingat hari spesial, & semua halaman dibikin lebih ringan.' },
   ];
   const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -2569,7 +2623,7 @@ setTimeout(() => {
   let seen = get('idx-news-seen', null);
   if (seen == null) { const older = allDates.filter(d => d < maxD); seen = older[older.length - 1] || '2000-01-01'; }
   // kasih tau service worker tanggal update terakhir yang udah diliat (biar ga dobel notif)
-  const tellSW = d => { try { caches.open('untuk-dara-meta').then(c => c.put('/__kabar', new Response(JSON.stringify({ d })))); } catch (e) {} };
+  const tellSW = d => { try { caches.open('untuk-dara-meta').then(c => c.put('/__kabar', new Response(JSON.stringify({ d })))).catch(() => {}); } catch (e) {} };
   const css = document.createElement('style');
   css.textContent = `#kb-ov{position:fixed;inset:0;z-index:9000;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.1rem}
   #kb-ov.show{display:flex}
