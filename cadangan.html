@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cadangan Data — Razan & Dara 💾</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="cadangan.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}
+  .card h3{display:flex;align-items:center;gap:.45rem;font-size:14px}
+  .card h3 span{font-size:1.3rem}
+  .card p.d{font-size:12px;color:var(--muted);line-height:1.6;margin:.15rem 0 .7rem}
+  .st{display:flex;justify-content:space-between;align-items:center;gap:.6rem;background:var(--cream);border-radius:14px;padding:.6rem .75rem;font-size:12px;margin-bottom:.6rem}
+  .st b{font-size:12.5px}
+  .ok{color:#4f8a57}.warn{color:#b4554a}
+  .sw{position:relative;width:46px;height:26px;flex-shrink:0;border-radius:13px;background:#d9cfc6;border:none;cursor:pointer;transition:background .2s}
+  .sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
+  .sw.on{background:#6fae79}.sw.on::after{transform:translateX(20px)}
+  .info{border-radius:18px;padding:.8rem .95rem;margin-bottom:.8rem;font-size:12px;line-height:1.6;color:var(--deep);background:linear-gradient(135deg,#fff,#eef6ee);border:1px solid rgba(111,174,121,.3)}
+  .who2{display:flex;gap:.4rem;margin-bottom:.8rem}
+  .who2 button{flex:1;padding:.6rem;border-radius:14px;border:1.5px solid var(--blush);background:#fff;font-weight:600;font-size:13px;cursor:pointer;color:var(--muted)}
+  .who2 button.on.R{border-color:var(--rz);color:var(--rz);background:#eef4fd}.who2 button.on.D{border-color:var(--dr);color:var(--dr);background:#fdf0ec}
+  .pv{background:#fff8e6;border:1.5px dashed #e3c77a;border-radius:16px;padding:.8rem;font-size:12.5px;line-height:1.6;margin-top:.6rem}
+  .small{font-size:11px;color:var(--muted);text-align:center;margin-top:.5rem;line-height:1.5}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
+  <div class="head"><span class="ico">💾</span><p class="lbl">Biar ga ilang</p><h1 class="title">Cadangan <span>Data</span></h1><p class="sub">Simpen semua rekor game, gelang, komik, outfit, dan catatan lain — biar aman pas ganti HP atau cache kehapus 🔐</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <p class="lab" style="text-align:center;margin-top:0">📱 Ini HP siapa?</p>
+  <div class="who2" id="who2"><button class="R" data-w="Razan">💙 Razan</button><button class="D" data-w="Dara">💗 Dara</button></div>
+
+  <div class="card">
+    <h3><span>☁️</span>Cadangan online otomatis</h3>
+    <p class="d">Data yang cuma ada di HP ini dicadangin diam-diam ke database berdua tiap 3 hari pas buka menu utama.</p>
+    <div class="st"><span>Otomatis</span><button class="sw" id="auto-sw" aria-label="Cadangan otomatis"></button></div>
+    <div class="st"><span>Terakhir dicadangin</span><b id="on-at">–</b></div>
+    <button class="btn" id="on-btn" onclick="backupOnline()">☁️ Cadangin sekarang</button>
+  </div>
+
+  <div class="card">
+    <h3><span>📁</span>Simpan ke file</h3>
+    <p class="d">Bikin 1 file berisi <b>semua</b> data di HP ini (termasuk foto yang kesimpen). Simpen di Google Drive atau kirim ke WA sendiri.</p>
+    <div class="st"><span>Data di HP ini</span><b id="loc-n">–</b></div>
+    <div class="st"><span>File terakhir dibikin</span><b id="file-at">–</b></div>
+    <button class="btn ghost" onclick="backupFile()">📁 Simpan cadangan ke file</button>
+  </div>
+
+  <div class="card">
+    <h3><span>♻️</span>Pulihkan di HP baru</h3>
+    <p class="d">Pilih dulu <b>Ini HP siapa</b> di atas, tunggu sampai "✓ Nyambung berdua", baru pulihkan.</p>
+    <button class="btn" id="rs-on" onclick="previewOnline()">☁️ Pulihkan dari cadangan online</button>
+    <button class="btn ghost" style="margin-top:.5rem" onclick="$('file-in').click()">📁 Pulihkan dari file</button>
+    <input type="file" id="file-in" accept="application/json,.json" style="display:none">
+    <div id="pv"></div>
+  </div>
+
+  <div class="info">✅ <b>Yang otomatis aman tanpa cadangan:</b> semua fitur yang nyambung 2 HP — Wishlist, Resep, Kamus, Keuangan Berdua, Kalender Mood, Jurnal Syukur, Rencana Ketemu, Teropong, dll. Di HP baru, cukup pilih "Ini HP siapa" → datanya balik sendiri.<br><br>🔒 Kantong Razan & Kantong Dara punya database sendiri, jadi juga aman.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
+const C = window.Cadangan;
+const ago = t => { if (!t) return 'belum pernah'; const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'barusan' : m < 60 ? m + ' menit lalu' : m < 1440 ? Math.round(m / 60) + ' jam lalu' : fmtD(new Date(t)); };
+const kb = n => n > 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
+function paint() {
+  bdStatus(); const me = BD.me();
+  $('who2').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.w === me); b.onclick = () => { BD.setMe(b.dataset.w); paint(); }; });
+  const auto = lsGet('cad-auto', 1) !== 0; $('auto-sw').classList.toggle('on', auto);
+  const inf = C.info(me); $('on-at').innerHTML = inf ? `<span class="ok">${ago(inf.at)}</span>` : '<span class="warn">belum pernah</span>';
+  const all = C.collect(true); $('loc-n').textContent = `${Object.keys(all).length} catatan · ${kb(C.bytes(all))}`;
+  $('file-at').textContent = ago(lsGet('cad-file-at', 0));
+  $('on-btn').disabled = !BD.enabled; $('rs-on').disabled = !BD.enabled;
+}
+$('auto-sw').onclick = () => { lsSet('cad-auto', lsGet('cad-auto', 1) === 0 ? 1 : 0); paint(); toast(lsGet('cad-auto', 1) ? '☁️ Cadangan otomatis nyala' : 'Cadangan otomatis dimatiin'); };
+async function backupOnline() {
+  $('on-btn').disabled = true; $('on-btn').textContent = '⏳ Lagi nyadangin…';
+  const r = await C.saveOnline();
+  $('on-btn').textContent = '☁️ Cadangin sekarang'; paint();
+  if (r.ok) { toast(`☁️ ${r.keys} catatan dicadangin`); vib(15); }
+  else toast(r.err === 'big' ? '⚠️ Datanya kegedean buat online — pakai Simpan ke file ya' : '⚠️ Belum nyambung ke database');
+}
+async function backupFile() { const r = await C.toFile(); if (r.ok) { toast(`📁 ${r.n} catatan disimpan (${kb(r.size)})`); paint(); } }
+function preview(data, meta, src) {
+  const n = Object.keys(data).length;
+  $('pv').innerHTML = `<div class="pv">📦 <b>Cadangan ${src}</b><br>${meta.who ? `Punya <b>${esc(meta.who)}</b> · ` : ''}dibikin ${ago(meta.at)}<br>${n} catatan${meta.who && meta.who !== BD.me() ? `<br>⚠️ Ini cadangan punya ${esc(meta.who)}, tapi HP ini diset punya ${BD.me()}.` : ''}
+    <button class="btn" style="margin-top:.6rem" id="do-rs">♻️ Pulihkan sekarang</button><p class="small">Data yang sama di HP ini bakal ketimpa sama isi cadangan.</p></div>`;
+  $('do-rs').onclick = () => {
+    if (!confirm('Pulihkan data dari cadangan ini?')) return;
+    const r = C.restore(data); toast(`♻️ ${r.n} catatan dipulihkan${r.fail ? ` · ${r.fail} gagal (memori penuh)` : ''}`, 3500); confetti(50);
+    setTimeout(() => location.reload(), 1600);
+  };
+  $('pv').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+async function previewOnline() {
+  try { BD.pull && await BD.pull(true); } catch (e) {}
+  const me = BD.me(), r = await C.loadOnline(me);
+  if (!r) { $('pv').innerHTML = `<div class="pv">Belum ada cadangan online punya <b>${me}</b>. Kalau HP lama masih ada, buka menu Cadangan di sana → "Cadangin sekarang".</div>`; return; }
+  if (r.err) { $('pv').innerHTML = `<div class="pv">⏳ Cadangannya belum kedownload lengkap${r.n ? ` (${r.have}/${r.n})` : ''}. Tunggu sebentar terus coba lagi.</div>`; return; }
+  preview(r.data, Object.assign({ who: me }, r.meta), 'online');
+}
+$('file-in').onchange = async () => {
+  const f = $('file-in').files[0]; if (!f) return;
+  try { const o = await C.readFile(f); preview(o.data, o, 'dari file'); } catch (e) { toast('⚠️ ' + e.message); }
+  $('file-in').value = '';
+};
+BD.on(ev => { if (!ev.apps || !ev.apps.length || ev.apps.includes('cadangan')) paint(); });
+paint();
+
+</script>
+</script>
+
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
