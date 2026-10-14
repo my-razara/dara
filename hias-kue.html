@@ -170,7 +170,11 @@ function layer(cx, top, w, h, isHeart, isSq) {
   if (st.sprink) { const cs = ['#f26d85', '#ffd25a', '#6ec6ff', '#8be09b', '#c58cff', '#fff']; for (let i = 0; i < w / 6; i++) { const a = (i * 2.399) % (Math.PI * 2), r = Math.sqrt((i * 7919 % 100) / 100) * .85; const x = cx + Math.cos(a) * r * w / 2, y = top + Math.sin(a) * r * w * .13; g.save(); g.translate(x, y); g.rotate(i); g.fillStyle = cs[i % cs.length]; rr(-5, -1.6, 10, 3.2, 1.6); g.fill(); g.restore(); } }
 }
 let geo = {};
+// kue (tanpa lilin) disimpan di kanvas cadangan — digambar ulang cuma kalau ada yang berubah
+const baseCv = document.createElement('canvas'); baseCv.width = baseCv.height = S; const bctx = baseCv.getContext('2d'); let baseK = '';
 function draw(forExport) {
+  const sk = JSON.stringify(st);
+  if (!forExport && sk === baseK) { g.drawImage(baseCv, 0, 0); drawCandles(false); return; }
   g.fillStyle = st.bg; g.fillRect(0, 0, S, S);
   const bg = g.createRadialGradient(S / 2, S * .35, 40, S / 2, S * .4, 520); bg.addColorStop(0, 'rgba(255,255,255,.75)'); bg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = bg; g.fillRect(0, 0, S, S);
   // meja + piring
@@ -196,7 +200,11 @@ function draw(forExport) {
   // topping
   g.textAlign = 'center'; g.textBaseline = 'middle';
   st.tops.forEach(t => { g.font = `${t.s}px serif`; g.fillText(t.e, t.x, t.y); });
-  // lilin
+  if (!forExport) { bctx.clearRect(0, 0, S, S); bctx.drawImage(cv, 0, 0); baseK = sk; }
+  drawCandles(forExport);
+  if (forExport) { g.font = '700 40px Caveat,cursive'; g.fillStyle = '#7a3f35'; g.textAlign = 'center'; g.fillText(`buat ${otherOf(me)} dari ${me} 💗`, S / 2, 70); baseK = ''; }
+}
+function drawCandles(forExport) {
   const n = st.candles; for (let i = 0; i < n; i++) {
     const x = geo.cx + (n === 1 ? 0 : (i / (n - 1) - .5) * geo.w * .6), y = geo.top - 6 + Math.sin(i * 1.7) * 6;
     const cc = ['#7eb3f5', '#f0a39a', '#ffd25a', '#a8d8a0', '#c9b6ea'][i % 5];
@@ -208,10 +216,17 @@ function draw(forExport) {
       g.fillStyle = '#fff2b0'; g.beginPath(); g.moveTo(x, y - 100 - fl); g.quadraticCurveTo(x + 5, y - 89, x, y - 83); g.quadraticCurveTo(x - 5, y - 89, x, y - 100 - fl); g.fill(); }
     else if (smoke > 0) { g.strokeStyle = `rgba(150,140,130,${smoke / 60})`; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y - 82); for (let k = 1; k < 6; k++) g.lineTo(x + Math.sin(k + flick * .2) * 6, y - 82 - k * 10 - (60 - smoke)); g.stroke(); }
   }
-  if (forExport) { g.font = '700 40px Caveat,cursive'; g.fillStyle = '#7a3f35'; g.textAlign = 'center'; g.fillText(`buat ${otherOf(me)} dari ${me} 💗`, S / 2, 70); }
 }
-let smoke = 0;
-function loop() { flick++; if (smoke > 0) smoke--; draw(); requestAnimationFrame(loop); }
+let smoke = 0, lastK = '', lastFl = 0, vis = true;
+try { new IntersectionObserver(es => { vis = es[0].isIntersecting; }).observe(cv); } catch (e) {}
+// api lilin cukup goyang ~10x per detik; selain itu cuma gambar ulang kalau kuenya berubah
+function loop(ts) {
+  requestAnimationFrame(loop);
+  if (document.hidden || !vis) return;
+  const k = JSON.stringify(st), anim = st.candles && (st.lit || smoke > 0) && ts - lastFl > 100;
+  if (anim) { flick += 3; lastFl = ts; if (smoke > 0) smoke = Math.max(0, smoke - 6); }
+  if (k !== lastK || anim) { lastK = k; draw(); }
+}
 function pt(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * S, (e.clientY - r.top) / r.height * S]; }
 cv.addEventListener('pointerdown', e => {
   e.preventDefault(); const [x, y] = pt(e);
@@ -247,7 +262,7 @@ function paintPane() {
   if ($('tx')) $('tx').oninput = () => { st.text = $('tx').value; persist(); };
 }
 async function saveImg() { await fontsReady(); draw(true); await shareCanvas(cv, 'kue-buat-' + otherOf(me).toLowerCase() + '.png', 'Kue buat kamu'); }
-fontsReady(); paintPane(); loop();
+fontsReady().then(() => { baseK = ''; }); paintPane(); requestAnimationFrame(loop);
 
 </script>
 </script>
