@@ -167,7 +167,7 @@
   function fast(ms) { every = Math.max(15e3, ms || 6e4); }
 
   // ── game online ──
-  const GNAME = { congklak: ['🐚', 'Congklak'], 'perang-kapal': ['⚓', 'Perang Kapal'], dam: ['⚫', 'Dam'], 'empat-sejajar': ['🔴', 'Empat Sejajar'] };
+  const GNAME = { congklak: ['🐚', 'Congklak'], 'perang-kapal': ['⚓', 'Perang Kapal'], dam: ['⚫', 'Dam'], 'empat-sejajar': ['🔴', 'Empat Sejajar'], tictactoe: ['⭕', 'Tic-Tac-Toe'], 'titik-kotak': ['🔳', 'Titik & Kotak'], 'bolak-balik': ['🔘', 'Bolak-Balik'], 'ular-tangga': ['🐍', 'Ular Tangga'] };
   function room(g, since) {
     return new Promise((res, rej) => {
       const x = new XMLHttpRequest();
