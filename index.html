@@ -2617,15 +2617,27 @@ setTimeout(() => {
 
 // ═══ Baris "Fitur berdua" di home ═══
 (function () {
-  const F = [['💌', 'Surat', 'kotak-surat.html?m=0'], ['📅', 'Rencana ketemu', 'ketemuan.html?m=0'], ['🎁', 'Wishlist', 'wishlist.html'], ['🫂', 'Kangen', 'tombol-kangen.html'], ['🎨', 'Gambar & tebak', 'gartic-berdua.html?beda=1'], ['🧠', 'Kuis kenal', 'who-knows-me.html?beda=1'], ['🎮', 'Main online', 'congklak.html'], ['📅', 'Mood', 'kalender-mood.html'], ['🙏', 'Syukur', 'jurnal-syukur.html'], ['📊', 'Rekap', 'rekap-bulanan.html'], ['🪣', 'Bucket list', 'bucket-list.html']];
-  F[7][0] = '🌈';
-  F.splice(3, 0, ['🤑', 'Keuangan', 'keuangan-berdua.html']);
+  // semua fitur yang datanya nyambung antar HP Razan & Dara
+  const F = [['💌', 'Surat', 'kotak-surat.html?m=0'], ['🫂', 'Kangen', 'tombol-kangen.html'], ['📅', 'Rencana ketemu', 'ketemuan.html?m=0'], ['🐾', 'Peliharaan', 'peliharaan.html'],
+    ['🎮', 'Main online', '#online'], ['🎨', 'Gambar & tebak', 'gartic-berdua.html?beda=1'], ['🧠', 'Kuis kenal', 'who-knows-me.html?beda=1'],
+    ['🌈', 'Mood', 'kalender-mood.html'], ['🙏', 'Syukur', 'jurnal-syukur.html'], ['💧', 'Jaga minum', 'jaga-minum.html'], ['🧳', 'Daftar bareng', 'daftar-bareng.html'],
+    ['🎬', 'Bioskop', 'bioskop-kita.html'], ['🎁', 'Wishlist', 'wishlist.html'], ['🪣', 'Bucket list', 'bucket-list.html'], ['📜', 'Janji kita', 'janji-kita.html'],
+    ['🤑', 'Keuangan', 'keuangan-berdua.html'], ['🥘', 'Resep', 'resep-kita.html'], ['📖', 'Kamus kita', 'kamus-kita.html'], ['🧭', 'Jarak kita', 'jarak-kita.html'],
+    ['🔭', 'Masa depan', 'masa-depan.html'], ['⏰', 'Pengingat', 'pengingat.html'], ['📊', 'Rekap', 'rekap-bulanan.html']];
+  const ONLINE = [['⭕', 'Tic Tac Toe', 'tictactoe'], ['🐍', 'Ular Tangga', 'ular-tangga'], ['🐚', 'Congklak', 'congklak'], ['👑', 'Dam', 'dam'], ['⚓', 'Perang Kapal', 'perang-kapal'], ['🔵', 'Empat Sejajar', 'empat-sejajar'], ['🔳', 'Titik & Kotak', 'titik-kotak'], ['🔘', 'Bolak-Balik', 'bolak-balik']];
+  window.__onlineSheet = () => {
+    let o = document.getElementById('ol-pick'); if (o) o.remove();
+    o = document.createElement('div'); o.id = 'ol-pick';
+    o.innerHTML = `<div class="olp"><b>🎮 Main online beda HP</b><p>Pilih gamenya, terus tap “🎮 Ajak main online” — ${(window.Who && Who.me()) ? Who.other() : 'pasangan'} langsung dapet ajakan</p><div class="olp-g">${ONLINE.map(([e, n, l]) => `<a href="${l}.html"><span>${e}</span>${n}</a>`).join('')}</div><button>Tutup</button></div>`;
+    o.onclick = e => { if (e.target === o || e.target.tagName === 'BUTTON') o.remove(); };
+    document.body.appendChild(o);
+  };
   const _rr8 = renderRows;
   renderRows = function () {
     _rr8();
     const host = $('home-rows'); if (!host || host.querySelector('.bx-sec')) return;
     const d = document.createElement('div'); d.className = 'hx-sec bx-sec';
-    d.innerHTML = `<div class="hx-title"><span>💞 Fitur berdua · nyambung 2 HP</span></div><div class="bx-row">${F.map(([e, n, l]) => `<a class="bx" href="${l}"><span>${e}</span>${n}</a>`).join('')}</div>`;
+    d.innerHTML = `<div class="hx-title"><span>💞 Fitur berdua · nyambung 2 HP</span></div><div class="bx-row">${F.map(([e, n, l]) => l === '#online' ? `<a class="bx" href="#" onclick="__onlineSheet();return false"><span>${e}</span>${n}</a>` : `<a class="bx" href="${l}"><span>${e}</span>${n}</a>`).join('')}</div>`;
     const rit = host.querySelector('.rit');
     if (rit) rit.insertAdjacentElement('afterend', d); else host.insertBefore(d, host.firstChild);
   };
@@ -2634,7 +2646,16 @@ setTimeout(() => {
   .bx-row::-webkit-scrollbar{display:none}
   .bx{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:.2rem;width:74px;padding:.65rem .3rem .55rem;border-radius:18px;background:rgba(255,255,255,.88);border:1px solid rgba(193,122,111,.16);text-decoration:none;color:var(--deep);font-size:10.5px;font-weight:500;text-align:center;line-height:1.25;box-shadow:0 3px 10px rgba(193,122,111,.06)}
   .bx span{font-size:1.45rem;line-height:1.1}
-  html.night .bx{background:var(--card);color:#f3d9d2;border-color:rgba(193,122,111,.25)}`;
+  html.night .bx{background:var(--card);color:#f3d9d2;border-color:rgba(193,122,111,.25)}
+  #ol-pick{position:fixed;inset:0;z-index:9400;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center}
+  #ol-pick .olp{width:100%;max-width:460px;background:var(--cream);border-radius:24px 24px 0 0;padding:1.1rem 1rem calc(1rem + env(safe-area-inset-bottom));text-align:center;animation:olpUp .3s ease}
+  @keyframes olpUp{from{transform:translateY(40px);opacity:0}}
+  #ol-pick b{font-size:15px;color:var(--ink)} #ol-pick p{font-size:11.5px;color:var(--muted);margin:.2rem 0 .8rem}
+  #ol-pick .olp-g{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+  #ol-pick .olp-g a{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.6rem .2rem;border-radius:16px;background:#fff;border:1px solid rgba(193,122,111,.16);text-decoration:none;color:var(--deep);font-size:10.5px;line-height:1.2}
+  #ol-pick .olp-g a span{font-size:1.5rem}
+  #ol-pick button{margin-top:.7rem;border:none;background:none;color:var(--muted);font:500 12.5px 'Poppins',sans-serif;padding:.5rem 1rem;cursor:pointer}
+  html.night #ol-pick .olp-g a{background:var(--card);color:#f3d9d2}`;
   document.head.appendChild(css);
   renderRows();
 })();
