@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<script src="who.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Untuk Dara 🤍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -388,6 +389,9 @@
   html.night .secret-year-badge.locked{background:#5a4a50}
 
   /* tombol ganti tema */
+  .who-pill{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:1rem;z-index:5;width:34px;height:34px;padding:0;border-radius:50%;border:2px solid #fff;background:var(--rose);box-shadow:0 2px 8px rgba(0,0,0,.12);font:700 14px 'Poppins',sans-serif;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .who-pill:empty{display:none}
+  html.night .who-pill{background:rgba(34,26,37,.8);border-color:rgba(255,255,255,.1)}
   .theme-btn{position:absolute;top:calc(.9rem + env(safe-area-inset-top));right:1rem;z-index:5;height:34px;min-width:34px;padding:0 .55rem;border-radius:50px;border:1px solid rgba(193,122,111,.22);background:rgba(255,255,255,.7);font-size:15px;cursor:pointer;display:flex;align-items:center;gap:.3rem;color:var(--muted);font-family:'Poppins',sans-serif}
   .theme-btn small{font-size:10.5px;max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .35s ease}
   .theme-btn.show-lbl small{max-width:170px}
@@ -436,6 +440,7 @@ var op=g('idx-opens',null);if(op){var ch=0;Object.keys(M).forEach(function(l){if
 <script src="sync.js"></script>
 <script src="cadangan.js" defer></script>
 <script src="pengingat.js"></script>
+<script src="pet.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -456,6 +461,7 @@ var op=g('idx-opens',null);if(op){var ch=0;Object.keys(M).forEach(function(l){if
 
 <!-- HOME -->
 <div id="home" class="screen active">
+  <button class="who-pill" id="who-pill" onclick="window.Who&&Who.ask()" aria-label="Ganti orang"></button>
   <button class="theme-btn" id="theme-btn" onclick="cycleTheme()" aria-label="Ganti tema"><span id="theme-ico">🌓</span><small id="theme-lbl"></small></button>
   <div class="home-top">
     <div class="greet" id="greet"></div>
@@ -463,6 +469,8 @@ var op=g('idx-opens',null);if(op){var ch=0;Object.keys(M).forEach(function(l){if
     <h1 class="home-name">Dara <em>Syifa Aulia</em></h1>
     <p class="home-sub">Semua yang ada di sini dibuat dengan tangan dan hati — khusus buat kamu.</p>
   </div>
+  <!-- TAMBAHAN: peliharaan berdua -->
+  <div class="hx pet-slot" id="pet-slot"></div>
   <!-- TAMBAHAN: kartu hari ini -->
   <div class="hx today-slot" id="today-slot"></div>
   <!-- TAMBAHAN: cari -->
@@ -699,13 +707,12 @@ const CATS = [
     sections:[
       { label:'Games & Quiz', items:[
         {feat:true,badge:'✦ Wajib Dicoba',icon:'🎡',wrap:'mauve',label:'Misi Acak',sub:'Roda · Slot · Dadu',desc:'Dapet misi romantis secara acak — pilih caranya: 🎡 Putar Roda Sayang, 🎰 Tarik tuas Slot Cinta, atau 🎲 Lempar Dadu Nasib. Ada level bucin, jackpot & wild card! 🔥',link:'misi-acak.html'},
-        {feat:true,badge:'✦ Wajib Dibuka',icon:'🐍',wrap:'mauve',label:'Ular Tangga Cinta',sub:'Papan 10x10 · pilih target',desc:'Ular tangga klasik tapi ada kejutan romantis — kena kotak spesial dapet misi atau tantangan berdua. Bisa atur target menang & aturan finish! 🤍',link:'ular-tangga.html'},
+        {feat:true,badge:'✦ Wajib Dibuka',icon:'🐍',wrap:'mauve',label:'Ular Tangga Cinta',sub:'Papan 10x10 · 🌐 bisa online beda HP',desc:'Ular tangga klasik tapi ada kejutan romantis — kena kotak spesial dapet misi atau tantangan berdua. Bisa atur target menang & aturan finish! 🤍',link:'ular-tangga.html'},
         {feat:true,badge:'✦ Wajib Dicoba',icon:'💬',wrap:'mauve',label:'Truth or Dare',sub:'3 level · auto giliran',desc:'Jawab jujur atau terima tantangan — 3 level, auto giliran, ada kategori Berdua khusus! 💬',link:'truth-or-dare.html'},
         {feat:true,badge:'✦ Wajib Dibuka',icon:'💝',wrap:'mauve',label:'Heart Catch',sub:'Tangkap hati',desc:'Tangkap hati yang jatuh dari Razan — tiap hati berisi pesan spesial, kumpulin semua 60 pesannya! 🤍',link:'heart-catch.html'},
         {feat:true,badge:'✦ Wajib Dicoba',icon:'🃏',wrap:'gold',label:'Kartu Ngobrol',sub:'Deep Talk · 36 Pertanyaan · Toples',desc:'Semua kartu pertanyaan buat ngobrol dalem jadi satu: 🃏 Deep Talk (4 topik), 💌 36 Pertanyaan Dr. Aron yang bikin makin deket, sama 🫙 Toples Pertanyaan acak. Pilih yang lagi pengen! 🤍',link:'kartu-ngobrol.html'},
         {feat:true,badge:'✦ Wajib Dicoba',icon:'🐚',wrap:'warm',label:'Congklak',sub:'tradisional · 🌐 bisa online beda HP',desc:'Sebar biji, nembak lubang seberang, kumpulin di lumbung! Sekarang bisa 🌐 main online dari HP masing-masing, main berdua di 1 HP, atau lawan komputer 3 level 🐚',link:'congklak.html'},
         {icon:'⏱️',wrap:'gold',label:'Tantangan Kecepatan',sub:'5 kategori · pilih ronde',desc:'Tantangan waktu terbatas — kata, aksi, ingatan, rasa, dan duel head-to-head. Skip = -1 poin!⏱️',link:'tantangan-kecepatan.html'},
-        {icon:'🐱',wrap:'sage',label:'Cat Sim',sub:'Rawat kucing berdua · 1,5–5 menit',desc:'Razan & Dara jadi pemilik kucing! Kasih makan, grooming, tidurin, dan elus-elus — ada random event lucu juga! 🐱',link:'pet-sim.html'},
         {icon:'🗺️',wrap:'gold',label:'Peta Emosi',sub:'6 pemberhentian',desc:'Jalan bareng di peta emosi — gantian cerita di tiap lokasi. Dari start sampai finish! 🗺️',link:'peta-emosi.html'},
         {icon:'🔍',wrap:'sage',label:'Word Search',sub:'8 kategori · 3 mode',desc:'Temukan kata-kata tentang kita yang tersembunyi di grid — main berdua, siapa yang lebih jeli? 👀',link:'word-search.html'},
         {icon:'🔤',wrap:'sage',label:'Scramble Kata',sub:'10/15/20 kata · bisa berdua',desc:'Huruf diacak — susun ulang jadi kata yang bener secepat mungkin! Semua tentang kita 🤍 Main sendiri atau gantian berdua.',link:'scramble-kata.html'},
@@ -736,7 +743,7 @@ const CATS = [
         {icon:'🎴',wrap:'pink',label:'Memory Match',sub:'💘 Kartu Cinta · bisa lawan komputer',desc:'Temukan pasangan kartu — combo beruntun dapet bonus, dan ada 💘 Kartu Cinta tersembunyi di tiap papan! 🧩',link:'memory-match.html'},
         {icon:'🖼️',wrap:'warm',label:'Tebak Kenangan',sub:'foto Memories · sendiri/berdua',desc:'Muncul satu foto dari Memories kita — tebak itu bulan apa (atau tanggal persis kalau berani 🔥). Main sendiri kejar rekor, atau adu berdua siapa paling inget!',link:'tebak-kenangan.html'},
         {icon:'🧩',wrap:'sage',label:'Puzzle Foto Kita',sub:'3×3 · 4×4 · 5×5',desc:'Foto dari Memories kita diacak jadi kotak-kotak — geser balik sampai utuh lagi. Ada rekor langkah & waktu 🧩',link:'puzzle-foto.html'},
-        {icon:'⭕',wrap:'sage',label:'Tic-Tac-Toe',sub:'Tantangan · bisa lawan komputer',desc:'Tic-Tac-Toe biasa? Terlalu gampang! Setiap mau naruh simbol harus lolos tantangan skill atau 💘 love dulu! 🎯',link:'tictactoe.html'},
+        {icon:'⭕',wrap:'sage',label:'Tic-Tac-Toe',sub:'Tantangan · 🌐 bisa online beda HP',desc:'Tic-Tac-Toe biasa? Terlalu gampang! Setiap mau naruh simbol harus lolos tantangan skill atau 💘 love dulu! 🎯',link:'tictactoe.html'},
         {icon:'🔵',wrap:'sky',label:'Empat Sejajar',sub:'1/3/5 ronde · 🌐 bisa online beda HP',desc:'Jatuhin koin gantian — yang duluan bikin 4 sejajar menang! Sekarang bisa 🌐 main online dari HP masing-masing, main berdua di 1 HP, atau lawan komputer 3 level (Jago-nya beneran mikir 😈)',link:'empat-sejajar.html'},
         {icon:'⚓',wrap:'sky',label:'Perang Kapal',sub:'Battleship · 🌐 bisa online beda HP',desc:'Umpetin 5 kapal di laut, terus tebak-tebakan posisi kapal lawan. Sekarang bisa 🌐 main online dari HP masing-masing! Atau gantian 1 HP, atau lawan komputer 3 level',link:'perang-kapal.html'},
         {icon:'👑',wrap:'rose',label:'Dam',sub:'Checkers · 🌐 bisa online beda HP',desc:'Lompatin & makan bidak lawan sampai abis, yang sampai ujung jadi raja 👑. Sekarang bisa 🌐 main online dari HP masing-masing, main berdua di 1 HP atau lawan komputer 3 level — ada undo & tombol bantuin',link:'dam.html'},
@@ -754,10 +761,21 @@ const CATS = [
         {icon:'🎳',wrap:'sky',label:'Bowling Mini',sub:'Skor asli · bisa lawan komputer',desc:'Geser posisi, swipe lempar — pin saling tabrak beneran. Incer kantong buat strike, jangan masuk talang! 🎳',link:'bowling.html'},
         {icon:'🏹',wrap:'sage',label:'Archery Duel',sub:'Angin & target gerak · bisa lawan komputer',desc:'Tarik ketapel busur, lepas! Target & angin tiap ronde sama buat berdua — murni adu jago 🏹',link:'archery.html'},
         {icon:'🎯',wrap:'rose',label:'Darts Duel',sub:'Mode 301 · bisa lawan komputer',desc:'Kunci bidikan horizontal lalu vertikal — incer Triple 20 & Bullseye! Ada mode Skor Tertinggi & 301 🎯',link:'darts.html'},
-        {icon:'🔳',wrap:'sky',label:'Titik & Kotak',sub:'strategi pensil · bisa lawan komputer',desc:'Gantian narik garis antar titik — yang nutup kotak dapet poin & jalan lagi. Jangan kasih garis ke-3! ✏️',link:'titik-kotak.html'},
-        {icon:'🔘',wrap:'sage',label:'Bolak-Balik',sub:'reversi 8×8 · bisa lawan komputer',desc:'Jepit keping lawan biar kebalik jadi warnamu. Satu langkah bisa ngebalik keadaan — pojok itu emas 👑',link:'bolak-balik.html'},
+        {icon:'🔳',wrap:'sky',label:'Titik & Kotak',sub:'strategi pensil · 🌐 bisa online',desc:'Gantian narik garis antar titik — yang nutup kotak dapet poin & jalan lagi. Jangan kasih garis ke-3! ✏️',link:'titik-kotak.html'},
+        {icon:'🔘',wrap:'sage',label:'Bolak-Balik',sub:'reversi 8×8 · 🌐 bisa online',desc:'Jepit keping lawan biar kebalik jadi warnamu. Satu langkah bisa ngebalik keadaan — pojok itu emas 👑',link:'bolak-balik.html'},
         {icon:'🏗️',wrap:'gold',label:'Susun Menara',sub:'gantian · satu tim · solo',desc:'Tap pas balok meluncur di atas menara — yang meleset kepotong. Duel siapa yang bikin roboh, atau bangun rekor berdua 🏰',link:'susun-menara.html'},
         {icon:'🐦',wrap:'pink',label:'Terbang Bareng',sub:'2 burung 1 layar · kiri vs kanan',desc:'Razan tap layar kiri, Dara tap layar kanan — dua burung terbang barengan lewatin tiang. Siapa paling lama bertahan? 🪽',link:'terbang-bareng.html'},
+        {icon:'🎲',wrap:'gold',label:'Dadu Lima',sub:'yatzy 13 kategori · bisa lawan komputer',desc:'Lempar 5 dadu sampai 3 kali, kunci yang bagus, isi 13 kategori — dari kembar tiga sampai Dadu Lima! Skor tertinggi menang 🎲',link:'dadu-lima.html'},
+        {icon:'🥢',wrap:'sage',label:'Ambil Batang',sub:'strategi nim · bisa lawan komputer',desc:'Gantian ambil batang dari satu baris — yang ambil terakhir kalah (atau menang, bisa diatur). Kelihatan gampang, ternyata mikir 🧠',link:'ambil-batang.html'},
+        {icon:'⛳',wrap:'sage',label:'Mini Golf',sub:'9 hole · tembok & air',desc:'Tarik bola kayak ketapel, pantulin ke tembok, hindarin air. Pukulan paling sedikit dalam 9 hole menang ⛳',link:'mini-golf.html'},
+        {icon:'🧱',wrap:'sky',label:'Pecah Bata',sub:'power-up · gantian',desc:'Geser papan, pantulin bola, ancurin semua bata. Ada power-up bola kembar & papan lebar — gantian cari skor tertinggi 🧱',link:'pecah-bata.html'},
+        {icon:'🏍️',wrap:'purple',label:'Jejak Cahaya',sub:'2 pemain 1 layar · bisa lawan komputer',desc:'Motor cahaya ninggalin jejak — jangan nabrak tembok atau jejak lawan. Paksa dia kejepit duluan! 🏍️',link:'jejak-cahaya.html'},
+        {icon:'🚦',wrap:'rose',label:'Ikutin Pola',sub:'ingatan · sambung pola berdua',desc:'Lampu nyala berurutan, ulangin polanya. Mode berdua: gantian nambahin satu langkah ke pola yang sama 🚦',link:'ikutin-pola.html'},
+        {icon:'🍀',wrap:'sage',label:'Dua Satu',sub:'kartu 21 · bisa lawan komputer',desc:'Tarik kartu sedekat mungkin ke 21 tanpa lewat. Berani tarik satu lagi atau udahan? 🍀',link:'dua-satu.html'},
+        {icon:'🍉',wrap:'pink',label:'Potong Buah',sub:'60 detik · awas bom',desc:'Usap layar buat motong buah yang dilempar — jangan kena bom! Gantian, skor siapa paling tinggi 🍉',link:'potong-buah.html'},
+        {icon:'💡',wrap:'gold',label:'Lampu Mati',sub:'puzzle lampu · duel',desc:'Tap lampu buat nyalain/matiin dia & tetangganya. Matiin semua dengan langkah sesedikit mungkin 💡',link:'lampu-mati.html'},
+        {icon:'💎',wrap:'mauve',label:'Permata',sub:'cocokin 3 · 90 detik',desc:'Tukar permata, bikin baris 3 warna sama biar meledak. Combo beruntun bikin skor melejit 💎',link:'permata.html'},
+        {icon:'💞',wrap:'pink',label:'Satuin Hati',sub:'2048 · adu skor papan sama',desc:'Geser papan, satuin dua hati yang sama jadi lebih gede — sampai 💍 2048! Mode berdua: papan sama, 3 menit, skor tertinggi menang 💞',link:'satuin-hati.html'},
       ]}
     ]
   },
@@ -826,6 +844,16 @@ const CATS = [
         {icon:'📖',wrap:'gold',label:'Kamus Kita',sub:'bahasa rahasia berdua',desc:'Bukuin kata-kata yang cuma kalian yang ngerti — panggilan sayang, singkatan aneh, lengkap sama asal-usulnya 🤭',link:'kamus-kita.html'},
         {icon:'👗',wrap:'mauve',label:'Dandan Berdua',sub:'outfit couple · simpan gambar',desc:'Dandanin Razan & Dara — baju, rambut, aksesoris, latar. Pas buat ngerencanain outfit ketemuan 👟',link:'dandan-berdua.html'},
         {icon:'🌀',wrap:'purple',label:'Kaleidoskop',sub:'gambar jadi mandala',desc:'Coret satu garis, langsung jadi pola simetris yang nyala. Ga bisa gambar pun pasti cantik ✨',link:'kaleidoskop.html'},
+        {icon:'🎬',wrap:'purple',label:'Bioskop Kita',sub:'daftar tontonan · rating berdua',desc:'Film, series, anime yang mau ditonton bareng — rating berdua abis nonton, plus undian kalau bingung mau nonton apa 🍿',link:'bioskop-kita.html'},
+        {icon:'🧭',wrap:'sky',label:'Jarak Kita',sub:'kompas ke dia · cuaca di sana',desc:'Berapa km jarak kalian sekarang, kompas yang nunjuk ke arah dia, sama cuaca di kotanya. Jauh tapi deket 🧭',link:'jarak-kita.html'},
+        {icon:'🎙️',wrap:'mauve',label:'Rekam Suara',sub:'voice note · efek lucu',desc:'Rekam suara, kasih efek imut, berat, gema, robot, atau radio — terus kirim ke dia 🎙️',link:'rekam-suara.html'},
+        {icon:'🖍️',wrap:'pink',label:'Buku Mewarnai',sub:'7 gambar · simpan & kirim',desc:'Pilih gambar, pilih warna, tap buat ngewarnain. Santai banget — hasilnya bisa dikirim 🎨',link:'mewarnai.html'},
+        {icon:'🧳',wrap:'gold',label:'Daftar Bareng',sub:'belanja · bawaan · kerjaan',desc:'Satu daftar buat berdua — yang dicentang di HP satu langsung keliatan di HP satunya. Ada template biar cepet ✔️',link:'daftar-bareng.html'},
+        {icon:'💧',wrap:'sky',label:'Jaga Minum',sub:'botol berdua · ingetin dia',desc:'Catet tiap minum air putih, liat botol dia udah keisi berapa — kalau masih kosong, ingetin lewat WA 💧',link:'jaga-minum.html'},
+        {icon:'📜',wrap:'warm',label:'Janji Kita',sub:'piagam berdua · tanda tangan',desc:'Tulis janji & kesepakatan berdua. Baru resmi masuk piagam kalau dua-duanya udah tanda tangan ✍️',link:'janji-kita.html'},
+        {icon:'🎆',wrap:'purple',label:'Kembang Api',sub:'pertunjukan · pesan di langit',desc:'Tap layar buat nembakin kembang api, tulis pesan buat grand finale, kirim linknya ke dia 🎆',link:'kembang-api.html'},
+        {icon:'🧘',wrap:'sage',label:'Stretching Bareng',sub:'5 rutinitas · dipandu timer',desc:'Peregangan singkat yang dipandu timer & suara — ada versi pagi, pegel kerja, sebelum tidur, sampai partner stretch berdua 🤸',link:'stretching.html'},
+        {icon:'🧪',wrap:'purple',label:'Ramuan Cinta',sub:'racik 3 bahan · buku resep',desc:'Masukin 3 bahan ke kuali, aduk, lihat ramuan apa yang jadi — lengkap sama aturan minumnya buat kalian 🔮',link:'ramuan-cinta.html'},
       ]}
     ]
   },
@@ -1158,29 +1186,53 @@ const LS = { get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); re
 
 // ── info cepat per game (p: b=berdua, s=sendiri, sb=bisa dua-duanya · t: perkiraan menit) ──
 const META = {
-  'misi-acak.html':{p:'b',t:10,kw:'roda slot dadu misi tantangan random'},'rodasayang.html':{p:'b',t:15},'ular-tangga.html':{p:'b',t:20},'slot-cinta.html':{p:'b',t:10},'truth-or-dare.html':{p:'b',t:20,kw:'jujur tantangan'},
+  'misi-acak.html':{p:'b',t:10,kw:'roda slot dadu misi tantangan random'},'rodasayang.html':{p:'b',t:15},'ular-tangga.html':{p:'b',t:20,kw:'online beda hp'},'slot-cinta.html':{p:'b',t:10},'truth-or-dare.html':{p:'b',t:20,kw:'jujur tantangan'},
   'heart-catch.html':{p:'s',t:5},'kartu-ngobrol.html':{p:'b',t:30,kw:'ngobrol pertanyaan deep talk 36 toples'},'deep-talk.html':{p:'b',t:30,kw:'ngobrol pertanyaan'},'tantangan-kecepatan.html':{p:'b',t:10},'dadu-nasib.html':{p:'b',t:5},
-  '36-questions.html':{p:'b',t:45,kw:'ngobrol pertanyaan'},'jar-of-questions.html':{p:'b',t:15,kw:'ngobrol pertanyaan'},'pet-sim.html':{p:'b',t:3,kw:'kucing hewan'},'peta-emosi.html':{p:'b',t:20,kw:'ngobrol cerita'},
+  '36-questions.html':{p:'b',t:45,kw:'ngobrol pertanyaan'},'jar-of-questions.html':{p:'b',t:15,kw:'ngobrol pertanyaan'},'peta-emosi.html':{p:'b',t:20,kw:'ngobrol cerita'},
   'word-search.html':{p:'sb',t:5,kw:'kata huruf'},'scramble-kata.html':{p:'sb',t:5,kw:'kata huruf'},'tebak-kata.html':{p:'sb',t:5,kw:'kata huruf wordle'},'suit-digital.html':{p:'sb',t:5,kw:'suit gunting batu kertas komputer'},
   'reaksi-tercepat.html':{p:'sb',t:5,kw:'cepat refleks'},'balon-pompa.html':{p:'sb',t:10},'tebak-warna.html':{p:'sb',t:5,kw:'cepat refleks komputer bot'},'tabletennis.html':{p:'sb',t:5,kw:'olahraga bola pingpong'},
   'panas-dingin.html':{p:'sb',t:10,kw:'komputer bot'},'tarik-tambang.html':{p:'sb',t:5,kw:'cepat tap komputer bot'},'time-bomb.html':{p:'b',t:10},'aku-belum-pernah.html':{p:'b',t:15,kw:'ngobrol pengakuan'},
   'lanjut-cerita.html':{p:'b',t:15,kw:'cerita nulis'},'detak-jantung.html':{p:'b',t:10},'cermin.html':{p:'b',t:10,kw:'gerakan'},'tarik-pilihan.html':{p:'b',t:15,kw:'debat voting'},
   'frekuensi.html':{p:'b',t:10,kw:'kata'},'menit-bisu.html':{p:'b',t:10,kw:'tatap mata'},'sambung-kata.html':{p:'b',t:10,kw:'kata'},'bikin-ketawa.html':{p:'b',t:10,kw:'lucu ketawa'},
   'who-knows-me.html':{p:'b',t:15,kw:'kuis tebak kenal online beda hp'},'aku-adalah.html':{p:'b',t:15,kw:'tebak'},'bunuh-serangga.html':{p:'sb',t:5,kw:'tap cepat komputer bot'},'masak-bareng.html':{p:'b',t:10,kw:'masak kerja sama'},
-  'bangun-rumah.html':{p:'b',t:15,kw:'strategi rumah'},'charades.html':{p:'b',t:10,kw:'tebak gaya'},'congklak.html':{p:'sb',t:10,kw:'congklak dakon tradisional biji lumbung komputer bot online'},'dam.html':{p:'sb',t:15,kw:'checkers dam catur strategi raja komputer bot online'},'perang-kapal.html':{p:'sb',t:10,kw:'battleship kapal laut tembak strategi komputer bot online'},'empat-sejajar.html':{p:'sb',t:10,kw:'connect four strategi koin komputer bot online'},'puzzle-foto.html':{p:'s',t:5,kw:'puzzle geser foto memories slide'},'tebak-kenangan.html':{p:'sb',t:5,kw:'foto memories kenangan tebak ingat'},'memory-match.html':{p:'sb',t:10,kw:'kartu ingatan komputer bot'},'tictactoe.html':{p:'sb',t:10,kw:'xo'},
+  'bangun-rumah.html':{p:'b',t:15,kw:'strategi rumah'},'charades.html':{p:'b',t:10,kw:'tebak gaya'},'congklak.html':{p:'sb',t:10,kw:'congklak dakon tradisional biji lumbung komputer bot online'},'dam.html':{p:'sb',t:15,kw:'checkers dam catur strategi raja komputer bot online'},'perang-kapal.html':{p:'sb',t:10,kw:'battleship kapal laut tembak strategi komputer bot online'},'empat-sejajar.html':{p:'sb',t:10,kw:'connect four strategi koin komputer bot online'},'puzzle-foto.html':{p:'s',t:5,kw:'puzzle geser foto memories slide'},'tebak-kenangan.html':{p:'sb',t:5,kw:'foto memories kenangan tebak ingat'},'memory-match.html':{p:'sb',t:10,kw:'kartu ingatan komputer bot'},'tictactoe.html':{p:'sb',t:10,kw:'online beda hp xo'},
   'aquarium.html':{p:'b',t:5,kw:'ikan gacha'},'gartic-berdua.html':{p:'b',t:15,kw:'gambar tebak online beda hp draw something'},'frog-battle.html':{p:'sb',t:5,kw:'katak komputer bot'},'badminton.html':{p:'sb',t:10,kw:'olahraga kok komputer bot'},
   'penalty.html':{p:'sb',t:10,kw:'olahraga bola sepak komputer bot'},'air-hockey.html':{p:'sb',t:10,kw:'olahraga hoki komputer bot'},'coin-drop.html':{p:'sb',t:10,kw:'plinko koin komputer bot'},'balance-beam.html':{p:'sb',t:10,kw:'olahraga keseimbangan komputer bot'},
   'sort-blocks.html':{p:'sb',t:10,kw:'puzzle komputer bot'},'guess-number.html':{p:'sb',t:10,kw:'angka tebak'},'high-card.html':{p:'sb',t:5,kw:'kartu'},'bowling.html':{p:'sb',t:15,kw:'olahraga bola komputer bot'},
   'archery.html':{p:'sb',t:10,kw:'olahraga panah komputer bot'},
-  'titik-kotak.html':{p:'sb',t:10,kw:'dots boxes garis kotak strategi komputer bot'},'bolak-balik.html':{p:'sb',t:15,kw:'reversi othello strategi keping komputer bot'},'susun-menara.html':{p:'sb',t:5,kw:'stack tumpuk balok tap cepat'},'terbang-bareng.html':{p:'sb',t:5,kw:'flappy burung terbang tap'},'darts.html':{p:'sb',t:10,kw:'olahraga panah komputer bot'},
+  'titik-kotak.html':{p:'sb',t:10,kw:'online beda hp dots boxes garis kotak strategi komputer bot'},'bolak-balik.html':{p:'sb',t:15,kw:'online beda hp reversi othello strategi keping komputer bot'},'susun-menara.html':{p:'sb',t:5,kw:'stack tumpuk balok tap cepat'},'terbang-bareng.html':{p:'sb',t:5,kw:'flappy burung terbang tap'},'darts.html':{p:'sb',t:10,kw:'olahraga panah komputer bot'},
+  'dadu-lima.html':{p:'sb',t:15,kw:'yatzy yahtzee dadu kombinasi komputer bot'},'ambil-batang.html':{p:'sb',t:5,kw:'nim strategi batang korek komputer bot'},'mini-golf.html':{p:'sb',t:15,kw:'golf olahraga bola pukul'},'pecah-bata.html':{p:'sb',t:10,kw:'breakout arkanoid bola bata'},'jejak-cahaya.html':{p:'sb',t:5,kw:'tron snake motor cepat refleks komputer bot'},'ikutin-pola.html':{p:'sb',t:5,kw:'simon ingatan memori warna urutan'},'dua-satu.html':{p:'sb',t:10,kw:'blackjack kartu 21 komputer bot'},'potong-buah.html':{p:'sb',t:5,kw:'fruit ninja usap swipe cepat'},'lampu-mati.html':{p:'sb',t:10,kw:'lights out puzzle logika'},'permata.html':{p:'sb',t:5,kw:'match 3 candy crush permata puzzle'},'satuin-hati.html':{p:'sb',t:10,kw:'2048 angka geser puzzle hati'},
 };
 // ═══ LABEL "BARU" ═══
 // Tiap kali update/tambah game: tambah atau ganti 1 baris di sini → 'nama-file.html': 'TAHUN-BULAN-TANGGAL'
 // Label muncul 30 hari dari tanggal itu, hilang lebih cepat kalau game-nya udah dibuka setelah tanggal update.
 const UPDATED = {
+  'satuin-hati.html': '2026-10-14',
+  'dadu-lima.html': '2026-10-14',
+  'ambil-batang.html': '2026-10-14',
+  'mini-golf.html': '2026-10-14',
+  'pecah-bata.html': '2026-10-14',
+  'jejak-cahaya.html': '2026-10-14',
+  'ikutin-pola.html': '2026-10-14',
+  'dua-satu.html': '2026-10-14',
+  'potong-buah.html': '2026-10-14',
+  'lampu-mati.html': '2026-10-14',
+  'permata.html': '2026-10-14',
+  'bioskop-kita.html': '2026-10-14',
+  'jarak-kita.html': '2026-10-14',
+  'rekam-suara.html': '2026-10-14',
+  'mewarnai.html': '2026-10-14',
+  'daftar-bareng.html': '2026-10-14',
+  'jaga-minum.html': '2026-10-14',
+  'janji-kita.html': '2026-10-14',
+  'kembang-api.html': '2026-10-14',
+  'stretching.html': '2026-10-14',
+  'ramuan-cinta.html': '2026-10-14',
+  'tictactoe.html': '2026-10-14',
+  'ular-tangga.html': '2026-10-14',
+  'titik-kotak.html': '2026-10-14',
+  'bolak-balik.html': '2026-10-14',
   'keuangan-berdua.html': '2026-10-13',
-  'titik-kotak.html': '2026-10-13',
-  'bolak-balik.html': '2026-10-13',
   'susun-menara.html': '2026-10-13',
   'terbang-bareng.html': '2026-10-13',
   'origami-hati.html': '2026-10-13',
@@ -1269,7 +1321,6 @@ const UPDATED = {
   'suit-digital.html':          '2026-10-01',
   'tebak-kata.html':            '2026-10-01',
   'peta-emosi.html':            '2026-10-01',
-  'pet-sim.html':               '2026-10-01',
   'kartu-ngobrol.html':         '2026-10-12',
   'misi-acak.html':             '2026-10-12',
   'jar-of-questions.html':      '2026-10-01',
@@ -1359,7 +1410,8 @@ function bindMinis(root) { root.querySelectorAll('.mini').forEach(el => el.oncli
 function greet() {
   const h = new Date().getHours();
   const g = h < 4 ? ['🌙', 'Udah malem banget', 'jangan begadang ya'] : h < 10 ? ['☀️', 'Selamat pagi', 'semangat hari ini'] : h < 15 ? ['🌤️', 'Selamat siang', 'udah makan belum?'] : h < 18 ? ['🌇', 'Selamat sore', 'capek ya hari ini?'] : ['🌙', 'Selamat malam', 'istirahat yang cukup ya'];
-  $('greet').innerHTML = `${g[0]} <b>${g[1]}, Dara</b> · ${g[2]} 🤍`;
+  $('greet').innerHTML = `${g[0]} <b>${g[1]}, ${(window.Who && Who.me()) || 'Dara'}</b> · ${g[2]} 🤍`;
+  if (window.Who && Who.me() === 'Razan') { const hp = document.querySelector('#home .home-pill'); if (hp) hp.textContent = '💙 Mode Razan · web buat Dara'; }
 }
 
 
@@ -1890,6 +1942,7 @@ setTimeout(() => {
     'kalender-mood.html': 'ht', 'jurnal-syukur.html': 'ht', 'stiker-wa.html': 'ks', 'bahasa-cinta.html': 'sk', 'kartu-pacar.html': 'sk', 'penghargaan.html': 'sk', 'tarot-cinta.html': 's',
     'kalkulator-cinta.html': 's', 'pop-it.html': 'ts', 'mesin-terserah.html': 's', 'biodata-binder.html': 'sm',
     'origami-hati.html': 'rk', 'resep-kita.html': 'hm', 'piano-mini.html': 'sk', 'gelang-manik.html': 'sk', 'hias-kue.html': 'sk', 'bikin-komik.html': 'sk', 'masa-depan.html': 'r', 'kamus-kita.html': 'm', 'dandan-berdua.html': 's', 'kaleidoskop.html': 'ts',
+    'bioskop-kita.html': 'sm', 'jarak-kita.html': 'hr', 'rekam-suara.html': 'ks', 'mewarnai.html': 'ts', 'daftar-bareng.html': 'h', 'jaga-minum.html': 'h', 'janji-kita.html': 'rm', 'kembang-api.html': 'rk', 'stretching.html': 'ht', 'ramuan-cinta.html': 'sk',
   };
   const isBot = it => { const m = META[it.link] || {}; return /komputer|\bbot\b/i.test((m.kw || '') + ' ' + it.sub + ' ' + it.desc); };
   const FILTERS = {
@@ -2389,10 +2442,10 @@ setTimeout(() => {
   function cardHTML() {
     if (!B() || !B().enabled) return '';
     const me = B().me(), o = B().other(me);
-    if (!get('berdua-me', null)) return `<div class="st-card st-ask"><b>👋 Ini HP siapa?</b><p>Biar status, kangen & fitur berdua nyambung ke orang yang bener</p><div><button class="Razan" onclick="__stWho('Razan')">🙋‍♂️ Aku Razan</button><button class="Dara" onclick="__stWho('Dara')">🙋‍♀️ Aku Dara</button></div></div>`;
-    return `<div class="st-card"><div class="st-two">${half(o, false)}${half(me, true)}</div><p class="st-foot">📍 Status sekarang · HP ini punya <b class="${me}">${me}</b> · <button onclick="__stWho('${o}')">bukan aku</button></p></div>`;
+    if (!(window.Who && Who.ready())) return `<div class="st-card st-ask"><b>👋 Ini HP siapa?</b><p>Biar status, kangen & fitur berdua nyambung ke orang yang bener</p><div><button class="Razan" onclick="__stWho('Razan')">🙋‍♂️ Aku Razan</button><button class="Dara" onclick="__stWho('Dara')">🙋‍♀️ Aku Dara</button></div></div>`;
+    return `<div class="st-card"><div class="st-two">${half(o, false)}${half(me, true)}</div><p class="st-foot">📍 Status sekarang · HP ini punya <b class="${me}">${me}</b> · <button onclick="__stWho()">ganti</button></p></div>`;
   }
-  window.__stWho = w => { B().setMe(w); ['mood-me', 'syukur-me', 'kangen-me', 'ketemu-me', 'wish-me'].forEach(k => { try { localStorage.setItem(k, JSON.stringify(w)); } catch (e) {} }); renderRows(); };
+  window.__stWho = w => { if (window.Who) Who.ask(w || null, { force: !Who.ready() }); };
   const _rr6 = renderRows;
   renderRows = function () {
     _rr6();
@@ -2612,12 +2665,14 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-14 15:30', t: '🐾 Peliharaan berdua sekarang tinggal di menu utama — pilih hewannya, kasih nama, rawat bareng! Plus 💞 game baru Satuin Hati, 👥 ganti user sekali buat semua halaman (pakai PIN), warna tema ikut orangnya, & notif khusus buat masing-masing.' },
+    { d: '2026-10-14', t: '10 game & 10 hadiah baru — sekarang total 70 game & 70 hadiah! 🎉 Plus 🌐 Tic Tac Toe, Titik & Kotak, Bolak-Balik & Ular Tangga sekarang bisa dimainin online beda HP.' },
     { d: '2026-10-13', t: '4 game & 10 hadiah baru — sekarang total 60 game & 60 hadiah! 🎉 Plus 🤑 Keuangan Berdua, 💾 Cadangan data, ⏰ Pengingat hari spesial, & semua halaman dibikin lebih ringan.' },
   ];
   const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const today = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; })();
-  const allDates = Object.values(UPDATED).concat(KABAR.map(k => k.d)).filter(d => d <= today).sort();
+  const allDates = Object.values(UPDATED).concat(KABAR.map(k => k.d)).filter(d => d.slice(0, 10) <= today).sort();
   const maxD = allDates[allDates.length - 1] || '';
   // pertama kali fitur ini ada: tampilin update paling terakhir aja
   let seen = get('idx-news-seen', null);
@@ -2664,7 +2719,7 @@ setTimeout(() => {
     b.style.display = s === 'default' ? '' : 'none';
   }
   function show(force) {
-    const fresh = d => d > seen && d <= today;
+    const fresh = d => d > seen && d.slice(0, 10) <= today;
     let items = ALL.filter(it => UPDATED[it.link] && fresh(UPDATED[it.link]));
     const news = KABAR.filter(k => fresh(k.d));
     if (force && !items.length && !news.length) { items = ALL.filter(it => UPDATED[it.link]).sort((a, b) => UPDATED[b.link].localeCompare(UPDATED[a.link])).slice(0, 6); }
@@ -2702,6 +2757,100 @@ setTimeout(() => {
   if (notifState() === 'granted') navigator.serviceWorker.ready.then(reg => { if ('periodicSync' in reg) reg.periodicSync.register('cek-kabar', { minInterval: 6 * 3600 * 1000 }).catch(() => {}); }).catch(() => {});
 })();
 
+})();
+</script>
+
+<script>
+/* ═══ SIAPA YANG PAKAI HP INI (who.js) ═══ */
+(function () {
+  function paint() { var b = document.getElementById('who-pill'); if (!b || !window.Who) return; var w = Who.me(); b.textContent = w ? w[0] : '?'; b.title = w ? 'HP ini punya ' + w + ' · tap buat ganti' : 'Pilih orang'; b.style.background = w === 'Razan' ? '#5a8fcc' : w === 'Dara' ? '#d4718a' : '#c9a96e'; }
+  paint();
+  if (!window.Who || Who.ready()) return;
+  var welcome = document.getElementById('s-welcome'), open = function () { return welcome && !welcome.classList.contains('hide') && getComputedStyle(welcome).display !== 'none'; };
+  var show = function () { setTimeout(function () { if (!Who.ready()) Who.ask(null, { force: true }); }, 500); };
+  if (open() && typeof enterApp === 'function') { var _e = enterApp; enterApp = function () { _e.apply(this, arguments); show(); }; } else show();
+})();
+</script>
+
+<style>
+  .pet-slot{margin:.4rem auto .2rem!important}
+  #home.searching .pet-slot{display:none}
+  .pc{position:relative;border-radius:22px;background:rgba(255,255,255,.88);border:1px solid rgba(193,122,111,.16);box-shadow:0 6px 18px rgba(193,122,111,.09);padding:.75rem .8rem .7rem;overflow:hidden}
+  html.night .pc{background:var(--card);border-color:rgba(193,122,111,.25)}
+  .pc-h{display:flex;align-items:center;gap:.7rem}
+  .pc-av{position:relative;flex:0 0 auto;width:74px;height:74px;border-radius:22px;background:radial-gradient(circle at 50% 70%,var(--warm),transparent 70%);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0}
+  .pc-av .pe{font-size:46px;line-height:1;display:block;animation:pcBob 2.6s ease-in-out infinite;transform-origin:50% 90%}
+  .pc-av .pa{position:absolute;font-size:20px;line-height:1;pointer-events:none}
+  .pc-av .pa.top{top:2px;left:50%;transform:translateX(-50%) rotate(-8deg)}
+  .pc-av .pa.side{top:6px;right:6px}.pc-av .pa.eye{top:24px;left:50%;transform:translateX(-50%);font-size:22px}.pc-av .pa.neck{bottom:6px;left:50%;transform:translateX(-50%)}
+  .pc-av .zz{position:absolute;top:-2px;right:0;font-size:16px;animation:pcZ 2s ease-in-out infinite}
+  .pc.f-tidur .pe{animation:pcBreath 3.5s ease-in-out infinite;filter:saturate(.7) brightness(.9)}
+  .pc.f-sedih .pe,.pc.f-ngambek .pe{animation:pcSad 3s ease-in-out infinite;filter:saturate(.75)}
+  .pc.f-senang .pe{animation:pcHop 1.6s ease-in-out infinite}
+  .pc.hop .pe{animation:pcJump .6s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes pcBob{50%{transform:translateY(-3px) rotate(2deg)}}
+  @keyframes pcBreath{50%{transform:scale(1.04,.97)}}
+  @keyframes pcSad{50%{transform:rotate(-6deg) translateY(2px)}}
+  @keyframes pcHop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+  @keyframes pcJump{40%{transform:translateY(-16px) scale(1.1)}}
+  @keyframes pcZ{50%{transform:translate(4px,-6px);opacity:.4}}
+  .pc-i{flex:1;min-width:0}
+  .pc-n{display:flex;align-items:baseline;gap:.35rem;flex-wrap:wrap}
+  .pc-n b{font-size:15px;font-weight:700;color:var(--ink)}
+  .pc-n small{font-size:10px;font-weight:600;color:var(--rose);background:rgba(193,122,111,.1);border-radius:20px;padding:.05rem .45rem}
+  .pc-m{font-size:11.5px;color:var(--muted);line-height:1.4;margin:.15rem 0 .35rem}
+  .pc-bars{display:grid;grid-template-columns:1fr 1fr;gap:.25rem .6rem}
+  .pc-bar{display:flex;align-items:center;gap:.3rem;font-size:10px}
+  .pc-bar i{flex:1;height:6px;border-radius:6px;background:rgba(193,122,111,.13);overflow:hidden;font-style:normal}
+  .pc-bar i b{display:block;height:100%;border-radius:6px;transition:width .5s}
+  .pc-x{position:absolute;top:.5rem;right:.55rem;border:none;background:none;font-size:13px;color:var(--muted);cursor:pointer;padding:.2rem .3rem}
+  .pc-acts{display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem;margin-top:.6rem}
+  .pc-acts button{border:1px solid rgba(193,122,111,.18);background:var(--cream);border-radius:14px;padding:.4rem 0 .3rem;font:500 9.5px 'Poppins',sans-serif;color:var(--deep);cursor:pointer;line-height:1.2}
+  .pc-acts button span{display:block;font-size:17px;margin-bottom:.05rem}
+  .pc-acts button:active{transform:scale(.93)}
+  .pc-f{display:flex;justify-content:space-between;align-items:center;gap:.4rem;margin-top:.5rem;font-size:10.5px;color:var(--muted)}
+  .pc-f a{color:var(--rose);font-weight:600;text-decoration:none;white-space:nowrap}
+  .pc.mini .pc-acts,.pc.mini .pc-bars,.pc.mini .pc-f{display:none}
+  .pc.mini .pc-av{width:46px;height:46px;border-radius:14px}.pc.mini .pc-av .pe{font-size:30px}.pc.mini .pc-av .pa{display:none}
+  .pc.mini .pc-m{margin:0}
+  .pc-new{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:inherit}
+  .pc-new .eggs{font-size:30px;letter-spacing:-.15em;flex:0 0 auto}
+  .pc-hearts{position:absolute;pointer-events:none;font-size:15px;animation:pcHeart 1s ease-out forwards}
+  @keyframes pcHeart{to{transform:translateY(-38px) scale(1.3);opacity:0}}
+</style>
+<script>
+/* ═══ PELIHARAAN DI HOME (pet.js) ═══ */
+(function () {
+  const slot = document.getElementById('pet-slot'); if (!slot || !window.Pet) return;
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const COL = { k: '#e8a25a', s: '#e87a95', b: '#6fb3e0', e: '#e8c94a' };
+  const POS = { pita: 'side', bunga: 'side', topi: 'top', kacamata: 'eye', syal: 'neck', mahkota: 'top', toga: 'top' };
+  function toast(m) { const t = document.createElement('div'); t.textContent = m; t.style.cssText = 'position:fixed;left:50%;bottom:calc(5.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(45,31,26,.92);color:#fff;padding:.6rem 1rem;border-radius:50px;font:500 12.5px Poppins,sans-serif;z-index:9500;max-width:88vw;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.2)'; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); }
+  function render(hop) {
+    const st = Pet.state();
+    if (!st) { slot.innerHTML = `<div class="pc"><a class="pc-new" href="peliharaan.html"><span class="eggs">🐱🐶🐰</span><span class="pc-i"><span class="pc-n"><b>Adopsi peliharaan yuk!</b></span><span class="pc-m" style="display:block">Satu peliharaan buat berdua — pilih hewannya, kasih nama, rawat bareng 🐾</span></span><span style="color:var(--rose);font-weight:700">→</span></a></div>`; return; }
+    const A = Pet.animal(st.a), v = Pet.now(st), L = Pet.lvl(st.xp), S = Pet.stage(L), md = Pet.mood(st), acc = Pet.accOf(st.acc), mini = get('pet-mini', false);
+    const last = st.log[0];
+    slot.innerHTML = `<div class="pc f-${md.f}${mini ? ' mini' : ''}${hop ? ' hop' : ''}" id="pc">
+      <button class="pc-x" id="pc-x" aria-label="Lipat">${mini ? '▾' : '▴'}</button>
+      <div class="pc-h"><button class="pc-av" id="pc-av" aria-label="Buka kamar"><span class="pe" style="font-size:${Math.round((mini ? 30 : 46) * S.sc)}px">${A.e}</span>${acc.e ? `<span class="pa ${POS[acc.k] || 'side'}">${acc.e}</span>` : ''}${Pet.asleep(st) ? '<span class="zz">💤</span>' : ''}</button>
+      <div class="pc-i"><div class="pc-n"><b>${(st.n || A.n).replace(/</g, '&lt;')}</b><small>Lv ${L} · ${S.n}</small></div><p class="pc-m">${md.t}</p>
+      <div class="pc-bars">${Pet.STATS.map(([k, ic]) => `<span class="pc-bar">${ic}<i><b style="width:${Math.round(v[k])}%;background:${v[k] < 30 ? '#e05a5a' : COL[k]}"></b></i></span>`).join('')}</div></div></div>
+      <div class="pc-acts">${Object.entries(Pet.ACTS).map(([k, ic]) => `<button data-a="${k}"><span>${ic}</span>${{ makan: 'Makan', elus: 'Elus', mandi: 'Mandi', main: 'Main', tidur: 'Tidur' }[k]}</button>`).join('')}</div>
+      <div class="pc-f"><span>${last ? `${last.w === Pet.me() ? 'Kamu' : last.w} ${Pet.ACTN[last.a]} ${Pet.ago(last.t)}` : 'Belum diurus hari ini'}</span><a href="peliharaan.html">Buka kamar →</a></div></div>`;
+    document.getElementById('pc-x').onclick = () => { set('pet-mini', !mini); render(); };
+    document.getElementById('pc-av').onclick = e => { if (mini) { set('pet-mini', false); render(); return; } location.href = 'peliharaan.html'; };
+    slot.querySelectorAll('.pc-acts button').forEach(b => b.onclick = () => {
+      const r = Pet.act(b.dataset.a); toast(r.up ? `🎉 Naik ke level ${r.up}!` : r.msg);
+      try { navigator.vibrate && navigator.vibrate(r.ok ? 15 : [30, 30, 30]); } catch (e) {}
+      if (r.ok) { try { window.SFX && SFX.play('pop'); } catch (e) {} render(true); const av = document.getElementById('pc-av'); if (av) for (let i = 0; i < 4; i++) { const h = document.createElement('span'); h.className = 'pc-hearts'; h.textContent = ['💕', '✨', '💗', '⭐'][i]; h.style.left = (10 + i * 15) + 'px'; h.style.top = '10px'; h.style.animationDelay = i * .08 + 's'; av.appendChild(h); setTimeout(() => h.remove(), 1300); } }
+    });
+  }
+  render();
+  try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && ev.apps.includes('pet')) render(); }); } catch (e) {}
+  setInterval(() => { if (!document.hidden) render(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 })();
 </script>
 </body>
