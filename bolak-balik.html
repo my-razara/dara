@@ -2,9 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<script src="who.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Bolak-Balik — Razan & Dara 🔘</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
@@ -106,7 +109,7 @@
   <div class="scr on" id="s-pick"><div class="pk">
     <span class="ico">🔘</span><h1 class="title">Bolak-<span>Balik</span></h1>
     <p class="sub">Jepit keping lawan di antara keping kamu — semuanya kebalik jadi warna kamu! Papan paling penuh warnamu menang 💙💗</p>
-    <button class="btn" style="margin-top:.8rem" onclick="start(null)">👫 Main berdua di 1 HP</button>
+    <button class="btn" id="b-duo" style="margin-top:.8rem" onclick="start(null)">👫 Main berdua di 1 HP</button>
     <div class="panel"><h3>🤖 Atau lawan komputer</h3><div class="chips" id="p-lv"><button data-v="0">😊 Santai</button><button data-v="1">🙂 Sedang</button><button data-v="2">😈 Jago</button></div>
       <div class="bot-row"><button class="r" onclick="start('Dara')">🙋‍♂️ Aku Razan</button><button class="d" onclick="start('Razan')">🙋‍♀️ Aku Dara</button></div></div>
     <details class="how"><summary>📖 Cara main</summary><ul><li>Taruh keping di petak bertitik putih.</li><li>Langkah sah = keping lawan kejepit lurus (mendatar, tegak, atau miring) di antara keping baru & keping kamu yang lain.</li><li>Semua keping yang kejepit kebalik jadi warnamu.</li><li>Kalau ga ada langkah sah, giliran dilewati. Papan penuh / dua-duanya buntu → hitung keping!</li><li>Tips: pojok itu emas 👑</li></ul></details>
@@ -116,6 +119,7 @@
     <div class="sb"><div class="p R" id="pR"><b id="sR">2</b><small id="nR">Razan</small></div><div class="p D" id="pD"><small id="nD">Dara</small><b id="sD">2</b></div></div>
     <p class="msg" id="msg"></p>
     <div class="bd" id="bd"></div>
+    <p class="ol-st" id="ol-st"></p>
     <div class="tools"><button onclick="undo()" id="undo-b">↩️ Batal langkah</button><button onclick="hints=!hints;lsSet('bb-hint',hints);draw()" id="hint-b">💡 Petunjuk</button></div>
   </div>
 </div>
@@ -194,6 +198,7 @@ function record(key, w, bot, level) {
 }
 function recHTML(r) { return `Rekor berdua: <b style="color:var(--rz)">Razan ${r.Razan}</b> · <b style="color:var(--dr)">Dara ${r.Dara}</b>${r.seri ? ` · seri ${r.seri}` : ''}${r.beat.some(Boolean) ? `<br>Ngalahin komputer: ${['Santai', 'Sedang', 'Jago'].map((n, i) => `${n} ${r.beat[i]}x`).join(' · ')}` : ''}`; }
 
+let ONLINE = false, HUMAN = null, REPLAY = false;
 let level = lsGet('bb-lv', 1), hints = lsGet('bb-hint', true), BOT = null, S = [], turn = 'Razan', over = true, busy = false, hist = [], last = -1, flipped = [], first = 'Dara';
 const DIR = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
 const W8 = [100, -20, 10, 5, 5, 10, -20, 100, -20, -50, -2, -2, -2, -2, -50, -20, 10, -2, 1, 1, 1, 1, -2, 10, 5, -2, 1, 0, 0, 1, -2, 5, 5, -2, 1, 0, 0, 1, -2, 5, 10, -2, 1, 1, 1, 1, -2, 10, -20, -50, -2, -2, -2, -2, -50, -20, 100, -20, 10, 5, 5, 10, -20, 100];
@@ -216,43 +221,46 @@ function flipsFor(Bd, i, p) {
 const moves = (Bd, p) => { const m = []; for (let i = 0; i < 64; i++) if (!Bd[i] && flipsFor(Bd, i, p).length) m.push(i); return m; };
 const count = (Bd, p) => Bd.filter(x => x === p).length;
 function start(bot) { BOT = bot; first = bot ? 'Razan' : opp(first); begin(); }
-function again() { if (BOT) begin(); else start(null); }
+function again() { if (ONLINE) { Online.invite(); return; } if (BOT) begin(); else start(null); }
 function begin() {
   S = Array(64).fill(null); S[27] = S[36] = 'Dara'; S[28] = S[35] = 'Razan';
   turn = first; over = false; busy = false; hist = []; last = -1; flipped = [];
-  $('nR').textContent = BOT === 'Razan' ? '🤖 Komputer' : BOT ? 'Razan (kamu)' : 'Razan';
-  $('nD').textContent = BOT === 'Dara' ? '🤖 Komputer' : BOT ? 'Dara (kamu)' : 'Dara';
+  $('nR').textContent = BOT === 'Razan' ? '🤖 Komputer' : BOT || HUMAN === 'Razan' ? 'Razan (kamu)' : 'Razan';
+  $('nD').textContent = BOT === 'Dara' ? '🤖 Komputer' : BOT || HUMAN === 'Dara' ? 'Dara (kamu)' : 'Dara';
   scr('s-game'); draw(); next();
 }
-function quit() { if (!over && hist.length && !confirm('Udahan mainnya?')) return; toMenu(); }
-function toMenu() { over = true; scr('s-pick'); paintPick(); }
+function quit() { if (!over && hist.length && !confirm(ONLINE ? 'Keluar dari game online? Pasanganmu bakal dikabarin.' : 'Udahan mainnya?')) return; if (ONLINE) { Online.leave(); ONLINE = false; HUMAN = null; } toMenu(); }
+function toMenu() { if (ONLINE) { Online.leave(true); ONLINE = false; HUMAN = null; } over = true; scr('s-pick'); paintPick(); }
 function draw() {
-  const ok = over || (BOT && turn === BOT) ? [] : moves(S, turn);
+  const ok = over || (BOT && turn === BOT) || (ONLINE && turn !== HUMAN) ? [] : moves(S, turn);
   $('bd').innerHTML = S.map((v, i) => `<div class="cl ${ok.includes(i) ? 'ok' : ''} ${hints ? '' : 'hide-hint'} ${i === last ? 'lst' : ''}" data-i="${i}">${v ? `<div class="dk ${v[0]} ${flipped.includes(i) ? 'flip' : ''}"></div>` : ''}</div>`).join('');
   $('bd').querySelectorAll('.cl').forEach(c => c.onclick = () => tap(+c.dataset.i));
   $('sR').textContent = count(S, 'Razan'); $('sD').textContent = count(S, 'Dara');
   $('pR').classList.toggle('now', !over && turn === 'Razan'); $('pD').classList.toggle('now', !over && turn === 'Dara');
   $('hint-b').textContent = hints ? '💡 Petunjuk: nyala' : '💡 Petunjuk: mati';
-  $('undo-b').style.display = hist.length && !over ? '' : 'none';
+  $('undo-b').style.display = hist.length && !over && !ONLINE ? '' : 'none';
 }
 function tap(i) {
-  if (over || busy || (BOT && turn === BOT)) return;
+  if (over || busy || (BOT && turn === BOT) || (ONLINE && turn !== HUMAN)) return;
   const f = flipsFor(S, i, turn);
   if (!f.length) { vib(15); $('msg').textContent = '🙅 Di situ ga ada keping lawan yang kejepit'; return; }
+  if (ONLINE) Online.move(i);
   play(i);
 }
 function play(i) {
   const f = flipsFor(S, i, turn);
   hist.push({ S: S.slice(), turn, last });
   S[i] = turn; f.forEach(j => S[j] = turn); last = i; flipped = f;
-  vib(f.length > 3 ? [15, 25, 15] : 10); try { window.SFX && SFX.play(f.length > 3 ? 'coin' : 'seed'); } catch (x) {}
+  if (!REPLAY) { vib(f.length > 3 ? [15, 25, 15] : 10); try { window.SFX && SFX.play(f.length > 3 ? 'coin' : 'seed'); } catch (x) {} }
   const got = f.length; turn = opp(turn);
   if (!moves(S, turn).length) {
-    if (!moves(S, opp(turn)).length) { draw(); return finish(); }
+    if (!moves(S, opp(turn)).length) { if (REPLAY) { over = true; return; } draw(); return finish(); }
+    if (REPLAY) { turn = opp(turn); return; }
     turn = opp(turn); draw();
     $('msg').textContent = `😮 ${who(opp(turn))} ga bisa jalan — giliran dilewati. ${who(turn)} jalan lagi!`;
     return next(true);
   }
+  if (REPLAY) return;
   draw(); if (got >= 4) $('msg').textContent = `🔄 ${got} keping kebalik sekaligus!`;
   next(got >= 4);
 }
@@ -263,9 +271,10 @@ function undo() {
   if (!h) return;
   S = h.S; turn = h.turn; last = h.last; flipped = []; draw(); next();
 }
-const who = p => BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
+const who = p => ONLINE ? (p === HUMAN ? 'Kamu' : p) : BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
 function next(keep) {
-  if (!keep) $('msg').textContent = BOT && turn === BOT ? '🤖 Komputer lagi mikir…' : `Giliran ${who(turn)} ${turn === 'Razan' ? '💙' : '💗'}`;
+  if (ONLINE) Online.waiting(!over && turn !== HUMAN);
+  if (!keep) $('msg').textContent = ONLINE && turn !== HUMAN ? `⏳ Nunggu ${turn} jalan…` : BOT && turn === BOT ? '🤖 Komputer lagi mikir…' : `Giliran ${who(turn)} ${turn === 'Razan' ? '💙' : '💗'}`;
   if (BOT && turn === BOT) { busy = true; setTimeout(() => { busy = false; if (!over) play(botMove()); }, 500 + Math.random() * 350); }
 }
 function evalB(Bd, p) {
@@ -291,14 +300,26 @@ function finish() {
   over = true; draw();
   const r = count(S, 'Razan'), d = count(S, 'Dara'), w = r === d ? null : r > d ? 'Razan' : 'Dara';
   $('msg').textContent = '🏁 Udah ga ada langkah lagi!';
+  if (ONLINE) Online.waiting(false);
   record('bb-rec', w, BOT, level);
   showRes(w, `Keping Razan ${r} · Keping Dara ${d}`, BOT, level);
 }
 paintPick();
+/* ── main online (beda HP) ── */
+if (window.Online) Online.setup({
+  g: 'bolak-balik', panelAfter: '#b-duo', statusEl: 'ol-st',
+  makeCfg: () => ({ first: Math.random() < .5 ? 'Razan' : 'Dara' }),
+  onStart(room, me) {
+    closeRes(); ONLINE = true; HUMAN = me; BOT = null; first = (room.cfg || {}).first || 'Razan';
+    begin();
+    REPLAY = true; try { for (const mv of room.moves) if (typeof mv === 'number' && !over && flipsFor(S, mv, turn).length) play(mv); } finally { REPLAY = false; }
+    flipped = []; draw(); if (over) { over = false; finish(); } else next();
+  },
+  onMove(mv) { if (!ONLINE || over || typeof mv !== 'number' || turn === HUMAN || !flipsFor(S, mv, turn).length) return; play(mv); },
+  onLeft() { ONLINE = false; HUMAN = null; closeRes(); over = true; scr('s-pick'); paintPick(); },
+});
 
 </script>
-</script>
-
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {
