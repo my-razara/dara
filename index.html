@@ -2039,10 +2039,31 @@ setTimeout(() => {
     const B = window.Berdua; if (!B || !B.enabled) return '';
     const o = B.other(B.me()), t = today();
     const r = (get('ritual-' + o, {}) || {})[t], m = (get('mood-' + o, {}) || {})[t], sy = (get('syukur-' + o, {}) || {})[t];
-    const bits = [m && BD_MOOD[m.m] ? `mood ${BD_MOOD[m.m]}` : '', r ? `ritual ${r.n}/${r.t}${r.n && r.n === r.t ? ' 🎉' : ''}` : 'ritual belum mulai', sy ? '🙏 udah nulis syukur' : ''].filter(Boolean);
+    const bits = [m && BD_MOOD[m.m] ? `mood ${BD_MOOD[m.m]}` : '', o === 'Razan' ? '' : r ? `ritual ${r.n}/${r.t}${r.n && r.n === r.t ? ' 🎉' : ''}` : 'ritual belum mulai', sy ? '🙏 udah nulis syukur' : ''].filter(Boolean);
+    if (!bits.length) bits.push('belum ada kabar hari ini');
     return `<a class="rit-duo" href="kalender-mood.html"><span class="rd-w ${o}">💞 ${o} hari ini</span><span class="rd-b">${bits.join(' · ')}</span></a>`;
   }
+  // ── HP Razan: ga ada checklist, cuma pantau progres Dara + tombol nyemangatin ──
+  function ritDara() {
+    const rows = get('ritual-Dara', {}) || {}, r = rows[today()], full = x => x && x.t && x.n >= x.t;
+    let st = 0; const d = new Date(); if (!full(r)) d.setDate(d.getDate() - 1);
+    while (full(rows[dk(d)])) { st++; d.setDate(d.getDate() - 1); }
+    const n = r ? r.n || 0 : 0, t = r ? r.t || 0 : 0, done = full(r);
+    const head = done ? '🎉 Dara udah beresin semua ritual hari ini!' : r && n ? `☀️ Dara udah ${n}/${t} ritual hari ini` : '☀️ Dara belum mulai ritual hari ini';
+    return `<div class="hx-sec rit"><div class="hx-title"><span>💗 Pantau Dara</span></div>
+      <div class="rz-dara ${done ? 'done' : ''}"><b>${head}</b>
+      ${t ? `<div class="rz-bar"><i style="width:${Math.round(n / t * 100)}%"></i></div>` : ''}
+      <p>${r && r.d ? `Udah: ${r.d}` : 'Belum ada yang dicentang'}${st ? ` · streak ${st} hari 🔥` : ''}</p>
+      ${done ? '' : `<button onclick="__semangat(${t ? t - n : 0})">💌 Semangatin Dara</button>`}</div>${bdLine()}</div>`;
+  }
+  window.__semangat = left => {
+    const body = left ? `Ritual hari ini tinggal ${left} lagi — semangat sayang! 🤍` : 'Yuk mulai ritual hari ini, aku tungguin ya 🤍';
+    if (window.Push && Push.ready) { Push.notify({ to: 'Dara', title: '💪 Razan nyemangatin kamu', body, url: './', tag: 'semangat' }); const tt = document.createElement('div'); tt.textContent = '💌 Udah dikirim ke HP Dara'; tt.style.cssText = 'position:fixed;left:50%;bottom:calc(5.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(45,31,26,.92);color:#fff;padding:.6rem 1rem;border-radius:50px;font:500 12.5px Poppins,sans-serif;z-index:9500'; document.body.appendChild(tt); setTimeout(() => tt.remove(), 2200); }
+    else window.open('https://wa.me/6287703706518?text=' + encodeURIComponent('💪 ' + body + '\n\n' + location.href.replace(/[#?].*$/, '')), '_blank');
+    try { navigator.vibrate && navigator.vibrate(15); } catch (e) {}
+  };
   function ritualHTML() {
+    if (window.Who && Who.me() === 'Razan') return ritDara();
     const R = ritualState(); if (!R.list.length) return '';
     const log = get('idx-ritual-log', {});
     const all = R.shown.length && R.n === R.shown.length;
@@ -2105,6 +2126,14 @@ setTimeout(() => {
   .cf-bar .chip small{font-size:9.5px;opacity:.75;margin-left:.1rem}
   .rit-card{background:#fff;border:1px solid rgba(193,122,111,.16);border-radius:20px;padding:.85rem .9rem .8rem;box-shadow:0 6px 18px rgba(193,122,111,.08)}
   .rit-card.full{background:linear-gradient(135deg,#fff,#eef6ec);border-color:#bcd7b5}
+  .rz-dara{padding:.8rem .85rem;border-radius:16px;background:rgba(193,122,111,.07)}
+  .rz-dara b{display:block;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .rz-dara p{font-size:11.5px;color:var(--muted);margin:.35rem 0 0}
+  .rz-bar{height:8px;border-radius:8px;background:rgba(193,122,111,.15);overflow:hidden;margin-top:.5rem}
+  .rz-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#f0a39a,#d9776b)}
+  .rz-dara button{margin-top:.65rem;width:100%;border:none;border-radius:50px;padding:.65rem;font:600 12.5px 'Poppins',sans-serif;color:#fff;background:linear-gradient(135deg,#e58aa2,#c9607d);cursor:pointer}
+  .rz-dara.done{background:rgba(120,190,140,.12)}
+  html.night .rz-dara{background:rgba(255,255,255,.06)}
   .rit-duo{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem .5rem;margin-top:.65rem;padding:.55rem .7rem;border-radius:14px;background:rgba(193,122,111,.07);text-decoration:none;color:inherit;font-size:11.5px}
   .rit-duo .rd-w{font-weight:600}.rit-duo .rd-w.Razan{color:var(--rz)}.rit-duo .rd-w.Dara{color:var(--dr)}
   .rit-duo .rd-b{color:var(--muted)}
