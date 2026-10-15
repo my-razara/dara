@@ -19,7 +19,9 @@
   }
   function settings() {
     const R = ['Razan', 'Dara'].map(w => (g('ingatset-' + w, {}) || {})['2000-01-01'] || {}).sort((a, b) => (b.at || 0) - (a.at || 0))[0] || {};
-    return { ultahRazan: R.ur || '' };            // 'MM-DD'
+    const ur = String(R.ur || '');                 // 'YYYY-MM-DD' (baru) atau 'MM-DD' (lama)
+    const full = /^\d{4}-\d{2}-\d{2}$/.test(ur);
+    return { ultahRazan: full ? ur.slice(5) : ur, ultahRazanY: full ? +ur.slice(0, 4) : 0, ultahRazanFull: full ? ur : '' };
   }
   // semua kejadian dari hari ini sampai `days` hari ke depan
   function events(days) {
@@ -30,7 +32,7 @@
       const y = t0.getFullYear() + k;
       const an = new Date(y, JADIAN[1], JADIAN[2]); if (y > JADIAN[0]) add(an, { key: 'anniv' + y, e: '💍', t: `Anniversary ke-${y - JADIAN[0]}`, big: 1 });
       add(new Date(y, ULTAH_DARA[0], ULTAH_DARA[1]), { key: 'ud' + y, e: '🎂', t: 'Ulang tahun Dara', big: 1 });
-      if (/^\d{2}-\d{2}$/.test(set.ultahRazan)) { const [m, d] = set.ultahRazan.split('-').map(Number); add(new Date(y, m - 1, d), { key: 'ur' + y, e: '🎉', t: 'Ulang tahun Razan', big: 1 }); }
+      if (/^\d{2}-\d{2}$/.test(set.ultahRazan)) { const [m, d] = set.ultahRazan.split('-').map(Number); const age = set.ultahRazanY && set.ultahRazanY < y ? y - set.ultahRazanY : 0; add(new Date(y, m - 1, d), { key: 'ur' + y, e: '🎉', t: 'Ulang tahun Razan' + (age ? ` ke-${age}` : ''), big: 1 }); }
       custom().forEach(c => { const [m, d] = c.m.split('-').map(Number); if (c.y && +c.y !== y) return; add(new Date(y, m - 1, d), { key: 'c' + c.id + y, e: c.e || '⭐', t: c.n, big: 1 }); });
     }
     // mensive tiap tanggal 10 (kecuali pas anniv)
