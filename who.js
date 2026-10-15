@@ -94,6 +94,8 @@
     if (e.key !== 'berdua-me' || !get('who-ok')) return;
     var w = get('berdua-me'); if (valid(w) && w !== cur) { cur = w; apply(); location.reload(); }
   });
+  // notif instan antar HP (push.js) — dimuat belakangan biar ga ngeberatin halaman
+  try { var ps = document.createElement('script'); ps.src = 'push.js'; ps.defer = true; (document.head || html).appendChild(ps); } catch (e) {}
   window.Who = {
     me: function () { return cur; },
     ready: function () { return !!cur; },
