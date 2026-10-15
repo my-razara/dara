@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bioskop Kita — Razan & Dara 🎬</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}
+  .tabs{display:flex;gap:.25rem;margin-bottom:.8rem;background:var(--warm);border-radius:50px;padding:.25rem}
+  .tabs button{flex:1;border:none;background:none;padding:.5rem .2rem;border-radius:50px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tabs button.on{background:#fff;color:var(--deep);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .pick{background:linear-gradient(135deg,#2b2340,#4b3a6e);color:#fff;border-radius:22px;padding:1rem;text-align:center;margin-bottom:.9rem;box-shadow:0 10px 24px rgba(43,35,64,.25)}
+  .pick small{font-size:11px;opacity:.85;display:block}
+  .pick b{display:block;font-size:1.25rem;margin:.35rem 0;min-height:1.5em;line-height:1.3}
+  .pick button{border:none;border-radius:50px;padding:.6rem 1.2rem;font-weight:700;background:#ffd54a;color:#2b2340;cursor:pointer;font-size:13px}
+  .pick.spin b{animation:fl .12s infinite}
+  @keyframes fl{50%{opacity:.4}}
+  .fm{display:flex;gap:.7rem;background:#fff;border-radius:18px;padding:.75rem .8rem;margin-bottom:.5rem;border:1px solid rgba(193,122,111,.12);cursor:pointer;align-items:center}
+  .fm .ic{width:44px;height:58px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;background:linear-gradient(160deg,#3b2a55,#6a4a8e);color:#fff}
+  .fm .m{flex:1;min-width:0}
+  .fm b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
+  .fm small{display:block;font-size:10.5px;color:var(--muted);margin-top:.15rem}
+  .fm .st{font-size:11px;font-weight:700;white-space:nowrap}
+  .stars{font-size:12px;letter-spacing:1px}
+  .tag{display:inline-block;font-size:9.5px;font-weight:700;padding:.06rem .45rem;border-radius:20px;color:#fff;margin-right:.25rem}
+  .tag.R{background:var(--rz)}.tag.D{background:var(--dr)}.tag.B{background:var(--gold)}
+  .rate{display:flex;gap:.2rem;justify-content:center;margin:.3rem 0}
+  .rate button{font-size:1.6rem;border:none;background:none;cursor:pointer;padding:0 .1rem;filter:grayscale(1);opacity:.4}
+  .rate button.on{filter:none;opacity:1}
+  .rr{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.5rem}
+  .rr>div{background:var(--cream);border-radius:14px;padding:.5rem;text-align:center;font-size:12px}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
+  <div class="head"><span class="ico">🎬</span><p class="lbl">Daftar tontonan</p><h1 class="title">Bioskop <span>Kita</span></h1><p class="sub">Film, series, anime yang mau ditonton bareng — plus rating berdua abis nonton. Bingung mau nonton apa? Tinggal diundi 🍿</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="pick" id="pick"><small>🍿 Malam ini nonton apa?</small><b id="pick-t">Tap tombol buat ngundi</b><button onclick="spin()">🎲 Undi dari daftar</button></div>
+  <div class="tabs" id="tabs"><button data-t="mau">📌 Mau</button><button data-t="lagi">▶️ Lagi</button><button data-t="udah">✅ Udah</button></div>
+  <button class="btn" onclick="openEd()" style="margin-bottom:.8rem">＋ Tambah tontonan</button>
+  <div id="list"></div>
+</div>
+<div class="ov" id="ed-ov"><div class="sheet">
+  <div class="drag"></div><h3 style="text-align:center;font-size:15px;margin-bottom:.3rem" id="ed-h">Tontonan baru</h3>
+  <label class="lab">Judul</label><input class="inp" id="ed-t" maxlength="60" placeholder="Contoh: Spirited Away">
+  <label class="lab">Jenis</label><div class="chips" id="ed-k"></div>
+  <label class="lab">Genre</label><div class="chips" id="ed-g"></div>
+  <label class="lab">Nonton di mana (opsional)</label><input class="inp" id="ed-w" maxlength="30" placeholder="Netflix, bioskop, laptop…">
+  <label class="lab">Catatan</label><input class="inp" id="ed-n" maxlength="80" placeholder="Kata temen bagus banget!">
+  <div class="row"><button class="btn ghost" onclick="closeOv('ed-ov')">Batal</button><button class="btn" onclick="saveEd()">Simpan</button></div>
+</div></div>
+<div class="ov" id="dt-ov"><div class="sheet" id="dt"></div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+// ── penyimpanan per-item: tiap item 1 baris di database (server nolak data > 3000 huruf per baris) ──
+// tanggal baris = tanggal "palsu" mulai 1901-01-01 (cuma buat nomor urut), isinya item itu sendiri.
+// format lama (semua item numpuk di 1 baris '2000-01-01') tetep kebaca & otomatis dipindah.
+const LEGACY_D = '2000-01-01', ROW0 = Date.UTC(1901, 0, 1);
+const rowDate = i => new Date(ROW0 + i * 864e5).toISOString().slice(0, 10);
+function itemRows(app, w, lk) {
+  const m = lsGet(app + '-' + w, {}) || {}, out = [];
+  Object.entries(m).forEach(([d, v]) => {
+    if (!v) return;
+    if (d === LEGACY_D && v[lk || 'items']) v[lk || 'items'].forEach(x => out.push(Object.assign({}, x, { owner: w, _d: null })));
+    else if (v.id && d < '1990-01-01') out.push(Object.assign({}, v, { owner: w, _d: d }));
+  });
+  return out;
+}
+function legacyDrop(app, w, id, lk) {
+  const s = (lsGet(app + '-' + w, {}) || {})[LEGACY_D]; if (!s || !s[lk || 'items']) return;
+  const arr = s[lk || 'items'].filter(y => y.id !== id); if (arr.length === s[lk || 'items'].length) return;
+  BD.put(app, w, LEGACY_D, arr.length ? { [lk || 'items']: arr } : null);
+}
+function itemPut(app, x, lk) {
+  const o = Object.assign({}, x); delete o.owner; delete o._d;
+  if (JSON.stringify(o).length > 2900) return false;
+  let d = x._d;
+  if (!d) {
+    // kalau item ini udah punya baris (misal diedit dari data lama), pakai baris itu
+    const m = lsGet(app + '-' + x.owner, {}) || {}, hit = Object.entries(m).find(([k, v]) => v && v.id === x.id && k < '1990-01-01');
+    if (hit) d = hit[0]; else { let i = 0; while (m[rowDate(i)]) i++; d = rowDate(i); }
+  }
+  x._d = d; BD.put(app, x.owner, d, o); legacyDrop(app, x.owner, x.id, lk); return true;
+}
+function itemDel(app, x, lk) { if (x._d) BD.put(app, x.owner, x._d, null); legacyDrop(app, x.owner, x.id, lk); }
+function itemMigrate(app, w, lk) { itemRows(app, w, lk).filter(x => !x._d).forEach(x => itemPut(app, x, lk)); }
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
+const KIND = [['film', '🎬 Film'], ['series', '📺 Series'], ['anime', '🌸 Anime'], ['dokumenter', '🌍 Dokumenter']];
+const GEN = ['Romantis', 'Komedi', 'Horor', 'Aksi', 'Drama', 'Animasi', 'Thriller', 'Fantasi', 'Sci-fi', 'Misteri'];
+const KI = { film: '🎬', series: '📺', anime: '🌸', dokumenter: '🌍' };
+if (lsGet('film-me', null) == null) lsSet('film-me', BD.me());
+let me = whoBtn('film-me', () => { me = lsGet('film-me', 'Dara'); BD.setMe(me); render(); });
+BD.setMe(me);
+let tab = lsGet('film-tab', 'mau'), ed = null, cur = null;
+const uid = () => 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const all = () => itemRows('film', 'Razan').concat(itemRows('film', 'Dara'));
+const find = id => all().find(x => x.id === id);
+function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
+function closeOv(id) { $(id).classList.remove('show'); }
+document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); }));
+const avg = x => { const v = Object.values(x.r || {}).filter(Boolean); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; };
+const starTxt = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+function render() {
+  bdStatus(); lsSet('film-tab', tab);
+  $('tabs').querySelectorAll('button').forEach(b => { const n = all().filter(x => (x.s || 'mau') === b.dataset.t).length; b.textContent = b.textContent.replace(/ \(\d+\)$/, '') + (n ? ` (${n})` : ''); b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = b.dataset.t; render(); }; });
+  let L = all().filter(x => (x.s || 'mau') === tab);
+  L.sort(tab === 'udah' ? (a, b) => (b.done || 0) - (a.done || 0) : (a, b) => (b.at || 0) - (a.at || 0));
+  $('list').innerHTML = L.map(x => `<div class="fm" data-id="${x.id}"><span class="ic">${KI[x.k] || '🎬'}</span><span class="m"><b>${esc(x.t)}</b><small><span class="tag ${x.owner[0]}">${x.owner}</span>${(x.g || []).join(' · ')}${x.w ? ' · ' + esc(x.w) : ''}</small>${tab === 'udah' && avg(x) ? `<small class="stars" style="color:#c9a96e">${starTxt(avg(x))} ${avg(x).toFixed(1)}</small>` : ''}</span>${tab === 'udah' && !(x.r || {})[me] ? '<span class="st" style="color:var(--rose)">kasih ⭐</span>' : ''}</div>`).join('') || `<p class="empty">${{ mau: 'Belum ada yang mau ditonton. Tambahin dulu yuk 🍿', lagi: 'Lagi ga nonton apa-apa', udah: 'Belum ada yang selesai ditonton' }[tab]}</p>`;
+  $('list').querySelectorAll('.fm').forEach(el => el.onclick = () => openDt(el.dataset.id));
+}
+function spin() {
+  const L = all().filter(x => (x.s || 'mau') === 'mau'); if (!L.length) { toast('Daftar "Mau" masih kosong 🍿'); return; }
+  const p = $('pick'); p.classList.add('spin'); let n = 0;
+  const iv = setInterval(() => { $('pick-t').textContent = L[Math.floor(Math.random() * L.length)].t; if (++n > 14) { clearInterval(iv); p.classList.remove('spin'); const x = L[Math.floor(Math.random() * L.length)]; $('pick-t').textContent = `${KI[x.k] || '🎬'} ${x.t}`; confetti(30); try { window.SFX && SFX.play('win'); } catch (e) {} } }, 90);
+}
+function chips(id, list, val, multi, set) { $(id).innerHTML = list.map(([k, n]) => `<button class="${multi ? (val.includes(k) ? 'on' : '') : (val === k ? 'on' : '')}" data-k="${k}">${n}</button>`).join(''); $(id).querySelectorAll('button').forEach(b => b.onclick = () => { set(b.dataset.k); chips(id, list, multi ? ed.g : ed.k, multi, set); }); }
+function openEd(id) {
+  const x = id ? find(id) : null; ed = x ? Object.assign({}, x, { g: (x.g || []).slice() }) : { id: uid(), owner: me, k: 'film', g: [], s: 'mau' };
+  $('ed-h').textContent = x ? 'Edit tontonan' : 'Tontonan baru'; $('ed-t').value = ed.t || ''; $('ed-w').value = ed.w || ''; $('ed-n').value = ed.n || '';
+  chips('ed-k', KIND, ed.k, false, v => ed.k = v);
+  chips('ed-g', GEN.map(g => [g, g]), ed.g, true, v => { ed.g = ed.g.includes(v) ? ed.g.filter(y => y !== v) : ed.g.concat(v).slice(-3); });
+  closeOv('dt-ov'); $('ed-ov').classList.add('show');
+}
+function saveEd() {
+  const t = $('ed-t').value.trim(); if (!t) { toast('Judulnya diisi dulu'); return; }
+  Object.assign(ed, { t, w: $('ed-w').value.trim(), n: $('ed-n').value.trim(), at: ed.at || Date.now() });
+  if (!itemPut('film', ed)) { toast('Kepanjangan'); return; } closeOv('ed-ov'); tab = ed.s || 'mau'; render(); toast(`🎬 Kesimpen${BD.enabled ? ` · ${otherOf(me)} bisa liat` : ''}`);
+}
+function openDt(id) {
+  const x = find(id); if (!x) return; cur = id; const s = x.s || 'mau', r = x.r || {};
+  $('dt').innerHTML = `<div class="drag"></div><div style="text-align:center"><span style="font-size:2.6rem">${KI[x.k] || '🎬'}</span><h3 style="font-size:1.1rem;margin:.2rem 0">${esc(x.t)}</h3><p class="sub">${(x.g || []).join(' · ')}${x.w ? ' · ' + esc(x.w) : ''}</p>${x.n ? `<p style="font-size:12.5px;margin-top:.4rem">📝 ${esc(x.n)}</p>` : ''}<p style="font-size:11px;color:var(--muted);margin-top:.3rem">ditambahin ${esc(x.owner)} · ${fmtD(new Date(x.at))}</p></div>
+    <div class="chips" style="justify-content:center;margin:.8rem 0" id="dt-s">${[['mau', '📌 Mau'], ['lagi', '▶️ Lagi nonton'], ['udah', '✅ Udah']].map(([k, n]) => `<button class="${s === k ? 'on' : ''}" data-k="${k}">${n}</button>`).join('')}</div>
+    ${s === 'udah' ? `<p class="lab" style="text-align:center">Rating dari kamu (${me})</p><div class="rate" id="rate">${[1, 2, 3, 4, 5].map(n => `<button class="${(r[me] || 0) >= n ? 'on' : ''}" data-n="${n}">⭐</button>`).join('')}</div><div class="rr"><div style="color:var(--rz)">💙 Razan<br><b class="stars">${r.Razan ? starTxt(r.Razan) : 'belum'}</b></div><div style="color:var(--dr)">💗 Dara<br><b class="stars">${r.Dara ? starTxt(r.Dara) : 'belum'}</b></div></div>` : ''}
+    <div class="row"><button class="btn ghost" onclick="openEd('${x.id}')">✏️ Edit</button><button class="btn ghost" onclick="delF()">🗑 Hapus</button></div>`;
+  $('dt').querySelectorAll('#dt-s button').forEach(b => b.onclick = () => { const y = find(cur); y.s = b.dataset.k; if (y.s === 'udah' && !y.done) y.done = Date.now(); itemPut('film', y); render(); openDt(cur); if (y.s === 'udah') toast('✅ Kasih rating yuk'); });
+  $('dt').querySelectorAll('#rate button').forEach(b => b.onclick = () => { const y = find(cur); y.r = Object.assign({}, y.r || {}, { [me]: +b.dataset.n }); itemPut('film', y); vib(10); render(); openDt(cur); });
+  $('dt-ov').classList.add('show');
+}
+function delF() { const x = find(cur); if (!x || !confirm(`Hapus "${x.t}"?`)) return; itemDel('film', x); closeOv('dt-ov'); render(); }
+BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes('film') && !document.querySelector('.ov.show')) render(); });
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
