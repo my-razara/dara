@@ -99,7 +99,8 @@
   <div class="card">
     <label class="lab" style="margin-top:0">🎉 Ulang tahun Razan</label>
     <input class="inp" type="date" id="ur">
-    <p class="hint">Tahunnya bebas, yang dipakai cuma tanggal & bulan. Ulang tahun Dara (18 Agustus) & anniv (10 Mei) udah otomatis.</p>
+    <p class="hint" id="ur-age" style="color:var(--rose);font-weight:500"></p>
+    <p class="hint">Isi tanggal lahir lengkap (sama tahunnya) biar pengingatnya nulis "ulang tahun ke-berapa". Ulang tahun Dara (18 Agustus) & anniv (10 Mei) udah otomatis.</p>
   </div>
   <div class="card">
     <h3>⭐ Hari penting lain</h3>
@@ -221,12 +222,13 @@ function render() {
     : `<div class="nt off"><span>🔔</span><div><b>Nyalain notif pengingat?</b>Biar dikasih tau dari jauh-jauh hari.</div><button onclick="enableNotif()">Nyalain</button></div>`;
   const E = I.events(60);
   $('list').innerHTML = E.length ? E.map(e => `<div class="ev ${e.left === 0 ? 'today' : ''} ${e.big ? 'big' : ''}"><span class="e">${e.e}</span><span class="m"><b>${esc(e.t)}</b><small>${HARI[parseYMD(e.date).getDay()]}, ${I.dateLabel(e.date)}${e.time ? ' · ' + esc(e.time) : ''}${e.place ? ' · ' + esc(e.place) : ''}</small></span><span class="l">${e.left === 0 ? '<b>🎉</b><small>hari ini</small>' : e.left === 1 ? '<b>1</b><small>besok</small>' : `<b>${e.left}</b><small>hari lagi</small>`}</span></div>`).join('') : '<p class="empty">Ga ada hari spesial dalam 60 hari ke depan 🌿</p>';
-  const ur = I.settings().ultahRazan; $('ur').value = ur ? `2000-${ur}` : '';
+  const S = I.settings(); $('ur').value = S.ultahRazanFull || (S.ultahRazan ? `2000-${S.ultahRazan}` : '');
+  $('ur-age').textContent = S.ultahRazanY ? `🎂 Lahir ${S.ultahRazanY} — ulang tahun berikutnya ke-${(() => { const n = new Date(), [m, d] = S.ultahRazan.split('-').map(Number); let y = n.getFullYear(); if (new Date(y, m - 1, d) < new Date(n.getFullYear(), n.getMonth(), n.getDate())) y++; return y - S.ultahRazanY; })()}` : (S.ultahRazan ? 'Isi tahun lahirnya juga biar keliatan ulang tahun ke berapa 😉' : '');
   const C = itemRows('ingat', 'Razan').concat(itemRows('ingat', 'Dara')).sort((a, b) => a.m.localeCompare(b.m));
   $('cu').innerHTML = C.length ? C.map(c => { const [m, d] = c.m.split('-').map(Number); return `<div class="cu"><span>${c.e || '⭐'}</span><b>${esc(c.n)}<small>${d} ${BULAN[m - 1]}${c.y ? ' ' + c.y : ' · tiap tahun'} · dari ${esc(c.owner)}</small></b><button data-id="${c.id}" aria-label="hapus">🗑</button></div>`; }).join('') : '<p class="empty" style="padding:.4rem">Belum ada. Misalnya: pertama kali ketemu, first date, ultah mama 🌷</p>';
   $('cu').querySelectorAll('button').forEach(b => b.onclick = () => { const c = C.find(x => x.id === b.dataset.id); if (c && confirm(`Hapus "${c.n}"?`)) { itemDel('ingat', c); render(); I.schedule(); } });
 }
-$('ur').onchange = () => { const v = $('ur').value; BD.put('ingatset', me, '2000-01-01', { ur: v ? v.slice(5) : '', at: Date.now() }); toast(v ? '🎉 Ultah Razan disimpan' : 'Ultah Razan dihapus'); render(); I.schedule(); };
+$('ur').onchange = () => { let v = $('ur').value; const yr = v ? +v.slice(0, 4) : 0; if (v && (yr < 1950 || yr >= new Date().getFullYear())) v = v.slice(5); BD.put('ingatset', me, '2000-01-01', { ur: v || '', at: Date.now() }); toast(v ? '🎉 Ultah Razan disimpan' : 'Ultah Razan dihapus'); render(); I.schedule(); };
 function openAdd() {
   add = { e: EMO[0], r: 1 }; $('a-n').value = ''; $('a-d').value = '';
   const p = () => { $('a-e').innerHTML = EMO.map(e => `<button class="${add.e === e ? 'on' : ''}" data-e="${e}">${e}</button>`).join(''); $('a-e').querySelectorAll('button').forEach(b => b.onclick = () => { add.e = b.dataset.e; p(); }); $('a-r').querySelectorAll('button').forEach(b => { b.classList.toggle('on', +b.dataset.r === add.r); b.onclick = () => { add.r = +b.dataset.r; p(); }; }); };
