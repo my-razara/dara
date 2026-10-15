@@ -1208,7 +1208,7 @@ const META = {
 // dapet label 💞 di kartunya, & ikut filter "💞 Nyambung 2 HP".   Format: 'file.html': ['Nama pendek', 'emoji*', 'link khusus*']  (*opsional)
 // Game yang bisa online (kw META ada "online beda hp") otomatis kekumpul jadi 1 tombol "🎮 Main online".
 window.DUO = {
-  'kotak-surat.html': ['Surat', '', 'kotak-surat.html?m=0'], 'tombol-kangen.html': ['Kangen'], 'ketemuan.html': ['Rencana ketemu', '', 'ketemuan.html?m=0'], 'peliharaan.html': ['Peliharaan', '🐾'],
+  'kotak-surat.html': ['Surat', '', 'kotak-surat.html?m=0'], '#tempel': ['Tempel pesan', '📌', '#tempel'], 'tombol-kangen.html': ['Kangen'], 'ketemuan.html': ['Rencana ketemu', '', 'ketemuan.html?m=0'], 'peliharaan.html': ['Peliharaan', '🐾'],
   'gartic-berdua.html': ['Gambar & tebak', '', 'gartic-berdua.html?beda=1'], 'who-knows-me.html': ['Kuis kenal', '', 'who-knows-me.html?beda=1'],
   'kalender-mood.html': ['Mood', '🌈'], 'jurnal-syukur.html': ['Syukur'], 'jaga-minum.html': ['Jaga minum'], 'daftar-bareng.html': ['Daftar bareng'],
   'bioskop-kita.html': ['Bioskop'], 'wishlist.html': ['Wishlist', '🎁'], 'bucket-list.html': ['Bucket list'], 'janji-kita.html': ['Janji kita'],
@@ -2731,6 +2731,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-15 16:00', t: '📥 Kotak Masuk — semua kiriman dari pasangan kumpul di satu tempat (tombol 📥 di pojok kiri atas). 📌 Pesan Tempel — tulis catatan yang nempel di home pasangan. 🧩 Home sekarang bisa diatur sendiri (scroll paling bawah). Plus progres ritual langsung kekirim.' },
     { d: '2026-10-15', t: '🔔 Notif baru! Sekarang kalau pasangan ngirim sesuatu (origami, kangen, ngajak main, janji, kembang api, dll) langsung muncul di HP kayak chat. Plus pengingat sore kalau misi harian belum beres ☀️' },
     { d: '2026-10-14 15:30', t: '🐾 Peliharaan berdua sekarang tinggal di menu utama — pilih hewannya, kasih nama, rawat bareng! Plus 💞 game baru Satuin Hati, 👥 ganti user sekali buat semua halaman (pakai PIN), warna tema ikut orangnya, & notif khusus buat masing-masing.' },
     { d: '2026-10-14', t: '10 game & 10 hadiah baru — sekarang total 70 game & 70 hadiah! 🎉 Plus 🌐 Tic Tac Toe, Titik & Kotak, Bolak-Balik & Ular Tangga sekarang bisa dimainin online beda HP.' },
@@ -2823,6 +2824,152 @@ setTimeout(() => {
   }
   // kalau notif udah nyala, pastiin cek berkala tetep kedaftar
   if (notifState() === 'granted') navigator.serviceWorker.ready.then(reg => { if ('periodicSync' in reg) reg.periodicSync.register('cek-kabar', { minInterval: 6 * 3600 * 1000 }).catch(() => {}); }).catch(() => {});
+})();
+
+
+/* ═══ KOTAK MASUK · PESAN TEMPEL · ATUR HOME ═══ */
+(function () {
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const me = () => (window.Who && Who.me()) || (window.Berdua ? Berdua.me() : 'Dara');
+  const other = () => me() === 'Razan' ? 'Dara' : 'Razan';
+  const hm = t => { const d = new Date(t), n = new Date(); const s = `${String(d.getHours()).padStart(2, '0')}.${String(d.getMinutes()).padStart(2, '0')}`; return d.toDateString() === n.toDateString() ? s : `${d.getDate()}/${d.getMonth() + 1} ${s}`; };
+  const vib = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+  function toast(m) { const t = document.createElement('div'); t.textContent = m; t.style.cssText = 'position:fixed;left:50%;bottom:calc(5.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(45,31,26,.92);color:#fff;padding:.6rem 1rem;border-radius:50px;font:500 12.5px Poppins,sans-serif;z-index:9600;max-width:88vw;text-align:center'; document.body.appendChild(t); setTimeout(() => t.remove(), 2300); }
+  function sheet(id, html) { let o = document.getElementById(id); if (o) o.remove(); o = document.createElement('div'); o.id = id; o.className = 'hp-ov'; o.innerHTML = `<div class="hp-sh">${html}<button class="hp-x" data-x>Tutup</button></div>`; o.addEventListener('click', e => { if (e.target === o || e.target.hasAttribute('data-x')) o.remove(); }); document.body.appendChild(o); return o; }
+  function put(app, who, date, data) { if (window.Berdua && Berdua.put) Berdua.put(app, who, date, data); else { const k = app + '-' + who, m = get(k, {}) || {}; m[date] = data; set(k, m); } }
+
+  // ═════ 📥 KOTAK MASUK ═════
+  const EMO = { kangen: '💗', ajak: '🎮', janji: '📜', minum: '💧', 'kembang-api': '🎆', semangat: '💪', tempel: '📌' };
+  const inbox = () => Object.values(get('inbox-' + me(), {}) || {}).filter(x => x && x.at).sort((a, b) => b.at - a.at);
+  const unread = () => { const r = get('inbox-read-' + me(), 0); return inbox().filter(x => x.at > r); };
+  function ibIcon(x) { return EMO[x.g] || (/^wa-/.test(x.g || '') ? '💌' : '💌'); }
+  window.__inbox = () => {
+    const L = inbox(), r = get('inbox-read-' + me(), 0);
+    sheet('ib-ov', `<h3>📥 Kotak Masuk</h3><p class="sub2">Semua kiriman dari ${other()} — kalau notifnya kelewat, masih ada di sini</p>` +
+      (L.map(x => `<a class="ib-it ${x.at > r ? 'new' : ''}" href="${esc(x.u || './')}"><span class="e">${ibIcon(x)}</span><span><b>${esc(x.t)}</b>${x.b ? `<p>${esc(x.b)}</p>` : ''}<small>${hm(x.at)}${x.at > r ? ' · baru' : ''}</small></span></a>`).join('') || '<p class="sub2" style="margin:1.5rem 0">Belum ada kiriman. Nanti semua kiriman dari pasangan (origami, kangen, ajakan main, dll) kumpul di sini 💌</p>'));
+    set('inbox-read-' + me(), Date.now()); paintIb();
+  };
+  function paintIb() {
+    let b = document.getElementById('ib-btn');
+    if (!b) { const home = document.getElementById('home'); if (!home) return; b = document.createElement('button'); b.id = 'ib-btn'; b.className = 'ib-btn'; b.setAttribute('aria-label', 'Kotak masuk'); b.onclick = () => window.__inbox(); home.insertBefore(b, home.firstChild); }
+    const n = unread().length; b.innerHTML = `📥${n ? `<i>${n > 9 ? '9+' : n}</i>` : ''}`;
+  }
+  function ibCard() {
+    const U = unread(); if (!U.length) return '';
+    return `<button class="ib-card" onclick="__inbox()"><span class="e">${ibIcon(U[0])}</span><span><b>📥 ${U.length} kiriman baru dari ${esc(U[0].f || other())}</b><small>${esc(U[0].t)}</small></span></button>`;
+  }
+
+  // ═════ 📌 PESAN TEMPEL ═════
+  const COLS = ['#fff3a8', '#ffd6e0', '#cdeefc', '#d8f5c8', '#ead9ff'];
+  const note = w => ((get('tempel-' + w, {}) || {})['2000-01-01']) || null;
+  const readOf = w => ((get('tempel-' + w, {}) || {})['2000-01-02']) || null;
+  function ptCard() {
+    const n = note(other()), r = readOf(me());
+    if (!n || !n.t || (r && r.id === n.id)) return '';
+    return `<div class="pt-card" style="background:${COLS[n.c] || COLS[0]}"><div class="pf">dari ${esc(other())} · ${hm(n.at)}</div><div class="pt">${esc(n.t)}</div><button onclick="__ptRead()">💗 Udah dibaca</button></div>`;
+  }
+  window.__ptRead = () => {
+    const n = note(other()); if (!n) return;
+    put('tempel', me(), '2000-01-02', { id: n.id, at: Date.now() }); vib(15); toast(`💗 ${other()} bakal tau kamu udah baca`);
+    try { window.Push && Push.notify({ title: `💗 ${me()} udah baca pesan tempelmu`, body: `“${String(n.t).slice(0, 80)}”`, url: './', tag: 'tempel-baca' }); } catch (e) {}
+    refresh();
+  };
+  let ptCol = 0;
+  window.__tempel = () => {
+    const mine = note(me()), rd = readOf(other());
+    const st = mine && mine.t ? `Pesan tempelmu sekarang: “${esc(mine.t.slice(0, 60))}${mine.t.length > 60 ? '…' : ''}”<br>${rd && rd.id === mine.id ? `✓ udah dibaca ${hm(rd.at)}` : '⏳ belum dibaca'}` : 'Belum ada pesan yang ditempel';
+    const o = sheet('pt-ov', `<h3>📌 Tempel pesan buat ${other()}</h3><p class="sub2">Pesannya nempel di home ${other()} sampai dia tap "udah dibaca"</p>
+      <textarea class="pt-ta" id="pt-t" maxlength="160" placeholder="Jangan lupa makan siang ya 🤍"></textarea>
+      <div class="pt-cols">${COLS.map((c, i) => `<button style="background:${c}" class="${i === ptCol ? 'on' : ''}" data-c="${i}"></button>`).join('')}</div>
+      <button class="pt-go" id="pt-go">📌 Tempel</button><p class="pt-st">${st}</p>`);
+    o.querySelectorAll('.pt-cols button').forEach(b => b.onclick = () => { ptCol = +b.dataset.c; o.querySelectorAll('.pt-cols button').forEach(x => x.classList.toggle('on', x === b)); });
+    o.querySelector('#pt-go').onclick = () => {
+      const t = o.querySelector('#pt-t').value.trim(); if (!t) { o.querySelector('#pt-t').focus(); return; }
+      put('tempel', me(), '2000-01-01', { id: 'p' + Date.now().toString(36), t, c: ptCol, at: Date.now() });
+      try { window.Push && Push.notify({ title: `📌 ${me()} nempel pesan buat kamu`, body: t, url: './', tag: 'tempel' }); } catch (e) {}
+      o.remove(); vib([20, 30, 20]); toast(`📌 Ketempel di home ${other()}!`);
+    };
+    setTimeout(() => { try { o.querySelector('#pt-t').focus(); } catch (e) {} }, 200);
+  };
+
+  // ═════ 🧩 ATUR TAMPILAN HOME ═════
+  const SEC = [
+    // [kunci, nama, tempat, cara nyari elemennya]
+    ['peliharaan', '🐾 Peliharaan', 'pet', el => el.id === 'pet-slot'],
+    ['tempel', '📌 Pesan tempel', 'top', el => el.classList.contains('pt-card')],
+    ['inbox', '📥 Kiriman baru', 'top', el => el.classList.contains('ib-card')],
+    ['spesial', '🎉 Banner hari spesial', 'top', el => el.classList.contains('sp-banner')],
+    ['status', '💞 Status berdua', 'top', el => el.classList.contains('st-card')],
+    ['surat', '📬 Surat dari Razan', 'top', el => el.classList.contains('sr-card') && !el.classList.contains('rk-card')],
+    ['rekap', '📊 Rekap bulanan', 'top', el => el.classList.contains('rk-card')],
+    ['hariini', '📅 Kartu hari ini', 'top', el => el.classList.contains('today')],
+    ['ritual', '☀️ Ritual / Pantau Dara', 'rows', el => el.classList.contains('rit')],
+    ['berdua', '💞 Fitur berdua', 'rows', el => el.classList.contains('bx-sec')],
+    ['lanjut', '▶ Lanjutin', 'rows', el => el.classList.contains('hx-sec') && /^▶/.test(tt(el))],
+    ['kenangan', '📸 Kenangan kita', 'rows', el => el.classList.contains('mem-card')],
+    ['acak', '🎲 Main apa ya?', 'rows', el => el.classList.contains('rnd-btn')],
+    ['favorit', '⭐ Favorit', 'rows', el => el.classList.contains('hx-sec') && /^⭐/.test(tt(el))],
+    ['terakhir', '🕘 Terakhir dibuka', 'rows', el => el.classList.contains('hx-sec') && /^🕘/.test(tt(el))],
+    ['baru', '🆕 Baru diupdate', 'rows', el => el.classList.contains('hx-sec') && /^🆕/.test(tt(el))],
+    ['ingat', '⏰ Pengingat', 'rows', el => el.classList.contains('ig-sec')],
+    ['cadangan', '💾 Cadangan', 'rows', el => el.classList.contains('cad-link')]
+  ];
+  function tt(el) { const t = el.querySelector('.hx-title span'); return t ? t.textContent.trim() : ''; }
+  const LK = () => 'home-layout-' + me();
+  const layout = () => Object.assign({ hide: [], top: [], rows: [] }, get(LK(), {}) || {});
+  const keyOf = el => { const s = SEC.find(x => { try { return x[3](el); } catch (e) { return false; } }); return s ? s[0] : null; };
+  function apply() {
+    const L = layout(), pet = document.getElementById('pet-slot');
+    if (pet) pet.style.display = L.hide.includes('peliharaan') ? 'none' : '';
+    [['top', document.getElementById('today-slot')], ['rows', document.getElementById('home-rows')]].forEach(([g, host]) => {
+      if (!host) return;
+      const kids = [...host.children], ord = L[g] || [];
+      kids.forEach(el => { const k = keyOf(el); if (k) el.style.display = L.hide.includes(k) ? 'none' : ''; });
+      if (ord.length) {
+        const keyed = kids.filter(el => keyOf(el)), rank = el => { const i = ord.indexOf(keyOf(el)); return i < 0 ? 999 : i; };
+        const sorted = keyed.slice().sort((a, b) => rank(a) - rank(b) || keyed.indexOf(a) - keyed.indexOf(b));
+        const anchor = host.querySelector('.hl-link');
+        sorted.forEach(el => anchor ? host.insertBefore(el, anchor) : host.appendChild(el));
+      }
+    });
+  }
+  window.__hlEdit = () => {
+    const L = layout(), cur = g => { const host = document.getElementById(g === 'top' ? 'today-slot' : 'home-rows'); const ks = host ? [...host.children].map(keyOf).filter(Boolean) : []; const all = SEC.filter(x => x[2] === g).map(x => x[0]); return [...new Set(ks.concat(all))]; };
+    const order = { top: cur('top'), rows: cur('rows') };
+    const draw = o => {
+      const row = (k, g, i, n) => { const s = SEC.find(x => x[0] === k); const off = L.hide.includes(k); return `<div class="hl-it ${off ? 'off' : ''}"><span>${s[1]}</span>${g ? `<button data-up="${g}|${i}" ${i === 0 ? 'disabled style="opacity:.3"' : ''}>▲</button><button data-dn="${g}|${i}" ${i === n - 1 ? 'disabled style="opacity:.3"' : ''}>▼</button>` : ''}<button class="tg" data-tg="${k}">${off ? 'Munculin' : 'Sembunyiin'}</button></div>`; };
+      o.querySelector('.hp-sh').innerHTML = `<h3>🧩 Atur tampilan home</h3><p class="sub2">Pilih yang mau dimunculin & urutannya. Cuma berlaku di HP ini buat ${me()}.</p>
+        <p class="hl-g">Bagian atas</p>${row('peliharaan', '', 0, 1)}${order.top.map((k, i) => row(k, 'top', i, order.top.length)).join('')}
+        <p class="hl-g">Bagian bawah</p>${order.rows.map((k, i) => row(k, 'rows', i, order.rows.length)).join('')}
+        <button class="hl-link" data-reset>↺ Balikin ke awal</button><button class="hp-x" data-x>Selesai</button>`;
+      o.querySelectorAll('[data-tg]').forEach(b => b.onclick = () => { const k = b.dataset.tg; L.hide = L.hide.includes(k) ? L.hide.filter(x => x !== k) : L.hide.concat(k); save(); draw(o); });
+      const mv = (g, i, d) => { const a = order[g], j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; L[g] = a.slice(); save(); draw(o); };
+      o.querySelectorAll('[data-up]').forEach(b => b.onclick = () => { const [g, i] = b.dataset.up.split('|'); mv(g, +i, -1); });
+      o.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => { const [g, i] = b.dataset.dn.split('|'); mv(g, +i, 1); });
+      o.querySelector('[data-reset]').onclick = () => { try { localStorage.removeItem(LK()); } catch (e) {} L.hide = []; L.top = []; L.rows = []; o.remove(); refresh(); toast('↺ Home balik ke tampilan awal'); };
+    };
+    const save = () => { set(LK(), { hide: L.hide, top: L.top, rows: L.rows }); refresh(); };
+    const o = sheet('hl-ov', ''); draw(o);
+  };
+
+  // ═════ pasang ke home ═════
+  const _rrX = renderRows;
+  renderRows = function () {
+    _rrX();
+    try {
+      const top = document.getElementById('today-slot'), rows = document.getElementById('home-rows');
+      if (top) { const a = ptCard(), b = ibCard(); if (b) top.insertAdjacentHTML('afterbegin', b); if (a) top.insertAdjacentHTML('afterbegin', a); }
+      if (rows && !rows.querySelector('.hl-link')) rows.insertAdjacentHTML('beforeend', '<button class="hl-link" onclick="__hlEdit()">🧩 Atur tampilan home</button>');
+      apply(); paintIb();
+    } catch (e) {}
+  };
+  function refresh() { try { renderRows(); } catch (e) {} }
+  // tombol "Tempel pesan" di baris fitur berdua
+  document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a.bx[href="#tempel"]'); if (a) { e.preventDefault(); window.__tempel(); } }, true);
+  try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && (ev.apps.includes('inbox') || ev.apps.includes('tempel'))) { refresh(); } }); } catch (e) {}
+  refresh();
 })();
 
 })();
@@ -2921,5 +3068,45 @@ setTimeout(() => {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 })();
 </script>
+<style>
+  /* ── kotak masuk ── */
+  #home .greet{padding:0 .8rem;margin-top:2.2rem}
+  .ib-btn{position:absolute;top:calc(.9rem + env(safe-area-inset-top));left:calc(1rem + 42px);z-index:5;width:34px;height:34px;padding:0;border-radius:50%;border:1px solid rgba(193,122,111,.22);background:rgba(255,255,255,.7);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .ib-btn i{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:9px;background:#e0475b;color:#fff;font:700 9.5px/17px 'Poppins',sans-serif;font-style:normal;padding:0 4px;box-shadow:0 0 0 2px #fff}
+  html.night .ib-btn{background:rgba(34,26,37,.8);border-color:rgba(255,255,255,.1)}
+  .ib-card{display:flex;align-items:center;gap:.7rem;padding:.75rem .85rem;margin-bottom:.75rem;border-radius:18px;background:linear-gradient(135deg,#fff4e8,#ffe9ee);border:1px solid rgba(224,71,91,.18);cursor:pointer;text-align:left;width:100%;font-family:inherit}
+  .ib-card .e{font-size:1.6rem}.ib-card b{display:block;font-size:13px;color:var(--ink)}.ib-card small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+  html.night .ib-card{background:var(--card)}
+  .hp-ov{position:fixed;inset:0;z-index:9400;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center}
+  .hp-sh{width:100%;max-width:460px;max-height:86vh;max-height:86dvh;overflow-y:auto;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));animation:hpUp .3s ease}
+  @keyframes hpUp{from{transform:translateY(40px);opacity:0}}
+  .hp-sh h3{text-align:center;font-size:15px;color:var(--ink);margin-bottom:.2rem}.hp-sh .sub2{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.8rem}
+  .hp-x{display:block;margin:.7rem auto 0;border:none;background:none;color:var(--muted);font:500 12.5px 'Poppins',sans-serif;padding:.5rem 1rem;cursor:pointer}
+  .ib-it{display:flex;gap:.65rem;align-items:flex-start;padding:.65rem .7rem;border-radius:16px;background:#fff;border:1px solid rgba(193,122,111,.13);margin-bottom:.4rem;text-decoration:none;color:inherit}
+  .ib-it.new{border-color:rgba(224,71,91,.4);background:#fff7f8}
+  .ib-it .e{font-size:1.3rem;flex-shrink:0}.ib-it b{display:block;font-size:12.5px;color:var(--ink);font-weight:600}.ib-it p{font-size:11.5px;color:var(--muted);margin-top:.1rem;word-break:break-word}.ib-it small{font-size:10px;color:var(--muted)}
+  html.night .ib-it{background:var(--card)}
+  /* ── pesan tempel ── */
+  .pt-card{position:relative;margin:.2rem .3rem .9rem;padding:1rem 1rem .8rem;border-radius:4px 4px 18px 4px;box-shadow:0 8px 18px rgba(0,0,0,.12);transform:rotate(-1.2deg);font-family:inherit}
+  .pt-card:before{content:'📌';position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:20px}
+  .pt-card .pf{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.65}
+  .pt-card .pt{font-size:15px;line-height:1.45;margin:.3rem 0 .6rem;color:#3a2a20;word-break:break-word;white-space:pre-wrap}
+  .pt-card button{border:none;border-radius:50px;padding:.5rem 1rem;font:600 12px 'Poppins',sans-serif;background:rgba(0,0,0,.08);color:#3a2a20;cursor:pointer}
+  .pt-cols{display:flex;gap:.5rem;justify-content:center;margin:.6rem 0}
+  .pt-cols button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.15);cursor:pointer}
+  .pt-cols button.on{box-shadow:0 0 0 2.5px var(--rose)}
+  .pt-ta{width:100%;min-height:90px;border-radius:14px;border:1.5px solid rgba(193,122,111,.25);padding:.7rem;font:400 14px 'Poppins',sans-serif;resize:none;background:#fff;color:#2d1f1a}
+  .pt-go{display:block;width:100%;border:none;border-radius:50px;padding:.8rem;font:700 13.5px 'Poppins',sans-serif;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;margin-top:.6rem}
+  .pt-st{font-size:11.5px;color:var(--muted);text-align:center;margin-top:.6rem;line-height:1.5}
+  /* ── atur home ── */
+  .hl-link{display:block;margin:1rem auto .4rem;border:1px dashed rgba(193,122,111,.35);background:none;border-radius:50px;padding:.55rem 1.1rem;font:500 12px 'Poppins',sans-serif;color:var(--muted);cursor:pointer}
+  .hl-g{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:.8rem 0 .4rem;font-weight:600}
+  .hl-it{display:flex;align-items:center;gap:.5rem;padding:.5rem .6rem;border-radius:14px;background:#fff;border:1px solid rgba(193,122,111,.13);margin-bottom:.35rem;font-size:12.5px;color:var(--ink)}
+  .hl-it.off{opacity:.45}
+  .hl-it span{flex:1}
+  .hl-it button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(193,122,111,.2);background:var(--cream);cursor:pointer;font-size:12px;color:var(--deep)}
+  .hl-it button.tg{width:auto;padding:0 .6rem;border-radius:50px;font:600 11px 'Poppins',sans-serif}
+  html.night .hl-it{background:var(--card)}
+</style>
 </body>
 </html>
