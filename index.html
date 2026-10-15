@@ -2049,6 +2049,8 @@ setTimeout(() => {
     if (all && !log[today()]) { log[today()] = 1; const ks = Object.keys(log).sort(); while (ks.length > 90) delete log[ks.shift()]; set('idx-ritual-log', log); }
     const st = streak(log);
     if (!editRit) bdRit(R);
+    // titip progres misi harian ke service worker (buat notif "misi belum beres" malem-malem)
+    try { const mv = JSON.stringify({ d: today(), left: R.shown.filter(r => !r.d).map(r => r.ico + ' ' + r.n), t: R.shown.length, st, at: Date.now() }); if (window.__misiLast !== mv && window.caches) { window.__misiLast = mv; caches.open('untuk-dara-meta').then(c => c.put('/__misi', new Response(mv))).catch(() => {}); } } catch (e) {}
     if (editRit) {
       return `<div class="hx-sec rit"><div class="hx-title"><span>☀️ Atur ritual harian</span><button onclick="ritEdit()">Selesai</button></div>
         <p class="rit-note">Tap buat nyalain / matiin ritual yang mau dimunculin di sini</p>
@@ -2665,6 +2667,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-15', t: '🔔 Notif baru! Sekarang kalau pasangan ngirim sesuatu (origami, kangen, ngajak main, janji, kembang api, dll) langsung muncul di HP kayak chat. Plus pengingat sore kalau misi harian belum beres ☀️' },
     { d: '2026-10-14 15:30', t: '🐾 Peliharaan berdua sekarang tinggal di menu utama — pilih hewannya, kasih nama, rawat bareng! Plus 💞 game baru Satuin Hati, 👥 ganti user sekali buat semua halaman (pakai PIN), warna tema ikut orangnya, & notif khusus buat masing-masing.' },
     { d: '2026-10-14', t: '10 game & 10 hadiah baru — sekarang total 70 game & 70 hadiah! 🎉 Plus 🌐 Tic Tac Toe, Titik & Kotak, Bolak-Balik & Ular Tangga sekarang bisa dimainin online beda HP.' },
     { d: '2026-10-13', t: '4 game & 10 hadiah baru — sekarang total 60 game & 60 hadiah! 🎉 Plus 🤑 Keuangan Berdua, 💾 Cadangan data, ⏰ Pengingat hari spesial, & semua halaman dibikin lebih ringan.' },
@@ -2711,6 +2714,7 @@ setTimeout(() => {
       if ('periodicSync' in reg) { try { await reg.periodicSync.register('cek-kabar', { minInterval: 6 * 3600 * 1000 }); } catch (e) {} }
       reg.showNotification('🔔 Notif nyala!', { body: 'Nanti kalau ada game, hadiah, atau update baru, kamu dikasih tau di sini 💌', icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: 'kabar-tes' });
       set('idx-notif-on', 1); tellSW(maxD);
+      try { if (window.Push && Push.ready) Push.register(true).then(ok => { if (ok) Push.test(); }); } catch (e) {}
     } catch (e) {}
     paintBell();
   }
