@@ -1203,6 +1203,20 @@ const META = {
   'titik-kotak.html':{p:'sb',t:10,kw:'online beda hp dots boxes garis kotak strategi komputer bot'},'bolak-balik.html':{p:'sb',t:15,kw:'online beda hp reversi othello strategi keping komputer bot'},'susun-menara.html':{p:'sb',t:5,kw:'stack tumpuk balok tap cepat'},'terbang-bareng.html':{p:'sb',t:5,kw:'flappy burung terbang tap'},'darts.html':{p:'sb',t:10,kw:'olahraga panah komputer bot'},
   'dadu-lima.html':{p:'sb',t:15,kw:'yatzy yahtzee dadu kombinasi komputer bot'},'ambil-batang.html':{p:'sb',t:5,kw:'nim strategi batang korek komputer bot'},'mini-golf.html':{p:'sb',t:15,kw:'golf olahraga bola pukul'},'pecah-bata.html':{p:'sb',t:10,kw:'breakout arkanoid bola bata'},'jejak-cahaya.html':{p:'sb',t:5,kw:'tron snake motor cepat refleks komputer bot'},'ikutin-pola.html':{p:'sb',t:5,kw:'simon ingatan memori warna urutan'},'dua-satu.html':{p:'sb',t:10,kw:'blackjack kartu 21 komputer bot'},'potong-buah.html':{p:'sb',t:5,kw:'fruit ninja usap swipe cepat'},'lampu-mati.html':{p:'sb',t:10,kw:'lights out puzzle logika'},'permata.html':{p:'sb',t:5,kw:'match 3 candy crush permata puzzle'},'satuin-hati.html':{p:'sb',t:10,kw:'2048 angka geser puzzle hati'},
 };
+// ═══ FITUR BERDUA (data nyambung di HP Razan & Dara) ═══
+// Tiap bikin fitur berdua baru: tambahin 1 baris di sini → otomatis muncul di baris "Fitur berdua" di home,
+// dapet label 💞 di kartunya, & ikut filter "💞 Nyambung 2 HP".   Format: 'file.html': ['Nama pendek', 'emoji*', 'link khusus*']  (*opsional)
+// Game yang bisa online (kw META ada "online beda hp") otomatis kekumpul jadi 1 tombol "🎮 Main online".
+window.DUO = {
+  'kotak-surat.html': ['Surat', '', 'kotak-surat.html?m=0'], 'tombol-kangen.html': ['Kangen'], 'ketemuan.html': ['Rencana ketemu', '', 'ketemuan.html?m=0'], 'peliharaan.html': ['Peliharaan', '🐾'],
+  'gartic-berdua.html': ['Gambar & tebak', '', 'gartic-berdua.html?beda=1'], 'who-knows-me.html': ['Kuis kenal', '', 'who-knows-me.html?beda=1'],
+  'kalender-mood.html': ['Mood', '🌈'], 'jurnal-syukur.html': ['Syukur'], 'jaga-minum.html': ['Jaga minum'], 'daftar-bareng.html': ['Daftar bareng'],
+  'bioskop-kita.html': ['Bioskop'], 'wishlist.html': ['Wishlist', '🎁'], 'bucket-list.html': ['Bucket list'], 'janji-kita.html': ['Janji kita'],
+  'keuangan-berdua.html': ['Keuangan'], 'resep-kita.html': ['Resep'], 'kamus-kita.html': ['Kamus kita'], 'jarak-kita.html': ['Jarak kita'],
+  'masa-depan.html': ['Masa depan'], 'pengingat.html': ['Pengingat', '⏰'], 'rekap-bulanan.html': ['Rekap', '📊'],
+};
+const isDuo = it => !!(window.DUO || {})[it.link];
+const isOnline = it => /online beda hp/i.test(((META[it.link] || {}).kw || '') + ' ' + (it.sub || ''));
 // ═══ LABEL "BARU" ═══
 // Tiap kali update/tambah game: tambah atau ganti 1 baris di sini → 'nama-file.html': 'TAHUN-BULAN-TANGGAL'
 // Label muncul 30 hari dari tanggal itu, hilang lebih cepat kalau game-nya udah dibuka setelah tanggal update.
@@ -1394,7 +1408,9 @@ const isNew = it => { const d = updDate(it.link); return d != null && Date.now()
 function tagsOf(it) {
   const m = META[it.link], out = [];
   if (it.cat === 'hadiah') out.push('🎁 Buat kamu');
-  if (it.cat === 'keuangan') out.push('🔐 Pakai password');
+  if (it.cat === 'keuangan' && it.keuUser) out.push('🔐 Pakai password');
+  if (isDuo(it)) out.unshift('📲 Nyambung 2 HP');
+  if (isOnline(it)) out.unshift('🌐 Bisa online beda HP');
   if (m) { out.push(m.p === 'b' ? '👫 Berdua · 📱 1 HP' : m.p === 's' ? '🙋 Sendiri' : '🙋/👫 Sendiri atau berdua'); out.push('⏱️ ±' + m.t + ' mnt'); }
   return out;
 }
@@ -1566,7 +1582,7 @@ function renderRows() {
 window.clearRecent = () => { recent = []; LS.set('idx-recent', recent); renderRows(); };
 
 // ── pencarian ──
-const CHIPS = [['all', '✨ Semua'], ['games', '🎮 Game'], ['hadiah', '🎁 Hadiah'], ['berdua', '👫 Berdua'], ['sendiri', '🙋 Sendiri'], ['cepat', '⚡ ≤ 5 menit'], ['new', '🆕 Baru']];
+const CHIPS = [['all', '✨ Semua'], ['games', '🎮 Game'], ['hadiah', '🎁 Hadiah'], ['berdua', '👫 Berdua'], ['duo', '📲 Nyambung 2 HP'], ['sendiri', '🙋 Sendiri'], ['cepat', '⚡ ≤ 5 menit'], ['new', '🆕 Baru']];
 function renderChips() { $('chips').innerHTML = CHIPS.map(([k, l]) => `<button class="chip ${filter === k ? 'on' : ''}" data-k="${k}">${l}</button>`).join(''); $('chips').querySelectorAll('.chip').forEach(b => b.onclick = () => { filter = filter === b.dataset.k && b.dataset.k !== 'all' ? 'all' : b.dataset.k; renderChips(); runSearch(); }); }
 const norm = t => (t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 function runSearch() {
@@ -1580,6 +1596,7 @@ function runSearch() {
     if (filter === 'hadiah' && it.cat !== 'hadiah') return false;
     if (filter === 'berdua' && !(m.p === 'b' || m.p === 'sb')) return false;
     if (filter === 'sendiri' && !(m.p === 's' || m.p === 'sb' || it.cat === 'hadiah')) return false;
+    if (filter === 'duo' && !(isDuo(it) || isOnline(it))) return false;
     if (filter === 'cepat' && !(m.t && m.t <= 5)) return false;
     if (filter === 'new' && !isNew(it)) return false;
     return !q || norm([it.label, it.sub, it.desc, m.kw].join(' ')).includes(q);
@@ -1946,13 +1963,14 @@ setTimeout(() => {
   };
   const isBot = it => { const m = META[it.link] || {}; return /komputer|\bbot\b/i.test((m.kw || '') + ' ' + it.sub + ' ' + it.desc); };
   const FILTERS = {
-    games: [['all', '✨ Semua'], ['b', '👫 Berdua'], ['s', '🙋 Sendiri'], ['bot', '🤖 Lawan komputer'], ['cepat', '⚡ Cepet'], ['santai', '💬 Ngobrol'], ['pop', '🔥 Sering dibuka']],
-    hadiah: [['all', '✨ Semua'], ['h', '☀️ Harian'], ['r', '💞 Romantis'], ['s', '🎉 Seru'], ['k', '💌 Bisa dikirim'], ['t', '🌙 Nenangin'], ['m', '📸 Kenangan'], ['pop', '🔥 Sering dibuka']],
+    games: [['all', '✨ Semua'], ['b', '👫 Berdua'], ['duo', '🌐 Online / 2 HP'], ['s', '🙋 Sendiri'], ['bot', '🤖 Lawan komputer'], ['cepat', '⚡ Cepet'], ['santai', '💬 Ngobrol'], ['pop', '🔥 Sering dibuka']],
+    hadiah: [['all', '✨ Semua'], ['duo', '📲 Nyambung 2 HP'], ['h', '☀️ Harian'], ['r', '💞 Romantis'], ['s', '🎉 Seru'], ['k', '💌 Bisa dikirim'], ['t', '🌙 Nenangin'], ['m', '📸 Kenangan'], ['pop', '🔥 Sering dibuka']],
   };
   const TALK = 'kartu-ngobrol deep-talk 36-questions jar-of-questions peta-emosi aku-belum-pernah lanjut-cerita who-knows-me aku-adalah truth-or-dare tarik-pilihan cermin frekuensi bikin-ketawa'.split(' ').map(x => x + '.html');
   function match(it, f) {
     if (f === 'all') return true;
     if (f === 'pop') return (opens[it.link] || 0) >= 1;
+    if (f === 'duo') return isDuo(it) || isOnline(it);
     if (it.cat === 'games') {
       const m = META[it.link] || {};
       if (f === 'b') return m.p === 'b' || m.p === 'sb';
@@ -2617,18 +2635,14 @@ setTimeout(() => {
 
 // ═══ Baris "Fitur berdua" di home ═══
 (function () {
-  // semua fitur yang datanya nyambung antar HP Razan & Dara
-  const F = [['💌', 'Surat', 'kotak-surat.html?m=0'], ['🫂', 'Kangen', 'tombol-kangen.html'], ['📅', 'Rencana ketemu', 'ketemuan.html?m=0'], ['🐾', 'Peliharaan', 'peliharaan.html'],
-    ['🎮', 'Main online', '#online'], ['🎨', 'Gambar & tebak', 'gartic-berdua.html?beda=1'], ['🧠', 'Kuis kenal', 'who-knows-me.html?beda=1'],
-    ['🌈', 'Mood', 'kalender-mood.html'], ['🙏', 'Syukur', 'jurnal-syukur.html'], ['💧', 'Jaga minum', 'jaga-minum.html'], ['🧳', 'Daftar bareng', 'daftar-bareng.html'],
-    ['🎬', 'Bioskop', 'bioskop-kita.html'], ['🎁', 'Wishlist', 'wishlist.html'], ['🪣', 'Bucket list', 'bucket-list.html'], ['📜', 'Janji kita', 'janji-kita.html'],
-    ['🤑', 'Keuangan', 'keuangan-berdua.html'], ['🥘', 'Resep', 'resep-kita.html'], ['📖', 'Kamus kita', 'kamus-kita.html'], ['🧭', 'Jarak kita', 'jarak-kita.html'],
-    ['🔭', 'Masa depan', 'masa-depan.html'], ['⏰', 'Pengingat', 'pengingat.html'], ['📊', 'Rekap', 'rekap-bulanan.html']];
-  const ONLINE = [['⭕', 'Tic Tac Toe', 'tictactoe'], ['🐍', 'Ular Tangga', 'ular-tangga'], ['🐚', 'Congklak', 'congklak'], ['👑', 'Dam', 'dam'], ['⚓', 'Perang Kapal', 'perang-kapal'], ['🔵', 'Empat Sejajar', 'empat-sejajar'], ['🔳', 'Titik & Kotak', 'titik-kotak'], ['🔘', 'Bolak-Balik', 'bolak-balik']];
+  // baris ini diisi otomatis dari DUO (atas) + semua game yang bisa online
+  const F = Object.entries(window.DUO || {}).map(([l, d]) => { const it = byLink(l); return [d[1] || (it && it.icon) || '💞', d[0], d[2] || l]; });
+  if (ALL.some(isOnline)) F.splice(4, 0, ['🎮', 'Main online', '#online']);
+  const ONLINE = ALL.filter(isOnline).map(it => [it.icon, it.label.replace(/ Cinta$/, ''), ((window.DUO || {})[it.link] || [])[2] || it.link]);
   window.__onlineSheet = () => {
     let o = document.getElementById('ol-pick'); if (o) o.remove();
     o = document.createElement('div'); o.id = 'ol-pick';
-    o.innerHTML = `<div class="olp"><b>🎮 Main online beda HP</b><p>Pilih gamenya, terus tap “🎮 Ajak main online” — ${(window.Who && Who.me()) ? Who.other() : 'pasangan'} langsung dapet ajakan</p><div class="olp-g">${ONLINE.map(([e, n, l]) => `<a href="${l}.html"><span>${e}</span>${n}</a>`).join('')}</div><button>Tutup</button></div>`;
+    o.innerHTML = `<div class="olp"><b>🎮 Main online beda HP</b><p>Pilih gamenya, terus tap “🎮 Ajak main online” — ${(window.Who && Who.me()) ? Who.other() : 'pasangan'} langsung dapet ajakan</p><div class="olp-g">${ONLINE.map(([e, n, l]) => `<a href="${l}"><span>${e}</span>${n}</a>`).join('')}</div><button>Tutup</button></div>`;
     o.onclick = e => { if (e.target === o || e.target.tagName === 'BUTTON') o.remove(); };
     document.body.appendChild(o);
   };
