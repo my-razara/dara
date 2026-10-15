@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Pecah Bata — Razan & Dara 🧱</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .scr{display:none}.scr.on{display:block}
+  .pk{text-align:center;padding-top:.6rem}
+  .pk .ico{font-size:3.4rem;display:block;line-height:1.1;animation:gkB 2.6s ease-in-out infinite}
+  @keyframes gkB{50%{transform:translateY(-6px) rotate(-4deg)}}
+  .panel{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:.9rem;margin-top:.8rem;text-align:left}
+  .panel h3{font-size:12.5px;font-weight:600;margin-bottom:.5rem;color:var(--deep)}
+  .bot-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.6rem}
+  .bot-row button{padding:.75rem .3rem;border-radius:50px;border:none;color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+  .bot-row .r{background:linear-gradient(135deg,#7eb3f5,#4a7fc1)}.bot-row .d{background:linear-gradient(135deg,#f0a39a,#d9776b)}
+  .rec{font-size:11.5px;color:var(--muted);text-align:center;margin-top:.9rem;line-height:1.7}
+  .how{margin-top:.8rem;text-align:left;background:rgba(255,255,255,.7);border-radius:16px;padding:.7rem .9rem;font-size:12px;color:var(--muted)}
+  .how summary{cursor:pointer;font-weight:600;color:var(--deep)}
+  .how ul{margin:.5rem 0 0 1rem;line-height:1.6}
+  .sb{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.2rem 0 .6rem}
+  .sb .p{flex:1;min-width:0;display:flex;align-items:center;gap:.45rem;padding:.5rem .7rem;border-radius:16px;background:#fff;border:2px solid transparent;transition:.2s}
+  .sb .p.R{justify-content:flex-start}.sb .p.D{justify-content:flex-end;text-align:right}
+  .sb .p b{font-size:1.3rem;font-weight:700}
+  .sb .p small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sb .p.R b{color:var(--rz)}.sb .p.D b{color:var(--dr)}
+  .sb .p.R.now{border-color:var(--rz);box-shadow:0 4px 14px rgba(74,127,193,.2)}
+  .sb .p.D.now{border-color:var(--dr);box-shadow:0 4px 14px rgba(217,119,107,.2)}
+  .msg{text-align:center;font-size:12.5px;color:var(--muted);min-height:1.4em;margin-bottom:.5rem}
+  .res{text-align:center}
+  .res .e{font-size:3.4rem;display:block}
+  .res h2{font-size:1.4rem;font-weight:700;margin:.3rem 0}
+  .res h2.Razan{color:var(--rz)}.res h2.Dara{color:var(--dr)}
+  .res p{font-size:12.5px;color:var(--muted)}
+  .res .box{background:var(--warm);border-radius:16px;padding:.75rem .9rem;margin:.8rem 0 .2rem;font-size:13px;line-height:1.55}
+  .res .box small{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.2rem}
+
+  .cvw{position:relative;border-radius:22px;overflow:hidden;box-shadow:0 8px 24px rgba(45,31,26,.25);touch-action:none;user-select:none;-webkit-user-select:none;max-width:420px;margin:0 auto}
+  #cv{display:block;width:100%;height:auto}
+  .ov2{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;color:#fff;text-align:center;background:rgba(30,20,40,.45);font-weight:700;font-size:16px;pointer-events:none}
+  .ov2 small{font-weight:400;font-size:12px;opacity:.9}
+  .hud{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin:0 .2rem .45rem}
+  .hud b{color:var(--deep)}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="menu-btn" style="display:none" onclick="quit()">☰ Menu game</button></div>
+  <div class="scr on" id="s-pick"><div class="pk">
+    <span class="ico">🧱</span><h1 class="title">Pecah <span>Bata</span></h1>
+    <p class="sub">Geser papan, pantulin bola, pecahin semua bata! Bata 💗 kasih bonus — ada yang bikin papan lebar & bola jadi dua 🎉</p>
+    <button class="btn" style="margin-top:.8rem" onclick="start('duo')">👫 Adu skor berdua (gantian)</button>
+    <div class="panel"><h3>🙋 Main sendiri</h3><div class="bot-row"><button class="r" onclick="start('Razan')">Razan</button><button class="d" onclick="start('Dara')">Dara</button></div></div>
+    <details class="how"><summary>📖 Cara main</summary><ul><li>Geser jari di mana aja buat gerakin papan. Tap buat lempar bola.</li><li>3 nyawa. Semua bata pecah → naik level.</li><li>💗 = bata bonus: papan lebar, bola dobel, atau +1 nyawa.</li><li>Mode berdua: gantian main, skor paling tinggi menang.</li></ul></details>
+    <p class="rec" id="rec"></p>
+  </div></div>
+  <div class="scr" id="s-game">
+    <div class="sb" id="sbx"><div class="p R" id="pR"><b id="sR">–</b><small>Razan</small></div><div class="p D" id="pD"><small>Dara</small><b id="sD">–</b></div></div>
+    <div class="hud"><span>Level <b id="lv">1</b></span><span id="who"></span><span>Skor <b id="sc">0</b></span><span id="lives"></span></div>
+    <div class="cvw" id="cvw"><canvas id="cv" width="360" height="520"></canvas><div class="ov2" id="ov2"></div></div>
+  </div>
+</div>
+
+<div class="ov center" id="res-ov"><div class="sheet res">
+  <span class="e" id="r-e">🏆</span><h2 id="r-t"></h2><p id="r-s"></p><div class="box" id="r-b"></div>
+  <button class="btn" style="margin-top:.7rem" onclick="closeRes();again()">Main lagi 🔁</button>
+  <button class="btn ghost" style="margin-top:.45rem" onclick="closeRes();toMenu()">Ke menu game</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const DEMANDS = ['Yang kalah kasih 1 pujian tulus ke yang menang 🥰', 'Yang kalah traktir jajan pas ketemu nanti 🍜', 'Yang kalah kirim foto selfie paling jelek sekarang 🤳😆',
+  'Yang kalah kirim voice note nyanyi 1 lagu pendek 🎤', 'Yang kalah pilihin film buat ditonton bareng 🎬', 'Yang kalah kasih peluk paling lama pas ketemu 🫂',
+  'Yang kalah harus nurut satu permintaan kecil 😏', 'Yang kalah pijitin pundak yang menang 5 menit 💆'];
+const BOT_WIN = ['Komputernya lagi hoki aja 😤 Balas dendam yuk!', 'Nyaris! Coba sekali lagi 💪', 'Komputer: "hehe." 😆'];
+function scr(id) { document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id)); window.scrollTo(0, 0); const m = $('menu-btn'); if (m) m.style.display = id === 's-pick' ? 'none' : ''; }
+function closeRes() { $('res-ov').classList.remove('show'); }
+function confettiW(w) { confetti(80, w === 'Razan' ? ['#4a7fc1', '#7eb3f5', '#c9a96e', '#fff'] : ['#d9776b', '#f0a39a', '#c9a96e', '#fff']); }
+// w = 'Razan' / 'Dara' / null (seri). bot = nama pihak komputer (atau null)
+function showRes(w, sub, bot, level) {
+  const humanWon = bot && w && w !== bot, botWon = bot && w === bot;
+  $('r-e').textContent = !w ? '🤝' : botWon ? '🤖' : '🏆';
+  $('r-t').className = w && !botWon ? w : '';
+  $('r-t').textContent = !w ? 'Seri!' : botWon ? 'Komputer menang…' : bot ? 'Kamu menang! 🎉' : `${w} menang! 🎉`;
+  $('r-s').textContent = sub || '';
+  $('r-b').innerHTML = !w ? '<small>Seri berarti…</small>Dua-duanya saling kasih pujian 🥰'
+    : bot ? `<small>${humanWon ? 'Keren!' : 'Semangat!'}</small>${humanWon ? (level < 2 ? 'Coba level yang lebih susah yuk 😏' : 'Komputer level paling susah pun kalah. Juara! 👑') : BOT_WIN[Math.floor(Math.random() * BOT_WIN.length)]}`
+    : `<small>Tantangan buat ${w === 'Razan' ? 'Dara' : 'Razan'}</small>${DEMANDS[Math.floor(Math.random() * DEMANDS.length)]}`;
+  setTimeout(() => { $('res-ov').classList.add('show'); if (w && !botWon) confettiW(w); try { window.SFX && SFX.play(botWon ? 'lose' : 'win'); } catch (e) {} }, 450);
+}
+function record(key, w, bot, level) {
+  const r = lsGet(key, { Razan: 0, Dara: 0, seri: 0, beat: [0, 0, 0] });
+  if (!bot) { if (w) r[w]++; else r.seri++; } else if (w && w !== bot) r.beat[level]++;
+  lsSet(key, r); return r;
+}
+function recHTML(r) { return `Rekor berdua: <b style="color:var(--rz)">Razan ${r.Razan}</b> · <b style="color:var(--dr)">Dara ${r.Dara}</b>${r.seri ? ` · seri ${r.seri}` : ''}${r.beat.some(Boolean) ? `<br>Ngalahin komputer: ${['Santai', 'Sedang', 'Jago'].map((n, i) => `${n} ${r.beat[i]}x`).join(' · ')}` : ''}`; }
+
+const cv = $('cv'), g = cv.getContext('2d'), W = 360, H = 520, PY = 482, BR = 6;
+let mode = null, order = [], oi = 0, scores = {}, score = 0, lives = 3, lvl = 1, pdl = { x: 180, w: 72 }, balls = [], bricks = [], drops = [], stuck = true, over = true, raf = 0, wideT = 0, pause = false;
+const recK = 'pb-rec';
+function paintPick() { const r = lsGet(recK, { best: 0, by: '', Razan: 0, Dara: 0 }); $('rec').innerHTML = `${r.best ? `🏆 Rekor: <b>${r.best}</b> (${esc(r.by)})<br>` : ''}Menang adu skor: <b style="color:var(--rz)">Razan ${r.Razan}</b> · <b style="color:var(--dr)">Dara ${r.Dara}</b>`; }
+function start(m) { mode = m; order = m === 'duo' ? (Math.random() < .5 ? ['Razan', 'Dara'] : ['Dara', 'Razan']) : [m]; oi = 0; scores = {}; $('sbx').style.display = m === 'duo' ? '' : 'none'; $('sR').textContent = '–'; $('sD').textContent = '–'; over = false; scr('s-game'); newRun(); cancelAnimationFrame(raf); loop(); }
+function again() { start(mode); }
+function quit() { if (!over && !confirm('Udahan mainnya?')) return; toMenu(); }
+function toMenu() { over = true; cancelAnimationFrame(raf); scr('s-pick'); paintPick(); }
+const cur = () => order[oi];
+function newRun() { score = 0; lives = 3; lvl = 1; build(); resetBall(); hud(); msg(`Giliran ${cur()} 🧱`, 'Tap buat lempar bola'); }
+function msg(a, b) { $('ov2').innerHTML = a ? `${a}<small>${b || ''}</small>` : ''; $('ov2').style.display = a ? '' : 'none'; }
+function build() {
+  bricks = []; const rows = Math.min(4 + lvl, 9), cols = 8, bw = (W - 20) / cols;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    if (lvl % 3 === 2 && (r + c) % 4 === 0) continue;                       // pola bolong
+    if (lvl % 3 === 0 && Math.abs(c - 3.5) < r * .5 - 1) continue;             // bentuk V
+    const hp = r < lvl - 1 ? 2 : 1;
+    bricks.push({ x: 10 + c * bw + 2, y: 60 + r * 22, w: bw - 4, h: 18, hp, max: hp, heart: Math.random() < .08, hue: (r * 28 + 330) % 360 });
+  }
+}
+function resetBall() { balls = [{ x: pdl.x, y: PY - BR - 1, vx: 0, vy: 0 }]; stuck = true; drops = []; }
+function launch() { if (!stuck || pause) return; const sp = 5.2 + lvl * .35, a = -Math.PI / 2 + (Math.random() - .5) * .8; balls[0].vx = Math.cos(a) * sp; balls[0].vy = Math.sin(a) * sp; stuck = false; msg(''); }
+function hud() { $('lv').textContent = lvl; $('sc').textContent = score; $('lives').textContent = '❤️'.repeat(Math.max(0, lives)); const p = cur(); $('who').innerHTML = `<b style="color:var(--${p === 'Razan' ? 'rz' : 'dr'})">${p}</b>`; $('pR').classList.toggle('now', p === 'Razan'); $('pD').classList.toggle('now', p === 'Dara'); }
+function pt(e) { const r = cv.getBoundingClientRect(); return (e.clientX - r.left) / r.width * W; }
+let downX = null, moved = false;
+cv.addEventListener('pointerdown', e => { e.preventDefault(); downX = pt(e); moved = false; try { cv.setPointerCapture(e.pointerId); } catch (x) {} });
+cv.addEventListener('pointermove', e => { if (downX == null && e.pointerType !== 'mouse') return; const x = pt(e); if (downX != null && Math.abs(x - downX) > 6) moved = true; pdl.x = Math.max(pdl.w / 2, Math.min(W - pdl.w / 2, x)); if (stuck) balls[0].x = pdl.x; });
+cv.addEventListener('pointerup', () => { if (!moved) launch(); downX = null; });
+function hitBrick(b, ball) {
+  b.hp--; score += 10 * lvl; vib(6);
+  if (b.hp <= 0) {
+    bricks.splice(bricks.indexOf(b), 1); score += 5;
+    try { window.SFX && SFX.play('seed'); } catch (e) {}
+    if (b.heart) drops.push({ x: b.x + b.w / 2, y: b.y, t: ['wide', 'multi', 'life'][Math.floor(Math.random() * 3)] });
+  }
+  hud();
+}
+function step() {
+  if (pause || over) return;
+  if (wideT > 0 && --wideT === 0) pdl.w = 72;
+  for (const ball of balls) {
+    if (stuck) break;
+    for (let s = 0; s < 3; s++) {
+      ball.x += ball.vx / 3; ball.y += ball.vy / 3;
+      if (ball.x < BR) { ball.x = BR; ball.vx = Math.abs(ball.vx); } if (ball.x > W - BR) { ball.x = W - BR; ball.vx = -Math.abs(ball.vx); }
+      if (ball.y < BR) { ball.y = BR; ball.vy = Math.abs(ball.vy); }
+      // papan
+      if (ball.vy > 0 && ball.y + BR >= PY && ball.y + BR <= PY + 12 && Math.abs(ball.x - pdl.x) <= pdl.w / 2 + BR) {
+        const rel = (ball.x - pdl.x) / (pdl.w / 2), sp = Math.hypot(ball.vx, ball.vy), a = -Math.PI / 2 + rel * 1.05;
+        ball.vx = Math.cos(a) * sp; ball.vy = Math.sin(a) * sp; ball.y = PY - BR; try { window.SFX && SFX.play('tap'); } catch (e) {}
+      }
+      for (const b of bricks) {
+        if (ball.x + BR > b.x && ball.x - BR < b.x + b.w && ball.y + BR > b.y && ball.y - BR < b.y + b.h) {
+          const ox = Math.min(ball.x + BR - b.x, b.x + b.w - (ball.x - BR)), oy = Math.min(ball.y + BR - b.y, b.y + b.h - (ball.y - BR));
+          if (ox < oy) ball.vx *= -1; else ball.vy *= -1;
+          hitBrick(b, ball); break;
+        }
+      }
+    }
+  }
+  balls = balls.filter(b => b.y < H + 20);
+  for (const d of drops) { d.y += 2.4; if (d.y > PY - 8 && d.y < PY + 12 && Math.abs(d.x - pdl.x) < pdl.w / 2 + 8) { d.got = 1; power(d.t); } }
+  drops = drops.filter(d => !d.got && d.y < H);
+  if (!stuck && !balls.length) {
+    lives--; hud(); vib([40, 40]); try { window.SFX && SFX.play('lose'); } catch (e) {}
+    if (lives <= 0) return runOver();
+    pdl.w = 72; wideT = 0; resetBall(); msg('Bolanya jatuh 😢', `Sisa ${lives} nyawa · tap buat lanjut`);
+  }
+  if (!bricks.length) { lvl++; score += 100; hud(); build(); resetBall(); confetti(40); try { window.SFX && SFX.play('win'); } catch (e) {} msg(`Level ${lvl}! 🎉`, '+100 bonus · tap buat lanjut'); }
+}
+function power(t) {
+  try { window.SFX && SFX.play('coin'); } catch (e) {}
+  if (t === 'wide') { pdl.w = 120; wideT = 600; toast('📏 Papan lebar!'); }
+  else if (t === 'life') { lives = Math.min(5, lives + 1); hud(); toast('❤️ +1 nyawa'); }
+  else { const b = balls[0]; if (b) balls.push({ x: b.x, y: b.y, vx: -b.vx || 3, vy: b.vy || -5 }); toast('⚾ Bola dobel!'); }
+}
+function runOver() {
+  pause = true; const p = cur(); scores[p] = score; $(p === 'Razan' ? 'sR' : 'sD').textContent = score;
+  const r = lsGet(recK, { best: 0, by: '', Razan: 0, Dara: 0 }); let best = false; if (score > r.best) { r.best = score; r.by = p; best = true; lsSet(recK, r); }
+  if (oi < order.length - 1) { msg(`${p}: ${score} poin${best ? ' · rekor! 🏆' : ''}`, `Sekarang giliran ${order[oi + 1]} — tap buat mulai`); setTimeout(() => { pause = false; oi++; newRun(); msg(`${p}: ${score} poin`, `Giliran ${cur()} — tap buat lempar bola`); }, 1800); return; }
+  setTimeout(() => {
+    pause = false; over = true;
+    if (mode === 'duo') { const a = scores.Razan, b = scores.Dara, w = a === b ? null : a > b ? 'Razan' : 'Dara'; if (w) { r[w]++; lsSet(recK, r); } showRes(w, `Razan ${a} · Dara ${b}`, null, 0); }
+    else { $('r-e').textContent = best ? '🏆' : '🧱'; $('r-t').className = mode; $('r-t').textContent = `${score} poin`; $('r-s').textContent = best ? 'REKOR BARU! 🎉' : `Rekor: ${r.best} (${r.by})`; $('r-b').innerHTML = `<small>Sampai level ${lvl}</small>Tantang ${mode === 'Razan' ? 'Dara' : 'Razan'} buat ngalahin skor ini 😏`; $('res-ov').classList.add('show'); }
+  }, 900);
+}
+function rr(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+let bg = null;
+function draw() {
+  if (!bg) { bg = document.createElement('canvas'); bg.width = W; bg.height = H; const q = bg.getContext('2d'), gr = q.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#2b2340'); gr.addColorStop(1, '#4a2f4f'); q.fillStyle = gr; q.fillRect(0, 0, W, H); q.fillStyle = 'rgba(255,255,255,.5)'; for (let i = 0; i < 40; i++) q.fillRect((i * 97) % W, (i * 53) % H, 1.5, 1.5); }
+  g.drawImage(bg, 0, 0);
+  for (const b of bricks) { g.fillStyle = `hsl(${b.hue},70%,${b.hp < b.max ? 45 : 62}%)`; rr(b.x, b.y, b.w, b.h, 5); g.fill(); g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(b.x + 3, b.y + 3, b.w - 6, 3); if (b.heart) { g.font = '12px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('💗', b.x + b.w / 2, b.y + b.h / 2 + 1); } }
+  for (const d of drops) { g.font = '18px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText({ wide: '📏', multi: '⚾', life: '❤️' }[d.t], d.x, d.y); }
+  const pc = cur() === 'Razan' ? ['#7eb3f5', '#4a7fc1'] : ['#f0a39a', '#d9776b'], pg = g.createLinearGradient(0, PY, 0, PY + 12); pg.addColorStop(0, pc[0]); pg.addColorStop(1, pc[1]); g.fillStyle = pg; rr(pdl.x - pdl.w / 2, PY, pdl.w, 12, 6); g.fill();
+  g.fillStyle = '#fff'; for (const b of balls) { g.beginPath(); g.arc(b.x, b.y, BR, 0, 7); g.fill(); }
+}
+function loop() { step(); draw(); if (!over) raf = requestAnimationFrame(loop); }
+paintPick();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
