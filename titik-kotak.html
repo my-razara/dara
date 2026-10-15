@@ -2,9 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<script src="who.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Titik & Kotak — Razan & Dara 🔳</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
@@ -107,7 +110,7 @@
     <span class="ico">🔳</span><h1 class="title">Titik & <span>Kotak</span></h1>
     <p class="sub">Gantian narik garis di antara titik. Yang nutup kotak dapet poin & jalan lagi. Kotak paling banyak menang! ✏️</p>
     <div class="panel"><h3>📐 Ukuran papan</h3><div class="chips" id="p-size"><button data-v="3">3×3 · cepet</button><button data-v="4">4×4</button><button data-v="5">5×5 · panjang</button></div></div>
-    <button class="btn" style="margin-top:.8rem" onclick="start(null)">👫 Main berdua di 1 HP</button>
+    <button class="btn" id="b-duo" style="margin-top:.8rem" onclick="start(null)">👫 Main berdua di 1 HP</button>
     <div class="panel"><h3>🤖 Atau lawan komputer</h3><div class="chips" id="p-lv"><button data-v="0">😊 Santai</button><button data-v="1">🙂 Sedang</button><button data-v="2">😈 Jago</button></div>
       <div class="bot-row"><button class="r" onclick="start('Dara')">🙋‍♂️ Aku Razan</button><button class="d" onclick="start('Razan')">🙋‍♀️ Aku Dara</button></div></div>
     <details class="how"><summary>📖 Cara main</summary><ul><li>Tap di antara 2 titik buat narik garis.</li><li>Garis ke-4 yang nutup kotak = kotaknya punya kamu, terus kamu jalan lagi.</li><li>Hati-hati ngasih garis ke-3 — lawan tinggal nutup 😏</li><li>Semua garis kepake → yang kotaknya paling banyak menang.</li></ul></details>
@@ -117,6 +120,7 @@
     <div class="sb"><div class="p R" id="pR"><b id="sR">0</b><small id="nR">Razan</small></div><div class="p D" id="pD"><small id="nD">Dara</small><b id="sD">0</b></div></div>
     <p class="msg" id="msg"></p>
     <div class="board"><svg id="svg"></svg></div>
+    <p class="ol-st" id="ol-st"></p>
   </div>
 </div>
 
@@ -194,6 +198,7 @@ function record(key, w, bot, level) {
 }
 function recHTML(r) { return `Rekor berdua: <b style="color:var(--rz)">Razan ${r.Razan}</b> · <b style="color:var(--dr)">Dara ${r.Dara}</b>${r.seri ? ` · seri ${r.seri}` : ''}${r.beat.some(Boolean) ? `<br>Ngalahin komputer: ${['Santai', 'Sedang', 'Jago'].map((n, i) => `${n} ${r.beat[i]}x`).join(' · ')}` : ''}`; }
 
+let ONLINE = false, HUMAN = null, REPLAY = false;
 let N = lsGet('tk-size', 4), level = lsGet('tk-lv', 1), BOT = null, E = {}, B = {}, turn = 'Razan', score = {}, over = true, busy = false, last = null, first = 'Dara';
 const G = 100, P = 26;
 function paintPick() {
@@ -208,15 +213,15 @@ const boxEdges = (r, c) => ['h' + r + '_' + c, 'h' + (r + 1) + '_' + c, 'v' + r 
 function boxesOf(e) { const [t, rc] = [e[0], e.slice(1)], [r, c] = rc.split('_').map(Number), o = []; if (t === 'h') { if (r > 0) o.push([r - 1, c]); if (r < N) o.push([r, c]); } else { if (c > 0) o.push([r, c - 1]); if (c < N) o.push([r, c]); } return o; }
 const sides = (Em, r, c) => boxEdges(r, c).filter(x => Em[x]).length;
 function start(bot) { BOT = bot; first = bot ? (bot === 'Razan' ? 'Dara' : 'Razan') : (first === 'Razan' ? 'Dara' : 'Razan'); begin(); }
-function again() { if (BOT) begin(); else start(null); }
+function again() { if (ONLINE) { Online.invite(); return; } if (BOT) begin(); else start(null); }
 function begin() {
   E = {}; B = {}; score = { Razan: 0, Dara: 0 }; turn = first; over = false; busy = false; last = null;
-  $('nR').textContent = BOT === 'Razan' ? '🤖 Komputer' : BOT ? 'Razan (kamu)' : 'Razan';
-  $('nD').textContent = BOT === 'Dara' ? '🤖 Komputer' : BOT ? 'Dara (kamu)' : 'Dara';
+  $('nR').textContent = BOT === 'Razan' ? '🤖 Komputer' : BOT || HUMAN === 'Razan' ? 'Razan (kamu)' : 'Razan';
+  $('nD').textContent = BOT === 'Dara' ? '🤖 Komputer' : BOT || HUMAN === 'Dara' ? 'Dara (kamu)' : 'Dara';
   scr('s-game'); draw(); next();
 }
-function quit() { if (!over && Object.keys(E).length && !confirm('Udahan mainnya?')) return; toMenu(); }
-function toMenu() { over = true; scr('s-pick'); paintPick(); }
+function quit() { if (!over && Object.keys(E).length && !confirm(ONLINE ? 'Keluar dari game online? Pasanganmu bakal dikabarin.' : 'Udahan mainnya?')) return; if (ONLINE) { Online.leave(); ONLINE = false; HUMAN = null; } toMenu(); }
+function toMenu() { if (ONLINE) { Online.leave(true); ONLINE = false; HUMAN = null; } over = true; scr('s-pick'); paintPick(); }
 function draw() {
   const W = N * G + P * 2; const svg = $('svg'); svg.setAttribute('viewBox', `0 0 ${W} ${W}`);
   let h = '';
@@ -231,20 +236,22 @@ function draw() {
   $('sR').textContent = score.Razan; $('sD').textContent = score.Dara;
   $('pR').classList.toggle('now', !over && turn === 'Razan'); $('pD').classList.toggle('now', !over && turn === 'Dara');
 }
-function tap(e) { if (over || busy || E[e] || (BOT && turn === BOT)) return; play(e); }
+function tap(e) { if (over || busy || E[e] || (BOT && turn === BOT) || (ONLINE && turn !== HUMAN)) return; if (ONLINE) Online.move(e); play(e); }
 function play(e) {
   E[e] = turn; last = e; let got = 0;
   for (const [r, c] of boxesOf(e)) if (!B[r + '_' + c] && sides(E, r, c) === 4) { B[r + '_' + c] = turn; score[turn]++; got++; }
-  vib(got ? [20, 30, 20] : 8); try { window.SFX && SFX.play(got ? 'coin' : 'seed'); } catch (x) {}
+  if (!REPLAY) { vib(got ? [20, 30, 20] : 8); try { window.SFX && SFX.play(got ? 'coin' : 'seed'); } catch (x) {} }
   if (!got) turn = turn === 'Razan' ? 'Dara' : 'Razan';
+  if (REPLAY) { if (Object.keys(E).length === edges().length) over = true; return; }
   draw();
   if (Object.keys(E).length === edges().length) return finish();
   if (got) $('msg').textContent = `✨ ${who(turn)} dapet ${got} kotak — jalan lagi!`;
   next(!!got);
 }
-const who = p => BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
+const who = p => ONLINE ? (p === HUMAN ? 'Kamu' : p) : BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
 function next(keepMsg) {
-  if (!keepMsg) $('msg').textContent = BOT && turn === BOT ? '🤖 Komputer lagi mikir…' : `Giliran ${who(turn)} — tap di antara 2 titik`;
+  if (ONLINE) Online.waiting(!over && turn !== HUMAN);
+  if (!keepMsg) $('msg').textContent = ONLINE && turn !== HUMAN ? `⏳ Nunggu ${turn} narik garis…` : BOT && turn === BOT ? '🤖 Komputer lagi mikir…' : `Giliran ${who(turn)} — tap di antara 2 titik`;
   if (BOT && turn === BOT) { busy = true; setTimeout(() => { busy = false; if (!over) play(botMove()); }, 420 + Math.random() * 300); }
 }
 function giveaway(Em, e) { let n = 0; for (const [r, c] of boxesOf(e)) if (sides(Em, r, c) === 2) n++; return n; }
@@ -269,14 +276,27 @@ function finish() {
   over = true; draw();
   const w = score.Razan === score.Dara ? null : score.Razan > score.Dara ? 'Razan' : 'Dara';
   $('msg').textContent = '🏁 Semua garis udah ketarik!';
+  if (ONLINE) Online.waiting(false);
   record('tk-rec', w, BOT, level);
   showRes(w, `Kotak Razan ${score.Razan} · Kotak Dara ${score.Dara}`, BOT, level);
 }
 paintPick();
+/* ── main online (beda HP) ── */
+if (window.Online) Online.setup({
+  g: 'titik-kotak', panelAfter: '#b-duo', statusEl: 'ol-st',
+  makeCfg: () => ({ N, first: Math.random() < .5 ? 'Razan' : 'Dara' }),
+  onStart(room, me) {
+    closeRes(); ONLINE = true; HUMAN = me; BOT = null;
+    const cf = room.cfg || {}; N = cf.N || 4; first = cf.first || 'Dara';
+    begin();
+    REPLAY = true; try { for (const mv of room.moves) if (typeof mv === 'string' && !E[mv] && !over) play(mv); } finally { REPLAY = false; }
+    draw(); if (over) { over = false; finish(); } else next();
+  },
+  onMove(mv) { if (!ONLINE || over || typeof mv !== 'string' || E[mv] || turn === HUMAN) return; play(mv); },
+  onLeft() { ONLINE = false; HUMAN = null; closeRes(); over = true; scr('s-pick'); paintPick(); },
+});
 
 </script>
-</script>
-
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {
