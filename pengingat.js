@@ -53,6 +53,13 @@
   // hari ke berapa sebelum acara dikasih notif
   const NOTIF_AT = e => e.big ? [7, 3, 1, 0] : [1, 0];
   function notifText(e, l) {
+    // ulang tahun: kalimatnya beda buat yang ultah & pasangannya
+    const me = (window.Who && Who.me()) || g('berdua-me', 'Dara'), mine = (/^ud/.test(e.key) && me === 'Dara') || (/^ur/.test(e.key) && me === 'Razan');
+    if (/^u[dr]\d/.test(e.key)) {
+      const who = /^ud/.test(e.key) ? 'Dara' : 'Razan';
+      if (mine) return l === 0 ? { title: '🎂 Selamat ulang tahun, sayang!', body: `Hari ini hari kamu 🤍 ${who === 'Dara' ? 'Razan' : 'Dara'} sayang banget sama kamu.` } : { title: `🎂 ${when(l)} ulang tahun kamu!`, body: `${dateLabel(e.date)} — siap-siap dimanja 😆` };
+      return l === 0 ? { title: `${e.e} Hari ini ulang tahun ${who}!`, body: 'Jangan lupa ucapan pertama & peluk paling erat 🎁' } : { title: `${e.e} ${when(l)}: ulang tahun ${who}`, body: `${dateLabel(e.date)} — siapin kado & kejutannya dari sekarang 🤫` };
+    }
     const extra = e.meet ? [e.time && 'jam ' + e.time, e.place].filter(Boolean).join(' · ') : '';
     if (l === 0) return { title: `${e.e} ${e.t} — hari ini!`, body: e.meet ? `Hari ini ketemu 🥰${extra ? ' · ' + extra : ''}` : e.big ? 'Jangan lupa kasih ucapan & peluk yang paling erat 🤍' : 'Selamat ya kalian berdua 💕' };
     return { title: `${e.e} ${when(l)}: ${e.t}`, body: `${dateLabel(e.date)}${extra ? ' · ' + extra : ''} — siap-siap dari sekarang ya 😉` };
