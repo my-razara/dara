@@ -184,7 +184,9 @@ function setT(d) { const r = Object.assign({ ml: 0, t: [] }, day(me)); r.g = Mat
 function nudge() {
   const o = otherOf(me), r = day(o), g = glasses(r);
   const msg = !r.ml ? `${o} sayang, hari ini belum minum air sama sekali loh 😤💧 minum dulu yuk, satu gelas aja!` : g < (r.g || 8) / 2 ? `${o}, baru ${g} gelas hari ini. Ayo minum lagi biar ga pusing 🥤💙` : `${o}, udah ${g} gelas, keren! Tinggal dikit lagi ke ${r.g || 8} gelas 💧✨`;
-  location.href = waLink(msg + '\n\ncatet di sini ya: ' + location.href.split('#')[0]);
+  const u = waLink(msg + '\n\ncatet di sini ya: ' + location.href.split('#')[0]);
+  try { window.Push && Push.notify({ title: `💧 ${me} ngingetin kamu minum`, body: msg, url: 'jaga-minum.html', tag: 'minum' }); } catch (e) {}
+  setTimeout(() => { location.href = u; }, 150);
 }
 BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes(APP)) render(); });
 render();
