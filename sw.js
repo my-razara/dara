@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v32';
+const VERSI = 'v33';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "peliharaan.html",
@@ -155,7 +155,7 @@ const HALAMAN = [
 "who-knows-me.html",
 "word-search.html"
 ];
-const ASET = ['who.js', 'pet.js', 'sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png'];
+const ASET = ['who.js', 'push.js', 'pet.js', 'sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png'];
 
 // ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
 const SYNC_BAR = `<script>(function(){
@@ -285,8 +285,33 @@ async function cekPet() {
     await c.put('/__pet-sent', new Response(JSON.stringify({ at: now })));
   } catch (e) {}
 }
-self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(Promise.all([cekKabar(), cekIngat(), cekPet()])); });
-self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); if (e.data === 'cek-ingat') e.waitUntil(cekIngat()); if (e.data === 'cek-pet') e.waitUntil(cekPet()); });
+
+// ═══ MISI HARIAN BELUM BERES ═══ (progres dititip menu utama) — dicek sore-malem, sekali sehari
+async function cekMisi() {
+  if (self.Notification && Notification.permission !== 'granted') return;
+  try {
+    const d = new Date(), h = d.getHours(); if (h < 17 || h >= 22) return;
+    const p = n => String(n).padStart(2, '0'), today = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    const c = await caches.open('untuk-dara-meta'), r = await c.match('/__misi'); if (!r) return;
+    const m = await r.json(), sr = await c.match('/__misi-sent'), sent = sr ? await sr.json() : {};
+    if (sent.d === today || !m.t) return;
+    const left = m.d === today ? (m.left || []) : null;          // belum buka web sama sekali hari ini → semua belum
+    if (left && !left.length) return;
+    const me = await siapa(), n = left ? left.length : m.t;
+    const body = left ? `Tinggal ${n} lagi: ${left.slice(0, 3).join(', ')}${n > 3 ? ` +${n - 3}` : ''}` : `${m.t} misi hari ini masih nunggu kamu${m.st ? ` — jangan sampe streak ${m.st} hari putus!` : ''}`;
+    await self.registration.showNotification(me === 'Razan' ? '☀️ Misi harian belum beres' : '☀️ Misi harian kamu belum beres 🥺', { body, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: 'misi', renotify: true, data: { url: './' } });
+    await c.put('/__misi-sent', new Response(JSON.stringify({ d: today })));
+  } catch (e) {}
+}
+// ═══ NOTIF INSTAN dari pasangan (Firebase Cloud Messaging → push) ═══
+self.addEventListener('push', e => {
+  let d = {};
+  try { const j = e.data ? e.data.json() : {}; d = j.data || j.notification || j || {}; } catch (x) { try { d = { body: e.data.text() }; } catch (y) {} }
+  const title = d.title || '💌 Ada kiriman buat kamu';
+  e.waitUntil(self.registration.showNotification(title, { body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: d.tag || 'kiriman', renotify: true, vibrate: [120, 60, 120], data: { url: d.url || './' } }));
+});
+self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(Promise.all([cekKabar(), cekIngat(), cekPet(), cekMisi()])); });
+self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); if (e.data === 'cek-ingat') e.waitUntil(cekIngat()); if (e.data === 'cek-pet') e.waitUntil(cekPet()); if (e.data === 'cek-misi') e.waitUntil(cekMisi()); });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
