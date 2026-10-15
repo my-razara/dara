@@ -3,7 +3,7 @@
    Halaman game cukup manggil Online.setup({...}) */
 (function () {
   const WA = { Razan: '6285692740607', Dara: '6287703706518' };
-  const GN = { congklak: ['🐚', 'Congklak'], 'perang-kapal': ['⚓', 'Perang Kapal'], dam: ['⚫', 'Dam'], 'empat-sejajar': ['🔴', 'Empat Sejajar'] };
+  const GN = { congklak: ['🐚', 'Congklak'], 'perang-kapal': ['⚓', 'Perang Kapal'], dam: ['⚫', 'Dam'], 'empat-sejajar': ['🔴', 'Empat Sejajar'], tictactoe: ['⭕', 'Tic-Tac-Toe'], 'titik-kotak': ['🔳', 'Titik & Kotak'], 'bolak-balik': ['🔘', 'Bolak-Balik'], 'ular-tangga': ['🐍', 'Ular Tangga'] };
   const FRESH = 12 * 3600e3;
   const O = { on: false, room: null, applied: 0, g: null, h: null, wait: false, net: 'ok', waitingJoin: false };
   let pollT = null, polling = false, delivering = false, sendChain = Promise.resolve(), lastRoom = undefined;
