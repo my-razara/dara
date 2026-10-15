@@ -39,20 +39,38 @@
     });
   }
 
+  // ── simpen ke Kotak Masuk pasangan (app 'inbox', 60 slot muter) — tetep ada walaupun notifnya kelewat ──
+  const D0 = Date.UTC(1950, 0, 1);
+  function rowPut(app, who, date, data) {
+    if (window.Berdua && Berdua.put) { Berdua.put(app, who, date, data); return; }
+    const k = app + '-' + who, m = g(k, {}) || {}; m[date] = data; s(k, m);
+    const now = Date.now(), st = g('bd-stamp', {}) || {}; st[`${app}|${who}|${date}`] = now; s('bd-stamp', st);
+    const b = JSON.stringify({ key: KEY, action: 'put', rows: [{ app, who, date, data, updated: now }] });
+    try { if (navigator.sendBeacon && navigator.sendBeacon(URL, new Blob([b], { type: 'text/plain' }))) return; } catch (e) {}
+    post({ action: 'put', rows: [{ app, who, date, data, updated: now }] });
+  }
+  function inboxAdd(to, item) {
+    const n = ((g('inbox-slot', -1) | 0) + 1) % 60; s('inbox-slot', n);
+    rowPut('inbox', to, new Date(D0 + n * 864e5).toISOString().slice(0, 10), item);
+  }
   // ── kirim notif ke pasangan ──
   const lastSent = {};
   function notify(o) {
-    const w = me(); if (!ready || !w || !o || !o.title) return;
-    const tag = o.tag || 'kiriman', now = Date.now();
+    const w = me(); if (!w || !o || !o.title) return;
+    const tag = o.tag || 'kiriman', now = Date.now(), to = o.to || other(w);
     if (lastSent[tag] && now - lastSent[tag] < 8000) return;            // jangan dobel kalau kepencet 2x
     lastSent[tag] = now;
+    const title = String(o.title).slice(0, 80), text = String(o.body || '').slice(0, 180), url = o.url || './';
+    if (to !== w && tag !== 'tes') { try { inboxAdd(to, { f: w, t: title, b: text, u: url, g: tag, at: now }); } catch (e) {} }
+    if (!ready) return;
     // ditunda dikit biar sempet kekirim walaupun halaman langsung pindah ke WA
-    const body = { action: 'notify', from: w, to: o.to || other(w), title: String(o.title).slice(0, 80), body: String(o.body || '').slice(0, 180), url: o.url || './', tag };
+    const body = { action: 'notify', from: w, to, title, body: text, url, tag };
     try {
       if (navigator.sendBeacon) { const ok = navigator.sendBeacon(URL, new Blob([JSON.stringify(Object.assign({ key: KEY }, body))], { type: 'text/plain' })); if (ok) return; }
     } catch (e) {}
     post(body);
   }
+
 
   // ── kiriman lewat WhatsApp → pasangan juga dapet notif ──
   function fromWA(href) {
