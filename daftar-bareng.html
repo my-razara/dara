@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Daftar Bareng — Razan & Dara 🧳</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}
+  .lists{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;margin-bottom:.8rem}
+  .lists button{border:1.5px solid var(--blush);background:#fff;border-radius:16px;padding:.5rem .1rem .4rem;cursor:pointer;color:var(--deep);font-size:10.5px;line-height:1.25;position:relative}
+  .lists button span{display:block;font-size:1.35rem;margin-bottom:.1rem}
+  .lists button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
+  .lists button i{position:absolute;top:-5px;right:-3px;background:var(--rose);color:#fff;font-style:normal;font-size:9.5px;font-weight:700;border-radius:20px;padding:.05rem .35rem;min-width:16px}
+  .add{display:flex;gap:.4rem;margin-bottom:.5rem}
+  .add .inp{margin:0;flex:1;min-width:0}
+  .add button{flex:0 0 auto;width:46px;border:none;border-radius:14px;background:var(--rose);color:#fff;font-size:1.3rem;cursor:pointer}
+  .bar{height:8px;border-radius:8px;background:var(--warm);overflow:hidden;margin:.2rem 0 .3rem}
+  .bar div{height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .3s}
+  .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:.6rem}
+  .it{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:16px;padding:.6rem .7rem;margin-bottom:.4rem;border:1px solid rgba(193,122,111,.12)}
+  .it .ck{flex:0 0 auto;width:26px;height:26px;border-radius:9px;border:2px solid var(--blush);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;background:#fff;color:#fff}
+  .it.done .ck{background:#4caf7a;border-color:#4caf7a}
+  .it .m{flex:1;min-width:0;cursor:pointer}
+  .it b{display:block;font-size:13.5px;font-weight:500;word-break:break-word}
+  .it.done b{text-decoration:line-through;color:var(--muted)}
+  .it small{font-size:10px;color:var(--muted)}
+  .it .x{flex:0 0 auto;border:none;background:none;font-size:15px;color:var(--muted);cursor:pointer;padding:.2rem}
+  .tag{display:inline-block;font-size:9px;font-weight:700;padding:0 .4rem;border-radius:20px;color:#fff;margin-right:.2rem}
+  .tag.R{background:var(--rz)}.tag.D{background:var(--dr)}
+  .sec{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:.8rem 0 .4rem}
+  .tpl{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+  .tpl button{font-size:11.5px;padding:.4rem .7rem;border-radius:50px;border:1.5px dashed var(--blush);background:none;color:var(--deep);cursor:pointer}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
+  <div class="head"><span class="ico">🧳</span><p class="lbl">Catatan berdua</p><h1 class="title">Daftar <span>Bareng</span></h1><p class="sub">Belanjaan, barang bawaan, kerjaan — satu daftar buat berdua. Yang dicentang di HP satu, keliatan di HP satunya ✔️</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="lists" id="lists"></div>
+  <div class="add"><input class="inp" id="nw" maxlength="60" placeholder="Tambah item…" enterkeyhint="done"><button onclick="addIt()" aria-label="Tambah">＋</button></div>
+  <div class="bar"><div id="bar"></div></div>
+  <div class="meta"><span id="cnt"></span><a href="#" id="clr" style="color:var(--rose)" onclick="clearDone();return false">Hapus yang udah ✔️</a></div>
+  <div id="list"></div>
+  <div id="tpl-box"><p class="sec">Isi cepat dari template</p><div class="tpl" id="tpl"></div></div>
+</div>
+<div class="ov" id="ed-ov"><div class="sheet">
+  <div class="drag"></div><h3 style="text-align:center;font-size:15px;margin-bottom:.3rem">Edit item</h3>
+  <label class="lab">Nama</label><input class="inp" id="ed-t" maxlength="60">
+  <label class="lab">Catatan / jumlah (opsional)</label><input class="inp" id="ed-n" maxlength="40" placeholder="2 bungkus, yang merah…">
+  <div class="row"><button class="btn ghost" onclick="closeOv('ed-ov')">Batal</button><button class="btn" onclick="saveEd()">Simpan</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+// ── penyimpanan per-item: tiap item 1 baris di database (server nolak data > 3000 huruf per baris) ──
+// tanggal baris = tanggal "palsu" mulai 1901-01-01 (cuma buat nomor urut), isinya item itu sendiri.
+// format lama (semua item numpuk di 1 baris '2000-01-01') tetep kebaca & otomatis dipindah.
+const LEGACY_D = '2000-01-01', ROW0 = Date.UTC(1901, 0, 1);
+const rowDate = i => new Date(ROW0 + i * 864e5).toISOString().slice(0, 10);
+function itemRows(app, w, lk) {
+  const m = lsGet(app + '-' + w, {}) || {}, out = [];
+  Object.entries(m).forEach(([d, v]) => {
+    if (!v) return;
+    if (d === LEGACY_D && v[lk || 'items']) v[lk || 'items'].forEach(x => out.push(Object.assign({}, x, { owner: w, _d: null })));
+    else if (v.id && d < '1990-01-01') out.push(Object.assign({}, v, { owner: w, _d: d }));
+  });
+  return out;
+}
+function legacyDrop(app, w, id, lk) {
+  const s = (lsGet(app + '-' + w, {}) || {})[LEGACY_D]; if (!s || !s[lk || 'items']) return;
+  const arr = s[lk || 'items'].filter(y => y.id !== id); if (arr.length === s[lk || 'items'].length) return;
+  BD.put(app, w, LEGACY_D, arr.length ? { [lk || 'items']: arr } : null);
+}
+function itemPut(app, x, lk) {
+  const o = Object.assign({}, x); delete o.owner; delete o._d;
+  if (JSON.stringify(o).length > 2900) return false;
+  let d = x._d;
+  if (!d) {
+    // kalau item ini udah punya baris (misal diedit dari data lama), pakai baris itu
+    const m = lsGet(app + '-' + x.owner, {}) || {}, hit = Object.entries(m).find(([k, v]) => v && v.id === x.id && k < '1990-01-01');
+    if (hit) d = hit[0]; else { let i = 0; while (m[rowDate(i)]) i++; d = rowDate(i); }
+  }
+  x._d = d; BD.put(app, x.owner, d, o); legacyDrop(app, x.owner, x.id, lk); return true;
+}
+function itemDel(app, x, lk) { if (x._d) BD.put(app, x.owner, x._d, null); legacyDrop(app, x.owner, x.id, lk); }
+function itemMigrate(app, w, lk) { itemRows(app, w, lk).filter(x => !x._d).forEach(x => itemPut(app, x, lk)); }
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
+const APP = 'daftar';
+const LISTS = [['belanja', '🛒', 'Belanja'], ['bawa', '🎒', 'Bawaan'], ['kerja', '🧹', 'Kerjaan'], ['lain', '📝', 'Lainnya']];
+const TPL = {
+  belanja: [['Masak bareng', ['Bawang merah', 'Bawang putih', 'Telur', 'Minyak goreng', 'Cabai', 'Nasi / beras', 'Kecap']], ['Nonton di rumah', ['Popcorn', 'Minuman soda', 'Keripik', 'Coklat', 'Es krim']], ['Piknik', ['Roti', 'Selai', 'Buah', 'Air mineral', 'Tikar', 'Tisu basah']]],
+  bawa: [['Jalan-jalan', ['Charger HP', 'Powerbank', 'Dompet', 'KTP', 'Earphone', 'Tisu', 'Obat pribadi']], ['Ke pantai', ['Sunscreen', 'Kacamata hitam', 'Baju ganti', 'Handuk', 'Sandal', 'Topi']], ['Nginep / mudik', ['Baju 3 hari', 'Peralatan mandi', 'Skincare', 'Jaket', 'Charger', 'Oleh-oleh']]],
+  kerja: [['Bersih-bersih', ['Nyapu', 'Ngepel', 'Cuci piring', 'Buang sampah', 'Ganti sprei']], ['Siapin kencan', ['Booking tempat', 'Cek cuaca', 'Siapin outfit', 'Isi bensin / saldo ojol']]],
+  lain: [['Rencana bulan ini', ['Nabung bareng', 'Coba resto baru', 'Olahraga bareng', 'Video call tiap malam']]]
+};
+if (lsGet('daftar-me', null) == null) lsSet('daftar-me', BD.me());
+let me = whoBtn('daftar-me', () => { me = lsGet('daftar-me', 'Dara'); BD.setMe(me); render(); });
+BD.setMe(me);
+let L = lsGet('daftar-tab', 'belanja'), cur = null;
+const uid = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const all = () => itemRows(APP, 'Razan').concat(itemRows(APP, 'Dara'));
+const find = id => all().find(x => x.id === id);
+function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
+function closeOv(id) { $(id).classList.remove('show'); }
+document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); }));
+function render() {
+  bdStatus(); lsSet('daftar-tab', L);
+  const A = all();
+  $('lists').innerHTML = LISTS.map(([k, ic, n]) => { const left = A.filter(x => x.l === k && !x.c).length; return `<button class="${k === L ? 'on' : ''}" data-k="${k}"><span>${ic}</span>${n}${left ? `<i>${left}</i>` : ''}</button>`; }).join('');
+  $('lists').querySelectorAll('button').forEach(b => b.onclick = () => { L = b.dataset.k; render(); });
+  const I = A.filter(x => x.l === L).sort((a, b) => (a.c ? 1 : 0) - (b.c ? 1 : 0) || (a.at || 0) - (b.at || 0));
+  const done = I.filter(x => x.c).length;
+  $('bar').style.width = I.length ? (done / I.length * 100) + '%' : '0';
+  $('cnt').textContent = I.length ? `${done}/${I.length} beres${done === I.length ? ' 🎉' : ''}` : 'Masih kosong';
+  $('clr').style.display = done ? '' : 'none';
+  $('list').innerHTML = I.map(x => `<div class="it ${x.c ? 'done' : ''}" data-id="${x.id}"><span class="ck">${x.c ? '✓' : ''}</span><span class="m"><b>${esc(x.t)}</b><small><span class="tag ${x.owner[0]}">${x.owner}</span>${x.n ? esc(x.n) + ' · ' : ''}${x.c && x.cb ? `dicentang ${esc(x.cb)}` : ''}</small></span><button class="x" aria-label="Hapus">✕</button></div>`).join('') || '<p class="empty">Belum ada isinya. Ketik di atas atau pake template di bawah 👇</p>';
+  $('list').querySelectorAll('.it').forEach(el => {
+    const id = el.dataset.id;
+    el.querySelector('.ck').onclick = () => toggle(id);
+    el.querySelector('.m').onclick = () => openEd(id);
+    el.querySelector('.x').onclick = () => { const x = find(id); if (x) { itemDel(APP, x); render(); } };
+  });
+  $('tpl').innerHTML = (TPL[L] || []).map(([n], i) => `<button data-i="${i}">＋ ${n}</button>`).join('');
+  $('tpl').querySelectorAll('button').forEach(b => b.onclick = () => useTpl(+b.dataset.i));
+}
+function addOne(t, n) { const x = { id: uid(), owner: me, l: L, t, at: Date.now() + Math.random() }; if (n) x.n = n; return itemPut(APP, x); }
+function addIt() {
+  const t = $('nw').value.trim(); if (!t) { $('nw').focus(); return; }
+  if (!addOne(t)) { toast('Kepanjangan'); return; }
+  $('nw').value = ''; $('nw').focus(); vib(8); render();
+}
+$('nw').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addIt(); } });
+function useTpl(i) {
+  const [n, items] = TPL[L][i], have = new Set(all().filter(x => x.l === L).map(x => x.t.toLowerCase()));
+  const add = items.filter(t => !have.has(t.toLowerCase()));
+  if (!add.length) { toast('Semua udah ada di daftar 👍'); return; }
+  add.forEach(t => addOne(t)); render(); toast(`✨ ${add.length} item dari "${n}" ditambahin`);
+}
+function toggle(id) {
+  const x = find(id); if (!x) return;
+  x.c = !x.c; if (x.c) x.cb = me; else delete x.cb;
+  itemPut(APP, x); vib(x.c ? 12 : 6);
+  try { window.SFX && SFX.play(x.c ? 'pop' : 'tap'); } catch (e) {}
+  render();
+  const I = all().filter(y => y.l === L); if (x.c && I.length > 1 && I.every(y => y.c)) { confetti(40); toast('🎉 Semua beres! Kerja sama yang hebat'); }
+}
+function openEd(id) { const x = find(id); if (!x) return; cur = id; $('ed-t').value = x.t; $('ed-n').value = x.n || ''; $('ed-ov').classList.add('show'); }
+function saveEd() {
+  const x = find(cur), t = $('ed-t').value.trim(); if (!x) return; if (!t) { toast('Namanya diisi dulu'); return; }
+  x.t = t; const n = $('ed-n').value.trim(); if (n) x.n = n; else delete x.n;
+  itemPut(APP, x); closeOv('ed-ov'); render();
+}
+function clearDone() { const D = all().filter(x => x.l === L && x.c); if (!D.length || !confirm(`Hapus ${D.length} item yang udah dicentang?`)) return; D.forEach(x => itemDel(APP, x)); render(); }
+BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes(APP) && !document.querySelector('.ov.show') && document.activeElement !== $('nw')) render(); });
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
