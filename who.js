@@ -19,19 +19,19 @@
     'html[data-user=Razan]:not(.night){--rose:#5a8fcc;--deep:#2c4f7c;--blush:#c3d8ee;--warm:#eaf2fa;--cream:#f5f9fd;--muted:#7f8ea3;--ink:#1e2836}' +
     'html.night[data-user=Dara]{--rose:#e58aa2;--deep:#f0a8bd;--blush:#4d3440}' +
     'html.night[data-user=Razan]{--rose:#79a8e0;--deep:#a9c9f0;--blush:#33415a}' +
-    '#who-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(30,22,28,.55);display:flex;align-items:center;justify-content:center;padding:1.2rem;font-family:Poppins,sans-serif;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}' +
-    '#who-ov .wb{background:#fff;color:#2d1f1a;border-radius:24px;padding:1.4rem 1.2rem 1.2rem;width:100%;max-width:330px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:whoIn .3s cubic-bezier(.3,1.4,.5,1)}' +
+    '#who-gate{position:fixed;inset:0;z-index:2147483000;background:rgba(30,22,28,.55);display:flex;align-items:center;justify-content:center;padding:1.2rem;font-family:Poppins,sans-serif;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}' +
+    '#who-gate .wb{background:#fff;color:#2d1f1a;border-radius:24px;padding:1.4rem 1.2rem 1.2rem;width:100%;max-width:330px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:whoIn .3s cubic-bezier(.3,1.4,.5,1)}' +
     '@keyframes whoIn{from{transform:scale(.88);opacity:0}}' +
-    '#who-ov h3{font-size:16px;font-weight:700;margin-bottom:.25rem}#who-ov p{font-size:12px;color:#8a7a72;line-height:1.45;margin-bottom:.9rem}' +
-    '#who-ov .wp{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.9rem}' +
-    '#who-ov .wp button{border:2px solid #eee;background:#fff;border-radius:18px;padding:.7rem .3rem;font:600 13px Poppins,sans-serif;cursor:pointer;color:#2d1f1a}' +
-    '#who-ov .wp button span{display:block;font-size:1.8rem;margin-bottom:.15rem}' +
-    '#who-ov .wp button.R.on{border-color:#5a8fcc;background:#eaf2fa;color:#2c4f7c}#who-ov .wp button.D.on{border-color:#d4718a;background:#fbedf1;color:#8a3352}' +
-    '#who-ov input{width:100%;font:600 24px Poppins,sans-serif;letter-spacing:.5em;text-align:center;padding:.55rem .3rem .55rem .8rem;border:2px solid #eee;border-radius:16px;outline:none;margin-bottom:.3rem;color:#2d1f1a;background:#fff}' +
-    '#who-ov input::placeholder{letter-spacing:normal;font-size:14px;font-weight:400;color:#b8aaa2}#who-ov input:focus{border-color:#c9a96e}#who-ov .err{color:#c0392b;font-size:11.5px;min-height:1.2em;margin-bottom:.5rem}' +
-    '#who-ov .shake{animation:whoSh .35s}@keyframes whoSh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}' +
-    '#who-ov .wa{display:flex;gap:.5rem}#who-ov .wa button{flex:1;border:none;border-radius:50px;padding:.75rem;font:600 13px Poppins,sans-serif;cursor:pointer}' +
-    '#who-ov .ok{color:#fff;background:#c17a6f}#who-ov .ok.R{background:#5a8fcc}#who-ov .ok.D{background:#d4718a}#who-ov .no{background:#f3eee9;color:#7a6a62}';
+    '#who-gate h3{font-size:16px;font-weight:700;margin-bottom:.25rem}#who-gate p{font-size:12px;color:#8a7a72;line-height:1.45;margin-bottom:.9rem}' +
+    '#who-gate .wp{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.9rem}' +
+    '#who-gate .wp button{border:2px solid #eee;background:#fff;border-radius:18px;padding:.7rem .3rem;font:600 13px Poppins,sans-serif;cursor:pointer;color:#2d1f1a}' +
+    '#who-gate .wp button span{display:block;font-size:1.8rem;margin-bottom:.15rem}' +
+    '#who-gate .wp button.R.on{border-color:#5a8fcc;background:#eaf2fa;color:#2c4f7c}#who-gate .wp button.D.on{border-color:#d4718a;background:#fbedf1;color:#8a3352}' +
+    '#who-gate input{width:100%;font:600 24px Poppins,sans-serif;letter-spacing:.5em;text-align:center;padding:.55rem .3rem .55rem .8rem;border:2px solid #eee;border-radius:16px;outline:none;margin-bottom:.3rem;color:#2d1f1a;background:#fff}' +
+    '#who-gate input::placeholder{letter-spacing:normal;font-size:14px;font-weight:400;color:#b8aaa2}#who-gate input:focus{border-color:#c9a96e}#who-gate .err{color:#c0392b;font-size:11.5px;min-height:1.2em;margin-bottom:.5rem}' +
+    '#who-gate .shake{animation:whoSh .35s}@keyframes whoSh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}' +
+    '#who-gate .wa{display:flex;gap:.5rem}#who-gate .wa button{flex:1;border:none;border-radius:50px;padding:.75rem;font:600 13px Poppins,sans-serif;cursor:pointer}' +
+    '#who-gate .ok{color:#fff;background:#c17a6f}#who-gate .ok.R{background:#5a8fcc}#who-gate .ok.D{background:#d4718a}#who-gate .no{background:#f3eee9;color:#7a6a62}';
   var st = document.createElement('style'); st.textContent = css; (document.head || html).appendChild(st);
   function apply() { if (cur) html.setAttribute('data-user', cur); else html.removeAttribute('data-user'); }
   // isi semua kunci lama biar halaman lama otomatis ngikut
@@ -44,7 +44,7 @@
   Storage.prototype.setItem = function (k, v) {
     if (this === ls && cur && KEYS.indexOf(k) >= 0) {
       var w = null; try { w = JSON.parse(v); } catch (e) {}
-      if (w !== cur) { if (valid(w) && !document.getElementById('who-ov')) setTimeout(function () { ask(w, { revert: true }); }, 0); return; }
+      if (w !== cur) { if (valid(w) && !document.getElementById('who-gate')) setTimeout(function () { ask(w, { revert: true }); }, 0); return; }
     }
     return rawSet.call(this, k, v);
   };
@@ -56,14 +56,14 @@
     subs.forEach(function (f) { try { f(w); } catch (e) {} });
     return changed;
   }
-  function close() { var o = document.getElementById('who-ov'); if (o) o.remove(); }
+  function close() { var o = document.getElementById('who-gate'); if (o) o.remove(); }
   // opt: { force: true } = wajib pilih (pertama kali), { revert } = halaman lama yang minta ganti
   function ask(target, opt) {
     opt = opt || {};
     if (!document.body) { document.addEventListener('DOMContentLoaded', function () { ask(target, opt); }); return; }
     close();
     var pick = valid(target) ? target : (cur ? (cur === 'Razan' ? 'Dara' : 'Razan') : (valid(get('berdua-me')) ? get('berdua-me') : null));
-    var o = document.createElement('div'); o.id = 'who-ov';
+    var o = document.createElement('div'); o.id = 'who-gate';
     o.innerHTML = '<div class="wb"><h3>' + (opt.force ? '👋 Ini HP siapa?' : '🔄 Ganti orang') + '</h3><p>' + (opt.force ? 'Pilih sekali aja — semua game, hadiah, notif & warna tema langsung ngikut.' : 'Semua halaman, notif & warna tema bakal ikut ganti.') + '</p>' +
       '<div class="wp"><button class="R" data-w="Razan"><span>🙋‍♂️</span>Razan</button><button class="D" data-w="Dara"><span>🙋‍♀️</span>Dara</button></div>' +
       '<input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="PIN"><div class="err"></div>' +
