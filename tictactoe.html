@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<script src="who.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Love Tic-Tac-Toe 💘</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -152,6 +153,8 @@
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -257,6 +260,7 @@
 // ═════════ STATE ═════════
 let NAMES = { razan:'Razan', dara:'Dara' };
 let BOT = null;   // 'razan' / 'dara' kalau slot itu dimainin komputer
+let ONLINE = false, HUMAN = null, REMOTE = false;   // main online beda HP
 const AV = p => NAMES[p] === 'Komputer' ? '🤖' : p === 'razan' ? '🧑' : '👧';
 const SYMBOLS = { razan:'✕', dara:'♡' };
 const WIN_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
@@ -453,7 +457,7 @@ const FINAL_WIN = [
 
 function pickChallenge() {
   // lawan komputer: cuma tantangan Skill (tantangan 💘 Love butuh dinilai pasangan)
-  const pool = (BOT || CFG.mode === 'skill') ? SKILL : CFG.mode === 'love' ? LOVE : (Math.random() < .6 ? SKILL : LOVE);
+  const pool = (BOT || ONLINE || CFG.mode === 'skill') ? SKILL : CFG.mode === 'love' ? LOVE : (Math.random() < .6 ? SKILL : LOVE);
   return draw(pool === SKILL ? 'skill' : 'love', pool);
 }
 
@@ -482,7 +486,9 @@ function updateHeader() {
     setText('streak-' + p, G.st[p].streak >= 2 ? `🔥${G.st[p].streak}` : '');
     const sp = $('sp-' + p); if (sp) sp.classList.toggle('active', G.cur === p);
   });
-  setText('round-label', `Ronde ${G.round} · target ${CFG.need}`);
+  setText('round-label', `Ronde ${G.round} · target ${CFG.need}${ONLINE ? ' · 🌐 online' : ''}`);
+  if (ONLINE && window.Online) Online.waiting(G.phase === 'play' && G.cur !== HUMAN);
+  if (ONLINE && G.phase === 'play' && tb) tb.textContent = G.cur === HUMAN ? 'Giliran kamu' : `⏳ Nunggu ${NAMES[G.cur]}…`;
   maybeBot();
 }
 
@@ -523,6 +529,7 @@ function botTurn() {
 function tapCell(i) {
   if (!G || G.phase !== 'play' || G.board[i] || G.pending !== null) return;
   if (BOT && G.cur === BOT) return;   // lagi giliran komputer
+  if (ONLINE && G.cur !== HUMAN) return;   // online: tunggu giliran
   G.pending = i; G.phase = 'challenge';
   renderBoard();
   openChallenge();
@@ -549,6 +556,7 @@ function giveUp() {
 }
 
 function resolveChallenge(ok, msg, instant) {
+  if (ONLINE && !REMOTE && G && G.cur === HUMAN && G.pending !== null) Online.move({ i: G.pending, ok: !!ok });
   cleanupChallenge();
   const p = G.cur, s = G.st[p];
   s.tries++;
@@ -607,9 +615,11 @@ function roundOver(winner) {
   updateHeader();
 }
 
-function nextRound() {
+function nextRound(remote) {
   const ov = $('rr-overlay'); if (ov) ov.classList.remove('show');
   if (!G) return;
+  if (ONLINE && G.phase !== 'end') return;
+  if (ONLINE && !remote && !(G.wins.razan >= CFG.need || G.wins.dara >= CFG.need)) Online.move({ t: 'n', r: G.round });
   if (G.wins.razan >= CFG.need || G.wins.dara >= CFG.need) { showFinal(); return; }
   G.round++;
   G.roundFirst = other(G.roundFirst);
@@ -619,7 +629,8 @@ function nextRound() {
 }
 
 function exitGame() {
-  if (!confirm('Keluar dari game? Skor hilang.')) return;
+  if (!confirm(ONLINE ? 'Keluar dari game online? Pasanganmu bakal dikabarin.' : 'Keluar dari game? Skor hilang.')) return;
+  if (ONLINE && window.Online) Online.leave(); ONLINE = false; HUMAN = null;
   chToken++; cleanupChallenge();
   ['ch-overlay', 'rr-overlay'].forEach(id => { const o = $(id); if (o) o.classList.remove('show'); });
   G = null; showScreen('s-intro');
@@ -651,8 +662,8 @@ function showFinal() {
     </div>
     <div class="verdict">${v}</div>
     ${BOT ? `<div class="demand"><span class="demand-tag">${wp === BOT ? '🤖 Komputer juara' : '🏆 Kamu ngalahin komputer!'}</span><p class="demand-text">${wp === BOT ? 'Coba lagi — atau tantang pasanganmu langsung biar ada hukumannya 😏' : 'Sekarang tantang pasanganmu — buktiin siapa yang paling jago! 😏'}</p></div>` : `<div class="demand"><span class="demand-tag">👑 Tantangan Final dari ${w}</span><p class="demand-text">${fill(draw('fw', FINAL_WIN), { w, l })}</p></div>`}
-    <button class="btn-main" onclick="initGame(G ? other(G.first) : 'razan', BOT)">Main Lagi 🔄</button>
-    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`;
+    ${ONLINE ? `<button class="btn-main" onclick="Online.invite()">Ajak Main Lagi 🔄</button><button class="btn-ghost" onclick="Online.leave(true);ONLINE=false;HUMAN=null;showScreen('s-intro')">Ke Menu</button>` : `<button class="btn-main" onclick="initGame(G ? other(G.first) : 'razan', BOT)">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Setting / Menu</button>`}`;
   showScreen('s-result');
   confetti(70);
 }
@@ -667,6 +678,50 @@ function confetti(n) {
     setTimeout(() => el.remove(), 5000);
   }, i * 20);
 }
+
+// ═════════ MAIN ONLINE (BEDA HP) ═════════
+const UP = w => w === 'razan' ? 'Razan' : 'Dara', LO = w => String(w).toLowerCase();
+// langkah lawan: tampilin "lagi nyoba tantangan" sebentar, lalu hasilnya
+function remoteMove(mv) {
+  if (!ONLINE || !G) return;
+  if (mv && mv.t === 'n') { if (G.phase === 'end' && mv.r === G.round) nextRound(true); return; }
+  if (!mv || G.phase !== 'play' || G.cur === HUMAN || G.board[mv.i]) return;
+  G.pending = mv.i; G.phase = 'challenge'; G.curLove = false; renderBoard();
+  const b = $('ch-badge'); if (b) { b.textContent = `Giliran ${NAMES[G.cur]}`; b.className = 'ch-badge ' + G.cur; }
+  setText('ch-type', '🌐 Online'); setText('ch-title', `${NAMES[G.cur]} ${mv.ok ? 'lolos' : 'gagal'} tantangan!`); setHTML('ch-desc', mv.ok ? 'Simbolnya masuk 😮' : 'Giliran pindah ke kamu 😏');
+  setHTML('ch-ui', `<div style="font-size:3rem;text-align:center">${mv.ok ? '✅' : '❌'}</div>`);
+  const sk = $('ch-skip'); if (sk) sk.style.display = 'none';
+  const ov = $('ch-overlay'); if (ov) ov.classList.add('show');
+  REMOTE = true; try { resolveChallenge(!!mv.ok, mv.ok ? 'Lolos!' : 'Gagal 😆'); } finally { REMOTE = false; }
+}
+// muter ulang semua langkah (pas gabung / lanjutin) tanpa animasi
+function replayPure(mv) {
+  if (mv && mv.t === 'n') { if (G.phase === 'end' && mv.r === G.round && !(G.wins.razan >= CFG.need || G.wins.dara >= CFG.need)) { G.round++; G.roundFirst = other(G.roundFirst); G.cur = G.roundFirst; G.board = Array(9).fill(null); G.pending = null; G.phase = 'play'; } return; }
+  if (!mv || G.phase !== 'play' || G.board[mv.i]) return;
+  const p = G.cur, st = G.st[p]; st.tries++;
+  if (mv.ok) { st.ok++; st.streak++; st.best = Math.max(st.best, st.streak); G.board[mv.i] = p; } else st.streak = 0;
+  if (mv.ok && checkWin()) { G.wins[p]++; G.phase = 'end'; G.lastW = p; return; }
+  if (mv.ok && G.board.every(Boolean)) { G.phase = 'end'; G.lastW = null; return; }
+  G.cur = other(p);
+}
+if (window.Online) Online.setup({
+  g: 'tictactoe', panelAfter: '#s-intro .btn-main', statusEl: 'ol-st',
+  makeCfg: () => ({ first: Math.random() < .5 ? 'razan' : 'dara', need: CFG.need }),
+  onStart(room, me) {
+    ['ch-overlay', 'rr-overlay'].forEach(id => { const o = $(id); if (o) o.classList.remove('show'); });
+    chToken++; cleanupChallenge();
+    ONLINE = true; HUMAN = LO(me); const cf = room.cfg || {};
+    CFG.need = cf.need || 3; CFG.mode = 'skill';
+    initGame(cf.first || 'razan', null);
+    NAMES[HUMAN] = UP(HUMAN) + ' (kamu)';
+    for (const mv of room.moves) replayPure(mv);
+    renderBoard(); updateHeader();
+    if (!$('ol-st')) { const s = document.createElement('p'); s.id = 'ol-st'; s.className = 'ol-st'; const bd = $('board'); bd && bd.insertAdjacentElement('afterend', s); }
+    if (G.phase === 'end') { if (G.lastW) G.wins[G.lastW]--; roundOver(G.lastW); }
+  },
+  onMove(mv) { remoteMove(mv); },
+  onLeft() { ONLINE = false; HUMAN = null; G = null; ['ch-overlay', 'rr-overlay'].forEach(id => { const o = $(id); if (o) o.classList.remove('show'); }); showScreen('s-intro'); },
+});
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
