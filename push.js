@@ -8,14 +8,14 @@
 
   // ── ISI DARI FIREBASE (Project settings → General → "Your apps" → Config) ──
   const FIREBASE = {
-    apiKey: '',
-    authDomain: '',
-    projectId: '',
-    messagingSenderId: '',
-    appId: ''
+    apiKey: 'AIzaSyDNHCI7mBlFDTzn6ir8_z8lKBieE8WTNjE',
+    authDomain: 'app-razara.firebaseapp.com',
+    projectId: 'app-razara',
+    messagingSenderId: '829840442733',
+    appId: '1:829840442733:web:b94b0376826beb4b68c664'
   };
   // Project settings → Cloud Messaging → Web Push certificates → "Key pair"
-  const VAPID = '';
+  const VAPID = 'BPeNgTZVWvQ5Ho0t_Sw71EcfWVCZrjbAjU49STds2KhYFvfm4lk7rRexjIdqqCuUEKcz2bVDpMIhVdIYGu_J86A';
 
   const URL = 'https://script.google.com/macros/s/AKfycbyCq294yq71M-BDzouyLttp2Kki0aumPAP0JzII0fvvnBakSQ5_eHkNTawXA01fQ3dC/exec';   // sama dengan sync.js
   const KEY = 'razara-berdua';
