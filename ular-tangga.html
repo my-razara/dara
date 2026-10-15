@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<script src="who.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ular Tangga Cinta 🐍</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -133,6 +134,8 @@
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
+<script src="sync.js"></script>
+<script src="online.js"></script>
 <script src="sfx.js" defer></script>
 </head>
 <body>
@@ -379,6 +382,7 @@ let SNAKES = {}, LADDERS = {};
 let G = null;           // state series + game
 let isRolling = false;
 let popupBusy = false;
+let ONLINE = false, HUMAN = null, FAST = false, RNG = null, POPB = null;   // main online beda HP
 let cellSize = 0;
 const canvas = document.getElementById('board-canvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
@@ -391,12 +395,12 @@ function setHTML(id, v) { const e = $(id); if (e) e.innerHTML = v; }
 function other(p) { return p === 'razan' ? 'dara' : 'razan'; }
 function fill(tpl, map) { return tpl.replace(/\{(\w)\}/g, (_, k) => map[k] || ''); }
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor((RNG || Math.random)() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function draw(key, pool) { // ambil dari deck, nggak repeat sampai habis
   if (!decks[key] || !decks[key].length) decks[key] = shuffle(pool.map((_, i) => i));
   return pool[decks[key].pop()];
 }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sleep(ms) { return FAST ? Promise.resolve() : new Promise(r => setTimeout(r, ms)); }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = $(id); if (el) el.classList.add('active');
@@ -592,11 +596,12 @@ function startGame(first) {
   requestAnimationFrame(() => requestAnimationFrame(() => { resizeAndDraw(); updateUI(); enableRoll(); }));
 }
 
-function enableRoll() { const b = $('roll-btn'), d = $('dice-box'); if (b) { b.disabled = false; b.textContent = 'Lempar!'; } if (d) d.style.pointerEvents = 'auto'; }
+function enableRoll() { if (ONLINE && G && G.turn !== HUMAN) { disableRoll(); const b = $('roll-btn'); if (b) b.textContent = '⏳'; if (window.Online) Online.waiting(!G.over); return; } if (ONLINE && window.Online) Online.waiting(false); const b = $('roll-btn'), d = $('dice-box'); if (b) { b.disabled = false; b.textContent = 'Lempar!'; } if (d) d.style.pointerEvents = 'auto'; }
 function disableRoll() { const b = $('roll-btn'), d = $('dice-box'); if (b) { b.disabled = true; b.textContent = '...'; } if (d) d.style.pointerEvents = 'none'; }
 
 function rollDice() {
   if (!G || G.over || isRolling || popupBusy) return;
+  if (ONLINE && G.turn !== HUMAN) return;
   isRolling = true; disableRoll();
   const diceEl = $('dice-box'); if (diceEl) diceEl.classList.add('rolling');
   let count = 0;
@@ -606,6 +611,7 @@ function rollDice() {
       clearInterval(anim);
       if (diceEl) diceEl.classList.remove('rolling');
       const val = Math.floor(Math.random() * 6) + 1;
+      if (ONLINE) Online.move({ t: 'r', v: val });
       if (diceEl) diceEl.textContent = DICE_FACES[val - 1];
       setTimeout(() => movePlayer(G.turn, val), 300);
     }
@@ -746,7 +752,7 @@ function updateUI() {
     const c = $('card-' + p); if (c) c.classList.toggle('active-turn', G.turn === p);
     setText('wins-' + p, targetWins > 1 ? '⭐'.repeat(G.wins[p]) + '☆'.repeat(Math.max(0, targetWins - G.wins[p])) : '');
   });
-  setHTML('turn-info', `Giliran <span>${NAMES[G.turn]}</span> — tap dadu!`);
+  setHTML('turn-info', ONLINE ? (G.turn === HUMAN ? 'Giliran <span>kamu</span> — tap dadu!' : `⏳ Nunggu <span>${NAMES[G.turn]}</span> lempar dadu…`) : `Giliran <span>${NAMES[G.turn]}</span> — tap dadu!`);
 }
 
 // ═════════ POPUP ═════════
@@ -760,13 +766,20 @@ function showPopup({ emoji, type, typeLabel, who, title, text, extra, buttons })
   const ex = $('popup-extra');
   if (ex) { ex.style.display = extra ? 'block' : 'none'; ex.innerHTML = extra || ''; }
   const wrap = $('popup-btns');
+  const list = buttons || [{ label:'Oke ✓', fn: () => endTurn(false) }];
+  POPB = list;
+  // online: tantangan & duel dinilai pasangan, sisanya dipencet yang lagi jalan
+  const chooser = ONLINE && G ? ((type === 'type-tantangan' || type === 'type-duel') ? other(G.turn) : G.turn) : null;
   if (wrap) {
     wrap.innerHTML = '';
-    (buttons || [{ label:'Oke ✓', fn: () => endTurn(false) }]).forEach(b => {
+    if (ONLINE && chooser !== HUMAN) {
+      const w = document.createElement('p'); w.className = 'popup-wait'; w.style.cssText = 'font-size:12.5px;color:#9a8070;text-align:center;padding:.6rem 0';
+      w.textContent = `⏳ Nunggu ${NAMES[chooser]} ${type === 'type-tantangan' || type === 'type-duel' ? 'nilai' : 'mencet'}…`; wrap.appendChild(w);
+    } else list.forEach((b, k) => {
       const btn = document.createElement('button');
       btn.className = 'popup-btn ' + (b.cls || '');
       btn.textContent = b.label;
-      btn.addEventListener('click', () => closePopup(b.fn), { once:true });
+      btn.addEventListener('click', () => { if (ONLINE && popupBusy) Online.move({ t: 'c', k }); closePopup(b.fn); }, { once:true });
       wrap.appendChild(btn);
     });
   }
@@ -821,15 +834,17 @@ function showEnd(p) {
   confetti(seriesDone ? 80 : 35);
 }
 
-function endPrimary() {
+function endPrimary(remote) {
   if (!G) { showScreen('s-mode'); return; }
+  if (ONLINE) { if (G.seriesDone) { Online.invite(); return; } if (!remote) Online.move({ t: 'e', r: G.round }); }
   if (G.seriesDone) { startSeries(other(G.first)); return; } // main lagi: gantian yang mulai
   G.round++;
   startGame(other(G.lastWinner)); // yang kalah jalan duluan
 }
 
 function exitGame() {
-  if (!confirm('Keluar dari game? Progress hilang.')) return;
+  if (!confirm(ONLINE ? 'Keluar dari game online? Pasanganmu bakal dikabarin.' : 'Keluar dari game? Progress hilang.')) return;
+  if (ONLINE && window.Online) Online.leave(); ONLINE = false; HUMAN = null; RNG = null;
   const ov = $('popup-overlay'); if (ov) ov.classList.remove('active');
   G = null; isRolling = false; popupBusy = false;
   showScreen('s-intro');
@@ -844,6 +859,51 @@ function confetti(n) {
     setTimeout(() => el.remove(), 5000);
   }, i * 20);
 }
+
+// ═════════ MAIN ONLINE (BEDA HP) ═════════
+// tiap langkah (lempar dadu / pencet tombol / lanjut ronde) dikirim, lalu dijalanin urut di dua HP
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const tick = () => new Promise(r => setTimeout(r, FAST ? 15 : 90));
+async function until(f, max) { for (let i = 0; i < (max || 300); i++) { if (f()) return true; await tick(); } return false; }
+let OQ = Promise.resolve();
+async function runMove(mv) {
+  if (!ONLINE || !G || !mv) return;
+  if (mv.t === 'r') {
+    await until(() => G.over || (!isRolling && !popupBusy));
+    if (G.over) return;
+    isRolling = true; disableRoll();
+    const d = $('dice-box'); if (d) { d.textContent = DICE_FACES[mv.v - 1]; if (!FAST) { d.classList.add('rolling'); await sleep(450); d.classList.remove('rolling'); } }
+    await movePlayer(G.turn, mv.v);
+    await until(() => !G || G.over || popupBusy || !isRolling);
+  } else if (mv.t === 'c') {
+    await until(() => !G || popupBusy);
+    if (!G || !popupBusy || !POPB || !POPB[mv.k]) return;
+    closePopup(POPB[mv.k].fn);
+    await until(() => !G || G.over || popupBusy || !isRolling);
+  } else if (mv.t === 'e') {
+    await until(() => !G || G.over, 50);
+    if (G && G.over && mv.r === G.round && !G.seriesDone) endPrimary(true);
+  }
+}
+const LOW = w => String(w).toLowerCase();
+if (window.Online) Online.setup({
+  g: 'ular-tangga', panelAfter: '#s-who .who-cards', statusEl: 'ol-st',
+  makeCfg: () => ({ mode: currentMode, target: targetWins, finish: finishRule, first: Math.random() < .5 ? 'razan' : 'dara', seed: Math.floor(Math.random() * 1e9) }),
+  onStart(room, me) {
+    const ov = $('popup-overlay'); if (ov) ov.classList.remove('active');
+    const cf = room.cfg || {};
+    ONLINE = true; HUMAN = LOW(me); RNG = mulberry(cf.seed || 7); Object.keys(decks).forEach(k => delete decks[k]);
+    currentMode = MODES[cf.mode] ? cf.mode : 'medium'; targetWins = cf.target || 1; finishRule = cf.finish === 'bounce' ? 'bounce' : 'exact';
+    NAMES.razan = HUMAN === 'razan' ? 'Razan (kamu)' : 'Razan'; NAMES.dara = HUMAN === 'dara' ? 'Dara (kamu)' : 'Dara';
+    isRolling = false; popupBusy = false;
+    if (!$('ol-st')) { const p = document.createElement('p'); p.id = 'ol-st'; p.className = 'ol-st'; const rn = $('rule-note'); rn && rn.insertAdjacentElement('afterend', p); }
+    startSeries(cf.first || 'razan');
+    const moves = room.moves.slice();
+    OQ = OQ.then(async () => { await tick(); FAST = true; try { for (const mv of moves) await runMove(mv); } finally { FAST = false; } placePions(); updateUI(); if (G && !G.over && !isRolling && !popupBusy) enableRoll(); });
+  },
+  onMove(mv) { OQ = OQ.then(() => runMove(mv)).catch(e => console.warn(e)); return OQ; },
+  onLeft() { ONLINE = false; HUMAN = null; RNG = null; G = null; const ov = $('popup-overlay'); if (ov) ov.classList.remove('active'); NAMES.razan = 'Razan'; NAMES.dara = 'Dara'; showScreen('s-intro'); },
+});
 </script>
 
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
