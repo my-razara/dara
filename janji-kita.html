@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Janji Kita — Razan & Dara 📜</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:nowrap}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
+  .bd-st.err{color:#b4554a}
+  .doc{background:#fdf6e3;background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(160,113,90,.08) 27px 28px);border-radius:6px 6px 18px 18px;padding:1.2rem 1rem 1rem;box-shadow:0 10px 26px rgba(122,80,50,.18),inset 0 0 0 1px rgba(160,113,90,.2);position:relative;margin-bottom:1rem}
+  .doc:before,.doc:after{content:'';position:absolute;left:-6px;right:-6px;height:14px;background:#e9d9b4;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.12)}
+  .doc:before{top:-8px}.doc:after{bottom:-8px}
+  .doc h2{font-family:'Caveat',cursive;font-size:1.9rem;text-align:center;color:#6b4a3a;line-height:1}
+  .doc .sb{text-align:center;font-size:11px;color:#a0715a;margin:.2rem 0 .8rem}
+  .ps{display:flex;gap:.5rem;margin-bottom:.55rem;font-size:13px;line-height:1.45;color:#4a3328}
+  .ps b{flex:0 0 auto;color:#a0715a;font-size:11.5px;padding-top:.1rem}
+  .ps span{flex:1;min-width:0;word-break:break-word}
+  .sig{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:1rem;border-top:1px dashed rgba(160,113,90,.4);padding-top:.7rem;text-align:center}
+  .sig div{font-family:'Caveat',cursive;font-size:1.45rem;color:#7a3f35}
+  .sig small{display:block;font-family:inherit;font-size:9.5px;color:#a0715a}
+  .tabs{display:flex;gap:.25rem;margin-bottom:.8rem;background:var(--warm);border-radius:50px;padding:.25rem}
+  .tabs button{flex:1;border:none;background:none;padding:.5rem .2rem;border-radius:50px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .tabs button.on{background:#fff;color:var(--deep);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .jn{background:#fff;border-radius:18px;padding:.75rem .85rem;margin-bottom:.5rem;border:1px solid rgba(193,122,111,.12)}
+  .jn p{font-size:13.5px;line-height:1.45;margin-bottom:.5rem;word-break:break-word}
+  .jn .ft{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}
+  .st{font-size:10.5px;padding:.15rem .5rem;border-radius:20px;background:var(--warm);color:var(--muted)}
+  .st.ok{background:#e6f4ea;color:#2e7d4f}
+  .jn .ft button{margin-left:auto;font-size:11.5px;padding:.4rem .75rem;border-radius:50px;border:none;background:var(--rose);color:#fff;cursor:pointer;font-weight:600}
+  .jn .ft button.gh{margin-left:0;background:none;color:var(--muted);padding:.3rem .4rem}
+  .stamp{display:inline-block;transform:rotate(-8deg);border:2px solid #c0392b;color:#c0392b;border-radius:8px;padding:0 .35rem;font-size:10px;font-weight:800;letter-spacing:.05em}
+  .sug{display:flex;flex-direction:column;gap:.35rem;margin-top:.5rem}
+  .sug button{text-align:left;font-size:12px;padding:.55rem .75rem;border-radius:14px;border:1.5px dashed var(--blush);background:none;color:var(--deep);cursor:pointer;line-height:1.35}
+  textarea.inp{min-height:84px;resize:vertical}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
+  <div class="head"><span class="ico">📜</span><p class="lbl">Komitmen berdua</p><h1 class="title">Janji <span>Kita</span></h1><p class="sub">Tulis janji atau kesepakatan berdua. Baru resmi masuk "piagam" kalau dua-duanya udah tanda tangan ✍️</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="tabs" id="tabs"><button data-t="piagam">📜 Piagam</button><button data-t="tunggu">✍️ Perlu ttd</button></div>
+  <div id="view"></div>
+  <button class="btn" onclick="openEd()" style="margin-top:.4rem">＋ Usulin janji baru</button>
+</div>
+<div class="ov" id="ed-ov"><div class="sheet">
+  <div class="drag"></div><h3 style="text-align:center;font-size:15px;margin-bottom:.3rem" id="ed-h">Janji baru</h3>
+  <label class="lab">Isi janji</label><textarea class="inp" id="ed-t" maxlength="200" placeholder="Kalau berantem, ga boleh tidur sebelum baikan."></textarea>
+  <p class="lab">Atau pilih contoh:</p><div class="sug" id="sug"></div>
+  <div class="row"><button class="btn ghost" onclick="closeOv('ed-ov')">Batal</button><button class="btn" onclick="saveEd()">Usulin & ttd</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+// ── penyimpanan per-item: tiap item 1 baris di database (server nolak data > 3000 huruf per baris) ──
+// tanggal baris = tanggal "palsu" mulai 1901-01-01 (cuma buat nomor urut), isinya item itu sendiri.
+// format lama (semua item numpuk di 1 baris '2000-01-01') tetep kebaca & otomatis dipindah.
+const LEGACY_D = '2000-01-01', ROW0 = Date.UTC(1901, 0, 1);
+const rowDate = i => new Date(ROW0 + i * 864e5).toISOString().slice(0, 10);
+function itemRows(app, w, lk) {
+  const m = lsGet(app + '-' + w, {}) || {}, out = [];
+  Object.entries(m).forEach(([d, v]) => {
+    if (!v) return;
+    if (d === LEGACY_D && v[lk || 'items']) v[lk || 'items'].forEach(x => out.push(Object.assign({}, x, { owner: w, _d: null })));
+    else if (v.id && d < '1990-01-01') out.push(Object.assign({}, v, { owner: w, _d: d }));
+  });
+  return out;
+}
+function legacyDrop(app, w, id, lk) {
+  const s = (lsGet(app + '-' + w, {}) || {})[LEGACY_D]; if (!s || !s[lk || 'items']) return;
+  const arr = s[lk || 'items'].filter(y => y.id !== id); if (arr.length === s[lk || 'items'].length) return;
+  BD.put(app, w, LEGACY_D, arr.length ? { [lk || 'items']: arr } : null);
+}
+function itemPut(app, x, lk) {
+  const o = Object.assign({}, x); delete o.owner; delete o._d;
+  if (JSON.stringify(o).length > 2900) return false;
+  let d = x._d;
+  if (!d) {
+    // kalau item ini udah punya baris (misal diedit dari data lama), pakai baris itu
+    const m = lsGet(app + '-' + x.owner, {}) || {}, hit = Object.entries(m).find(([k, v]) => v && v.id === x.id && k < '1990-01-01');
+    if (hit) d = hit[0]; else { let i = 0; while (m[rowDate(i)]) i++; d = rowDate(i); }
+  }
+  x._d = d; BD.put(app, x.owner, d, o); legacyDrop(app, x.owner, x.id, lk); return true;
+}
+function itemDel(app, x, lk) { if (x._d) BD.put(app, x.owner, x._d, null); legacyDrop(app, x.owner, x.id, lk); }
+function itemMigrate(app, w, lk) { itemRows(app, w, lk).filter(x => !x._d).forEach(x => itemPut(app, x, lk)); }
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
+const APP = 'janji';
+const SUG = ['Kalau berantem, ga boleh tidur sebelum baikan.', 'Selalu kabarin kalau udah sampai rumah.', 'Ga boleh bilang "terserah" kalau sebenernya punya mau.', 'Seminggu sekali quality time tanpa HP.', 'Kalau ada yang ganjel, ngomong — jangan dipendem.', 'Saling dukung mimpi masing-masing, sekecil apa pun.', 'Yang kalah suit traktir es krim.', 'Ga boleh pergi tidur tanpa bilang "selamat malam".', 'Rayain hal kecil bareng, bukan cuma yang besar.', 'Minta maaf duluan itu bukan kalah.'];
+if (lsGet('janji-me', null) == null) lsSet('janji-me', BD.me());
+let me = whoBtn('janji-me', () => { me = lsGet('janji-me', 'Dara'); BD.setMe(me); render(); });
+BD.setMe(me);
+let tab = lsGet('janji-tab', 'piagam'), ed = null;
+const uid = () => 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const all = () => itemRows(APP, 'Razan').concat(itemRows(APP, 'Dara'));
+const find = id => all().find(x => x.id === id);
+const both = x => x.sig && x.sig.Razan && x.sig.Dara;
+const fd = t => { const d = new Date(t); return `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`; };
+function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
+function closeOv(id) { $(id).classList.remove('show'); }
+document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); }));
+function render() {
+  bdStatus(); lsSet('janji-tab', tab);
+  const A = all(), ok = A.filter(both).sort((a, b) => Math.max(a.sig.Razan, a.sig.Dara) - Math.max(b.sig.Razan, b.sig.Dara)), wait = A.filter(x => !both(x)).sort((a, b) => b.at - a.at);
+  const needMe = wait.filter(x => !(x.sig || {})[me]).length;
+  $('tabs').querySelectorAll('button').forEach(b => { b.textContent = b.dataset.t === 'piagam' ? `📜 Piagam${ok.length ? ` (${ok.length})` : ''}` : `✍️ Perlu ttd${needMe ? ` (${needMe})` : ''}`; b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = b.dataset.t; render(); }; });
+  if (tab === 'piagam') {
+    const last = ok.length ? Math.max(...ok.map(x => Math.max(x.sig.Razan, x.sig.Dara))) : 0;
+    $('view').innerHTML = `<div class="doc"><h2>Piagam Janji Kita</h2><p class="sb">disepakati bersama oleh Razan & Dara</p>${ok.map((x, i) => `<div class="ps"><b>Pasal ${i + 1}</b><span>${esc(x.t)}</span></div>`).join('') || '<p class="empty" style="color:#a0715a">Belum ada janji yang ditandatangani berdua. Usulin satu yuk ✍️</p>'}${ok.length ? `<div class="sig"><div>Razan<small>${fd(Math.max(...ok.map(x => x.sig.Razan)))}</small></div><div>Dara<small>${fd(Math.max(...ok.map(x => x.sig.Dara)))}</small></div></div>` : ''}</div>${ok.length ? '<button class="btn ghost" onclick="share()">📸 Simpan / kirim piagam</button>' : ''}`;
+  } else {
+    $('view').innerHTML = wait.map(x => { const s = x.sig || {}, mine = !!s[me]; return `<div class="jn"><p>“${esc(x.t)}”</p><div class="ft"><span class="st ${s.Razan ? 'ok' : ''}">${s.Razan ? '✓' : '…'} Razan</span><span class="st ${s.Dara ? 'ok' : ''}">${s.Dara ? '✓' : '…'} Dara</span>${mine ? `<button class="gh" data-un="${x.id}">batal ttd</button>` : `<button data-sg="${x.id}">✍️ Tanda tangan</button>`}</div><p style="font-size:10px;color:var(--muted);margin:.4rem 0 0">diusulin ${esc(x.owner)} · ${fd(x.at)}${x.owner === me ? ` · <a href="#" data-del="${x.id}" style="color:var(--rose)">hapus</a>` : ''}</p></div>`; }).join('') || '<p class="empty">Semua janji udah ditandatangani berdua 🥰</p>';
+    $('view').querySelectorAll('[data-sg]').forEach(b => b.onclick = () => sign(b.dataset.sg, true));
+    $('view').querySelectorAll('[data-un]').forEach(b => b.onclick = () => sign(b.dataset.un, false));
+    $('view').querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.preventDefault(); const x = find(b.dataset.del); if (x && confirm('Hapus usulan janji ini?')) { itemDel(APP, x); render(); } });
+  }
+}
+function sign(id, on) {
+  const x = find(id); if (!x) return; x.sig = Object.assign({}, x.sig || {});
+  if (on) x.sig[me] = Date.now(); else delete x.sig[me];
+  itemPut(APP, x); vib(on ? 20 : 6);
+  if (on && both(x)) { confetti(60); try { window.SFX && SFX.play('win'); } catch (e) {} toast('📜 Resmi! Janji ini masuk piagam'); tab = 'piagam'; }
+  else if (on) toast(`✍️ Ditandatangani. Tinggal nunggu ${otherOf(me)}`);
+  render();
+}
+function openEd() {
+  ed = { id: uid(), owner: me };
+  $('ed-t').value = ''; const have = new Set(all().map(x => x.t));
+  $('sug').innerHTML = SUG.filter(s => !have.has(s)).sort(() => Math.random() - .5).slice(0, 4).map(s => `<button>${esc(s)}</button>`).join('');
+  $('sug').querySelectorAll('button').forEach(b => b.onclick = () => { $('ed-t').value = b.textContent; });
+  $('ed-ov').classList.add('show');
+}
+function saveEd() {
+  const t = $('ed-t').value.trim(); if (t.length < 4) { toast('Tulis janjinya dulu'); return; }
+  Object.assign(ed, { t, at: Date.now(), sig: { [me]: Date.now() } });
+  if (!itemPut(APP, ed)) { toast('Kepanjangan'); return; }
+  closeOv('ed-ov'); tab = 'tunggu'; render(); toast(`✍️ Diusulin! ${otherOf(me)} tinggal tanda tangan`);
+}
+async function share() {
+  await fontsReady();
+  const ok = all().filter(both).sort((a, b) => Math.max(a.sig.Razan, a.sig.Dara) - Math.max(b.sig.Razan, b.sig.Dara));
+  const W = 1080, c = document.createElement('canvas'), g = c.getContext('2d'); g.font = '34px Poppins,sans-serif';
+  const lines = ok.map(x => wrapText(g, x.t, W - 300));
+  const H = 420 + lines.reduce((a, l) => a + l.length * 46 + 26, 0) + 260; c.width = W; c.height = H;
+  g.fillStyle = '#efe2c4'; g.fillRect(0, 0, W, H); g.fillStyle = '#fdf6e3'; g.fillRect(60, 60, W - 120, H - 120);
+  g.strokeStyle = 'rgba(160,113,90,.5)'; g.lineWidth = 3; g.strokeRect(84, 84, W - 168, H - 168);
+  g.textAlign = 'center'; g.fillStyle = '#6b4a3a'; g.font = '700 92px Caveat,cursive'; g.fillText('Piagam Janji Kita', W / 2, 230);
+  g.font = '30px Poppins,sans-serif'; g.fillStyle = '#a0715a'; g.fillText('disepakati bersama oleh Razan & Dara', W / 2, 290);
+  let y = 390; g.textAlign = 'left';
+  lines.forEach((l, i) => { g.fillStyle = '#a0715a'; g.font = '700 28px Poppins,sans-serif'; g.fillText(`Pasal ${i + 1}`, 130, y); g.fillStyle = '#4a3328'; g.font = '34px Poppins,sans-serif'; l.forEach((t, k) => g.fillText(t, 280, y + k * 46)); y += l.length * 46 + 26; });
+  g.strokeStyle = 'rgba(160,113,90,.5)'; g.setLineDash([10, 8]); g.beginPath(); g.moveTo(130, y + 10); g.lineTo(W - 130, y + 10); g.stroke(); g.setLineDash([]);
+  g.textAlign = 'center'; g.fillStyle = '#7a3f35'; g.font = '700 70px Caveat,cursive'; g.fillText('Razan', W * .3, y + 110); g.fillText('Dara', W * .7, y + 110);
+  g.save(); g.translate(W / 2, y + 90); g.rotate(-.15); g.strokeStyle = '#c0392b'; g.lineWidth = 5; g.strokeRect(-110, -40, 220, 70); g.fillStyle = '#c0392b'; g.font = '800 34px Poppins,sans-serif'; g.fillText('SAH ♥', 0, 8); g.restore();
+  await shareCanvas(c, 'piagam-janji-kita.png', 'Piagam Janji Kita');
+}
+BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes(APP) && !document.querySelector('.ov.show')) render(); });
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
