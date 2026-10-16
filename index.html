@@ -2842,7 +2842,7 @@ setTimeout(() => {
   function put(app, who, date, data) { if (window.Berdua && Berdua.put) Berdua.put(app, who, date, data); else { const k = app + '-' + who, m = get(k, {}) || {}; m[date] = data; set(k, m); } }
 
   // ═════ 📥 KOTAK MASUK ═════
-  const EMO = { kangen: '💗', ajak: '🎮', janji: '📜', minum: '💧', 'kembang-api': '🎆', semangat: '💪', tempel: '📌' };
+  const EMO = { bales: '💬', kangen: '💗', ajak: '🎮', janji: '📜', minum: '💧', 'kembang-api': '🎆', semangat: '💪', tempel: '📌' };
   const inbox = () => Object.entries(get('inbox-' + me(), {}) || {}).filter(([, x]) => x && x.at).map(([d, x]) => ({ ...x, _d: d })).sort((a, b) => b.at - a.at);
   const ibDel = d => put('inbox', me(), d, null);
   const unread = () => { const r = get('inbox-read-' + me(), 0); return inbox().filter(x => x.at > r); };
@@ -2851,9 +2851,11 @@ setTimeout(() => {
     const L = inbox(), r = get('inbox-read-' + me(), 0);
     const o = sheet('ib-ov', `<h3>📥 Kotak Masuk</h3><p class="sub2">Semua kiriman dari ${other()} — kalau notifnya kelewat, masih ada di sini</p>` +
       (L.length ? `<div class="ib-tools">${L.some(x => x.at <= r) ? '<button data-clr="old">🧹 Hapus yg dibaca</button>' : ''}<button data-clr="all">Hapus semua</button></div>` : '') +
-      '<div id="ib-list">' + (L.map(x => `<div class="ib-row" data-d="${esc(x._d)}"><a class="ib-it ${x.at > r ? 'new' : ''}" href="${esc(x.u || './')}"><span class="e">${ibIcon(x)}</span><span><b>${esc(x.t)}</b>${x.b ? `<p>${esc(x.b)}</p>` : ''}<small>${hm(x.at)}${x.at > r ? ' · baru' : ''}</small></span></a><button class="ib-del" data-del="${esc(x._d)}" aria-label="Hapus">✕</button></div>`).join('') || '<p class="sub2" style="margin:1.5rem 0">Belum ada kiriman. Nanti semua kiriman dari pasangan (origami, kangen, ajakan main, dll) kumpul di sini 💌</p>') + '</div>' +
+      '<div id="ib-list">' + (L.map(x => `<div class="ib-row" data-d="${esc(x._d)}"><a class="ib-it ${x.at > r ? 'new' : ''}" href="${esc(x.u || './')}"><span class="e">${ibIcon(x)}</span><span><b>${esc(x.t)}</b>${x.b ? `<p>${esc(x.b)}</p>` : ''}<small>${hm(x.at)}${x.at > r ? ' · baru' : ''}</small></span></a><button class="ib-del" data-del="${esc(x._d)}" aria-label="Hapus">✕</button>${x.f && x.f !== me() ? `<button class="ib-rep ${rep()[x.at] ? 'done' : ''}" data-rep="${x.at}" aria-label="Bales">${rep()[x.at] ? '✓' : '↩'}</button>` : ''}</div>`).join('') || '<p class="sub2" style="margin:1.5rem 0">Belum ada kiriman. Nanti semua kiriman dari pasangan (origami, kangen, ajakan main, dll) kumpul di sini 💌</p>') + '</div>' +
       (L.length ? `<p class="ib-note">${L.length} kiriman · kotak masuk cuma nyimpen 60 kiriman terakhir — yang paling lama otomatis kegeser.</p>` : ''));
     o.addEventListener('click', e => {
+      const rp = e.target.closest('[data-rep]');
+      if (rp) { e.preventDefault(); const row = rp.closest('.ib-row'), x = L.find(y => String(y.at) === rp.dataset.rep); if (!x) return; const cur = row.nextElementSibling && row.nextElementSibling.classList.contains('ib-rp') ? row.nextElementSibling : null; o.querySelectorAll('.ib-rp').forEach(n => n.remove()); if (cur) return; row.insertAdjacentHTML('afterend', `<div class="ib-rp"><div class="q">${['💗', '🥰', '😂', '🥺', '😘', '👍'].map(m => `<button type="button" data-say="${m}">${m}</button>`).join('')}</div><form><input maxlength="80" placeholder="Bales ke ${other()}…" enterkeyhint="send"><button type="submit">Kirim</button></form></div>`); const P = row.nextElementSibling, fm = P.querySelector('form'); fm.onsubmit = ev => { ev.preventDefault(); ibReply(x, fm.querySelector('input').value, row); }; P.querySelectorAll('[data-say]').forEach(b => b.onclick = () => ibReply(x, b.dataset.say, row)); return; }
       const d = e.target.closest('[data-del]'); if (d) { e.preventDefault(); const row = d.closest('.ib-row'); row.classList.add('gone'); ibDel(d.dataset.del); vib(8); setTimeout(() => { row.remove(); if (!document.querySelector('#ib-list .ib-row')) window.__inbox(); }, 220); paintIb(); return; }
       const c = e.target.closest('[data-clr]'); if (!c) return;
       const all = c.dataset.clr === 'all', T = L.filter(x => all || x.at <= r);
@@ -2862,6 +2864,14 @@ setTimeout(() => {
     });
     set('inbox-read-' + me(), Math.max(Date.now(), ...L.map(x => x.at))); paintIb();
   };
+  const rep = () => get('inbox-rep-' + me(), {}) || {};
+  function ibReply(x, txt, row) {
+    txt = String(txt || '').trim().slice(0, 80); if (!txt) return;
+    try { window.Push && Push.notify({ title: `💬 ${me()} bales: ${txt}`, body: `Buat kiriman kamu: ${x.t}`.slice(0, 160), url: './', tag: 'bales' }); } catch (e) {}
+    const r = rep(); r[x.at] = Date.now(); const ks = Object.keys(r); if (ks.length > 80) delete r[ks[0]]; set('inbox-rep-' + me(), r);
+    vib(15); toast(`💬 Balesan kekirim ke ${other()}`);
+    if (row) { const p = row.nextElementSibling; if (p && p.classList.contains('ib-rp')) p.remove(); const b = row.querySelector('.ib-rep'); if (b) { b.classList.add('done'); b.textContent = '✓'; } }
+  }
   function paintIb() {
     let b = document.getElementById('ib-btn');
     if (!b) { const home = document.getElementById('home'); if (!home) return; b = document.createElement('button'); b.id = 'ib-btn'; b.className = 'ib-btn'; b.setAttribute('aria-label', 'Kotak masuk'); b.onclick = () => window.__inbox(); home.insertBefore(b, home.firstChild); }
@@ -3167,6 +3177,12 @@ setTimeout(() => {
   .ib-row{position:relative;transition:opacity .2s,transform .2s}.ib-row.gone{opacity:0;transform:translateX(30px)}
   .ib-row .ib-it{padding-right:2.2rem}
   .ib-del{position:absolute;top:.45rem;right:.4rem;width:26px;height:26px;border:none;border-radius:50%;background:rgba(193,122,111,.1);color:var(--muted);font-size:11px;cursor:pointer;line-height:26px;padding:0}
+  .ib-rep{position:absolute;bottom:.45rem;right:.4rem;width:26px;height:26px;border:none;border-radius:50%;background:var(--rose);color:#fff;font-size:12px;cursor:pointer;line-height:26px;padding:0}
+  .ib-rep.done{background:#2ea05a}
+  .ib-rp{margin:-.55rem .4rem .5rem;padding:.75rem .55rem .55rem;border-radius:0 0 16px 16px;background:#fff7f4;border:1px solid rgba(193,122,111,.15);border-top:none}
+  .ib-rp .q{display:flex;justify-content:space-between;margin-bottom:.4rem}.ib-rp .q button{border:none;background:#fff;border-radius:50%;width:36px;height:36px;font-size:1.15rem;cursor:pointer}
+  .ib-rp form{display:flex;gap:.35rem}.ib-rp input{flex:1;min-width:0;border:1.5px solid var(--blush,#e8c4b0);border-radius:50px;padding:.55rem .8rem;font:16px 'Poppins',sans-serif;outline:none}
+  .ib-rp form button{border:none;border-radius:50px;background:var(--rose);color:#fff;font:600 12px 'Poppins',sans-serif;padding:0 .9rem;cursor:pointer}
   .ib-note{font-size:10.5px;color:var(--muted);text-align:center;margin:.6rem 0 .2rem}
   .ib-it.new{border-color:rgba(224,71,91,.4);background:#fff7f8}
   .ib-it .e{font-size:1.3rem;flex-shrink:0}.ib-it b{display:block;font-size:12.5px;color:var(--ink);font-weight:600}.ib-it p{font-size:11.5px;color:var(--muted);margin-top:.1rem;word-break:break-word}.ib-it small{font-size:10px;color:var(--muted)}
