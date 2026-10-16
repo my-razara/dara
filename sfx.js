@@ -18,7 +18,9 @@
   const NO_TAP = 'pop-it kalkulator-cinta kotak-musik pengantar-tidur jendela-embun tiup-lilin napas-bareng menit-bisu detak-jantung slot-cinta rodasayang tantangan-kecepatan time-bomb truth-or-dare 36-questions jar-of-questions peta-emosi'.split(' ');
   const base = page.replace('.html', '');
   // window.__sfxTheme = tema khusus (misal hari spesial di menu utama)
-  const theme = NO_BGM.includes(base) ? null : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
+  // halaman yang punya lagu khusus sendiri
+  const SPECIAL = { 'birthday-scrapbook': 'ultah' };
+  const theme = NO_BGM.includes(base) ? null : SPECIAL[base] ? SPECIAL[base] : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
   const tapOn = !NO_TAP.includes(base);
 
   // ── setelan (kesimpen di HP) ──
@@ -68,13 +70,38 @@
     santai:   { bpm: 88, progs: [[Fmaj7, Em, Am, G], [C, Am, Dm, G]], arp: [0, 2, 1, 3, 2, 1, 0, 2], oct: 12, lead: .2, drums: false, inst: 'pluck', vol: .11 },
     romantis: { bpm: 76, progs: [[C, Am, F, G], [F, G, Em, Am], [Fmaj7, G, Cadd9, Am]], arp: [0, 1, 2, 3, 2, 1, 2, 1], oct: 12, lead: .25, drums: false, inst: 'bell', vol: .1 },
     pesta:    { bpm: 118, progs: [[C, F, G, C], [Am, F, C, G], [F, G, Em, Am]], arp: [0, 1, 2, 3, 2, 1, 2, 3], oct: 12, lead: .45, drums: true, inst: 'bell', vol: .11 },
+    // kotak musik "Selamat Ulang Tahun" (melodi tradisional, domain publik) + jeda arpeggio lembut
+    ultah:    { bpm: 84, progs: [[C, Am, F, G], [Fmaj7, G, Cadd9, Am]], arp: [0, 1, 2, 3, 2, 1, 2, 1], oct: 12, lead: 0, drums: false, inst: 'bell', vol: .1,
+      // [nada MIDI, panjang dalam ketukan, akor]
+      seq: [[67, .75, C], [67, .25, C], [69, 1, F], [67, 1, C], [72, 1, C], [71, 2, G],
+            [67, .75, G], [67, .25, G], [69, 1, G], [67, 1, G], [74, 1, G], [72, 2, C],
+            [67, .75, C], [67, .25, C], [79, 1, C], [76, 1, C], [72, 1, F], [71, 1, F], [69, 2, F],
+            [77, .75, F], [77, .25, F], [76, 1, C], [72, 1, C], [74, 1, G], [72, 3, C]], rest: 16 },
     malam:    { bpm: 60, progs: [[Am, F, C, G], [Dm, Am, F, Em]], arp: [0, 2, 1, 2, 0, 2, 1, 2], oct: 24, lead: .15, drums: false, inst: 'bell', vol: .09, pad: true },
   };
   const PENTA = [0, 2, 4, 7, 9];
   let playing = false, nextT = 0, step = 0, bar = 0, prog = 0, timer = 0, leadNote = 72;
+  let seqI = 0, seqRest = 0;
+  function scheduleSeq(S) {
+    const beat = 60 / S.bpm;
+    while (nextT < ac.currentTime + .3) {
+      if (seqRest > 0) {                        // jeda: arpeggio pelan sebelum lagunya diulang
+        const chord = S.progs[0][Math.floor((S.rest - seqRest) / 4) % 4], n = chord[(S.rest - seqRest) % chord.length] + 12;
+        bell(mtof(n), nextT, S.vol * .55, 1.6); if ((S.rest - seqRest) % 4 === 0) bass(mtof(chord[0] - 12), nextT, S.vol * 1.2, beat * 3.5);
+        nextT += beat; seqRest--; continue;
+      }
+      const [n, len, chord] = S.seq[seqI];
+      bell(mtof(n), nextT, S.vol * 1.15, Math.max(1.2, len * beat * 1.6)); tone(bgmGain, mtof(n + 12), nextT, .35, S.vol * .12, 'sine', .002, true);
+      if (seqI === 0 || S.seq[seqI - 1][2] !== chord || len >= 2) { bass(mtof(chord[0] - 12), nextT, S.vol * 1.3, len * beat * 1.8); chord.slice(1).forEach((c, k) => bell(mtof(c), nextT + .06 * (k + 1), S.vol * .32, 1.6)); }
+      nextT += len * beat; seqI++;
+      if (seqI >= S.seq.length) { seqI = 0; seqRest = S.rest; }
+    }
+    timer = setTimeout(schedule, 60);
+  }
   function schedule() {
     if (!playing) return;
     const S = SONGS[theme], sp = 60 / S.bpm / 2;   // 1 langkah = not 1/8
+    if (S.seq) return scheduleSeq(S);
     while (nextT < ac.currentTime + .25) {
       const chord = S.progs[prog][bar % 4], st = step % 8;
       const notes = chord.concat(chord.length < 4 ? [chord[0] + 12] : []);
@@ -98,7 +125,7 @@
   }
   function startBgm() {
     if (!theme || mode !== 'all' || playing || !ctx()) return;
-    playing = true; nextT = ac.currentTime + .1; step = 0; bar = 0; prog = Math.floor(Math.random() * SONGS[theme].progs.length);
+    playing = true; nextT = ac.currentTime + .1; step = 0; bar = 0; seqI = 0; seqRest = 0; prog = Math.floor(Math.random() * SONGS[theme].progs.length);
     bgmGain.gain.cancelScheduledValues(ac.currentTime); bgmGain.gain.setValueAtTime(bgmGain.gain.value, ac.currentTime); bgmGain.gain.linearRampToValueAtTime(1, ac.currentTime + 2.5);
     schedule();
   }
