@@ -2473,7 +2473,7 @@ setTimeout(() => {
   function ago(ms) {
     if (!ms) return '';
     const m = Math.round((Date.now() - ms) / 60e3);
-    if (m < 5) return '🟢 lagi buka web';
+    if (m < 3) return '🟢 lagi buka web';
     if (m < 60) return `aktif ${m} menit lalu`;
     const h = Math.round(m / 60); if (h < 24) return `aktif ${h} jam lalu`;
     return `aktif ${Math.round(h / 24)} hari lalu`;
@@ -2911,6 +2911,7 @@ setTimeout(() => {
     ['peliharaan', '🐾 Peliharaan', 'pet', el => el.id === 'pet-slot'],
     ['tempel', '📌 Pesan tempel', 'top', el => el.classList.contains('pt-card')],
     ['inbox', '📥 Kiriman baru', 'top', el => el.classList.contains('ib-card')],
+    ['online', '🟢 Pasangan lagi online', 'top', el => el.classList.contains('on-card')],
     ['spesial', '🎉 Banner hari spesial', 'top', el => el.classList.contains('sp-banner')],
     ['status', '💞 Status berdua', 'top', el => el.classList.contains('st-card')],
     ['surat', '📬 Surat dari Razan', 'top', el => el.classList.contains('sr-card') && !el.classList.contains('rk-card')],
@@ -2991,6 +2992,24 @@ setTimeout(() => {
       (T.hist.length ? `<p class="sk-h">Terakhir</p>` + T.hist.slice(0, 10).map(x => { const [ic, nm] = gName(x[1]), w = x[2] === 'R' ? 'Razan' : 'Dara'; return `<div class="sk-hi"><span>${ic}</span><span><b class="${x[2] === 'R' ? 'r' : 'd'}">${w}</b> menang ${esc(nm)}</span><small>${hm(x[0])}</small></div>`; }).join('') : ''));
   };
 
+
+  // ═════ 🟢 PASANGAN LAGI ONLINE ═════
+  const seenO = () => { const m = get('seen-' + other(), {}) || {}; const k = Object.keys(m).sort().pop(); return k ? m[k] : null; };
+  function onCard() {
+    const x = seenO(); if (!x || !x.at || Date.now() - x.at > 3 * 60e3) return '';
+    const it = x.p && x.p !== 'index' ? (typeof ALL !== 'undefined' ? ALL : []).find(a => a.link === x.p + '.html') : null;
+    return `<div class="on-card"><span class="dot"></span><span class="tx"><b>${other()} lagi online</b><small>${it ? `lagi buka ${esc(it.icon)} ${esc(it.label)}` : 'lagi di menu utama'}</small></span><button onclick="__onlineSheet && __onlineSheet()">🎮 Ajak main</button></div>`;
+  }
+  function paintOn() {
+    const top = document.getElementById('today-slot'); if (!top) return;
+    const old = top.querySelector('.on-card'), h = onCard(), L = layout();
+    if (L.hide.includes('online')) { if (old) old.remove(); return; }
+    if (old) { if (!h) old.remove(); else if (old.outerHTML !== h) old.outerHTML = h; return; }
+    if (h) { const ib = top.querySelector('.ib-card'); if (ib) ib.insertAdjacentHTML('afterend', h); else top.insertAdjacentHTML('afterbegin', h); }
+  }
+  setInterval(() => { if (!document.hidden) paintOn(); }, 20e3);
+  try { window.Berdua && Berdua.fast && Berdua.fast(30e3); } catch (e) {}
+
   // ═════ pasang ke home ═════
   const _rrX = renderRows;
   renderRows = function () {
@@ -3000,13 +3019,13 @@ setTimeout(() => {
       if (top) { const a = ptCard(), b = ibCard(); if (b) top.insertAdjacentHTML('afterbegin', b); if (a) top.insertAdjacentHTML('afterbegin', a); }
       if (rows && !rows.querySelector('.hl-link')) rows.insertAdjacentHTML('beforeend', '<button class="hl-link" onclick="__hlEdit()">🧩 Atur tampilan home</button>');
       if (rows) { const old = rows.querySelector('.sk-sec'); if (old) old.remove(); const h = skCard(); if (h) { const bx = rows.querySelector('.bx-sec'); if (bx) bx.insertAdjacentHTML('afterend', h); else rows.insertAdjacentHTML('afterbegin', h); } }
-      apply(); paintIb();
+      apply(); paintIb(); paintOn();
     } catch (e) {}
   };
   function refresh() { try { renderRows(); } catch (e) {} }
   // tombol "Tempel pesan" di baris fitur berdua
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a.bx[href="#tempel"]'); if (a) { e.preventDefault(); window.__tempel(); } }, true);
-  try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && (ev.apps.includes('inbox') || ev.apps.includes('tempel') || ev.apps.includes('skor'))) { refresh(); } }); } catch (e) {}
+  try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && (ev.apps.includes('inbox') || ev.apps.includes('tempel') || ev.apps.includes('skor'))) { refresh(); } else if (ev.apps && ev.apps.includes('seen')) paintOn(); }); } catch (e) {}
   (function waitSkor(n) { if (window.Skor) refresh(); else if (n < 40) setTimeout(() => waitSkor(n + 1), 250); })(0);
   refresh();
 })();
@@ -3122,6 +3141,12 @@ setTimeout(() => {
   .hp-sh h3{text-align:center;font-size:15px;color:var(--ink);margin-bottom:.2rem}.hp-sh .sub2{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.8rem}
   .hp-x{display:block;margin:.7rem auto 0;border:none;background:none;color:var(--muted);font:500 12.5px 'Poppins',sans-serif;padding:.5rem 1rem;cursor:pointer}
   .ib-it{display:flex;gap:.65rem;align-items:flex-start;padding:.65rem .7rem;border-radius:16px;background:#fff;border:1px solid rgba(193,122,111,.13);margin-bottom:.4rem;text-decoration:none;color:inherit}
+  .on-card{display:flex;align-items:center;gap:.65rem;padding:.6rem .7rem .6rem .9rem;margin-bottom:.75rem;border-radius:18px;background:linear-gradient(135deg,#eafaf0,#f3fbf6);border:1px solid rgba(46,160,90,.25)}
+  .on-card .dot{width:10px;height:10px;border-radius:50%;background:#2ea05a;flex-shrink:0;box-shadow:0 0 0 0 rgba(46,160,90,.5);animation:onP 1.8s infinite}
+  @keyframes onP{70%{box-shadow:0 0 0 8px rgba(46,160,90,0)}100%{box-shadow:0 0 0 0 rgba(46,160,90,0)}}
+  .on-card .tx{flex:1;min-width:0}.on-card b{display:block;font-size:13px;color:var(--ink)}.on-card small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .on-card button{border:none;border-radius:50px;background:#2ea05a;color:#fff;font:600 12px 'Poppins',sans-serif;padding:.5rem .8rem;cursor:pointer;flex-shrink:0;white-space:nowrap}
+  html.night .on-card{background:var(--card);border-color:rgba(46,160,90,.35)}
   .sk-card{display:block;width:100%;text-align:center;border:1px solid rgba(193,122,111,.18);border-radius:20px;padding:.8rem .9rem .75rem;background:linear-gradient(135deg,#eef4fd,#fff 50%,#fdecec);cursor:pointer;font-family:inherit;color:var(--ink)}
   .sk-card.sk-empty b{display:block;font-size:15px;margin-bottom:.2rem}.sk-card.sk-empty small{font-size:11px;color:var(--muted)}
   .sk-big{display:flex;align-items:center;justify-content:center;gap:.7rem;font-size:2rem;font-weight:800;line-height:1}

@@ -202,12 +202,12 @@
   window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL };
 
   seed();
-  // tanda "lagi buka web" (paling sering tiap 4 menit)
+  // tanda "lagi buka web" (paling sering tiap 1,5 menit, atau pas pindah halaman)
   function beat() {
     if (!URL || document.hidden) return;
-    const t = tday(), cur = (g('seen-' + me(), {}) || {})[t];
-    if (cur && Date.now() - cur.at < 4 * 60e3) return;
-    put('seen', me(), t, { at: Date.now() });
+    const t = tday(), cur = (g('seen-' + me(), {}) || {})[t], p = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
+    if (cur && Date.now() - cur.at < 90e3 && cur.p === p) return;
+    put('seen', me(), t, { at: Date.now(), p });
   }
   const kick = force => { beat(); flush(); pull(force); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => kick(true)); else setTimeout(() => kick(true), 0);
