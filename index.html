@@ -2635,6 +2635,7 @@ setTimeout(() => {
   // baris ini diisi otomatis dari DUO (atas) + semua game yang bisa online
   const F = Object.entries(window.DUO || {}).map(([l, d]) => { const it = byLink(l); return [d[1] || (it && it.icon) || '💞', d[0], d[2] || l]; });
   if (ALL.some(isOnline)) F.splice(4, 0, ['🎮', 'Main online', '#online']);
+  F.unshift(['💬', 'Chat', 'chat.html']);
   const ONLINE = ALL.filter(isOnline).map(it => [it.icon, it.label.replace(/ Cinta$/, ''), ((window.DUO || {})[it.link] || [])[2] || it.link]);
   window.__onlineSheet = () => {
     let o = document.getElementById('ol-pick'); if (o) o.remove();
@@ -2728,6 +2729,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-16 16:30', t: '💬 BARU: Chat berdua kayak WhatsApp — kirim pesan, foto, stiker, bales, reaksi, ada ✓✓ dibaca & notif. Plus tab 🤖 Asisten AI buat temen ngobrol, cari ide kencan & bikin ucapan!' },
     { d: '2026-10-16 16:00', t: '🎶 Musik baru: tiap game & halaman sekarang punya lagu sendiri (beda nada, tempo & alat musik), menu utama ganti lagu tiap dibuka. Tahan tombol 🎵 buat ganti lagu.' },
     { d: '2026-10-16 15:30', t: '✨ Update gede: 💬 bisa komen di semua game online · 📨 tantang pasangan jarak jauh di 9 game skor · 🏆 papan skor Razan vs Dara di home · 🟢 tanda pasangan lagi online · ↩ bales kiriman dari kotak masuk · 🐾 pet punya keinginan harian & aksesoris baru' },
     { d: '2026-10-16 13:45', t: '💬 Ular Tangga online sekarang bisa saling komen! Pas giliran lawan jalan, kirim emoji atau ledekan — langsung muncul di HP pasangan 😏 (request dari Dara)' },
@@ -2924,6 +2926,7 @@ setTimeout(() => {
     ['tempel', '📌 Pesan tempel', 'top', el => el.classList.contains('pt-card')],
     ['inbox', '📥 Kiriman baru', 'top', el => el.classList.contains('ib-card')],
     ['online', '🟢 Pasangan lagi online', 'top', el => el.classList.contains('on-card')],
+    ['chat', '💬 Pesan chat baru', 'top', el => el.classList.contains('ch-card')],
     ['spesial', '🎉 Banner hari spesial', 'top', el => el.classList.contains('sp-banner')],
     ['status', '💞 Status berdua', 'top', el => el.classList.contains('st-card')],
     ['surat', '📬 Surat dari Razan', 'top', el => el.classList.contains('sr-card') && !el.classList.contains('rk-card')],
@@ -3018,6 +3021,30 @@ setTimeout(() => {
     sheet('bk-ov', `<h3>📊 Yang sering & jarang dibuka</h3><p class="sub2">Dihitung dari HP kamu & ${other()}${days ? ` · mulai ${days} hari lalu` : ' · baru mulai dihitung'}. Yang paling jarang bisa jadi kandidat buat diganti 😉</p>` + part(Skor.GAMES, O.g, '🎮 Game') + part(Skor.HADIAH, O.h, '🎁 Hadiah'));
   };
 
+
+  // ═════ 💬 CHAT: tombol di atas + kartu pesan baru ═════
+  let chPeek = get('chat-peek-' + me(), null);
+  async function chFetch() {
+    if (!window.Berdua || !Berdua.url || document.hidden) return;
+    try {
+      const r = await fetch(`${Berdua.url}?action=chat&key=${Berdua.key}&who=${me()}&peek=1&t=${Date.now()}`).then(x => x.json());
+      if (r && r.ok) { chPeek = { n: r.unread || 0, last: r.last, at: Date.now() }; set('chat-peek-' + me(), chPeek); paintCh(); }
+    } catch (e) {}
+  }
+  function paintCh() {
+    const home = document.getElementById('home'); if (!home) return;
+    let b = document.getElementById('ch-btn');
+    if (!b) { b = document.createElement('a'); b.id = 'ch-btn'; b.className = 'ib-btn ch-btn'; b.href = 'chat.html'; b.setAttribute('aria-label', 'Chat'); home.insertBefore(b, home.firstChild); }
+    const n = chPeek && chPeek.n || 0; b.innerHTML = `💬${n ? `<i>${n > 9 ? '9+' : n}</i>` : ''}`;
+    const top = document.getElementById('today-slot'); if (!top) return;
+    const old = top.querySelector('.ch-card'), L = layout();
+    const h = n && chPeek.last && !L.hide.includes('chat') ? `<a class="ch-card" href="chat.html"><span class="e">💬</span><span><b>${n} pesan baru dari ${esc(other())}</b><small>${esc(chPeek.last.t || '')}</small></span><i>Bales ›</i></a>` : '';
+    if (old) { if (!h) old.remove(); else if (old.outerHTML !== h) old.outerHTML = h; return; }
+    if (h) top.insertAdjacentHTML('afterbegin', h);
+  }
+  setInterval(chFetch, 45e3); setTimeout(chFetch, 1500);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) chFetch(); });
+
   // ═════ 🟢 PASANGAN LAGI ONLINE ═════
   const seenO = () => { const m = get('seen-' + other(), {}) || {}; const k = Object.keys(m).sort().pop(); return k ? m[k] : null; };
   function onCard() {
@@ -3044,7 +3071,7 @@ setTimeout(() => {
       if (top) { const a = ptCard(), b = ibCard(); if (b) top.insertAdjacentHTML('afterbegin', b); if (a) top.insertAdjacentHTML('afterbegin', a); }
       if (rows && !rows.querySelector('.hl-link')) rows.insertAdjacentHTML('beforeend', '<button class="hl-link" onclick="__hlEdit()">🧩 Atur tampilan home</button>');
       if (rows) { const old = rows.querySelector('.sk-sec'); if (old) old.remove(); const h = skCard(); if (h) { const bx = rows.querySelector('.bx-sec'); if (bx) bx.insertAdjacentHTML('afterend', h); else rows.insertAdjacentHTML('afterbegin', h); } }
-      apply(); paintIb(); paintOn();
+      apply(); paintIb(); paintOn(); paintCh();
     } catch (e) {}
   };
   function refresh() { try { renderRows(); } catch (e) {} }
@@ -3169,6 +3196,11 @@ setTimeout(() => {
   .hp-sh h3{text-align:center;font-size:15px;color:var(--ink);margin-bottom:.2rem}.hp-sh .sub2{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.8rem}
   .hp-x{display:block;margin:.7rem auto 0;border:none;background:none;color:var(--muted);font:500 12.5px 'Poppins',sans-serif;padding:.5rem 1rem;cursor:pointer}
   .ib-it{display:flex;gap:.65rem;align-items:flex-start;padding:.65rem .7rem;border-radius:16px;background:#fff;border:1px solid rgba(193,122,111,.13);margin-bottom:.4rem;text-decoration:none;color:inherit}
+  .ch-btn{left:calc(1rem + 84px)!important;text-decoration:none}
+  .ch-card{display:flex;align-items:center;gap:.7rem;padding:.75rem .85rem;margin-bottom:.75rem;border-radius:18px;background:linear-gradient(135deg,#eef4fd,#fdf0f4);border:1px solid rgba(74,127,193,.25);text-decoration:none;color:var(--ink)}
+  .ch-card .e{font-size:1.5rem}.ch-card>span:nth-child(2){flex:1;min-width:0}.ch-card b{display:block;font-size:13px}.ch-card small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ch-card i{font-style:normal;font-size:12px;font-weight:600;color:var(--rose);white-space:nowrap}
+  html.night .ch-card{background:var(--card);color:#f3d9d2}
   .on-card{display:flex;align-items:center;gap:.65rem;padding:.6rem .7rem .6rem .9rem;margin-bottom:.75rem;border-radius:18px;background:linear-gradient(135deg,#eafaf0,#f3fbf6);border:1px solid rgba(46,160,90,.25)}
   .on-card .dot{width:10px;height:10px;border-radius:50%;background:#2ea05a;flex-shrink:0;box-shadow:0 0 0 0 rgba(46,160,90,.5);animation:onP 1.8s infinite}
   @keyframes onP{70%{box-shadow:0 0 0 8px rgba(46,160,90,0)}100%{box-shadow:0 0 0 0 rgba(46,160,90,0)}}

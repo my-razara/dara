@@ -13,7 +13,7 @@
   const CALM_GAMES = 'satuin-hati sapu-ranjau sudoku-mini labirin-kejar deep-talk 36-questions jar-of-questions  aku-belum-pernah lanjut-cerita cermin who-knows-me aku-adalah word-search scramble-kata  sort-blocks puzzle-foto tebak-kenangan memory-match congklak dam empat-sejajar'.split(' ');
   const NIGHT = 'lampion-harapan peta-bintang ramalan-cinta bintang-jatuh tarot-cinta cloud-wishes'.split(' ');
   // halaman yang udah punya suara sendiri / butuh hening → tanpa musik latar
-  const NO_BGM = 'kotak-musik ketuk-irama pengantar-tidur tiup-lilin jendela-embun napas-bareng radio-razan playlist-dara photobooth memories keuangan-dara keuangan-razan period-tracker time-bomb     slot-cinta rodasayang truth-or-dare'.split(' ');
+  const NO_BGM = 'chat kotak-musik ketuk-irama pengantar-tidur tiup-lilin jendela-embun napas-bareng radio-razan playlist-dara photobooth memories keuangan-dara keuangan-razan period-tracker time-bomb     slot-cinta rodasayang truth-or-dare'.split(' ');
   // halaman yang tombolnya udah bunyi sendiri → ga usah bunyi "tik" tambahan
   const NO_TAP = 'pop-it kalkulator-cinta kotak-musik pengantar-tidur jendela-embun tiup-lilin napas-bareng   slot-cinta rodasayang  time-bomb truth-or-dare 36-questions jar-of-questions '.split(' ');
   const base = page.replace('.html', '');

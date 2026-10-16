@@ -199,7 +199,7 @@
     try { window.SFX && SFX.play && SFX.play('open'); } catch (e) {}
   }
 
-  window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL };
+  window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL, url: URL, key: KEY };
 
   seed();
   // tanda "lagi buka web" (paling sering tiap 1,5 menit, atau pas pindah halaman)
