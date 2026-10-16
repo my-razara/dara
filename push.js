@@ -90,24 +90,91 @@
   const _open = window.open;
   window.open = function (u) { try { if (typeof u === 'string') fromWA(u); } catch (e) {} return _open.apply(window, arguments); };
 
-  // ── kangen, ngajak main online, usulan janji → notif ──
-  function hookBerdua() {
-    const B = window.Berdua; if (!B || B.__push) return; B.__push = true;
+  // ═══ TIAP NAMBAHIN SESUATU DI FITUR BERDUA → PASANGAN DIKABARIN ═══
+  const pick = d => { if (!d) return ''; const v = d.t || d.n || d.title || d.text || d.name || d.w || ''; return String(v).slice(0, 100); };
+  const newItem = (d, p) => { const A = (d && d.items) || [], B = (p && p.items) || []; const ids = new Set(B.map(x => x && (x.id || JSON.stringify(x)))); return A.find(x => x && !ids.has(x.id || JSON.stringify(x))) || null; };
+  const rp = n => 'Rp' + Math.round(+n || 0).toLocaleString('id-ID');
+  const seen = (() => { let S = g('push-once', []) || []; return k => { if (S.includes(k)) return false; S.push(k); if (S.length > 300) S = S.slice(-300); s('push-once', S); return true; }; })();
+  const slow = {};   // 1 notif per fitur tiap 90 detik (biar nambahin banyak sekaligus ga nyepam)
+  function tell(key, o) { const now = Date.now(); if (slow[key] && now - slow[key] < 9e4) return; slow[key] = now; notify(Object.assign({ tag: 'upd-' + key }, o)); }
+  // [judul, isi, link] — app = nama data di Data Berdua
+  const RULES = {
+    mood: (d, p, w) => !p && [`🌈 ${w} nyatet mood hari ini`, 'Liat gimana perasaannya hari ini yuk', 'kalender-mood.html'],
+    syukur: (d, p, w) => !p && [`🙏 ${w} nulis jurnal syukur`, pick(d) || 'Baca yuk, siapa tau ada kamunya 🤍', 'jurnal-syukur.html'],
+    film: (d, p, w) => !p ? [`🎬 ${w} nambahin tontonan`, pick(d), 'bioskop-kita.html']
+      : (p.s !== 'udah' && d.s === 'udah') ? [`✅ ${w} selesai nonton`, `${pick(d)} — kasih rating kamu juga yuk`, 'bioskop-kita.html']
+      : (d.r && d.r[w] && (!p.r || p.r[w] !== d.r[w])) ? [`⭐ ${w} ngasih ${d.r[w]} bintang`, pick(d), 'bioskop-kita.html'] : null,
+    resep: (d, p, w) => !p && [`🥘 ${w} nambahin resep`, pick(d), 'resep-kita.html'],
+    kamus: (d, p, w) => !p && [`📖 ${w} nambahin kata ke Kamus Kita`, d.w ? `${d.w}${d.d ? ' — ' + d.d : ''}` : '', 'kamus-kita.html'],
+    daftar: (d, p, w) => !p && [`🧳 ${w} nambahin ke Daftar Bareng`, pick(d), 'daftar-bareng.html'],
+    ingat: (d, p, w) => !p && [`⭐ ${w} nambahin hari penting`, pick(d), 'pengingat.html'],
+    wish: (d, p, w) => { const it = newItem(d, p); return it && [`🎁 ${w} nambahin wishlist`, pick(it), 'wishlist.html']; },
+    ketemu: (d, p, w) => { const it = newItem(d, p); return it && [`📅 ${w} nambahin rencana ketemu`, pick(it) || 'Cek jadwalnya yuk', 'ketemuan.html?m=0']; },
+    kbx: (d, p, w) => { const it = newItem(d, p); return it && [`🤑 ${w} nyatet di Keuangan Berdua`, [pick(it), it.v ? rp(it.v) : ''].filter(Boolean).join(' · '), 'keuangan-berdua.html']; },
+    kbg: (d, p, w) => !p && [`🎯 ${w} bikin target tabungan baru`, pick(d), 'keuangan-berdua.html'],
+    md: (d, p, w) => d.done && !(p && p.done) && [`🔭 ${w} udah ngisi Teropong Masa Depan`, 'Giliran kamu, biar bisa diliat seberapa sehati', 'masa-depan.html'],
+    gbrm: (d, p, w) => (!p || p.id !== d.id) && [`🎨 ${w} ngirim gambar buat kamu tebak!`, 'Tebak gambarnya yuk 🖍️', 'gartic-berdua.html?beda=1'],
+    status: (d, p, w) => (d.e || d.t) && (!p || p.e !== d.e || p.t !== d.t) && [`💞 ${w} pasang status`, `${d.e || ''} ${d.t || ''}`.trim(), './'],
+    minum: (d, p, w) => { const goal = (d.g || 8) * 250; return (d.ml || 0) >= goal && ((p && p.ml) || 0) < goal && [`💧 ${w} udah capai target minum hari ini 🎉`, 'Kamu udah belum? 😉', 'jaga-minum.html']; }
+  };
+  function hookB(win) {
+    const B = win && win.Berdua; if (!B || B.__push) return; B.__push = true;
     const put = B.put;
     B.put = function (app, who, date, data) {
+      let prev = null; try { prev = ((JSON.parse(win.localStorage.getItem(app + '-' + who)) || {})[date]) || null; } catch (e) {}
       const r = put.apply(this, arguments);
       try {
         const w = me();
         if (data && w && who === w) {
           if (app === 'kangen' && data.n) notify({ title: `💗 ${w} lagi kangen kamu`, body: data.n > 1 ? `Udah ${data.n}x hari ini 🥺 bales pelukannya yuk` : 'Tap buat bales kangennya 🤍', url: 'tombol-kangen.html', tag: 'kangen' });
-          if (app === 'ajak' && data.g) notify({ title: `🎮 ${w} ngajak main ${GAME[data.g] || data.g}!`, body: 'Online dari HP masing-masing — dia lagi nunggu kamu gabung', url: `${data.g}.html?online=1`, tag: 'ajak' });
-          if (app === 'janji' && data.t && data.sig && Object.keys(data.sig).length === 1 && data.sig[w] && Date.now() - (data.at || 0) < 6e4) notify({ title: `📜 ${w} ngusulin janji baru`, body: `“${String(data.t).slice(0, 120)}” — tanda tangan yuk ✍️`, url: 'janji-kita.html', tag: 'janji' });
-        }
+          else if (app === 'ajak' && data.g) notify({ title: `🎮 ${w} ngajak main ${GAME[data.g] || data.g}!`, body: 'Online dari HP masing-masing — dia lagi nunggu kamu gabung', url: `${data.g}.html?online=1`, tag: 'ajak' });
+          else if (app === 'janji' && data.t && data.sig && Object.keys(data.sig).length === 1 && data.sig[w] && Date.now() - (data.at || 0) < 6e4) notify({ title: `📜 ${w} ngusulin janji baru`, body: `“${String(data.t).slice(0, 120)}” — tanda tangan yuk ✍️`, url: 'janji-kita.html', tag: 'janji' });
+          else if (app === 'kuisj' && (!prev || prev.id !== data.id)) tell('kuisj', { title: `🧠 ${w} bikin kuis buat kamu`, body: 'Seberapa kenal kamu sama dia? Jawab yuk', url: 'who-knows-me.html?beda=1' });
+          else if (RULES[app]) { const m = RULES[app](data, prev, w); if (m) tell(app, { title: m[0], body: m[1], url: m[2] }); }
+        } else if (data && w && who !== w && app === 'kuisj' && data.g && !(prev && prev.g)) tell('kuisj-g', { title: `🧠 ${w} udah jawab kuismu`, body: 'Liat skornya — seberapa kenal dia sama kamu?', url: 'who-knows-me.html?beda=1' });
       } catch (e) {}
       return r;
     };
   }
-  hookBerdua(); document.addEventListener('DOMContentLoaded', hookBerdua);
+
+  // ── fitur yang punya server sendiri (bucket list, surat, pertanyaan, kapsul, playlist, kenangan, period) ──
+  const SRV = [
+    ['cbzeGCcGD-moled6', (b, w) => { const it = b.item || {}; if (b.action !== 'save' || it.deleted) return null;
+      if (it.done && it.doneBy === w && seen('bl-d-' + it.id)) return [`✅ ${w} nyentang bucket list!`, it.text || '', 'bucket-list.html'];
+      if (!it.done && it.created && Date.now() - it.created < 6e5 && seen('bl-n-' + it.id)) return [`🪣 ${w} nambahin impian baru`, it.text || '', 'bucket-list.html']; return null; }],
+    ['cbzLJHmyZ7rM00fA', (b, w) => b.action === 'answer' && seen('qa-' + (b.date || b.id || new Date().toDateString()) + w) && [`💬 ${w} udah jawab pertanyaan hari ini`, 'Giliran kamu — jawaban kebuka kalau dua-duanya udah jawab', 'pertanyaan-harian.html']],
+    ['cbzpC1yfvgmtobfI', (b, w) => b.action === 'add' && seen('kw-' + ((b.item && b.item.id) || Date.now())) && [`⏳ ${w} nyimpen kapsul waktu baru`, 'Kebukanya nanti di tanggal yang udah ditentuin 🤫', 'kapsul-waktu.html']],
+    ['cbyR2ZOcUe9mw8I6', (b, w) => b.action === 'add' && [`🎵 ${w} nambahin lagu ke playlist`, pick(b.song), 'playlist-dara.html']],
+    ['cbxPd5lEfwBFVHE8', (b, w) => b.action === 'upload' && [`📸 ${w} nambahin kenangan baru`, 'Foto/video baru masuk album — liat yuk', 'memories.html']],
+    ['cbwxqc1oPn30mM-E', (b, w) => b.action === 'save' && [`🌸 ${w} update tracking period`, '', 'period-tracker.html']],
+    ['cbz14RB_aXdOTeLU', (b, w) => {
+      if (b.action === 'save' && b.item && seen('sr-' + b.item.id)) return [`💌 ${w} nulis surat buat kamu`, pick(b.item) || 'Buka kotak surat yuk', 'kotak-surat.html?m=0'];
+      if (b.action === 'react') { if (b.reply && seen('srr-' + b.id + String(b.reply).length)) return [`💬 ${w} bales suratmu`, String(b.reply).slice(0, 120), 'kotak-surat.html?m=0'];
+        if (b.reaction && seen('srx-' + b.id + b.reaction)) return [`💗 ${w} ngasih reaksi ${b.reaction} ke suratmu`, '', 'kotak-surat.html?m=0'];
+        if (b.readAt && seen('srd-' + b.id)) return [`📖 ${w} udah buka suratmu`, '', 'kotak-surat.html?m=0']; } return null; }]
+  ];
+  function srvCheck(url, body) {
+    try {
+      if (!url || !/script\.google\.com\/macros/.test(url) || typeof body !== 'string' || body.length > 20000) return;
+      const r = SRV.find(x => url.indexOf(x[0]) >= 0); if (!r) return;
+      const b = JSON.parse(body), w = me(); if (!w) return;
+      const m = r[1](b, w); if (m) tell('srv-' + r[0].slice(0, 8) + (b.action || ''), { title: m[0], body: m[1], url: m[2] });
+    } catch (e) {}
+  }
+  function hookNet(win) {
+    try {
+      if (!win || win.__pushNet) return; win.__pushNet = 1;
+      const X = win.XMLHttpRequest && win.XMLHttpRequest.prototype;
+      if (X) { const o = X.open, sd = X.send; X.open = function (m, u) { this.__u = String(u || ''); return o.apply(this, arguments); }; X.send = function (b) { srvCheck(this.__u, b); return sd.apply(this, arguments); }; }
+      if (win.fetch) { const f = win.fetch; win.fetch = function (u, opt) { try { srvCheck(typeof u === 'string' ? u : (u && u.url), opt && opt.body); } catch (e) {} return f.apply(this, arguments); }; }
+    } catch (e) {}
+  }
+  function attach(win) { try { hookB(win); hookNet(win); } catch (e) {} }
+  attach(window); document.addEventListener('DOMContentLoaded', () => attach(window));
+  // halaman di dalam hub (iframe) juga ikut
+  function watchFrame(fr) { if (fr.__pw) return; fr.__pw = 1; const go = () => { try { attach(fr.contentWindow); } catch (e) {} }; fr.addEventListener('load', go); go(); }
+  try { new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.tagName === 'IFRAME') watchFrame(n); else if (n.querySelectorAll) n.querySelectorAll('iframe').forEach(watchFrame); }))).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+  document.querySelectorAll('iframe').forEach(watchFrame);
 
   // ── daftarin HP ini biar bisa nerima notif ──
   function load(src) { return new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = src; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
