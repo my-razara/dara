@@ -2845,14 +2845,24 @@ setTimeout(() => {
 
   // ═════ 📥 KOTAK MASUK ═════
   const EMO = { kangen: '💗', ajak: '🎮', janji: '📜', minum: '💧', 'kembang-api': '🎆', semangat: '💪', tempel: '📌' };
-  const inbox = () => Object.values(get('inbox-' + me(), {}) || {}).filter(x => x && x.at).sort((a, b) => b.at - a.at);
+  const inbox = () => Object.entries(get('inbox-' + me(), {}) || {}).filter(([, x]) => x && x.at).map(([d, x]) => ({ ...x, _d: d })).sort((a, b) => b.at - a.at);
+  const ibDel = d => put('inbox', me(), d, null);
   const unread = () => { const r = get('inbox-read-' + me(), 0); return inbox().filter(x => x.at > r); };
   function ibIcon(x) { return EMO[x.g] || (/^wa-/.test(x.g || '') ? '💌' : '💌'); }
   window.__inbox = () => {
     const L = inbox(), r = get('inbox-read-' + me(), 0);
-    sheet('ib-ov', `<h3>📥 Kotak Masuk</h3><p class="sub2">Semua kiriman dari ${other()} — kalau notifnya kelewat, masih ada di sini</p>` +
-      (L.map(x => `<a class="ib-it ${x.at > r ? 'new' : ''}" href="${esc(x.u || './')}"><span class="e">${ibIcon(x)}</span><span><b>${esc(x.t)}</b>${x.b ? `<p>${esc(x.b)}</p>` : ''}<small>${hm(x.at)}${x.at > r ? ' · baru' : ''}</small></span></a>`).join('') || '<p class="sub2" style="margin:1.5rem 0">Belum ada kiriman. Nanti semua kiriman dari pasangan (origami, kangen, ajakan main, dll) kumpul di sini 💌</p>'));
-    set('inbox-read-' + me(), Date.now()); paintIb();
+    const o = sheet('ib-ov', `<h3>📥 Kotak Masuk</h3><p class="sub2">Semua kiriman dari ${other()} — kalau notifnya kelewat, masih ada di sini</p>` +
+      (L.length ? `<div class="ib-tools">${L.some(x => x.at <= r) ? '<button data-clr="old">🧹 Hapus yg dibaca</button>' : ''}<button data-clr="all">Hapus semua</button></div>` : '') +
+      '<div id="ib-list">' + (L.map(x => `<div class="ib-row" data-d="${esc(x._d)}"><a class="ib-it ${x.at > r ? 'new' : ''}" href="${esc(x.u || './')}"><span class="e">${ibIcon(x)}</span><span><b>${esc(x.t)}</b>${x.b ? `<p>${esc(x.b)}</p>` : ''}<small>${hm(x.at)}${x.at > r ? ' · baru' : ''}</small></span></a><button class="ib-del" data-del="${esc(x._d)}" aria-label="Hapus">✕</button></div>`).join('') || '<p class="sub2" style="margin:1.5rem 0">Belum ada kiriman. Nanti semua kiriman dari pasangan (origami, kangen, ajakan main, dll) kumpul di sini 💌</p>') + '</div>' +
+      (L.length ? `<p class="ib-note">${L.length} kiriman · kotak masuk cuma nyimpen 60 kiriman terakhir — yang paling lama otomatis kegeser.</p>` : ''));
+    o.addEventListener('click', e => {
+      const d = e.target.closest('[data-del]'); if (d) { e.preventDefault(); const row = d.closest('.ib-row'); row.classList.add('gone'); ibDel(d.dataset.del); vib(8); setTimeout(() => { row.remove(); if (!document.querySelector('#ib-list .ib-row')) window.__inbox(); }, 220); paintIb(); return; }
+      const c = e.target.closest('[data-clr]'); if (!c) return;
+      const all = c.dataset.clr === 'all', T = L.filter(x => all || x.at <= r);
+      if (!T.length || !confirm(all ? `Hapus semua ${T.length} kiriman? Ga bisa dibalikin lho.` : `Hapus ${T.length} kiriman yang udah dibaca?`)) return;
+      T.forEach(x => ibDel(x._d)); vib(15); toast(`🧹 ${T.length} kiriman dihapus`); window.__inbox(); paintIb();
+    });
+    set('inbox-read-' + me(), Math.max(Date.now(), ...L.map(x => x.at))); paintIb();
   };
   function paintIb() {
     let b = document.getElementById('ib-btn');
@@ -3086,6 +3096,13 @@ setTimeout(() => {
   .hp-sh h3{text-align:center;font-size:15px;color:var(--ink);margin-bottom:.2rem}.hp-sh .sub2{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.8rem}
   .hp-x{display:block;margin:.7rem auto 0;border:none;background:none;color:var(--muted);font:500 12.5px 'Poppins',sans-serif;padding:.5rem 1rem;cursor:pointer}
   .ib-it{display:flex;gap:.65rem;align-items:flex-start;padding:.65rem .7rem;border-radius:16px;background:#fff;border:1px solid rgba(193,122,111,.13);margin-bottom:.4rem;text-decoration:none;color:inherit}
+  .ib-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.2rem 0 .6rem;font-size:11.5px;color:var(--muted)}
+  .ib-tools{justify-content:flex-end}
+  .ib-tools button{border:1px solid rgba(193,122,111,.3);background:transparent;border-radius:50px;padding:.32rem .7rem;font:500 11px Poppins,sans-serif;color:var(--deep);cursor:pointer;white-space:nowrap}
+  .ib-row{position:relative;transition:opacity .2s,transform .2s}.ib-row.gone{opacity:0;transform:translateX(30px)}
+  .ib-row .ib-it{padding-right:2.2rem}
+  .ib-del{position:absolute;top:.45rem;right:.4rem;width:26px;height:26px;border:none;border-radius:50%;background:rgba(193,122,111,.1);color:var(--muted);font-size:11px;cursor:pointer;line-height:26px;padding:0}
+  .ib-note{font-size:10.5px;color:var(--muted);text-align:center;margin:.6rem 0 .2rem}
   .ib-it.new{border-color:rgba(224,71,91,.4);background:#fff7f8}
   .ib-it .e{font-size:1.3rem;flex-shrink:0}.ib-it b{display:block;font-size:12.5px;color:var(--ink);font-weight:600}.ib-it p{font-size:11.5px;color:var(--muted);margin-top:.1rem;word-break:break-word}.ib-it small{font-size:10px;color:var(--muted)}
   html.night .ib-it{background:var(--card)}
