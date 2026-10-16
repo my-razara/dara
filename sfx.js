@@ -33,14 +33,18 @@
     if (ac) { if (ac.state === 'suspended') ac.resume().catch(() => {}); return ac; }
     const C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
     try { ac = new C(); } catch (e) { return null; }
-    out = ac.createDynamicsCompressor(); out.threshold.value = -18; out.connect(ac.destination);
+    out = ac.createDynamicsCompressor(); out.threshold.value = -18;
+    // suara digedein: penguat + pembatas biar ga pecah
+    const boost = ac.createGain(); boost.gain.value = 1.6; const lim = ac.createDynamicsCompressor(); lim.threshold.value = -2; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = .002; lim.release.value = .12;
+    out.connect(boost); boost.connect(lim); lim.connect(ac.destination);
     bgmGain = ac.createGain(); bgmGain.gain.value = 0; bgmGain.connect(out);
-    sfxGain = ac.createGain(); sfxGain.gain.value = .55; sfxGain.connect(out);
+    sfxGain = ac.createGain(); sfxGain.gain.value = .8; sfxGain.connect(out);
     // gema tipis biar musiknya lebih lembut
     rev = ac.createDelay(1); rev.delayTime.value = .23; const fb = ac.createGain(); fb.gain.value = .28; const wet = ac.createGain(); wet.gain.value = .35; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200;
     rev.connect(lp); lp.connect(fb); fb.connect(rev); lp.connect(wet); wet.connect(bgmGain);
     return ac;
   }
+  const BGV = 1.5;   // keras musik latar
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 
   // ── alat musik ──
@@ -215,7 +219,7 @@
   function startBgm() {
     if (!theme || mode !== 'all' || playing || !ctx()) return;
     playing = true; nextT = ac.currentTime + .1; step = 0; bar = 0; seqI = 0; seqRest = 0; prog = Math.floor(Math.random() * SONGS[theme].progs.length);
-    bgmGain.gain.cancelScheduledValues(ac.currentTime); bgmGain.gain.setValueAtTime(bgmGain.gain.value, ac.currentTime); bgmGain.gain.linearRampToValueAtTime(1, ac.currentTime + 2.5);
+    bgmGain.gain.cancelScheduledValues(ac.currentTime); bgmGain.gain.setValueAtTime(bgmGain.gain.value, ac.currentTime); bgmGain.gain.linearRampToValueAtTime(BGV, ac.currentTime + 2.5);
     schedule();
   }
   function stopBgm(fast) {
@@ -242,7 +246,7 @@
     if (mode === 'off' || !FX[name] || !ctx()) return;
     const now = ac.currentTime; if (last[name] && now - last[name] < (name === 'win' ? 1.6 : .05)) return; last[name] = now;
     try { FX[name](now + .005); } catch (e) {}
-    if (name === 'win' && playing) { bgmGain.gain.cancelScheduledValues(now); bgmGain.gain.setValueAtTime(bgmGain.gain.value, now); bgmGain.gain.linearRampToValueAtTime(.25, now + .1); bgmGain.gain.linearRampToValueAtTime(1, now + 2.2); }
+    if (name === 'win' && playing) { bgmGain.gain.cancelScheduledValues(now); bgmGain.gain.setValueAtTime(bgmGain.gain.value, now); bgmGain.gain.linearRampToValueAtTime(.25, now + .1); bgmGain.gain.linearRampToValueAtTime(BGV, now + 2.2); }
   }
 
   // ── tombol 🎵 ──
