@@ -95,7 +95,7 @@
     var w = get('berdua-me'); if (valid(w) && w !== cur) { cur = w; apply(); location.reload(); }
   });
   // notif instan antar HP (push.js) — dimuat belakangan biar ga ngeberatin halaman
-  try { ['push.js', 'ritual.js'].forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
+  try { ['push.js', 'ritual.js', 'skor.js'].forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
   window.Who = {
     me: function () { return cur; },
     ready: function () { return !!cur; },

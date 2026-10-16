@@ -2918,6 +2918,7 @@ setTimeout(() => {
     ['hariini', '📅 Kartu hari ini', 'top', el => el.classList.contains('today')],
     ['ritual', '☀️ Ritual / Pantau Dara', 'rows', el => el.classList.contains('rit')],
     ['berdua', '💞 Fitur berdua', 'rows', el => el.classList.contains('bx-sec')],
+    ['skor', '🏆 Papan skor berdua', 'rows', el => el.classList.contains('sk-sec')],
     ['lanjut', '▶ Lanjutin', 'rows', el => el.classList.contains('hx-sec') && /^▶/.test(tt(el))],
     ['kenangan', '📸 Kenangan kita', 'rows', el => el.classList.contains('mem-card')],
     ['acak', '🎲 Main apa ya?', 'rows', el => el.classList.contains('rnd-btn')],
@@ -2965,6 +2966,31 @@ setTimeout(() => {
     const o = sheet('hl-ov', ''); draw(o);
   };
 
+
+  // ═════ 🏆 PAPAN SKOR RAZAN vs DARA ═════
+  const gName = p => { const it = (typeof ALL !== 'undefined' ? ALL : []).find(x => x.link === p + '.html'); return it ? [it.icon, it.label] : ['🎮', p]; };
+  function skCard() {
+    if (!window.Skor) return '';
+    const T = Skor.totals(), n = T.R + T.D;
+    if (!n) return `<div class="hx-sec sk-sec"><div class="hx-title"><span>🏆 Papan skor berdua</span></div><button class="sk-card sk-empty" onclick="__skor()"><b>Razan 0 : 0 Dara</b><small>Belum ada catatan — tiap ada yang menang di game berdua bakal kecatet di sini 😏</small></button></div>`;
+    const pr = Math.round(T.R / n * 100), top = Object.entries(T.games).sort((a, b) => (b[1][0] + b[1][1]) - (a[1][0] + a[1][1])).slice(0, 3);
+    const lead = T.R === T.D ? 'Imbang! 🤝' : `${T.R > T.D ? 'Razan' : 'Dara'} unggul ${Math.abs(T.R - T.D)} 😎`;
+    return `<div class="hx-sec sk-sec"><div class="hx-title"><span>🏆 Papan skor berdua</span></div><button class="sk-card" onclick="__skor()">
+      <div class="sk-big"><span class="r"><small>Razan</small>${T.R}</span><i>:</i><span class="d">${T.D}<small>Dara</small></span></div>
+      <div class="sk-bar"><b style="width:${pr}%"></b></div>
+      <p class="sk-l">${lead}${T.streak && T.streak.n >= 2 ? ` · 🔥 ${T.streak.w} menang ${T.streak.n}x beruntun` : ''}</p>
+      <p class="sk-w">Minggu ini: <b class="r">Razan ${T.wR}</b> – <b class="d">${T.wD} Dara</b></p>
+      ${top.length ? `<div class="sk-top">${top.map(([p, c]) => `<span>${gName(p)[0]} <b class="r">${c[0]}</b>–<b class="d">${c[1]}</b></span>`).join('')}</div>` : ''}
+    </button></div>`;
+  }
+  window.__skor = () => {
+    if (!window.Skor) return; const T = Skor.totals();
+    const G = Object.entries(T.games).sort((a, b) => (b[1][0] + b[1][1]) - (a[1][0] + a[1][1]));
+    sheet('sk-ov', `<h3>🏆 Papan skor berdua</h3><p class="sub2">Razan <b>${T.R}</b> : <b>${T.D}</b> Dara · kecatet otomatis tiap ada yang menang di game berdua (lawan komputer ga dihitung)</p>` +
+      (G.length ? `<p class="sk-h">Per game</p>` + G.map(([p, c]) => { const [ic, nm] = gName(p), t = c[0] + c[1]; return `<a class="sk-g" href="${p}.html"><span class="e">${ic}</span><b>${esc(nm)}</b><span class="sk-mini"><i style="width:${Math.round(c[0] / t * 100)}%"></i></span><span class="n"><b class="r">${c[0]}</b>–<b class="d">${c[1]}</b></span></a>`; }).join('') : '<p class="sub2" style="margin:1.2rem 0">Belum ada catatan. Main game berdua dulu yuk 🎮</p>') +
+      (T.hist.length ? `<p class="sk-h">Terakhir</p>` + T.hist.slice(0, 10).map(x => { const [ic, nm] = gName(x[1]), w = x[2] === 'R' ? 'Razan' : 'Dara'; return `<div class="sk-hi"><span>${ic}</span><span><b class="${x[2] === 'R' ? 'r' : 'd'}">${w}</b> menang ${esc(nm)}</span><small>${hm(x[0])}</small></div>`; }).join('') : ''));
+  };
+
   // ═════ pasang ke home ═════
   const _rrX = renderRows;
   renderRows = function () {
@@ -2973,13 +2999,15 @@ setTimeout(() => {
       const top = document.getElementById('today-slot'), rows = document.getElementById('home-rows');
       if (top) { const a = ptCard(), b = ibCard(); if (b) top.insertAdjacentHTML('afterbegin', b); if (a) top.insertAdjacentHTML('afterbegin', a); }
       if (rows && !rows.querySelector('.hl-link')) rows.insertAdjacentHTML('beforeend', '<button class="hl-link" onclick="__hlEdit()">🧩 Atur tampilan home</button>');
+      if (rows) { const old = rows.querySelector('.sk-sec'); if (old) old.remove(); const h = skCard(); if (h) { const bx = rows.querySelector('.bx-sec'); if (bx) bx.insertAdjacentHTML('afterend', h); else rows.insertAdjacentHTML('afterbegin', h); } }
       apply(); paintIb();
     } catch (e) {}
   };
   function refresh() { try { renderRows(); } catch (e) {} }
   // tombol "Tempel pesan" di baris fitur berdua
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a.bx[href="#tempel"]'); if (a) { e.preventDefault(); window.__tempel(); } }, true);
-  try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && (ev.apps.includes('inbox') || ev.apps.includes('tempel'))) { refresh(); } }); } catch (e) {}
+  try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && (ev.apps.includes('inbox') || ev.apps.includes('tempel') || ev.apps.includes('skor'))) { refresh(); } }); } catch (e) {}
+  (function waitSkor(n) { if (window.Skor) refresh(); else if (n < 40) setTimeout(() => waitSkor(n + 1), 250); })(0);
   refresh();
 })();
 
@@ -3094,6 +3122,20 @@ setTimeout(() => {
   .hp-sh h3{text-align:center;font-size:15px;color:var(--ink);margin-bottom:.2rem}.hp-sh .sub2{text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.8rem}
   .hp-x{display:block;margin:.7rem auto 0;border:none;background:none;color:var(--muted);font:500 12.5px 'Poppins',sans-serif;padding:.5rem 1rem;cursor:pointer}
   .ib-it{display:flex;gap:.65rem;align-items:flex-start;padding:.65rem .7rem;border-radius:16px;background:#fff;border:1px solid rgba(193,122,111,.13);margin-bottom:.4rem;text-decoration:none;color:inherit}
+  .sk-card{display:block;width:100%;text-align:center;border:1px solid rgba(193,122,111,.18);border-radius:20px;padding:.8rem .9rem .75rem;background:linear-gradient(135deg,#eef4fd,#fff 50%,#fdecec);cursor:pointer;font-family:inherit;color:var(--ink)}
+  .sk-card.sk-empty b{display:block;font-size:15px;margin-bottom:.2rem}.sk-card.sk-empty small{font-size:11px;color:var(--muted)}
+  .sk-big{display:flex;align-items:center;justify-content:center;gap:.7rem;font-size:2rem;font-weight:800;line-height:1}
+  .sk-big span{display:flex;align-items:baseline;gap:.35rem}.sk-big small{font-size:11px;font-weight:600;letter-spacing:.06em}
+  .sk-big .r,.sk-card b.r,.sk-g b.r,.sk-hi b.r{color:#4a7fc1}.sk-big .d,.sk-card b.d,.sk-g b.d,.sk-hi b.d{color:#d9776b}.sk-big i{font-style:normal;color:var(--muted);font-size:1.4rem}
+  .sk-bar{height:7px;border-radius:9px;background:#f2a9b6;overflow:hidden;margin:.55rem 0 .4rem}.sk-bar b{display:block;height:100%;background:#7ea6dd;border-radius:9px 0 0 9px}
+  .sk-l{font-size:12px;font-weight:600;color:var(--deep)}.sk-w{font-size:11px;color:var(--muted);margin-top:.1rem}
+  .sk-top{display:flex;justify-content:center;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}.sk-top span{font-size:11.5px;background:rgba(255,255,255,.8);border-radius:50px;padding:.2rem .55rem}
+  .sk-h{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold,#c9a96e);font-weight:600;margin:.9rem 0 .35rem}
+  .sk-g{display:flex;align-items:center;gap:.55rem;padding:.45rem .6rem;border-radius:14px;background:#fff;margin-bottom:.3rem;text-decoration:none;color:var(--ink)}
+  .sk-g .e{font-size:1.2rem}.sk-g>b{flex:1;font-size:12.5px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sk-g .n{font-size:12.5px;white-space:nowrap}
+  .sk-mini{width:46px;height:5px;border-radius:5px;background:#f2a9b6;overflow:hidden;flex-shrink:0}.sk-mini i{display:block;height:100%;background:#7ea6dd}
+  .sk-hi{display:flex;gap:.5rem;align-items:center;font-size:12px;padding:.3rem .2rem;border-bottom:1px dashed rgba(193,122,111,.15)}.sk-hi span:nth-child(2){flex:1}.sk-hi small{color:var(--muted);font-size:10.5px;white-space:nowrap}
+  html.night .sk-card{background:var(--card);color:#f3d9d2}html.night .sk-g{background:var(--card);color:#f3d9d2}
   .ib-tools{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin:.2rem 0 .6rem;font-size:11.5px;color:var(--muted)}
   .ib-tools{justify-content:flex-end}
   .ib-tools button{border:1px solid rgba(193,122,111,.3);background:transparent;border-radius:50px;padding:.32rem .7rem;font:500 11px Poppins,sans-serif;color:var(--deep);cursor:pointer;white-space:nowrap}
