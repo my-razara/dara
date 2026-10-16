@@ -16,7 +16,8 @@
   ];
   const ACC = [
     { k: '', e: '', n: 'Polos', lv: 1 }, { k: 'pita', e: '🎀', n: 'Pita', lv: 2 }, { k: 'bunga', e: '🌸', n: 'Bunga', lv: 3 }, { k: 'topi', e: '🎩', n: 'Topi', lv: 4 },
-    { k: 'kacamata', e: '🕶️', n: 'Kacamata', lv: 5 }, { k: 'syal', e: '🧣', n: 'Syal', lv: 6 }, { k: 'mahkota', e: '👑', n: 'Mahkota', lv: 8 }, { k: 'toga', e: '🎓', n: 'Toga', lv: 10 }
+    { k: 'kacamata', e: '🕶️', n: 'Kacamata', lv: 5 }, { k: 'syal', e: '🧣', n: 'Syal', lv: 6 }, { k: 'mahkota', e: '👑', n: 'Mahkota', lv: 8 }, { k: 'toga', e: '🎓', n: 'Toga', lv: 10 },
+    { k: 'pelangi', e: '🌈', n: 'Pelangi', lv: 1, st: 7 }, { k: 'sayap', e: '🪽', n: 'Sayap', lv: 1, st: 14 }, { k: 'bintang', e: '🌟', n: 'Bintang', lv: 1, st: 30 }
   ];
   const STATS = [['k', '🍗', 'Kenyang'], ['s', '💗', 'Senang'], ['b', '🛁', 'Bersih'], ['e', '⚡', 'Energi']];
   const DECAY = { k: 7, s: 5, b: 3, e: 4 };          // turun per jam
@@ -41,7 +42,9 @@
     const log = rows.flatMap(r => (r.log || []).map(x => ({ w: r.w, a: x[0], t: x[1] }))).sort((a, b) => b.t - a.t).slice(0, 12);
     const xp = rows.reduce((s, r) => s + (r.xp || 0), 0);
     const born = Math.min(...rows.map(r => r.born || Date.now()));
-    return { a: cfg.a, n: cfg.n, acc: cfg.acc || '', v: base.v || { k: 80, s: 80, b: 80, e: 80 }, t: base.t || Date.now(), sleep: base.sleep || 0, by: base.w, days, log, xp, born };
+    const td = ymd(new Date()), dc = {}; rows.forEach(r => { if (r.dc && r.dc.d === td) Object.entries(r.dc.c || {}).forEach(([k, n]) => dc[k] = (dc[k] || 0) + n); });
+    const wd = rows.some(r => r.wd === td);
+    return { a: cfg.a, n: cfg.n, acc: cfg.acc || '', v: base.v || { k: 80, s: 80, b: 80, e: 80 }, t: base.t || Date.now(), sleep: base.sleep || 0, by: base.w, days, log, xp, born, dc, wd };
   }
   // nilai sekarang setelah dikurangin waktu
   function now(st, at) {
@@ -64,11 +67,23 @@
   function mood(st) {
     const v = now(st), nm = st.n || 'Dia';
     if (asleep(st)) return { f: 'tidur', t: `${nm} lagi bobo… sstt 💤` };
+    const age = Math.floor((Date.now() - (st.born || Date.now())) / 864e5);
+    if ([7, 30, 50, 100, 200, 365, 500, 730].includes(age)) return { f: 'senang', t: `🎂 Hari ini ${nm} genap ${age} hari bareng kalian! Rayain dong 🥳` };
     const avg = (v.k + v.s + v.b + v.e) / 4, low = STATS.map(s => [s[0], v[s[0]]]).sort((a, b) => a[1] - b[1])[0];
     if (avg < 25) return { f: 'ngambek', t: `${nm} ngambek 😤 tapi masih sayang kok… urusin dong` };
     if (low[1] < 30) return { f: 'sedih', t: { k: `${nm} laper 🥺 kasih makan dong`, s: `${nm} kesepian 🥺 ajak main yuk`, b: `${nm} bau acem 🙈 mandiin yuk`, e: `${nm} ngantuk banget 😪` }[low[0]] };
     if (avg > 75) return { f: 'senang', t: `${nm} lagi seneng banget 💕` };
-    return { f: 'biasa', t: [`${nm} lagi santai ✨`, `${nm} nungguin kalian 🐾`, `${nm} kangen dielus 🤲`][new Date().getHours() % 3] };
+    const h = new Date().getHours(), w = me(), last = st.log && st.log[0], o = w === 'Razan' ? 'Dara' : 'Razan';
+    if (last && last.w === o && Date.now() - last.t < 2 * H) return { f: 'biasa', t: `${o} barusan ${ACTN[last.a] || 'ngurus'} ${nm} 💕 sekarang giliran ${w}!` };
+    return { f: 'biasa', t: [`${nm} lagi santai ✨`, `${nm} nungguin kalian 🐾`, `${nm} kangen dielus 🤲`, h < 11 ? `Pagi ${w}! ${nm} udah bangun nih ☀️` : h < 18 ? `Hai ${w}! ${nm} seneng kamu dateng 🐾` : `Malem ${w}, ${nm} pengen ditemenin 🌙`][(h + new Date().getDate()) % 4] };
+  }
+  // ── 🎯 keinginan harian: sama buat berdua (diacak dari tanggal), diisi bareng-bareng ──
+  const WISH = [['elus', 3, 'dielus'], ['main', 2, 'diajak main'], ['makan', 2, 'dikasih makan'], ['mandi', 1, 'dimandiin'], ['elus', 5, 'dielus'], ['main', 3, 'diajak main']];
+  function wish(st) {
+    if (!st) return null;
+    const td = ymd(new Date()); let hsh = 0; for (const ch of td + (st.a || '')) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+    const [a, n, txt] = WISH[hsh % WISH.length], p = Math.min(n, (st.dc || {})[a] || 0);
+    return { a, n, p, txt, e: ACTS[a], done: !!st.wd || p >= n };
   }
   function ago(t) { const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'barusan' : m < 60 ? `${m} menit lalu` : m < 1440 ? `${Math.round(m / 60)} jam lalu` : `${Math.round(m / 1440)} hari lalu`; }
 
@@ -119,11 +134,15 @@
     }
     STATS.forEach(([k]) => v[k] = Math.round(clamp(v[k])));
     const old = rowOf(w) || {}, today = ymd(new Date());
-    const row = Object.assign({}, old, { v, t: Date.now(), sleep, xp: (old.xp || 0) + gain, days: [...new Set((old.days || []).concat(today))].slice(-40), log: (old.log || []).concat([[name, Date.now()]]).slice(-6) });
+    const dc0 = old.dc && old.dc.d === today ? old.dc : { d: today, c: {} }, dc = { d: today, c: Object.assign({}, dc0.c, { [name]: (dc0.c[name] || 0) + 1 }) };
+    const W0 = wish(st), wishNow = W0 && !W0.done && W0.a === name && W0.p + 1 >= W0.n;
+    if (wishNow) { gain += 25; msg += ` · 🎁 Keinginan ${nm} kepenuhin! +25 XP`; }
+    const row = Object.assign({}, old, { dc, wd: wishNow ? today : old.wd, v, t: Date.now(), sleep, xp: (old.xp || 0) + gain, days: [...new Set((old.days || []).concat(today))].slice(-40), log: (old.log || []).concat([[name, Date.now()]]).slice(-6) });
     if (!old.a) { row.a = st.a; row.n = st.n; row.acc = st.acc; row.cfg = 1; row.born = st.born; }
     const before = lvl(st.xp); save(w, row);
     const after = lvl(st.xp + gain);
-    return { ok: true, msg, gain, up: after > before ? after : 0 };
+    try { const k = 'pet-tell', l = g(k, 0); if (window.Push && Date.now() - l > 4 * H) { localStorage.setItem(k, JSON.stringify(Date.now())); Push.notify({ title: `${A.e} ${w} barusan ${ACTN[name]} ${nm}`, body: wishNow ? `Keinginan ${nm} hari ini kepenuhin 🎁` : `Giliran kamu nengokin ${nm} yuk 🐾`, url: 'peliharaan.html', tag: 'pet' }); } } catch (e) {}
+    return { ok: true, msg, gain, up: after > before ? after : 0, wish: wishNow };
   }
   // titip ke service worker buat notif "laper"
   function tellSW() {
@@ -133,6 +152,7 @@
       caches.open('untuk-dara-meta').then(c => c.put('/__pet', new Response(JSON.stringify({ n: st.n || A.n, e: A.e, v: st.v, t: st.t, sleep: st.sleep, fed: last ? { w: last.w, t: last.t } : null, at: Date.now() })))).catch(() => {});
     } catch (e) {}
   }
-  window.Pet = { APP, ANIMALS, FOODS, ACC, STATS, ACTS, ACTN, state, now, lvl, lvlXp, stage, animal, accOf, asleep, streak, mood, ago, setup, act, tellSW, me };
+  const accLock = (a, st) => (st ? lvl(st.xp) : 1) < a.lv || (a.st && (!st || streak(st) < a.st));
+  window.Pet = { APP, ANIMALS, FOODS, ACC, STATS, ACTS, ACTN, state, now, lvl, lvlXp, stage, animal, accOf, asleep, streak, mood, ago, setup, act, tellSW, me, wish, accLock };
   setTimeout(tellSW, 1500);
 })();

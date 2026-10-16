@@ -171,7 +171,7 @@ function whoBtn(key, onChange) {
   paint(); return lsGet(key, 'Dara');
 }
 
-const POS = { pita: 'side', bunga: 'side', topi: 'top', kacamata: 'eye', syal: 'neck', mahkota: 'top', toga: 'top' };
+const POS = { pita: 'side', bunga: 'side', topi: 'top', kacamata: 'eye', syal: 'neck', mahkota: 'top', toga: 'top', pelangi: 'top', sayap: 'side', bintang: 'top' };
 const COL = { k: '#e8a25a', s: '#e87a95', b: '#6fb3e0', e: '#e8c94a' };
 let tab = lsGet('pet-tab', 'kamar'), busy = false, setupSel = { a: 'kucing', n: '' };
 const BDx = window.Berdua;
@@ -204,7 +204,7 @@ function render() {
   $('app').querySelectorAll('.acts button').forEach(b => b.onclick = () => start(b.dataset.a));
   $('tabs').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.t === (tab === 'ganti' ? 'ganti' : tab)); b.onclick = () => { tab = b.dataset.t; lsSet('pet-tab', tab === 'ganti' ? 'kamar' : tab); render(); }; });
   if (tab === 'lemari') {
-    $('sub').innerHTML = `<div class="grid">${Pet.ACC.map(a => { const lock = L < a.lv; return `<button class="opt ${a.k === (st.acc || '') ? 'on' : ''} ${lock ? 'lock' : ''}" data-k="${a.k}" ${lock ? 'disabled' : ''}><span>${a.e || '✖️'}</span>${a.n}${lock ? `<small>🔒 Lv ${a.lv}</small>` : ''}</button>`; }).join('')}</div><p class="sub" style="text-align:center;font-size:11px;margin-top:.6rem">Naik level buat buka aksesoris baru — tiap ngurus dapet XP ✨</p>`;
+    $('sub').innerHTML = `<div class="grid">${Pet.ACC.map(a => { const lock = Pet.accLock ? Pet.accLock(a, st) : L < a.lv; return `<button class="opt ${a.k === (st.acc || '') ? 'on' : ''} ${lock ? 'lock' : ''}" data-k="${a.k}" ${lock ? 'disabled' : ''}><span>${a.e || '✖️'}</span>${a.n}${lock ? `<small>🔒 ${a.st ? `🔥 ${a.st} hari` : `Lv ${a.lv}`}</small>` : ''}</button>`; }).join('')}</div><p class="sub" style="text-align:center;font-size:11px;margin-top:.6rem">Naik level buat buka aksesoris baru — tiap ngurus dapet XP ✨<br>🌈🪽🌟 kebuka kalau dirawat tiap hari tanpa bolong (🔥 streak)</p>`;
     $('sub').querySelectorAll('.opt:not(.lock)').forEach(b => b.onclick = () => { Pet.setup({ acc: b.dataset.k }); vib(10); render(); });
   } else {
     $('sub').innerHTML = `<div class="info"><div><b>${days}</b><small>hari bareng</small></div><div><b>🔥 ${Pet.streak(st)}</b><small>hari dirawat</small></div><div><b>${st.xp}</b><small>total XP</small></div></div>` +

@@ -3057,6 +3057,9 @@ setTimeout(() => {
 
 <style>
   .pet-slot{margin:.4rem auto .2rem!important}
+  .pc-w{font-size:10.5px;color:var(--deep,#7a3f35);background:rgba(255,236,214,.75);border-radius:50px;padding:.15rem .55rem;display:inline-block;margin:.15rem 0 .1rem}
+  .pc-w.done{background:rgba(214,245,224,.85);color:#2e7d4f}
+  .pc.mini .pc-w{display:none}
   #home.searching .pet-slot{display:none}
   .pc{position:relative;border-radius:22px;background:rgba(255,255,255,.88);border:1px solid rgba(193,122,111,.16);box-shadow:0 6px 18px rgba(193,122,111,.09);padding:.75rem .8rem .7rem;overflow:hidden}
   html.night .pc{background:var(--card);border-color:rgba(193,122,111,.25)}
@@ -3108,7 +3111,7 @@ setTimeout(() => {
   const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const COL = { k: '#e8a25a', s: '#e87a95', b: '#6fb3e0', e: '#e8c94a' };
-  const POS = { pita: 'side', bunga: 'side', topi: 'top', kacamata: 'eye', syal: 'neck', mahkota: 'top', toga: 'top' };
+  const POS = { pita: 'side', bunga: 'side', topi: 'top', kacamata: 'eye', syal: 'neck', mahkota: 'top', toga: 'top', pelangi: 'top', sayap: 'side', bintang: 'top' };
   function toast(m) { const t = document.createElement('div'); t.textContent = m; t.style.cssText = 'position:fixed;left:50%;bottom:calc(5.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(45,31,26,.92);color:#fff;padding:.6rem 1rem;border-radius:50px;font:500 12.5px Poppins,sans-serif;z-index:9500;max-width:88vw;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.2)'; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); }
   function render(hop) {
     const st = Pet.state();
@@ -3118,14 +3121,14 @@ setTimeout(() => {
     slot.innerHTML = `<div class="pc f-${md.f}${mini ? ' mini' : ''}${hop ? ' hop' : ''}" id="pc">
       <button class="pc-x" id="pc-x" aria-label="Lipat">${mini ? '▾' : '▴'}</button>
       <div class="pc-h"><button class="pc-av" id="pc-av" aria-label="Buka kamar"><span class="pe" style="font-size:${Math.round((mini ? 30 : 46) * S.sc)}px">${A.e}</span>${acc.e ? `<span class="pa ${POS[acc.k] || 'side'}">${acc.e}</span>` : ''}${Pet.asleep(st) ? '<span class="zz">💤</span>' : ''}</button>
-      <div class="pc-i"><div class="pc-n"><b>${(st.n || A.n).replace(/</g, '&lt;')}</b><small>Lv ${L} · ${S.n}</small></div><p class="pc-m">${md.t}</p>
+      <div class="pc-i"><div class="pc-n"><b>${(st.n || A.n).replace(/</g, '&lt;')}</b><small>Lv ${L} · ${S.n}</small></div><p class="pc-m">${md.t}</p>${(() => { const W = Pet.wish && Pet.wish(st); return W ? `<p class="pc-w ${W.done ? 'done' : ''}">${W.done ? `🎁 Keinginan hari ini udah kepenuhin` : `🎯 Pengen ${W.txt} ${W.n}x hari ini · <b>${W.p}/${W.n}</b>`}</p>` : ''; })()}
       <div class="pc-bars">${Pet.STATS.map(([k, ic]) => `<span class="pc-bar">${ic}<i><b style="width:${Math.round(v[k])}%;background:${v[k] < 30 ? '#e05a5a' : COL[k]}"></b></i></span>`).join('')}</div></div></div>
       <div class="pc-acts">${Object.entries(Pet.ACTS).map(([k, ic]) => `<button data-a="${k}"><span>${ic}</span>${{ makan: 'Makan', elus: 'Elus', mandi: 'Mandi', main: 'Main', tidur: 'Tidur' }[k]}</button>`).join('')}</div>
       <div class="pc-f"><span>${last ? `${last.w === Pet.me() ? 'Kamu' : last.w} ${Pet.ACTN[last.a]} ${Pet.ago(last.t)}` : 'Belum diurus hari ini'}</span><a href="peliharaan.html">Buka kamar →</a></div></div>`;
     document.getElementById('pc-x').onclick = () => { set('pet-mini', !mini); render(); };
     document.getElementById('pc-av').onclick = e => { if (mini) { set('pet-mini', false); render(); return; } location.href = 'peliharaan.html'; };
     slot.querySelectorAll('.pc-acts button').forEach(b => b.onclick = () => {
-      const r = Pet.act(b.dataset.a); toast(r.up ? `🎉 Naik ke level ${r.up}!` : r.msg);
+      const r = Pet.act(b.dataset.a); toast(r.up ? `🎉 Naik ke level ${r.up}!${r.wish ? ' 🎁' : ''}` : r.msg); if (r.wish) { try { window.SFX && SFX.play('win'); } catch (e) {} }
       try { navigator.vibrate && navigator.vibrate(r.ok ? 15 : [30, 30, 30]); } catch (e) {}
       if (r.ok) { try { window.SFX && SFX.play('pop'); } catch (e) {} render(true); const av = document.getElementById('pc-av'); if (av) for (let i = 0; i < 4; i++) { const h = document.createElement('span'); h.className = 'pc-hearts'; h.textContent = ['💕', '✨', '💗', '⭐'][i]; h.style.left = (10 + i * 15) + 'px'; h.style.top = '10px'; h.style.animationDelay = i * .08 + 's'; av.appendChild(h); setTimeout(() => h.remove(), 1300); } }
     });
