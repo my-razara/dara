@@ -254,12 +254,12 @@
   let btn = null;
   function addButton() {
     const css = document.createElement('style');
-    css.textContent = `.sfx-btn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;width:38px;height:38px;border-radius:50%;border:1px solid rgba(193,122,111,.25);background:rgba(255,255,255,.94);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;opacity:.85;transition:transform .15s}
+    css.textContent = `.sfx-btn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;width:48px;height:48px;border-radius:50%;border:1px solid rgba(193,122,111,.25);background:rgba(255,255,255,.96);box-shadow:0 4px 14px rgba(0,0,0,.14);font-size:21px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;opacity:.85;transition:transform .15s}
     .sfx-btn:active{transform:scale(.9)}
-    .sfx-btn.mini{transform:translateX(-62%) scale(.85);opacity:.4;transition:transform .35s,opacity .35s}
+    .sfx-btn.mini{transform:translateX(-45%) scale(.9);opacity:.55;transition:transform .35s,opacity .35s}
     .sfx-btn.pulse{animation:sfxP 1.2s ease 2}
     @keyframes sfxP{50%{transform:scale(1.18)}}
-    .sfx-tip{position:fixed;left:58px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:9000;background:#2d1f1a;color:#fff;font:500 12px Poppins,system-ui,sans-serif;padding:.45rem .8rem;border-radius:50px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:calc(100vw - 80px)}
+    .sfx-tip{position:fixed;left:70px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:9000;background:#2d1f1a;color:#fff;font:500 12px Poppins,system-ui,sans-serif;padding:.45rem .8rem;border-radius:50px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:calc(100vw - 80px)}
     .sfx-tip.show{opacity:1}`;
     document.head.appendChild(css);
     btn = document.createElement('button'); btn.className = 'sfx-btn'; btn.type = 'button'; btn.setAttribute('aria-label', 'Atur suara'); btn.dataset.sfxSkip = '1';
