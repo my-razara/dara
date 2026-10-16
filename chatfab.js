@@ -1,5 +1,5 @@
 /* ═══ 💬 Tombol chat melayang — ada di semua halaman, tap buat buka chat ═══
-   Sama kayak tombol 🎵: abis beberapa detik minggir ke pinggir biar ga ganggu, tap sekali buat munculin lagi. */
+   Ada di kanan bawah. Sama kayak tombol 🎵: abis beberapa detik minggir ke pinggir biar ga ganggu, tap sekali buat munculin lagi. */
 (function () {
   if (window.__chatFab) return; window.__chatFab = 1;
   try { if (window.top !== window) return; } catch (e) { return; }
@@ -12,11 +12,11 @@
   let btn = null, miniT = 0;
   function css() {
     const st = document.createElement('style');
-    st.textContent = `.cfab{position:fixed;left:12px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:9000;width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;box-shadow:0 6px 16px rgba(168,88,76,.35);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none;transition:transform .35s,opacity .35s;-webkit-tap-highlight-color:transparent}
+    st.textContent = `.cfab{position:fixed;right:12px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:9000;width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;box-shadow:0 6px 16px rgba(168,88,76,.35);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none;transition:transform .35s,opacity .35s;-webkit-tap-highlight-color:transparent}
     html[data-user="Razan"] .cfab{background:linear-gradient(135deg,#6f9ad6,#3f6aa8);box-shadow:0 6px 16px rgba(63,106,168,.35)}
     .cfab:active{transform:scale(.92)}
-    .cfab.mini{transform:translateX(-45%) scale(.9);opacity:.55}
-    .cfab i{position:absolute;top:-3px;right:-3px;min-width:19px;height:19px;border-radius:10px;background:#e0475b;color:#fff;font:700 10.5px/19px Poppins,system-ui,sans-serif;font-style:normal;padding:0 5px;border:2px solid #fff}
+    .cfab.mini{transform:translateX(45%) scale(.9);opacity:.55}
+    .cfab i{position:absolute;top:-3px;left:-3px;min-width:19px;height:19px;border-radius:10px;background:#e0475b;color:#fff;font:700 10.5px/19px Poppins,system-ui,sans-serif;font-style:normal;padding:0 5px;border:2px solid #fff}
     .cfab.new{animation:cfabP 1.4s ease-in-out 3}
     @keyframes cfabP{50%{transform:scale(1.15)}}`;
     document.head.appendChild(st);
@@ -42,6 +42,8 @@
     btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cfab'; btn.dataset.sfxSkip = '1';
     btn.addEventListener('click', e => { e.stopPropagation(); if (btn.classList.contains('mini')) { btn.classList.remove('mini'); shrink(); return; } location.href = 'chat.html'; });
     document.body.appendChild(btn); paint(); shrink(); setTimeout(peek, 2500);
+    // lagi main game online → tombol 💬 komen game yang dipakai, yang ini ngumpet dulu biar ga dobel
+    setInterval(() => { if (btn) btn.style.display = document.getElementById('olc-fab') ? 'none' : ''; }, 1500);
     setInterval(peek, 90e3); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
