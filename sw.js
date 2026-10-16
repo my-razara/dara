@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v55';
+const VERSI = 'v56';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "peliharaan.html",
@@ -206,6 +206,12 @@ self.addEventListener('fetch', e => {
   if (req.mode === 'navigate' || req.destination === 'document' || url.pathname.endsWith('.html')) {
     e.respondWith(fetch(req).then(r => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return sisipin(r); })
       .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r ? sisipin(r) : caches.match('index.html').then(sisipin))));
+    return;
+  }
+  // file kode (.js/.css/.json) juga ambil yang terbaru dulu, biar halaman & kodenya ga beda versi abis update; offline → simpanan
+  if (/\.(js|css|json)$/.test(url.pathname)) {
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then(r => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return r; })
+      .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || fetch(req))));
     return;
   }
   e.respondWith(staleWhileRevalidate(req));
