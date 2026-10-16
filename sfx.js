@@ -20,8 +20,21 @@
   // window.__sfxTheme = tema khusus (misal hari spesial di menu utama)
   // halaman yang punya lagu khusus sendiri
   const SPECIAL = { 'birthday-scrapbook': 'ultah' };
-  const theme = NO_BGM.includes(base) ? null : SPECIAL[base] ? SPECIAL[base] : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
+  const pageTheme = NO_BGM.includes(base) ? null : SPECIAL[base] ? SPECIAL[base] : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
   const tapOn = !NO_TAP.includes(base);
+  // suasana: pilihan sendiri (menu 🎵) > hari spesial > musim (menu utama) > bawaan halaman
+  const lsG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
+  const lsS = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const HOME0 = base === 'index' || base === '';
+  function pickTheme() {
+    if (!pageTheme || (SPECIAL[base])) return pageTheme;
+    const mood = lsG('sfx-mood', 'auto');
+    if (mood !== 'auto') return mood;
+    if (window.__sfxTheme) return window.__sfxTheme;
+    if (HOME0 && window.Musim) { try { const m = Musim.now(); if (m) return m.mood; } catch (e) {} }
+    return pageTheme;
+  }
+  let theme = pageTheme;
 
   // ── setelan (kesimpen di HP) ──
   let mode = 'all';
@@ -38,13 +51,14 @@
     const boost = ac.createGain(); boost.gain.value = 1.6; const lim = ac.createDynamicsCompressor(); lim.threshold.value = -2; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = .002; lim.release.value = .12;
     out.connect(boost); boost.connect(lim); lim.connect(ac.destination);
     bgmGain = ac.createGain(); bgmGain.gain.value = 0; bgmGain.connect(out);
-    sfxGain = ac.createGain(); sfxGain.gain.value = .8; sfxGain.connect(out);
+    sfxGain = ac.createGain(); sfxGain.gain.value = FXV(); sfxGain.connect(out);
     // gema tipis biar musiknya lebih lembut
     rev = ac.createDelay(1); rev.delayTime.value = .23; const fb = ac.createGain(); fb.gain.value = .28; const wet = ac.createGain(); wet.gain.value = .35; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200;
     rev.connect(lp); lp.connect(fb); fb.connect(rev); lp.connect(wet); wet.connect(bgmGain);
     return ac;
   }
-  const BGV = 1.5;   // keras musik latar
+  let BGV = (+lsG('sfx-vol', 75) || 0) / 50;    // keras musik latar (75% = 1.5)
+  const FXV = () => (+lsG('sfx-fxvol', 80) || 0) / 100;
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 
   // ── alat musik ──
@@ -107,6 +121,11 @@
     santai:   { bpm: [78, 96], insts: ['kalimba', 'pluck', 'marimba', 'musicbox'], leads: ['flute', 'bell', 'kalimba'], drums: ['none', 'none', 'shaker'], lead: [.45, .7], sev: .5, vol: .11 },
     romantis: { bpm: [64, 84], insts: ['bell', 'musicbox', 'kalimba', 'pluck'], leads: ['flute', 'bell', 'musicbox'], drums: ['none'], lead: [.45, .7], sev: .6, vol: .1 },
     malam:    { bpm: [52, 66], insts: ['bell', 'kalimba', 'musicbox'], leads: ['flute', 'bell'], drums: ['none'], lead: [.3, .5], sev: .7, vol: .09, pad: true },
+    liburan:  { bpm: [96, 112], insts: ['musicbox', 'bell', 'kalimba'], leads: ['bell', 'flute'], drums: ['shaker'], lead: [.6, .8], sev: .3, vol: .11 },
+    valentine:{ bpm: [68, 82], insts: ['musicbox', 'bell'], leads: ['flute', 'bell'], drums: ['none'], lead: [.5, .7], sev: .7, vol: .1 },
+    ramadan:  { bpm: [58, 70], insts: ['kalimba', 'musicbox'], leads: ['flute'], drums: ['none'], lead: [.4, .6], sev: .5, vol: .1, pad: true },
+    lebaran:  { bpm: [96, 110], insts: ['marimba', 'kalimba'], leads: ['flute', 'bell'], drums: ['clap', 'shaker'], lead: [.6, .8], sev: .2, vol: .12 },
+    merdeka:  { bpm: [110, 124], insts: ['pluck', 'marimba'], leads: ['flute', 'bell'], drums: ['beat'], lead: [.7, .9], sev: .1, vol: .12 },
   };
   const T1 = ['Senja', 'Hujan', 'Pagi', 'Rindu', 'Bintang', 'Kopi', 'Langit', 'Jalan', 'Pelukan', 'Bunga', 'Awan', 'Pelangi', 'Mimpi', 'Lampu', 'Surat', 'Teh', 'Bulan', 'Laut', 'Sepeda', 'Payung', 'Kereta', 'Es Krim', 'Kunang', 'Daun'];
   const T2 = ['Hangat', 'Berdua', 'Manis', 'di Jendela', 'Sore', 'Biru', 'Pelan-pelan', 'Kecil', 'Malam', 'Pertama', 'Lucu', 'Pink', 'di Kota', 'Minggu', 'Bahagia', 'Kita', 'Jauh', 'Pulang', 'Rahasia', 'Ceria', 'Lagi', 'Selamanya', 'di Taman', 'Kesayangan'];
@@ -160,6 +179,7 @@
   function schedule() {
     if (!playing) return;
     const S = SONGS[theme] && SONGS[theme].seq ? SONGS[theme] : null;
+    if (!S && !SONG) return;
     if (S) return scheduleSeq(S);
     if (SONG) return scheduleSong();
     return;
@@ -208,17 +228,19 @@
   // menu utama: tiap dibuka lagunya ganti (biar ada variasi); halaman lain: lagunya tetap, khas halaman itu
   const HOME = base === 'index' || base === '';
   function newSong(seed) {
+    theme = pickTheme();
     if (!theme || (SONGS[theme] && SONGS[theme].seq)) { SONG = null; return; }
     const id = /^(srcdoc|blank|)$/.test(base) ? (document.title || base) : base;
     songSeed = seed != null ? seed : HOME ? 'home-' + Math.floor(Math.random() * 1e6) : id;
     const ov = (() => { try { return (JSON.parse(localStorage.getItem('sfx-song') || '{}') || {})[id]; } catch (e) { return null; } })();
     if (seed == null && !HOME && ov) songSeed = ov;
+    if (seed == null && HOME && lsG('sfx-home-mode', 'acak') === 'fav' && lsG('sfx-home-fav', '')) songSeed = lsG('sfx-home-fav', '');
     SONG = compose(theme, songSeed);
   }
   newSong();
   function startBgm() {
     if (!theme || mode !== 'all' || playing || !ctx()) return;
-    playing = true; nextT = ac.currentTime + .1; step = 0; bar = 0; seqI = 0; seqRest = 0; prog = Math.floor(Math.random() * SONGS[theme].progs.length);
+    playing = true; nextT = ac.currentTime + .1; step = 0; bar = 0; seqI = 0; seqRest = 0; prog = Math.floor(Math.random() * (SONGS[theme] || SONGS.romantis).progs.length);
     bgmGain.gain.cancelScheduledValues(ac.currentTime); bgmGain.gain.setValueAtTime(bgmGain.gain.value, ac.currentTime); bgmGain.gain.linearRampToValueAtTime(BGV, ac.currentTime + 2.5);
     schedule();
   }
@@ -286,7 +308,7 @@
     btn.addEventListener('click', e => {
       e.stopPropagation(); if (lpDone) { lpDone = false; return; }
       if (btn.classList.contains('mini')) { btn.classList.remove('mini'); shrink(); return; }
-      shrink();
+      shrink(); return openMenu();
       // halaman tanpa musik: cuma nyala/mati (biar setelan musik di halaman lain ga keganti)
       const order = theme ? ['all', 'fx', 'off'] : (mode === 'fx' ? ['fx', 'off'] : ['all', 'off']);
       let i = order.indexOf(mode); mode = order[(i + 1) % order.length]; saveMode(); paint();
@@ -294,8 +316,65 @@
       if (mode !== 'off') play('tap');
       say(theme ? (mode === 'all' && SONG ? `🎶 “${SONG.name}” · tahan buat ganti lagu` : LABEL[mode]) : (mode === 'off' ? LABEL.off : 'Efek suara nyala (halaman ini sengaja tanpa musik)'));
     });
+    // ── menu suara ──
+    const MOODS = [['auto', '✨ Otomatis'], ['santai', '🍃 Kalem'], ['main', '🎉 Ceria'], ['romantis', '💗 Romantis'], ['malam', '🌙 Malam']];
+    const st2 = document.createElement('style');
+    st2.textContent = `.sfx-ov{position:fixed;inset:0;z-index:9600;background:rgba(45,31,26,.4);display:flex;align-items:flex-end;justify-content:center;font-family:Poppins,system-ui,sans-serif}
+    .sfx-sh{background:#faf6f0;width:100%;max-width:460px;border-radius:22px 22px 0 0;padding:1rem 1.1rem calc(1rem + env(safe-area-inset-bottom));animation:sfxU .25s ease;color:#2d1f1a;max-height:88vh;overflow-y:auto}
+    @keyframes sfxU{from{transform:translateY(100%)}}
+    .sfx-sh h3{font-size:15px;text-align:center;margin:0 0 .75rem}.sfx-sh .lb{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#c9a96e;font-weight:600;margin:.9rem 0 .4rem}
+    .sfx-md{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}.sfx-md button,.sfx-mo button{border:1.5px solid #e8c4b0;background:#fff;border-radius:14px;padding:.55rem .3rem;font:500 12px Poppins,sans-serif;color:#7a3f35;cursor:pointer}
+    .sfx-md button.on,.sfx-mo button.on{background:#c17a6f;border-color:#c17a6f;color:#fff;font-weight:600}
+    .sfx-mo{display:flex;flex-wrap:wrap;gap:.35rem}.sfx-mo button{border-radius:50px;padding:.42rem .75rem}
+    .sfx-now{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:16px;padding:.65rem .75rem;border:1px solid rgba(193,122,111,.15)}
+    .sfx-now .e{font-size:1.5rem}.sfx-now div{flex:1;min-width:0}.sfx-now b{display:block;font-size:13.5px}.sfx-now small{display:block;font-size:11px;color:#9a8070}
+    .sfx-now button{border:none;background:#f5ede0;border-radius:50%;width:38px;height:38px;font-size:1.05rem;cursor:pointer;flex-shrink:0}
+    .sfx-rg{display:flex;align-items:center;gap:.6rem;font-size:12.5px}.sfx-rg span{width:4.6rem}.sfx-rg input{flex:1;accent-color:#c17a6f}.sfx-rg b{width:2.6rem;text-align:right;font-weight:600;font-size:12px;color:#7a3f35}
+    .sfx-hm{display:flex;gap:.4rem}.sfx-hm button{flex:1}
+    .sfx-note{font-size:11px;color:#9a8070;text-align:center;margin-top:.7rem;line-height:1.5}
+    .sfx-x{display:block;width:100%;margin-top:.8rem;border:none;background:none;color:#9a8070;font:500 13px Poppins,sans-serif;padding:.5rem;cursor:pointer}`;
+    document.head.appendChild(st2);
+    function setMode(m) { mode = m; saveMode(); paint(); if (mode === 'all') { ctx(); startBgm(); } else stopBgm(); if (mode !== 'off') play('tap'); }
+    function restart() { stopBgm(true); setTimeout(() => { if (mode === 'all') { ctx(); startBgm(); } }, 260); }
+    function openMenu() {
+      const old = document.getElementById('sfx-ov'); if (old) old.remove();
+      const ms = HOME && window.Musim && Musim.now ? Musim.now() : null, mood = lsG('sfx-mood', 'auto'), hmode = lsG('sfx-home-mode', 'acak');
+      const ov = document.createElement('div'); ov.className = 'sfx-ov'; ov.id = 'sfx-ov';
+      const songRow = theme && SONG ? `<p class="lb">Lagi diputer</p><div class="sfx-now"><span class="e">🎶</span><div><b>“${SONG.name}”</b><small>${SONG.bpm} bpm · ${SONG.inst} · ${SONG.drums === 'none' ? 'tanpa drum' : SONG.drums}</small></div><button data-a="next" aria-label="Ganti lagu">🔀</button><button data-a="fav" aria-label="Simpen lagu">${HOME && lsG('sfx-home-fav', '') === songSeed ? '💖' : '🤍'}</button></div>` : theme ? `<p class="sfx-note">Halaman ini lagunya khusus 🎶</p>` : `<p class="sfx-note">Halaman ini sengaja tanpa musik latar (cuma efek suara).</p>`;
+      ov.innerHTML = `<div class="sfx-sh"><h3>🎵 Atur suara</h3>
+        <div class="sfx-md">${[['all', '🎵', 'Musik & efek'], ['fx', '🔔', 'Efek aja'], ['off', '🔇', 'Bisu']].map(([k, e, n]) => `<button data-m="${k}" class="${mode === k ? 'on' : ''}">${e}<br>${n}</button>`).join('')}</div>
+        ${songRow}
+        <p class="lb">Keras suara</p>
+        <div class="sfx-rg"><span>🎶 Musik</span><input type="range" min="0" max="100" step="5" value="${lsG('sfx-vol', 75)}" data-v="sfx-vol"><b>${lsG('sfx-vol', 75)}%</b></div>
+        <div class="sfx-rg" style="margin-top:.35rem"><span>🔔 Efek</span><input type="range" min="0" max="100" step="5" value="${lsG('sfx-fxvol', 80)}" data-v="sfx-fxvol"><b>${lsG('sfx-fxvol', 80)}%</b></div>
+        ${pageTheme && !SPECIAL[base] ? `<p class="lb">Suasana lagu</p><div class="sfx-mo">${MOODS.map(([k, n]) => `<button data-mood="${k}" class="${mood === k ? 'on' : ''}">${n}</button>`).join('')}</div>` : ''}
+        ${HOME && theme && SONG ? `<p class="lb">Lagu menu utama</p><div class="sfx-hm sfx-md"><button data-h="acak" class="${hmode === 'acak' ? 'on' : ''}">🔀 Acak tiap buka</button><button data-h="fav" class="${hmode === 'fav' ? 'on' : ''}">💖 Lagu favorit</button></div>` : ''}
+        <p class="sfx-note">${ms ? `${ms.e} Lagi musim <b>${ms.t.replace(/!$/, '')}</b> — lagu menu utama ikut suasana (kalau suasana “Otomatis”).<br>` : ''}Tips: tahan tombol 🎵 buat langsung ganti lagu. Setelan ini berlaku di semua halaman.</p>
+        <button class="sfx-x" data-a="x">Tutup</button></div>`;
+      ov.addEventListener('click', e => {
+        if (e.target === ov || e.target.closest('[data-a="x"]')) return ov.remove();
+        const m = e.target.closest('[data-m]'); if (m) { setMode(m.dataset.m); return openMenu(); }
+        const md = e.target.closest('[data-mood]'); if (md) { lsS('sfx-mood', md.dataset.mood); newSong(); if (mode !== 'all') setMode('all'); else restart(); return setTimeout(openMenu, 30); }
+        const h = e.target.closest('[data-h]'); if (h) { if (h.dataset.h === 'fav' && !lsG('sfx-home-fav', '')) lsS('sfx-home-fav', songSeed); lsS('sfx-home-mode', h.dataset.h); newSong(); restart(); return setTimeout(openMenu, 30); }
+        const a = e.target.closest('[data-a]'); if (!a) return;
+        if (a.dataset.a === 'next') { nextSong(); return setTimeout(openMenu, 300); }
+        if (a.dataset.a === 'fav') {
+          if (HOME) { lsS('sfx-home-fav', songSeed); lsS('sfx-home-mode', 'fav'); say(`💖 “${SONG.name}” jadi lagu menu utama`); }
+          else { try { const id = /^(srcdoc|blank|)$/.test(base) ? (document.title || base) : base, mm = JSON.parse(localStorage.getItem('sfx-song') || '{}') || {}; mm[id] = songSeed; localStorage.setItem('sfx-song', JSON.stringify(mm)); } catch (er) {} say(`💖 “${SONG.name}” disimpen buat halaman ini`); }
+          return openMenu();
+        }
+      });
+      ov.querySelectorAll('input[type=range]').forEach(r => r.addEventListener('input', () => {
+        lsS(r.dataset.v, r.value); r.nextElementSibling.textContent = r.value + '%';
+        if (r.dataset.v === 'sfx-vol') { BGV = r.value / 50; if (ac && playing) { bgmGain.gain.cancelScheduledValues(ac.currentTime); bgmGain.gain.setTargetAtTime(BGV, ac.currentTime, .05); } }
+        else if (ac) { sfxGain.gain.setTargetAtTime(FXV(), ac.currentTime, .03); }
+      }));
+      ov.querySelectorAll('input[type=range]').forEach(r => r.addEventListener('change', () => { if (r.dataset.v === 'sfx-fxvol') play('coin'); }));
+      document.body.appendChild(ov); ctx();
+    }
+
     document.body.appendChild(btn); document.body.appendChild(tip); paint(); shrink();
-    try { if (!localStorage.getItem('sfx-seen')) { localStorage.setItem('sfx-seen', '1'); btn.classList.add('pulse'); setTimeout(() => say('🎵 Sekarang ada musik! Tap di sini buat atur'), 900); } } catch (e) {}
+    try { if (!localStorage.getItem('sfx-seen')) { localStorage.setItem('sfx-seen', '1'); btn.classList.add('pulse'); setTimeout(() => say('🎵 Ada musik! Tap di sini buat atur suara'), 900); } } catch (e) {}
   }
 
   // ── pemicu otomatis ──
