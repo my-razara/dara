@@ -948,21 +948,19 @@ function cmSync() {
   $('cm-lbl').textContent = their ? `💬 Komenin ${op} 😏` : '💬 Komen';
   $('cm-to').textContent = op;
 }
-function cmFull() { try { return window.Online && Online.room && JSON.stringify(Online.room).length > 7200; } catch (e) { return false; } }
+function cmFull() { try { return !!(window.Online && Online.full); } catch (e) { return false; } }
 function cmSend(x) {
   if (!ONLINE || !window.Online || !Online.on) return;
   x = String(x || '').replace(/\s+/g, ' ').trim().slice(0, 60); if (!x) return;
   const now = Date.now(); if (now - cmLast < 1500) return; cmLast = now;
   if (cmFull()) { cmShow(HUMAN, 'Komen penuh buat ronde ini — lanjut main dulu ya 🙏', true, true); return; }
-  Online.move({ t: 'k', w: HUMAN, x }, { retry: true });
-  cmShow(HUMAN, x, true);
+  if (Online.say(x)) cmShow(HUMAN, x, true);
 }
 function cmShow(w, x, mine, sys) {
   const box = $('cm-bubbles'); if (!box) return;
   const b = document.createElement('div'); b.className = 'cm-b ' + (w === 'razan' ? 'razan' : 'dara');
   b.innerHTML = sys ? x.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])) : `<b>${cmWho(w)}${mine ? ' (kamu)' : ''}:</b>` + String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   box.appendChild(b); while (box.children.length > 3) box.firstChild.remove();
-  if (!mine) { try { navigator.vibrate && navigator.vibrate([15, 40, 15]); } catch (e) {} try { window.SFX && SFX.play('pop'); } catch (e) {} }
   setTimeout(() => { b.classList.add('out'); setTimeout(() => b.remove(), 400); }, mine ? 2800 : 4200);
 }
 function cmOpen() { if (!ONLINE) return; $('cm-note').textContent = cmFull() ? 'Komen buat ronde ini udah penuh 🙏' : ''; $('cm-ov').classList.add('show'); }
@@ -987,7 +985,8 @@ if (window.Online) Online.setup({
     const moves = room.moves.slice();
     OQ = OQ.then(async () => { await tick(); FAST = true; try { for (const mv of moves) await runMove(mv); } finally { FAST = false; } placePions(); updateUI(); if (G && !G.over && !isRolling && !popupBusy) enableRoll(); });
   },
-  onMove(mv) { if (mv && mv.t === 'k') { if (mv.w !== HUMAN) cmShow(mv.w, mv.x); return; } OQ = OQ.then(() => runMove(mv)).catch(e => console.warn(e)); return OQ; },
+  chatUI: false, onChat(w, x) { cmShow(LOW(w), x); },
+  onMove(mv) { if (mv && mv.t === 'k') return; OQ = OQ.then(() => runMove(mv)).catch(e => console.warn(e)); return OQ; },
   onLeft() { cmClose(); const cb = $('cm-bar'); if (cb) cb.hidden = true; ONLINE = false; HUMAN = null; RNG = null; G = null; const ov = $('popup-overlay'); if (ov) ov.classList.remove('active'); NAMES.razan = 'Razan'; NAMES.dara = 'Dara'; showScreen('s-intro'); },
 });
 </script>
