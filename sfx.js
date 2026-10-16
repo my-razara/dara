@@ -271,6 +271,24 @@
     if (name === 'win' && playing) { bgmGain.gain.cancelScheduledValues(now); bgmGain.gain.setValueAtTime(bgmGain.gain.value, now); bgmGain.gain.linearRampToValueAtTime(.25, now + .1); bgmGain.gain.linearRampToValueAtTime(BGV, now + 2.2); }
   }
 
+  // ── kalau ada bar/tombol penting nempel di bawah layar, tombol melayang naik ke atasnya (biar ga nutupin) ──
+  function barH(doc, win, dx, dy, W, H) {
+    let best = 0;
+    try {
+      const els = doc.body ? doc.body.querySelectorAll('*') : [];
+      for (const el of els) {
+        if (el.classList && (el.classList.contains('sfx-btn') || el.classList.contains('cfab') || el.classList.contains('sfx-tip') || el.id === 'olc-fab')) continue;
+        const cs = win.getComputedStyle(el); if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+        if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .1) continue;
+        const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+        const top = r.top + dy, bot = r.bottom + dy, w = r.width;
+        if (bot < H - 6 || bot > H + 30 || w < W * .55 || r.height > H * .45 || r.height < 24) continue;
+        best = Math.max(best, H - top);
+      }
+    } catch (e) {}
+    return best;
+  }
+
   // ── tombol 🎵 ──
   const ICON = { all: '🎵', fx: '🔔', off: '🔇' }, LABEL = { all: 'Musik & efek suara nyala', fx: 'Efek suara aja (musik mati)', off: 'Semua suara mati' };
   let btn = null;
@@ -374,6 +392,11 @@
     }
 
     document.body.appendChild(btn); document.body.appendChild(tip); paint(); shrink();
+    let liftT = 0;
+    const lift = () => { const H = innerHeight, h = barH(document, window, 0, 0, innerWidth, H); if (h > 0) { btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); tip.style.setProperty('bottom', (h + 18) + 'px', 'important'); } else { btn.style.removeProperty('bottom'); tip.style.removeProperty('bottom'); } };
+    const liftLater = () => { clearTimeout(liftT); liftT = setTimeout(() => { if (!document.hidden) lift(); }, 450); };
+    setTimeout(lift, 900); addEventListener('resize', liftLater); setInterval(() => { if (!document.hidden) lift(); }, 4000);
+    try { new MutationObserver(m => { if (m.some(x => x.target !== btn && x.target !== tip)) liftLater(); }).observe(document.body, { attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true }); } catch (e) {}
     try { if (!localStorage.getItem('sfx-seen')) { localStorage.setItem('sfx-seen', '1'); btn.classList.add('pulse'); setTimeout(() => say('🎵 Ada musik! Tap di sini buat atur suara'), 900); } } catch (e) {}
   }
 
