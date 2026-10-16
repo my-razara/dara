@@ -58,6 +58,17 @@
   }
   function bass(f, t, vol, dur) { tone(bgmGain, f, t, dur, vol, 'sine', .01); tone(bgmGain, f * 2, t, dur * .5, vol * .15, 'triangle', .01); }
   function pad(fs, t, dur, vol) { fs.forEach(f => { const o = ac.createOscillator(), g = ac.createGain(), fl = ac.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = (Math.random() - .5) * 14; fl.type = 'lowpass'; fl.frequency.value = 900; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + dur * .4); g.gain.linearRampToValueAtTime(0, t + dur); o.connect(fl); fl.connect(g); g.connect(bgmGain); o.start(t); o.stop(t + dur + .05); }); }
+  function marimba(f, t, vol) { tone(bgmGain, f, t, .5, vol, 'sine', .002, true); tone(bgmGain, f * 4, t, .07, vol * .35, 'sine', .001); }
+  function kalimba(f, t, vol) { tone(bgmGain, f, t, 1.1, vol, 'sine', .002, true); tone(bgmGain, f * 5.4, t, .14, vol * .22, 'sine', .001); tone(bgmGain, f * 2.01, t, .4, vol * .12, 'triangle', .002); }
+  function musicbox(f, t, vol) { tone(bgmGain, f, t, 1.7, vol * .9, 'sine', .002, true); tone(bgmGain, f * 2, t, .9, vol * .3, 'sine', .002, true); tone(bgmGain, f * 3.98, t, .25, vol * .12, 'sine', .001); }
+  function flute(f, t, vol, dur) {
+    const o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+    o.type = 'triangle'; o.frequency.value = f; lfo.frequency.value = 5.2; lg.gain.value = f * .006; lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .06); g.gain.setValueAtTime(vol, t + Math.max(.07, dur * .6)); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(bgmGain); g.connect(rev); o.start(t); lfo.start(t); o.stop(t + dur + .05); lfo.stop(t + dur + .05);
+  }
+  function inst(k, f, t, vol, dur) { if (k === 'pluck') pluck(f, t, vol); else if (k === 'marimba') marimba(f, t, vol); else if (k === 'kalimba') kalimba(f, t, vol); else if (k === 'musicbox') musicbox(f, t, vol); else if (k === 'flute') flute(f, t, vol * .8, dur || .5); else bell(f, t, vol, dur && dur > 1.4 ? dur : 1.4); }
+  function clap(t, vol) { if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate * .05, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length); } const s = ac.createBufferSource(), fl = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = noiseBuf; fl.type = 'bandpass'; fl.frequency.value = 1500; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + .12); s.connect(fl); fl.connect(g); g.connect(bgmGain); s.start(t); s.stop(t + .15); }
   let noiseBuf = null;
   function hat(t, vol) { if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate * .05, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length); } const s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = noiseBuf; f.type = 'highpass'; f.frequency.value = 7000; g.gain.value = vol; s.connect(f); f.connect(g); g.connect(bgmGain); s.start(t); }
   function kick(t, vol) { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(45, t + .12); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + .18); o.connect(g); g.connect(bgmGain); o.start(t); o.stop(t + .2); }
@@ -80,6 +91,50 @@
     malam:    { bpm: 60, progs: [[Am, F, C, G], [Dm, Am, F, Em]], arp: [0, 2, 1, 2, 0, 2, 1, 2], oct: 24, lead: .15, drums: false, inst: 'bell', vol: .09, pad: true },
   };
   const PENTA = [0, 2, 4, 7, 9];
+
+  // ═════ PENCIPTA LAGU — tiap halaman dapet lagu sendiri (diracik dari nama halamannya) ═════
+  const MAJ = [0, 2, 4, 5, 7, 9, 11];
+  const PROGS = [[1, 5, 6, 4], [1, 6, 4, 5], [6, 4, 1, 5], [4, 5, 3, 6], [1, 4, 6, 5], [2, 5, 1, 6], [1, 3, 4, 5], [4, 1, 5, 6], [6, 5, 4, 5], [1, 5, 4, 4], [1, 6, 2, 5], [4, 5, 6, 6], [1, 4, 1, 5], [6, 2, 5, 1]];
+  const ARPS = [[0, 1, 2, 1, 0, 2, 1, 2], [0, 2, 1, 3, 2, 1, 0, 2], [0, 1, 2, 3, 2, 1, 2, 1], [0, -1, 2, 1, 3, -1, 2, 1], [0, 2, 3, 2, 1, 2, 3, 2], [3, 2, 1, 0, 1, 2, 3, 2], [0, 1, 0, 2, 0, 3, 0, 2], [0, -1, 1, -1, 2, -1, 3, -1], [2, 1, 0, 1, 2, 3, 2, 1], [0, 3, 1, 3, 2, 3, 1, 3]];
+  const RHY = [[1, 0, 1, 0, 1, 0, 0, 0], [1, 0, 0, 1, 0, 0, 1, 0], [1, 1, 1, 0, 1, 0, 0, 0], [1, 0, 1, 1, 0, 0, 1, 0], [0, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 1, 1, 1, 0], [1, 0, 1, 0, 1, 0, 1, 0], [1, 0, 0, 0, 0, 0, 1, 0]];
+  const MOOD = {
+    main:     { bpm: [100, 126], insts: ['pluck', 'marimba', 'kalimba', 'pluck'], leads: ['bell', 'flute', 'marimba'], drums: ['beat', 'beat', 'clap', 'shaker'], lead: [.6, .85], sev: .15, vol: .13 },
+    pesta:    { bpm: [110, 126], insts: ['pluck', 'marimba', 'bell'], leads: ['bell', 'flute'], drums: ['beat', 'clap'], lead: [.7, .9], sev: .1, vol: .12 },
+    santai:   { bpm: [78, 96], insts: ['kalimba', 'pluck', 'marimba', 'musicbox'], leads: ['flute', 'bell', 'kalimba'], drums: ['none', 'none', 'shaker'], lead: [.45, .7], sev: .5, vol: .11 },
+    romantis: { bpm: [64, 84], insts: ['bell', 'musicbox', 'kalimba', 'pluck'], leads: ['flute', 'bell', 'musicbox'], drums: ['none'], lead: [.45, .7], sev: .6, vol: .1 },
+    malam:    { bpm: [52, 66], insts: ['bell', 'kalimba', 'musicbox'], leads: ['flute', 'bell'], drums: ['none'], lead: [.3, .5], sev: .7, vol: .09, pad: true },
+  };
+  const T1 = ['Senja', 'Hujan', 'Pagi', 'Rindu', 'Bintang', 'Kopi', 'Langit', 'Jalan', 'Pelukan', 'Bunga', 'Awan', 'Pelangi', 'Mimpi', 'Lampu', 'Surat', 'Teh', 'Bulan', 'Laut', 'Sepeda', 'Payung', 'Kereta', 'Es Krim', 'Kunang', 'Daun'];
+  const T2 = ['Hangat', 'Berdua', 'Manis', 'di Jendela', 'Sore', 'Biru', 'Pelan-pelan', 'Kecil', 'Malam', 'Pertama', 'Lucu', 'Pink', 'di Kota', 'Minggu', 'Bahagia', 'Kita', 'Jauh', 'Pulang', 'Rahasia', 'Ceria', 'Lagi', 'Selamanya', 'di Taman', 'Kesayangan'];
+  function rngOf(str) { let h = 2166136261; for (const c of String(str)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } let a = h >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function compose(th, seed) {
+    const M = MOOD[th] || MOOD.romantis, r = rngOf(th + '|' + seed), pick = a => a[Math.floor(r() * a.length)], rin = (a, b) => a + r() * (b - a);
+    const key = Math.floor(r() * 12) - 5, bpm = Math.round(rin(M.bpm[0], M.bpm[1]));
+    const chordOf = deg => { const i = deg - 1, sev = r() < M.sev, n = [0, 2, 4].concat(sev ? [6] : []).map(k => 60 + key + MAJ[(i + k) % 7] + 12 * Math.floor((i + k) / 7)); while (n[0] > 64) n.forEach((x, j) => n[j] -= 12); while (n[0] < 52) n.forEach((x, j) => n[j] += 12); return n; };
+    const pA = pick(PROGS).map(chordOf); let pB = pick(PROGS).map(chordOf);
+    const scale = []; for (let m = 62; m <= 86; m++) if (MAJ.includes(((m - 60 - key) % 12 + 12) % 12)) scale.push(m);
+    // melodi: 4 birama per bagian, nempel ke nada akor di ketukan kuat
+    function phrase(prog) {
+      let cur = scale[Math.floor(scale.length * .45)]; const out = [];
+      for (let b = 0; b < 4; b++) {
+        const rh = pick(RHY), ch = prog[b].map(x => x % 12), bar = [];
+        for (let st = 0; st < 8; st++) {
+          if (!rh[st]) { bar.push(null); continue; }
+          const strong = st % 4 === 0, cand = scale.filter(m => Math.abs(m - cur) <= (strong ? 5 : 3) && (!strong || ch.includes(m % 12)));
+          cur = cand.length ? pick(cand) : cur; if (b === 3 && st >= 4) { const end = scale.filter(m => m % 12 === ch[0] && Math.abs(m - cur) <= 7); if (end.length) cur = end[0]; }
+          let len = 1; while (st + len < 8 && !rh[st + len]) len++; bar.push([cur, len]);
+        }
+        out.push(bar);
+      }
+      return out;
+    }
+    const mA = phrase(pA), mB = phrase(pB), mA2 = mA.map((bar, b) => b < 2 ? bar : bar.map(x => x && r() < .3 ? [scale[Math.max(0, scale.indexOf(x[0]) + (r() < .5 ? -1 : 1))] || x[0], x[1]] : x));
+    const rn = rngOf('judul|' + seed), name = `${T1[Math.floor(rn() * T1.length)]} ${T2[Math.floor(rn() * T2.length)]}`;
+    return { name, bpm, inst: pick(M.insts), leadI: pick(M.leads), drums: pick(M.drums), arp: pick(ARPS), arp2: pick(ARPS), lead: rin(M.lead[0], M.lead[1]), vol: M.vol, pad: !!M.pad, oct: th === 'malam' ? 24 : 12,
+      bassP: pick([[0], [0, 4], [0, 3, 6], [0, 6], [0, 2, 4, 6]]),
+      parts: [[pA, mA, 'arp'], [pA, mA2, 'arp'], [pB, mB, 'arp2'], [pA, mA, 'arp']] };
+  }
+  let SONG = null, songSeed = null;
   let playing = false, nextT = 0, step = 0, bar = 0, prog = 0, timer = 0, leadNote = 72;
   let seqI = 0, seqRest = 0;
   function scheduleSeq(S) {
@@ -100,8 +155,31 @@
   }
   function schedule() {
     if (!playing) return;
-    const S = SONGS[theme], sp = 60 / S.bpm / 2;   // 1 langkah = not 1/8
-    if (S.seq) return scheduleSeq(S);
+    const S = SONGS[theme] && SONGS[theme].seq ? SONGS[theme] : null;
+    if (S) return scheduleSeq(S);
+    if (SONG) return scheduleSong();
+    return;
+  }
+  function scheduleSong() {
+    const S = SONG, sp = 60 / S.bpm / 2;
+    while (nextT < ac.currentTime + .25) {
+      const part = S.parts[Math.floor(bar / 4) % S.parts.length], b = bar % 4, st = step % 8, chord = part[0][b], arp = S[part[2]];
+      const notes = chord.concat(chord.length < 4 ? [chord[0] + 12] : []), ai = arp[st];
+      if (ai >= 0) inst(S.inst, mtof(notes[ai % notes.length] + S.oct), nextT, S.vol * (st === 0 ? .85 : .6), S.bpm < 70 ? 2 : 1.4);
+      if (S.bassP.includes(st)) bass(mtof(chord[0] - 12 + (st === 4 && S.bassP.length > 2 ? 7 : 0)), nextT, S.vol * (st === 0 ? 1.6 : 1.1), sp * (st === 0 ? 6 : 3));
+      if (S.pad && st === 0) pad(chord.map(mtof), nextT, sp * 8, S.vol * .25);
+      if (S.drums === 'beat') { if (st === 0 || st === 4) kick(nextT, S.vol * 2.1); if (st % 2 === 1) hat(nextT, S.vol * .45); }
+      else if (S.drums === 'clap') { if (st === 0) kick(nextT, S.vol * 2.1); if (st === 4) clap(nextT, S.vol * 1.4); if (st % 2 === 1) hat(nextT, S.vol * .35); }
+      else if (S.drums === 'shaker') hat(nextT, S.vol * (st % 2 ? .35 : .2));
+      const m = part[1][b][st];
+      if (m) inst(S.leadI, mtof(m[0] + (S.oct > 12 ? 12 : 0)), nextT + .01, S.vol * .62, Math.max(.35, m[1] * sp * 1.6));
+      nextT += sp; step++;
+      if (step % 8 === 0) bar++;
+    }
+    timer = setTimeout(schedule, 60);
+  }
+  function scheduleOld() {
+    const S = SONGS[theme], sp = 60 / S.bpm / 2;
     while (nextT < ac.currentTime + .25) {
       const chord = S.progs[prog][bar % 4], st = step % 8;
       const notes = chord.concat(chord.length < 4 ? [chord[0] + 12] : []);
@@ -123,6 +201,17 @@
     }
     timer = setTimeout(schedule, 60);
   }
+  // menu utama: tiap dibuka lagunya ganti (biar ada variasi); halaman lain: lagunya tetap, khas halaman itu
+  const HOME = base === 'index' || base === '';
+  function newSong(seed) {
+    if (!theme || (SONGS[theme] && SONGS[theme].seq)) { SONG = null; return; }
+    const id = /^(srcdoc|blank|)$/.test(base) ? (document.title || base) : base;
+    songSeed = seed != null ? seed : HOME ? 'home-' + Math.floor(Math.random() * 1e6) : id;
+    const ov = (() => { try { return (JSON.parse(localStorage.getItem('sfx-song') || '{}') || {})[id]; } catch (e) { return null; } })();
+    if (seed == null && !HOME && ov) songSeed = ov;
+    SONG = compose(theme, songSeed);
+  }
+  newSong();
   function startBgm() {
     if (!theme || mode !== 'all' || playing || !ctx()) return;
     playing = true; nextT = ac.currentTime + .1; step = 0; bar = 0; seqI = 0; seqRest = 0; prog = Math.floor(Math.random() * SONGS[theme].progs.length);
@@ -176,8 +265,22 @@
     const say = t => { tip.textContent = t; tip.classList.add('show'); clearTimeout(tipT); tipT = setTimeout(() => tip.classList.remove('show'), 2200); };
     // biar ga ganggu main: abis beberapa detik tombolnya ngumpet ke pinggir, tap sekali buat munculin
     let miniT; const shrink = () => { clearTimeout(miniT); miniT = setTimeout(() => btn.classList.add('mini'), 3500); };
+    // tahan lama → ganti lagu
+    let lpT = 0, lpDone = false;
+    btn.addEventListener('pointerdown', () => { lpDone = false; clearTimeout(lpT); lpT = setTimeout(() => { lpDone = true; nextSong(); }, 550); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(k => btn.addEventListener(k, () => clearTimeout(lpT)));
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+    function nextSong() {
+      if (!theme || !SONG) { say('Halaman ini lagunya khusus 🎶'); return; }
+      try { navigator.vibrate && navigator.vibrate(20); } catch (e) {}
+      const id = /^(srcdoc|blank|)$/.test(base) ? (document.title || base) : base, seed = id + '-' + Math.floor(Math.random() * 1e6); newSong(seed);
+      if (!HOME) { try { const m = JSON.parse(localStorage.getItem('sfx-song') || '{}') || {}; m[id] = seed; localStorage.setItem('sfx-song', JSON.stringify(m)); } catch (e) {} }
+      if (mode !== 'all') { mode = 'all'; saveMode(); paint(); }
+      stopBgm(true); setTimeout(() => { ctx(); startBgm(); }, 260);
+      say(`🔀 Lagu: “${SONG.name}”`);
+    }
     btn.addEventListener('click', e => {
-      e.stopPropagation();
+      e.stopPropagation(); if (lpDone) { lpDone = false; return; }
       if (btn.classList.contains('mini')) { btn.classList.remove('mini'); shrink(); return; }
       shrink();
       // halaman tanpa musik: cuma nyala/mati (biar setelan musik di halaman lain ga keganti)
@@ -185,7 +288,7 @@
       let i = order.indexOf(mode); mode = order[(i + 1) % order.length]; saveMode(); paint();
       if (mode === 'all') { ctx(); startBgm(); } else stopBgm();
       if (mode !== 'off') play('tap');
-      say(theme ? LABEL[mode] : (mode === 'off' ? LABEL.off : 'Efek suara nyala (halaman ini sengaja tanpa musik)'));
+      say(theme ? (mode === 'all' && SONG ? `🎶 “${SONG.name}” · tahan buat ganti lagu` : LABEL[mode]) : (mode === 'off' ? LABEL.off : 'Efek suara nyala (halaman ini sengaja tanpa musik)'));
     });
     document.body.appendChild(btn); document.body.appendChild(tip); paint(); shrink();
     try { if (!localStorage.getItem('sfx-seen')) { localStorage.setItem('sfx-seen', '1'); btn.classList.add('pulse'); setTimeout(() => say('🎵 Sekarang ada musik! Tap di sini buat atur'), 900); } } catch (e) {}
@@ -233,7 +336,7 @@
   window.addEventListener('pagehide', () => stopBgm(true));
 
   // dipakai halaman lain kalau mau: SFX.play('win'), SFX.play('coin'), SFX.music(false)
-  window.SFX = { play, music: on => on ? startBgm() : stopBgm(), get mode() { return mode; }, get playing() { return playing; }, _tap: () => out };
+  window.SFX = { play, music: on => on ? startBgm() : stopBgm(), get mode() { return mode; }, get playing() { return playing; }, get song() { return SONG && { name: SONG.name, bpm: SONG.bpm, inst: SONG.inst, lead: SONG.leadI, drums: SONG.drums }; }, _tap: () => out, _compose: compose };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { addButton(); observe(); }); else { addButton(); observe(); }
 })();
 
