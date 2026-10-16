@@ -60,6 +60,23 @@
   }
   if (GAMES.includes(PAGE)) { if (document.body) watch(); else document.addEventListener('DOMContentLoaded', watch); }
 
+  // ── 📊 hitung berapa kali tiap game / hadiah dibuka (buat tau mana yang beneran dimainin) ──
+  const HADIAH = ['kotak-surat', 'rating-ketemu', 'taman-bunga', 'period-tracker', 'kupon-maaf', 'kejutan-pesan', 'radio-razan', 'dna-hubungan', 'hal-kecil', 'polaroid-wall', 'moodboard-dara', 'playlist-dara', 'koran-dara', 'love-quest', 'kapsul-waktu', 'pertanyaan-harian', 'bucket-list', 'ketemuan', 'tombol-kangen', 'ramalan-tarot', 'hadiah-harian', 'kotak-musik', 'rapor-razan', 'kode-rahasia', 'kartu-ucapan', 'timeline-kita', 'tiup-lilin', 'lampion-harapan', 'pencapaian', 'photobooth', 'peta-bintang', 'peta-kenangan', 'gembok-cinta', 'teka-teki-surat', 'jendela-embun', 'pagi-sayang', 'tenangin-diri', 'kalender-mood', 'jurnal-syukur', 'stiker-wa', 'kartu-pacar', 'penghargaan', 'kalkulator-cinta', 'pop-it', 'mesin-terserah', 'mesin-gombal', 'bucket-bunga', 'kuis-kita', 'mind-reader', 'voucher-razan', 'origami-hati', 'resep-kita', 'piano-mini', 'gelang-manik', 'hias-kue', 'bikin-komik', 'masa-depan', 'kamus-kita', 'dandan-berdua', 'kaleidoskop', 'bioskop-kita', 'jarak-kita', 'rekam-suara', 'mewarnai', 'daftar-bareng', 'jaga-minum', 'janji-kita', 'kembang-api', 'stretching', 'ramuan-cinta'];
+  (function count() {
+    if (!PAGE || !(GAMES.includes(PAGE) || HADIAH.includes(PAGE))) return;
+    if (sessionStorage.getItem('bk-' + PAGE)) return; try { sessionStorage.setItem('bk-' + PAGE, '1'); } catch (e) {}
+    const m = me() || 'x', k = 'buka-' + m, all = g(k, {}) || {}, row = GAMES.includes(PAGE) ? '2000-01-01' : '2000-01-02';
+    const r = Object.assign({}, all[row] || {}); r[PAGE] = (r[PAGE] || 0) + 1; if (!r._s) r._s = Date.now();
+    all[row] = r; s(k, all); s('buka-dirty', 1);
+  })();
+  function opens() {
+    const out = { g: {}, h: {}, since: 0 };
+    ['Razan', 'Dara'].forEach(o => { const m = g('buka-' + o, {}) || {}; [['2000-01-01', 'g'], ['2000-01-02', 'h']].forEach(([d, t]) => Object.entries(m[d] || {}).forEach(([p, n]) => { if (p === '_s') { out.since = out.since ? Math.min(out.since, n) : n; return; } out[t][p] = (out[t][p] || 0) + n; })); });
+    return out;
+  }
+  // dipanggil dari home: kirim hitungan HP ini biar ketauan dari 2 HP
+  function syncOpens() { const m = me(); if (!m || !window.Berdua || !g('buka-dirty', 0)) return; const all = g('buka-' + m, {}) || {}; ['2000-01-01', '2000-01-02'].forEach(d => { if (all[d]) Berdua.put('buka', m, d, all[d]); }); s('buka-dirty', 0); }
+
   // ── buat home: total gabungan 2 HP ──
   function rows() { const out = []; ['Razan', 'Dara'].forEach(o => Object.entries(g('skor-' + o, {}) || {}).forEach(([d, r]) => { if (r && r.p) out.push([d, r]); })); return out; }
   function totals() {
@@ -74,5 +91,5 @@
     T.streak = sw ? { w: sw === 'R' ? 'Razan' : 'Dara', n: st } : null;
     return T;
   }
-  window.Skor = { add, totals, GAMES, scan };
+  window.Skor = { add, totals, GAMES, HADIAH, scan, opens, syncOpens };
 })();

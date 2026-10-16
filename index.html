@@ -2728,6 +2728,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-16 15:30', t: '✨ Update gede: 💬 bisa komen di semua game online · 📨 tantang pasangan jarak jauh di 9 game skor · 🏆 papan skor Razan vs Dara di home · 🟢 tanda pasangan lagi online · ↩ bales kiriman dari kotak masuk · 🐾 pet punya keinginan harian & aksesoris baru' },
     { d: '2026-10-16 13:45', t: '💬 Ular Tangga online sekarang bisa saling komen! Pas giliran lawan jalan, kirim emoji atau ledekan — langsung muncul di HP pasangan 😏 (request dari Dara)' },
     { d: '2026-10-16 11:00', t: '🔄 Tebak Kata, Peta Emosi & Tantangan Kecepatan pensiun — gantinya 3 game baru: 🟪 Balok Jatuh, 🍭 Tembak Permen & ☁️ Lompat Awan. Total tetep 70 game!' },
     { d: '2026-10-16 10:00', t: '🎮 6 game baru gantiin yang pensiun: 🐛 Ulat Lapar, 🏰 Labirin Kejar, 🚩 Sapu Ranjau, 🔢 Sudoku Mini, 🥁 Ketuk Irama & ⌨️ Ketik Cepat — semuanya bisa adu berdua gantian 1 HP. Total balik lagi 70 game! 🎉' },
@@ -2999,9 +3000,22 @@ setTimeout(() => {
     const G = Object.entries(T.games).sort((a, b) => (b[1][0] + b[1][1]) - (a[1][0] + a[1][1]));
     sheet('sk-ov', `<h3>🏆 Papan skor berdua</h3><p class="sub2">Razan <b>${T.R}</b> : <b>${T.D}</b> Dara · kecatet otomatis tiap ada yang menang di game berdua (lawan komputer ga dihitung)</p>` +
       (G.length ? `<p class="sk-h">Per game</p>` + G.map(([p, c]) => { const [ic, nm] = gName(p), t = c[0] + c[1]; return `<a class="sk-g" href="${p}.html"><span class="e">${ic}</span><b>${esc(nm)}</b><span class="sk-mini"><i style="width:${Math.round(c[0] / t * 100)}%"></i></span><span class="n"><b class="r">${c[0]}</b>–<b class="d">${c[1]}</b></span></a>`; }).join('') : '<p class="sub2" style="margin:1.2rem 0">Belum ada catatan. Main game berdua dulu yuk 🎮</p>') +
+      `<button class="sk-st" onclick="__statBuka()">📊 Game & hadiah yang paling sering / jarang dibuka →</button>` +
       (T.hist.length ? `<p class="sk-h">Terakhir</p>` + T.hist.slice(0, 10).map(x => { const [ic, nm] = gName(x[1]), w = x[2] === 'R' ? 'Razan' : 'Dara'; return `<div class="sk-hi"><span>${ic}</span><span><b class="${x[2] === 'R' ? 'r' : 'd'}">${w}</b> menang ${esc(nm)}</span><small>${hm(x[0])}</small></div>`; }).join('') : ''));
   };
 
+
+  // ═════ 📊 STATISTIK DIBUKA ═════
+  window.__statBuka = () => {
+    if (!window.Skor) return; const O = Skor.opens(), days = O.since ? Math.max(1, Math.round((Date.now() - O.since) / 864e5)) : 0;
+    const part = (list, map, label) => {
+      const arr = list.map(p => [p, map[p] || 0]), tot = arr.reduce((a, b) => a + b[1], 0);
+      const top = arr.filter(x => x[1]).sort((a, b) => b[1] - a[1]).slice(0, 8), low = arr.slice().sort((a, b) => a[1] - b[1]).slice(0, 10);
+      const li = x => { const [ic, nm] = gName(x[0]); return `<a class="sk-g" href="${x[0]}.html"><span class="e">${ic}</span><b>${esc(nm)}</b><span class="n">${x[1]}x</span></a>`; };
+      return `<p class="sk-h">${label} · paling sering</p>${top.length ? top.map(li).join('') : '<p class="sub2">Belum ada data</p>'}<p class="sk-h">${label} · paling jarang</p>${low.map(li).join('')}<p class="sub2" style="margin-top:.3rem">Total ${tot}x dibuka</p>`;
+    };
+    sheet('bk-ov', `<h3>📊 Yang sering & jarang dibuka</h3><p class="sub2">Dihitung dari HP kamu & ${other()}${days ? ` · mulai ${days} hari lalu` : ' · baru mulai dihitung'}. Yang paling jarang bisa jadi kandidat buat diganti 😉</p>` + part(Skor.GAMES, O.g, '🎮 Game') + part(Skor.HADIAH, O.h, '🎁 Hadiah'));
+  };
 
   // ═════ 🟢 PASANGAN LAGI ONLINE ═════
   const seenO = () => { const m = get('seen-' + other(), {}) || {}; const k = Object.keys(m).sort().pop(); return k ? m[k] : null; };
@@ -3036,7 +3050,7 @@ setTimeout(() => {
   // tombol "Tempel pesan" di baris fitur berdua
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a.bx[href="#tempel"]'); if (a) { e.preventDefault(); window.__tempel(); } }, true);
   try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && (ev.apps.includes('inbox') || ev.apps.includes('tempel') || ev.apps.includes('skor'))) { refresh(); } else if (ev.apps && ev.apps.includes('seen')) paintOn(); }); } catch (e) {}
-  (function waitSkor(n) { if (window.Skor) refresh(); else if (n < 40) setTimeout(() => waitSkor(n + 1), 250); })(0);
+  (function waitSkor(n) { if (window.Skor) { refresh(); try { Skor.syncOpens(); } catch (e) {} } else if (n < 40) setTimeout(() => waitSkor(n + 1), 250); })(0);
   refresh();
 })();
 
@@ -3160,6 +3174,7 @@ setTimeout(() => {
   .on-card .tx{flex:1;min-width:0}.on-card b{display:block;font-size:13px;color:var(--ink)}.on-card small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .on-card button{border:none;border-radius:50px;background:#2ea05a;color:#fff;font:600 12px 'Poppins',sans-serif;padding:.5rem .8rem;cursor:pointer;flex-shrink:0;white-space:nowrap}
   html.night .on-card{background:var(--card);border-color:rgba(46,160,90,.35)}
+  .sk-st{display:block;width:100%;margin:.7rem 0 .2rem;border:1.5px dashed rgba(193,122,111,.35);background:rgba(255,255,255,.7);border-radius:14px;padding:.6rem;font:600 12px 'Poppins',sans-serif;color:var(--deep);cursor:pointer}
   .sk-card{display:block;width:100%;text-align:center;border:1px solid rgba(193,122,111,.18);border-radius:20px;padding:.8rem .9rem .75rem;background:linear-gradient(135deg,#eef4fd,#fff 50%,#fdecec);cursor:pointer;font-family:inherit;color:var(--ink)}
   .sk-card.sk-empty b{display:block;font-size:15px;margin-bottom:.2rem}.sk-card.sk-empty small{font-size:11px;color:var(--muted)}
   .sk-big{display:flex;align-items:center;justify-content:center;gap:.7rem;font-size:2rem;font-weight:800;line-height:1}
