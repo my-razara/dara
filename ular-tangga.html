@@ -105,7 +105,7 @@
   .popup-text b{color:var(--rose)}
   .popup-extra{background:#fff;border:1px dashed rgba(193,122,111,.35);border-radius:12px;padding:.6rem .8rem;font-size:12px;color:var(--ink);line-height:1.6;margin-bottom:1rem;text-align:left}
   .popup-extra b{color:var(--rose)}
-  .popup-btns{display:flex;gap:.5rem}
+  .popup-btns{display:flex;flex-wrap:wrap;gap:.5rem}.popup-btns>.popup-btn{flex:1 1 0}
   .popup-btn{flex:1;padding:.85rem .5rem;border-radius:50px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;background:var(--rose);color:#fff;box-shadow:0 4px 16px rgba(193,122,111,.3);transition:all .15s}
   .popup-btn:active{background:var(--deep);transform:scale(.97)}
   .popup-btn.alt{background:#fff;color:var(--muted);border:1.5px solid var(--blush);box-shadow:none}
@@ -133,6 +133,39 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .cp{position:fixed;border-radius:2px;animation:cf linear forwards;pointer-events:none;z-index:9999}
   @keyframes cf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* 💬 komen pas main online */
+.cm-pop{flex:0 0 100%;display:flex;flex-wrap:wrap;justify-content:center;gap:.2rem;margin-top:.6rem;padding-top:.55rem;border-top:1px dashed rgba(193,122,111,.25)}
+.cm-pop button{border:none;background:none;font-size:1.3rem;width:36px;height:36px;border-radius:50%;cursor:pointer;padding:0}
+.cm-pop button:active{transform:scale(.85);background:var(--warm)}
+#cm-bubbles{position:fixed;left:0;right:0;top:calc(10px + env(safe-area-inset-top));z-index:9700;max-width:460px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:6;padding:0 10px}
+.cm-b{max-width:88%;padding:.5rem .85rem;border-radius:18px;font-size:13px;line-height:1.4;font-weight:500;box-shadow:0 6px 18px rgba(0,0,0,.18);animation:cmIn .3s cubic-bezier(.3,1.5,.5,1);word-break:break-word;text-align:center}
+.cm-b b{font-weight:700;margin-right:.25rem}
+.cm-b.razan{background:#eaf2ff;color:#24456f;border:1.5px solid #9cbcec}
+.cm-b.dara{background:#ffeef1;color:#7a2c3a;border:1.5px solid #f2a9b6}
+.cm-b.out{opacity:0;transform:translateY(-8px);transition:all .35s}
+@keyframes cmIn{from{opacity:0;transform:scale(.7) translateY(10px)}}
+.cm-bar{display:flex;align-items:center;gap:.35rem;margin-top:.5rem;padding:.35rem .4rem .35rem .7rem;border-radius:50px;background:rgba(255,255,255,.8);border:1px solid rgba(193,122,111,.18)}
+.cm-bar[hidden]{display:none}
+.cm-bar.their{border-color:var(--rose);box-shadow:0 0 0 3px rgba(193,122,111,.12)}
+.cm-lbl{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto}
+.cm-bar.their .cm-lbl{color:var(--deep);font-weight:600}
+.cm-q{display:flex;gap:.15rem;flex-shrink:0}
+.cm-q button,.cm-more{border:none;background:none;font-size:1.25rem;width:34px;height:34px;border-radius:50%;cursor:pointer;padding:0;line-height:34px}
+.cm-q button:active,.cm-more:active{transform:scale(.85);background:var(--warm)}
+.cm-more{background:var(--warm);flex-shrink:0}
+@media(max-width:340px){.cm-q button,.cm-more{width:29px;height:29px;font-size:1.05rem;line-height:29px}.cm-lbl{font-size:10px}}
+.cm-ov{position:fixed;inset:0;z-index:9600;background:rgba(45,31,26,.45);display:none;align-items:flex-end;justify-content:center}
+.cm-ov.show{display:flex}
+.cm-sh{background:var(--cream);width:100%;max-width:460px;border-radius:22px 22px 0 0;padding:1.1rem 1rem calc(1rem + env(safe-area-inset-bottom));animation:cmUp .25s ease}
+@keyframes cmUp{from{transform:translateY(100%)}}
+.cm-sh h3{font-size:15px;color:var(--ink);margin-bottom:.7rem;text-align:center}
+.cm-pre{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem;justify-content:center}
+.cm-pre button{border:1.5px solid var(--blush);background:#fff;border-radius:50px;padding:.45rem .8rem;font:500 12.5px 'Poppins',sans-serif;color:var(--deep);cursor:pointer}
+.cm-form{display:flex;gap:.4rem}
+.cm-form input{flex:1;min-width:0;border:1.5px solid var(--blush);border-radius:50px;padding:.7rem 1rem;font:16px 'Poppins',sans-serif;outline:none;background:#fff;color:var(--ink)}
+.cm-form button{border:none;border-radius:50px;padding:0 1.1rem;background:var(--rose);color:#fff;font:700 13px 'Poppins',sans-serif;cursor:pointer}
+.cm-note{font-size:11px;color:var(--muted);text-align:center;margin-top:.5rem;min-height:1em}
 </style>
 <script src="sync.js"></script>
 <script src="online.js"></script>
@@ -240,8 +273,22 @@
     <div class="turn-info" id="turn-info">Giliran <span>Razan</span> — tap dadu!</div>
     <button class="exit-mini" onclick="exitGame()">✕</button>
   </div>
+  <div class="cm-bar" id="cm-bar" hidden>
+    <span class="cm-lbl" id="cm-lbl">💬 Komen</span>
+    <div class="cm-q" id="cm-q"></div>
+    <button class="cm-more" onclick="cmOpen()" aria-label="Tulis komentar">✍️</button>
+  </div>
   <p class="rule-note" id="rule-note"></p>
 </div>
+<div id="cm-bubbles" aria-live="polite"></div>
+<div class="cm-ov" id="cm-ov" onclick="if(event.target===this)cmClose()"><div class="cm-sh">
+  <h3>💬 Komenin <span id="cm-to">pasangan</span></h3>
+  <div class="cm-pre" id="cm-pre"></div>
+  <form class="cm-form" onsubmit="event.preventDefault();cmSend(document.getElementById('cm-in').value);document.getElementById('cm-in').value='';cmClose()">
+    <input id="cm-in" maxlength="60" autocomplete="off" placeholder="Tulis komen kamu…" enterkeyhint="send"><button type="submit">Kirim</button>
+  </form>
+  <p class="cm-note" id="cm-note"></p>
+</div></div>
 
 <!-- END -->
 <div id="s-end" class="screen">
@@ -596,7 +643,7 @@ function startGame(first) {
   requestAnimationFrame(() => requestAnimationFrame(() => { resizeAndDraw(); updateUI(); enableRoll(); }));
 }
 
-function enableRoll() { if (ONLINE && G && G.turn !== HUMAN) { disableRoll(); const b = $('roll-btn'); if (b) b.textContent = '⏳'; if (window.Online) Online.waiting(!G.over); return; } if (ONLINE && window.Online) Online.waiting(false); const b = $('roll-btn'), d = $('dice-box'); if (b) { b.disabled = false; b.textContent = 'Lempar!'; } if (d) d.style.pointerEvents = 'auto'; }
+function enableRoll() { cmSync(); if (ONLINE && G && G.turn !== HUMAN) { disableRoll(); const b = $('roll-btn'); if (b) b.textContent = '⏳'; if (window.Online) Online.waiting(!G.over); return; } if (ONLINE && window.Online) Online.waiting(!G.over); const b = $('roll-btn'), d = $('dice-box'); if (b) { b.disabled = false; b.textContent = 'Lempar!'; } if (d) d.style.pointerEvents = 'auto'; }
 function disableRoll() { const b = $('roll-btn'), d = $('dice-box'); if (b) { b.disabled = true; b.textContent = '...'; } if (d) d.style.pointerEvents = 'none'; }
 
 function rollDice() {
@@ -611,7 +658,7 @@ function rollDice() {
       clearInterval(anim);
       if (diceEl) diceEl.classList.remove('rolling');
       const val = Math.floor(Math.random() * 6) + 1;
-      if (ONLINE) Online.move({ t: 'r', v: val });
+      if (ONLINE) Online.move({ t: 'r', v: val }, { retry: true });
       if (diceEl) diceEl.textContent = DICE_FACES[val - 1];
       setTimeout(() => movePlayer(G.turn, val), 300);
     }
@@ -779,9 +826,10 @@ function showPopup({ emoji, type, typeLabel, who, title, text, extra, buttons })
       const btn = document.createElement('button');
       btn.className = 'popup-btn ' + (b.cls || '');
       btn.textContent = b.label;
-      btn.addEventListener('click', () => { if (ONLINE && popupBusy) Online.move({ t: 'c', k }); closePopup(b.fn); }, { once:true });
+      btn.addEventListener('click', () => { if (ONLINE && popupBusy) Online.move({ t: 'c', k }, { retry: true }); closePopup(b.fn); }, { once:true });
       wrap.appendChild(btn);
     });
+    if (ONLINE) { const r = document.createElement('div'); r.className = 'cm-pop'; r.innerHTML = CM_Q.concat(['🤣', '😭']).map(e => `<button type="button" data-x="${e}">${e}</button>`).join('') + '<button type="button" data-open="1">✍️</button>'; r.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.open) cmOpen(); else cmSend(b.dataset.x); }); wrap.appendChild(r); }
   }
   const ov = $('popup-overlay'); if (ov) ov.classList.add('active');
 }
@@ -836,7 +884,7 @@ function showEnd(p) {
 
 function endPrimary(remote) {
   if (!G) { showScreen('s-mode'); return; }
-  if (ONLINE) { if (G.seriesDone) { Online.invite(); return; } if (!remote) Online.move({ t: 'e', r: G.round }); }
+  if (ONLINE) { if (G.seriesDone) { Online.invite(); return; } if (!remote) Online.move({ t: 'e', r: G.round }, { retry: true }); }
   if (G.seriesDone) { startSeries(other(G.first)); return; } // main lagi: gantian yang mulai
   G.round++;
   startGame(other(G.lastWinner)); // yang kalah jalan duluan
@@ -885,6 +933,44 @@ async function runMove(mv) {
     if (G && G.over && mv.r === G.round && !G.seriesDone) endPrimary(true);
   }
 }
+
+// ═════ 💬 KOMEN PAS MAIN ONLINE ═════
+const CM_Q = ['😂', '😱', '😏', '💗'];
+const CM_PRE = ['Awas ularnya 🐍', 'Yahh turun lagi 😆', 'Hoki banget sih 😤', 'Ayo dong 6! 🎲', 'Aku duluan finish ya 😏', 'Curang ih 🙄', 'Semangat sayang 💗', 'Wkwkwk 🤣', 'Deg-degan 😬', 'Nyerah aja 😜'];
+let cmLast = 0;
+const cmWho = w => (w === 'razan' ? 'Razan' : 'Dara');
+function cmSync() {
+  const bar = $('cm-bar'); if (!bar) return;
+  bar.hidden = !ONLINE;
+  if (!ONLINE || !G) { cmClose(); return; }
+  const their = G.turn !== HUMAN && !G.over, op = cmWho(HUMAN === 'razan' ? 'dara' : 'razan');
+  bar.classList.toggle('their', their);
+  $('cm-lbl').textContent = their ? `💬 Komenin ${op} 😏` : '💬 Komen';
+  $('cm-to').textContent = op;
+}
+function cmFull() { try { return window.Online && Online.room && JSON.stringify(Online.room).length > 7200; } catch (e) { return false; } }
+function cmSend(x) {
+  if (!ONLINE || !window.Online || !Online.on) return;
+  x = String(x || '').replace(/\s+/g, ' ').trim().slice(0, 60); if (!x) return;
+  const now = Date.now(); if (now - cmLast < 1500) return; cmLast = now;
+  if (cmFull()) { cmShow(HUMAN, 'Komen penuh buat ronde ini — lanjut main dulu ya 🙏', true, true); return; }
+  Online.move({ t: 'k', w: HUMAN, x }, { retry: true });
+  cmShow(HUMAN, x, true);
+}
+function cmShow(w, x, mine, sys) {
+  const box = $('cm-bubbles'); if (!box) return;
+  const b = document.createElement('div'); b.className = 'cm-b ' + (w === 'razan' ? 'razan' : 'dara');
+  b.innerHTML = sys ? x.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])) : `<b>${cmWho(w)}${mine ? ' (kamu)' : ''}:</b>` + String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  box.appendChild(b); while (box.children.length > 3) box.firstChild.remove();
+  if (!mine) { try { navigator.vibrate && navigator.vibrate([15, 40, 15]); } catch (e) {} try { window.SFX && SFX.play('pop'); } catch (e) {} }
+  setTimeout(() => { b.classList.add('out'); setTimeout(() => b.remove(), 400); }, mine ? 2800 : 4200);
+}
+function cmOpen() { if (!ONLINE) return; $('cm-note').textContent = cmFull() ? 'Komen buat ronde ini udah penuh 🙏' : ''; $('cm-ov').classList.add('show'); }
+function cmClose() { const o = $('cm-ov'); if (o) o.classList.remove('show'); }
+$('cm-q').innerHTML = CM_Q.map(e => `<button type="button" data-x="${e}">${e}</button>`).join('');
+$('cm-q').addEventListener('click', e => { const b = e.target.closest('button'); if (b) cmSend(b.dataset.x); });
+$('cm-pre').innerHTML = CM_PRE.map(p => `<button type="button">${p}</button>`).join('');
+$('cm-pre').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { cmSend(b.textContent); cmClose(); } });
 const LOW = w => String(w).toLowerCase();
 if (window.Online) Online.setup({
   g: 'ular-tangga', panelAfter: '#s-who .who-cards', statusEl: 'ol-st',
@@ -901,8 +987,8 @@ if (window.Online) Online.setup({
     const moves = room.moves.slice();
     OQ = OQ.then(async () => { await tick(); FAST = true; try { for (const mv of moves) await runMove(mv); } finally { FAST = false; } placePions(); updateUI(); if (G && !G.over && !isRolling && !popupBusy) enableRoll(); });
   },
-  onMove(mv) { OQ = OQ.then(() => runMove(mv)).catch(e => console.warn(e)); return OQ; },
-  onLeft() { ONLINE = false; HUMAN = null; RNG = null; G = null; const ov = $('popup-overlay'); if (ov) ov.classList.remove('active'); NAMES.razan = 'Razan'; NAMES.dara = 'Dara'; showScreen('s-intro'); },
+  onMove(mv) { if (mv && mv.t === 'k') { if (mv.w !== HUMAN) cmShow(mv.w, mv.x); return; } OQ = OQ.then(() => runMove(mv)).catch(e => console.warn(e)); return OQ; },
+  onLeft() { cmClose(); const cb = $('cm-bar'); if (cb) cb.hidden = true; ONLINE = false; HUMAN = null; RNG = null; G = null; const ov = $('popup-overlay'); if (ov) ov.classList.remove('active'); NAMES.razan = 'Razan'; NAMES.dara = 'Dara'; showScreen('s-intro'); },
 });
 </script>
 
