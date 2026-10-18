@@ -22,7 +22,7 @@
   .title span{color:var(--rose)}
   .screen{display:none}.screen.on{display:block}
 
-  .cam{position:relative;width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:#2d1f1a;box-shadow:0 12px 30px rgba(90,50,30,.25)}
+  .cam{position:relative;width:min(100%,calc(var(--ph,100vh) * .56));margin:0 auto;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#2d1f1a;box-shadow:0 12px 30px rgba(90,50,30,.25)}
   .cam video,.cam img.still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .cam video.mirror{transform:scaleX(-1)}
   .cam canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -34,8 +34,8 @@
   .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
   .flash.on{animation:fl .45s ease}
   @keyframes fl{0%{opacity:.95}100%{opacity:0}}
-  .shots{position:absolute;left:.5rem;bottom:.5rem;display:flex;gap:.3rem}
-  .shots i{width:34px;height:26px;border-radius:5px;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.7);background-size:cover;background-position:center}
+  .shots{position:absolute;left:.5rem;right:.5rem;bottom:.5rem;display:flex;flex-wrap:wrap;gap:.25rem}
+  .shots i{width:24px;height:32px;border-radius:5px;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.7);background-size:cover;background-position:center}
 
   .lbl2{font-size:11px;font-weight:600;color:var(--deep);margin:.9rem 0 .35rem}
   .chips{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.2rem}
@@ -56,12 +56,19 @@
   .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush)}
   .gal{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-top:.5rem}
   .gal img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;cursor:pointer;background:var(--warm)}
+  /* HP dimiringin: tampilan tetep potret (diputer balik), kamera ga ikut jadi landscape */
+  html.rotL,html.rotR{overflow:hidden}
+  html.rotL body,html.rotR body{overflow:hidden;min-height:0}
+  html.rotL body>:not(#rot):not(.cf-ov):not(script):not(style),html.rotR body>:not(#rot):not(.cf-ov):not(script):not(style){display:none!important}
+  html.rotL #rot,html.rotR #rot{position:fixed;top:0;left:0;width:100vh;height:100vw;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;transform-origin:0 0;z-index:1}
+  html.rotL #rot{transform:translateY(100vh) rotate(-90deg)}
+  html.rotR #rot{transform:translateX(100vw) rotate(90deg)}
   @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.shutter{width:68px;height:68px}}
 </style>
 <script src="sfx.js" defer></script>
 </head>
 <body>
-<div class="wrap">
+<div id="rot"><div class="wrap">
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
   <div class="head"><p class="lbl">Photobooth Razara</p><h1 class="title">Cekrek <span>bareng</span> 📸</h1></div>
 
@@ -96,17 +103,31 @@
     <div class="row"><button class="btn ghost" onclick="again()">🔁 Foto lagi</button><button class="btn" onclick="saveOut()">⬇️ Simpan</button></div>
     <a class="btn ghost" id="wa" style="margin-top:.5rem" target="_blank" rel="noopener">💬 Bilang ke Razan ada foto baru</a>
   </div>
-</div>
+</div></div>
 
 <script>
 const WA_RAZAN = '6285692740607';
-const MODES = { strip: '🎞️ Strip 4 foto', single: '🖼️ 1 foto' };
+const MODES = { strip: '🎞️ Strip 4', g4: '🔲 4 kotak', g6: '📸 6 foto', g8: '🎞️ 8 foto', single: '🖼️ 1 foto' };
+// n = jumlah jepretan, cols = kolom, ar = tinggi/lebar tiap foto
+const LAY = { single: { n: 1, cols: 1, ar: 4 / 3, pw: 760 }, strip: { n: 4, cols: 1, ar: .82, pw: 520 }, g4: { n: 4, cols: 2, ar: 4 / 3, pw: 380 }, g6: { n: 6, cols: 2, ar: 4 / 3, pw: 360 }, g8: { n: 8, cols: 2, ar: 4 / 3, pw: 340 } };
 const FRAMES = {
   polaroid: { n: '🤍 Polaroid', bg: '#fffdf8', ink: '#7a3f35' },
   hearts: { n: '💗 Hati-hati', bg: '#ffe3ea', ink: '#c1465f', em: ['💗', '💕', '💖', '🤍'] },
   bunga: { n: '🌸 Bunga', bg: '#fdf1e6', ink: '#a8584c', em: ['🌸', '🌷', '🌼', '🍃'] },
   bintang: { n: '✨ Bintang malam', bg: '#262044', ink: '#f6e3b8', em: ['✨', '⭐', '🌙', '💫'] },
   pita: { n: '🎀 Pita lucu', bg: '#e8f0fb', ink: '#4a7fc1', em: ['🎀', '🧸', '🍓', '☁️'] },
+  film: { n: '🎬 Film jadul', bg: '#1c1a1a', ink: '#f3e2d8', film: 1 },
+  kraft: { n: '📦 Kertas kraft', bg: '#d8b98f', ink: '#5a3a22', em: ['📌', '🌾', '✉️', '🤎'] },
+  senja: { n: '🌇 Senja', bg: '#f7b79a', bg2: '#8f6bb0', ink: '#fff6ee', em: ['🌅', '🧡', '✨', '💜'] },
+  awan: { n: '☁️ Langit', bg: '#bfe3fb', bg2: '#f4fbff', ink: '#3d78a8', em: ['☁️', '🌈', '🕊️', '☀️'] },
+  mint: { n: '🍃 Mint segar', bg: '#d9f2e4', ink: '#2e7d5b', em: ['🍃', '🌿', '🍀', '🐸'] },
+  ceri: { n: '🍒 Ceri merah', bg: '#c8323f', ink: '#fff3f0', em: ['🍒', '❤️', '💋', '🌹'] },
+  pantai: { n: '🏖 Pantai', bg: '#ffe8b8', bg2: '#8fd3e8', ink: '#1f5f7a', em: ['🐚', '🌴', '🌊', '🍉'] },
+  pesta: { n: '🎉 Pesta', bg: '#fff1c7', ink: '#b5476b', em: ['🎉', '🎂', '🎈', '🥳'], dots: 1 },
+  kucing: { n: '🐱 Kucing', bg: '#fbe7d4', ink: '#8a5a3c', em: ['🐱', '🐾', '🐟', '🧶'] },
+  luar: { n: '🪐 Luar angkasa', bg: '#0f1430', bg2: '#3b2a63', ink: '#e8e2ff', em: ['🪐', '🚀', '🌙', '⭐'], stars: 1 },
+  kopi: { n: '☕ Kopi', bg: '#efe2d3', ink: '#5b3a29', em: ['☕', '🥐', '🤎', '🍪'] },
+  koran: { n: '📰 Koran', bg: '#f2efe6', ink: '#222', news: 1 }
 };
 const FILTERS = { normal: 'Normal', hangat: '🌅 Hangat', pink: '🌷 Pink', bw: '🖤 Hitam putih', vintage: '📜 Vintage' };
 const $ = id => document.getElementById(id);
@@ -126,13 +147,14 @@ function paint() {
   chips('modes', MODES, mode, v => { mode = v; lsSet('pb-mode', v); });
   chips('frames', FRAMES, frame, v => { frame = v; lsSet('pb-frame', v); });
   chips('filters', FILTERS, filt, v => { filt = v; lsSet('pb-filter', v); });
-  $('hint').textContent = mode === 'strip' ? 'Strip = 4 jepretan otomatis, ada hitung mundurnya' : 'Satu jepretan, hitung mundur 3 detik';
+  if (!LAY[mode]) mode = 'strip'; if (!FRAMES[frame]) frame = 'polaroid';
+  const n = LAY[mode].n; $('hint').textContent = n > 1 ? `${n} jepretan otomatis, ada hitung mundurnya · dari galeri bisa pilih sampai ${n} foto` : 'Satu jepretan, hitung mundur 3 detik';
   $('vid').style.filter = { normal: 'none', hangat: 'sepia(.25) saturate(1.2) brightness(1.03)', pink: 'saturate(1.1) hue-rotate(-12deg) brightness(1.05)', bw: 'grayscale(1) contrast(1.1)', vintage: 'sepia(.55) contrast(.95) brightness(1.05)' }[filt];
   drawOverlay(); paintGal();
 }
 // stiker tipis di pinggir preview, biar kebayang hasilnya
 function drawOverlay() {
-  const c = $('ovl'), r = c.getBoundingClientRect(); c.width = r.width * 2; c.height = r.height * 2;
+  const c = $('ovl'); c.width = (c.offsetWidth || 300) * 2; c.height = (c.offsetHeight || 400) * 2;
   const x = c.getContext('2d'), F = FRAMES[frame]; x.clearRect(0, 0, c.width, c.height);
   if (!F.em) return;
   x.font = `${Math.round(c.width / 12)}px serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
@@ -159,7 +181,7 @@ $('shutter').onclick = async () => {
   if (busy) return;
   if (!stream && !(await startCam())) return;
   busy = true; $('shutter').disabled = true; shots = []; paintShots();
-  const n = mode === 'strip' ? 4 : 1;
+  const n = LAY[mode].n;
   for (let i = 0; i < n; i++) {
     await countdown(i === 0 ? 3 : 2);
     shots.push(grab()); paintShots();
@@ -172,7 +194,7 @@ $('shutter').onclick = async () => {
 const wait = ms => new Promise(r => setTimeout(r, ms));
 async function countdown(s) { const cd = $('cd'); for (let k = s; k > 0; k--) { cd.textContent = k; cd.classList.remove('show'); void cd.offsetWidth; cd.classList.add('show'); vib(10); await wait(900); } cd.classList.remove('show'); }
 function grab() {
-  const v = $('vid'), W = 960, H = 720, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const v = $('vid'), W = 720, H = 960, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
   const vw = v.videoWidth || 640, vh = v.videoHeight || 480, s = Math.max(W / vw, H / vh), dw = vw * s, dh = vh * s;
   if (facing === 'user') { x.translate(W, 0); x.scale(-1, 1); }
   x.drawImage(v, (W - dw) / 2, (H - dh) / 2, dw, dh);
@@ -184,16 +206,16 @@ function click() { try { const a = new (window.AudioContext || window.webkitAudi
 /* ── dari galeri ── */
 function pickFile() { $('file').click(); }
 $('file').onchange = async () => {
-  const files = [...$('file').files].slice(0, mode === 'strip' ? 4 : 1); if (!files.length) return;
+  const files = [...$('file').files].slice(0, LAY[mode].n); if (!files.length) return;
   const cs = [];
   for (const f of files) {
     const img = new Image(); img.src = URL.createObjectURL(f); await img.decode().catch(() => {});
-    const W = 960, H = 720, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    const W = 720, H = 960, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
     const s = Math.max(W / (img.width || 1), H / (img.height || 1)); x.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
     URL.revokeObjectURL(img.src); cs.push(c);
   }
   $('file').value = '';
-  const n = mode === 'strip' ? 4 : 1; shots = Array.from({ length: n }, (_, i) => cs[i % cs.length]);
+  const n = LAY[mode].n; shots = Array.from({ length: n }, (_, i) => cs[i % cs.length]);
   compose();
 };
 
@@ -215,30 +237,36 @@ function applyFilter(c) {
 /* ── susun hasil ── */
 async function compose() {
   try { await document.fonts.load('60px Caveat'); } catch (e) {}
-  const F = FRAMES[frame], strip = shots.length > 1;
-  const PW = strip ? 560 : 900, PH = PW * .75, pad = strip ? 34 : 46, gap = strip ? 22 : 0, foot = strip ? 150 : 170;
-  const W = PW + pad * 2, H = pad + shots.length * PH + (shots.length - 1) * gap + foot;
+  const F = FRAMES[frame], L = LAY[mode] && LAY[mode].n === shots.length ? LAY[mode] : LAY.single, strip = shots.length > 1;
+  const PW = L.pw, PH = Math.round(PW * L.ar), rows = Math.ceil(shots.length / L.cols), pad = F.film ? 54 : strip ? 34 : 46, gap = strip ? 20 : 0, foot = F.news ? 190 : strip ? 150 : 170, headH = F.news ? 120 : 0;
+  const W = L.cols * PW + (L.cols - 1) * gap + pad * 2, H = pad + headH + rows * PH + (rows - 1) * gap + foot;
   const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
-  x.fillStyle = F.bg; x.fillRect(0, 0, W, H);
-  if (frame === 'bintang') { for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(255,255,255,${Math.random() * .7})`; x.beginPath(); x.arc(Math.random() * W, Math.random() * H, Math.random() * 2, 0, 7); x.fill(); } }
+  if (F.bg2) { const gr = x.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, F.bg); gr.addColorStop(1, F.bg2); x.fillStyle = gr; } else x.fillStyle = F.bg;
+  x.fillRect(0, 0, W, H);
+  if (frame === 'bintang' || F.stars) { for (let i = 0; i < 90 + rows * 30; i++) { x.fillStyle = `rgba(255,255,255,${Math.random() * .7})`; x.beginPath(); x.arc(Math.random() * W, Math.random() * H, Math.random() * 2.2, 0, 7); x.fill(); } }
+  if (F.dots) { const cl = ['#f4a7b0', '#9fd0f0', '#f3d36b', '#a8d8a0', '#c9b6ea']; for (let i = 0; i < 70 + rows * 25; i++) { x.fillStyle = cl[i % cl.length]; x.beginPath(); x.arc(Math.random() * W, Math.random() * H, 3 + Math.random() * 5, 0, 7); x.fill(); } }
+  if (F.film) { x.fillStyle = '#efe6dc'; for (let yy = 18; yy < H - 18; yy += 46) { roundFill(x, 14, yy, 22, 28, 5); roundFill(x, W - 36, yy, 22, 28, 5); } }
+  if (F.news) { x.fillStyle = F.ink; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.font = `900 ${Math.round(W / 11)}px Georgia, 'Times New Roman', serif`; x.fillText('THE RAZARA TIMES', W / 2, pad + 64); x.fillRect(pad, pad + 84, W - pad * 2, 4); x.fillRect(pad, pad + 94, W - pad * 2, 1.5); }
   shots.forEach((s, i) => {
-    const y = pad + i * (PH + gap), f = applyFilter(s);
-    x.save(); x.beginPath(); roundRect(x, pad, y, PW, PH, strip ? 10 : 14); x.clip(); x.drawImage(f, pad, y, PW, PH); x.restore();
+    const col = i % L.cols, row = Math.floor(i / L.cols), dx = pad + col * (PW + gap), dy = pad + headH + row * (PH + gap), f = applyFilter(s);
+    x.save(); x.beginPath(); roundRect(x, dx, dy, PW, PH, F.film ? 4 : strip ? 10 : 14); x.clip(); cover(x, f, dx, dy, PW, PH);
+    if (F.news) { const im = x.getImageData(dx, dy, PW, PH), d = im.data; for (let k = 0; k < d.length; k += 4) { const l = .3 * d[k] + .59 * d[k + 1] + .11 * d[k + 2]; d[k] = d[k + 1] = d[k + 2] = l * .92 + 10; } x.putImageData(im, dx, dy); }
+    x.restore();
   });
   if (F.em) {
     x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = `${Math.round(W / 11)}px serif`;
-    const pts = [[pad * .9, pad * .9], [W - pad * .9, pad * 1.3], [pad * 1.2, H - foot * .65], [W - pad * 1.1, H - foot * .55]];
+    const pts = [[pad * .9, pad * .9], [W - pad * .9, pad * 1.3], [pad * 1.2, H - foot * .65], [W - pad * 1.1, H - foot * .55]]; if (rows > 2) pts.push([pad * .8, H / 2], [W - pad * .8, H / 2 + PH / 2]);
     pts.forEach(([px, py], i) => { x.save(); x.translate(px, py); x.rotate((i % 2 ? 1 : -1) * .25); x.fillText(F.em[i % F.em.length], 0, 0); x.restore(); });
   }
   const d = new Date();
   x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.fillStyle = F.ink;
-  x.font = `700 ${strip ? 56 : 70}px Caveat, 'Segoe Script', cursive`; x.fillText('Razan ♡ Dara', W / 2, H - foot + (strip ? 78 : 92));
+  x.font = `700 ${strip ? 56 : 70}px Caveat, 'Segoe Script', cursive`; x.fillText(F.news ? 'Kabar hari ini: Razan ♡ Dara makin lengket' : 'Razan ♡ Dara', W / 2, H - foot + (strip ? 78 : 92), W - pad * 2);
   x.font = `500 ${strip ? 20 : 24}px Poppins, sans-serif`; x.globalAlpha = .75; x.fillText(`${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()} · photobooth razara`, W / 2, H - foot + (strip ? 116 : 136)); x.globalAlpha = 1;
   c.toBlob(b => {
     outBlob = b; if (outURL) URL.revokeObjectURL(outURL); outURL = URL.createObjectURL(b);
     $('res').src = outURL;
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 's-res'));
-    stopCam(); window.scrollTo(0, 0);
+    stopCam(); window.scrollTo(0, 0); try { $('rot').scrollTop = 0; } catch (e) {}
     lsSet('pb-count', lsGet('pb-count', 0) + 1);
     // simpen versi kecil buat galeri (3 terakhir)
     const t = document.createElement('canvas'), sc = 300 / W; t.width = 300; t.height = Math.round(H * sc); t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
@@ -247,6 +275,9 @@ async function compose() {
     vib([20, 40, 60]);
   }, 'image/jpeg', .92);
 }
+// gambar foto ngisi kotak (dipotong tengah, agak ke atas biar muka ga kepotong)
+function cover(x, img, dx, dy, dw, dh) { const iw = img.width, ih = img.height, s = Math.max(dw / iw, dh / ih), sw = dw / s, sh = dh / s; x.drawImage(img, (iw - sw) / 2, (ih - sh) * .4, sw, sh, dx, dy, dw, dh); }
+function roundFill(x, a, b, w, h, r) { x.beginPath(); roundRect(x, a, b, w, h, r); x.fill(); }
 function roundRect(x, a, b, w, h, r) { x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
 async function saveOut() {
   if (!outBlob) return;
@@ -257,9 +288,22 @@ async function saveOut() {
 function again() { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 's-cam')); shots = []; paintShots(); paint(); startCam(); }
 function paintGal() { const g = lsGet('pb-gal', []); $('gal-wrap').style.display = g.length ? '' : 'none'; $('gal').innerHTML = g.map(u => `<img src="${u}" alt="">`).join(''); }
 $('cam').addEventListener('click', () => { if (!stream && !busy) startCam(); });
-$('cam-msg').innerHTML = '<b>📸</b>Tap di sini buat nyalain kamera<br><span style="font-size:11.5px;opacity:.8">Ga bisa pake kamera? Tap 🖼️ buat pilih foto dari galeri (strip: bisa pilih sampai 4)</span>';
+$('cam-msg').innerHTML = '<b>📸</b>Tap di sini buat nyalain kamera<br><span style="font-size:11.5px;opacity:.8">Ga bisa pake kamera? Tap 🖼️ buat pilih foto dari galeri (bisa pilih sampai 8)</span>';
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopCam(); });
 window.addEventListener('resize', drawOverlay);
+// ── kunci potret: HP dimiringin tetep tampilan tegak ──
+(function portrait() {
+  const phone = () => Math.min(screen.width, screen.height) < 600;
+  try { screen.orientation && screen.orientation.lock && screen.orientation.lock('portrait').catch(() => {}); } catch (e) {}
+  const ang = () => { const a = screen.orientation && typeof screen.orientation.angle === 'number' ? screen.orientation.angle : (window.orientation || 0); return ((a % 360) + 360) % 360; };
+  function fix() {
+    const h = document.documentElement, land = innerWidth > innerHeight && phone();
+    h.classList.toggle('rotL', land && ang() !== 270); h.classList.toggle('rotR', land && ang() === 270);
+    h.style.setProperty('--ph', Math.max(innerWidth, innerHeight) + 'px');
+    setTimeout(drawOverlay, 60);
+  }
+  fix(); window.addEventListener('resize', fix); try { screen.orientation && screen.orientation.addEventListener('change', fix); } catch (e) {} window.addEventListener('orientationchange', () => setTimeout(fix, 120));
+})();
 paint();
 </script>
 

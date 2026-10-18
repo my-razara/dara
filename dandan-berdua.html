@@ -141,7 +141,7 @@ const HAIRC = ['#2d1f1a', '#4a2c22', '#7a4a33', '#b07a4a', '#d9b26f', '#8a5aa0']
 const CLOTH = ['#ffffff', '#2d1f1a', '#4a7fc1', '#9fd0f0', '#e98a7e', '#f6b8c6', '#f3d36b', '#a8d8a0', '#6b8f71', '#c9b6ea', '#8a5a3c', '#e8d6c4', '#c0392b', '#1f3a5f'];
 const OPT = {
   rambut: { R: [['pendek', 'Pendek rapi'], ['jabrik', 'Jabrik'], ['belah', 'Belah tengah'], ['gondrong', 'Gondrong']], D: [['panjang', 'Panjang terurai'], ['kuncir', 'Kuncir kuda'], ['bob', 'Bob pendek'], ['cepol', 'Cepol'], ['hijab', 'Hijab']] },
-  atas: [['kaos', 'Kaos'], ['kemeja', 'Kemeja'], ['hoodie', 'Hoodie'], ['jas', 'Jas'], ['dress', 'Dress']],
+  atas: [['kaos', 'Kaos'], ['kemeja', 'Kemeja'], ['hoodie', 'Hoodie'], ['jas', 'Jas'], ['dress', 'Dress'], ['gamis', 'Dress panjang']],
   bawah: [['panjang', 'Celana panjang'], ['pendek', 'Celana pendek'], ['rok', 'Rok'], ['rokpanjang', 'Rok panjang']],
   aks: [['none', '—'], ['kacamata', 'Kacamata'], ['topi', 'Topi'], ['pita', 'Pita'], ['bunga', 'Mahkota bunga'], ['headset', 'Headphone'], ['mahkota', 'Mahkota']],
   muka: [['senyum', '🙂 Senyum'], ['ketawa', '😆 Ketawa'], ['kedip', '😉 Kedip'], ['malu', '😊 Malu'], ['cool', '😎 Cool']],
@@ -183,10 +183,11 @@ function person(p, cx) {
   const ac = s.ac, bodyT = top + 175;
   g.fillStyle = s.skin; g.fillRect(cx - 14, bodyT - 25, 28, 30); // leher
   // lengan
-  const arm = (side) => { const ax = cx + side * 62; g.fillStyle = s.atas === 'kaos' || s.atas === 'dress' ? s.skin : ac; rr(ax - 15, bodyT + 10, 30, 150, 15); g.fill(); if (s.atas === 'kaos') { g.fillStyle = ac; rr(ax - 17, bodyT + 6, 34, 50, 14); g.fill(); } if (s.atas === 'dress') { g.fillStyle = ac; rr(ax - 16, bodyT + 6, 32, 34, 14); g.fill(); } g.fillStyle = s.skin; g.beginPath(); g.arc(ax, bodyT + 162, 15, 0, 7); g.fill(); };
+  const arm = (side) => { const ax = cx + side * 62; const dr = s.atas === 'dress' || s.atas === 'gamis'; g.fillStyle = s.atas === 'kaos' ? s.skin : ac; rr(ax - (dr ? 17 : 15), bodyT + 6, dr ? 34 : 30, dr ? 156 : 154, 15); g.fill(); if (s.atas === 'kaos') { g.fillStyle = ac; rr(ax - 17, bodyT + 6, 34, 50, 14); g.fill(); } if (dr) { g.fillStyle = dark(ac, .15); rr(ax - 18, bodyT + 140, 36, 14, 6); g.fill(); } g.fillStyle = s.skin; g.beginPath(); g.arc(ax, bodyT + 162, 15, 0, 7); g.fill(); };
   arm(-1); arm(1);
   g.fillStyle = ac;
-  if (s.atas === 'dress') { g.beginPath(); g.moveTo(cx - 50, bodyT); g.lineTo(cx + 50, bodyT); g.lineTo(cx + 48, legTop - 30); g.lineTo(cx + 80, legTop + 90); g.lineTo(cx - 80, legTop + 90); g.lineTo(cx - 48, legTop - 30); g.closePath(); g.fill(); g.fillStyle = dark(ac, .15); g.fillRect(cx - 48, legTop - 40, 96, 10); }
+  if (s.atas === 'gamis') { g.beginPath(); g.moveTo(cx - 50, bodyT); g.lineTo(cx + 50, bodyT); g.lineTo(cx + 48, legTop - 30); g.lineTo(cx + 84, legBot + 4); g.lineTo(cx - 84, legBot + 4); g.lineTo(cx - 48, legTop - 30); g.closePath(); g.fill(); g.fillStyle = dark(ac, .15); g.fillRect(cx - 48, legTop - 40, 96, 10); g.strokeStyle = dark(ac, .12); g.lineWidth = 3; g.beginPath(); g.moveTo(cx - 30, legTop + 10); g.lineTo(cx - 44, legBot - 6); g.moveTo(cx + 30, legTop + 10); g.lineTo(cx + 44, legBot - 6); g.stroke(); }
+  else if (s.atas === 'dress') { g.beginPath(); g.moveTo(cx - 50, bodyT); g.lineTo(cx + 50, bodyT); g.lineTo(cx + 48, legTop - 30); g.lineTo(cx + 80, legTop + 90); g.lineTo(cx - 80, legTop + 90); g.lineTo(cx - 48, legTop - 30); g.closePath(); g.fill(); g.fillStyle = dark(ac, .15); g.fillRect(cx - 48, legTop - 40, 96, 10); }
   else { rr(cx - 52, bodyT, 104, legTop - bodyT - 10, 22); g.fill(); }
   if (s.atas === 'kemeja') { g.strokeStyle = dark(ac, .25); g.lineWidth = 3; g.beginPath(); g.moveTo(cx, bodyT + 10); g.lineTo(cx, legTop - 20); g.stroke(); g.fillStyle = dark(ac, .25); for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(cx + 8, bodyT + 40 + i * 32, 3.5, 0, 7); g.fill(); } g.fillStyle = '#fff'; g.beginPath(); g.moveTo(cx - 22, bodyT - 2); g.lineTo(cx, bodyT + 22); g.lineTo(cx + 22, bodyT - 2); g.lineTo(cx + 8, bodyT - 6); g.lineTo(cx, bodyT + 6); g.lineTo(cx - 8, bodyT - 6); g.closePath(); g.fill(); }
   if (s.atas === 'hoodie') { g.fillStyle = dark(ac, .15); rr(cx - 34, bodyT + 90, 68, 50, 12); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 3; g.beginPath(); g.moveTo(cx - 12, bodyT + 4); g.lineTo(cx - 14, bodyT + 50); g.moveTo(cx + 12, bodyT + 4); g.lineTo(cx + 14, bodyT + 50); g.stroke(); g.fillStyle = ac; g.beginPath(); g.ellipse(cx, bodyT - 6, 58, 18, 0, 0, 7); g.fill(); }
@@ -260,7 +261,7 @@ function paint() {
   if ($('gd')) $('gd').onclick = () => { push(); st.gandeng = !st.gandeng; persist(); paint(); };
 }
 function couple() { push(); const o = who === 'R' ? 'D' : 'R'; st[o].ac = st[who].ac; st[o].bc = st[who].bc; st[o].sh = st[who].sh; persist(); paint(); toast(`💞 Warna baju ${o === 'R' ? 'Razan' : 'Dara'} disamain`); }
-function rand() { push(); const pk = a => a[Math.floor(Math.random() * a.length)]; ['R', 'D'].forEach(p => { const s = st[p]; s.ac = pk(CLOTH); s.bc = pk(CLOTH); s.atas = pk(OPT.atas.filter(x => p === 'D' || x[0] !== 'dress'))[0]; s.bawah = pk(OPT.bawah.filter(x => p === 'D' || !x[0].startsWith('rok')))[0]; s.aks = pk(OPT.aks)[0]; s.muka = pk(OPT.muka)[0]; }); st.latar = pk(OPT.latar)[0]; persist(); paint(); }
+function rand() { push(); const pk = a => a[Math.floor(Math.random() * a.length)]; ['R', 'D'].forEach(p => { const s = st[p]; s.ac = pk(CLOTH); s.bc = pk(CLOTH); s.atas = pk(OPT.atas.filter(x => p === 'D' || x[0] !== 'dress' && x[0] !== 'gamis'))[0]; s.bawah = pk(OPT.bawah.filter(x => p === 'D' || !x[0].startsWith('rok')))[0]; s.aks = pk(OPT.aks)[0]; s.muka = pk(OPT.muka)[0]; }); st.latar = pk(OPT.latar)[0]; persist(); paint(); }
 async function saveImg() { await fontsReady(); draw(true); await shareCanvas(cv, 'outfit-razan-dara.png', 'Outfit kita'); draw(); }
 function keep() {
   const L = lsGet('dd-saved', []); const n = prompt('Kasih nama outfit ini (misal: Kondangan Desember)', ''); if (n === null) return;
