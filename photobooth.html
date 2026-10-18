@@ -109,7 +109,7 @@
 </head>
 <body>
 <div id="rot"><div class="wrap">
-  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="no-pill">🎞 No. 0001</span></div>
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
   <div class="head"><p class="lbl">Razara Photobooth</p><h1 class="title">Cekrek <span>bareng</span> 📸</h1></div>
   <div class="screen on" id="s-cam">
     <div class="booth">
@@ -261,7 +261,6 @@ function paint() {
   const n = L().n;
   $('hint').textContent = retake != null ? `🔁 Ulang foto ke-${retake + 1} — tap 📷 kalau udah siap` : n > 1 ? `${n} jepretan otomatis · ${L().nm} · dari galeri bisa pilih sampai ${n} foto` : 'Satu jepretan, siap-siap pose ya!';
   $('vid').style.filter = CSSF[filt];
-  $('no-pill').textContent = '🎞 No. ' + String(lsGet('pb-count', 0) + 1).padStart(4, '0');
   paintShots(); drawOverlay(); paintGal();
 }
 $('tg-pose').onclick = () => { poseOn = !poseOn; lsSet('pb-pose', poseOn); paint(); };
@@ -408,7 +407,7 @@ async function compose() {
   }
   // tulisan bawah (strip kembar: tiap kolom punya tulisannya sendiri + garis gunting)
   const no = lsGet('pb-count', 0) + 1, d = new Date(), z = v => String(v).padStart(2, '0');
-  const cap = ($('cap').value.trim() || 'Razan ♡ Dara') + '', line2 = `RAZARA BOOTH · No. ${String(no).padStart(4, '0')}${dateOn ? ` · ${z(d.getDate())}.${z(d.getMonth() + 1)}.${String(d.getFullYear()).slice(2)} ${z(d.getHours())}:${z(d.getMinutes())}` : ''}`;
+  const cap = ($('cap').value.trim() || 'Razan ♡ Dara') + '', line2 = `RAZARA BOOTH${dateOn ? ` · ${z(d.getDate())}.${z(d.getMonth() + 1)}.${String(d.getFullYear()).slice(2)} ${z(d.getHours())}:${z(d.getMinutes())}` : ''}`;
   const cols = Lo.dbl ? Lo.cols : 1, colW = Lo.dbl ? (W - G.pad * 2 + G.gap) / cols : W;
   for (let k = 0; k < cols; k++) {
     const cx = Lo.dbl ? G.pad + k * colW + (colW - G.gap) / 2 : W / 2, maxW = (Lo.dbl ? colW - G.gap : W - G.pad * 2);
@@ -431,7 +430,7 @@ async function compose() {
     // galeri: simpen versi kecil (6 terakhir)
     const t = document.createElement('canvas'), sc = 320 / W; t.width = 320; t.height = Math.round(H * sc); t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
     const g = lsGet('pb-gal', []); g.unshift(t.toDataURL('image/jpeg', .7)); let k = 6; while (k > 0 && !lsSet('pb-gal', g.slice(0, k))) k--;
-    $('wa').href = `https://wa.me/${WA[OTHER()]}?text=${encodeURIComponent(`📸 Aku abis foto di Razara Booth (No. ${String(no).padStart(4, '0')})! Cek chat ya 🤍`)}`;
+    $('wa').href = `https://wa.me/${WA[OTHER()]}?text=${encodeURIComponent(`📸 Aku abis foto di Razara Booth! Cek chat ya 🤍`)}`;
     $('tochat').disabled = false; $('tochat').textContent = `💬 Kirim ke chat ${OTHER()}`;
   }, 'image/jpeg', .92);
 }
