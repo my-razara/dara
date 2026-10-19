@@ -219,7 +219,13 @@ const STK = ['💗', '🥰', '😘', '🤗', '😂', '🥺', '😭', '😤', '�
 const RX = ['💗', '😂', '😮', '🥺', '👍', '🔥'];
 let tab = lsGet('chat-tab', 'p'); if (tab !== 'ai') tab = 'p';
 const C = lsGet('chat-c-' + ME, { n: 0, msgs: [] }); C.msgs = (C.msgs || []).slice(-300);
-let Q = lsGet('chat-q-' + ME, []).filter(x => x && x.t && !x.img);
+// antrian pesan yg belum kekirim — disimpen di HP, foto disimpen di IndexedDB, dikirim ulang otomatis begitu ada internet
+let Q = lsGet('chat-q-' + ME, []).filter(x => x && x.id && (x.t || x.img || x.pimg || x.s));
+const IDB = (() => {
+  let dbp = null; const db = () => dbp || (dbp = new Promise((res, rej) => { try { const r = indexedDB.open('razara-chat', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }));
+  const tx = (m, f) => db().then(d => new Promise((res, rej) => { const t = d.transaction('img', m), q = f(t.objectStore('img')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); })).catch(() => null);
+  return { put: (k, v) => tx('readwrite', st => st.put(v, k)), get: k => tx('readonly', st => st.get(k)), del: k => tx('readwrite', st => st.delete(k)) };
+})();
 let read = { Razan: 0, Dara: 0 }, typ = { Razan: false, Dara: false }, sig = '', online = true, hasOlder = true, rep = null, busyOld = false;
 const mem = {};   // pratinjau foto yg lagi diupload (ga disimpen)
 const AI = lsGet('ai-h-' + ME, []);
@@ -229,14 +235,14 @@ $('h-n').textContent = OT; $('h-e').textContent = OT === 'Dara' ? '👧' : '🧑
 // ── jaringan ──
 function GET(qs, ms) { return new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('GET', `${URL_}?action=chat&key=${KEY_}&who=${ME}${qs}&t=${Date.now()}`, true); x.timeout = ms || 15000; x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(new Error(r.error)); } catch (e) { rej(e); } }; x.onerror = x.ontimeout = () => rej(new Error('jaringan')); x.send(); }); }
 function POST(body, ms) { return new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('POST', URL_, true); x.timeout = ms || 30000; x.setRequestHeader('Content-Type', 'text/plain'); x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } }; x.onerror = x.ontimeout = () => rej(new Error('jaringan')); x.send(JSON.stringify(Object.assign({ key: KEY_, who: ME }, body))); }); }
-const save = () => { lsSet('chat-c-' + ME, { n: C.n, msgs: C.msgs.slice(-300) }); lsSet('chat-q-' + ME, Q.filter(x => !x.img && !x.up)); };
+const save = () => { lsSet('chat-c-' + ME, { n: C.n, msgs: C.msgs.slice(-300) }); lsSet('chat-q-' + ME, Q.map(({ id, t, at, w, k, q, rep, img, pimg, s }) => ({ id, t, at, w, k, q, rep, img, pimg, s }))); };
 function merge(list) {
   let add = 0;
   list.forEach(ev => {
     if (!ev || !ev.n) return;
     if (C.msgs.some(m => m.n === ev.n)) return;
     C.msgs.push(ev); add++; if (ev.n > C.n) C.n = ev.n;
-    if (ev.w === ME && ev.id) Q = Q.filter(q => q.id !== ev.id);
+    if (ev.w === ME && ev.id && Q.some(q => q.id === ev.id)) { Q = Q.filter(q => q.id !== ev.id); IDB.del(ev.id); delete mem[ev.id]; }
   });
   if (add) C.msgs.sort((a, b) => a.n - b.n);
   return add;
@@ -260,9 +266,10 @@ async function poll(now) {
   polling = false;
   pollT = setTimeout(() => poll(false), fails ? Math.min(8000, 1500 * fails) : 150);
 }
-function setOnline(v) { online = v; $('off').textContent = '⚠️ Lagi ga nyambung — pesan dikirim begitu internet balik'; $('off').hidden = v; if (v) flushQ(); }
+function setOnline(v) { const was = online; online = v; $('off').textContent = '📴 Lagi ga ada internet — pesanmu disimpen & otomatis kekirim begitu internet balik'; $('off').hidden = v; if (v !== was) renderP(); if (v) flushQ(); }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { poll(true); } });
-window.addEventListener('online', () => poll(true));
+window.addEventListener('online', () => { Q.forEach(q => q.next = 0); poll(true); flushQ(); });
+window.addEventListener('offline', () => setOnline(false));
 let lastRead = 0;
 function markRead() {
   if (document.hidden || tab !== 'p') return;
@@ -276,18 +283,43 @@ function send(t, extra) {
   t = String(t || '').trim(); if (!t && !(extra && extra.img)) return;
   const q = Object.assign({ id: uid(), t, at: Date.now(), w: ME, k: 'msg', q: 1 }, extra || {});
   if (rep) { q.rep = rep; setRep(null); }
-  Q.push(q); save(); renderP(true, true); flushOne(q);
+  Q.push(q); save(); renderP(true, true); flushQ();
 }
+// kirim satu: kalau foto belum keupload, upload dulu. Balikin true kalau sukses
 async function flushOne(q) {
-  if (q.busy || q.up) return; q.busy = 1; q.err = 0; renderP();
+  if (q.busy) return false; q.busy = 1; q.err = 0; renderP();
   try {
+    if (q.pimg && !q.img) {
+      q.up = 1; renderP();
+      const data = mem[q.id] || await IDB.get(q.id);
+      if (!data) { q.up = 0; q.busy = 0; q.err = 2; renderP(); return false; }   // fotonya udah ga ada di HP
+      mem[q.id] = data;
+      const u = await POST({ action: 'chat', op: 'img', data: data.split(',')[1], mime: 'image/jpeg' }, 90000);
+      if (!u || !u.ok || !u.url) throw new Error(u && u.error || 'gagal');
+      q.img = u.url; q.up = 0; save();
+    }
     const r = await POST({ action: 'chat', op: 'send', id: q.id, t: q.t, img: q.img || '', s: q.s || 0, rep: q.rep || null });
     if (!r || !r.ok) throw new Error(r && r.error || 'gagal');
-    merge([r.ev]); save(); sig = ''; poll(true);
-  } catch (e) { q.err = 1; }
-  q.busy = 0; renderP();
+    merge([r.ev]); Q = Q.filter(x => x.id !== q.id); IDB.del(q.id); save(); sig = ''; q.busy = 0; renderP(); poll(true); return true;
+  } catch (e) { q.err = 1; q.up = 0; q.tries = (q.tries || 0) + 1; q.next = Date.now() + Math.min(30000, 2000 * Math.pow(2, Math.min(4, q.tries - 1))); }
+  q.busy = 0; renderP(); return false;
 }
-function flushQ() { Q.forEach(q => { if (!q.busy && !q.up && q.err !== 2) flushOne(q); }); }
+// kirim berurutan (biar urutan pesan ga ketuker); berhenti di yg gagal, nanti dicoba lagi otomatis
+let flushing = false;
+async function flushQ() {
+  if (flushing || !URL_) return; flushing = true;
+  try {
+    for (const q of Q.slice()) {
+      if (!Q.includes(q)) continue;
+      if (q.err === 2) continue;
+      if (q.next && Date.now() < q.next) break;
+      if (!(await flushOne(q))) break;
+    }
+  } finally { flushing = false; }
+}
+setInterval(() => { if (Q.length && navigator.onLine !== false) flushQ(); }, 5000);
+// foto yg masih ngantri: ambil pratinjaunya dari HP
+Q.filter(q => q.pimg && !q.img).forEach(q => IDB.get(q.id).then(d => { if (d) { mem[q.id] = d; renderP(); } }));
 let typT = 0;
 $('inp').addEventListener('input', () => {
   const i = $('inp'); i.style.height = 'auto'; i.style.height = Math.min(120, i.scrollHeight) + 'px';
@@ -305,13 +337,10 @@ $('b-img').onclick = () => { if (tab === 'ai') return toast('Foto cuma bisa di c
 $('file').onchange = async () => {
   const f = $('file').files[0]; $('file').value = ''; if (!f) return;
   try {
-    const data = await shrink(f), q = { id: uid(), t: $('inp').value.trim(), at: Date.now(), w: ME, k: 'msg', q: 1, up: 1 };
+    const data = await shrink(f), q = { id: uid(), t: $('inp').value.trim(), at: Date.now(), w: ME, k: 'msg', q: 1, pimg: 1 };
     $('inp').value = ''; if (rep) { q.rep = rep; setRep(null); }
-    mem[q.id] = data; Q.push(q); renderP(true, true);
-    const r = await POST({ action: 'chat', op: 'img', data: data.split(',')[1], mime: 'image/jpeg' }, 90000);
-    if (!r || !r.ok || !r.url) throw new Error(r && r.error || 'gagal');
-    q.img = r.url; q.up = 0; flushOne(q);
-  } catch (e) { const q = Q[Q.length - 1]; if (q && q.up) { q.up = 0; q.err = 2; } renderP(); toast('Fotonya gagal kekirim 😢 coba lagi ya'); }
+    mem[q.id] = data; await IDB.put(q.id, data); Q.push(q); save(); renderP(true, true); flushQ();
+  } catch (e) { toast('Fotonya ga kebaca 😢 coba pilih lagi ya'); }
 };
 function shrink(file) {
   return new Promise((res, rej) => {
@@ -339,7 +368,7 @@ const nearBottom = el => el.scrollHeight - el.scrollTop - el.clientHeight < 120;
 function bubble(m, opt) {
   const mine = m.w === ME, del = opt.del[m.n], rx = opt.rx[m.n];
   if (del) return `<div class="m ${mine ? 'me' : ''}" data-n="${m.n}"><div class="b del">🚫 Pesan ini udah dihapus<span class="meta">${hm(m.at)}</span></div></div>`;
-  const tick = !mine ? '' : m.q ? (m.err ? `<span class="err">⚠️ gagal · tap</span>` : '🕓') : `<span class="tick ${read[OT] >= m.n ? 'read' : ''}">✓✓</span>`;
+  const tick = !mine ? '' : m.q ? (m.err === 2 ? `<span class="err">⚠️ foto ilang · tap</span>` : !online || navigator.onLine === false ? '<span title="nunggu internet">🕓 nunggu internet</span>' : m.err ? `<span class="err">⚠️ gagal, dicoba lagi · tap</span>` : '🕓') : `<span class="tick ${read[OT] >= m.n ? 'read' : ''}">✓✓</span>`;
   const R = m.rep ? `<div class="rq ${m.rep.w === 'Razan' ? 'R' : 'D'}" data-go="${m.rep.n}"><b>${m.rep.w === ME ? 'Kamu' : esc(m.rep.w || '')}</b>${esc(m.rep.t || '')}</div>` : '';
   const img = m.img ? `<img class="ph" src="${esc(m.img)}" data-big="${esc(m.img)}" alt="foto" loading="lazy">` : mem[m.id] ? `<img class="ph" src="${mem[m.id]}" alt="foto">${m.up ? '<span class="up">Mengunggah…</span>' : ''}` : '';
   const rxH = rx ? `<span class="rx">${rx.join('')}</span>` : '';
@@ -405,7 +434,7 @@ $('L-p').addEventListener('contextmenu', e => { const m = msgOf(e.target); if (m
 $('L-p').addEventListener('click', e => {
   const im = e.target.closest('img[data-big]'); if (im) { $('v-img').src = im.dataset.big.replace(/sz=w\d+/, 'sz=w2000'); $('v-dl').href = im.dataset.big.replace(/sz=w\d+/, 'sz=w4000'); $('viewer').classList.add('show'); return; }
   const go = e.target.closest('[data-go]'); if (go) { const t = document.querySelector(`#L-p .m[data-n="${go.dataset.go}"]`); if (t) { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); t.classList.add('flash'); setTimeout(() => t.classList.remove('flash'), 1100); } return; }
-  const er = e.target.closest('.err'); if (er) { const m = msgOf(er); if (m && m.q) { m.err = 0; if (m.img || !mem[m.id]) flushOne(m); else toast('Pilih fotonya lagi ya 📷'); } }
+  const er = e.target.closest('.err'); if (er) { const m = msgOf(er); if (m && m.q) { if (m.err === 2) { Q = Q.filter(x => x !== m); save(); renderP(); toast('Fotonya udah ga ada di HP, kirim ulang ya 📷'); return; } m.err = 0; m.next = 0; m.tries = 0; flushQ(); } }
 });
 $('v-x').onclick = () => $('viewer').classList.remove('show');
 $('viewer').onclick = e => { if (e.target.id === 'viewer') $('viewer').classList.remove('show'); };

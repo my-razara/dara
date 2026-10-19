@@ -73,5 +73,36 @@
     setInterval(() => { if (btn) btn.style.display = document.getElementById('olc-fab') ? 'none' : ''; }, 1500);
     setInterval(peek, 90e3); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });
   }
+  // ── 📤 pesan chat yg ngantri pas ga ada internet: dikirim dari halaman mana aja begitu internet balik ──
+  function idbGet(k) { return new Promise(res => { try { const r = indexedDB.open('razara-chat', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => { try { const q = r.result.transaction('img', 'readonly').objectStore('img').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (e) { res(null); } }; r.onerror = () => res(null); } catch (e) { res(null); } }); }
+  function idbDel(k) { try { const r = indexedDB.open('razara-chat', 1); r.onsuccess = () => { try { r.result.transaction('img', 'readwrite').objectStore('img').delete(k); } catch (e) {} }; } catch (e) {} }
+  function post(u, body) { return fetch(u, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(body) }).then(x => x.json()); }
+  let sending = false, waitT = 0;
+  async function outbox() {
+    const w = me(); if (!w || sending || navigator.onLine === false || Date.now() < waitT) return;
+    const key = 'chat-q-' + w; if (!(g(key, []) || []).length) return;
+    const lock = g('chat-q-lock', 0); if (Date.now() - lock < 45e3) return;
+    sending = true; s('chat-q-lock', Date.now());
+    const u = (window.Berdua && Berdua.url) || URL, k = (window.Berdua && Berdua.key) || KEY;
+    try {
+      for (;;) {
+        const Q = g(key, []) || [], q = Q[0]; if (!q) break;
+        if (q.pimg && !q.img) {
+          const data = await idbGet(q.id); if (!data) { s(key, (g(key, []) || []).filter(x => x.id !== q.id)); continue; }
+          const r = await post(u, { key: k, who: w, action: 'chat', op: 'img', data: data.split(',')[1], mime: 'image/jpeg' });
+          if (!r || !r.ok || !r.url) throw new Error('img');
+          s(key, (g(key, []) || []).map(x => x.id === q.id ? Object.assign({}, x, { img: r.url }) : x)); q.img = r.url;
+        }
+        const r = await post(u, { key: k, who: w, action: 'chat', op: 'send', id: q.id, t: q.t || '', img: q.img || '', s: q.s || 0, rep: q.rep || null });
+        if (!r || !r.ok) throw new Error('send');
+        s(key, (g(key, []) || []).filter(x => x.id !== q.id)); idbDel(q.id); s('chat-q-lock', Date.now());
+      }
+    } catch (e) { waitT = Date.now() + 20e3; }
+    sending = false; s('chat-q-lock', 0);
+  }
+  setTimeout(outbox, 3000); setInterval(outbox, 15e3);
+  addEventListener('online', () => { waitT = 0; setTimeout(outbox, 1500); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(outbox, 1200); });
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
 })();
