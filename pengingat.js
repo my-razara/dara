@@ -77,5 +77,21 @@
     try { caches.open('untuk-dara-meta').then(c => c.put('/__ingat', new Response(JSON.stringify({ at: Date.now(), list })))).catch(() => {}); } catch (e) {}
     return list;
   }
-  window.Ingat = { events, when, dateLabel, schedule, custom, settings, NOTIF_AT };
+  // jadwal dari Jadwal Kita (yang berulang ikut dihitung) — buat banner "bentar lagi" di home
+  function jadwal(days) {
+    days = days || 7; const t0 = day0(new Date()), out = [], P = x => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(x || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+    const all = []; ['Razan', 'Dara'].forEach(w => Object.entries(g('jadwal-' + w, {}) || {}).forEach(([d, row]) => (row && row.list || []).forEach(x => { if (x && x.t) all.push(Object.assign({ owner: w, date: d }, x)); })));
+    const me = (window.Who && Who.me()) || g('berdua-me', 'Dara'), seen = {};
+    for (let i = 0; i <= days; i++) {
+      const t = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + i);
+      all.forEach(x => {
+        const s = P(x.date); if (!s || t < s || seen[x.owner + x.id]) return;
+        if (x.buat && x.buat !== me) return;     // jadwal "buat dia aja" ga usah nongol di home kita
+        const ok = !x.rep ? ymd(t) === x.date : x.rep === 'minggu' ? Math.round((t - s) / 864e5) % 7 === 0 : x.rep === 'bulan' ? t.getDate() === s.getDate() : x.rep === 'tahun' ? t.getDate() === s.getDate() && t.getMonth() === s.getMonth() : false;
+        if (ok) { seen[x.owner + x.id] = 1; out.push({ key: 'j' + x.id, e: x.e || '📅', t: x.t + (x.time ? ' · ' + x.time : ''), date: ymd(t), left: i, time: x.time || '', jadwal: 1 }); }
+      });
+    }
+    return out.sort((a, b) => a.left - b.left || (a.time || '99').localeCompare(b.time || '99'));
+  }
+  window.Ingat = { jadwal, events, when, dateLabel, schedule, custom, settings, NOTIF_AT };
 })();

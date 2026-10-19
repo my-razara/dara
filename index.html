@@ -814,7 +814,7 @@ const CATS = [
         {icon:'🛤️',wrap:'sage',label:'Timeline Kita',sub:'sejak 10 Mei 2025',desc:'Perjalanan kita dari hari jadian: 100 hari, anniv, ultah, album kenangan, sampai momen yang kita tambahin sendiri ✨',link:'timeline-kita.html'},
         {icon:'🎂',wrap:'warm',label:'Tiup Lilin',sub:'tiup beneran lewat mic',desc:'Bikin harapan, terus tiup lilinnya ke arah HP — lilinnya padam satu-satu beneran 🌬️🕯️',link:'tiup-lilin.html'},
         {icon:'🏮',wrap:'purple',label:'Lampion Harapan',sub:'lepas ke langit malam',desc:'Tulis harapan, nyalain lampionnya, lepas ke langit. Semua lampion tetep melayang & bisa dibaca lagi kapan aja 🌌',link:'lampion-harapan.html'},
-        {icon:'🏆',wrap:'gold',label:'Pencapaian Kita',sub:'42 lencana · level pasangan',desc:'Lencana yang kebuka otomatis dari semua yang udah kita lakuin di sini — main game, buka hadiah, centang bucket list, sampai 1000 hari bareng 🏅',link:'pencapaian.html'},
+        {icon:'🏆',wrap:'gold',label:'Pencapaian Kita',sub:'48 lencana · level pasangan',desc:'Lencana yang kebuka otomatis dari semua yang udah kita lakuin di sini — main game, buka hadiah, centang bucket list, sampai 1000 hari bareng 🏅',link:'pencapaian.html'},
         {icon:'📅',wrap:'sky',label:'Jadwal Kita',sub:'kalender berdua · pengingat',desc:'Jadwal kuliah, deadline, telponan, ultah — satu kalender berdua (rencana ketemu ikut muncul), dua HP dapet pengingat 🔔',link:'jadwal-kita.html'},
         {icon:'🎯',wrap:'purple',label:'Tantangan Mingguan',sub:'3 misi tiap Senin · trofi',desc:'Tiap minggu ada 3 misi berdua — kelarin semua buat dapet 🏆 trofi & XP buat peliharaan',link:'tantangan-mingguan.html'},
         {icon:'📸',wrap:'rose',label:'Photobooth',sub:'strip 4 foto · bingkai lucu',desc:'Kamera depan + bingkai lucu + hitung mundur 3-2-1 → jadi foto strip yang bisa disimpen 🎞️',link:'photobooth.html'},
@@ -1217,7 +1217,7 @@ window.DUO = {
   'pertanyaan-harian.html': ['Pertanyaan harian'], 'kalender-mood.html': ['Mood', '🌈'], 'jurnal-syukur.html': ['Syukur'], 'jaga-minum.html': ['Jaga minum'], 'daftar-bareng.html': ['Daftar bareng'],
   'bioskop-kita.html': ['Bioskop'], 'wishlist.html': ['Wishlist', '🎁'], 'bucket-list.html': ['Bucket list'], 'janji-kita.html': ['Janji kita'],
   'keuangan-berdua.html': ['Keuangan'], 'resep-kita.html': ['Resep'], 'kamus-kita.html': ['Kamus kita'], 'jarak-kita.html': ['Jarak kita'],
-  'masa-depan.html': ['Masa depan'], 'kapsul-waktu.html': ['Kapsul waktu'], 'playlist-dara.html': ['Playlist'], 'memories.html': ['Kenangan', '📸'], 'period-tracker.html': ['Period Dara'], 'pengingat.html': ['Pengingat', '⏰'], 'rekap-bulanan.html': ['Rekap', '📊'], 'jadwal-kita.html': ['Jadwal', '📅'], 'tantangan-mingguan.html': ['Tantangan', '🎯'],
+  'masa-depan.html': ['Masa depan'], 'kapsul-waktu.html': ['Kapsul waktu'], 'playlist-dara.html': ['Playlist'], 'memories.html': ['Kenangan', '📸'], 'period-tracker.html': ['Period Dara'], 'rekap-bulanan.html': ['Rekap', '📊'], 'jadwal-kita.html': ['Jadwal', '📅'], 'tantangan-mingguan.html': ['Tantangan', '🎯'],
 };
 const isDuo = it => !!(window.DUO || {})[it.link];
 const isOnline = it => /online beda hp/i.test(((META[it.link] || {}).kw || '') + ' ' + (it.sub || ''));
@@ -2636,6 +2636,70 @@ setTimeout(() => {
   renderRows();
 })();
 
+// ═══ 📆 HARI INI, BEBERAPA BULAN/TAHUN LALU — kenangan dari tanggal yang sama ═══
+(function () {
+  const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const p2 = n => String(n).padStart(2, '0'), ymd = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+  const E2 = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const MOOD = ['🥰 Bahagia', '😄 Seneng', '🙂 Biasa aja', '😴 Capek', '😔 Sedih', '😢 Nangis', '😤 Kesel', '😰 Cemas'];
+  const W = ['Razan', 'Dara'], BL = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  // semua yang kecatet di 1 tanggal
+  function at(ds) {
+    const out = [];
+    W.forEach(w => ((get('album-' + w, {}) || {})[ds] || { list: [] }).list.forEach(x => { if (x && x.u && !x.del) out.push({ k: 'foto', img: String(x.u).replace(/sz=w\d+/, 'sz=w400'), t: `📸 Foto booth dari ${w}`, go: 'photobooth.html' }); }));
+    try { ((get('mem-idx', {}) || {}).albums || []).forEach(a => { if (a.date === ds && a.cover) out.push({ k: 'foto', img: `https://lh3.googleusercontent.com/d/${a.cover}=w400-rw`, t: `🖼️ Album Kenangan · ${a.photos || 0} foto`, go: 'memories.html' }); }); } catch (e) {}
+    W.forEach(w => { const m = (get('mood-' + w, {}) || {})[ds]; if (m && m.m != null) out.push({ k: 'mood', t: `🌈 Mood ${w}: ${MOOD[m.m] || ''}${m.n ? ` — “${m.n}”` : ''}`, go: 'kalender-mood.html' }); });
+    W.forEach(w => { const v = (get('syukur-' + w, {}) || {})[ds]; if (Array.isArray(v) && v.length) out.push({ k: 'syukur', t: `🙏 ${w} bersyukur: “${v[0]}”${v.length > 1 ? ` +${v.length - 1}` : ''}`, go: 'jurnal-syukur.html' }); });
+    W.forEach(w => (((get('ketemu-' + w, {}) || {})[ds] || {}).items || []).forEach(it => out.push({ k: 'ketemu', t: `🤝 Ketemuan${it.t ? ': ' + it.t : ''}`, go: 'ketemuan.html?m=0' })));
+    W.forEach(w => (((get('jadwal-' + w, {}) || {})[ds] || {}).list || []).forEach(x => { if (x && x.t && !x.rep) out.push({ k: 'jadwal', t: `${x.e || '📅'} ${x.t}`, go: 'jadwal-kita.html?d=' + ds }); }));
+    const kg = W.reduce((n, w) => n + (((get('kangen-' + w, {}) || {})[ds] || {}).n || 0), 0); if (kg) out.push({ k: 'kangen', t: `💗 Saling kangen ${kg}x`, go: 'tombol-kangen.html' });
+    return out;
+  }
+  function find() {
+    const n = new Date(), res = [];
+    for (let k = 1; k <= 36; k++) {
+      const d = new Date(n.getFullYear(), n.getMonth() - k, n.getDate()); if (d.getDate() !== n.getDate()) continue;
+      const it = at(ymd(d)); if (it.length) res.push({ k, d, it, lbl: k % 12 === 0 ? `${k / 12} tahun lalu` : `${k} bulan lalu` });
+    }
+    // utamain yang setahun/dua tahun lalu, terus yang ada fotonya
+    return res.sort((a, b) => (b.k % 12 === 0) - (a.k % 12 === 0) || b.it.some(x => x.img) - a.it.some(x => x.img) || a.k - b.k);
+  }
+  function open(R) {
+    let o = document.getElementById('otd-ov'); if (o) o.remove();
+    o = document.createElement('div'); o.id = 'otd-ov'; o.className = 'hp-ov';
+    o.innerHTML = `<div class="hp-sh"><h3>📆 Hari ini, di masa lalu</h3>${R.slice(0, 4).map(r => `<p class="otd-h">${r.lbl} · ${r.d.getDate()} ${BL[r.d.getMonth()]} ${r.d.getFullYear()}</p>${r.it.filter(x => x.img).length ? `<div class="otd-ph">${r.it.filter(x => x.img).slice(0, 6).map(x => `<a href="${x.go}"><img src="${E2(x.img)}" alt="" loading="lazy"></a>`).join('')}</div>` : ''}${r.it.filter(x => !x.img).map(x => `<a class="otd-i" href="${x.go}">${E2(x.t)}</a>`).join('')}`).join('')}<button class="hp-x" data-x>Tutup</button></div>`;
+    o.addEventListener('click', e => { if (e.target === o || e.target.hasAttribute('data-x')) o.remove(); });
+    document.body.appendChild(o);
+  }
+  const _rr = renderRows;
+  renderRows = function () {
+    _rr();
+    const host = $('home-rows'); if (!host) return;
+    const ex = host.querySelector('.otd-card'); if (ex) { const a1 = host.querySelector('.tj-sec') || host.querySelector('.bx-sec'); if (a1 && ex.previousElementSibling !== a1) a1.insertAdjacentElement('afterend', ex); return; }
+    let R = []; try { R = find(); } catch (e) {}
+    if (!R.length) return;
+    const r = R[0], ph = r.it.find(x => x.img), tx = r.it.find(x => !x.img);
+    const d = document.createElement('a'); d.className = 'otd-card'; d.href = '#';
+    d.innerHTML = `${ph ? `<img src="${E2(ph.img)}" alt="">` : '<span class="e">📆</span>'}<span class="m"><small>Hari ini, ${r.lbl}</small><b>${E2(ph ? ph.t : tx.t)}</b>${r.it.length > 1 || R.length > 1 ? `<i>+${r.it.length - 1 + R.slice(1).reduce((n, x) => n + x.it.length, 0)} kenangan lain</i>` : ''}</span><span class="go">›</span>`;
+    d.onclick = e => { e.preventDefault(); open(R); };
+    const anchor = host.querySelector('.tj-sec') || host.querySelector('.bx-sec');
+    if (anchor) anchor.insertAdjacentElement('afterend', d); else host.insertBefore(d, host.firstChild);
+    setTimeout(() => { const a2 = host.querySelector('.tj-sec') || host.querySelector('.bx-sec'); if (a2 && d.isConnected && d.previousElementSibling !== a2) a2.insertAdjacentElement('afterend', d); }, 0);
+  };
+  const css = document.createElement('style');
+  css.textContent = `.otd-card{display:flex;align-items:center;gap:.7rem;margin:.1rem 0 .9rem;padding:.55rem .7rem;border-radius:18px;background:linear-gradient(135deg,#fffaf0,#fdeee8);border:1px solid rgba(201,169,110,.35);text-decoration:none;color:var(--ink,#2d1f1a)}
+  .otd-card img{width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0;background:#eee}.otd-card .e{font-size:1.8rem;width:52px;text-align:center;flex-shrink:0}
+  .otd-card .m{flex:1;min-width:0}.otd-card small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold,#c9a96e);font-weight:600}
+  .otd-card b{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.otd-card i{display:block;font-style:normal;font-size:10.5px;color:var(--muted,#9a8070)}
+  .otd-card .go{color:var(--muted,#9a8070);font-size:1.2rem}
+  .otd-h{font-size:11px;font-weight:700;color:var(--deep,#7a3f35);margin:.8rem 0 .35rem}
+  .otd-ph{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;margin-bottom:.35rem}.otd-ph img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block;background:#eee}
+  .otd-i{display:block;font-size:12.5px;color:var(--ink,#2d1f1a);text-decoration:none;background:rgba(255,255,255,.8);border-radius:12px;padding:.5rem .65rem;margin-bottom:.3rem;line-height:1.45;overflow-wrap:anywhere}
+  html.night .otd-card{background:var(--card);color:#f3d9d2;border-color:rgba(193,122,111,.3)} html.night .otd-i{background:rgba(255,255,255,.06);color:#f3d9d2}`;
+  document.head.appendChild(css);
+  renderRows();
+})();
+
 // ═══ 📅 Jadwal hari ini + 🎯 Tantangan mingguan (kartu kecil di home) ═══
 (function () {
   const get = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
@@ -2655,13 +2719,14 @@ setTimeout(() => {
   const _rr = renderRows;
   renderRows = function () {
     _rr();
-    const host = $('home-rows'); if (!host || host.querySelector('.tj-sec')) return;
+    const host = $('home-rows'); if (!host) return;
+    setTimeout(() => { const oc = host.querySelector('.otd-card'), t = host.querySelector('.tj-sec') || host.querySelector('.bx-sec'); if (oc && t && oc.previousElementSibling !== t) t.insertAdjacentElement('afterend', oc); }, 30);
+    if (host.querySelector('.tj-sec')) return;
     const n = new Date(), td = jadwalOn(ymd(n)), tm = jadwalOn(ymd(new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)));
     const pick = td.length ? ['Hari ini', td] : tm.length ? ['Besok', tm] : null;
     const pr = get('misi-prog', null), cur = pr && pr.a === monday() ? pr : null;
     const d = document.createElement('div'); d.className = 'tj-sec';
-    d.innerHTML = `<a class="tj" href="jadwal-kita.html"><span class="e">📅</span><span class="m"><b>${pick ? esc2(pick[1][0].t) : 'Jadwal Kita'}</b><small>${pick ? pick[0] + (pick[1][0].time ? ' · ' + esc2(pick[1][0].time) : '') + (pick[1].length > 1 ? ` · +${pick[1].length - 1}` : '') : 'Belum ada jadwal deket'}</small></span></a>` +
-      `<a class="tj" href="tantangan-mingguan.html"><span class="e">🎯</span><span class="m"><b>${cur ? (cur.all ? '🏆 Misi kelar!' : `Misi ${cur.d}/3`) : 'Misi minggu ini'}</b><small>${cur ? (cur.all ? 'Ambil hadiahnya →' : esc2(cur.t || '')) : 'Cek tantangan berdua →'}</small></span></a>`;
+    d.innerHTML = `<a class="tj" href="tantangan-mingguan.html"><span class="e">🎯</span><span class="m"><b>${cur ? (cur.all ? '🏆 Misi kelar!' : `Misi ${cur.d}/3`) : 'Misi minggu ini'}</b><small>${cur ? (cur.all ? 'Ambil hadiahnya →' : esc2(cur.t || '')) : 'Cek tantangan berdua →'}</small></span></a>`;
     const bx = host.querySelector('.bx-sec');
     if (bx) bx.insertAdjacentElement('afterend', d); else host.insertBefore(d, host.firstChild);
     setTimeout(() => { const b2 = host.querySelector('.bx-sec'); if (b2 && d.isConnected && d.previousElementSibling !== b2) b2.insertAdjacentElement('afterend', d); }, 0);
@@ -2752,10 +2817,10 @@ setTimeout(() => {
   renderRows = function () {
     _rr();
     const host = $('home-rows'); if (!host || host.querySelector('.ig-sec')) return;
-    let E = []; try { E = Ingat.events(7); } catch (e) {}
-    const d = document.createElement('a'); d.className = 'ig-sec'; d.href = 'pengingat.html';
-    d.innerHTML = E.length ? `<p class="ig-h">⏰ Bentar lagi</p>${E.slice(0, 3).map(e => `<div class="ig ${e.left === 0 ? 'now' : ''}"><span>${e.e}</span><b>${e.t}</b><i>${Ingat.when(e.left)}</i></div>`).join('')}${E.length > 3 ? `<small>+${E.length - 3} lagi</small>` : ''}`
-      : `<div class="ig"><span>⏰</span><b>Pengingat hari spesial</b><i>Atur ›</i></div>`;
+    let E = []; try { E = Ingat.events(7).concat(Ingat.jadwal ? Ingat.jadwal(7) : []).sort((a, b) => a.left - b.left || (a.time || '99').localeCompare(b.time || '99')); } catch (e) {}
+    const d = document.createElement('a'); d.className = 'ig-sec'; d.href = 'jadwal-kita.html';
+    d.innerHTML = E.length ? `<p class="ig-h">📅 Bentar lagi</p>${E.slice(0, 3).map(e => `<div class="ig ${e.left === 0 ? 'now' : ''}"><span>${e.e}</span><b>${e.t}</b><i>${Ingat.when(e.left)}</i></div>`).join('')}${E.length > 3 ? `<small>+${E.length - 3} lagi</small>` : ''}`
+      : `<div class="ig"><span>📅</span><b>Jadwal Kita & hari spesial</b><i>Buka ›</i></div>`;
     const rit = host.querySelector('.bx-sec') || host.querySelector('.rit');
     if (E.length) { if (rit) rit.insertAdjacentElement('beforebegin', d); else host.insertBefore(d, host.firstChild); }
     else { const cad = host.querySelector('.cad-link'); cad ? cad.insertAdjacentElement('beforebegin', d) : host.appendChild(d); }
@@ -2992,7 +3057,9 @@ setTimeout(() => {
     ['favorit', '⭐ Favorit', 'rows', el => el.classList.contains('hx-sec') && /^⭐/.test(tt(el))],
     ['terakhir', '🕘 Terakhir dibuka', 'rows', el => el.classList.contains('hx-sec') && /^🕘/.test(tt(el))],
     ['baru', '🆕 Baru diupdate', 'rows', el => el.classList.contains('hx-sec') && /^🆕/.test(tt(el))],
-    ['ingat', '⏰ Pengingat', 'rows', el => el.classList.contains('ig-sec')],
+    ['ingat', '📅 Bentar lagi (jadwal & hari spesial)', 'rows', el => el.classList.contains('ig-sec')],
+    ['otd', '📆 Hari ini, dulu', 'rows', el => el.classList.contains('otd-card')],
+    ['misi', '🎯 Tantangan mingguan', 'rows', el => el.classList.contains('tj-sec')],
     ['cadangan', '💾 Cadangan', 'rows', el => el.classList.contains('cad-link')]
   ];
   function tt(el) { const t = el.querySelector('.hx-title span'); return t ? t.textContent.trim() : ''; }

@@ -89,6 +89,12 @@ const daysTogether = () => { const [y, m, d] = JADIAN.split('-').map(Number), n 
 function bucket() { const m = new Map(); (g('bl-cache', []) || []).forEach(x => x && m.set(x.id, x)); (g('bl-queue', []) || []).forEach(x => x && m.set(x.id, x)); return [...m.values()].filter(x => !x.deleted); }
 const sumObj = o => Object.values(o || {}).reduce((a, d) => a + (typeof d === 'number' ? d : Object.values(d || {}).reduce((x, y) => x + (+y || 0), 0)), 0);
 
+// fitur berdua yang nyambung 2 HP
+const WW = ['Razan', 'Dara'], ME_ = g('berdua-me', 'Dara');
+const trophies = () => { const s = new Set(); WW.forEach(w => Object.entries(g('misi-' + w, {}) || {}).forEach(([d, r]) => { if (r && r.claim) s.add(d); })); return s.size; };
+const albumN = () => WW.reduce((n, w) => n + Object.values(g('album-' + w, {}) || {}).reduce((t, r) => t + ((r && r.list) || []).filter(x => x && !x.del).length, 0), 0);
+const jadwalN = () => WW.reduce((n, w) => n + Object.values(g('jadwal-' + w, {}) || {}).reduce((t, r) => t + ((r && r.list) || []).length, 0), 0);
+const vnN = () => (((g('chat-c-' + ME_, {}) || {}).msgs) || []).filter(m => m && m.vn && m.w === ME_).length;
 // [id, emoji, nama, keterangan, link, () => [sekarang, target]]
 const BADGES = [
   ['d100', '💯', '100 Hari', 'Bareng 100 hari', 'index.html', () => [daysTogether(), 100]],
@@ -128,6 +134,12 @@ const BADGES = [
   ['lilin', '🎂', 'Tukang Tiup', 'Tiup lilin sampai padam', 'tiup-lilin.html', () => [+g('lilin-count', 0) || 0, 1]],
   ['tl', '🗺️', 'Pencatat Sejarah', 'Tambahin 3 momen di Timeline', 'timeline-kita.html', () => [len(g('tl-custom', [])), 3]],
   ['pb', '📷', 'Fotogenik', 'Bikin 3 foto di Photobooth', 'photobooth.html', () => [+g('pb-count', 0) || 0, 3]],
+  ['album10', '📚', 'Album Penuh Cerita', 'Kumpulin 10 foto di Album Berdua', 'photobooth.html', () => [albumN(), 10]],
+  ['trofi1', '🎯', 'Juara Mingguan', 'Kelarin 1 Tantangan Mingguan', 'tantangan-mingguan.html', () => [trophies(), 1]],
+  ['trofi5', '🥇', 'Pasangan Konsisten', 'Kumpulin 5 trofi Tantangan Mingguan', 'tantangan-mingguan.html', () => [trophies(), 5]],
+  ['trofi10', '🏅', 'Tak Terkalahkan', 'Kumpulin 10 trofi Tantangan Mingguan', 'tantangan-mingguan.html', () => [trophies(), 10]],
+  ['vn', '🎤', 'Suara Kangen', 'Kirim pesan suara di chat', 'chat.html', () => [vnN(), 1]],
+  ['jadwal10', '📅', 'Perencana Andal', 'Isi 10 jadwal di Jadwal Kita', 'jadwal-kita.html', () => [jadwalN(), 10]],
   ['c4', '🔵', 'Otak Encer', 'Kalahin komputer Jago di Empat Sejajar', 'empat-sejajar.html', () => [((g('c4-record', {}) || {}).beat || [])[2] || 0, 1]],
   ['bs', '⚓', 'Laksamana', 'Menang Perang Kapal lawan komputer', 'perang-kapal.html', () => [((g('bs-record', {}) || {}).beat || []).reduce((a, b) => a + (+b || 0), 0), 1]],
   ['dam', '♛', 'Raja Dam', 'Kalahin komputer Jago di Dam', 'dam.html', () => [((g('dam-record', {}) || {}).beat || [])[2] || 0, 1]],

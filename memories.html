@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="who.js"></script>
+<script src="sync.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Kenangan Kita — Razan & Dara 📸</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -54,7 +55,7 @@
   .otd b{display:block;font-size:14px;color:var(--ink);margin:.1rem 0}
   .otd small{font-size:11px;color:var(--muted)}
   .tabs{display:flex;background:#fff;border:1.5px solid var(--blush);border-radius:50px;padding:.25rem;margin-bottom:.8rem}
-  .tab{flex:1;padding:.55rem;border-radius:50px;border:none;background:none;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+  .tab{flex:1;min-width:0;white-space:nowrap;padding:.55rem .2rem;border-radius:50px;border:none;background:none;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
   .tab.on{background:var(--rose);color:#fff}
   .chips{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;margin-bottom:.9rem}
   .chips::-webkit-scrollbar{display:none}
@@ -188,8 +189,9 @@
   <div class="hero"><p class="eyebrow">Semua momen kita</p><h1>Kenangan <span>Kita</span></h1></div>
   <div class="stats"><div class="stat"><b id="st-a">–</b><span>Album</span></div><div class="stat"><b id="st-p">–</b><span>Foto</span></div><div class="stat"><b id="st-v">–</b><span>Video</span></div></div>
   <div id="otd"></div>
-  <div class="tabs"><button class="tab on" data-t="albums" onclick="setTab('albums')">📅 Per Tanggal</button><button class="tab" data-t="random" onclick="setTab('random')">🎲 Random</button></div>
+  <div class="tabs"><button class="tab on" data-t="albums" onclick="setTab('albums')">📅 Per Tanggal</button><button class="tab" data-t="random" onclick="setTab('random')">🎲 Random</button><button class="tab" data-t="booth" onclick="setTab('booth')">📚 Booth</button></div>
   <div id="tab-albums"><div class="chips" id="years"></div><div id="album-list"></div></div>
+  <div id="tab-booth" style="display:none"><p style="font-size:12px;color:var(--muted,#9a8070);text-align:center;margin:-.2rem 0 .8rem;line-height:1.5">Hasil Razara Booth dari HP kalian berdua — otomatis masuk sini tiap cetak 📸<br><a href="photobooth.html" style="color:var(--rose,#c17a6f);font-weight:600">Buka Razara Booth →</a></p><div id="booth-grid"></div></div>
   <div id="tab-random" style="display:none"><button class="shuffle" onclick="shuffleOne()">🎲 Acak satu kenangan</button><button class="btn ghost" style="max-width:none;margin:-.3rem 0 .9rem" onclick="openUpload('random')">➕ Tambah ke Random</button><div id="random-grid"></div></div>
 </div>
 
@@ -367,7 +369,8 @@ function renderAlbums() {
 }
 function setTab(t) {
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  $('tab-albums').style.display = t === 'albums' ? '' : 'none'; $('tab-random').style.display = t === 'random' ? '' : 'none';
+  $('tab-albums').style.display = t === 'albums' ? '' : 'none'; $('tab-random').style.display = t === 'random' ? '' : 'none'; $('tab-booth').style.display = t === 'booth' ? '' : 'none';
+  if (t === 'booth') renderBooth();
   if (t === 'random' && (!randomItems || !$('random-grid').querySelector('.cell'))) loadRandom();
 }
 
@@ -409,6 +412,18 @@ function renderGrid(el, items, title) {
   add();
   if (shown < items.length) { el._obs = new IntersectionObserver(es => { if (es[0].isIntersecting) add(); }, { rootMargin: '600px' }); el._obs.observe(more); }
 }
+// ═══ 📚 foto Album Berdua (Razara Booth) — nyambung 2 HP lewat sync.js ═══
+function boothItems() {
+  const out = [];
+  ['Razan', 'Dara'].forEach(w => { let m = {}; try { m = JSON.parse(localStorage.getItem('album-' + w)) || {}; } catch (e) {} Object.values(m).forEach(r => ((r && r.list) || []).forEach(x => { const id = x && !x.del && /[?&]id=([\w-]+)/.exec(x.u || ''); if (id) out.push({ id: id[1], type: 'image', at: x.at, w }); })); });
+  return out.sort((a, b) => b.at - a.at);
+}
+function renderBooth() {
+  const it = boothItems();
+  if (!it.length) { $('booth-grid').innerHTML = '<div class="empty">Belum ada foto dari Razara Booth 📭<br>Cetak foto di sana, nanti otomatis muncul di sini.</div>'; return; }
+  renderGrid($('booth-grid'), it, '📚 Razara Booth');
+}
+try { window.Berdua && Berdua.on(ev => { if (ev.apps && ev.apps.includes('album') && $('tab-booth').style.display !== 'none') renderBooth(); }); } catch (e) {}
 function shuffleOne() {
   if (!randomItems || !randomItems.length) return toast('Foto random-nya belum ada 📭');
   openViewer(randomItems, Math.floor(Math.random() * randomItems.length), '🎲 Kenangan acak');
