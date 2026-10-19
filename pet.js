@@ -22,7 +22,7 @@
   const STATS = [['k', '🍗', 'Kenyang'], ['s', '💗', 'Senang'], ['b', '🛁', 'Bersih'], ['e', '⚡', 'Energi']];
   const DECAY = { k: 7, s: 5, b: 3, e: 4 };          // turun per jam
   const ACTS = { makan: '🍗', elus: '🤲', mandi: '🛁', main: '🎾', tidur: '🌙' };
-  const ACTN = { makan: 'ngasih makan', elus: 'ngelus', mandi: 'mandiin', main: 'ngajak main', tidur: 'nidurin' };
+  const ACTN = { makan: 'ngasih makan', elus: 'ngelus', mandi: 'mandiin', main: 'ngajak main', tidur: 'nidurin', hadiah: 'nyelesaiin tantangan 🏆 bareng' };
 
   const g = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const pad = n => String(n).padStart(2, '0');
@@ -153,6 +153,13 @@
     } catch (e) {}
   }
   const accLock = (a, st) => (st ? lvl(st.xp) : 1) < a.lv || (a.st && (!st || streak(st) < a.st));
-  window.Pet = { APP, ANIMALS, FOODS, ACC, STATS, ACTS, ACTN, state, now, lvl, lvlXp, stage, animal, accOf, asleep, streak, mood, ago, setup, act, tellSW, me, wish, accLock };
+  // bonus XP dari luar (misal hadiah Tantangan Mingguan)
+  function bonus(xp, why) {
+    const st = state(); if (!st) return false;
+    const w = me(), old = rowOf(w) || {}, row = Object.assign({}, old, { xp: (old.xp || 0) + (xp || 0), log: (old.log || []).concat([['hadiah', Date.now()]]).slice(-6) });
+    if (!old.a) { row.a = st.a; row.n = st.n; row.acc = st.acc; row.cfg = 1; row.born = st.born; }
+    save(w, row); return true;
+  }
+  window.Pet = { bonus, APP, ANIMALS, FOODS, ACC, STATS, ACTS, ACTN, state, now, lvl, lvlXp, stage, animal, accOf, asleep, streak, mood, ago, setup, act, tellSW, me, wish, accLock };
   setTimeout(tellSW, 1500);
 })();

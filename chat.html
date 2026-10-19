@@ -118,6 +118,20 @@
   .cmp .ic{border:none;background:none;font-size:1.3rem;width:38px;height:42px;cursor:pointer;flex-shrink:0;border-radius:50%}
   .cmp textarea{flex:1;min-width:0;resize:none;border:1.5px solid rgba(193,122,111,.22);border-radius:22px;padding:.62rem .9rem;font:400 16px/1.35 'Poppins',sans-serif;outline:none;max-height:120px;background:var(--cream);color:var(--ink)}
   .cmp textarea:focus{border-color:var(--rose)}
+  .vrec{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem calc(.55rem + env(safe-area-inset-bottom));background:#fff;border-top:1px solid rgba(193,122,111,.12)}
+  .vrec[hidden]{display:none}
+  .vrec .dot{width:11px;height:11px;border-radius:50%;background:#e0475b;animation:vrb 1s infinite;flex-shrink:0}@keyframes vrb{50%{opacity:.25}}
+  .vrec .tm{font-weight:600;font-variant-numeric:tabular-nums;color:var(--deep);min-width:3ch}
+  .vrec .wv{flex:1;min-width:0;height:26px;display:flex;align-items:center;gap:2px;overflow:hidden}
+  .vrec .wv i{flex:0 0 3px;border-radius:2px;background:var(--rose);opacity:.7}
+  .vrec button{border:none;border-radius:50px;padding:.55rem .8rem;font:600 13px 'Poppins',sans-serif;cursor:pointer;flex-shrink:0}
+  .vrec .x{background:#f3e6e1;color:var(--deep)}.vrec .ok{background:var(--rose);color:#fff;width:44px;height:44px;padding:0;border-radius:50%;font-size:1.1rem}
+  .vn{display:flex;align-items:center;gap:.5rem;min-width:190px;max-width:240px;padding:.15rem 0 .1rem}
+  .vn .vp{width:38px;height:38px;border-radius:50%;border:none;background:var(--rose);color:#fff;font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  html[data-user="Razan"] .m.me .vn .vp{background:#4a7fc1}
+  .vn .vb{flex:1;height:4px;border-radius:2px;background:rgba(0,0,0,.12);position:relative;overflow:hidden}
+  .vn .vb i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--deep);border-radius:2px}
+  .vn .vd{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0}
   .cmp .send{border:none;width:44px;height:44px;border-radius:50%;background:var(--rose);color:#fff;font-size:1.15rem;cursor:pointer;flex-shrink:0}
   .cmp .send:disabled{opacity:.4}
   [hidden]{display:none!important}
@@ -165,6 +179,7 @@
     <textarea id="inp" rows="1" placeholder="Tulis pesan…" enterkeyhint="send"></textarea>
     <button class="send" id="b-send" aria-label="Kirim">➤</button>
   </form>
+  <div class="vrec" id="vrec" hidden><span class="dot"></span><span class="tm" id="vr-t">0:00</span><span class="wv" id="vr-w"></span><button type="button" class="x" id="vr-x">✖ Batal</button><button type="button" class="ok" id="vr-ok" aria-label="Kirim pesan suara">➤</button></div>
   <input type="file" id="file" accept="image/*" hidden>
 </div>
 <div class="viewer" id="viewer"><img id="v-img" alt=""><button id="v-x" aria-label="Tutup">✕</button><a id="v-dl" target="_blank" rel="noopener">Buka ukuran asli ↗</a></div>
@@ -220,7 +235,7 @@ const RX = ['💗', '😂', '😮', '🥺', '👍', '🔥'];
 let tab = lsGet('chat-tab', 'p'); if (tab !== 'ai') tab = 'p';
 const C = lsGet('chat-c-' + ME, { n: 0, msgs: [] }); C.msgs = (C.msgs || []).slice(-300);
 // antrian pesan yg belum kekirim — disimpen di HP, foto disimpen di IndexedDB, dikirim ulang otomatis begitu ada internet
-let Q = lsGet('chat-q-' + ME, []).filter(x => x && x.id && (x.t || x.img || x.pimg || x.s));
+let Q = lsGet('chat-q-' + ME, []).filter(x => x && x.id && (x.t || x.img || x.pimg || x.s || x.vn || x.pvn));
 const IDB = (() => {
   let dbp = null; const db = () => dbp || (dbp = new Promise((res, rej) => { try { const r = indexedDB.open('razara-chat', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } }));
   const tx = (m, f) => db().then(d => new Promise((res, rej) => { const t = d.transaction('img', m), q = f(t.objectStore('img')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); })).catch(() => null);
@@ -235,7 +250,7 @@ $('h-n').textContent = OT; $('h-e').textContent = OT === 'Dara' ? '👧' : '🧑
 // ── jaringan ──
 function GET(qs, ms) { return new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('GET', `${URL_}?action=chat&key=${KEY_}&who=${ME}${qs}&t=${Date.now()}`, true); x.timeout = ms || 15000; x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(new Error(r.error)); } catch (e) { rej(e); } }; x.onerror = x.ontimeout = () => rej(new Error('jaringan')); x.send(); }); }
 function POST(body, ms) { return new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('POST', URL_, true); x.timeout = ms || 30000; x.setRequestHeader('Content-Type', 'text/plain'); x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } }; x.onerror = x.ontimeout = () => rej(new Error('jaringan')); x.send(JSON.stringify(Object.assign({ key: KEY_, who: ME }, body))); }); }
-const save = () => { lsSet('chat-c-' + ME, { n: C.n, msgs: C.msgs.slice(-300) }); lsSet('chat-q-' + ME, Q.map(({ id, t, at, w, k, q, rep, img, pimg, s }) => ({ id, t, at, w, k, q, rep, img, pimg, s }))); };
+const save = () => { lsSet('chat-c-' + ME, { n: C.n, msgs: C.msgs.slice(-300) }); lsSet('chat-q-' + ME, Q.map(({ id, t, at, w, k, q, rep, img, pimg, s, vn, pvn, dur, mime }) => ({ id, t, at, w, k, q, rep, img, pimg, s, vn, pvn, dur, mime }))); };
 function merge(list) {
   let add = 0;
   list.forEach(ev => {
@@ -298,7 +313,15 @@ async function flushOne(q) {
       if (!u || !u.ok || !u.url) throw new Error(u && u.error || 'gagal');
       q.img = u.url; q.up = 0; save();
     }
-    const r = await POST({ action: 'chat', op: 'send', id: q.id, t: q.t, img: q.img || '', s: q.s || 0, rep: q.rep || null });
+    if (q.pvn && !q.vn) {
+      q.up = 1; renderP();
+      const data = await IDB.get(q.id);
+      if (!data) { q.up = 0; q.busy = 0; q.err = 2; renderP(); return false; }
+      const u = await POST({ action: 'chat', op: 'vn', data: data.split(',')[1], mime: q.mime || 'audio/webm' }, 120000);
+      if (!u || !u.ok || !u.vn) { if (u && u.error === 'op') { q.up = 0; q.busy = 0; q.err = 3; renderP(); return false; } throw new Error(u && u.error || 'gagal'); }
+      q.vn = u.vn; q.up = 0; save(); IDB.put('a:' + u.vn, data);
+    }
+    const r = await POST({ action: 'chat', op: 'send', id: q.id, t: q.t, img: q.img || '', s: q.s || 0, rep: q.rep || null, vn: q.vn || '', dur: q.dur || 0 });
     if (!r || !r.ok) throw new Error(r && r.error || 'gagal');
     merge([r.ev]); Q = Q.filter(x => x.id !== q.id); IDB.del(q.id); save(); sig = ''; q.busy = 0; renderP(); poll(true); return true;
   } catch (e) { q.err = 1; q.up = 0; q.tries = (q.tries || 0) + 1; q.next = Date.now() + Math.min(30000, 2000 * Math.pow(2, Math.min(4, q.tries - 1))); }
@@ -311,7 +334,7 @@ async function flushQ() {
   try {
     for (const q of Q.slice()) {
       if (!Q.includes(q)) continue;
-      if (q.err === 2) continue;
+      if (q.err === 2 || q.err === 3) continue;
       if (q.next && Date.now() < q.next) break;
       if (!(await flushOne(q))) break;
     }
@@ -328,7 +351,7 @@ $('inp').addEventListener('input', () => {
 $('inp').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); $('cmp').requestSubmit(); } });
 $('cmp').addEventListener('submit', e => {
   e.preventDefault(); const i = $('inp'), v = i.value; if (!v.trim()) return;
-  i.value = ''; i.style.height = 'auto'; $('stk').hidden = true;
+  i.value = ''; i.style.height = 'auto'; $('stk').hidden = true; sendIcon();
   if (tab === 'ai') aiSend(v); else send(v);
   i.focus();
 });
@@ -350,6 +373,79 @@ function shrink(file) {
     img.src = u;
   });
 }
+// ── 🎤 pesan suara ──
+const fmtDur = d => { d = Math.max(0, Math.round(d || 0)); return Math.floor(d / 60) + ':' + String(d % 60).padStart(2, '0'); };
+const VN = { a: new Audio(), cur: null, url: null };
+VN.a.preload = 'auto';
+function vnPaint() {
+  document.querySelectorAll('.vn').forEach(el => {
+    const id = el.dataset.v || el.dataset.qid, on = VN.cur === id, b = el.querySelector('.vp'), bar = el.querySelector('.vb i');
+    if (b) b.textContent = on && !VN.a.paused ? '❚❚' : on && VN.load ? '…' : '▶';
+    if (bar) bar.style.width = on && VN.a.duration ? Math.min(100, VN.a.currentTime / VN.a.duration * 100) + '%' : '0%';
+    if (on && VN.a.duration && !VN.a.paused) { const d = el.querySelector('.vd'); if (d) d.textContent = fmtDur(VN.a.currentTime); }
+  });
+}
+['timeupdate', 'play', 'pause', 'ended'].forEach(ev => VN.a.addEventListener(ev, () => { if (ev === 'ended') { VN.a.currentTime = 0; setTimeout(() => { renderP(false, true); }, 50); } vnPaint(); }));
+async function vnData(vn, qid) {
+  if (!vn) return await IDB.get(qid);
+  let d = await IDB.get('a:' + vn); if (d) return d;
+  const r = await POST({ action: 'chat', op: 'vnget', id: vn }, 60000);
+  if (!r || !r.ok || !r.data) throw new Error(r && r.error || 'gagal');
+  d = 'data:' + (r.mime || 'audio/webm') + ';base64,' + r.data; IDB.put('a:' + vn, d); return d;
+}
+async function vnToggle(el) {
+  const vn = el.dataset.v, qid = el.dataset.qid, id = vn || qid;
+  if (VN.cur === id && VN.a.src) { if (VN.a.paused) VN.a.play().catch(() => {}); else VN.a.pause(); return; }
+  VN.a.pause(); VN.cur = id; VN.load = 1; vnPaint();
+  try {
+    const d = await vnData(vn, qid); if (VN.cur !== id) return;
+    const bl = await (await fetch(d)).blob(); if (VN.url) URL.revokeObjectURL(VN.url); VN.url = URL.createObjectURL(bl);
+    VN.a.src = VN.url; VN.load = 0; await VN.a.play();
+  } catch (e) { VN.load = 0; VN.cur = null; toast(navigator.onLine === false ? 'Lagi offline — pesan suaranya belum bisa diputer 📴' : 'Pesan suaranya gagal diputer 😢'); }
+  vnPaint();
+}
+document.addEventListener('click', e => { const b = e.target.closest('.vn .vp'); if (!b) return; e.preventDefault(); e.stopPropagation(); vnToggle(b.closest('.vn')); }, true);
+// rekam
+const REC = { mr: null, ch: [], t0: 0, tick: 0, stream: null, an: null, cancel: false };
+function recMime() { if (!window.MediaRecorder) return null; for (const m of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/aac']) { try { if (MediaRecorder.isTypeSupported(m)) return m; } catch (e) {} } return ''; }
+async function recStart() {
+  if (REC.mr) return;
+  const mt = recMime(); if (mt === null || !navigator.mediaDevices) return toast('HP ini belum bisa rekam suara di sini 😢');
+  let st; try { st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); } catch (e) { return toast('Izinin mikrofon dulu ya 🎤'); }
+  REC.stream = st; REC.ch = []; REC.cancel = false;
+  try { REC.mr = mt ? new MediaRecorder(st, { mimeType: mt, audioBitsPerSecond: 32000 }) : new MediaRecorder(st); } catch (e) { REC.mr = new MediaRecorder(st); }
+  REC.mr.ondataavailable = ev => { if (ev.data && ev.data.size) REC.ch.push(ev.data); };
+  REC.mr.onstop = recDone;
+  REC.mr.start(250); REC.t0 = Date.now();
+  try { const C2 = window.AudioContext || window.webkitAudioContext, ac = new C2(), src = ac.createMediaStreamSource(st), an = ac.createAnalyser(); an.fftSize = 256; src.connect(an); REC.an = an; REC.ac = ac; } catch (e) {}
+  $('cmp').hidden = true; $('vrec').hidden = false; $('vr-w').innerHTML = ''; vib(20);
+  REC.tick = setInterval(() => {
+    const s2 = Math.floor((Date.now() - REC.t0) / 1000); $('vr-t').textContent = fmtDur(s2);
+    if (REC.an) { const a = new Uint8Array(REC.an.frequencyBinCount); REC.an.getByteTimeDomainData(a); let m = 0; for (const v of a) m = Math.max(m, Math.abs(v - 128)); const w = $('vr-w'); w.insertAdjacentHTML('beforeend', `<i style="height:${Math.max(3, Math.min(26, m / 2.2))}px"></i>`); while (w.children.length > 70) w.firstChild.remove(); }
+    if (s2 >= 180) recStop(false);
+  }, 150);
+}
+function recStop(cancel) { if (!REC.mr) return; REC.cancel = cancel; try { REC.mr.stop(); } catch (e) { recDone(); } }
+async function recDone() {
+  clearInterval(REC.tick); const dur = (Date.now() - REC.t0) / 1000, mime = (REC.mr && REC.mr.mimeType || 'audio/webm').split(';')[0];
+  try { REC.stream.getTracks().forEach(t => t.stop()); } catch (e) {} try { REC.ac && REC.ac.close(); } catch (e) {}
+  const ch = REC.ch, cancel = REC.cancel; REC.mr = null; REC.an = null; REC.ac = null;
+  $('vrec').hidden = true; $('cmp').hidden = false;
+  if (cancel) return toast('Rekaman dibatalin');
+  if (dur < 1 || !ch.length) return toast('Kependekan — tahan ngomongnya agak lama ya 🎤');
+  const blob = new Blob(ch, { type: mime });
+  const data = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(blob); });
+  const q = { id: uid(), t: '', at: Date.now(), w: ME, k: 'msg', q: 1, pvn: 1, dur: Math.round(dur), mime };
+  if (rep) { q.rep = rep; setRep(null); }
+  await IDB.put(q.id, data); Q.push(q); save(); renderP(true, true); vib(15); flushQ();
+}
+$('vr-x').onclick = () => recStop(true);
+$('vr-ok').onclick = () => recStop(false);
+// tombol kirim jadi 🎤 kalau kolom pesan kosong (kayak WA)
+function sendIcon() { const b = $('b-send'), empty = !$('inp').value.trim() && tab !== 'ai'; b.textContent = empty ? '🎤' : '➤'; b.setAttribute('aria-label', empty ? 'Rekam pesan suara' : 'Kirim'); }
+$('b-send').addEventListener('click', e => { if (tab !== 'ai' && !$('inp').value.trim()) { e.preventDefault(); recStart(); } });
+$('inp').addEventListener('input', sendIcon);
+setTimeout(sendIcon, 0);
 // ── stiker ──
 $('stk').innerHTML = STK.map(s => `<button type="button" data-s="${s}">${s}</button>`).join('');
 $('b-stk').onclick = () => { $('stk').hidden = !$('stk').hidden; };
@@ -357,7 +453,7 @@ $('stk').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return
 // ── bales ──
 function setRep(r) { rep = r; $('rep').hidden = !r; if (r) { $('rep-w').textContent = r.w === ME ? 'Kamu' : r.w; $('rep-t').textContent = r.t; $('inp').focus(); } }
 $('rep-x').onclick = () => setRep(null);
-const snip = m => m.s ? m.t : m.img && !m.t ? '📷 Foto' : (m.img ? '📷 ' : '') + String(m.t || '').slice(0, 100);
+const snip = m => m.vn || m.pvn ? '🎤 Pesan suara' : m.s ? m.t : m.img && !m.t ? '📷 Foto' : (m.img ? '📷 ' : '') + String(m.t || '').slice(0, 100);
 
 // ── tampilan ──
 const HARI_ = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'], BLN_ = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -368,11 +464,12 @@ const nearBottom = el => el.scrollHeight - el.scrollTop - el.clientHeight < 120;
 function bubble(m, opt) {
   const mine = m.w === ME, del = opt.del[m.n], rx = opt.rx[m.n];
   if (del) return `<div class="m ${mine ? 'me' : ''}" data-n="${m.n}"><div class="b del">🚫 Pesan ini udah dihapus<span class="meta">${hm(m.at)}</span></div></div>`;
-  const tick = !mine ? '' : m.q ? (m.err === 2 ? `<span class="err">⚠️ foto ilang · tap</span>` : !online || navigator.onLine === false ? '<span title="nunggu internet">🕓 nunggu internet</span>' : m.err ? `<span class="err">⚠️ gagal, dicoba lagi · tap</span>` : '🕓') : `<span class="tick ${read[OT] >= m.n ? 'read' : ''}">✓✓</span>`;
+  const tick = !mine ? '' : m.q ? (m.err === 3 ? `<span class="err">⚠️ server chat belum diupdate · tap</span>` : m.err === 2 ? `<span class="err">⚠️ ${m.pvn ? 'rekaman' : 'foto'} ilang · tap</span>` : !online || navigator.onLine === false ? '<span title="nunggu internet">🕓 nunggu internet</span>' : m.err ? `<span class="err">⚠️ gagal, dicoba lagi · tap</span>` : '🕓') : `<span class="tick ${read[OT] >= m.n ? 'read' : ''}">✓✓</span>`;
   const R = m.rep ? `<div class="rq ${m.rep.w === 'Razan' ? 'R' : 'D'}" data-go="${m.rep.n}"><b>${m.rep.w === ME ? 'Kamu' : esc(m.rep.w || '')}</b>${esc(m.rep.t || '')}</div>` : '';
   const img = m.img ? `<img class="ph" src="${esc(window.Hemat && Hemat.on() ? String(m.img).replace(/sz=w\d+/, 'sz=w640') : m.img)}" data-big="${esc(m.img)}" alt="foto" loading="lazy">` : mem[m.id] ? `<img class="ph" src="${mem[m.id]}" alt="foto">${m.up ? '<span class="up">Mengunggah…</span>' : ''}` : '';
+  const vnH = m.vn || m.pvn ? `<div class="vn" data-v="${esc(m.vn || '')}" data-qid="${esc(m.id || '')}"><button type="button" class="vp" aria-label="Putar">${VN.cur && VN.cur === (m.vn || m.id) && !VN.a.paused ? '❚❚' : '▶'}</button><span class="vb"><i></i></span><span class="vd">${m.up ? '⏫' : fmtDur(m.dur)}</span></div>` : '';
   const rxH = rx ? `<span class="rx">${rx.join('')}</span>` : '';
-  return `<div class="m ${mine ? 'me' : ''} ${m.s ? 'stik' : ''} ${rxH ? 'hasrx' : ''}" data-n="${m.n || ''}" data-id="${m.id || ''}"><span class="sw">↩️</span><div class="b">${R}${img}${m.t ? `<span class="tx">${m.s ? esc(m.t) : linkify(m.t)}</span>` : ''}<span class="meta">${hm(m.at)} ${tick}</span>${rxH}</div></div>`;
+  return `<div class="m ${mine ? 'me' : ''} ${m.s ? 'stik' : ''} ${rxH ? 'hasrx' : ''}" data-n="${m.n || ''}" data-id="${m.id || ''}"><span class="sw">↩️</span><div class="b">${R}${img}${vnH}${m.t ? `<span class="tx">${m.s ? esc(m.t) : linkify(m.t)}</span>` : ''}<span class="meta">${hm(m.at)} ${tick}</span>${rxH}</div></div>`;
 }
 let lastHTML = '';
 function renderP(scroll, force) {
@@ -434,7 +531,7 @@ $('L-p').addEventListener('contextmenu', e => { const m = msgOf(e.target); if (m
 $('L-p').addEventListener('click', e => {
   const im = e.target.closest('img[data-big]'); if (im) { $('v-img').src = im.dataset.big.replace(/sz=w\d+/, 'sz=w2000'); $('v-dl').href = im.dataset.big.replace(/sz=w\d+/, 'sz=w4000'); $('viewer').classList.add('show'); return; }
   const go = e.target.closest('[data-go]'); if (go) { const t = document.querySelector(`#L-p .m[data-n="${go.dataset.go}"]`); if (t) { t.scrollIntoView({ block: 'center', behavior: 'smooth' }); t.classList.add('flash'); setTimeout(() => t.classList.remove('flash'), 1100); } return; }
-  const er = e.target.closest('.err'); if (er) { const m = msgOf(er); if (m && m.q) { if (m.err === 2) { Q = Q.filter(x => x !== m); save(); renderP(); toast('Fotonya udah ga ada di HP, kirim ulang ya 📷'); return; } m.err = 0; m.next = 0; m.tries = 0; flushQ(); } }
+  const er = e.target.closest('.err'); if (er) { const m = msgOf(er); if (m && m.q) { if (m.err === 2) { Q = Q.filter(x => x !== m); save(); renderP(); toast(m.pvn ? 'Rekamannya udah ga ada di HP, rekam ulang ya 🎤' : 'Fotonya udah ga ada di HP, kirim ulang ya 📷'); return; } m.err = 0; m.next = 0; m.tries = 0; flushQ(); } }
 });
 $('v-x').onclick = () => $('viewer').classList.remove('show');
 $('viewer').onclick = e => { if (e.target.id === 'viewer') $('viewer').classList.remove('show'); };
@@ -488,7 +585,7 @@ async function aiAsk() {
 function setTab(t) {
   tab = t; lsSet('chat-tab', t);
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  $('L-p').hidden = t !== 'p'; $('L-ai').hidden = t !== 'ai'; $('b-img').style.display = t === 'ai' ? 'none' : ''; setRep(null);
+  $('L-p').hidden = t !== 'p'; $('L-ai').hidden = t !== 'ai'; $('b-img').style.display = t === 'ai' ? 'none' : ''; setRep(null); try { sendIcon(); } catch (e) {}
   $('inp').placeholder = t === 'ai' ? 'Tanya apa aja ke AI…' : 'Tulis pesan…';
   header(); badge();
   if (t === 'ai') renderAI(); else { renderP('bottom', true); markRead(); }

@@ -110,7 +110,13 @@
           if (!r || !r.ok || !r.url) throw new Error('img');
           s(key, (g(key, []) || []).map(x => x.id === q.id ? Object.assign({}, x, { img: r.url }) : x)); q.img = r.url;
         }
-        const r = await post(u, { key: k, who: w, action: 'chat', op: 'send', id: q.id, t: q.t || '', img: q.img || '', s: q.s || 0, rep: q.rep || null });
+        if (q.pvn && !q.vn) {
+          const data = await idbGet(q.id); if (!data) { s(key, (g(key, []) || []).filter(x => x.id !== q.id)); continue; }
+          const r = await post(u, { key: k, who: w, action: 'chat', op: 'vn', data: data.split(',')[1], mime: q.mime || 'audio/webm' });
+          if (!r || !r.ok || !r.vn) throw new Error('vn');
+          s(key, (g(key, []) || []).map(x => x.id === q.id ? Object.assign({}, x, { vn: r.vn }) : x)); q.vn = r.vn;
+        }
+        const r = await post(u, { key: k, who: w, action: 'chat', op: 'send', id: q.id, t: q.t || '', img: q.img || '', s: q.s || 0, rep: q.rep || null, vn: q.vn || '', dur: q.dur || 0 });
         if (!r || !r.ok) throw new Error('send');
         s(key, (g(key, []) || []).filter(x => x.id !== q.id)); idbDel(q.id); s('chat-q-lock', Date.now());
       }
