@@ -295,8 +295,8 @@
     </div>
     <button class="copy-btn" onclick="copyStory()">📋 Salin Cerita</button>
     <div class="result-btns">
-      <button class="result-btn result-btn-p" onclick="newStory()">Cerita Baru 🔄</button>
-      <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="result-btn result-btn-p" onclick="if(ONL())return Meja.restart();newStory()">Cerita Baru 🔄</button>
+      <button class="result-btn result-btn-o" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -540,11 +540,13 @@ function startTurn() {
 
 function rerollTwist() {
   if (!S || S.judging || S.busy) return;
+  if (ONL() && S.cur !== ML()) return;
   if (S.rerolled[S.cur] || S.turn >= S.total - 1) return;
   S.rerolled[S.cur] = true;
   S.twist = drawTwist();
   setHTML('twist-text', fill(S.twist, { o: NAMES[other(S.cur)] }));
   const rb = $('reroll-btn'); if (rb) { rb.disabled = true; rb.textContent = '🔄 Udah'; }
+  mjSync();
 }
 
 function autoResize(el) {
@@ -561,6 +563,7 @@ function updateCount() {
 
 function sendLine() {
   if (!S || S.busy || S.judging) return;
+  if (ONL() && S.cur !== ML()) return;
   const inp = $('story-input'); if (!inp) return;
   const text = inp.value.trim().replace(/\s+/g, ' ');
   if (!text) { toast('Tulis dulu kalimatnya ✍️'); return; }
@@ -582,10 +585,12 @@ function sendLine() {
   const wb = $('write-box'); if (wb) wb.style.display = 'none';
   const jb = $('judge-box'); if (jb) jb.classList.add('show');
   scrollToBottom();
+  if (ONL()) { mjSync(); mjRender(); }
 }
 
 function judge(ok) {
   if (!S || !S.judging) return;
+  if (ONL() && other(S.cur) !== ML()) return;
   S.judging = false;
   const idx = S.lines.length - 1;
   const line = S.lines[idx]; if (!line) return;
@@ -609,11 +614,13 @@ function judge(ok) {
     S.busy = true;
     const jb = $('judge-box'); if (jb) jb.classList.remove('show');
     const pf = $('story-progress-fill'); if (pf) pf.style.width = '100%';
+    mjSync();
     setTimeout(showResult, 500);
     return;
   }
   S.cur = other(S.cur);
   startTurn();
+  if (ONL()) { mjSync(); mjRender(); }
 }
 
 function updateHud() {
@@ -774,6 +781,62 @@ renderChips();
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false;
+function toMenu() { showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && S) Meja.push(JSON.parse(JSON.stringify(S))); }
+// hasil akhir sama persis di dua HP (pilihan acaknya pakai seed yang sama)
+(function () { const _sr = showResult; showResult = function () { if (!ONL() || !S) return _sr(); ['rating', 'ftie', 'fwin'].forEach(k => delete lastPick[k]); const R = Math.random; let x = (S.seed % 2147483646) + 1; Math.random = () => (x = x * 16807 % 2147483647) / 2147483647; try { _sr(); } finally { Math.random = R; } }; })();
+function mjRender() {
+  const me = ML(), mine = S.cur === me, judgeMe = other(S.cur) === me, name = NAMES[S.cur], isLast = S.turn >= S.total - 1;
+  setText('sh-progress', `Giliran ${Math.min(S.turn + 1, S.total)} dari ${S.total}`);
+  const pf = $('story-progress-fill'); if (pf) pf.style.width = (S.turn / S.total * 100) + '%';
+  const ti = $('turn-indicator'); if (ti) { ti.textContent = mine ? '✍️ Giliran kamu — lanjutin ceritanya!' : `⏳ ${name} lagi nulis…`; ti.className = 'turn-indicator ' + S.cur; }
+  setText('twist-tag', isLast ? '🎬 Twist Terakhir' : mine ? '🎲 Twist buat kamu' : `🎲 Twist buat ${name}`);
+  setHTML('twist-text', fill(S.twist, { o: NAMES[other(S.cur)] }));
+  const rb = $('reroll-btn'); if (rb) { rb.disabled = !mine || isLast || S.rerolled[S.cur]; rb.textContent = S.rerolled[S.cur] ? '🔄 Udah' : '🔄 Ganti'; }
+  const inp = $('story-input'); if (inp) { inp.disabled = !mine || S.judging; inp.placeholder = mine ? 'Tulis 1 kalimat lanjutan...' : `Nunggu ${name} nulis…`; }
+  const sb = $('send-btn'); if (sb) sb.disabled = !mine || S.judging;
+  const wb = $('write-box'), jb = $('judge-box');
+  if (S.judging) {
+    if (wb) wb.style.display = 'none'; if (jb) jb.classList.add('show');
+    const line = S.lines[S.lines.length - 1];
+    setText('judge-q', judgeMe ? 'Twist-nya kepake ga? Kamu yang nilai 😏' : `⏳ Nunggu ${NAMES[other(S.cur)]} nilai twist-mu…`);
+    setText('judge-twist', '🎲 ' + stripTags(line ? line.twist : ''));
+    document.querySelectorAll('#judge-box .judge-btn').forEach(b => { b.disabled = !judgeMe; b.style.opacity = judgeMe ? '' : '.45'; });
+  } else {
+    if (wb) wb.style.display = ''; if (jb) jb.classList.remove('show');
+    document.querySelectorAll('#judge-box .judge-btn').forEach(b => { b.disabled = false; b.style.opacity = ''; });
+  }
+  scrollToBottom();
+}
+const MJ = { name: 'Lanjut Cerita', emoji: '✏️', after: '.start-col', sub: 'gantian nulis dari HP masing-masing',
+  init(seed) { startGame((seed % 2) ? 'razan' : 'dara'); S.seed = seed; return JSON.parse(JSON.stringify(S)); },
+  begin() { showScreen('s-game'); },
+  apply(s) {
+    mjAp = true;
+    try {
+      const fresh = !S || S.seed !== s.seed, prevN = S && !fresh ? S.lines.length : 0;
+      S = s;
+      setText('opening-text', S.opening.text); setText('opening-label', '✨ Awal cerita · ' + ((GENRES[S.opening.genre] || {}).label || ''));
+      const wrap = $('bubble-wrap'); if (wrap) wrap.innerHTML = '';
+      S.lines.forEach((l, i) => { addBubble(l, i); if (l.ok != null) { const t = $('twist-' + i); if (t) { t.className = 'bubble-twist ' + (l.ok ? 'ok' : 'no'); t.textContent = (l.ok ? '✓ ' : '✗ ') + stripTags(l.twist); } } });
+      updateHud();
+      if (S.turn >= S.total) { const jb = $('judge-box'); if (jb) jb.classList.remove('show'); return setTimeout(showResult, 400); }
+      showScreen('s-game'); mjRender();
+      if (S.lines.length > prevN || (!S.judging && S.cur === ML())) try { navigator.vibrate && navigator.vibrate(25); } catch (e) {}
+    } finally { mjAp = false; }
+  },
+  turn: s => s.turn >= s.total ? null : (s.judging ? (s.cur === 'razan' ? 'Dara' : 'Razan') : (s.cur === 'razan' ? 'Razan' : 'Dara')),
+  onEnd() { S = null; const inp = $('story-input'); if (inp) inp.disabled = false; document.querySelectorAll('#judge-box .judge-btn').forEach(b => { b.disabled = false; b.style.opacity = ''; }); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

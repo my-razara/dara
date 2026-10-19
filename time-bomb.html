@@ -308,8 +308,8 @@
   <div class="recap" id="recap"></div>
   <div class="end-verdict" id="end-verdict">...</div>
   <div class="end-btns">
-    <button class="end-btn end-btn-p" onclick="startGame(null)">Main Lagi 🔄</button>
-    <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+    <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();startGame(null)">Main Lagi 🔄</button>
+    <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
   </div>
 </div></div>
 
@@ -482,6 +482,7 @@ function startRound() {
   $('ready-ov').classList.add('show');
 }
 function beginRound() {
+  if (ONL()) { if (currentPlayer !== ML()) return; mph = 'live'; mjSync(); }
   $('ready-ov').classList.remove('show');
   audio();   // buka izin suara dari tap ini
   $('bomb-emoji').classList.remove('still');
@@ -530,6 +531,7 @@ function throwBomb() {
   swapped = false; $('swap-btn').disabled = false;
   updatePlayerBar(); drawTimer();
   beep(520, .08, .07, 'triangle'); try { navigator.vibrate && navigator.vibrate(30); } catch {}
+  if (ONL()) { mph = 'live'; mjSync(); phase = 'watch'; mjCtl(); return watchGo(); }
   setTimeout(() => { if (phase === 'handoff') goLive(); }, 300);
 }
 
@@ -540,6 +542,7 @@ function swapChallenge() {
   currentChallenge = getRandomItem(CHALLENGES, usedChallenges);
   $('challenge-text').textContent = currentChallenge; bumpCard();
   timeLeft = Math.max(0, timeLeft - SWAP_COST); drawTimer();
+  if (ONL() && timeLeft > 0) mjSync();
   if (timeLeft <= 0) explode('time');
 }
 // [BARU] nyerah = gagal tantangan → bom meledak
@@ -548,6 +551,7 @@ function bumpCard() { const c = $('challenge-card'); c.classList.remove('swap');
 
 // ── JEDA ──
 function pauseGame() {
+  if (ONL()) return exitGame();
   if (phase === 'live' || phase === 'handoff') { cancelAnimationFrame(raf); phase = 'paused'; $('bomb-emoji').classList.add('still'); $('pause-ov').classList.add('show'); }
   else if (phase === 'ready') exitGame();
 }
@@ -558,7 +562,7 @@ function exitGame() {
   $('pause-ov').classList.remove('show'); $('ready-ov').classList.remove('show');
   resetDangerUI(); showScreen('s-intro');
 }
-document.addEventListener('visibilitychange', () => { if (document.hidden && (phase === 'live' || phase === 'handoff')) pauseGame(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && !ONL() && (phase === 'live' || phase === 'handoff')) pauseGame(); });
 
 // ── MELEDAK ──
 function explode(why) {
@@ -569,14 +573,19 @@ function explode(why) {
   consec[survivor]++; consec[currentPlayer] = 0;
   const streak = consec[survivor];
   log.push({ round, who: currentPlayer, throws, why, challenge: currentChallenge });
+  if (ONL()) { pun = getRandomItem(PUNISHMENTS, usedPunishments); exWhy = why; mph = 'over'; mjSync(); }
+  renderExplode(why);
+}
+function renderExplode(why) {
+  const survivor = other(currentPlayer), streak = consec[survivor];
 
   $('explode-player').textContent = (streak >= 3 ? `🔥 ${NAME(survivor)} ${streak}x Selamat! · ` : '') + `${NAME(currentPlayer)} kena! 💥`;
   $('explode-why').textContent = (why === 'giveup' ? '😵 Nyerah di tantangan: ' : '⏱️ Waktu habis di tantangan: ') + `"${currentChallenge}"` + (throws ? ` · bom dilempar ${throws}x` : '');
-  $('punishment-text').textContent = getRandomItem(PUNISHMENTS, usedPunishments);
+  $('punishment-text').textContent = ONL() ? pun : getRandomItem(PUNISHMENTS, usedPunishments);
   $('exp-r').textContent = explodeCounts.razan; $('exp-d').textContent = explodeCounts.dara;
 
   const isLast = round >= TOTAL_ROUNDS;
-  if (!isLast) { $('round-demand-text').textContent = getRandomItem(ROUND_DEMANDS, usedRoundDemands); $('round-demand-card').style.display = 'block'; }
+  if (!isLast && ROUND_DEMANDS.length) { $('round-demand-text').textContent = getRandomItem(ROUND_DEMANDS, usedRoundDemands); $('round-demand-card').style.display = 'block'; }
   else $('round-demand-card').style.display = 'none';
 
   const nb = $('next-btn');
@@ -591,10 +600,12 @@ function explode(why) {
 }
 
 function nextRound() {
+  if (ONL() && mjAp) return;
   round++;
   currentPlayer = other(currentPlayer);   // yang selamat mulai duluan
   showScreen('s-game');
   startRound();
+  if (ONL()) { mph = 'ready'; mjSync(); mjRender(); }
 }
 
 function updatePlayerBar() {
@@ -605,6 +616,7 @@ function updatePlayerBar() {
   $('throw-btn').textContent = `Lempar ke ${NAME(other(currentPlayer))}! 💣`;
   $('holder').innerHTML = `💣 Bom di tangan <b>${isRazan ? '🧑' : '👧'} ${NAME(currentPlayer)}</b>`;
   $('challenge-label').textContent = `Tantangan untuk ${NAME(currentPlayer)}`;
+  if (window.mjCtl) mjCtl();
 }
 function updateRoundUI() { $('timer-num').textContent = Math.ceil(timeLeft); $('round-num').textContent = `${round}/${TOTAL_ROUNDS}`; }
 function resetDangerUI() {
@@ -683,6 +695,70 @@ function confetti(n) {
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mph = 'ready', pun = '', exWhy = '', wRaf = null;
+function toMenu() { showScreen('s-intro'); }
+function mjSnap() { return { cp: currentPlayer, tl: +timeLeft.toFixed(2), bt: +baseTime.toFixed(2), round, throws, ec: explodeCounts, consec, log, ch: currentChallenge, sw: swapped, ph: mph, pun, why: exWhy, T: TOTAL_ROUNDS, uc: usedChallenges.slice(-40), up: usedPunishments }; }
+function mjSync() { if (ONL() && !mjAp) Meja.push(mjSnap()); }
+// tombol cuma nyala di HP yang lagi pegang bom
+function mjCtl() {
+  if (!ONL()) { ['throw-btn', 'swap-btn'].forEach(id => $(id).style.opacity = ''); document.querySelector('.small-btn.bad').disabled = false; $('throw-btn').disabled = false; return; }
+  const mine = currentPlayer === ML();
+  $('throw-btn').disabled = !mine; $('throw-btn').style.opacity = mine ? '' : '.45'; $('swap-btn').style.opacity = mine ? '' : '.45';
+  if (!mine) $('swap-btn').disabled = true; else $('swap-btn').disabled = swapped;
+  document.querySelector('.small-btn.bad').disabled = !mine;
+  if (!mine) $('throw-btn').textContent = `⏳ Nunggu ${NAME(currentPlayer)} lempar balik…`;
+  $('challenge-label').textContent = mine ? 'Tantangan buat kamu — bilang lewat telpon/VN!' : `Tantangan buat ${NAME(currentPlayer)}`;
+}
+// HP yang lagi nggak pegang bom: timer cuma ditampilin (yang mutusin meledak = HP pemegang bom)
+function watchGo() {
+  cancelAnimationFrame(wRaf); let lt = performance.now();
+  const w = t => { if (phase !== 'watch') return; const dt = Math.min((t - lt) / 1000, .25); lt = t; timeLeft = Math.max(0, timeLeft - dt); drawTimer(); wRaf = requestAnimationFrame(w); };
+  wRaf = requestAnimationFrame(w);
+}
+function mjRender() {
+  cancelAnimationFrame(raf); cancelAnimationFrame(wRaf);
+  $('pause-ov').classList.remove('show');
+  if (mph === 'over') { phase = 'over'; $('ready-ov').classList.remove('show'); return renderExplode(exWhy); }
+  showScreen('s-game');
+  $('challenge-text').textContent = currentChallenge; updatePlayerBar(); updateRoundUI(); drawTimer();
+  const mine = currentPlayer === ML();
+  if (mph === 'ready') {
+    phase = 'ready'; resetDangerUI(); $('bomb-emoji').classList.add('still');
+    $('ready-title').textContent = `Ronde ${round}/${TOTAL_ROUNDS}`;
+    $('ready-sub').textContent = mine ? `Bom di tangan kamu duluan · ${Math.round(baseTime)} detik. Siap? Tantangannya kebaca pas sumbu nyala!` : `Bom dipegang ${NAME(currentPlayer)} duluan · nunggu dia nyalain sumbu…`;
+    $('ready-btn').textContent = mine ? `🔥 Aku siap! Nyalain sumbu` : `⏳ Nunggu ${NAME(currentPlayer)}…`; $('ready-btn').disabled = !mine; $('ready-btn').style.opacity = mine ? '' : '.5';
+    $('ready-ov').classList.add('show'); return;
+  }
+  $('ready-ov').classList.remove('show'); $('ready-btn').disabled = false; $('ready-btn').style.opacity = '';
+  $('bomb-emoji').classList.remove('still');
+  if (mine) { bumpCard(); try { navigator.vibrate && navigator.vibrate([40, 40, 40]); } catch (e) {} goLive(); }
+  else { phase = 'watch'; watchGo(); }
+}
+const MJ = { name: 'Time Bomb', emoji: '💣', after: '#s-pick .rand-btn', sub: 'bom dilempar antar HP — sambil telponan/VN',
+  cfg: () => TOTAL_ROUNDS, setCfg: v => { TOTAL_ROUNDS = +v || 10; },
+  init(seed) { cancelAnimationFrame(raf); explodeCounts = { razan: 0, dara: 0 }; round = 1; log = []; usedChallenges = []; usedPunishments = []; consec = { razan: 0, dara: 0 };
+    firstPlayer = currentPlayer = (seed % 2) ? 'razan' : 'dara'; throws = 0; swapped = false; baseTime = timeLeft = Math.max(MIN_TIME + 2, INIT_TIME - Math.floor(round / 3));
+    currentChallenge = getRandomItem(CHALLENGES, usedChallenges); mph = 'ready'; pun = ''; exWhy = ''; return mjSnap(); },
+  begin() { $('s-pick').scrollTop = 0; },
+  apply(s) {
+    mjAp = true;
+    try {
+      currentPlayer = s.cp; timeLeft = s.tl; baseTime = s.bt; round = s.round; throws = s.throws; explodeCounts = s.ec; consec = s.consec; log = s.log;
+      currentChallenge = s.ch; swapped = s.sw; mph = s.ph; pun = s.pun; exWhy = s.why; TOTAL_ROUNDS = s.T || TOTAL_ROUNDS; usedChallenges = s.uc || []; usedPunishments = s.up || [];
+      mjRender();
+    } finally { mjAp = false; }
+  },
+  turn: s => s.ph === 'over' ? null : (s.cp === 'razan' ? 'Razan' : 'Dara'),
+  onEnd() { cancelAnimationFrame(raf); cancelAnimationFrame(wRaf); phase = 'idle'; ['pause-ov', 'ready-ov'].forEach(i => $(i).classList.remove('show')); $('ready-btn').disabled = false; $('ready-btn').style.opacity = ''; mjCtl(); resetDangerUI(); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

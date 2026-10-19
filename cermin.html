@@ -269,8 +269,8 @@
       <p class="demand-text" id="fd-text">...</p>
     </div>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="playAgain()">Main Lagi 🔄</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();playAgain()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -428,7 +428,7 @@ function loadRound() {
   if (!G) return;
   stopTimers();
   const ov = $('next-overlay'); if (ov) ov.classList.remove('show');
-  G.instr = makeInstruction();
+  if (!(ONL() && mjAp)) G.instr = makeInstruction();
   G.dur = Math.min(MAX_DUR, BASE_DUR + (G.round - 1));
   G.phase = 'prep';
 
@@ -436,7 +436,7 @@ function loadRound() {
   updateScores();
   setBars(100);
   setLaughEnabled(false);
-
+  if (ONL()) { setText('mid-round', `R${G.round} · ${G.dur}s · 🧑 ${G.scores.razan}–${G.scores.dara} 👧`); if (!mjAp) mjSync(); }
   // Persiapan: Pemimpin baca instruksi, Cermin siap-siap
   let n = PREP;
   const my = token;
@@ -476,6 +476,7 @@ function awardRound(winner, reason) {
 
 function timeUp() {
   if (!G || G.phase !== 'play') return;
+  if (ONL() && !Meja.host()) { setLaughEnabled(false); return; }
   G.phase = 'end'; setLaughEnabled(false);
   const mirror = other(G.leader);
   const loser = awardRound(mirror);
@@ -484,6 +485,7 @@ function timeUp() {
 
 function reportLaugh(presser) {
   if (!G || G.phase !== 'play') return;
+  if (ONL() && presser !== ML()) return;
   G.phase = 'end'; stopTimers(); setLaughEnabled(false);
   const laugher = other(presser);
   const loser = awardRound(presser);
@@ -498,7 +500,9 @@ function showNext(icon, title, sub, loser) {
   setText('ns-r', G.scores.razan);
   setText('ns-d', G.scores.dara);
   setText('nd-tag', `😈 Hukuman buat ${NAMES[loser]}`);
-  setHTML('nd-text', fill(draw('rd', ROUND_DEMANDS), { p: NAMES[loser], o: NAMES[other(loser)] }));
+  const ndt = ONL() && mjAp && G.nd ? G.nd : fill(draw('rd', ROUND_DEMANDS), { p: NAMES[loser], o: NAMES[other(loser)] });
+  setHTML('nd-text', ndt);
+  if (ONL() && !mjAp) { G.nd = ndt; G.ov = [icon, title, sub, loser]; mjSync(); }
   setText('next-btn', done ? 'Lihat Hasil 🏆' : `Ronde ${G.round + 1} → ${NAMES[other(G.leader)]} jadi Pemimpin`);
   const ov = $('next-overlay'); if (ov) { ov.classList.add('show'); ov.scrollTop = 0; }
 }
@@ -544,7 +548,7 @@ function showResult() {
   setHTML('end-verdict', verdict);
 
   setText('fd-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
-  setHTML('fd-text', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
+  setHTML('fd-text', ONL() && G.seed != null ? (tie ? FINAL_TIE[G.seed % FINAL_TIE.length] : fill(FINAL_WIN[G.seed % FINAL_WIN.length], { w, l })) : tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
 
   showScreen('s-result');
   confetti(tie ? 25 : 55);
@@ -602,6 +606,36 @@ function confetti(n) {
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false;
+function toMenu() { showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(G))); }
+(function () { const c = document.createElement('style'); c.textContent = `body.mj-razan .half.top,body.mj-dara .half.bottom{display:none}body.mj-dara .half.top .half-inner{transform:none}`; document.head.appendChild(c); })();
+const MJ = { name: 'Cermin', emoji: '🪞', after: '#s-pick .btn-ghost', sub: 'sambil video call — HP kamu nampilin peranmu',
+  cfg: () => target, setCfg: v => { target = +v || 5; },
+  init(seed) { stopTimers(); const f = (seed % 2) ? 'razan' : 'dara';
+    G = { first: f, leader: f, round: 1, scores: { razan: 0, dara: 0 }, streak: { razan: 0, dara: 0 }, best: { razan: 0, dara: 0 }, phase: 'prep', instr: null, dur: BASE_DUR, seed };
+    G.instr = makeInstruction(); return JSON.parse(JSON.stringify(G)); },
+  begin() { document.body.classList.remove('mj-razan', 'mj-dara'); document.body.classList.add('mj-' + ML()); showScreen('s-game'); },
+  apply(s) {
+    mjAp = true;
+    try {
+      stopTimers(); G = s; showScreen('s-game');
+      const ov = $('next-overlay'); if (ov) ov.classList.remove('show');
+      if (G.phase === 'end' && G.ov) { updateScores(); setBars(0); setLaughEnabled(false); renderSide('razan', G.instr, ''); renderSide('dara', G.instr, ''); showNext.apply(null, G.ov); try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) {} }
+      else loadRound();
+    } finally { mjAp = false; }
+  },
+  turn: s => s.phase === 'end' ? null : (s.leader === 'razan' ? 'Razan' : 'Dara'),
+  onEnd() { stopTimers(); const ov = $('next-overlay'); if (ov) ov.classList.remove('show'); G = null; document.body.classList.remove('mj-razan', 'mj-dara'); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

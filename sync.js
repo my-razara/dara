@@ -208,7 +208,7 @@
     const o = other(me()), t = tday(), a = (g('ajak-' + o, {}) || {})[t];
     if (!a || !a.at || Date.now() - a.at > 10 * 60e3) return;
     const seen = g('ajak-seen', 0); if (seen >= a.at) return; s('ajak-seen', a.at);
-    if (window.__onlineGame === a.g) return;            // udah di halaman game-nya
+    if (window.__onlineGame === a.g || (location.pathname.split('/').pop() || '').replace(/\.html$/, '') === a.g) return;   // udah di halaman game-nya (ajakannya muncul di game)
     const N = GNAME[a.g] || [a.e || '🎮', a.n || a.g], duel = a.v === 'duel', esc2 = x => String(x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const ov = document.createElement('div'); ov.className = 'kg-ov';
     ov.innerHTML = `<div class="kg-card"><span class="e">${esc2(N[0])}</span><h3>${o} ngajak ${duel ? 'duel' : 'main'} ${esc2(N[1])}!</h3><p>${duel ? 'Main barengan di HP masing-masing, skor siapa paling bagus menang ⚔️' : 'Online, dari HP masing-masing 🎮'}<br>${o} lagi nunggu kamu gabung.</p><a href="${esc2(a.g)}.html?online=1">${duel ? '⚔️ Terima duel' : '🎮 Gas main'}</a><button type="button">Nanti dulu</button></div>`;

@@ -242,8 +242,8 @@
     <div class="hist" id="hist"></div>
     <div class="end-verdict" id="end-verdict"></div>
     <div class="end-btns">
-      <button class="end-btn end-btn-primary" onclick="initGame();goWho()">Main Lagi 🔄</button>
-      <button class="end-btn end-btn-outline" onclick="showScreen('screen-intro')">Menu</button>
+      <button class="end-btn end-btn-primary" onclick="if(ONL())return Meja.restart();initGame();goWho()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-outline" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -340,7 +340,7 @@ function setFirst(who) {
 }
 function updateTurn() {
   $('pump-who').textContent = NAMES[turn] === 'Komputer' ? '🤖 Komputer' : NAMES[turn];
-  const botTurn = BOT && turn === BOT;
+  const botTurn = (BOT && turn === BOT) || (ONL() && turn !== ML());
   $('gt-r').classList.toggle('on', turn === 'razan'); $('gt-d').classList.toggle('on', turn === 'dara');
   [1, 2, 3].forEach(i => $('dot' + i).classList.toggle('on', i <= turnPumps));
   $('pump-btn').disabled = over || turnPumps >= MAX_PER_TURN || botTurn;
@@ -361,11 +361,13 @@ function setTension() {
 function pump() {
   if (over || turnPumps >= MAX_PER_TURN) return;
   if (BOT && turn === BOT && !botActing) return;
+  if (ONL() && turn !== ML()) return;
   pumps++; turnPumps++;
   $('balloon-count').textContent = pumps + 'x';
   const b = $('balloon'); b.classList.remove('wobble'); void b.offsetWidth; b.classList.add('wobble');
   vib(15 + Math.min(40, pumps * 2));
   if (pumps >= explodeAt) return explode();
+  mjSync();
   setTension();
   // bunyi "krek" makin sering kalau udah deket (tapi bisa juga nipu 😏)
   const near = explodeAt - pumps;
@@ -375,7 +377,8 @@ function pump() {
 function pass() {
   if (over || turnPumps < 1) return;
   if (BOT && turn === BOT && !botActing) return;
-  turn = turn === 'razan' ? 'dara' : 'razan'; turnPumps = 0; vib(10); updateTurn();
+  if (ONL() && turn !== ML()) return;
+  turn = turn === 'razan' ? 'dara' : 'razan'; turnPumps = 0; vib(10); updateTurn(); mjSync();
   if (BOT && turn === BOT) botPlay();
 }
 $('pump-btn').addEventListener('click', pump);
@@ -386,7 +389,11 @@ function explode() {
   const loser = turn, winner = loser === 'razan' ? 'dara' : 'razan', pts = isGold ? 2 : 1;
   consec[winner]++; consec[loser] = 0; scores[winner] += pts; lastLoser = loser;
   history.push({ round, winner, loser, pumps, gold: isGold });
-  const b = $('balloon'); b.textContent = '💥'; b.classList.add('exploding');
+  if (ONL()) { dem = getRandom(ROUND_DEMANDS, usedD); fin = getRandom(FINAL_DEMANDS, usedF); phase = 'bang'; mjSync(); }
+  showBang(loser, winner);
+}
+function showBang(loser, winner) {
+  const b = $('balloon'); b.textContent = '💥'; b.classList.add('exploding'); updateTurn();
   vib([60, 30, 140]);
   setTimeout(() => {
     const streak = consec[winner];
@@ -394,7 +401,7 @@ function explode() {
     $('bang-title').textContent = (streak >= 3 ? `🔥 ${NAMES[winner]} ${streak}x berturut! ` : '') + `BOOM! ${NAMES[loser]} kalah!`;
     $('bang-sub').textContent = `${NAMES[loser]} yang bikin balon meledak — ${NAMES[winner]} menang ronde ini${isGold ? ' dan dapet 2 poin! 🌟' : '!'}`;
     $('bang-pumps').textContent = `Balon meledak di pompaan ke-${pumps}`;
-    $('demand-text').textContent = BOT ? (loser === BOT ? 'Komputernya kena ledakan 😆 Mantap!' : 'Yah, kena! Balas di ronde berikutnya 💪') : getRandom(ROUND_DEMANDS, usedD);
+    $('demand-text').textContent = BOT ? (loser === BOT ? 'Komputernya kena ledakan 😆 Mantap!' : 'Yah, kena! Balas di ronde berikutnya 💪') : ONL() ? dem : getRandom(ROUND_DEMANDS, usedD);
     const end = scores[winner] >= WIN_TARGET;
     $('bang-next').textContent = end ? 'Lihat Hasil Akhir 🏆' : 'Ronde Berikutnya →';
     $('bang-next').onclick = end ? showEnd : nextRound;
@@ -402,7 +409,7 @@ function explode() {
     $('bang-overlay').classList.add('show');
   }, 650);
 }
-function nextRound() { $('bang-overlay').classList.remove('show'); round++; prepRound(); updateScores(); goWho(); }
+function nextRound() { $('bang-overlay').classList.remove('show'); if (ONL()) { round++; prepRound(); phase = 'play'; setFirst(lastLoser); return mjSync(); } round++; prepRound(); updateScores(); goWho(); }
 
 function showEnd() {
   $('bang-overlay').classList.remove('show');
@@ -412,7 +419,7 @@ function showEnd() {
   $('end-sub').textContent = `${w} menang ${Math.max(r, d)}-${Math.min(r, d)} dalam ${round} ronde!`;
   $('end-razan').textContent = r; $('end-dara').textContent = d;
   $('hist').innerHTML = history.map(h => `<div class="hr"><span>Ronde ${h.round}${h.gold ? ' 🌟' : ''}</span><span>💥 ${NAMES[h.loser]} di pompa ke-<b>${h.pumps}</b></span></div>`).join('');
-  $('end-verdict').innerHTML = BOT ? (w === 'Komputer' ? '<strong>🤖 Komputer menang!</strong><br>Coba lagi — atau tantang pasanganmu biar ada hukumannya 😏' : '<strong>🏆 Kamu ngalahin komputer!</strong><br>Sekarang tantang pasanganmu langsung 😏') : `<strong>🎯 Hak Pemenang:</strong><br>${getRandom(FINAL_DEMANDS, usedF).replace(/{winner}/g, w).replace(/{loser}/g, l)}`;
+  $('end-verdict').innerHTML = BOT ? (w === 'Komputer' ? '<strong>🤖 Komputer menang!</strong><br>Coba lagi — atau tantang pasanganmu biar ada hukumannya 😏' : '<strong>🏆 Kamu ngalahin komputer!</strong><br>Sekarang tantang pasanganmu langsung 😏') : `<strong>🎯 Hak Pemenang:</strong><br>${(ONL() ? fin : getRandom(FINAL_DEMANDS, usedF)).replace(/{winner}/g, w).replace(/{loser}/g, l)}`;
   showScreen('screen-end'); confetti();
 }
 function confetti() {
@@ -423,6 +430,41 @@ function confetti() {
     document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
   }, i * 25);
 }
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, phase = 'play', dem = '', fin = '';
+function toMenu() { showScreen('screen-intro'); }
+function mjSnap() { return { scores, consec, round, turn, pumps, explodeAt, turnPumps, over, isGold, lastLoser, history, phase, dem, fin, T: WIN_TARGET }; }
+function mjSync() { if (ONL() && !mjAp) Meja.push(mjSnap()); }
+const MJ = { name: 'Balon Pompa', emoji: '🎈', after: '#screen-intro .start-btn + .start-btn', sub: 'gantian pompa, yang meledakin kalah',
+  cfg: () => WIN_TARGET, setCfg: v => { WIN_TARGET = +v || 5; },
+  init(seed) { BOT = null; applyNames(); initGame(); lastLoser = (seed % 2) ? 'razan' : 'dara'; setFirst(lastLoser); lastLoser = null; phase = 'play'; return mjSnap(); },
+  begin() { BOT = null; applyNames(); clearTimeout(botTimer); },
+  apply(s) {
+    mjAp = true;
+    try {
+      const prevP = phase, prevPumps = pumps, prevRound = round;
+      ({ scores, consec, round, turn, pumps, explodeAt, turnPumps, over, isGold, lastLoser, history, phase, dem, fin } = s); WIN_TARGET = s.T || WIN_TARGET;
+      if (phase === 'bang') {
+        if (prevP !== 'bang' || prevRound !== round) { $('balloon-count').textContent = pumps + 'x'; showScreen('screen-game'); showBang(lastLoser, lastLoser === 'razan' ? 'dara' : 'razan'); }
+        return;
+      }
+      $('bang-overlay').classList.remove('show');
+      const b = $('balloon'); b.textContent = '🎈'; b.className = 'balloon-emoji' + (isGold ? ' gold' : '');
+      $('balloon-count').textContent = pumps + 'x'; $('g-gold').textContent = isGold ? '🌟 EMAS ×2' : '';
+      setTension(); updateTurn(); updateScores(); showScreen('screen-game');
+      if (pumps > prevPumps && prevRound === round) { b.classList.remove('wobble'); void b.offsetWidth; b.classList.add('wobble'); vib(15); }
+      else if (turn === ML() && turnPumps === 0) vib([20, 40, 20]);
+    } finally { mjAp = false; }
+  },
+  turn: s => s.phase === 'play' ? (s.turn === 'razan' ? 'Razan' : 'Dara') : null,
+  onEnd() { $('bang-overlay').classList.remove('show'); showScreen('screen-intro'); }, quitFn: 'toMenu' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

@@ -222,24 +222,27 @@ const draw1 = () => { if (deck.length < 8) newDeck(); return deck.pop(); };
 function start(bot) { BOT = bot; wins = { Razan: 0, Dara: 0 }; over = false; first = Math.random() < .5 ? 'Razan' : 'Dara';
   $('nR').textContent = BOT === 'Razan' ? '🤖 Komputer' : BOT ? 'Razan (kamu)' : 'Razan'; $('nD').textContent = BOT === 'Dara' ? '🤖 Komputer' : BOT ? 'Dara (kamu)' : 'Dara';
   newDeck(); scr('s-game'); deal(); }
-function again() { start(BOT); }
+function again() { if (ONL()) return Meja.restart(); start(BOT); }
 function quit() { if (!over && !confirm('Udahan mainnya?')) return; toMenu(); }
 function toMenu() { over = true; $('cover').classList.remove('show'); scr('s-pick'); paintPick(); }
-const isBot = () => BOT && turn === BOT;
-const name = p => BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
+const ONL = () => !!(window.Meja && Meja.on());
+const isBot = () => ONL() ? turn !== Meja.me() : BOT && turn === BOT;
+const name = p => ONL() ? (p === Meja.me() ? 'Kamu' : p) : BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
+let mjAp = false;
+function mjSync(extra) { if (!ONL() || mjAp) return; Meja.push(Object.assign({ deck, hands, done, turn, first, wins, reveal, over, to, m: $('msg').textContent }, extra || {})); }
 function deal() {
   hands = { Razan: [draw1(), draw1()], Dara: [draw1(), draw1()] }; done = { Razan: false, Dara: false }; reveal = false; turn = first; busy = false;
-  paint(); begin();
+  paint(); begin(); mjSync();
 }
-function begin() { if (!BOT && !over) cover(turn); else go(); }
+function begin() { if (ONL()) return go(); if (!BOT && !over) cover(turn); else go(); }
 function cover(p) { $('cv-t').textContent = `Kasih HP ke ${p}`; $('cv-n').textContent = p; $('cover').classList.add('show'); }
 function uncover() { $('cover').classList.remove('show'); go(); }
-function go() { paint(); $('msg').textContent = isBot() ? '🤖 Komputer lagi mikir…' : `Giliran ${name(turn)} — ambil atau cukup?`; if (isBot()) botPlay(); }
+function go() { paint(); if (ONL()) { $('msg').textContent = turn === Meja.me() ? 'Giliran kamu — ambil atau cukup?' : `Nunggu ${turn}…`; return; } $('msg').textContent = isBot() ? '🤖 Komputer lagi mikir…' : `Giliran ${name(turn)} — ambil atau cukup?`; if (isBot()) botPlay(); }
 function cardHTML(c, hide) { return hide ? '<div class="cd back"><span></span></div>' : `<div class="cd ${c.red ? 'red' : ''}"><span>${c.r}</span><small>${c.s}</small></div>`; }
 function paint() {
   ['Razan', 'Dara'].forEach(p => {
     // kartu ke-2 ketutup buat yang lagi ga giliran (kecuali lawan komputer / udah dibuka)
-    const viewer = BOT ? (BOT === 'Razan' ? 'Dara' : 'Razan') : turn;
+    const viewer = ONL() ? Meja.me() : BOT ? (BOT === 'Razan' ? 'Dara' : 'Razan') : turn;
     const hideSecond = !reveal && p !== viewer;
     const v = val(hands[p]), shown = hideSecond ? val([hands[p][0]].concat(hands[p].slice(2))) : v;
     $(p === 'Razan' ? 'hR' : 'hD').className = `hand ${p[0]} ${!reveal && p === turn && !over ? 'now' : ''}`;
@@ -256,11 +259,12 @@ function hit(auto) {
   const v = val(hands[turn]); paint();
   if (v > 21) { $('msg').textContent = `💥 ${name(turn)} lewat 21!`; setTimeout(() => stand(true), 900); }
   else if (v === 21) { $('msg').textContent = `✨ 21 pas!`; setTimeout(() => stand(true), 700); }
+  mjSync();
 }
 function stand(auto) {
   if (over || reveal || (!auto && (busy || isBot()))) return;
   done[turn] = true; const o = turn === 'Razan' ? 'Dara' : 'Razan';
-  if (!done[o] && val(hands[turn]) <= 21) { turn = o; paint(); begin(); return; }
+  if (!done[o] && val(hands[turn]) <= 21) { turn = o; paint(); begin(); mjSync(); return; }
   if (!done[o] && val(hands[turn]) > 21) { done[o] = true; }
   showdown();
 }
@@ -283,11 +287,19 @@ function showdown() {
   let w = null; if (rb && !db) w = 'Dara'; else if (db && !rb) w = 'Razan'; else if (!rb && !db && r !== d) w = r > d ? 'Razan' : 'Dara';
   if (w) wins[w]++; paint(); vib(w ? [20, 30, 20] : 10); try { window.SFX && SFX.play(w ? 'coin' : 'tap'); } catch (e) {}
   $('msg').textContent = w ? `🍀 ${name(w)} menang ronde! (${r} vs ${d})` : `🤝 Seri (${r} vs ${d})`;
-  if (wins.Razan >= to || wins.Dara >= to) { over = true; const W2 = wins.Razan > wins.Dara ? 'Razan' : 'Dara'; record('ds-rec', W2, BOT, level); setTimeout(() => showRes(W2, `Skor ${wins.Razan} - ${wins.Dara}`, BOT, level), 1300); return; }
+  if (wins.Razan >= to || wins.Dara >= to) { over = true; const W2 = wins.Razan > wins.Dara ? 'Razan' : 'Dara'; if (!ONL()) record('ds-rec', W2, BOT, level); mjSync({ W2 }); setTimeout(() => showRes(W2, `Skor ${wins.Razan} - ${wins.Dara}`, BOT, level), 1300); return; }
+  mjSync();
   first = first === 'Razan' ? 'Dara' : 'Razan';
   setTimeout(() => { if (!over) deal(); }, 2400);
 }
 paintPick();
+
+// ═════ 🌐 main online beda HP (meja.js) ═════
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup({ name: 'Dua Satu', emoji: '🃏', after: '#s-pick .pk .btn', sub: 'kartu lawan tetep ketutup',
+  init(seed) { BOT = null; over = false; wins = { Razan: 0, Dara: 0 }; first = Math.random() < .5 ? 'Razan' : 'Dara'; newDeck(); hands = { Razan: [draw1(), draw1()], Dara: [draw1(), draw1()] }; done = { Razan: false, Dara: false }; reveal = false; turn = first; busy = false; return { deck, hands, done, turn, first, wins, reveal, over: false, to, m: '' }; },
+  begin() { BOT = null; $('nR').textContent = Meja.me() === 'Razan' ? 'Razan (kamu)' : 'Razan'; $('nD').textContent = Meja.me() === 'Dara' ? 'Dara (kamu)' : 'Dara'; $('cover').classList.remove('show'); closeRes(); scr('s-game'); },
+  apply(s) { mjAp = true; try { ({ deck, hands, done, turn, first, wins, reveal, to } = s); over = !!s.over; busy = false; closeRes(); scr('s-game'); paint(); if (!reveal && !over) go(); else { const r = val(hands.Razan), d = val(hands.Dara), rb = r > 21, db = d > 21; let w = null; if (rb && !db) w = 'Dara'; else if (db && !rb) w = 'Razan'; else if (!rb && !db && r !== d) w = r > d ? 'Razan' : 'Dara'; $('msg').textContent = w ? `🍀 ${name(w)} menang ronde! (${r} vs ${d})` : `🤝 Seri (${r} vs ${d})`; } if (s.over && s.W2) setTimeout(() => showRes(s.W2, `Skor ${wins.Razan} - ${wins.Dara}`, null, 0), 900); } finally { mjAp = false; } },
+  turn: s => s.over || s.reveal ? null : s.turn, onEnd() { toMenu(); }, quitFn: 'quit' }); document.head.appendChild(sc); })();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->

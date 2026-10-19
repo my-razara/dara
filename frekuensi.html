@@ -276,8 +276,8 @@
     <div class="highlight-wrap" id="highlights"></div>
     <button class="btn-ghost" style="margin:0 0 .6rem" onclick="copyResult()">📋 Salin Hasil</button>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();startGame()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -577,7 +577,8 @@ function decide(kind) {
 
   const pool = kind === 'exact' ? DEMAND_EXACT : kind === 'close' ? DEMAND_CLOSE : DEMAND_MISS;
   setText('demand-tag', kind === 'exact' ? '🎉 Bonus Sehati' : kind === 'close' ? '🔗 Tantangan Nyambung' : '😂 Tantangan Beda Banget');
-  setHTML('demand-text', draw('d-' + kind, pool));
+  const dtx = ONL() && mjAp && G.dtx ? G.dtx : draw('d-' + kind, pool); G.dtx = dtx;
+  setHTML('demand-text', dtx);
   const dm = $('demand'); if (dm) dm.classList.add('show');
   const nb = $('next-btn'); if (nb) nb.disabled = false;
   const pts = { exact: 2, close: 1, miss: 0 };
@@ -631,7 +632,7 @@ function showResult() {
 
   const high = pct >= 60;
   setText('fd-tag', high ? '💞 Hadiah Frekuensi' : '📡 Tantangan Final');
-  setHTML('fd-text', draw(high ? 'fhigh' : 'flow', high ? FINAL_HIGH : FINAL_LOW));
+  setHTML('fd-text', ONL() && G.seed != null ? (high ? FINAL_HIGH : FINAL_LOW)[G.seed % (high ? FINAL_HIGH : FINAL_LOW).length] : draw(high ? 'fhigh' : 'flow', high ? FINAL_HIGH : FINAL_LOW));
 
   const pair = (h, cls) => `<div class="hl-pair"><span class="hl-trigger">${esc(h.trigger)}</span><span class="hl-answers">${cls === 'eq'
     ? `<span style="color:var(--green)">${esc(h.razan)} = ${esc(h.dara)}</span>`
@@ -724,6 +725,71 @@ renderChips();
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, myAns = null;
+function toMenu() { showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(G))); }
+// online: dua-duanya nulis barengan, jawaban pasangan disembunyiin sampai reveal
+function mjAnswerUI(fresh) {
+  const me = ML(), o = other(me), mineDone = !!G.ans[me], opDone = !!G.ans[o], w = G.deck[G.idx];
+  setText('word-num', G.idx + 1); setText('word-total', G.total); setText('max-score', G.total * 2); updateHud();
+  const el = $('trigger-word'); if (el && el.textContent !== w.word) { el.textContent = w.word; el.classList.remove('animate'); void el.offsetWidth; el.classList.add('animate'); }
+  const lc = $('locked-card');
+  if (lc) { lc.innerHTML = mineDone ? `🔒 Jawabanmu udah dikunci. Nunggu <b>${NAMES[o]}</b>…` : opDone ? `🔒 <b>${NAMES[o]}</b> udah ngunci — cepetan!` : ''; lc.classList.toggle('show', mineDone || opDone); }
+  const tl = $('turn-label'); if (tl) { tl.textContent = mineDone ? '⏳ Nunggu pasangan…' : `✍️ Tulis 1 kata — ${NAMES[o]} juga lagi nulis!`; tl.className = 'turn-label ' + me; }
+  const inp = $('answer-input'); if (inp) { inp.disabled = mineDone; if (fresh || mineDone) inp.value = ''; }
+  const sb = $('submit-btn'); if (sb) { sb.disabled = mineDone; sb.textContent = 'Kunci! 🔒'; sb.className = 'btn-main'; }
+  if (mineDone) stopQuick(); else if (fresh) startQuick();
+}
+function mjBoth() { if (G.phase === 'answer' && G.ans.razan && G.ans.dara) { stopQuick(); showReveal(); return true; } return false; }
+(function () {
+  const _load = loadWord, _sub = submitAnswer, _vote = voteMatch, _next = nextWord;
+  loadWord = function () { _load(); if (ONL() && G && G.phase === 'answer') { myAns = null; G.dtx = null; mjAnswerUI(true); mjSync(); } };
+  submitAnswer = function (timedOut) {
+    if (!ONL()) return _sub(timedOut);
+    if (!G || G.phase !== 'answer' || G.ans[ML()]) return;
+    const inp = $('answer-input'); let val = (inp.value || '').trim().replace(/\s+/g, ' ');
+    if (!val) { if (timedOut !== true) { inp.focus(); toast('Tulis 1 kata dulu ✍️'); return; } val = '(kehabisan waktu)'; }
+    stopQuick(); G.ans[ML()] = val; myAns = { id: G.deck[G.idx].id, i: G.idx, v: val }; inp.blur();
+    if (timedOut === true) toast('⏰ Waktu kamu habis!');
+    if (!mjBoth()) mjAnswerUI();
+    mjSync();
+  };
+  voteMatch = function (k) { _vote(k); if (ONL()) mjSync(); };
+  nextWord = function () { const was = G && G.idx; _next(); if (ONL() && G && G.idx !== was && G.idx >= G.total) mjSync(); };
+})();
+const MJ = { name: 'Frekuensi', emoji: '📡', after: '#s-intro .btn-main', sub: 'nulis barengan, reveal barengan',
+  cfg: () => speed, setCfg: v => { speed = +v || 0; },
+  init(seed) { stopQuick(); const deck = buildDeck(totalWords);
+    G = { deck, idx: 0, total: deck.length, firstStarter: 'razan', starter: 'razan', cur: 'razan', ans: {}, phase: 'answer', score: 0, exact: 0, close: 0, miss: 0, streak: 0, best: 0, history: [], last: null, seed, dtx: null };
+    return JSON.parse(JSON.stringify(G)); },
+  begin() { showScreen('s-game'); },
+  apply(s) {
+    let fix = false;
+    mjAp = true;
+    try {
+      const me = ML(), prevIdx = G ? G.idx : -1, prevSeed = G ? G.seed : null;
+      if (s.phase === 'answer' && myAns && s.idx === myAns.i && s.deck[s.idx] && s.deck[s.idx].id === myAns.id && !s.ans[me]) { s.ans[me] = myAns.v; fix = true; }
+      G = s;
+      if (G.idx >= G.total) return showResult();
+      if (G.phase === 'answer') { if (mjBoth()) { fix = true; return; } const fresh = prevIdx !== G.idx || prevSeed !== G.seed; showScreen('s-game'); mjAnswerUI(fresh); return; }
+      if (G.phase === 'reveal') {
+        const m = G.last && G.last.match, onRev = document.querySelector('#s-reveal.active') && prevIdx === G.idx && prevSeed === G.seed;
+        if (!onRev) { const last = G.last, sc = G.score; G.phase = 'answer'; showReveal(); G.score = sc; if (last && last.match && !last.auto) { G.last = last; G.last.match = null; decide(m); } }
+        else if (m && G.last) { const k = m; G.last.match = null; decide(k); }
+      }
+    } finally { mjAp = false; if (fix) setTimeout(mjSync, 0); }
+  },
+  turn: () => null,
+  onEnd() { stopQuick(); G = null; myAns = null; const inp = $('answer-input'); if (inp) inp.disabled = false; const sb = $('submit-btn'); if (sb) sb.disabled = false; showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

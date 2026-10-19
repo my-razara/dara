@@ -284,8 +284,8 @@
     </div>
     <button class="btn-ghost" style="margin:0 0 .6rem" onclick="copyAnswers()">📋 Salin Semua Jawaban</button>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();startGame()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -637,7 +637,7 @@ function showResult() {
   setText('st-best-r', G.best.razan); setText('st-best-d', G.best.dara);
   setText('st-sehati', G.sehati);
   setText('fd-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
-  setHTML('fd-text', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
+  setHTML('fd-text', ONL() && G.seed != null ? (tie ? FINAL_TIE[G.seed % FINAL_TIE.length] : fill(FINAL_WIN[G.seed % FINAL_WIN.length], { w, l })) : tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
 
   const badge = res => res === 'razan' ? '🏆 Razan' : res === 'dara' ? '🏆 Dara' : res === 'sehati' ? '🔗 Sehati' : '🤝';
   setHTML('hl-list', G.history.map(h => `
@@ -729,6 +729,80 @@ renderChips();
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, myAns = null;
+function toMenu() { showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(G))); }
+// online: dua-duanya jawab barengan di HP masing-masing, jawaban pasangan baru keliatan pas reveal
+function mjAnswerUI() {
+  const me = ML(), o = other(me), mineDone = !!G.ans[me], opDone = !!G.ans[o];
+  setText('q-num-label', `Pertanyaan ${G.qCount}`); setText('q-emoji', G.q.emoji);
+  const qt = $('q-text'); if (qt && qt.textContent !== G.q.text) { qt.textContent = G.q.text; qt.classList.remove('animate'); void qt.offsetWidth; qt.classList.add('animate'); }
+  const sw = $('q-swap'); if (sw) sw.style.display = Object.keys(G.ans).length ? 'none' : '';
+  const lc = $('locked-card');
+  if (lc) { lc.innerHTML = mineDone ? `🔒 Jawabanmu udah dikunci. Nunggu <b>${NAMES[o]}</b> jawab…` : opDone ? `🔒 <b>${NAMES[o]}</b> udah ngunci jawaban — giliran kamu!` : ''; lc.classList.toggle('show', mineDone || opDone); }
+  const tl = $('turn-label'); if (tl) { tl.textContent = mineDone ? '⏳ Nunggu…' : `✍️ Jawab diam-diam — ${NAMES[o]} juga lagi jawab!`; tl.className = 'turn-label ' + me; }
+  const inp = $('answer-input'); if (inp) { inp.disabled = mineDone; if (mineDone) inp.value = ''; inp.placeholder = mineDone ? 'Udah dikunci 🔒' : 'Tulis jawabanmu...'; }
+  const sb = $('submit-btn'); if (sb) { sb.disabled = mineDone; sb.textContent = 'Kunci Jawaban 🔒'; sb.className = 'btn-main'; }
+  setText('pass-hint', mineDone ? 'Jawaban pasangan baru keliatan pas reveal 👀' : 'Enter buat kunci · Shift+Enter baris baru');
+  updateHud();
+}
+function mjBoth() { if (G.phase === 'answer' && G.ans.razan && G.ans.dara) { showReveal(); return true; } return false; }
+(function () {
+  const _start = startGame, _load = loadQuestion, _sub = submitAnswer, _vote = vote, _next = nextQuestion, _fin = finishEarly, _swap = swapQuestion;
+  loadQuestion = function (isNew) { _load(isNew); if (ONL() && G) { myAns = null; mjAnswerUI(); mjSync(); } };
+  swapQuestion = function () { if (ONL() && G && G.phase === 'answer' && Object.keys(G.ans).length) return; _swap(); };
+  submitAnswer = function () {
+    if (!ONL()) return _sub();
+    if (!G || G.phase !== 'answer') return;
+    const inp = $('answer-input'), val = (inp.value || '').trim().replace(/\s+/g, ' ');
+    if (!val) { inp.focus(); toast('Tulis jawabannya dulu ✍️'); return; }
+    G.ans[ML()] = val; myAns = { id: G.q.id, n: G.qCount, v: val }; inp.blur();
+    if (!mjBoth()) mjAnswerUI();
+    mjSync();
+  };
+  vote = function (r) { _vote(r); if (ONL() && G && G.phase === 'after') { G.av = [$('after-verdict').innerHTML, $('after-tag').textContent, $('after-demand').innerHTML, r]; mjSync(); } };
+  nextQuestion = function () { if (ONL() && G && G.phase === 'after' && !(G.scores.razan >= target || G.scores.dara >= target)) { G.starter = other(G.starter); showScreen('s-game'); return loadQuestion(true); } _next(); };
+  finishEarly = function () { if (!ONL()) return _fin(); if (!G || !G.history.length) return toast('Belum ada pertanyaan yang selesai'); if (!confirm('Akhiri game sekarang dan lihat hasil?')) return; G.phase = 'done'; mjSync(); showResult(); };
+})();
+const MJ = { name: 'Tarik Pilihan', emoji: '🧲', after: '#s-intro .btn-main', sub: 'jawab barengan, reveal barengan',
+  cfg: () => target, setCfg: v => { target = +v || 5; },
+  init(seed) { stopDebate(); G = { firstStarter: 'razan', starter: 'razan', qCount: 1, q: null, ans: {}, phase: 'answer', cur: 'razan', scores: { razan: 0, dara: 0 }, streak: { razan: 0, dara: 0 }, best: { razan: 0, dara: 0 }, sehati: 0, history: [], usedIds: [], seed };
+    G.q = nextQ(); return JSON.parse(JSON.stringify(G)); },
+  begin() { showScreen('s-game'); },
+  apply(s) {
+    let fix = false;
+    mjAp = true;
+    try {
+      const me = ML();
+      // jawabanku belum kecatet di keadaan pasangan (kirimnya barengan) → gabungin lagi
+      if (s.phase === 'answer' && myAns && s.q && s.q.id === myAns.id && s.qCount === myAns.n && !s.ans[me]) { s.ans[me] = myAns.v; fix = true; }
+      G = s;
+      if (G.phase === 'done') return showResult();
+      if (G.phase === 'answer') { if (mjBoth()) { fix = true; return; } showScreen('s-game'); mjAnswerUI(); return; }
+      if (G.phase === 'vote') { G.phase = 'answer'; showReveal(); return; }
+      if (G.phase === 'after') {
+        const was = document.querySelector('#s-reveal.active') && $('after-box').classList.contains('show');
+        if (!was) { G.phase = 'answer'; showReveal(); G.phase = 'after'; }
+        stopDebate(); setText('debate-label', '✅ Voting selesai');
+        const av = G.av || ['', '', '', ''];
+        ['rc-razan', 'rc-dara'].forEach(id => $(id).classList.toggle('win', av[3] === 'sehati' || 'rc-' + av[3] === id));
+        setHTML('after-verdict', av[0]); setText('after-tag', av[1]); setHTML('after-demand', av[2]); updateHud();
+        setText('next-btn', (G.scores.razan >= target || G.scores.dara >= target) ? 'Lihat Hasil 🏆' : 'Pertanyaan Berikutnya →');
+        $('vote-box').style.display = 'none'; $('after-box').classList.add('show');
+      }
+    } finally { mjAp = false; if (fix) setTimeout(mjSync, 0); }
+  },
+  turn: () => null,
+  onEnd() { stopDebate(); G = null; myAns = null; const inp = $('answer-input'); if (inp) inp.disabled = false; const sb = $('submit-btn'); if (sb) sb.disabled = false; showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

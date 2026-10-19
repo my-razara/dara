@@ -232,7 +232,7 @@ const upper = p => CATS.slice(0, 6).reduce((a, [k]) => a + (card[p][k] || 0), 0)
 const bonus = p => upper(p) >= 63 ? 35 : 0;
 const total = p => Object.values(card[p]).reduce((a, b) => a + b, 0) + bonus(p);
 function start(bot) { BOT = bot; first = bot ? (bot === 'Razan' ? 'Dara' : 'Razan') : (first === 'Razan' ? 'Dara' : 'Razan'); begin(); }
-function again() { if (BOT) begin(); else start(null); }
+function again() { if (ONL()) return Meja.restart(); if (BOT) begin(); else start(null); }
 function begin() {
   card = { Razan: {}, Dara: {} }; turn = first; over = false; busy = false; newTurn();
   $('nR').textContent = BOT === 'Razan' ? '🤖 Komputer' : BOT ? 'Razan (kamu)' : 'Razan';
@@ -242,10 +242,13 @@ function begin() {
 function quit() { if (!over && Object.keys(card.Razan).length + Object.keys(card.Dara).length && !confirm('Udahan mainnya?')) return; toMenu(); }
 function toMenu() { over = true; scr('s-pick'); paintPick(); }
 function newTurn() { D = [0, 0, 0, 0, 0]; H = [0, 0, 0, 0, 0]; left = 3; }
-const isBot = () => BOT && turn === BOT;
+const ONL = () => !!(window.Meja && Meja.on());
+const isBot = () => ONL() ? turn !== Meja.me() : BOT && turn === BOT;
+let mjAp = false;
+function mjSync() { if (!ONL() || mjAp) return; Meja.push({ D, H, left, card, turn, over }); }
 function paint(rolled) {
   $('dice').innerHTML = D.map((v, i) => `<div class="die ${H[i] ? 'held' : ''} ${v ? '' : 'empty'} ${rolled && !H[i] ? 'roll' : ''}" data-i="${i}">${Array.from({ length: 9 }, (_, k) => `<i style="visibility:${v && PIPS[v].includes(k) ? 'visible' : 'hidden'}"></i>`).join('')}</div>`).join('');
-  $('dice').querySelectorAll('.die').forEach(el => el.onclick = () => { if (over || busy || isBot() || !D[0] || left === 0 && false) return; if (left === 3) return; H[+el.dataset.i] ^= 1; vib(6); paint(); });
+  $('dice').querySelectorAll('.die').forEach(el => el.onclick = () => { if (over || busy || isBot() || !D[0] || left === 0 && false) return; if (left === 3) return; H[+el.dataset.i] ^= 1; vib(6); paint(); mjSync(); });
   $('rollb').disabled = over || busy || isBot() || left === 0 || H.every(Boolean);
   $('rollb').textContent = left === 3 ? '🎲 Lempar (3)' : left ? `🎲 Lempar lagi (${left})` : 'Pilih kotak skor 👇';
   const can = !over && !busy && !isBot() && left < 3;
@@ -261,8 +264,9 @@ function paint(rolled) {
   $('sR').textContent = total('Razan'); $('sD').textContent = total('Dara');
   $('pR').classList.toggle('now', !over && turn === 'Razan'); $('pD').classList.toggle('now', !over && turn === 'Dara');
 }
-const who = p => BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
+const who = p => ONL() ? (p === Meja.me() ? 'Kamu' : p) : BOT ? (p === BOT ? '🤖 Komputer' : 'Kamu') : p;
 function next() {
+  if (ONL()) { $('msg').textContent = turn !== Meja.me() ? `Nunggu ${turn} main…` : left === 3 ? 'Giliran kamu — lempar dadunya!' : left ? 'Tap dadu buat ngunci, lempar lagi, atau pilih kotak skor' : 'Pilih kotak skor (yang kuning)'; return; }
   $('msg').textContent = isBot() ? '🤖 Komputer lagi mikir…' : left === 3 ? `Giliran ${who(turn)} — lempar dadunya!` : left ? 'Tap dadu buat ngunci, lempar lagi, atau pilih kotak skor' : 'Pilih kotak skor (yang kuning)';
   if (isBot()) botPlay();
 }
@@ -274,13 +278,14 @@ function roll(auto) {
   const c = [0, 0, 0, 0, 0, 0, 0]; D.forEach(v => c[v]++);
   if (Math.max(...c) === 5) { toast('🎉 LIMA KEMBAR!'); confetti(40); }
   if (!auto) next();
+  mjSync();
 }
 function pick(k) {
   if (over || card[turn][k] != null || left === 3) return;
   card[turn][k] = score(k, D); vib(10); try { window.SFX && SFX.play('coin'); } catch (e) {}
   const done = p => Object.keys(card[p]).length === CATS.length;
-  if (done('Razan') && done('Dara')) return finish();
-  turn = turn === 'Razan' ? 'Dara' : 'Razan'; newTurn(); paint(); next();
+  if (done('Razan') && done('Dara')) { over = true; mjSync(); return finish(); }
+  turn = turn === 'Razan' ? 'Dara' : 'Razan'; newTurn(); paint(); next(); mjSync();
 }
 // ── komputer ──
 const sleepMs = ms => new Promise(r => setTimeout(r, ms));
@@ -326,10 +331,17 @@ function finish() {
   const r = total('Razan'), d = total('Dara'), w = r === d ? null : r > d ? 'Razan' : 'Dara';
   lsSet('dl-best', Math.max(lsGet('dl-best', 0), BOT ? total(BOT === 'Razan' ? 'Dara' : 'Razan') : Math.max(r, d)));
   $('msg').textContent = '🏁 Kartu skor penuh!';
-  record('dl-rec', w, BOT, level);
+  if (!ONL()) record('dl-rec', w, BOT, level);
   showRes(w, `Razan ${r} · Dara ${d}`, BOT, level);
 }
 paintPick();
+
+// ═════ 🌐 main online beda HP (meja.js) ═════
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup({ name: 'Dadu Lima', emoji: '🎲', after: '#s-pick .pk .btn', sub: 'gantian lempar dadu',
+  init(seed) { return { D: [0, 0, 0, 0, 0], H: [0, 0, 0, 0, 0], left: 3, card: { Razan: {}, Dara: {} }, turn: (seed % 2) ? 'Razan' : 'Dara', over: false }; },
+  begin() { BOT = null; $('nR').textContent = Meja.me() === 'Razan' ? 'Razan (kamu)' : 'Razan'; $('nD').textContent = Meja.me() === 'Dara' ? 'Dara (kamu)' : 'Dara'; closeRes(); scr('s-game'); },
+  apply(s) { mjAp = true; try { ({ D, H, left, card, turn } = s); over = false; busy = false; closeRes(); scr('s-game'); paint(); if (s.over) finish(); else next(); } finally { mjAp = false; } },
+  turn: s => s.over ? null : s.turn, onEnd() { toMenu(); }, quitFn: 'quit' }); document.head.appendChild(sc); })();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->

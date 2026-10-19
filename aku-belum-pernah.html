@@ -284,8 +284,8 @@
       <p class="demand-text" id="final-demand">...</p>
     </div>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="startGame()">Main Lagi 🔄</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();startGame()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -580,6 +580,7 @@ function loadStatement() {
 
   const tf = $('timer-fill'); if (tf) tf.style.stroke = 'var(--violet)';
   startTimer();
+  if (typeof ONL === 'function' && ONL()) { mjPressUI('razan'); mjPressUI('dara'); }
 }
 
 // Timer berbasis waktu nyata: nggak melambat walau tab/HP di-background
@@ -606,6 +607,7 @@ function stopTimer() { clearInterval(timerId); timerId = null; timerToken++; }
 
 function pressBtn(player) {
   if (!S || S.locked) return;
+  if (ONL() && player !== ML() && !mjAp) return;
   const btn = $('btn-' + player);
   S.pressed[player] = !S.pressed[player];
 
@@ -619,6 +621,8 @@ function pressBtn(player) {
     setText('sub-' + player, 'Pernah!');
   }
 
+  if (ONL() && !mjAp) mjSync();
+  if (ONL() && !Meja.host()) return;
   clearTimeout(autoEndTimer);
   if (S.pressed.razan && S.pressed.dara) {
     const idxNow = S.idx;
@@ -630,6 +634,7 @@ function pressBtn(player) {
 
 function endStatement() {
   if (!S || S.locked) return;
+  if (ONL() && !Meja.host() && !mjAp) { stopTimer(); setText('timer-num', '…'); return; }
   S.locked = true;
   stopTimer();
   clearTimeout(autoEndTimer);
@@ -663,6 +668,7 @@ function endStatement() {
     nb.className = 'next-btn ready';
     nb.textContent = S.idx >= S.total - 1 ? 'Lihat Hasil 🏆' : 'Statement Berikutnya →';
   }
+  if (ONL() && !mjAp) mjSync();
 }
 
 function renderStreak(p) {
@@ -684,6 +690,7 @@ function showDemand(r, d) {
     tag = '😇 Nggak ada yang pernah';
     html = pick(DEMAND_NONE, 'none');
   }
+  if (ONL()) { if (mjAp && mjDm) { tag = mjDm[0]; html = mjDm[1]; } else mjDm = [tag, html]; }
   setText('demand-tag', tag);
   setHTML('demand-text', html);
   const dc = $('demand-card'); if (dc) dc.classList.add('show');
@@ -695,6 +702,7 @@ function nextStatement() {
   S.idx++;
   if (S.idx >= S.total) showResult();
   else loadStatement();
+  if (ONL()) mjSync();
 }
 
 function exitGame() {
@@ -728,7 +736,7 @@ function showResult() {
   }
 
   const kompakPct = S.total ? Math.round((S.kompak / S.total) * 100) : 0;
-  const finalHTML = tie ? pick(FINAL_TIE, 'ftie') : fill(pick(FINAL_WIN, 'fwin'), { w, l });
+  const finalHTML = ONL() && S.seed != null ? (tie ? FINAL_TIE[S.seed % FINAL_TIE.length] : fill(FINAL_WIN[S.seed % FINAL_WIN.length], { w, l })) : tie ? pick(FINAL_TIE, 'ftie') : fill(pick(FINAL_WIN, 'fwin'), { w, l });
 
   setText('end-icon', icon);
   setText('end-title', title);
@@ -798,6 +806,61 @@ renderChips();
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mjDm = null;
+function toMenu() { showScreen('s-intro'); }
+function mjSnap() { return { gid: S.gid, seed: S.seed, deck: S.deck.map(x => x.id), idx: S.idx, scores: S.scores, streak: S.streak, best: S.best, kompak: S.kompak, pr: S.pressed, ord: S.order, lk: S.locked, dm: mjDm }; }
+function mjSync() { if (ONL() && !mjAp && S) Meja.push(mjSnap()); }
+function mjPressUI(p) {
+  const b = $('btn-' + p); if (!b) return;
+  b.classList.toggle(p === 'razan' ? 'pressed-r' : 'pressed-d', !!S.pressed[p]);
+  setText('sub-' + p, S.pressed[p] ? (p === ML() ? 'Pernah ✓ (tap batal)' : 'Pernah ✓') : p === ML() ? 'Pernah!' : 'nunggu…');
+}
+function mjMine() { ['razan', 'dara'].forEach(p => { const b = $('btn-' + p); if (b) { const mine = !ONL() || p === ML(); b.style.opacity = mine ? '' : '.6'; b.style.pointerEvents = mine ? '' : 'none'; } }); }
+const MJ = { name: 'Aku Belum Pernah', emoji: '🙋', after: '#start-btn', sub: 'pencet "pernah" dari HP masing-masing',
+  init(seed) { const deck = buildDeck(getPool(), targetN); mjDm = null;
+    return { gid: seed, seed, deck: deck.map(x => x.id), idx: 0, scores: { razan: 0, dara: 0 }, streak: { razan: 0, dara: 0 }, best: { razan: 0, dara: 0 }, kompak: 0, pr: { razan: false, dara: false }, ord: [], lk: false, dm: null }; },
+  begin() { mjMine(); },
+  apply(s) {
+    mjAp = true;
+    try {
+      const me = ML(), o = other(me);
+      mjMine();
+      if (!S || S.gid !== s.gid) {
+        const deck = s.deck.map(id => STATEMENTS.find(x => x.id === id)).filter(Boolean);
+        S = { gid: s.gid, seed: s.seed, deck, idx: s.idx, total: deck.length, scores: s.scores, streak: s.streak, best: s.best, pressed: { razan: false, dara: false }, order: [], locked: true, canNext: false, kompak: s.kompak };
+        setText('stmt-total', S.total); setText('score-razan', S.scores.razan); setText('score-dara', S.scores.dara);
+        renderStreak('razan'); renderStreak('dara'); buildDots(); showScreen('s-game');
+        if (S.idx >= S.total) return showResult();
+        loadStatement(); mjPressUI('razan'); mjPressUI('dara');
+      } else if (s.idx !== S.idx) {
+        S.idx = s.idx; if (S.idx >= S.total) return showResult();
+        loadStatement(); mjPressUI('razan'); mjPressUI('dara');
+      }
+      if (s.lk) {
+        if (!S.locked) { S.pressed = Object.assign({}, s.pr); S.order = s.ord || []; mjDm = s.dm; mjPressUI('razan'); mjPressUI('dara'); S.scores = Object.assign({}, S.scores); endStatement(); }
+        S.scores = s.scores; S.streak = s.streak; S.best = s.best; S.kompak = s.kompak;
+        setText('score-razan', S.scores.razan); setText('score-dara', S.scores.dara); renderStreak('razan'); renderStreak('dara');
+        return;
+      }
+      if (S.locked) return;
+      if (S.pressed[o] !== s.pr[o]) { S.pressed[o] = s.pr[o]; S.order = s.pr[o] ? S.order.filter(p => p !== o).concat(o) : S.order.filter(p => p !== o); mjPressUI(o); try { navigator.vibrate && navigator.vibrate(20); } catch (e) {} }
+      const fix = S.pressed[me] !== s.pr[me];
+      mjAp = false;
+      if (fix) mjSync();
+      if (Meja.host()) { clearTimeout(autoEndTimer); if (S.pressed.razan && S.pressed.dara) { const i = S.idx; autoEndTimer = setTimeout(() => { if (S && !S.locked && S.idx === i && S.pressed.razan && S.pressed.dara) endStatement(); }, AUTO_NEXT_DELAY); } }
+    } finally { mjAp = false; }
+  },
+  turn: () => null,
+  onEnd() { stopTimer(); clearTimeout(autoEndTimer); S = null; mjMine(); ['razan', 'dara'].forEach(p => setText('sub-' + p, 'Pernah!')); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>
