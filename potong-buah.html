@@ -274,6 +274,11 @@ function draw() {
 function loop(ts) { const dt = last ? Math.min(50, ts - last) : 16; last = ts; step(dt); draw(); if (!over || objs.length || parts.length) raf = requestAnimationFrame(loop); }
 paintPick();
 
+// ⚔️ duel online
+(function () { const sc = document.createElement('script'); sc.src = 'duel.js'; sc.onload = () => { Duel.setup({ name: 'Potong Buah', emoji: '🍉', fmt: v => `${v} poin`, valid: v => v > 0, after: '#s-pick .pk .btn',
+  start() { start(Duel.me()); }, stop() { over = true; playing = false; cancelAnimationFrame(raf); }, now: () => score, onEnd: toMenu,
+  endFn: 'endRun', endVal: () => score, onFinish() { playing = false; over = true; }, quitFn: 'quit' }); }; document.head.appendChild(sc); })();
+
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>

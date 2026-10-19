@@ -316,6 +316,11 @@ function draw() {
 function loop() { step(); draw(); if (!over) raf = requestAnimationFrame(loop); }
 paintPick();
 
+// ⚔️ duel online
+(function () { const sc = document.createElement('script'); sc.src = 'duel.js'; sc.onload = () => { Duel.setup({ name: 'Mini Golf', emoji: '⛳', low: true, fmt: v => `${v} pukulan`, valid: v => v > 0, after: '#s-pick .pk .btn',
+  start() { start(Duel.me()); }, stop() { over = true; cancelAnimationFrame(raf); }, now: () => { try { return tot(mode) + strokes; } catch (e) { return null; } }, onEnd: toMenu,
+  endFn: 'finish', endVal: () => tot(mode), onFinish() { over = true; }, quitFn: 'quit' }); }; document.head.appendChild(sc); })();
+
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>

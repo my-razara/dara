@@ -266,6 +266,13 @@ $('board').addEventListener('pointercancel', () => sx = null);
 addEventListener('keydown', e => { const m = { ArrowLeft: 'L', ArrowRight: 'R', ArrowUp: 'U', ArrowDown: 'D' }[e.key]; if (m && playing) { e.preventDefault(); move(m); } });
 paintPick();
 
+// ⚔️ duel online
+(function () { const sc = document.createElement('script'); sc.src = 'duel.js'; sc.onload = () => { Duel.setup({ name: 'Satuin Hati', emoji: '💞', fmt: v => `${v} poin`, valid: v => v > 0, after: '#s-pick .pk .btn',
+  start() { start(Duel.me()); $('tmw').style.display = ''; overlay(`Duel 3 menit ⚔️<small>Papannya sama persis kayak punya ${Duel.me() === 'Razan' ? 'Dara' : 'Razan'}</small><button onclick="go()">Mulai!</button>`); },
+  stop() { over = true; playing = false; clearInterval(tmI); }, now: () => score, onEnd: toMenu,
+  endFn: 'finish', endVal: () => score, onFinish() { playing = false; clearInterval(tmI); over = true; }, quitFn: 'quit' });
+const _go0 = go; go = function () { if (window.Duel && Duel.active()) { overlay(''); playing = true; clearInterval(tmI); tmI = setInterval(() => { if (!playing) return; time--; hud(); if (time <= 0) finish(); }, 1000); return; } return _go0.apply(this, arguments); }; }; document.head.appendChild(sc); })();
+
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
