@@ -560,8 +560,8 @@ function renderResult(data, fresh) {
         <span class="il-owner ${x.owner}">${NAMES[x.owner]}</span></div>`).join('')}</div></div>
     <button class="btn-ghost" style="margin:0 0 .6rem" onclick="copyList()">📋 Salin Daftar Penghuni</button>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="showScreen('s-pick')">${fresh ? 'Main Lagi 🔄' : 'Bikin Aquarium Baru 🐟'}</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();showScreen('s-pick')">${fresh ? 'Main Lagi 🔄' : 'Bikin Aquarium Baru 🐟'}</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>`);
   showScreen('s-result');
   setTimeout(() => document.querySelectorAll('.sc-fill').forEach(f => f.style.width = f.dataset.w + '%'), 250);
@@ -669,6 +669,81 @@ refreshSavedBtn();
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mjFin = false, mjRk = null;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+// spesies dikirim nomornya aja biar ringan
+const mjSi = sp => SPECIES.indexOf(sp);
+function mjSnap() {
+  const g = Object.assign({}, G, { list: G.list.map(x => Object.assign({}, x, { sp: undefined, si: mjSi(x.sp) })), pending: G.pending ? { si: mjSi(G.pending.sp), name: G.pending.name, pers: G.pending.pers } : null, ldt: $('legend-demand').classList.contains('show') ? $('legend-demand').innerHTML : '' });
+  return JSON.parse(JSON.stringify(g));
+}
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(mjSnap()); }
+function mjMine() { return !ONL() || (G && G.cur === ML()); }
+function mjCtl() {
+  const mine = mjMine(), sb = $('spin-btn'), t = $('gh-turn');
+  if (ONL() && t) t.textContent = mine ? 'Giliran kamu' : `Giliran ${NAMES[G.cur]}`;
+  if (sb && G.phase === 'idle') { sb.disabled = !mine; sb.textContent = mine ? '🎰 Spin! Siapa yang datang?' : `⏳ Nunggu ${NAMES[G.cur]} spin…`; }
+  const ar = $('act-row'), inp = $('name-in');
+  if (ONL() && G.phase === 'result') { if (ar) ar.style.display = mine ? '' : 'none'; if (inp) inp.disabled = !mine; setText('name-lbl', mine ? '✍️ Kasih nama (boleh diganti):' : `✍️ ${NAMES[G.cur]} lagi ngasih nama…`); }
+  else { if (ar) ar.style.display = ''; if (inp) inp.disabled = false; }
+}
+(function () {
+  const _spin = doSpin, _sr = showResult, _rel = releaseAndRespin, _add = addToAquarium, _fin = showFinal, _hud = updateHud, _rg = resetGacha;
+  updateHud = function () { _hud(); if (G) mjCtl(); };
+  resetGacha = function () { _rg(); if (G) mjCtl(); };
+  doSpin = function () { if (ONL() && !mjAp && !mjMine()) return; return _spin(); };
+  showResult = function (res) {
+    const ld = $('legend-demand');
+    if (ONL() && mjAp && res.sp.rarity === 'legendary') { _sr(res); if (ld && G.ldt) ld.innerHTML = G.ldt; }
+    else _sr(res);
+    mjCtl();
+    if (ONL() && !mjAp) mjSync();
+  };
+  releaseAndRespin = function () { if (ONL() && !mjMine()) return; return _rel(); };
+  addToAquarium = function () {
+    if (ONL() && !mjMine()) return;
+    _add();
+    if (ONL()) { if (G.phase === 'end') mjFin = true; mjSync(); }
+  };
+  showFinal = function () {
+    if (!ONL() || !G) return _fin();
+    const R = Math.random; let x = (G.seed % 2147483646) + 1; Math.random = () => (x = x * 16807 % 2147483647) / 2147483647;
+    ['ftie', 'fmvp'].forEach(k => delete decks[k]);
+    try { _fin(); } finally { Math.random = R; }
+  };
+})();
+const MJ = { name: 'Aquarium Couple', emoji: '🐟', after: '#s-pick .btn-ghost', sub: 'gantian spin gacha dari HP masing-masing',
+  cfg: () => perPlayer, setCfg: v => { perPlayer = +v || 5; },
+  init(seed) { const f = (seed % 2) ? 'razan' : 'dara';
+    G = { first: f, cur: f, total: perPlayer * 2, done: 0, list: [], pending: null, phase: 'idle', released: { razan: false, dara: false }, commonRun: { razan: 0, dara: 0 }, luck: { razan: 0, dara: 0 }, bestLuck: { razan: 0, dara: 0 }, seed };
+    return mjSnap(); },
+  begin() { mjFin = false; },
+  apply(s) {
+    mjAp = true;
+    try {
+      const prev = G && G.seed === s.seed ? { done: G.done, phase: G.phase, cur: G.cur } : null;
+      G = Object.assign({}, s, { list: s.list.map(x => Object.assign({}, x, { sp: SPECIES[x.si] })), pending: s.pending ? { sp: SPECIES[s.pending.si], name: s.pending.name, pers: s.pending.pers } : null });
+      if (!prev) mjFin = false;
+      const rk = G.seed + ':' + G.done; if (mjRk !== rk) { mjRk = rk; renderAquarium('aq-canvas', G.list, true); updateStatus(); }
+      if (G.phase === 'end') { if (!mjFin) { mjFin = true; setTimeout(showFinal, 700); } return; }
+      showScreen('s-game'); updateHud();
+      ['act-row', 'name-row', 'name-lbl', 'legend-demand'].forEach(id => { const e = $(id); if (e) e.classList.remove('show'); });
+      if (G.phase === 'result' && G.pending) { showResult(G.pending); const inp = $('name-in'); if (inp) inp.value = G.pending.name; }
+      else { const p = G.phase; resetGacha(); G.phase = p === 'spinning' ? 'idle' : p; mjCtl(); }
+      if (prev && prev.cur !== G.cur && G.cur === ML()) try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+    } finally { mjAp = false; }
+  },
+  turn: s => s.phase === 'end' ? null : (s.cur === 'razan' ? 'Razan' : 'Dara'),
+  onEnd() { G = null; mjFin = false; const ar = $('act-row'); if (ar) ar.style.display = ''; const inp = $('name-in'); if (inp) inp.disabled = false; showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

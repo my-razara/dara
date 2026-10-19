@@ -731,8 +731,8 @@ renderChips();
 
 const ONL = () => !!(window.Meja && Meja.on());
 const ML = () => Meja.me().toLowerCase();
-let mjAp = false, myAns = null;
-function toMenu() { showScreen('s-intro'); }
+let mjAp = false, myAns = null, mjRk = null;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
 function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(G))); }
 // online: dua-duanya nulis barengan, jawaban pasangan disembunyiin sampai reveal
 function mjAnswerUI(fresh) {
@@ -777,7 +777,7 @@ const MJ = { name: 'Frekuensi', emoji: '📡', after: '#s-intro .btn-main', sub:
       if (s.phase === 'answer' && myAns && s.idx === myAns.i && s.deck[s.idx] && s.deck[s.idx].id === myAns.id && !s.ans[me]) { s.ans[me] = myAns.v; fix = true; }
       G = s;
       if (G.idx >= G.total) return showResult();
-      if (G.phase === 'answer') { if (mjBoth()) { fix = true; return; } const fresh = prevIdx !== G.idx || prevSeed !== G.seed; showScreen('s-game'); mjAnswerUI(fresh); return; }
+      if (G.phase === 'answer') { if (mjBoth()) { fix = true; return; } const k = G.seed + ':' + G.idx, fresh = mjRk !== k; mjRk = k; showScreen('s-game'); mjAnswerUI(fresh); return; }
       if (G.phase === 'reveal') {
         const m = G.last && G.last.match, onRev = document.querySelector('#s-reveal.active') && prevIdx === G.idx && prevSeed === G.seed;
         if (!onRev) { const last = G.last, sc = G.score; G.phase = 'answer'; showReveal(); G.score = sc; if (last && last.match && !last.auto) { G.last = last; G.last.match = null; decide(m); } }
@@ -785,6 +785,7 @@ const MJ = { name: 'Frekuensi', emoji: '📡', after: '#s-intro .btn-main', sub:
       }
     } finally { mjAp = false; if (fix) setTimeout(mjSync, 0); }
   },
+  trim(s) { (s.history || []).forEach(h => { h.razan = String(h.razan).slice(0, 30); h.dara = String(h.dara).slice(0, 30); }); return s; },
   turn: () => null,
   onEnd() { stopQuick(); G = null; myAns = null; const inp = $('answer-input'); if (inp) inp.disabled = false; const sb = $('submit-btn'); if (sb) sb.disabled = false; showScreen('s-intro'); },
   quitFn: 'exitGame' };

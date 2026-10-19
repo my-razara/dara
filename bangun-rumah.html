@@ -707,8 +707,8 @@ function showResult() {
     <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final' : `👑 Tantangan Final — ${NAMES[m]} paling puas`}</span>
       <p class="demand-text">${tie ? draw('ftie', FINAL_TIE) : fill(draw('fsat', FINAL_SAT), { m: NAMES[m], l: NAMES[l] })}</p></div>
     <div class="result-btns">
-      <button class="result-btn result-btn-p" onclick="startGame(G ? other(G.first) : 'razan')">Main Lagi 🔄</button>
-      <button class="result-btn result-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="result-btn result-btn-p" onclick="if(ONL())return Meja.restart();startGame(G ? other(G.first) : 'razan')">Main Lagi 🔄</button>
+      <button class="result-btn result-btn-o" onclick="toMenu()">Menu</button>
     </div>`);
   showScreen('s-result');
   setTimeout(() => document.querySelectorAll('.sc-fill').forEach(f => f.style.width = f.dataset.w + '%'), 250);
@@ -767,6 +767,93 @@ function confetti(n) {
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mjDep = 0, mjSeen = false, mjEvSeen = 0, mjEvQ = [], mjEvOn = false, mjRes = false;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(G))); }
+function mjEnded() { return G && (G.turnsLeft <= 0 || G.phase === 'done' || G.phase === 'final'); }
+function mjShowEv() {
+  if (mjEvOn || !mjEvQ.length) return;
+  const e = mjEvQ.shift(); mjEvOn = true;
+  setText('ev-icon', e.i); setText('ev-title', e.t); setHTML('ev-sub', e.s);
+  const o = $('ev-overlay'); if (o) o.classList.add('show');
+}
+function mjSecret() {
+  const me = ML(), a = ATTRS[G.pri[me]], card = $('sec-card');
+  setText('sec-warn', 'Prioritas rahasiamu — jangan kasih tau ya 🤫');
+  setText('sec-title', 'Prioritas rahasia kamu'); setText('sec-sub', `Pilih item yang cocok sama prioritasmu. ${NAMES[other(me)]} juga punya prioritas sendiri!`);
+  setText('sec-icon', a.icon); setText('sec-name', a.label); setText('sec-desc', a.desc);
+  const n = $('sec-name'); if (n) n.style.color = a.color; if (card) card.classList.add('show');
+  setText('sec-btn', 'Udah hafal — mulai belanja! 🛍️'); showScreen('s-secret');
+}
+function mjRender() {
+  if (mjEnded()) { if (!mjRes) { mjRes = true; const o = $('buy-overlay'); if (o) o.classList.remove('show'); setTimeout(showResult, G.phase === 'done' ? 900 : 300); } return; }
+  if (!mjSeen) return mjSecret();
+  updateHeader(); renderShop(); renderHouse();
+  if (!document.querySelector('#s-shop.active')) showScreen('s-shop');
+  const me = ML(), o = $('buy-overlay');
+  if (G.pending && G.pending.step === 'partner') {
+    const P = G.pending; _mjOpenBuy(P.it.id); G.pending = P; renderBuyStep();
+    if (o) o.classList.add('show');
+  } else if (!(G.pending && G.pending.step === 'buyer' && G.turn === me)) { if (o) o.classList.remove('show'); }
+}
+let _mjOpenBuy = null;
+(function () {
+  const _open = openBuy, _rbs = renderBuyStep, _se = showEvent, _ce = closeEvent, _sn = secretNext, _upd = updateHeader, _sr = showResult;
+  _mjOpenBuy = id => { const ph = G.phase; G.phase = 'shop'; try { _open(id); } finally { G.phase = ph; } };
+  openBuy = function (id) { if (ONL() && G && G.turn !== ML()) return toast(`Giliran ${NAMES[G.turn]} — tunggu ya 😉`); return _open(id); };
+  renderBuyStep = function () { _rbs(); if (ONL() && G && G.pending && G.pending.step === 'partner' && G.turn === ML()) { setHTML('b-ask', `⏳ Nunggu <b>${NAMES[other(G.turn)]}</b> setuju…`); setHTML('b-btns', ''); } };
+  updateHeader = function () { _upd(); if (ONL() && G) { const t = $('sh-turn'); if (t) t.textContent = G.turn === ML() ? `${ICON[G.turn]} Giliran kamu` : `${ICON[G.turn]} Giliran ${NAMES[G.turn]}`; } };
+  secretNext = function () { if (!ONL()) return _sn(); mjSeen = true; mjRender(); };
+  showEvent = function (icon, title, sub, then) {
+    if (!ONL()) return _se(icon, title, sub, then);
+    G.evn = (G.evn || 0) + 1; G.evs = (G.evs || []).concat({ id: G.evn, i: icon, t: title, s: sub }).slice(-3); mjEvSeen = G.evn;
+    mjEvQ.push({ i: icon, t: title, s: sub }); mjShowEv();
+    if (then) then();
+  };
+  closeEvent = function () { if (!ONL()) return _ce(); const o = $('ev-overlay'); if (o) o.classList.remove('show'); mjEvOn = false; if (mjEvQ.length) setTimeout(mjShowEv, 150); };
+  showResult = function () {
+    if (!ONL() || !G) return _sr();
+    const R = Math.random; let x = (G.seed % 2147483646) + 1; Math.random = () => (x = x * 16807 % 2147483647) / 2147483647;
+    ['ftie', 'fsat'].forEach(k => delete decks[k]);
+    try { _sr(); } finally { Math.random = R; }
+  };
+  const W = (n, who) => { const o = window[n]; window[n] = function () {
+    if (ONL() && G && who) { const me = ML(); if ((who === 'b' && me !== G.turn) || (who === 'p' && me === G.turn)) return; }
+    mjDep++; let r; try { r = o.apply(this, arguments); } finally { mjDep--; }
+    if (mjDep === 0 && ONL() && !mjAp && G) { if (G.phase === 'event') G.phase = 'shop'; mjSync(); if (mjEnded()) mjRes = true; }
+    return r; }; };
+  W('askPartner', 'b'); W('skipTurn', 'b'); W('approve', 'p'); W('veto', 'p');
+  const _fe = finishEarly; finishEarly = function () { if (!ONL()) return _fe(); if (!G || !G.bought.length) return toast('Beli minimal 1 item dulu ya 🏠'); if (!confirm('Selesai belanja sekarang dan nilai rumah?')) return; G.phase = 'final'; mjSync(); mjRes = true; showResult(); };
+})();
+const MJ = { name: 'Bangun Rumah', emoji: '🏠', after: '#s-pick .btn-ghost', sub: 'belanja gantian, setuju/veto dari HP masing-masing',
+  cfg: () => CFG, setCfg: v => { if (v && typeof v === 'object') CFG = Object.assign({}, CFG, v); },
+  init(seed) { const f = (seed % 2) ? 'razan' : 'dara', pri = shuffle(Object.keys(ATTRS));
+    G = { first: f, turn: f, budget: CFG.budget, start: CFG.budget, turnsLeft: CFG.turns * 2, turnsDone: 0, bought: [], vetoes: { razan: 1, dara: 1 }, discount: 0,
+      pri: { [f]: pri[0], [other(f)]: pri[1] }, st: { razan: { items: 0, spent: 0, skips: 0, vetoUsed: 0 }, dara: { items: 0, spent: 0, skips: 0, vetoUsed: 0 } },
+      agree: 0, bestAgree: 0, secretStep: 0, phase: 'shop', pending: null, seed, evn: 0, evs: [] };
+    return JSON.parse(JSON.stringify(G)); },
+  begin() { mjSeen = false; mjEvSeen = 0; mjEvQ = []; mjEvOn = false; mjRes = false; },
+  apply(s) {
+    mjAp = true;
+    try {
+      if (!G || G.seed !== s.seed) { mjSeen = false; mjEvSeen = s.evn || 0; mjEvQ = []; mjRes = false; }
+      G = s; if (G.phase === 'event') G.phase = 'shop';
+      (G.evs || []).filter(e => e.id > mjEvSeen).forEach(e => { mjEvQ.push(e); mjEvSeen = e.id; });
+      mjRender(); mjShowEv();
+      if (G.turn === ML() && !G.pending) try { navigator.vibrate && navigator.vibrate(25); } catch (e) {}
+    } finally { mjAp = false; }
+  },
+  turn: s => (s.turnsLeft <= 0 || s.phase === 'done' || s.phase === 'final') ? null : s.pending && s.pending.step === 'partner' ? (s.turn === 'razan' ? 'Dara' : 'Razan') : (s.turn === 'razan' ? 'Razan' : 'Dara'),
+  onEnd() { G = null; mjEvQ = []; mjEvOn = false; ['buy-overlay', 'ev-overlay'].forEach(i => { const o = $(i); if (o) o.classList.remove('show'); }); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

@@ -788,8 +788,8 @@ renderChips();
 const ONL = () => !!(window.Meja && Meja.on());
 const ML = () => Meja.me().toLowerCase();
 let mjAp = false;
-function toMenu() { showScreen('s-intro'); }
-function mjSync() { if (ONL() && !mjAp && S) Meja.push(JSON.parse(JSON.stringify(S))); }
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && S) { const c = JSON.parse(JSON.stringify(S)); delete c.twistDeck; Meja.push(c); } }
 // hasil akhir sama persis di dua HP (pilihan acaknya pakai seed yang sama)
 (function () { const _sr = showResult; showResult = function () { if (!ONL() || !S) return _sr(); ['rating', 'ftie', 'fwin'].forEach(k => delete lastPick[k]); const R = Math.random; let x = (S.seed % 2147483646) + 1; Math.random = () => (x = x * 16807 % 2147483647) / 2147483647; try { _sr(); } finally { Math.random = R; } }; })();
 function mjRender() {
@@ -816,13 +816,15 @@ function mjRender() {
   scrollToBottom();
 }
 const MJ = { name: 'Lanjut Cerita', emoji: '✏️', after: '.start-col', sub: 'gantian nulis dari HP masing-masing',
-  init(seed) { startGame((seed % 2) ? 'razan' : 'dara'); S.seed = seed; return JSON.parse(JSON.stringify(S)); },
+  init(seed) { startGame((seed % 2) ? 'razan' : 'dara'); S.seed = seed; const c = JSON.parse(JSON.stringify(S)); delete c.twistDeck; return c; },
+  trim(s) { (s.lines || []).slice(0, -2).forEach(l => { l.twist = String(l.twist).slice(0, 40); l.text = String(l.text).slice(0, 160); }); return s; },
   begin() { showScreen('s-game'); },
   apply(s) {
     mjAp = true;
     try {
       const fresh = !S || S.seed !== s.seed, prevN = S && !fresh ? S.lines.length : 0;
-      S = s;
+      const deck = S && S.twistDeck && S.twistDeck.length ? S.twistDeck : shuffle(TWISTS);
+      S = s; S.twistDeck = deck;
       setText('opening-text', S.opening.text); setText('opening-label', '✨ Awal cerita · ' + ((GENRES[S.opening.genre] || {}).label || ''));
       const wrap = $('bubble-wrap'); if (wrap) wrap.innerHTML = '';
       S.lines.forEach((l, i) => { addBubble(l, i); if (l.ok != null) { const t = $('twist-' + i); if (t) { t.className = 'bubble-twist ' + (l.ok ? 'ok' : 'no'); t.textContent = (l.ok ? '✓ ' : '✗ ') + stripTags(l.twist); } } });

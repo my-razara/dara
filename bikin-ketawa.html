@@ -295,8 +295,8 @@
       <span class="pun-label" id="fn-tag">👑 Tantangan Final</span>
       <p class="pun-text" id="fn-demand">...</p>
     </div>
-    <button class="btn-main" onclick="playAgain()">Main Lagi 🔄</button>
-    <button class="btn-ghost" onclick="showScreen('s-intro')">Menu</button>
+    <button class="btn-main" onclick="if(ONL())return Meja.restart();playAgain()">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="toMenu()">Menu</button>
   </div>
 </div>
 
@@ -436,13 +436,14 @@ function showPre() {
   const pb = $('pre-btn');
   if (pb) { pb.textContent = waterMode ? 'Udah minum! Siap 😤' : 'Siap! 😤'; pb.className = 'btn-main' + (waterMode ? ' water' : ''); }
   showScreen('s-pre');
+  if (ONL()) mjSync();
 }
 
 function startCountdown() {
   if (!G || G.phase !== 'pre') return; // cegah dobel start
   G.phase = 'countdown';
-  G.instr = fill(draw('instr', INSTRUCTIONS), { s: NAMES[G.serious] });
-  G.rerolled = false;
+  if (!(ONL() && mjAp)) { G.instr = fill(draw('instr', INSTRUCTIONS), { s: NAMES[G.serious] }); G.rerolled = false; }
+  if (ONL()) mjSync();
   const my = ++token;
   showScreen('s-countdown');
   const el = $('cd-num'), sub = $('cd-sub');
@@ -491,6 +492,7 @@ function reroll() {
   const it = $('instr-text');
   if (it) { it.textContent = G.instr; it.classList.remove('animate'); void it.offsetWidth; it.classList.add('animate'); }
   const rb = $('reroll-btn'); if (rb) rb.disabled = true;
+  mjSync();
 }
 
 function beginRound() {
@@ -513,7 +515,7 @@ function beginRound() {
       if (tc) tc.classList.toggle('danger', left / CFG.dur < .3);
       if (sec <= 5 && sec > 0) vib(30);
     }
-    if (left <= 0) { clearInterval(tick); endRound(false); }
+    if (left <= 0) { clearInterval(tick); if (ONL() && G.serious !== ML()) return; endRound(false); }
   }, 100);
 }
 
@@ -554,8 +556,8 @@ function endRound(laughed) {
   setText('rr-r', G.scores.razan); setText('rr-d', G.scores.dara);
   setText('rr-next', G.round >= CFG.rounds ? 'Lihat Hasil 🏆' : `Ronde ${G.round + 1} → ${NAMES[k]} jadi Serius`);
   showScreen('s-round');
+  if (ONL()) { G.rr = ['rr-icon', 'rr-title', 'rr-sub', 'rr-pun-label'].map(i => $(i).textContent).concat($('rr-pun').innerHTML); mjSync(); }
 }
-
 function nextRound() {
   if (!G || G.phase !== 'end') return;
   if (G.round >= CFG.rounds) { showFinal(); return; }
@@ -592,7 +594,7 @@ function showFinal() {
   setHTML('fn-verdict', v);
 
   setText('fn-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
-  setHTML('fn-demand', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
+  setHTML('fn-demand', ONL() && G.seed != null ? (tie ? FINAL_TIE[G.seed % FINAL_TIE.length] : fill(FINAL_WIN[G.seed % FINAL_WIN.length], { w, l })) : tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
   showScreen('s-result');
   confetti(tie ? 30 : 60);
 }
@@ -649,6 +651,46 @@ function confetti(n) {
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(Object.assign({}, G, { CFG, wm: waterMode })))); }
+(function () { const c = document.createElement('style'); c.textContent = `body.mj-razan .half.top,body.mj-dara .half.bottom,body.mj-razan .mirror-line,body.mj-dara .mirror-line{display:none}body.mj-dara .half.top .half-inner{transform:none}`; document.head.appendChild(c); })();
+const MJ = { name: 'Bikin Ketawa', emoji: '😂', after: '#s-pick .btn-ghost', sub: 'sambil video call — instruksi cuma muncul di HP komedian',
+  cfg: () => ({ c: CFG, w: waterMode }), setCfg: v => { if (v && v.c) CFG = Object.assign({}, CFG, v.c); waterMode = !!(v && v.w); },
+  init(seed) { stopAll(); const s = (seed % 2) ? 'razan' : 'dara';
+    G = { firstSerious: s, serious: s, round: 1, scores: { razan: 0, dara: 0 }, streak: { razan: 0, dara: 0 }, best: { razan: 0, dara: 0 }, fastest: null, phase: 'pre', instr: '', rerolled: false, seed };
+    return JSON.parse(JSON.stringify(Object.assign({}, G, { CFG, wm: waterMode }))); },
+  begin() { document.body.classList.remove('mj-razan', 'mj-dara'); document.body.classList.add('mj-' + ML()); },
+  apply(s) {
+    mjAp = true;
+    try {
+      const prev = G ? { phase: G.phase, round: G.round, seed: G.seed } : null;
+      if (s.CFG) CFG = s.CFG; waterMode = !!s.wm;
+      const same = prev && prev.round === s.round && prev.seed === s.seed;
+      if (s.phase === 'play' && same && (prev.phase === 'play' || prev.phase === 'countdown')) { G.instr = s.instr; G.rerolled = s.rerolled; const it = $('instr-text'); if (it) it.textContent = G.instr; const rb = $('reroll-btn'); if (rb) rb.disabled = G.rerolled; return; }
+      G = s; delete G.CFG; delete G.wm;
+      if (G.phase === 'pre') { stopAll(); return showPre(); }
+      if (G.phase === 'countdown' || G.phase === 'play') { if (same && (prev.phase === 'countdown' || prev.phase === 'play')) return; stopAll(); G.phase = 'pre'; return startCountdown(); }
+      if (G.phase === 'end') {
+        stopAll(); const rr = G.rr || ['', '', '', '', ''];
+        ['rr-icon', 'rr-title', 'rr-sub', 'rr-pun-label'].forEach((i, n) => setText(i, rr[n])); setHTML('rr-pun', rr[4]);
+        setText('rr-badge', `Hasil Ronde ${G.round} dari ${CFG.rounds}`); setText('rr-r', G.scores.razan); setText('rr-d', G.scores.dara);
+        setText('rr-next', G.round >= CFG.rounds ? 'Lihat Hasil 🏆' : `Ronde ${G.round + 1} → ${NAMES[other(G.serious)]} jadi Serius`);
+        showScreen('s-round'); vib([100, 50, 200]);
+      }
+    } finally { mjAp = false; }
+  },
+  turn: () => null,
+  onEnd() { stopAll(); G = null; document.body.classList.remove('mj-razan', 'mj-dara'); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

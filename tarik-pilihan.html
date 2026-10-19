@@ -736,7 +736,7 @@ renderChips();
 const ONL = () => !!(window.Meja && Meja.on());
 const ML = () => Meja.me().toLowerCase();
 let mjAp = false, myAns = null;
-function toMenu() { showScreen('s-intro'); }
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
 function mjSync() { if (ONL() && !mjAp && G) Meja.push(JSON.parse(JSON.stringify(G))); }
 // online: dua-duanya jawab barengan di HP masing-masing, jawaban pasangan baru keliatan pas reveal
 function mjAnswerUI() {
@@ -798,6 +798,7 @@ const MJ = { name: 'Tarik Pilihan', emoji: '🧲', after: '#s-intro .btn-main', 
       }
     } finally { mjAp = false; if (fix) setTimeout(mjSync, 0); }
   },
+  trim(s) { s.usedIds = (s.usedIds || []).slice(-30); while (JSON.stringify(s).length > 5600 && s.history.length > 3) s.history.shift(); return s; },
   turn: () => null,
   onEnd() { stopDebate(); G = null; myAns = null; const inp = $('answer-input'); if (inp) inp.disabled = false; const sb = $('submit-btn'); if (sb) sb.disabled = false; showScreen('s-intro'); },
   quitFn: 'exitGame' };

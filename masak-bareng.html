@@ -512,8 +512,8 @@ function endGame() {
     <div class="demand"><span class="demand-tag">😈 Buat yang paling sering bikin masalah</span>
       <p class="demand-text">${fill(draw('blame', BLAME), { p: NAMES[worst], o: NAMES[mvp] })}</p></div>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="swapAndPlay()">Tukeran Peran 🔄</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();swapAndPlay()">Tukeran Peran 🔄</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>`;
   showScreen('s-result');
   if (stars >= 2) confetti(stars === 3 ? 80 : 45);
@@ -578,6 +578,164 @@ function confetti(n) {
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mjEv = 0, mjOid = 0, mjStart = 0, mjCd = 0, mjCdSeed = null;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+(function () { const c = document.createElement('style'); c.textContent = `body.mj-razan #half-dara,body.mj-dara #half-razan{display:none}body.mj-dara .half.top .half-inner{transform:none}`; document.head.appendChild(c); })();
+// keadaan dikirim tanpa data menu (cukup nomornya) biar ringan
+function mjSnap() { const g = JSON.parse(JSON.stringify(G)); if (g.order) { delete g.order.menu; delete g.order.start; delete g.order.lock; } return g; }
+function mjSync() { if (ONL() && !mjAp && G) Meja.push(mjSnap()); }
+const mjWr = () => G.st.razan.wrong + G.st.dara.wrong;
+function mjMakeOrder() {
+  if (!G.md || !G.md.length) G.md = shuffle(MENU.map((_, i) => i));
+  const mi = G.md.pop();
+  G.oid = (G.oid || 0) + 1;
+  G.order = { mi, menu: MENU[mi], customer: CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)], done: { cook: [false, false, false], prep: [false, false, false] }, sideDone: {}, start: Date.now(), dur: orderTime(G.idx), penalty: 0, lock: { razan: 0, dara: 0 }, oid: G.oid, wr: { razan: 0, dara: 0 } };
+}
+function mjRenderOrder() {
+  mjCd++; mjOid = G.order.oid; mjStart = Date.now(); G.order.start = mjStart;
+  const f = $('feedback'); if (f && G.phase === 'play') f.classList.remove('show');
+  showScreen('s-game'); setText('mb-total', G.total); renderSide(ML()); updateHud(); mjStatus(); runTimer();
+}
+function mjStatus() {
+  const me = ML(), o = other(me), od = G.order; if (!od) return;
+  const mineDone = od.sideDone[G.roles[me]], opDone = od.sideDone[G.roles[o]];
+  if (mineDone) setStatus(me, opDone ? '✅ Beres!' : `✅ Beres! Nunggu ${NAMES[o]}...`, 'ok');
+  else if (opDone) setStatus(me, `⏳ ${NAMES[o]} udah beres — ayo!`, '');
+}
+function mjCheck() {
+  if (!Meja.host() || !G || G.phase !== 'play') return;
+  const o = G.order; if (!o.sideDone.cook || !o.sideDone.prep) return;
+  G.phase = 'trans'; stopTimer();
+  const left = Math.max(0, o.dur - (Date.now() - mjStart) / 1000 - o.penalty);
+  G.done++; G.idx++; G.combo++; G.best = Math.max(G.best, G.combo);
+  const pts = 100 + Math.round(left * 5) + (G.combo > 1 ? G.combo * 10 : 0);
+  G.pts = (G.pts || 0) + pts;
+  G.ev = { id: (G.ev ? G.ev.id : 0) + 1, i: '✅', t: G.combo > 1 ? `🔥 Combo x${G.combo}!` : 'Order Selesai!', s: `+${pts} poin`, c: '#ffa726', ms: 1100 };
+  mjEv = G.ev.id; updateHud();
+  feedback(G.ev.i, G.ev.t, G.ev.s, G.ev.c, 1100, mjNext);
+  if ([3, 5, 8].includes(G.combo)) confetti(20);
+  setTimeout(() => mjSync(), 0);
+}
+function mjNext() {
+  if (!G || !ONL()) return;
+  if (G.idx >= G.total || G.lives <= 0) { G.phase = 'end'; mjSync(); G.phase = 'x'; return endGame(); }
+  mjMakeOrder(); G.phase = 'play'; mjRenderOrder(); mjSync();
+}
+(function () {
+  const _tap = tapItem, _fail = failOrder, _end = endGame, _hud = updateHud;
+  updateHud = function () { _hud(); if (ONL() && G) setText('mb-score', Math.max(0, (G.pts || 0) - 20 * mjWr())); };
+  tapItem = function (p, idx, btn) {
+    if (!ONL()) return _tap(p, idx, btn);
+    if (p !== ML() || !G || G.phase !== 'play' || !G.order) return;
+    const o = G.order, role = G.roles[p], now = Date.now();
+    if (o.sideDone[role] || now < (o.lock[p] || 0)) return;
+    if (idx >= 0) {
+      if (o.done[role][idx]) return;
+      o.done[role][idx] = true; G.st[p].ok++; btn.classList.add('done'); vib(25);
+      const dots = $('dots-' + p); if (dots) dots.children[o.done[role].filter(Boolean).length - 1]?.classList.add('done');
+      if (o.done[role].every(Boolean)) { o.sideDone[role] = true; G.st[p].times.push((now - mjStart) / 1000); const half = $('half-' + p); if (half) half.classList.add('side-done'); mjStatus(); }
+    } else {
+      G.st[p].wrong++; o.wr[p] = (o.wr[p] || 0) + 1; o.penalty = 2 * (o.wr.razan + o.wr.dara); o.lock[p] = now + 350;
+      btn.classList.remove('wrong'); void btn.offsetWidth; btn.classList.add('wrong');
+      setStatus(p, '❌ Salah bahan! −20 poin · −2 detik', 'err'); vib([120, 60, 120]);
+    }
+    updateHud();
+    if (Meja.host()) mjCheck();
+    if (G.phase === 'play') mjSync();
+  };
+  failOrder = function () {
+    if (!ONL()) return _fail();
+    if (!G || G.phase !== 'play' || !Meja.host()) return;
+    G.phase = 'trans';
+    const o = G.order, late = ['razan', 'dara'].filter(p => !o.sideDone[G.roles[p]]);
+    late.forEach(p => G.st[p].blame++);
+    G.failed++; G.lives--; G.idx++; G.combo = 0;
+    const who = late.length === 2 ? 'Dua-duanya belum beres' : `${NAMES[late[0]]} belum beres`;
+    G.ev = { id: (G.ev ? G.ev.id : 0) + 1, i: '😡', t: 'Customer Marah!', s: `${who} · −1 nyawa`, c: '#e57373', ms: 1500 };
+    mjEv = G.ev.id; updateHud(); vib([200, 100, 200, 100, 300]);
+    feedback(G.ev.i, G.ev.t, G.ev.s, G.ev.c, 1500, mjNext);
+    mjSync();
+  };
+  endGame = function () {
+    if (!ONL()) return _end();
+    if (!G || G.phase === 'end') return;
+    G.score = Math.max(0, (G.pts || 0) - 20 * mjWr()); stopTimer();
+    const R = Math.random; let x = (G.seed % 2147483646) + 1; Math.random = () => (x = x * 16807 % 2147483647) / 2147483647;
+    ['good', 'bad', 'blame'].forEach(k => delete decks[k]);
+    try { _end(); } finally { Math.random = R; }
+  };
+})();
+function mjCountdown() {
+  const my = ++mjCd; showScreen('s-countdown');
+  const el = $('cd-num'), sub = $('cd-sub'), me = ML(); let n = 3;
+  const step = () => {
+    if (my !== mjCd || !G) return;
+    if (n <= 0) { G.phase = 'play'; return mjRenderOrder(); }
+    if (el) { el.textContent = n; el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim'); }
+    if (sub) sub.textContent = n === 1 ? 'Restoran buka! 🍳' : `Kamu ${G.roles[me] === 'cook' ? '👨‍🍳 masak' : '🧑‍🍳 prep bahan'} · ${NAMES[other(me)]} ${G.roles[other(me)] === 'cook' ? 'masak' : 'prep'}`;
+    n--; setTimeout(step, 800);
+  };
+  step();
+}
+const MJ = { quiet: true, name: 'Masak Bareng', emoji: '🍳', after: '#s-intro .btn-main', sub: 'satu masak, satu prep — dari HP masing-masing',
+  cfg: () => CFG.orders, setCfg: v => { CFG.orders = +v || 12; },
+  init(seed) {
+    stopTimer(); const pr = G && G.roles, cook = pr ? (pr.razan === 'cook' ? 'dara' : 'razan') : CFG.cook;
+    G = { phase: 'countdown', roles: { [cook]: 'cook', [other(cook)]: 'prep' }, total: CFG.orders, idx: 0, score: 0, pts: 0, lives: 3, combo: 0, best: 0, done: 0, failed: 0, md: null, oid: 0, ev: null, seed,
+      st: { razan: { ok: 0, wrong: 0, blame: 0, times: [] }, dara: { ok: 0, wrong: 0, blame: 0, times: [] } } };
+    mjMakeOrder(); return mjSnap(); },
+  begin() { document.body.classList.remove('mj-razan', 'mj-dara'); document.body.classList.add('mj-' + ML()); mjEv = 0; mjOid = 0; },
+  apply(s) {
+    let fix = false;
+    mjAp = true;
+    try {
+      const me = ML(), op = other(me), sameGame = G && G.seed === s.seed;
+      const prepO = o => { if (!o) return; o.menu = MENU[o.mi]; o.lock = o.lock || { razan: 0, dara: 0 }; o.wr = o.wr || { razan: 0, dara: 0 }; o.penalty = 2 * ((o.wr.razan || 0) + (o.wr.dara || 0)); };
+      // gabungin bagian milik "who" dari keadaan src ke dst (bahan ke-tap, salah tap, statistik)
+      const merge = (dst, src, who) => {
+        let ch = false; const r = dst.roles[who];
+        if (dst.order && src.order && dst.order.oid === src.order.oid) {
+          src.order.done[r].forEach((v, i) => { if (v && !dst.order.done[r][i]) { dst.order.done[r][i] = true; ch = true; } });
+          if (src.order.sideDone[r] && !dst.order.sideDone[r]) { dst.order.sideDone[r] = true; ch = true; }
+          dst.order.wr = dst.order.wr || { razan: 0, dara: 0 }; const w = (src.order.wr || {})[who] || 0; if (w > (dst.order.wr[who] || 0)) { dst.order.wr[who] = w; ch = true; }
+        }
+        ['ok', 'wrong'].forEach(k => { if (src.st[who][k] > dst.st[who][k]) { dst.st[who][k] = src.st[who][k]; ch = true; } });
+        if (src.st[who].times.length > dst.st[who].times.length) { dst.st[who].times = src.st[who].times.slice(); ch = true; }
+        return ch;
+      };
+      if (sameGame && Meja.host() && G.phase !== 'countdown') {
+        // HP host yang pegang alur (order, skor, nyawa) — dari pasangan cuma diambil bagian dia
+        merge(G, s, op); prepO(G.order);
+        if (JSON.stringify(mjSnap()) !== JSON.stringify(Object.assign({}, s, { order: s.order && Object.assign({}, s.order, { menu: undefined, start: undefined, lock: undefined }) }))) fix = true;
+        if (G.phase === 'play') { updateHud(); mjStatus(); }
+        return;
+      }
+      if (sameGame) fix = merge(s, G, me);
+      G = s; prepO(G.order);
+      if (G.order) G.order.start = G.order.oid === mjOid ? mjStart : Date.now();
+      if (!sameGame) { mjEv = G.ev ? G.ev.id : 0; mjOid = 0; }
+      if (G.ev && G.ev.id > mjEv) { mjEv = G.ev.id; stopTimer(); feedback(G.ev.i, G.ev.t, G.ev.s, G.ev.c, G.ev.ms || 1200, null); if (G.ev.i === '😡') vib([200, 100, 200]); }
+      if (G.phase === 'countdown') { if (mjCdSeed !== G.seed) { mjCdSeed = G.seed; mjCountdown(); } }
+      else if (G.phase === 'play') { if (G.order.oid !== mjOid) mjRenderOrder(); else { updateHud(); mjStatus(); } }
+      else if (G.phase === 'trans') { stopTimer(); updateHud(); }
+      else if (G.phase === 'end') { G.phase = 'x'; endGame(); }
+    } finally {
+      mjAp = false;
+      if (Meja.host() && G && G.phase === 'play') mjCheck();
+      if (fix && G && (G.phase === 'play' || G.phase === 'trans')) setTimeout(mjSync, 0);
+    }
+  },
+  turn: () => null,
+  onEnd() { stopTimer(); mjCd++; clearTimeout(fbTimer); const f = $('feedback'); if (f) f.classList.remove('show'); G = null; document.body.classList.remove('mj-razan', 'mj-dara'); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

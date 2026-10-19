@@ -373,8 +373,8 @@
       <div id="fd-text">...</div>
     </div>
     <div class="end-btns">
-      <button class="end-btn end-btn-p" onclick="playAgain()">Main Lagi 🔄</button>
-      <button class="end-btn end-btn-o" onclick="showScreen('s-intro')">Menu</button>
+      <button class="end-btn end-btn-p" onclick="if(ONL())return Meja.restart();playAgain()">Main Lagi 🔄</button>
+      <button class="end-btn end-btn-o" onclick="toMenu()">Menu</button>
     </div>
   </div>
 </div>
@@ -612,6 +612,7 @@ function runTimer() {
     if (left <= 0) {
       stopTimer();
       G.items.push({ type:'note', cls:'time', text:'⏰ Waktu habis — 1 pertanyaan hangus' });
+      if (ONL() && other(G.holder) !== ML()) return;
       useQuestion();
     }
   }, 100);
@@ -762,7 +763,7 @@ function showFinal() {
   setHTML('end-verdict', v);
 
   setText('fd-tag', tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`);
-  setHTML('fd-text', tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
+  setHTML('fd-text', ONL() && G.seed != null ? (tie ? FINAL_TIE[G.seed % FINAL_TIE.length] : fill(FINAL_WIN[G.seed % FINAL_WIN.length], { w, l })) : tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l }));
   showScreen('s-result');
   confetti(tie ? 30 : 60);
 }
@@ -826,6 +827,89 @@ function confetti(n) {
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mjDep = 0;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+const RR = ['ri-emoji', 'ri-name', 'rr-icon', 'rr-title', 'rr-sub', 'rr-tag'];
+function mjSync() {
+  if (!ONL() || mjAp || !G) return;
+  if (G.phase === 'end') G.rr = RR.map(i => $(i).textContent).concat($('rr-demand').innerHTML);
+  Meja.push(JSON.parse(JSON.stringify(Object.assign({}, G, { CFG }))));
+}
+(function () {
+  const box = document.createElement('div'); box.id = 'mj-wait'; box.className = 'ask-area'; box.style.display = 'none'; box.style.textAlign = 'center';
+  box.innerHTML = '<span class="ask-turn" id="mj-wait-t">⏳</span>';
+  const va = $('verify-area'); if (va) va.insertAdjacentElement('afterend', box);
+})();
+function mjWait(icon, title, sub) { setText('pass-icon', icon); setText('pass-title', title); setText('pass-sub', sub); show('pass-btn', false); showScreen('s-pass'); }
+function mjRender() {
+  const me = ML(), h = G.holder, g = other(h), isH = me === h;
+  show('pass-btn', true);
+  if (G.phase === 'cat') { if (isH) { showCat(); setText('cat-sub', `${NAMES[g]} nggak bisa liat layarmu kok 😉`); } else mjWait('🤫', `${NAMES[h]} lagi milih identitas rahasia…`, `Abis itu kamu yang nebak! Siapin pertanyaan ya/tidak 🕵️`); return; }
+  if (G.phase === 'identity') {
+    if (isH) { renderIdentity(); const rb = $('reroll-btn'); if (rb) rb.disabled = !!G.rerolled; setText('id-warning', 'Identitas rahasiamu — jangan dikasih tau ya 🤫'); const b = document.querySelector('#s-identity .btn-main'); if (b) b.textContent = 'Hafal! Mulai 🕵️'; showScreen('s-identity'); }
+    else mjWait('🤫', `${NAMES[h]} lagi ngapalin identitasnya…`, 'Bentar lagi kamu mulai nebak 🕵️');
+    return;
+  }
+  if (['asking', 'answering', 'verify'].includes(G.phase)) {
+    setText('q-max', CFG.max);
+    setText('gh-cat', G.secretCat ? '🎲 Kategori rahasia' : `${CATS[G.identity.cat].icon} ${CATS[G.identity.cat].label}`);
+    const tw = $('timer-wrap'); if (tw) tw.classList.toggle('hidden', !CFG.timer);
+    const at = $('ask-turn'); if (at) { at.textContent = `${ICON[g]} Giliran kamu — tanya atau tebak!`; at.className = 'ask-turn ' + g; }
+    const an = $('answer-turn'); if (an) { an.textContent = `${ICON[h]} Jawab jujur ya!`; an.className = 'ask-turn ' + h; }
+    const vt = $('verify-turn'); if (vt) { vt.textContent = `${ICON[h]} Tebakannya bener?`; vt.className = 'ask-turn ' + h; }
+    if (G.phase === 'verify') setHTML('verify-text', `Tebakan: <b>"${esc(G.pendingGuess || '')}"</b> — mirip sama identitasmu nggak?`);
+    updateHud(); renderQA(); showScreen('s-game'); setPhase(G.phase);
+    const mine = G.phase === 'asking' ? !isH : isH;
+    if (!mine) {
+      show('ask-area', false); show('answer-area', false); show('verify-area', false); show('mj-wait', true);
+      setText('mj-wait-t', G.phase === 'asking' ? `⏳ ${NAMES[g]} lagi mikir pertanyaan…` : G.phase === 'answering' ? `⏳ Nunggu ${NAMES[h]} jawab…` : `⏳ ${NAMES[h]} lagi ngecek tebakanmu…`);
+      if (isH) { const pk = $('peek-btn'); }
+    } else { show('mj-wait', false); try { navigator.vibrate && navigator.vibrate(25); } catch (e) {} }
+    return;
+  }
+  show('mj-wait', false);
+  if (G.phase === 'end') {
+    stopTimer(); const rr = G.rr || [];
+    RR.forEach((i, n) => setText(i, rr[n] || '')); setHTML('rr-demand', rr[6] || '');
+    setText('rr-r', G.scores.razan); setText('rr-d', G.scores.dara);
+    setText('rr-next', G.round >= G.total ? 'Lihat Hasil 🕵️' : `Ronde ${G.round + 1} → ${NAMES[g]} dapet identitas`);
+    showScreen('s-round');
+  }
+}
+(function () {
+  const W = (n, who) => { const o = window[n]; window[n] = function () {
+    if (ONL() && G && who) { const me = ML(); if ((who === 'h' && me !== G.holder) || (who === 'g' && me === G.holder)) return; }
+    mjDep++; let r; try { r = o.apply(this, arguments); } finally { mjDep--; }
+    if (mjDep === 0 && ONL() && !mjAp && G) { if (n === 'toPass' && G.phase === 'pass') { mjDep++; try { beginRound(); } finally { mjDep--; } } mjSync(); mjRender(); }
+    return r; }; };
+  W('pickCategory', 'h'); W('rerollIdentity', 'h'); W('toPass', 'h'); W('sendQuestion', 'g'); W('makeGuess', 'g'); W('sendAnswer', 'h'); W('verifyGuess', 'h'); W('nextRound'); W('useQuestion');
+})();
+const MJ = { name: 'Aku Adalah', emoji: '🕵️', after: '#s-pick .btn-ghost', sub: 'tanya-jawab dari HP masing-masing',
+  cfg: () => CFG, setCfg: v => { if (v && typeof v === 'object') CFG = Object.assign({}, CFG, v); },
+  init(seed) { stopTimer(); const h = (seed % 2) ? 'razan' : 'dara';
+    G = { firstHolder: h, holder: h, round: 1, total: CFG.per * 2, scores: { razan: 0, dara: 0 }, streak: { razan: 0, dara: 0 }, best: { razan: 0, dara: 0 }, fastest: null, phase: 'cat', seed };
+    return JSON.parse(JSON.stringify(Object.assign({}, G, { CFG }))); },
+  apply(s) {
+    mjAp = true;
+    try {
+      const was = G && G.phase;
+      if (s.CFG) CFG = s.CFG; G = s; delete G.CFG;
+      mjRender();
+      if (G.phase === 'end' && was !== 'end') { const ok = (G.rr || [])[2] === '🎉'; if (ok) confetti(45); try { navigator.vibrate && navigator.vibrate([100, 50, 200]); } catch (e) {} }
+    } finally { mjAp = false; }
+  },
+  trim(s) { (s.items || []).slice(0, -4).forEach(i => { i.text = String(i.text).slice(0, 60); }); return s; },
+  turn: s => ['asking'].includes(s.phase) ? (s.holder === 'razan' ? 'Dara' : 'Razan') : ['cat', 'identity', 'answering', 'verify'].includes(s.phase) ? (s.holder === 'razan' ? 'Razan' : 'Dara') : null,
+  onEnd() { stopTimer(); G = null; show('mj-wait', false); show('pass-btn', true); const b = document.querySelector('#s-identity .btn-main'); if (b) b.textContent = 'Hafal! Oper HP 📱'; showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>

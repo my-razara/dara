@@ -91,11 +91,14 @@
     if (st !== 'play' && !init) return;
     if (sending) { queued = state; return; }
     sending = true;
+    // batas server ±6000 huruf per keadaan → minta game ngerampingin dulu
+    try { if (JSON.stringify(state).length > 5600 && C.trim) state = C.trim(JSON.parse(JSON.stringify(state))) || state; } catch (e) {}
     let r = await post({ op: 'state', id: room.id, st: state, sv: room.sv || 0 });
+    if (r && !r.ok && r.error === 'data') { try { window.toast ? toast('Data game kegedean buat dikirim 😢') : console.warn('meja: data kegedean'); } catch (e) {} }
     if (r && !r.ok && r.error === 'conflict') {
       // barengan sama pasangan → keadaan dia yang dipakai
       if (room && room.state) { sv = room.sv; try { C.apply(room.state); } catch (e) {} }
-      try { window.toast && toast('Barengan sama ' + op() + ' — coba lagi ya'); } catch (e) {}
+      if (!C.quiet) try { window.toast && toast('Barengan sama ' + op() + ' — coba lagi ya'); } catch (e) {}
     } else if (r && r.ok) { if (st === 'play') sv = room.sv; else { sending = false; tick(); return; } }
     sending = false; paintTag();
     if (queued) { const q = queued; queued = null; push(q); }

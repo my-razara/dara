@@ -549,8 +549,8 @@ function showFinal() {
     <div class="verdict">${v}</div>
     <div class="demand"><span class="demand-tag">${tie ? '🤝 Tantangan Final (Seri)' : `👑 Tantangan Final dari ${w}`}</span>
       <p class="demand-text">${tie ? draw('ftie', FINAL_TIE) : fill(draw('fwin', FINAL_WIN), { w, l })}</p></div>
-    <button class="btn-main" onclick="startMatch(M ? other(M.first) : 'razan')">Main Lagi 🔄</button>
-    <button class="btn-ghost" onclick="showScreen('s-intro')">Ganti Kategori / Menu</button>`;
+    <button class="btn-main" onclick="if(ONL())return Meja.restart();startMatch(M ? other(M.first) : 'razan')">Main Lagi 🔄</button>
+    <button class="btn-ghost" onclick="toMenu()">Ganti Kategori / Menu</button>`;
   showScreen('s-result');
   confetti(tie ? 30 : 60);
 }
@@ -609,6 +609,80 @@ renderChips();
     return false;
   };
 })();
+</script>
+
+<script>/* 🌐 meja online */
+
+const ONL = () => !!(window.Meja && Meja.on());
+const ML = () => Meja.me().toLowerCase();
+let mjAp = false, mjPh = null, mjTick = null, mjCdK = null;
+function toMenu() { if (ONL()) { Meja.leave(); try { MJ.onEnd(); } catch (e) {} return; } showScreen('s-intro'); }
+const mjClue = () => M && other(curGuesser()) === ML();   // HP yang kasih clue (yang liat katanya)
+function mjSnap() { return JSON.parse(JSON.stringify({ M: Object.assign({}, M, { used: [...M.used] }), T, ph: mjPh, rh: mjPh === 'end' ? $('result-inner').innerHTML : '', cfg: { dur: CFG.dur, turns: CFG.turns, cats: [...CFG.cats] } })); }
+function mjSync() { if (ONL() && !mjAp && M) Meja.push(mjSnap()); }
+function mjAct(on) { const r = document.querySelector('.action-row'); if (r) r.style.display = on ? '' : 'none'; }
+function mjGuessView() {
+  stopTimers(); clearInterval(mjTick); showScreen('s-game'); mjAct(false);
+  setText('g-who', 'Kamu'); setText('g-ok', T.ok || 0); setText('g-no', T.no || 0);
+  const last = (T.list || [])[T.list.length - 1];
+  setText('word-cat', '🙈 Kamu yang nebak'); setText('word', '???');
+  setText('word-streak', last ? `${last.ok ? '✓' : '✗'} tadi: ${last.w}` : '');
+  setText('word-hint', `Dengerin clue dari ${NAMES[other(T.g)]} (telpon/VC) — jawab langsung ke dia! 🗣️`);
+  const st = Date.now(), fillEl = $('timer-fill');
+  mjTick = setInterval(() => {
+    if (!T || T.phase !== 'play') return clearInterval(mjTick);
+    const left = Math.max(0, (T.left != null ? T.left : CFG.dur) - (Date.now() - st) / 1000), pct = left / CFG.dur;
+    if (fillEl) { fillEl.style.strokeDashoffset = 163.4 * (1 - pct); fillEl.style.stroke = pct < .3 ? '#e57373' : pct < .6 ? '#ffb300' : 'var(--rose)'; }
+    setText('timer-num', Math.ceil(left));
+  }, 200);
+}
+(function () {
+  const _cd = countdown, _bt = beginTurn, _ans = answer, _et = endTurn, _fin = showFinal;
+  countdown = function () { if (ONL() && !mjAp) { mjPh = 'cd'; mjSync(); } return _cd(); };
+  beginTurn = function () {
+    if (!ONL()) { mjAct(true); return _bt(); }
+    if (mjClue()) { mjAct(true); _bt(); setText('g-who', NAMES[T.g]); setText('word-hint', `${CATS[T.word.cat].hint} Kasih clue ke ${NAMES[T.g]} tanpa nyebut katanya!`); mjPh = 'play'; T.left = CFG.dur; mjSync(); }
+    else { T = { phase: 'play', g: curGuesser(), ok: 0, no: 0, list: [], left: CFG.dur }; mjGuessView(); }
+  };
+  answer = function (ok) { if (ONL() && !mjClue()) return; _ans(ok); if (ONL()) { T.left = Math.max(0, CFG.dur - (Date.now() - T.start - T.paused) / 1000); mjSync(); } };
+  endTurn = function () { if (ONL() && !mjAp && !mjClue()) return; clearInterval(mjTick); _et(); if (ONL()) { mjPh = 'end'; mjSync(); } };
+  showFinal = function () {
+    if (!ONL() || !M) return _fin();
+    const R = Math.random; let x = (M.seed % 2147483646) + 1; Math.random = () => (x = x * 16807 % 2147483647) / 2147483647;
+    ['ftie', 'fwin'].forEach(k => delete decks[k]);
+    try { _fin(); } finally { Math.random = R; }
+  };
+})();
+const MJ = { name: 'Charades', emoji: '🤦', after: '#s-pick .btn-ghost', sub: 'sambil telpon/VC — kata cuma keliatan di HP pemberi clue',
+  init(seed) { stopTimers(); const f = (seed % 2) ? 'razan' : 'dara'; CFG.tilt = false;
+    M = { first: f, turnIdx: 0, total: CFG.turns * 2, used: new Set(), tot: { razan: { ok: 0, no: 0, best: 0 }, dara: { ok: 0, no: 0, best: 0 } }, turns: [], seed };
+    T = null; mjPh = 'cd'; return mjSnap(); },
+  begin() { CFG.tilt = false; const t = $('tilt-toggle'); if (t) t.classList.remove('on'); },
+  apply(s) {
+    mjAp = true;
+    try {
+      const prevPh = mjPh, prevIdx = M && M.turnIdx, sameGame = M && M.seed === s.M.seed;
+      if (s.cfg) { CFG.dur = s.cfg.dur; CFG.turns = s.cfg.turns; CFG.cats = new Set(s.cfg.cats); }
+      M = Object.assign({}, s.M, { used: new Set(s.M.used || []) }); mjPh = s.ph;
+      if (mjPh === 'cd') { const k = M.seed + ':' + M.turnIdx; if (mjCdK !== k) { mjCdK = k; T = null; clearInterval(mjTick); _mjCd(); } return; }
+      if (mjPh === 'play') {
+        T = s.T;
+        if (mjClue()) return;                       // HP pemberi clue udah pegang keadaannya sendiri
+        if (prevPh !== 'play' || !document.querySelector('#s-game.active')) { mjGuessView(); }
+        else { setText('g-ok', T.ok); setText('g-no', T.no); const last = T.list[T.list.length - 1]; if (last) { setText('word-streak', `${last.ok ? '✓' : '✗'} tadi: ${last.w}`); flash(last.ok ? 'green' : 'red'); vib(last.ok ? 50 : [60, 30, 60]); } }
+        return;
+      }
+      if (mjPh === 'end') { T = s.T; stopTimers(); clearInterval(mjTick); const inner = $('result-inner'); if (inner) inner.innerHTML = s.rh; showScreen('s-result'); vib([100, 50, 300]); if (T && T.ok >= 8) confetti(40); }
+    } finally { mjAp = false; }
+  },
+  trim(s) { s.M.used = []; if (JSON.stringify(s).length > 5600 && s.rh) s.rh = s.rh.replace(/<div class="recap">[\s\S]*?<\/div><\/div>/, ''); return s; },
+  turn: s => s.ph === 'play' && s.T ? (s.T.g === 'razan' ? 'Dara' : 'Razan') : null,
+  onEnd() { stopTimers(); clearInterval(mjTick); M = null; T = null; mjAct(true); showScreen('s-intro'); },
+  quitFn: 'exitGame' };
+let _mjCd = null;
+(function () { _mjCd = () => { const f = countdown; return f(); }; })();
+
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
 </script>
 </body>
 </html>
