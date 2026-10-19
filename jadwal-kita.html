@@ -91,6 +91,9 @@
   .cats button{border:1.5px solid var(--blush);background:#fff;border-radius:14px;padding:.45rem .2rem;font-size:10.5px;color:var(--muted);cursor:pointer;line-height:1.25}
   .cats button span{display:block;font-size:1.25rem}
   .cats button.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--ink);font-weight:600}
+  .cats .kt{border:1.5px dashed #e46f8e;background:#fff5f7;border-radius:14px;padding:.45rem .2rem;font-size:10.5px;color:#c4506f;font-weight:600;line-height:1.25;text-align:center;text-decoration:none;display:block}
+  .cats .kt span{display:block;font-size:1.25rem}
+  .hint2{font-size:11px;color:var(--muted);line-height:1.5;margin-top:.45rem}.hint2 a{color:#c4506f;font-weight:600}
   .two{display:flex;gap:.5rem}.two>*{flex:1;min-width:0}
   .inp[type=date],.inp[type=time]{min-height:46px}
   .note{font-size:11.5px;color:var(--muted);line-height:1.55;background:#fff8e6;border:1.5px dashed #e3c77a;border-radius:14px;padding:.6rem .75rem;margin-top:.8rem}
@@ -106,7 +109,7 @@
 
 <div class="wrap">
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
-  <div class="head"><span class="ico">📅</span><p class="lbl">Kalender berdua</p><h1 class="title">Jadwal <span>Kita</span></h1><p class="sub">Kencan, ultah, deadline, jadwal kuliah, telponan — semua di satu kalender. Dua HP dapet pengingat 🔔</p></div>
+  <div class="head"><span class="ico">📅</span><p class="lbl">Kalender berdua</p><h1 class="title">Jadwal <span>Kita</span></h1><p class="sub">Jadwal kuliah, deadline, telponan, ultah, pergi — semua di satu kalender (rencana ketemu tetep di Ketemuan & ikut muncul di sini). Dua HP dapet pengingat 🔔</p></div>
   <p class="bd-st" id="bd-st"></p>
   <div class="cal">
     <div class="cal-h"><button id="pm" aria-label="Bulan sebelumnya">‹</button><b id="mo"></b><button class="td" id="tdb">Hari ini</button><button id="nm" aria-label="Bulan berikutnya">›</button></div>
@@ -168,10 +171,10 @@ const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + 
 const me = (window.Who && Who.me()) || BD.me(), ot = otherOf(me);
 $('me-pill').textContent = '🙋 ' + me; $('me-pill').className = 'pill ' + me;
 const CATS = [
-  ['kencan', '💑', 'Kencan', '#e46f8e'], ['telpon', '📞', 'Telponan', '#9b7fd1'], ['kuliah', '📚', 'Kuliah / kerja', '#4a7fc1'], ['deadline', '⏰', 'Deadline', '#e0873a'],
+  ['telpon', '📞', 'Telponan', '#9b7fd1'], ['kuliah', '📚', 'Kuliah / kerja', '#4a7fc1'], ['deadline', '⏰', 'Deadline', '#e0873a'],
   ['ultah', '🎂', 'Ultah', '#d9a43a'], ['sehat', '🏥', 'Kesehatan', '#3fa37a'], ['pergi', '✈️', 'Pergi', '#3aa6c9'], ['lain', '⭐', 'Lainnya', '#9a8070']
 ];
-const CAT = Object.fromEntries(CATS.map(c => [c[0], c]));
+const CAT = Object.fromEntries(CATS.map(c => [c[0], c]).concat([['kencan', ['kencan', '💑', 'Kencan', '#e46f8e']]]));   // 'kencan' cuma buat jadwal lama
 const REP = [['', 'Sekali'], ['minggu', 'Tiap minggu'], ['bulan', 'Tiap bulan'], ['tahun', 'Tiap tahun']];
 const HR = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 let view = today0(); view.setDate(1);
@@ -220,7 +223,7 @@ function render() {
   const sd = parseYMD(sel), left = Math.round((sd - today0()) / 864e5);
   $('sel-t').textContent = `${HR[sd.getDay()]}, ${sd.getDate()} ${BLN[sd.getMonth()]}${left === 0 ? ' · hari ini' : left === 1 ? ' · besok' : ''}`;
   const evs = on(all, sel), sps = SP[sel] || [];
-  $('sel').innerHTML = (sps.map(spH).join('') + evs.map(x => evH(x)).join('')) || `<p class="empty" style="padding:.6rem">Kosong. Tap <b>＋ Tambah</b> buat isi jadwal di tanggal ini ✍️</p>`;
+  $('sel').innerHTML = (sps.map(spH).join('') + evs.map(x => evH(x)).join('')) || `<p class="empty" style="padding:.6rem">Kosong. Tap <b>＋ Tambah</b> buat isi jadwal di tanggal ini ✍️<br>Mau ketemuan? Catet di <a href="ketemuan.html?m=0" style="color:#c4506f;font-weight:600">💑 Rencana Ketemu</a></p>`;
   // 30 hari ke depan
   let up = '', n = 0; const seen = {};
   for (let i = 0; i <= 30 && n < 40; i++) {
@@ -241,7 +244,7 @@ function spH(e) { return `<div class="ev sp" style="--c:#c9a96e"><span class="e"
 
 // ── tambah / ubah ──
 function editor(x) {
-  const mine = !x || x.owner === me, f = Object.assign({ t: '', cat: 'kencan', date: sel, time: '', rep: '', buat: '', note: '', ing: 1 }, x || {});
+  const mine = !x || x.owner === me, f = Object.assign({ t: '', cat: 'telpon', date: sel, time: '', rep: '', buat: '', note: '', ing: 1 }, x || {});
   const sh = $('sh');
   if (x && !mine) {
     const c = CAT[f.cat] || CAT.lain;
@@ -250,8 +253,9 @@ function editor(x) {
   }
   sh.innerHTML = `<div class="drag"></div>
     <h3 style="font-size:16px;color:var(--deep);margin-bottom:.2rem">${x ? '✏️ Ubah jadwal' : '📅 Jadwal baru'}</h3>
-    <label class="lab">Mau ngapain?</label><input class="inp" id="f-t" maxlength="60" placeholder="Contoh: Nonton di bioskop" value="${esc(f.t)}">
-    <label class="lab">Jenis</label><div class="cats" id="f-c">${CATS.map(c => `<button type="button" data-k="${c[0]}" style="--c:${c[3]}" class="${f.cat === c[0] ? 'on' : ''}"><span>${c[1]}</span>${c[2]}</button>`).join('')}</div>
+    <label class="lab">Mau ngapain?</label><input class="inp" id="f-t" maxlength="60" placeholder="Contoh: Kuliah Kalkulus, deadline tugas" value="${esc(f.t)}">
+    <label class="lab">Jenis</label><div class="cats" id="f-c">${CATS.concat(f.cat === 'kencan' ? [CAT.kencan] : []).map(c => `<button type="button" data-k="${c[0]}" style="--c:${c[3]}" class="${f.cat === c[0] ? 'on' : ''}"><span>${c[1]}</span>${c[2]}</button>`).join('')}${f.cat === 'kencan' ? '' : `<a class="kt" href="ketemuan.html?m=0"><span>💑</span>Ketemuan →</a>`}</div>
+    <p class="hint2">💑 Mau ketemuan / kencan? Catetnya di <a href="ketemuan.html?m=0">Rencana Ketemu</a> — nanti otomatis muncul di kalender ini juga.</p>
     <div class="two"><div><label class="lab">Tanggal</label><input class="inp" type="date" id="f-d" value="${esc(f.date)}"></div><div><label class="lab">Jam (opsional)</label><input class="inp" type="time" id="f-h" value="${esc(f.time)}"></div></div>
     <label class="lab">Ulang</label><div class="chips" id="f-r">${REP.map(r => `<button type="button" data-k="${r[0]}" class="${(f.rep || '') === r[0] ? 'on' : ''}">${r[1]}</button>`).join('')}</div>
     <label class="lab">Buat siapa?</label><div class="chips" id="f-b">${[['', '💞 Berdua'], [me, '🙋 Aku aja'], [ot, `💌 ${ot} aja`]].map(r => `<button type="button" data-k="${r[0]}" class="${(f.buat || '') === r[0] ? 'on' : ''}">${r[1]}</button>`).join('')}</div>
