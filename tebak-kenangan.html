@@ -378,6 +378,16 @@ renderMenu();
 refreshFromServer();
 </script>
 
+
+<script>/* ⚔️ duel online */
+(function () { const sc = document.createElement('script'); sc.src = 'duel.js'; sc.onload = () => {
+let pp = null;
+Duel.setup({ name: 'Tebak Kenangan', emoji: '🧠', after: '[onclick="start()"]', fmt: v => `${v} poin`, valid: v => v > 0,
+  cfg: () => ({ m: mode }), setCfg(c) { if (c && c.m) mode = c.m; },
+  start() { pp = players; players = 'solo'; start(); }, now: () => score && score.solo, onEnd() { if (pp) players = pp; show('s-menu'); renderMenu(); },
+  endFn: 'finish', endVal: () => score.solo, quitFn: 'quit' });
+}; document.head.appendChild(sc); })();
+</script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {

@@ -447,5 +447,16 @@ function launchConfetti() {
   }, i * 25);
 }
 </script>
+
+<script>/* ⚔️ duel online */
+(function () { const sc = document.createElement('script'); sc.src = 'duel.js'; sc.onload = () => {
+Duel.setup({ name: 'Word Search', emoji: '🔍', after: '.start-btn[onclick="startGame()"]',
+  fmt: v => `${Math.floor(v / 10000)} kata · ${fmt(9999 - v % 10000)}`, valid: v => v >= 10000,
+  cfg: () => ({ m: currentMode, c: selectedCatId }), setCfg(c) { if (c && MODES[c.m]) currentMode = c.m; if (c && c.c) selectedCatId = c.c; },
+  start() { duo = false; $('duo-toggle') && $('duo-toggle').classList.remove('on'); startGame(); }, stop() { stopTimer(); over = true; hideWho(); },
+  now: () => foundWords.length * 10000 + (9999 - seconds), onEnd() { goMenu('s-cat'); },
+  endFn: 'showResult', endVal: () => foundWords.length * 10000 + (9999 - Math.min(seconds, 9999)), onFinish() { over = true; stopTimer(); hideWho(); }, quitFn: 'goMenu' });
+}; document.head.appendChild(sc); })();
+</script>
 </body>
 </html>
