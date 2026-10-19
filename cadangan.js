@@ -97,14 +97,57 @@
     for (let i = 0; i < m.n; i++) { const r = R[dOf(i + 1)]; if (!r || typeof r.s !== 'string') return { err: 'kurang', have: i, n: m.n }; t += r.s; }
     try { return { data: JSON.parse(await unpack({ z: m.z, t })), meta: m }; } catch (e) { return { err: 'rusak' }; }
   }
-  // dipanggil dari menu utama: cadangin online otomatis tiap 3 hari (kalau ga dimatiin)
+  // ── CLOUD LENGKAP: semua data (termasuk foto) disimpen jadi file di Google Drive, 5 versi terakhir ──
+  function post(body, ms) {
+    return new Promise((res, rej) => {
+      if (!window.Berdua || !Berdua.url) return rej(new Error('nosync'));
+      const x = new XMLHttpRequest(); x.open('POST', Berdua.url, true); x.timeout = ms || 120000; x.setRequestHeader('Content-Type', 'text/plain');
+      x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(new Error(r.error || 'gagal')); } catch (e) { rej(new Error('server')); } };
+      x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+      x.send(JSON.stringify(Object.assign({ key: Berdua.key, action: 'cad', who: me() }, body)));
+    });
+  }
+  async function saveCloud() {
+    const data = collect(true), raw = JSON.stringify(data), pk = await pack(raw);
+    try {
+      const r = await post({ op: 'save', t: pk.t, z: pk.z, keys: Object.keys(data).length, size: raw.length });
+      s('cad-cloud-at', r.at); s('cad-online-at', r.at); s('cad-gs-old', 0);
+      return { ok: 1, at: r.at, keys: Object.keys(data).length, size: raw.length, full: 1 };
+    } catch (e) {
+      // server belum diupdate → pakai cara lama (data kecil-kecil lewat database)
+      if (/action|op/.test(e.message)) { s('cad-gs-old', 1); const o = await saveOnline(); return Object.assign({ full: 0 }, o); }
+      return { ok: 0, err: e.message };
+    }
+  }
+  async function listCloud(w) { try { const r = await post({ op: 'list', who: w || me() }, 30000); s('cad-gs-old', 0); return r.list || []; } catch (e) { if (/action|op/.test(e.message)) s('cad-gs-old', 1); return null; } }
+  async function loadCloud(id) { const r = await post({ op: 'load', id }); return { data: JSON.parse(await unpack({ z: r.z, t: r.t })), meta: { who: r.who, at: r.at } }; }
+  // dipanggil dari menu utama: cadangin otomatis tiap 3 hari (mode hemat kuota: tiap 7 hari)
   async function auto() {
     try {
-      if (g('cad-auto', 1) === 0 || !window.Berdua || !Berdua.enabled) return;
-      if (Date.now() - g('cad-online-at', 0) < 3 * 864e5) return;
-      if (!Object.keys(collect(false)).length) return;
-      await saveOnline();
+      if (g('cad-auto', 1) === 0 || !window.Berdua || !Berdua.enabled || navigator.onLine === false) return;
+      const gap = (window.Hemat && Hemat.on() ? 7 : 3) * 864e5;
+      if (Date.now() - g('cad-online-at', 0) < gap) return;
+      if (real() < 12) return;   // HP baru/kosong: jangan bikin cadangan kosong
+      await saveCloud();
     } catch (e) {}
   }
-  window.Cadangan = { collect, bytes, toFile, readFile, restore, saveOnline, loadOnline, info, auto, me, WHO };
+  // HP baru (datanya masih kosong) → tawarin pulihin cadangan terakhir
+  async function offer() {
+    try {
+      if (g('cad-offered', 0) || !window.Berdua || !Berdua.enabled || !me()) return;
+      if (g('cad-born-n', 0) > 10) { s('cad-offered', 1); return; }
+      const L = await listCloud(me()); if (L == null) return;
+      s('cad-offered', 1); if (!L.length) return;
+      const x = L[0], d = new Date(x.at), when = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:2147482000;background:rgba(45,31,26,.5);display:flex;align-items:flex-end;justify-content:center;font-family:Poppins,system-ui,sans-serif';
+      ov.innerHTML = `<div style="background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));text-align:center"><div style="font-size:2.2rem">💾</div><p style="font-weight:700;color:#7a3f35;margin:.3rem 0">Ada cadangan data punya ${me()}</p><p style="font-size:13px;color:#9a8070;line-height:1.6;margin:0 0 1rem">Dibikin ${when} · ${x.keys || ''} catatan (rekor game, peliharaan, foto, dll). Mau dipulihin ke HP ini?</p><a href="cadangan.html#pulih" style="display:block;padding:.85rem;border-radius:50px;background:#c17a6f;color:#fff;font-weight:700;text-decoration:none;margin-bottom:.5rem">♻️ Liat & pulihin</a><button type="button" style="border:none;background:none;color:#9a8070;font:500 14px Poppins,sans-serif;padding:.4rem;cursor:pointer">Nanti aja</button></div>`;
+      ov.querySelector('button').onclick = () => ov.remove();
+      document.body.appendChild(ov);
+    } catch (e) {}
+  }
+  // catat sekali: pas fitur ini pertama jalan di HP ini, datanya udah banyak (HP lama) atau masih kosong (HP baru)?
+  const real = () => keys().filter(k => !SKIP(k) && !SYNCED.test(k) && !/-me$|^(who-ok|__i|sfx-|sr-|chat-peek|seen-|idx-|hemat-|ajak-seen|kangen-seen)/.test(k)).length;
+  if (g('cad-born-n', null) == null) s('cad-born-n', real());
+  window.Cadangan = { collect, bytes, toFile, readFile, restore, saveOnline, loadOnline, info, auto, me, WHO, saveCloud, listCloud, loadCloud, offer };
 })();

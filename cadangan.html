@@ -87,8 +87,9 @@
   <div class="who2" id="who2"><button class="R" data-w="Razan">💙 Razan</button><button class="D" data-w="Dara">💗 Dara</button></div>
 
   <div class="card">
-    <h3><span>☁️</span>Cadangan online otomatis</h3>
-    <p class="d">Data yang cuma ada di HP ini dicadangin diam-diam ke database berdua tiap 3 hari pas buka menu utama.</p>
+    <h3><span>☁️</span>Cadangan cloud</h3>
+    <p class="d"><b>Semua</b> data di HP ini (rekor game, peliharaan, foto booth, rekaman piano, dll) disimpen jadi file di Google Drive Razara — pribadi, ga dibagiin ke siapa-siapa. Disimpen 5 versi terakhir, otomatis tiap 3 hari pas buka menu utama.</p>
+    <p class="d warn" id="gs-old" style="display:none">⚠️ Server belum diupdate — sementara pakai cadangan ringan (foto belum ikut).</p>
     <div class="st"><span>Otomatis</span><button class="sw" id="auto-sw" aria-label="Cadangan otomatis"></button></div>
     <div class="st"><span>Terakhir dicadangin</span><b id="on-at">–</b></div>
     <button class="btn" id="on-btn" onclick="backupOnline()">☁️ Cadangin sekarang</button>
@@ -102,13 +103,21 @@
     <button class="btn ghost" onclick="backupFile()">📁 Simpan cadangan ke file</button>
   </div>
 
-  <div class="card">
+  <div class="card" id="pulih">
     <h3><span>♻️</span>Pulihkan di HP baru</h3>
     <p class="d">Pilih dulu <b>Ini HP siapa</b> di atas, tunggu sampai "✓ Nyambung berdua", baru pulihkan.</p>
-    <button class="btn" id="rs-on" onclick="previewOnline()">☁️ Pulihkan dari cadangan online</button>
+    <button class="btn" id="rs-on" onclick="listCloud()">☁️ Pulihkan dari cadangan cloud</button>
+    <div id="cl"></div>
     <button class="btn ghost" style="margin-top:.5rem" onclick="$('file-in').click()">📁 Pulihkan dari file</button>
     <input type="file" id="file-in" accept="application/json,.json" style="display:none">
     <div id="pv"></div>
+  </div>
+
+  <div class="card">
+    <h3><span>🍃</span>Hemat kuota</h3>
+    <p class="d">Pas aktif: sinkron data & cek chat lebih jarang (tiap 3–5 menit), foto di chat dimuat versi kecil, cadangan otomatis cuma seminggu sekali. Chat yang lagi dibuka tetep langsung masuk.</p>
+    <div class="chips" id="hm"></div>
+    <div class="st" style="margin-top:.6rem"><span>Sekarang</span><b id="hm-st">–</b></div>
   </div>
 
   <div class="info">✅ <b>Yang otomatis aman tanpa cadangan:</b> semua fitur yang nyambung 2 HP — Wishlist, Resep, Kamus, Keuangan Berdua, Kalender Mood, Jurnal Syukur, Rencana Ketemu, Teropong, dll. Di HP baru, cukup pilih "Ini HP siapa" → datanya balik sendiri.<br><br>🔒 Kantong Razan & Kantong Dara punya database sendiri, jadi juga aman.</div>
@@ -169,14 +178,31 @@ function paint() {
   const all = C.collect(true); $('loc-n').textContent = `${Object.keys(all).length} catatan · ${kb(C.bytes(all))}`;
   $('file-at').textContent = ago(lsGet('cad-file-at', 0));
   $('on-btn').disabled = !BD.enabled; $('rs-on').disabled = !BD.enabled;
+  $('gs-old').style.display = lsGet('cad-gs-old', 0) ? '' : 'none';
+  const H = window.Hemat, mode = H ? H.mode() : 'auto';
+  $('hm').innerHTML = [['auto', '🤖 Otomatis'], ['on', '🍃 Selalu hemat'], ['off', '⚡ Mati']].map(([k, n]) => `<button class="${k === mode ? 'on' : ''}" data-k="${k}">${n}</button>`).join('');
+  $('hm').querySelectorAll('button').forEach(b => b.onclick = () => { H && H.set(b.dataset.k); paint(); toast(b.dataset.k === 'auto' ? '🤖 Hemat kuota otomatis pas pakai data / sinyal lemah / baterai lowbat' : b.dataset.k === 'on' ? '🍃 Hemat kuota selalu nyala' : '⚡ Hemat kuota dimatiin'); });
+  $('hm-st').innerHTML = H && H.on() ? `<span class="ok">🍃 Lagi hemat · ${H.label()}</span>` : '<span>⚡ Normal</span>';
 }
 $('auto-sw').onclick = () => { lsSet('cad-auto', lsGet('cad-auto', 1) === 0 ? 1 : 0); paint(); toast(lsGet('cad-auto', 1) ? '☁️ Cadangan otomatis nyala' : 'Cadangan otomatis dimatiin'); };
 async function backupOnline() {
   $('on-btn').disabled = true; $('on-btn').textContent = '⏳ Lagi nyadangin…';
-  const r = await C.saveOnline();
+  const r = await C.saveCloud();
   $('on-btn').textContent = '☁️ Cadangin sekarang'; paint();
-  if (r.ok) { toast(`☁️ ${r.keys} catatan dicadangin`); vib(15); }
-  else toast(r.err === 'big' ? '⚠️ Datanya kegedean buat online — pakai Simpan ke file ya' : '⚠️ Belum nyambung ke database');
+  if (r.ok) { toast(r.full ? `☁️ ${r.keys} catatan dicadangin ke cloud (${kb(r.size)})` : `☁️ ${r.keys} catatan dicadangin (versi ringan)`, 3200); vib(15); }
+  else toast(r.err === 'big' ? '⚠️ Datanya kegedean buat online — pakai Simpan ke file ya' : r.err === 'jaringan' ? '⚠️ Lagi ga ada internet, coba lagi nanti' : '⚠️ Gagal nyadangin: ' + esc(r.err || ''), 3500);
+}
+async function listCloud() {
+  $('cl').innerHTML = '<p class="small">⏳ Nyari cadangan…</p>';
+  const L = await C.listCloud(BD.me());
+  if (L == null) { $('cl').innerHTML = ''; paint(); return previewOnline(); }   // server lama → cara lama
+  if (!L.length) { $('cl').innerHTML = ''; return previewOnline(); }
+  $('cl').innerHTML = `<p class="lab" style="margin-top:.7rem">Pilih cadangan punya ${BD.me()}:</p>` + L.map((x, i) => `<div class="st"><span>${i === 0 ? '🆕 ' : ''}${ago(x.at)}<br><small style="color:var(--muted)">${x.keys ? x.keys + ' catatan · ' : ''}${kb(x.size)}</small></span><button class="btn ghost" style="width:auto;padding:.5rem .9rem;font-size:12.5px" data-id="${esc(x.id)}">Pilih</button></div>`).join('');
+  $('cl').querySelectorAll('[data-id]').forEach(b => b.onclick = async () => {
+    b.disabled = true; b.textContent = '⏳';
+    try { const r = await C.loadCloud(b.dataset.id); preview(r.data, r.meta, 'cloud'); } catch (e) { toast('⚠️ Gagal ngambil cadangan: ' + esc(e.message)); }
+    b.disabled = false; b.textContent = 'Pilih';
+  });
 }
 async function backupFile() { const r = await C.toFile(); if (r.ok) { toast(`📁 ${r.n} catatan disimpan (${kb(r.size)})`); paint(); } }
 function preview(data, meta, src) {
@@ -204,10 +230,9 @@ $('file-in').onchange = async () => {
 };
 BD.on(ev => { if (!ev.apps || !ev.apps.length || ev.apps.includes('cadangan')) paint(); });
 paint();
+if (location.hash === '#pulih') setTimeout(() => { $('pulih').scrollIntoView({ behavior: 'smooth', block: 'start' }); if (BD.enabled) listCloud(); }, 500);
 
 </script>
-</script>
-
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {

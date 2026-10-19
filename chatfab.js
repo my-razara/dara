@@ -38,12 +38,29 @@
     } catch (e) {}
     return best;
   }
+  function modalOpen(doc, win) {
+    // ada pop-up/sheet yang nutupin layar (latar gelap transparan) → tombol melayang ngumpet dulu biar ga nutupin tombol Simpan dsb
+    try {
+      const W = win.innerWidth, H = win.innerHeight;
+      for (const el of doc.body ? doc.body.children : []) {
+        if (el.classList && (el.classList.contains('sfx-btn') || el.classList.contains('cfab') || el.classList.contains('sfx-tip') || el.classList.contains('sfx-menu'))) continue;
+        const cs = win.getComputedStyle(el); if (cs.position !== 'fixed' || cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .5 || cs.pointerEvents === 'none') continue;
+        const m = /rgba\([^)]*,\s*([\d.]+)\)/.exec(cs.backgroundColor), a = m ? +m[1] : (cs.backgroundColor === 'transparent' ? 0 : 1);
+        if (a < .15 || a > .95) continue;
+        const r = el.getBoundingClientRect(); if (r.width >= W * .85 && r.height >= H * .7) return true;
+      }
+    } catch (e) {}
+    return false;
+  }
   let liftT = 0;
   function lift() {
     if (!btn) return; const W = innerWidth, H = innerHeight;
     let h = barH(document, window, 0, 0, W, H);
     document.querySelectorAll('iframe').forEach(f => { try { const r = f.getBoundingClientRect(); if (f.contentDocument) h = Math.max(h, barH(f.contentDocument, f.contentWindow, r.left, r.top, W, H)); } catch (e) {} });
     if (h > 0) btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); else btn.style.removeProperty('bottom');
+    let modal = modalOpen(document, window);
+    document.querySelectorAll('iframe').forEach(f => { try { if (!modal && f.contentDocument) modal = modalOpen(f.contentDocument, f.contentWindow); } catch (e) {} });
+    btn.style.visibility = modal ? 'hidden' : '';
   }
   const liftLater = () => { clearTimeout(liftT); liftT = setTimeout(() => { if (!document.hidden) lift(); }, 450); };
   const shrink = () => { clearTimeout(miniT); miniT = setTimeout(() => btn && btn.classList.add('mini'), 3500); };
@@ -55,7 +72,7 @@
   }
   async function peek() {
     const w = me(); if (!w || document.hidden) return;
-    const last = g('chat-peek-' + w, null); if (last && Date.now() - (last.at || 0) < 60e3) { paint(); return; }
+    const last = g('chat-peek-' + w, null); if (last && Date.now() - (last.at || 0) < (window.Hemat && Hemat.on() ? 300e3 : 60e3)) { paint(); return; }
     try {
       const u = (window.Berdua && Berdua.url) || URL, k = (window.Berdua && Berdua.key) || KEY;
       const r = await fetch(`${u}?action=chat&key=${k}&who=${w}&peek=1&t=${Date.now()}`).then(x => x.json());

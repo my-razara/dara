@@ -392,8 +392,22 @@
     }
 
     document.body.appendChild(btn); document.body.appendChild(tip); paint(); shrink();
+    function modalOpen(doc, win) {
+      // ada pop-up/sheet yang nutupin layar (latar gelap transparan) → tombol melayang ngumpet dulu biar ga nutupin tombol Simpan dsb
+      try {
+        const W = win.innerWidth, H = win.innerHeight;
+        for (const el of doc.body ? doc.body.children : []) {
+          if (el.classList && (el.classList.contains('sfx-btn') || el.classList.contains('cfab') || el.classList.contains('sfx-tip') || el.classList.contains('sfx-menu'))) continue;
+          const cs = win.getComputedStyle(el); if (cs.position !== 'fixed' || cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .5 || cs.pointerEvents === 'none') continue;
+          const m = /rgba\([^)]*,\s*([\d.]+)\)/.exec(cs.backgroundColor), a = m ? +m[1] : (cs.backgroundColor === 'transparent' ? 0 : 1);
+          if (a < .15 || a > .95) continue;
+          const r = el.getBoundingClientRect(); if (r.width >= W * .85 && r.height >= H * .7) return true;
+        }
+      } catch (e) {}
+      return false;
+    }
     let liftT = 0;
-    const lift = () => { const H = innerHeight, h = barH(document, window, 0, 0, innerWidth, H); if (h > 0) { btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); tip.style.setProperty('bottom', (h + 18) + 'px', 'important'); } else { btn.style.removeProperty('bottom'); tip.style.removeProperty('bottom'); } };
+    const lift = () => { const H = innerHeight, h = barH(document, window, 0, 0, innerWidth, H); if (h > 0) { btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); tip.style.setProperty('bottom', (h + 18) + 'px', 'important'); } else { btn.style.removeProperty('bottom'); tip.style.removeProperty('bottom'); } const md = modalOpen(document, window); btn.style.visibility = md ? 'hidden' : ''; if (md) tip.style.visibility = 'hidden'; else tip.style.visibility = ''; };
     const liftLater = () => { clearTimeout(liftT); liftT = setTimeout(() => { if (!document.hidden) lift(); }, 450); };
     setTimeout(lift, 900); addEventListener('resize', liftLater); setInterval(() => { if (!document.hidden) lift(); }, 4000);
     try { new MutationObserver(m => { if (m.some(x => x.target !== btn && x.target !== tip)) liftLater(); }).observe(document.body, { attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true }); } catch (e) {}

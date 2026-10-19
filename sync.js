@@ -66,10 +66,29 @@
     if (sent) { state = 'ok'; emit([]); }
   }
 
+  // ── 🍃 MODE HEMAT KUOTA: auto (pas data seluler / sinyal lambat / Data Saver / baterai ≤20%), selalu, atau mati ──
+  const Hemat = (() => {
+    let bat = null; try { navigator.getBattery && navigator.getBattery().then(b => { bat = b; }).catch(() => {}); } catch (e) {}
+    function why() {
+      const m = g('hemat-mode', 'auto'); if (m === 'off') return ''; if (m === 'on') return 'manual';
+      const c = navigator.connection || {};
+      if (c.saveData) return 'savedata';
+      if (/2g/.test(c.effectiveType || '')) return 'lambat';
+      if (c.type === 'cellular') return 'seluler';
+      if (bat && !bat.charging && bat.level <= .2) return 'baterai';
+      return '';
+    }
+    const TXT = { manual: 'nyala terus', savedata: 'Data Saver HP nyala', lambat: 'sinyal lagi lambat', seluler: 'lagi pakai data seluler', baterai: 'baterai tinggal dikit' };
+    return { on: () => !!why(), why, label: () => TXT[why()] || '', mode: () => g('hemat-mode', 'auto'), set: m => s('hemat-mode', m) };
+  })();
+  window.Hemat = Hemat;
+
   // ── ambil: cuma yang berubah sejak terakhir ──
   async function pull(force) {
     if (!URL || busy) return;
-    if (!force && Date.now() - g('bd-pulled-at', 0) < every) return;
+    const H = Hemat.on(), age = Date.now() - g('bd-pulled-at', 0);
+    if (!force && age < (H ? Math.max(every * 3, 180e3) : every)) return;
+    if (force === true && H && age < 30e3) return;   // hemat: pindah-pindah halaman ga narik ulang terus
     busy = true; if (state !== 'ok') setState('sync');
     try {
       const since = g('bd-since', 0);
@@ -199,14 +218,14 @@
     try { window.SFX && SFX.play && SFX.play('open'); } catch (e) {}
   }
 
-  window.Berdua = { put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL, url: URL, key: KEY };
+  window.Berdua = { hemat: Hemat, put, pull, flush, me, setMe, other, status, fast, kangenCheck, room, roomPost, on: f => subs.push(f), enabled: !!URL, url: URL, key: KEY };
 
   seed();
   // tanda "lagi buka web" (paling sering tiap 1,5 menit, atau pas pindah halaman)
   function beat() {
     if (!URL || document.hidden) return;
     const t = tday(), cur = (g('seen-' + me(), {}) || {})[t], p = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
-    if (cur && Date.now() - cur.at < 90e3 && cur.p === p) return;
+    if (cur && Date.now() - cur.at < (Hemat.on() ? 300e3 : 90e3) && (cur.p === p || Hemat.on())) return;
     put('seen', me(), t, { at: Date.now(), p });
   }
   const kick = force => { beat(); flush(); pull(force); };
