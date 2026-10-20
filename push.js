@@ -146,7 +146,7 @@
     ['cbzpC1yfvgmtobfI', (b, w) => b.action === 'add' && seen('kw-' + ((b.item && b.item.id) || Date.now())) && [`⏳ ${w} nyimpen kapsul waktu baru`, 'Kebukanya nanti di tanggal yang udah ditentuin 🤫', 'kapsul-waktu.html']],
     ['cbyR2ZOcUe9mw8I6', (b, w) => b.action === 'add' && [`🎵 ${w} nambahin lagu ke playlist`, pick(b.song), 'playlist-dara.html']],
     ['cbxPd5lEfwBFVHE8', (b, w) => b.action === 'upload' && [`📸 ${w} nambahin kenangan baru`, 'Foto/video baru masuk album — liat yuk', 'memories.html']],
-    ['cbwxqc1oPn30mM-E', (b, w) => b.action === 'save' && [`🌸 ${w} update tracking period`, '', 'period-tracker.html']],
+    ['cbwxqc1oPn30mM-E', (b, w) => b.action === 'save' && [`🩸 ${w} update tracking period`, '', 'period-tracker.html']],
     ['cbz14RB_aXdOTeLU', (b, w) => {
       if (b.action === 'save' && b.item && seen('sr-' + b.item.id)) return [`💌 ${w} nulis surat buat kamu`, pick(b.item) || 'Buka kotak surat yuk', 'kotak-surat.html?m=0'];
       if (b.action === 'react') { if (b.reply && seen('srr-' + b.id + String(b.reply).length)) return [`💬 ${w} bales suratmu`, String(b.reply).slice(0, 120), 'kotak-surat.html?m=0'];
