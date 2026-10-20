@@ -10,6 +10,36 @@
   const s = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
   const me = () => (window.Who && Who.me && Who.me()) || g('berdua-me', null);
   let btn = null, miniT = 0;
+  // ── ✋ tombol melayang bisa digeser ke mana aja (posisinya diinget di HP ini) ──
+  window.__fabDrag = window.__fabDrag || function (btn, key, hooks) {
+    hooks = hooks || {};
+    btn.style.touchAction = 'none';
+    const W = () => innerWidth, H = () => innerHeight;
+    function place(x, y, save) {
+      const w = btn.offsetWidth || 48, h = btn.offsetHeight || 48;
+      x = Math.max(4, Math.min(W() - w - 4, x)); y = Math.max(4, Math.min(H() - h - 4, y));
+      btn.style.setProperty('left', x + 'px', 'important'); btn.style.setProperty('top', y + 'px', 'important');
+      btn.style.setProperty('right', 'auto', 'important'); btn.style.setProperty('bottom', 'auto', 'important');
+      btn.dataset.moved = '1'; btn.classList.remove('mini');
+      if (save) { try { localStorage.setItem(key, JSON.stringify({ fx: x / Math.max(1, W() - w), fy: y / Math.max(1, H() - h) })); } catch (e) {} }
+      if (hooks.moved) hooks.moved(x, y);
+    }
+    function restore() { try { const p = JSON.parse(localStorage.getItem(key)); if (p && p.fx != null) { const w = btn.offsetWidth || 48, h = btn.offsetHeight || 48; place(p.fx * (W() - w), p.fy * (H() - h), false); } } catch (e) {} }
+    let sx = null, sy = 0, ox = 0, oy = 0, drag = false, pid = null, last = 0;
+    btn.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; const r = btn.getBoundingClientRect(); ox = sx - r.left; oy = sy - r.top; drag = false; pid = e.pointerId; try { btn.setPointerCapture(pid); } catch (er) {} });
+    btn.addEventListener('pointermove', e => {
+      if (sx == null || e.pointerId !== pid) return;
+      if (!drag) { if (Math.hypot(e.clientX - sx, e.clientY - sy) < 10) return; drag = true; try { btn.setPointerCapture(pid); } catch (er) {} if (hooks.start) hooks.start(); btn.style.transition = 'none'; }
+      e.preventDefault(); place(e.clientX - ox, e.clientY - oy, false);
+    });
+    const end = () => { if (drag) { const r = btn.getBoundingClientRect(); place(r.left, r.top, true); last = Date.now(); btn.style.transition = ''; try { navigator.vibrate && navigator.vibrate(10); } catch (er) {} } sx = null; drag = false; };
+    btn.addEventListener('pointerup', end); btn.addEventListener('pointercancel', end);
+    btn.addEventListener('click', e => { if (Date.now() - last < 450) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+    if (document.readyState === 'complete') restore(); else addEventListener('load', restore);
+    restore(); addEventListener('resize', () => { if (btn.dataset.moved) restore(); });
+  };
+  // lagi di dalam game → tombol melayang ngumpet biar ga ganggu pencetan
+  window.__inGame = window.__inGame || function () { const P = (location.pathname.split('/').pop() || '').replace(/\.html$/, ''); return !!(window.Skor && Skor.GAMES && Skor.GAMES.includes(P)); };
   function css() {
     const st = document.createElement('style');
     st.textContent = `.cfab{position:fixed;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;box-shadow:0 6px 16px rgba(168,88,76,.35);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;text-decoration:none;transition:transform .35s,opacity .35s;-webkit-tap-highlight-color:transparent}
@@ -57,13 +87,13 @@
     if (!btn) return; const W = innerWidth, H = innerHeight;
     let h = barH(document, window, 0, 0, W, H);
     document.querySelectorAll('iframe').forEach(f => { try { const r = f.getBoundingClientRect(); if (f.contentDocument) h = Math.max(h, barH(f.contentDocument, f.contentWindow, r.left, r.top, W, H)); } catch (e) {} });
-    if (h > 0) btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); else btn.style.removeProperty('bottom');
+    if (!btn.dataset.moved) { if (h > 0) btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); else btn.style.removeProperty('bottom'); }
     let modal = modalOpen(document, window);
     document.querySelectorAll('iframe').forEach(f => { try { if (!modal && f.contentDocument) modal = modalOpen(f.contentDocument, f.contentWindow); } catch (e) {} });
     btn.style.visibility = modal ? 'hidden' : '';
   }
   const liftLater = () => { clearTimeout(liftT); liftT = setTimeout(() => { if (!document.hidden) lift(); }, 450); };
-  const shrink = () => { clearTimeout(miniT); miniT = setTimeout(() => btn && btn.classList.add('mini'), 3500); };
+  const shrink = () => { clearTimeout(miniT); miniT = setTimeout(() => btn && !btn.dataset.moved && btn.classList.add('mini'), 3500); };
   function paint() {
     if (!btn) return; const p = g('chat-peek-' + me(), null), n = p && p.n || 0;
     btn.innerHTML = '💬' + (n ? `<i>${n > 9 ? '9+' : n}</i>` : '');
@@ -83,11 +113,11 @@
     if (!me()) return; css();
     btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cfab'; btn.dataset.sfxSkip = '1';
     btn.addEventListener('click', e => { e.stopPropagation(); if (btn.classList.contains('mini')) { btn.classList.remove('mini'); shrink(); return; } location.href = 'chat.html'; });
-    document.body.appendChild(btn); paint(); shrink(); setTimeout(peek, 2500);
+    document.body.appendChild(btn); window.__fabDrag(btn, 'fab-pos-chat'); paint(); shrink(); setTimeout(peek, 2500);
     setTimeout(lift, 900); addEventListener('resize', liftLater); setInterval(() => { if (!document.hidden) lift(); }, 4000);
     try { new MutationObserver(m => { if (m.some(x => x.target !== btn && !btn.contains(x.target))) liftLater(); }).observe(document.body, { attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true }); } catch (e) {}
     // lagi main game online → tombol 💬 komen game yang dipakai, yang ini ngumpet dulu biar ga dobel
-    setInterval(() => { if (btn) btn.style.display = document.getElementById('olc-fab') ? 'none' : ''; }, 1500);
+    const vis = () => { if (btn) btn.style.display = document.getElementById('olc-fab') || window.__inGame() ? 'none' : ''; }; vis(); setTimeout(vis, 600); setInterval(vis, 1500);
     setInterval(peek, 90e3);
     // ⚡ chat baru kedeteksi sama sync (nunggu di server) → badge langsung update
     const hookChat = n => { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && ev.apps.includes('chat')) peek(true); }); else if (n < 20) setTimeout(() => hookChat(n + 1), 400); }; hookChat(0); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });

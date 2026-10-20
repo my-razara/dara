@@ -293,6 +293,36 @@
   const ICON = { all: '🎵', fx: '🔔', off: '🔇' }, LABEL = { all: 'Musik & efek suara nyala', fx: 'Efek suara aja (musik mati)', off: 'Semua suara mati' };
   let btn = null;
   function addButton() {
+  // ── ✋ tombol melayang bisa digeser ke mana aja (posisinya diinget di HP ini) ──
+  window.__fabDrag = window.__fabDrag || function (btn, key, hooks) {
+    hooks = hooks || {};
+    btn.style.touchAction = 'none';
+    const W = () => innerWidth, H = () => innerHeight;
+    function place(x, y, save) {
+      const w = btn.offsetWidth || 48, h = btn.offsetHeight || 48;
+      x = Math.max(4, Math.min(W() - w - 4, x)); y = Math.max(4, Math.min(H() - h - 4, y));
+      btn.style.setProperty('left', x + 'px', 'important'); btn.style.setProperty('top', y + 'px', 'important');
+      btn.style.setProperty('right', 'auto', 'important'); btn.style.setProperty('bottom', 'auto', 'important');
+      btn.dataset.moved = '1'; btn.classList.remove('mini');
+      if (save) { try { localStorage.setItem(key, JSON.stringify({ fx: x / Math.max(1, W() - w), fy: y / Math.max(1, H() - h) })); } catch (e) {} }
+      if (hooks.moved) hooks.moved(x, y);
+    }
+    function restore() { try { const p = JSON.parse(localStorage.getItem(key)); if (p && p.fx != null) { const w = btn.offsetWidth || 48, h = btn.offsetHeight || 48; place(p.fx * (W() - w), p.fy * (H() - h), false); } } catch (e) {} }
+    let sx = null, sy = 0, ox = 0, oy = 0, drag = false, pid = null, last = 0;
+    btn.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; const r = btn.getBoundingClientRect(); ox = sx - r.left; oy = sy - r.top; drag = false; pid = e.pointerId; try { btn.setPointerCapture(pid); } catch (er) {} });
+    btn.addEventListener('pointermove', e => {
+      if (sx == null || e.pointerId !== pid) return;
+      if (!drag) { if (Math.hypot(e.clientX - sx, e.clientY - sy) < 10) return; drag = true; try { btn.setPointerCapture(pid); } catch (er) {} if (hooks.start) hooks.start(); btn.style.transition = 'none'; }
+      e.preventDefault(); place(e.clientX - ox, e.clientY - oy, false);
+    });
+    const end = () => { if (drag) { const r = btn.getBoundingClientRect(); place(r.left, r.top, true); last = Date.now(); btn.style.transition = ''; try { navigator.vibrate && navigator.vibrate(10); } catch (er) {} } sx = null; drag = false; };
+    btn.addEventListener('pointerup', end); btn.addEventListener('pointercancel', end);
+    btn.addEventListener('click', e => { if (Date.now() - last < 450) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+    if (document.readyState === 'complete') restore(); else addEventListener('load', restore);
+    restore(); addEventListener('resize', () => { if (btn.dataset.moved) restore(); });
+  };
+  // lagi di dalam game → tombol melayang ngumpet biar ga ganggu pencetan
+  window.__inGame = window.__inGame || function () { const P = (location.pathname.split('/').pop() || '').replace(/\.html$/, ''); return !!(window.Skor && Skor.GAMES && Skor.GAMES.includes(P)); };
     const css = document.createElement('style');
     css.textContent = `.sfx-btn{position:fixed;left:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;width:48px;height:48px;border-radius:50%;border:1px solid rgba(193,122,111,.25);background:rgba(255,255,255,.96);box-shadow:0 4px 14px rgba(0,0,0,.14);font-size:21px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;opacity:.85;transition:transform .15s}
     .sfx-btn:active{transform:scale(.9)}
@@ -308,7 +338,7 @@
     let tipT;
     const say = t => { tip.textContent = t; tip.classList.add('show'); clearTimeout(tipT); tipT = setTimeout(() => tip.classList.remove('show'), 2200); };
     // biar ga ganggu main: abis beberapa detik tombolnya ngumpet ke pinggir, tap sekali buat munculin
-    let miniT; const shrink = () => { clearTimeout(miniT); miniT = setTimeout(() => btn.classList.add('mini'), 3500); };
+    let miniT; const shrink = () => { clearTimeout(miniT); miniT = setTimeout(() => { if (!btn.dataset.moved) btn.classList.add('mini'); }, 3500); };
     // tahan lama → ganti lagu
     let lpT = 0, lpDone = false;
     btn.addEventListener('pointerdown', () => { lpDone = false; clearTimeout(lpT); lpT = setTimeout(() => { lpDone = true; nextSong(); }, 550); });
@@ -392,6 +422,9 @@
     }
 
     document.body.appendChild(btn); document.body.appendChild(tip); paint(); shrink();
+    const tipAt = (x, y) => { tip.style.setProperty('bottom', 'auto', 'important'); tip.style.setProperty('top', (y > 70 ? y - 44 : y + 56) + 'px', 'important'); tip.style.setProperty('left', Math.max(8, Math.min(innerWidth - 220, x - 40)) + 'px', 'important'); };
+    window.__fabDrag(btn, 'fab-pos-sfx', { start: () => clearTimeout(lpT), moved: tipAt });
+    const gameHide = () => { const g2 = window.__inGame(); btn.style.display = g2 ? 'none' : ''; if (g2) tip.classList.remove('show'); }; gameHide(); setTimeout(gameHide, 600); setInterval(gameHide, 2000);
     function modalOpen(doc, win) {
       // ada pop-up/sheet yang nutupin layar (latar gelap transparan) → tombol melayang ngumpet dulu biar ga nutupin tombol Simpan dsb
       try {
@@ -407,7 +440,7 @@
       return false;
     }
     let liftT = 0;
-    const lift = () => { const H = innerHeight, h = barH(document, window, 0, 0, innerWidth, H); if (h > 0) { btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); tip.style.setProperty('bottom', (h + 18) + 'px', 'important'); } else { btn.style.removeProperty('bottom'); tip.style.removeProperty('bottom'); } const md = modalOpen(document, window); btn.style.visibility = md ? 'hidden' : ''; if (md) tip.style.visibility = 'hidden'; else tip.style.visibility = ''; };
+    const lift = () => { const H = innerHeight, h = btn.dataset.moved ? 0 : barH(document, window, 0, 0, innerWidth, H); if (btn.dataset.moved) {} else if (h > 0) { btn.style.setProperty('bottom', (h + 10) + 'px', 'important'); tip.style.setProperty('bottom', (h + 18) + 'px', 'important'); } else { btn.style.removeProperty('bottom'); tip.style.removeProperty('bottom'); } const md = modalOpen(document, window); btn.style.visibility = md ? 'hidden' : ''; if (md) tip.style.visibility = 'hidden'; else tip.style.visibility = ''; };
     const liftLater = () => { clearTimeout(liftT); liftT = setTimeout(() => { if (!document.hidden) lift(); }, 450); };
     setTimeout(lift, 900); addEventListener('resize', liftLater); setInterval(() => { if (!document.hidden) lift(); }, 4000);
     try { new MutationObserver(m => { if (m.some(x => x.target !== btn && x.target !== tip)) liftLater(); }).observe(document.body, { attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true }); } catch (e) {}
