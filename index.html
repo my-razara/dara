@@ -816,6 +816,7 @@ const CATS = [
         {icon:'🏮',wrap:'purple',label:'Lampion Harapan',sub:'lepas ke langit malam',desc:'Tulis harapan, nyalain lampionnya, lepas ke langit. Semua lampion tetep melayang & bisa dibaca lagi kapan aja 🌌',link:'lampion-harapan.html'},
         {icon:'🏆',wrap:'gold',label:'Pencapaian Kita',sub:'48 lencana · level pasangan',desc:'Lencana yang kebuka otomatis dari semua yang udah kita lakuin di sini — main game, buka hadiah, centang bucket list, sampai 1000 hari bareng 🏅',link:'pencapaian.html'},
         {icon:'📅',wrap:'sky',label:'Jadwal Kita',sub:'kalender berdua · pengingat',desc:'Jadwal kuliah, deadline, telponan, ultah — satu kalender berdua (rencana ketemu ikut muncul), dua HP dapet pengingat 🔔',link:'jadwal-kita.html'},
+        {icon:'🗓️',wrap:'gold',label:'Jadwal Mingguan',sub:'weekend tiap bulan · budget',desc:'Tiap minggu mau ke mana, ngapain aja & budget berapa — Taman, Nobi, Larpag, Pergi Jauh, Istirahat, Cafe, atau opsi bikinan sendiri. Jumlah minggunya ngikutin bulan (4/5) 🗓️',link:'jadwal-mingguan.html'},
         {icon:'🎯',wrap:'purple',label:'Tantangan Mingguan',sub:'3 misi tiap Senin · trofi',desc:'Tiap minggu ada 3 misi berdua — kelarin semua buat dapet 🏆 trofi & XP buat peliharaan',link:'tantangan-mingguan.html'},
         {icon:'📸',wrap:'rose',label:'Photobooth',sub:'strip 4 foto · bingkai lucu',desc:'Kamera depan + bingkai lucu + hitung mundur 3-2-1 → jadi foto strip yang bisa disimpen 🎞️',link:'photobooth.html'},
         {icon:'✨',wrap:'purple',label:'Peta Bintang Kita',sub:'langit malam jadian',desc:'Susunan bintang di langit Jakarta persis di malam kita jadian, 10 Mei 2025 — bisa ganti tanggal & disimpen jadi poster 🌌',link:'peta-bintang.html'},
@@ -1217,7 +1218,7 @@ window.DUO = {
   'pertanyaan-harian.html': ['Pertanyaan harian'], 'kalender-mood.html': ['Mood', '🌈'], 'jurnal-syukur.html': ['Syukur'], 'jaga-minum.html': ['Jaga minum'], 'daftar-bareng.html': ['Daftar bareng'],
   'bioskop-kita.html': ['Bioskop'], 'wishlist.html': ['Wishlist', '🎁'], 'bucket-list.html': ['Bucket list'], 'janji-kita.html': ['Janji kita'],
   'keuangan-berdua.html': ['Keuangan'], 'resep-kita.html': ['Resep'], 'kamus-kita.html': ['Kamus kita'], 'jarak-kita.html': ['Jarak kita'],
-  'masa-depan.html': ['Masa depan'], 'kapsul-waktu.html': ['Kapsul waktu'], 'playlist-dara.html': ['Playlist'], 'memories.html': ['Kenangan', '📸'], 'period-tracker.html': ['Period Dara'], 'rekap-bulanan.html': ['Rekap', '📊'], 'jadwal-kita.html': ['Jadwal', '📅'], 'tantangan-mingguan.html': ['Tantangan', '🎯'],
+  'masa-depan.html': ['Masa depan'], 'kapsul-waktu.html': ['Kapsul waktu'], 'playlist-dara.html': ['Playlist'], 'memories.html': ['Kenangan', '📸'], 'period-tracker.html': ['Period Dara'], 'rekap-bulanan.html': ['Rekap', '📊'], 'jadwal-kita.html': ['Jadwal', '📅'], 'jadwal-mingguan.html': ['Mingguan', '🗓️'], 'tantangan-mingguan.html': ['Tantangan', '🎯'],
 };
 const isDuo = it => !!(window.DUO || {})[it.link];
 const isOnline = it => /online beda hp/i.test(((META[it.link] || {}).kw || '') + ' ' + (it.sub || ''));
@@ -1301,6 +1302,7 @@ const UPDATED = {
   'lampion-harapan.html': '2026-10-09',
   'pencapaian.html': '2026-10-09',
   'jadwal-kita.html': '2026-10-19',
+  'jadwal-mingguan.html': '2026-10-20',
   'tantangan-mingguan.html': '2026-10-19',
   'photobooth.html': '2026-10-19',
   'peta-bintang.html': '2026-10-09',
@@ -2715,6 +2717,20 @@ setTimeout(() => {
     })));
     return out.sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
   }
+  // rencana weekend minggu ini (dari Jadwal Mingguan)
+  function weekendPlan() {
+    const n = new Date(), t = new Date(n.getFullYear(), n.getMonth(), n.getDate()), sat = new Date(t);
+    sat.setDate(t.getDate() + (t.getDay() === 0 ? -1 : 6 - t.getDay()));
+    const key = ymd(sat); let best = null;
+    ['Razan', 'Dara'].forEach(w => { const r = (get('mingguan-' + w, {}) || {})[key]; if (r && r.at && (!best || r.at > best.at)) best = r; });
+    if (!best || best.del || !best.k) return null;
+    const B = { taman: ['🌳', 'Ke Taman'], nobi: ['🎬', 'Nobi'], larpag: ['🏃', 'Larpag (CFD)'], jauh: ['🗺️', 'Pergi Jauh'], rumah: ['🏠', 'Istirahat di rumah'], cafe: ['☕', 'Makan ke Cafe'] };
+    let o = B[best.k];
+    if (!o) ['Razan', 'Dara'].forEach(w => ((((get('mingguanopsi-' + w, {}) || {})['2000-01-01'] || {}).list) || []).forEach(x => { if (x && x.id === best.k) o = [x.e, x.n]; }));
+    if (!o) return null;
+    const rb = n => { n = +n || 0; return n >= 1e6 ? 'Rp' + (n / 1e6).toFixed(n % 1e6 ? 1 : 0).replace('.', ',') + 'jt' : n >= 1e3 ? 'Rp' + Math.round(n / 1e3) + 'rb' : 'Rp' + n; };
+    return { e: o[0], n: (t.getDay() === 0 || t.getDay() === 6 ? 'Hari ini: ' : 'Weekend: ') + o[1], s: [best.tj, best.b ? rb(best.b) : ''].filter(Boolean).join(' · ') || 'Liat rencananya →' };
+  }
   function monday() { const n = new Date(), x = new Date(n.getFullYear(), n.getMonth(), n.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return ymd(x); }
   const _rr = renderRows;
   renderRows = function () {
@@ -2726,7 +2742,9 @@ setTimeout(() => {
     const pick = td.length ? ['Hari ini', td] : tm.length ? ['Besok', tm] : null;
     const pr = get('misi-prog', null), cur = pr && pr.a === monday() ? pr : null;
     const d = document.createElement('div'); d.className = 'tj-sec';
-    d.innerHTML = `<a class="tj" href="tantangan-mingguan.html"><span class="e">🎯</span><span class="m"><b>${cur ? (cur.all ? '🏆 Misi kelar!' : `Misi ${cur.d}/3`) : 'Misi minggu ini'}</b><small>${cur ? (cur.all ? 'Ambil hadiahnya →' : esc2(cur.t || '')) : 'Cek tantangan berdua →'}</small></span></a>`;
+    const wk = weekendPlan();
+    d.innerHTML = `<a class="tj" href="tantangan-mingguan.html"><span class="e">🎯</span><span class="m"><b>${cur ? (cur.all ? '🏆 Misi kelar!' : `Misi ${cur.d}/3`) : 'Misi minggu ini'}</b><small>${cur ? (cur.all ? 'Ambil hadiahnya →' : esc2(cur.t || '')) : 'Cek tantangan berdua →'}</small></span></a>`
+      + `<a class="tj" href="jadwal-mingguan.html"><span class="e">${wk ? wk.e : '🗓️'}</span><span class="m"><b>${wk ? esc2(wk.n) : 'Weekend ini'}</b><small>${wk ? esc2(wk.s) : 'Belum direncanain →'}</small></span></a>`;
     const bx = host.querySelector('.bx-sec');
     if (bx) bx.insertAdjacentElement('afterend', d); else host.insertBefore(d, host.firstChild);
     setTimeout(() => { const b2 = host.querySelector('.bx-sec'); if (b2 && d.isConnected && d.previousElementSibling !== b2) b2.insertAdjacentElement('afterend', d); }, 0);
@@ -2738,7 +2756,7 @@ setTimeout(() => {
   .tj small{display:block;font-size:10.5px;color:var(--muted,#9a8070);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   html.night .tj{background:var(--card);color:#f3d9d2;border-color:rgba(193,122,111,.3)}`;
   document.head.appendChild(css);
-  window.addEventListener('berdua', e => { const a = (e.detail && e.detail.apps) || []; if (a.includes('jadwal')) { const o = document.querySelector('.tj-sec'); if (o) { o.remove(); renderRows(); } } });
+  window.addEventListener('berdua', e => { const a = (e.detail && e.detail.apps) || []; if (a.includes('jadwal') || a.includes('mingguan') || a.includes('mingguanopsi')) { const o = document.querySelector('.tj-sec'); if (o) { o.remove(); renderRows(); } } });
   renderRows();
 })();
 
@@ -2842,6 +2860,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-20 08:00', t: '🗓️ BARU: Jadwal Mingguan — rencanain tiap weekend mau ke mana, ngapain & budget berapa (bulan 4/5 minggu otomatis kecek, minggu istirahat kalian pilih sendiri) · 📨 Tantang jarak jauh sekarang ada di semua 40 game skor + 🌐 17 game giliran bisa main online beda HP' },
     { d: '2026-10-19 12:00', t: '✨ 4 fitur baru: 📚 Album Berdua (hasil Razara Booth otomatis keliatan di 2 HP) · 🎤 Pesan suara di chat (tap 🎤 pas kolom pesan kosong) · 📅 Jadwal Kita (kalender berdua + pengingat) · 🎯 Tantangan Mingguan (3 misi tiap Senin, hadiah trofi & XP peliharaan)' },
     { d: '2026-10-16 17:00', t: '🎨 Tema musiman otomatis (libur akhir tahun, tahun baru, Valentine, Ramadan, Lebaran, 17 Agustus) + 🎵 menu suara baru: tap tombol 🎵 buat atur keras musik & efek, pilih suasana lagu, ganti & simpen lagu favorit.' },
     { d: '2026-10-16 16:30', t: '💬 BARU: Chat berdua kayak WhatsApp — kirim pesan, foto, stiker, bales, reaksi, ada ✓✓ dibaca & notif. Plus tab 🤖 Asisten AI buat temen ngobrol, cari ide kencan & bikin ucapan!' },

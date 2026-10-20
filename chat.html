@@ -502,14 +502,24 @@ setTimeout(sendIcon, 0);
 function kardOf(t) {
   const m = /^([\s\S]{1,300})\n👉 ([a-z0-9-]+\.html(?:[?#][^\s]*)?)$/.exec(String(t || ''));
   if (!m) return '';
-  const BTN = { 'tantangan-mingguan': '🎯 Liat misinya', 'jadwal-kita': '📅 Buka jadwal', 'photobooth': '📸 Ke Razara Booth', 'peliharaan': '🐾 Tengokin', 'kotak-surat': '💌 Buka surat', 'voucher-razan': '🎟 Buka voucher', 'tombol-kangen': '💗 Bales kangen', 'ketemuan': '🤝 Buka rencana' };
+  const BTN = { 'tantangan-mingguan': '🎯 Liat misinya', 'jadwal-kita': '📅 Buka jadwal', 'jadwal-mingguan': '🗓️ Liat rencananya', 'photobooth': '📸 Ke Razara Booth', 'peliharaan': '🐾 Tengokin', 'kotak-surat': '💌 Buka surat', 'voucher-razan': '🎟 Buka voucher', 'tombol-kangen': '💗 Bales kangen', 'ketemuan': '🤝 Buka rencana' };
   const pg = m[2].split(/[?#.]/)[0];
   return `<a class="kc" href="${esc(m[2])}"><span class="kt">${esc(m[1]).replace(/\n/g, '<br>')}</span><span class="kb">${BTN[pg] || (/online=1/.test(m[2]) ? '🎮 Gas main' : 'Buka →')}</span></a>`;
+}
+function wkText() {
+  const n = new Date(), t = new Date(n.getFullYear(), n.getMonth(), n.getDate()), sat = new Date(t); sat.setDate(t.getDate() + (t.getDay() === 0 ? -1 : 6 - t.getDay()));
+  const p2 = x => String(x).padStart(2, '0'), key = `${sat.getFullYear()}-${p2(sat.getMonth() + 1)}-${p2(sat.getDate())}`; let r = null;
+  ['Razan', 'Dara'].forEach(w => { const x = (lsGet('mingguan-' + w, {}) || {})[key]; if (x && x.at && (!r || x.at > r.at)) r = x; });
+  const B = { taman: '🌳 Ke Taman', nobi: '🎬 Nobi', larpag: '🏃 Larpag (CFD)', jauh: '🗺️ Pergi Jauh', rumah: '🏠 Istirahat di rumah', cafe: '☕ Makan ke Cafe' };
+  if (!r || r.del || !r.k) return '🗓️ Weekend ini kita mau ke mana? Yuk rencanain bareng!\n👉 jadwal-mingguan.html';
+  let nm = B[r.k]; if (!nm) ['Razan', 'Dara'].forEach(w => ((((lsGet('mingguanopsi-' + w, {}) || {})['2000-01-01'] || {}).list) || []).forEach(o => { if (o && o.id === r.k) nm = `${o.e} ${o.n}`; }));
+  return `🗓️ Weekend ini: ${nm || 'rencana kita'}${r.tj ? ' — ' + r.tj : ''}${r.b ? `\n💰 Budget Rp${(+r.b).toLocaleString('id-ID')}` : ''}\n👉 jadwal-mingguan.html`;
 }
 const KARTU = [
   ['🎮', 'Ajak main game', () => gamePick()],
   ['🎯', 'Misi minggu ini', () => { const p = lsGet('misi-prog', null); return `🎯 Yuk kelarin misi minggu ini bareng!${p && p.t ? '\n' + p.t : ''}\n👉 tantangan-mingguan.html`; }],
   ['📅', 'Ingetin jadwal', () => jadwalPick()],
+  ['🗓️', 'Rencana weekend', () => wkText()],
   ['📸', 'Ajak foto booth', () => '📸 Foto bareng di Razara Booth yuk! Nanti masuk Album Berdua 💞\n👉 photobooth.html'],
   ['🐾', 'Tengokin peliharaan', () => { let n = 'Peliharaan kita'; try { const st = window.Pet && Pet.state && Pet.state(); if (st && st.n) n = st.n; } catch (e) {} return `🐾 ${n} kangen kamu, tengokin yuk!\n👉 peliharaan.html`; }],
   ['💌', 'Ada surat', () => '💌 Aku nulis surat buat kamu, baca ya 🤍\n👉 kotak-surat.html?m=0'],
