@@ -70,9 +70,9 @@
     btn.setAttribute('aria-label', n ? `Chat · ${n} pesan baru` : 'Chat');
     if (n) { btn.classList.remove('mini'); btn.classList.add('new'); shrink(); }
   }
-  async function peek() {
+  async function peek(force) {
     const w = me(); if (!w || document.hidden) return;
-    const last = g('chat-peek-' + w, null); if (last && Date.now() - (last.at || 0) < (window.Hemat && Hemat.on() ? 300e3 : 60e3)) { paint(); return; }
+    const last = g('chat-peek-' + w, null); if (force !== true && last && Date.now() - (last.at || 0) < (window.Hemat && Hemat.on() ? 300e3 : 60e3)) { paint(); return; }
     try {
       const u = (window.Berdua && Berdua.url) || URL, k = (window.Berdua && Berdua.key) || KEY;
       const r = await fetch(`${u}?action=chat&key=${k}&who=${w}&peek=1&t=${Date.now()}`).then(x => x.json());
@@ -88,7 +88,9 @@
     try { new MutationObserver(m => { if (m.some(x => x.target !== btn && !btn.contains(x.target))) liftLater(); }).observe(document.body, { attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true }); } catch (e) {}
     // lagi main game online → tombol 💬 komen game yang dipakai, yang ini ngumpet dulu biar ga dobel
     setInterval(() => { if (btn) btn.style.display = document.getElementById('olc-fab') ? 'none' : ''; }, 1500);
-    setInterval(peek, 90e3); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });
+    setInterval(peek, 90e3);
+    // ⚡ chat baru kedeteksi sama sync (nunggu di server) → badge langsung update
+    const hookChat = n => { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && ev.apps.includes('chat')) peek(true); }); else if (n < 20) setTimeout(() => hookChat(n + 1), 400); }; hookChat(0); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });
   }
   // ── 📤 pesan chat yg ngantri pas ga ada internet: dikirim dari halaman mana aja begitu internet balik ──
   function idbGet(k) { return new Promise(res => { try { const r = indexedDB.open('razara-chat', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => { try { const q = r.result.transaction('img', 'readonly').objectStore('img').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (e) { res(null); } }; r.onerror = () => res(null); } catch (e) { res(null); } }); }

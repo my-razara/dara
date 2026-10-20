@@ -24,11 +24,11 @@
   function emit(apps) { const ev = { apps, state }; subs.forEach(f => { try { f(ev); } catch (e) {} }); try { window.dispatchEvent(new CustomEvent('berdua', { detail: ev })); } catch (e) {} }
   function setState(v) { if (state !== v) { state = v; emit([]); } }
 
-  function api(method, body, qs) {
+  function api(method, body, qs, tmo) {
     return new Promise((res, rej) => {
       const x = new XMLHttpRequest();
       x.open(method, URL + (method === 'GET' ? `?action=list&key=${KEY}${qs || ''}&t=${Date.now()}` : ''), true);
-      x.timeout = 20000;
+      x.timeout = tmo || 20000;
       if (method === 'POST') x.setRequestHeader('Content-Type', 'text/plain');
       x.onload = () => { try { const r = JSON.parse(x.responseText); r.ok ? res(r) : rej(Object.assign(new Error(r.error || 'gagal'), { code: r.error })); } catch (e) { rej(e); } };
       x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
@@ -94,6 +94,12 @@
       const since = g('bd-since', 0);
       const r = await api('GET', null, `&since=${since}`);
       s('bd-pulled-at', Date.now());
+      applyRows(r, since);
+    } catch (e) { setState('err'); }
+    finally { busy = false; }
+  }
+  function applyRows(r, since) {
+    {
       const st = g('bd-stamp', {}), pend = new Set(g('bd-queue', []).map(x => id(x.app, x.who, x.date)));
       const changed = new Set(), maps = {};
       let max = since;
@@ -109,13 +115,33 @@
         if (before !== JSON.stringify(m[row.date])) changed.add(row.app);
       }
       Object.entries(maps).forEach(([k, v]) => s(k, v));
-      s('bd-stamp', st); s('bd-since', max);
+      s('bd-stamp', st); s('bd-since', Math.max(g('bd-since', 0), max));
       setState('ok');
       if (changed.size) emit([...changed]);
       if (changed.has('kangen')) kangenCheck();
       if (changed.has('ajak')) ajakCheck();
-    } catch (e) { setState('err'); }
-    finally { busy = false; }
+    }
+    if (r && r.cn != null) { const old = g('bd-cn', null); s('bd-cn', r.cn); if (old != null && old !== r.cn) emit(['chat']); }
+  }
+
+  // ── ⚡ LANGSUNG: HP nungguin di server, begitu pasangan nyimpen sesuatu (atau ada chat baru) langsung kebawa (±1–2 detik) ──
+  let living = false, liveFail = 0;
+  const liveOk = () => URL && !document.hidden && !['manual', 'savedata'].includes(Hemat.why());
+  async function live() {
+    if (living || !liveOk()) return; living = true;
+    try {
+      while (liveOk()) {
+        const since = g('bd-since', 0), cn = g('bd-cn', null);
+        try {
+          const r = await api('GET', null, `&since=${since}&wait=1${cn != null ? '&cn=' + cn : ''}`, 40000);
+          liveFail = 0; s('bd-pulled-at', Date.now()); applyRows(r, since);
+          if (!r.waited) await new Promise(res => setTimeout(res, 15e3));   // server lama (belum bisa nungguin) → jangan kebanjiran
+        } catch (e) {
+          if (e && e.code) { setState('err'); break; }
+          liveFail++; await new Promise(res => setTimeout(res, Math.min(15e3, 1500 * liveFail)));
+        }
+      }
+    } finally { living = false; }
   }
 
   // data lama yang udah ada di HP dikirim sekali (yang lebih baru di server tetep menang)
@@ -228,11 +254,11 @@
     if (cur && Date.now() - cur.at < (Hemat.on() ? 300e3 : 90e3) && (cur.p === p || Hemat.on())) return;
     put('seen', me(), t, { at: Date.now(), p });
   }
-  const kick = force => { beat(); flush(); pull(force); };
+  const kick = force => { beat(); flush(); pull(force); setTimeout(live, 1200); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => kick(true)); else setTimeout(() => kick(true), 0);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(false); });
   window.addEventListener('online', () => kick(true));
-  setInterval(() => { if (!document.hidden) { pull(false); beat(); } }, 5e3);
+  setInterval(() => { if (!document.hidden) { if (!living) pull(false); beat(); live(); } }, 5e3);
   const firstCheck = () => setTimeout(() => { kangenCheck(); ajakCheck(); }, 900);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', firstCheck); else firstCheck();
 })();
