@@ -12,7 +12,6 @@
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
   const me = () => (window.Who && Who.me()) || null;
   const RITUALS = [
-    { link: 'pagi-sayang.html', ico: '☀️', done: () => { const d = (get('pagi-log', {}) || {})[today()]; return !!d && ((d.w || 0) > 0 || Object.values(d.t || {}).some(Boolean)); } },
     { link: 'ramalan-tarot.html', ico: '🔮', done: () => !!(get('ramalan-seen', {}) || {})[today()] },
     { link: 'hadiah-harian.html', ico: '🪙', done: () => { const d = (get('gosok-hist', {}) || {})[today()]; return !!(d && d.s); } },
     { link: 'pertanyaan-harian.html', ico: '❓', done: () => { const q = get('qa-cache', null); const d = q && Array.isArray(q.days) && q.days.find(x => x.date === today()); return !!(d && d.mine); } },

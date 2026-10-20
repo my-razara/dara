@@ -48,6 +48,16 @@
       const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d); if (!m) return;
       add(new Date(+m[1], +m[2] - 1, +m[3]), { key: 'k' + it.id, e: it.e || '🤝', t: 'Ketemuan' + (it.t ? ': ' + it.t : ''), time: it.time || '', place: it.place || '', meet: 1 });
     })));
+    // rencana weekend (Jadwal Mingguan) — yang paling baru diedit yang dipakai
+    try {
+      const OPT = { taman: ['🌳', 'Ke Taman'], nobi: ['🎬', 'Nobi'], larpag: ['🏃', 'Larpag (CFD)'], jauh: ['🗺️', 'Pergi Jauh'], rumah: ['🏠', 'Istirahat di rumah'], cafe: ['☕', 'Makan ke Cafe'] };
+      ['Razan', 'Dara'].forEach(w => ((((g('mingguanopsi-' + w, {}) || {})['2000-01-01'] || {}).list) || []).forEach(o => { if (o && o.id && !o.del) OPT[o.id] = [o.e, o.n]; }));
+      const best = {}; ['Razan', 'Dara'].forEach(w => Object.entries(g('mingguan-' + w, {}) || {}).forEach(([d, r]) => { if (r && r.at && (!best[d] || r.at > best[d].at)) best[d] = r; }));
+      Object.entries(best).forEach(([d, r]) => {
+        if (!r || r.del || !r.k || !OPT[r.k]) return; const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d); if (!m) return;
+        add(new Date(+m[1], +m[2] - 1, +m[3]), { key: 'w' + d, e: OPT[r.k][0], t: OPT[r.k][1] + (r.tj ? ' · ' + r.tj : ''), place: r.tj || '', meet: r.k !== 'rumah' ? 1 : 0, wk: 1 });
+      });
+    } catch (e) {}
     return out.sort((a, b) => a.left - b.left || (a.time || '').localeCompare(b.time || ''));
   }
   const when = l => l === 0 ? 'Hari ini' : l === 1 ? 'Besok' : `${l} hari lagi`;

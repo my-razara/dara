@@ -3,8 +3,8 @@
 (function () {
   if (window.__hub) return; window.__hub = 1;
   const GROUPS = {
-    jadwal: { t: '📅 Jadwal Kita', tabs: [['jadwal-kita', '📅', 'Kalender'], ['jadwal-mingguan', '🗓️', 'Mingguan'], ['ketemuan', '🤝', 'Ketemuan'], ['pengingat', '🎂', 'Hari Spesial']] },
-    mood: { t: '🌈 Mood & Hati', tabs: [['kalender-mood', '😊', 'Mood'], ['jurnal-syukur', '🙏', 'Syukur'], ['pagi-sayang', '☀️', 'Pagi'], ['tenangin-diri', '🌙', 'Tenangin']] }
+    jadwal: { t: '📅 Jadwal Kita', tabs: [['jadwal-kita', '📅', 'Kalender'], ['jadwal-mingguan', '🗓️', 'Mingguan'], ['ketemuan', '⏰', 'Hitung Mundur']] },
+    mood: { t: '🌈 Mood & Hati', tabs: [['kalender-mood', '😊', 'Mood'], ['jurnal-syukur', '🙏', 'Syukur'], ['tenangin-diri', '🌙', 'Tenangin Diri']] }
   };
   const PAGE = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
   let G = null; for (const k in GROUPS) if (GROUPS[k].tabs.some(x => x[0] === PAGE)) G = GROUPS[k];
@@ -17,7 +17,6 @@
     try {
       if (id === 'kalender-mood') return (g('mood-' + me(), {}) || {})[today] ? '✓' : '';
       if (id === 'jurnal-syukur') { const v = (g('syukur-' + me(), {}) || {})[today]; return Array.isArray(v) && v.length ? '✓' : ''; }
-      if (id === 'pagi-sayang') { const d = (g('pagi-log', {}) || {})[today]; return d ? '✓' : ''; }
       if (id === 'ketemuan') { const m = g('idx-meet', ''); if (m && m >= today) { const a = new Date(m + 'T00:00:00'), b = new Date(today + 'T00:00:00'), n = Math.round((a - b) / 864e5); return n === 0 ? 'hari ini' : 'H-' + n; } }
     } catch (e) {}
     return '';
@@ -28,7 +27,7 @@
     css.textContent = `.hub-tabs{position:relative;z-index:5;margin:0 0 .75rem;background:rgba(255,255,255,.82);border:1px solid rgba(193,122,111,.16);border-radius:18px;padding:.45rem .45rem .5rem;box-shadow:0 4px 16px rgba(193,122,111,.07);font-family:'Poppins',system-ui,sans-serif}
     .hub-tabs .ht{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#c9a96e;font-weight:600;text-align:center;margin:0 0 .35rem}
     .hub-tabs .hr{display:grid;grid-template-columns:repeat(${G.tabs.length},minmax(0,1fr));gap:.3rem}
-    .hub-tabs a{position:relative;display:block;text-align:center;text-decoration:none;color:#9a8070;border-radius:13px;padding:.35rem .15rem .32rem;font-size:10.5px;font-weight:500;line-height:1.2;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .hub-tabs a{position:relative;display:block;text-align:center;text-decoration:none;color:#9a8070;border-radius:13px;padding:.35rem .15rem .32rem;font-size:10.5px;font-weight:500;line-height:1.2;min-width:0;overflow:hidden;overflow-wrap:anywhere}
     .hub-tabs a span{display:block;font-size:1.15rem;line-height:1.25}
     .hub-tabs a.on{background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(168,88,76,.25)}
     .hub-tabs a i{position:absolute;top:2px;right:3px;font-style:normal;font-size:8.5px;font-weight:700;background:#2e7d4f;color:#fff;border-radius:50px;padding:0 .3rem;line-height:1.5}
