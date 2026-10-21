@@ -80,6 +80,7 @@
   // ── kirim lokasi ──
   let sending = false;
   function send(force, once) {
+    if (otw()) return Promise.resolve(false);
     const w = me(); if (!w || sending || !navigator.geolocation) return Promise.resolve(false);
     if (!once && mode().m !== 'on') return Promise.resolve(false);
     if (!force && (document.hidden || Date.now() - g('lok-sent', 0) < EVERY)) return Promise.resolve(false);
@@ -146,15 +147,80 @@
   }
   function toast2(m) { if (typeof window.toast === 'function') { try { return window.toast(m); } catch (e) {} } css(); const t = document.createElement('div'); t.style.cssText = 'position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font:500 12.5px Poppins,sans-serif;padding:.6rem 1rem;border-radius:50px;z-index:9700'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); }
 
+  // ═══ 🛵 OTW MODE — lagi jalan ke pasangan / jemput (posisi + perkiraan sampai, update tiap ±25 detik) ═══
+  const SPD = { motor: 28, mobil: 24, jalan: 4.5 }, MV = { motor: '🛵', mobil: '🚗', jalan: '🚶' };
+  const otw = () => g('lok-otw', null);
+  let wid = null, wl = null, oLast = 0, trail = [];
+  function otwDest(o) {
+    if (o.to.kind === 'op') { const r = row(op()); if (r && r.lat != null && r.st !== 'off') return { lat: r.lat, lng: r.lng }; }
+    return o.to.lat != null ? { lat: o.to.lat, lng: o.to.lng } : null;
+  }
+  async function lock(on) { try { if (on && !wl && navigator.wakeLock && !document.hidden) { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { wl = null; }); } else if (!on && wl) { wl.release(); wl = null; } } catch (e) {} }
+  function otwPos(p) {
+    const o = otw(); if (!o) return otwWatch(false);
+    if (Date.now() - o.start > 3 * 36e5) return otwStop('lama');
+    const w = me(), lat = +p.coords.latitude.toFixed(5), lng = +p.coords.longitude.toFixed(5), now = Date.now(), pos = { lat, lng };
+    trail.push({ lat, lng, t: now }); trail = trail.filter(x => now - x.t < 3 * 6e4);
+    const prev = row(w), dest = otwDest(o);
+    const moved = prev && prev.lat != null ? dist(prev, pos) : 1e9;
+    if (now - oLast < 25e3 && moved < 120 && prev && prev.otw) return;
+    oLast = now;
+    let d = dest ? dist(pos, dest) / 1000 : null, sp = SPD[o.mv] || 28;
+    if (trail.length > 1) { const a = trail[0], b = trail[trail.length - 1], h = (b.t - a.t) / 36e5; if (h > .01) { const m = dist(a, b) / 1000 / h; if (m > 6) sp = (sp + m) / 2; } }
+    const eta = d == null ? null : Math.max(1, Math.round(d * 1.35 / sp * 60));
+    const data = Object.assign({}, prev && prev.lat != null ? { pl: prev.pl, city: prev.city } : {}, { lat, lng, acc: Math.round(p.coords.accuracy || 0), at: now, st: 'otw', fav: null,
+      otw: { n: o.to.n, e: o.to.e, kind: o.to.kind, tlat: dest ? dest.lat : null, tlng: dest ? dest.lng : null, mv: o.mv, start: o.start, d: d == null ? null : +d.toFixed(2), d0: o.d0 || (d == null ? null : +d.toFixed(2)), eta } });
+    if (bat) { data.bat = Math.round(bat.level * 100); data.chg = bat.charging ? 1 : 0; }
+    if (!o.d0 && d != null) { o.d0 = +d.toFixed(2); s('lok-otw', o); }
+    put('lokasi', w, SLOT, data); s('lok-sent', now);
+    if (moved > 250 || !prev || !prev.pl) place(lat, lng).then(nm => { const r2 = row(w); if (r2 && r2.st === 'otw' && nm && nm.pl) put('lokasi', w, SLOT, Object.assign({}, r2, { pl: nm.pl, city: nm.city })); });
+    const to = o.to.kind === 'op' ? 'kamu' : `${o.to.e} ${o.to.n}`;
+    if (!o.told) { o.told = 1; s('lok-otw', o); try { window.Push && Push.notify({ title: `${MV[o.mv]} ${w} OTW ke ${to}!`, body: eta ? `Perkiraan sampai ±${eta} menit lagi (${d.toFixed(1).replace('.', ',')} km) — pantau di Jarak Kita` : 'Pantau posisinya di Jarak Kita', url: 'jarak-kita.html', tag: 'otw-start' }); } catch (e) {} }
+    if (d != null && d <= .15) return otwStop('sampai');
+    if (d != null && !o.near && (d < 1 || eta <= 5)) { o.near = 1; s('lok-otw', o); try { window.Push && Push.notify({ title: `🥰 ${w} udah deket!`, body: `±${eta} menit lagi sampai — siap-siap ya`, url: 'jarak-kita.html', tag: 'otw-near' }); } catch (e) {} }
+  }
+  function otwWatch(on) {
+    if (on && wid == null && navigator.geolocation && otw()) { wid = navigator.geolocation.watchPosition(otwPos, () => {}, { enableHighAccuracy: true, maximumAge: 1e4, timeout: 3e4 }); lock(true); }
+    if (!on && wid != null) { navigator.geolocation.clearWatch(wid); wid = null; lock(false); }
+    pill();
+  }
+  function otwStart(to, mv) {
+    if (!navigator.geolocation) return false;
+    s('lok-otw', { to, mv: mv || 'motor', start: Date.now(), prev: mode().m, prevUntil: mode().until || null }); oLast = 0; trail = [];
+    needSync(); otwWatch(true); return true;
+  }
+  function otwStop(why) {
+    const o = otw(); if (!o) return; s('lok-otw', null); otwWatch(false);
+    const w = me(), r = row(w) || {}, to = o.to.kind === 'op' ? 'kamu' : `${o.to.e} ${o.to.n}`;
+    if (why === 'sampai') { try { window.Push && Push.notify({ title: `📍 ${w} udah sampai${o.to.kind === 'op' ? '' : ' di ' + o.to.n}!`, body: o.to.kind === 'op' ? 'Keluar yuk, dia udah di deket kamu 🥰' : 'Udah nyampe tujuan 💞', url: 'jarak-kita.html', tag: 'otw-end' }); } catch (e) {} }
+    else if (why === 'batal') { try { window.Push && Push.notify({ title: `✖️ ${w} batal OTW`, body: `Perjalanan ke ${to} dibatalin`, url: 'jarak-kita.html', tag: 'otw-end' }); } catch (e) {} }
+    const clean = Object.assign({}, r); delete clean.otw;
+    if (o.prev === 'off') put('lokasi', w, SLOT, { st: 'off', at: Date.now() });
+    else if (o.prev === 'pause') put('lokasi', w, SLOT, Object.assign(clean, { st: 'pause', until: o.prevUntil }));
+    else put('lokasi', w, SLOT, Object.assign(clean, { st: 'on' }));
+    return why;
+  }
+  // pasangan lagi OTW → pil kecil di atas layar (semua halaman), tap = buka Jarak Kita
+  function pill() {
+    if (!document.body) return;
+    const r = row(op()), on = r && r.st === 'otw' && r.otw && Date.now() - r.at < 4 * 6e4 && PAGE !== 'jarak-kita' && !(window.__inGame && window.__inGame());
+    let el = document.getElementById('otw-pill');
+    if (!on) { if (el) el.remove(); return; }
+    css(); if (!el) { el = document.createElement('a'); el.id = 'otw-pill'; el.href = 'jarak-kita.html'; el.setAttribute('data-noskor', '1'); el.style.cssText = 'position:fixed;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:9450;background:#2d1f1a;color:#fff;font:600 12px Poppins,system-ui,sans-serif;padding:.4rem .85rem;border-radius:50px;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25);white-space:nowrap;max-width:calc(100vw - 24px);overflow:hidden;text-overflow:ellipsis'; document.body.appendChild(el); }
+    const o = r.otw; el.textContent = `${MV[o.mv] || '🛵'} ${op()} OTW ${o.kind === 'op' ? 'ke kamu' : 'ke ' + o.n}${o.eta ? ` · ±${o.eta} mnt` : ''}${o.d != null ? ` · ${String(o.d.toFixed(1)).replace('.', ',')} km` : ''}`;
+  }
+
   function start() {
-    dot(); if (mode().m === 'on') needSync();
+    dot(); if (mode().m === 'on' || otw()) needSync();
+    if (otw()) setTimeout(() => otwWatch(true), 600);
+    setTimeout(pill, 1200); setInterval(pill, 15e3);
     const fromUrl = /[?&]lok=1/.test(location.search);
     setTimeout(() => { send(false); checkReq(fromUrl); }, 1500);
     setInterval(() => { if (!document.hidden) { send(false); dot(); } }, 6e4);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(() => send(false), 800); });
-    const hook = n => { if (B() && B().on) B().on(ev => { if (ev.apps && ev.apps.includes('lokreq')) checkReq(false); }); else if (n < 25) setTimeout(() => hook(n + 1), 400); };
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { setTimeout(() => send(false), 800); if (otw()) lock(true); } });
+    const hook = n => { if (B() && B().on) B().on(ev => { if (ev.apps && ev.apps.includes('lokreq')) checkReq(false); if (ev.apps && ev.apps.includes('lokasi')) pill(); }); else if (n < 25) setTimeout(() => hook(n + 1), 400); };
     hook(0);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-  window.Lok = { mode, setMode, send, request, favs, saveFav, favAt, row, dist, PAGE };
+  window.Lok = { mode, setMode, send, request, favs, saveFav, favAt, row, dist, PAGE, otw, otwStart, otwStop: () => otwStop('batal'), otwDone: () => otwStop('sampai'), MV };
 })();

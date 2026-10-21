@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nonton & Dengerin Bareng — Razan & Dara 🎬</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .5rem}
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;background:#fff;border-radius:50px;padding:4px;border:1px solid rgba(193,122,111,.15);margin-bottom:.7rem}
+  .modes button{border:none;background:none;border-radius:50px;padding:.55rem .3rem;font-size:12.5px;color:var(--muted);cursor:pointer;font-weight:500}
+  .modes button.on{background:var(--rose);color:#fff;font-weight:700}
+  .addr{display:flex;gap:.4rem;margin-bottom:.4rem}
+  .addr .inp{flex:1;min-width:0;font-size:13px}
+  .addr button{flex-shrink:0;border:none;border-radius:14px;padding:0 .8rem;font-weight:700;font-size:13px;background:var(--rose);color:#fff;cursor:pointer}
+  .addr2{display:flex;gap:.4rem;margin-bottom:.8rem}
+  .addr2 button{flex:1;border:1.5px solid var(--blush);background:#fff;border-radius:50px;padding:.45rem .3rem;font-size:11.5px;color:var(--deep);cursor:pointer}
+  .vbox{position:relative;border-radius:18px;overflow:hidden;background:#111;box-shadow:0 8px 24px rgba(0,0,0,.18);margin-bottom:.6rem}
+  .vbox .ar{position:relative;width:100%;padding-top:56.25%}
+  .vbox .ar>div,.vbox .ar>iframe,#yt{position:absolute;inset:0;width:100%;height:100%}
+  .vbox .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ddd;font-size:12.5px;text-align:center;padding:1rem;gap:.3rem}
+  .vbox .empty b{font-size:2rem}
+  .vbox .empty[hidden],.np img:not([src]),.np img[src='']{display:none!important}
+  .tapov{position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;border:none;color:#fff;font:700 14px Poppins,sans-serif;cursor:pointer;width:100%}
+  .float{position:absolute;bottom:10px;font-size:2rem;pointer-events:none;animation:flt 2.6s ease-out forwards;z-index:6}
+  @keyframes flt{to{transform:translateY(-220px) scale(1.3);opacity:0}}
+  body.musik .vbox{width:150px;margin-left:auto}
+  .np{display:none;align-items:center;gap:.75rem;background:#fff;border-radius:20px;padding:.75rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.6rem}
+  body.musik .np{display:flex}
+  .np img{width:88px;height:88px;border-radius:14px;object-fit:cover;flex-shrink:0;background:#f3ece4}
+  .np .m{min-width:0;flex:1}.np b{display:block;font-size:13.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .np small{display:block;font-size:11px;color:var(--muted);margin-top:.2rem}
+  .prog{height:5px;border-radius:4px;background:#f1e6dc;overflow:hidden;margin:.5rem 0 .2rem}.prog i{display:block;height:100%;background:var(--rose);width:0}
+  .ctl{display:flex;justify-content:center;gap:.5rem;margin:.2rem 0 .6rem}
+  .ctl button{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--blush);background:#fff;font-size:1.1rem;cursor:pointer}
+  .ctl button.pp{width:56px;height:56px;background:var(--rose);border-color:var(--rose);color:#fff;font-size:1.4rem}
+  .rx{display:flex;justify-content:center;gap:.3rem;margin-bottom:.6rem}
+  .rx button{width:40px;height:40px;border-radius:50%;border:none;background:#fff;box-shadow:0 2px 8px rgba(193,122,111,.15);font-size:1.25rem;cursor:pointer}
+  .rx button:active{transform:scale(.85)}
+  .chat{background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);padding:.6rem .7rem;margin-bottom:.7rem}
+  .chat .ls{max-height:140px;overflow-y:auto;font-size:12.5px;line-height:1.5;margin-bottom:.4rem}
+  .chat .ls p{margin:.1rem 0}.chat .ls p b.R{color:var(--rz)}.chat .ls p b.D{color:var(--dr)}
+  .chat .row2{display:flex;gap:.35rem}.chat .row2 .inp{flex:1;min-width:0;font-size:13px;padding:.55rem .7rem}
+  .chat .row2 button{border:none;border-radius:12px;background:var(--rose);color:#fff;font-weight:700;padding:0 .8rem;cursor:pointer}
+  .ql{display:flex;align-items:center;gap:.55rem;background:#fff;border-radius:14px;padding:.45rem .55rem;margin-bottom:.35rem;border:1px solid rgba(193,122,111,.1);font-size:12.5px}
+  .ql img{width:64px;height:36px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#eee}
+  .ql span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ql button{border:none;background:#f6eee6;border-radius:50px;padding:.3rem .55rem;font-size:11px;cursor:pointer;flex-shrink:0}
+  .ql.now{border-color:var(--rose);background:#fdf0ec}
+  .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🎬</span><p class="lbl">Bareng walau jauh</p><h1 class="title">Nonton & <span>Dengerin</span> Bareng</h1><p class="sub">Video / lagu YouTube yang sama, jalan barengan di 2 HP — play, pause, geser, ikut semua 💞</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="modes" id="modes"><button data-m="video">🎬 Nonton</button><button data-m="musik">🎵 Dengerin</button></div>
+  <div class="addr"><input class="inp" id="url" placeholder="Tempel link YouTube di sini…" inputmode="url" autocomplete="off"><button id="go">▶️ Putar</button></div>
+  <div class="addr2"><button id="enq">＋ Masukin antrean</button><button id="yt-open">🔎 Cari di YouTube</button></div>
+  <div id="mj-wrap"></div>
+  <div class="np" id="np"><img id="np-img" alt=""><div class="m"><b id="np-t">Belum ada lagu</b><small id="np-s"></small><div class="prog"><i id="np-p"></i></div></div></div>
+  <div class="vbox" id="vbox"><div class="ar"><div id="yt"></div></div><div class="empty" id="v-empty"><b>🎬</b>Tempel link YouTube di atas, terus ajak pasangan nonton bareng</div></div>
+  <div class="ctl" id="ctl"><button id="c-b" aria-label="mundur 10 detik">⏪</button><button id="c-pp" class="pp" aria-label="putar/jeda">▶️</button><button id="c-f" aria-label="maju 10 detik">⏩</button><button id="c-n" aria-label="berikutnya">⏭️</button></div>
+  <div class="rx" id="rx"></div>
+  <div class="chat" id="chat" hidden><div class="ls" id="ch-ls"></div><div class="row2"><input class="inp" id="ch-in" maxlength="80" placeholder="Komen sambil nonton…"><button id="ch-go">➤</button></div></div>
+  <p class="sec" id="q-h">🎶 Antrean</p>
+  <div id="ql"></div>
+  <p class="sec">🕘 Terakhir diputer</p>
+  <div id="hist"></div>
+  <p class="note">💡 Bisa juga dari app YouTube: tap <b>Bagikan → Untuk Dara</b> (kalau app-nya udah dipasang di HP).<br>📱 Pas layar HP mati, YouTube emang berhenti muter — biarin layarnya nyala ya.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put() {}, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME);
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const RX = ['💗', '😂', '😮', '😭', '🔥', '👏'];
+// ── keadaan bersama ──
+let S = { vid: '', title: '', mode: lsGet('nb-mode', 'video'), play: false, pos: 0, q: [], rx: null, chat: [], by: ME, seq: 0 };
+let P = null, ready = false, base = { pos: 0, play: false, t: performance.now() }, mute = 0, lastRx = 0, curT = 0;
+const ON = () => !!(window.Meja && Meja.on());
+const now = () => performance.now();
+const expected = () => base.play ? base.pos + (now() - base.t) / 1000 : base.pos;
+function vidOf(u) {
+  u = String(u || '').trim(); if (/^[\w-]{11}$/.test(u)) return u;
+  const m = /(?:youtu\.be\/|v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/.exec(u); return m ? m[1] : '';
+}
+const thumb = v => `https://i.ytimg.com/vi/${v}/hqdefault.jpg`;
+const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return `${Math.floor(s / 60)}:${pad(s % 60)}`; };
+// ── pemutar YouTube ──
+function initYT() {
+  if (P || !window.YT || !YT.Player) return;
+  P = new YT.Player('yt', { width: '100%', height: '100%', videoId: S.vid || undefined, playerVars: { playsinline: 1, rel: 0, modestbranding: 1, fs: 1 },
+    events: { onReady: () => { ready = true; if (S.vid) applyPlayer(true); paint(); }, onStateChange: onState } });
+}
+window.onYouTubeIframeAPIReady = initYT;
+(function () { if (window.YT && YT.Player) return setTimeout(initYT, 0); const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.onerror = () => { $('v-empty').innerHTML = '<b>📡</b>Player YouTube butuh internet — cek koneksinya ya'; }; document.head.appendChild(sc); })();
+function onState(e) {
+  const st = e.data; paintPP();
+  if (st === 1 || st === 2) { $('tapov') && $('tapov').remove(); }
+  if (Date.now() < mute) return;
+  if (st === 0) { next(true); return; }                                   // abis → lanjut antrean
+  if (st === 1 && !base.play) { local({ play: true, pos: P.getCurrentTime() }); }
+  else if (st === 2 && base.play) { local({ play: false, pos: P.getCurrentTime() }); }
+  if (st === 1 || st === 5 || st === -1) { try { const d = P.getVideoData(); if (d && d.title && d.video_id === S.vid && S.title !== d.title) { S.title = d.title; addHist(); paint(); if (S.by === ME) push(); } } catch (er) {} }
+}
+// terapin keadaan ke pemutar (tanpa ngirim balik)
+function applyPlayer(load) {
+  if (!P || !ready || !S.vid) return;
+  mute = Date.now() + 1800;
+  const pos = expected();
+  let cur = ''; try { cur = P.getVideoData().video_id; } catch (e) {}
+  if (cur !== S.vid || load) { if (base.play) P.loadVideoById(S.vid, pos); else P.cueVideoById(S.vid, pos); }
+  else { if (Math.abs(P.getCurrentTime() - pos) > 1.2) P.seekTo(pos, true); if (base.play) P.playVideo(); else P.pauseVideo(); }
+  // HP kadang ga ngizinin muter otomatis → minta tap sekali
+  if (base.play) setTimeout(() => { try { const st = P.getPlayerState(); if (base.play && st !== 1 && st !== 3 && !$('tapov')) { const b = document.createElement('button'); b.id = 'tapov'; b.className = 'tapov'; b.textContent = `▶️ Tap buat ikut ${S.mode === 'musik' ? 'dengerin' : 'nonton'} bareng ${OT}`; b.onclick = () => { b.remove(); mute = Date.now() + 1500; P.seekTo(expected(), true); P.playVideo(); }; $('vbox').appendChild(b); } } catch (e) {} }, 2200);
+}
+// tiap 1,5 detik: samain posisi sama pasangan, deteksi aku geser video
+setInterval(() => {
+  if (!P || !ready || !S.vid) return;
+  let t = 0; try { t = P.getCurrentTime() || 0; } catch (e) { return; }
+  const exp = expected(), st = P.getPlayerState();
+  if (Date.now() > mute && st === 1) {
+    if (Math.abs(t - exp) > 2.6 && Math.abs(t - curT - 1.5) > 2.6) local({ play: true, pos: t });   // aku yang geser
+    else if (ON() && Math.abs(t - exp) > 1.4) { mute = Date.now() + 1500; P.seekTo(exp, true); }     // ketinggalan → kejar
+  }
+  curT = t; paintProg(t);
+}, 1500);
+// ── aksi lokal → kirim ──
+function local(ch) { Object.assign(S, ch, { by: ME, seq: (S.seq || 0) + 1 }); base = { pos: S.pos, play: S.play, t: now() }; push(); paint(); }
+function push() { if (ON()) Meja.push(snap()); }
+function snap() { return { vid: S.vid, title: S.title, mode: S.mode, play: S.play, pos: +(+S.pos).toFixed(2), q: S.q.slice(0, 20), rx: S.rx, chat: S.chat.slice(-15), by: S.by, seq: S.seq }; }
+function playVid(v, title) {
+  if (!v) return toast('Link YouTube-nya ga kebaca 😅');
+  local({ vid: v, title: title || '', play: true, pos: 0 }); applyPlayer(true); addHist();
+  $('v-empty').hidden = true; vib(10);
+}
+function next(auto) {
+  if (!S.q.length) { if (!auto) toast('Antreannya kosong — tambahin dulu ya'); else local({ play: false, pos: 0 }); return; }
+  const n = S.q[0]; S.q = S.q.slice(1); playVid(n.v, n.t);
+}
+// ── tampilan ──
+function paintPP() { let st = -1; try { st = P ? P.getPlayerState() : -1; } catch (e) {} $('c-pp').textContent = st === 1 || st === 3 ? '⏸️' : '▶️'; }
+function paintProg(t) { let d = 0; try { d = P.getDuration() || 0; } catch (e) {} $('np-p').style.width = d ? Math.min(100, t / d * 100) + '%' : '0'; $('np-s').textContent = S.vid ? `${fmt(t)} / ${fmt(d)}${ON() ? ` · bareng ${OT} 💞` : ''}` : ''; }
+function paint() {
+  document.body.classList.toggle('musik', S.mode === 'musik');
+  $('modes').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === S.mode));
+  $('v-empty').hidden = !!S.vid;
+  $('np-img').src = S.vid ? thumb(S.vid) : ''; $('np-t').textContent = S.title || (S.vid ? 'Lagi dimuat…' : 'Belum ada lagu');
+  $('q-h').textContent = S.mode === 'musik' ? '🎶 Antrean lagu kita' : '🎞️ Antrean tontonan';
+  $('ql').innerHTML = S.q.length ? S.q.map((x, i) => `<div class="ql"><img src="${thumb(x.v)}" alt=""><span>${esc(x.t || 'Video ' + x.v)}</span><button data-p="${i}">▶️</button><button data-d="${i}">✕</button></div>`).join('') : '<p class="note" style="margin:0 0 .3rem">Kosong. Tempel link terus tap "＋ Masukin antrean" — abis satu, otomatis lanjut 🎶</p>';
+  $('ql').querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const x = S.q[+b.dataset.p]; S.q.splice(+b.dataset.p, 1); playVid(x.v, x.t); });
+  $('ql').querySelectorAll('[data-d]').forEach(b => b.onclick = () => { S.q.splice(+b.dataset.d, 1); local({}); });
+  const H = lsGet('nb-hist', []);
+  $('hist').innerHTML = H.length ? H.map((x, i) => `<div class="ql ${x.v === S.vid ? 'now' : ''}"><img src="${thumb(x.v)}" alt=""><span>${esc(x.t || 'Video ' + x.v)}</span><button data-h="${i}">▶️</button><button data-hq="${i}">＋</button></div>`).join('') : '<p class="note" style="margin:0">Belum ada.</p>';
+  $('hist').querySelectorAll('[data-h]').forEach(b => b.onclick = () => { const x = H[+b.dataset.h]; playVid(x.v, x.t); });
+  $('hist').querySelectorAll('[data-hq]').forEach(b => b.onclick = () => { const x = H[+b.dataset.hq]; S.q.push({ v: x.v, t: x.t }); local({}); toast('＋ Masuk antrean'); });
+  $('chat').hidden = !ON(); paintChat(); paintPP();
+  try { $('bd-st').textContent = ON() ? `🌐 Lagi bareng ${OT} — semua yang kamu putar ikut di HP ${OT}` : ''; } catch (e) {}
+}
+function paintChat() { $('ch-ls').innerHTML = (S.chat || []).map(c => `<p><b class="${c.w[0]}">${c.w === ME ? 'Kamu' : c.w}:</b> ${esc(c.t)}</p>`).join('') || '<p style="color:var(--muted)">Komen di sini ya 💬</p>'; $('ch-ls').scrollTop = 1e6; }
+function floatRx(e) { const f = document.createElement('div'); f.className = 'float'; f.textContent = e; f.style.left = (10 + Math.random() * 75) + '%'; $('vbox').appendChild(f); setTimeout(() => f.remove(), 2700); }
+function addHist() { if (!S.vid) return; const H = lsGet('nb-hist', []).filter(x => x.v !== S.vid); H.unshift({ v: S.vid, t: S.title || '' }); lsSet('nb-hist', H.slice(0, 12)); }
+// ── tombol ──
+$('modes').onclick = e => { const b = e.target.closest('[data-m]'); if (!b) return; lsSet('nb-mode', b.dataset.m); local({ mode: b.dataset.m }); };
+$('go').onclick = () => { const v = vidOf($('url').value); if (!v) return toast('Tempel link YouTube yang bener ya 😅'); $('url').value = ''; playVid(v); };
+$('url').addEventListener('keydown', e => { if (e.key === 'Enter') $('go').click(); });
+$('enq').onclick = () => { const v = vidOf($('url').value); if (!v) return toast('Tempel link YouTube dulu ya'); $('url').value = ''; if (!S.vid) return playVid(v); S.q.push({ v, t: '' }); local({}); toast('＋ Masuk antrean'); };
+$('yt-open').onclick = () => { window.open(S.mode === 'musik' ? 'https://music.youtube.com/' : 'https://www.youtube.com/', '_blank'); toast('Abis nemu, salin link-nya terus tempel di sini 📋'); };
+$('c-pp').onclick = () => { if (!P || !S.vid) return; const st = P.getPlayerState(), t = P.getCurrentTime(); mute = Date.now() + 1500; if (st === 1 || st === 3) { P.pauseVideo(); local({ play: false, pos: t }); } else { P.playVideo(); local({ play: true, pos: t }); } paintPP(); };
+const jump = d => { if (!P || !S.vid) return; const t = Math.max(0, P.getCurrentTime() + d); mute = Date.now() + 1500; P.seekTo(t, true); local({ pos: t, play: S.play }); };
+$('c-b').onclick = () => jump(-10); $('c-f').onclick = () => jump(10); $('c-n').onclick = () => next(false);
+$('rx').innerHTML = RX.map(e => `<button>${e}</button>`).join('');
+$('rx').onclick = e => { const b = e.target.closest('button'); if (!b) return; floatRx(b.textContent); vib(8); if (ON()) { S.rx = { n: Date.now(), e: b.textContent, by: ME }; lastRx = S.rx.n; push(); } };
+$('ch-go').onclick = () => { const t = $('ch-in').value.trim(); if (!t) return; $('ch-in').value = ''; S.chat = (S.chat || []).concat({ w: ME, t, n: Date.now() }).slice(-15); paintChat(); push(); };
+$('ch-in').addEventListener('keydown', e => { if (e.key === 'Enter') $('ch-go').click(); });
+// link dari "Bagikan" app YouTube / dari chat
+(function () { const sp = new URLSearchParams(location.search), raw = [sp.get('url'), sp.get('text'), sp.get('v')].filter(Boolean).join(' '), v = vidOf(raw); if (v) { history.replaceState(null, '', location.pathname); S.vid = v; base = { pos: 0, play: false, t: now() }; addHist(); } })();
+// ── 🌐 bareng pasangan (meja online) ──
+const MJ = { quiet: true, name: 'Nonton Bareng', emoji: '🎬', after: '#mj-wrap', sub: 'video / lagu jalan barengan di 2 HP',
+  init() { return snap(); },
+  begin() { paint(); },
+  apply(s) {
+    const old = S.vid;
+    if (s.rx && s.rx.n !== lastRx) { lastRx = s.rx.n; if (s.rx.by !== ME) { floatRx(s.rx.e); vib(10); } }
+    const newChat = (s.chat || []).length && (!S.chat.length || s.chat[s.chat.length - 1].n !== S.chat[S.chat.length - 1].n) && s.chat[s.chat.length - 1].w !== ME;
+    S = Object.assign({}, S, s, { q: s.q || [], chat: s.chat || [] });
+    base = { pos: +S.pos || 0, play: !!S.play, t: now() - (s.by !== ME ? 400 : 0) };   // ±0,4 dtk perjalanan data
+    lsSet('nb-mode', S.mode);
+    if (S.vid && S.vid !== old) addHist();
+    applyPlayer(S.vid !== old); paint();
+    if (newChat) vib([10, 30, 10]);
+  },
+  turn: () => null,
+  onEnd() { paint(); } };
+(function () { const sc = document.createElement('script'); sc.src = 'meja.js'; sc.onload = () => Meja.setup(MJ); document.head.appendChild(sc); })();
+BD.on && BD.on(() => {});
+paint();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
