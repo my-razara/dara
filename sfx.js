@@ -16,11 +16,12 @@
   const NO_BGM = 'chat nonton-bareng fokus-bareng kotak-musik ketuk-irama pengantar-tidur tiup-lilin jendela-embun napas-bareng radio-razan playlist-dara photobooth memories keuangan-dara keuangan-razan period-tracker time-bomb     slot-cinta rodasayang truth-or-dare'.split(' ');
   // halaman yang tombolnya udah bunyi sendiri → ga usah bunyi "tik" tambahan
   const NO_TAP = 'pop-it kalkulator-cinta kotak-musik pengantar-tidur jendela-embun tiup-lilin napas-bareng   slot-cinta rodasayang  time-bomb truth-or-dare 36-questions jar-of-questions '.split(' ');
-  const base = page.replace('.html', '');
+  const base = page.replace('.html', '').replace(/^_/, '');   // _nama.html = fitur yang dilebur ke halaman lain
+  let EMB = false; try { EMB = window.self !== window.top; } catch (e) { EMB = true; }
   // window.__sfxTheme = tema khusus (misal hari spesial di menu utama)
   // halaman yang punya lagu khusus sendiri
   const SPECIAL = { 'birthday-scrapbook': 'ultah' };
-  const pageTheme = NO_BGM.includes(base) ? null : SPECIAL[base] ? SPECIAL[base] : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
+  const pageTheme = EMB || NO_BGM.includes(base) ? null : SPECIAL[base] ? SPECIAL[base] : window.__sfxTheme ? window.__sfxTheme : NIGHT.includes(base) ? 'malam' : GAMES.includes(base) ? (CALM_GAMES.includes(base) ? 'santai' : 'main') : 'romantis';
   const tapOn = !NO_TAP.includes(base);
   // suasana: pilihan sendiri (menu 🎵) > hari spesial > musim (menu utama) > bawaan halaman
   const lsG = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };

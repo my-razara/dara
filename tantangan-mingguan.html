@@ -186,11 +186,20 @@ const MAN = {
   makan: ['🍜', 'Makan menu yang sama di hari yang sama'], gerak: ['🚶', 'Olahraga / jalan sore, kirim buktinya'], kenang: ['📝', 'Ceritain 1 kenangan favorit ke pasangan'],
   lagu: ['🎵', 'Tukeran 1 lagu yang lagi kamu suka'], tidur: ['🌙', 'Ucapin selamat tidur 5 malem'], foto: ['🤳', 'Kirim 1 foto random hari-harimu tiap hari (3 hari)']
 };
+// misi tambahan (pindahan dari Love Quest) — mulai minggu 26 Okt 2026 biar misi minggu-minggu sebelumnya ga berubah
+const MAN2 = {
+  peluk: ['🫂', 'Peluk lama pas ketemu (minimal 20 detik)'], ketawa: ['😂', 'Ketawa bareng sampai perut sakit'], tatap: ['👀', 'Tatap mata 30 detik tanpa ngomong (video call juga boleh)'],
+  ngobrol: ['☕', 'Ngobrol santai tanpa topik khusus 30 menit'], sore: ['🌅', 'Jalan sore bareng'], baru: ['🍽️', 'Makan di tempat yang belum pernah didatengin'],
+  malam: ['🌃', 'Keluar malam bareng (nongkrong / jajan)'], rayain: ['🎂', 'Rayain 1 hal kecil (nilai bagus, gajian, apa aja)'], damai: ['🤝', 'Selesaiin 1 beda pendapat dengan baik-baik'],
+  manis: ['💌', 'Kirim pesan manis yang bikin senyum (3 hari)']
+};
+// ⚔️ Love Quest udah dihapus — progresnya diubah jadi XP buat peliharaan (sekali aja)
+(function () { try { const d = lsGet('lq-v2', null); if (!d || lsGet('lq-moved', 0)) return; const n = Object.values(d.daily || {}).reduce((a, x) => a + ((x && x.length) || 0), 0), o = Object.keys(d.once || {}).length, xp = Math.min(200, n * 5 + o * 15); lsSet('lq-moved', 1); if (xp > 0) setTimeout(() => { try { if (window.Pet && Pet.bonus) { Pet.bonus(xp); toast(`⚔️ Progres Love Quest dipindah ke sini — peliharaan +${xp} XP 🐾`, 4500); } } catch (e) {} }, 1800); } catch (e) {} })();
 function pick(wk) {
   let h = 0; for (const c of 'razara' + wk) h = (h * 131 + c.charCodeAt(0)) >>> 0;
   const rnd = () => { h = (h * 1103515245 + 12345) >>> 0; return h / 4294967296; };
   const A = Object.keys(AUTO), a1 = A.splice(Math.floor(rnd() * A.length), 1)[0], a2 = A.splice(Math.floor(rnd() * A.length), 1)[0];
-  const M = Object.keys(MAN), m1 = M[Math.floor(rnd() * M.length)];
+  const M = Object.keys(wk >= '2026-10-26' ? Object.assign({}, MAN, MAN2) : MAN), m1 = M[Math.floor(rnd() * M.length)];
   return [{ k: a1, auto: 1 }, { k: a2, auto: 1 }, { k: m1, auto: 0 }];
 }
 function week(d) {
@@ -198,7 +207,7 @@ function week(d) {
   const ms = pick(a).map(m => {
     if (m.auto) { const D = AUTO[m.k], v = Math.max(0, D.f(a, b, A, B) || 0); return Object.assign({}, m, { e: D.e, t: D.t, n: D.n, v: Math.min(v, D.n), done: v >= D.n, go: D.go }); }
     const tick = W2.filter(w => (((rows('misi', w)[a]) || {}).m || {})[m.k]);
-    return Object.assign({}, m, { e: MAN[m.k][0], t: MAN[m.k][1], n: 2, v: tick.length, done: tick.length >= 2, tick });
+    return Object.assign({}, m, { e: (MAN[m.k] || MAN2[m.k])[0], t: (MAN[m.k] || MAN2[m.k])[1], n: 2, v: tick.length, done: tick.length >= 2, tick });
   });
   return { a, b, A, B, ms, done: ms.filter(m => m.done).length, all: ms.every(m => m.done), claim: W2.filter(w => ((rows('misi', w)[a]) || {}).claim) };
 }

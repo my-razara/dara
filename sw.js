@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v83';
+const VERSI = 'v84';
 const CACHE = 'untuk-dara-' + VERSI;
 const HALAMAN = [
 "nonton-bareng.html",
@@ -13,6 +13,18 @@ const HALAMAN = [
 "rekap-mingguan.html",
 "liga-razara.html",
 "kunci-pin.html",
+"voucher-harian.html",
+"_kalkulator-cinta.html",
+"_pop-it.html",
+"_taman-bunga.html",
+"_origami-hati.html",
+"_kode-rahasia.html",
+"_lampion-harapan.html",
+"_mind-reader.html",
+"_penghargaan.html",
+"_hal-kecil.html",
+"_kaleidoskop.html",
+"_kotak-musik.html",
 "jadwal-kita.html",
 "jadwal-mingguan.html",
 "tantangan-mingguan.html",
@@ -168,7 +180,7 @@ const HALAMAN = [
 "who-knows-me.html",
 "word-search.html"
 ];
-const ASET = ['who.js', 'push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'musim.js', 'pet.js', 'sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'duel.js', 'meja.js', 'hub.js', 'lokasi.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png'];
+const ASET = ['who.js', 'push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'musim.js', 'pet.js', 'sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'duel.js', 'meja.js', 'hub.js', 'sub.js', 'klaim.js', 'lokasi.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png'];
 
 // ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
 const SYNC_BAR = `<script>(function(){

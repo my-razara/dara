@@ -12,14 +12,15 @@
   const today = () => { const d = new Date(); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
   const me = () => (window.Who && Who.me()) || null;
   const RITUALS = [
-    { link: 'ramalan-tarot.html', ico: '🔮', done: () => !!(get('ramalan-seen', {}) || {})[today()] },
-    { link: 'hadiah-harian.html', ico: '🪙', done: () => { const d = (get('gosok-hist', {}) || {})[today()]; return !!(d && d.s); } },
+    { link: 'kalender-mood.html', ico: '😊', done: () => !!(get('mood-' + me(), {}) || {})[today()] },
+    { link: 'jurnal-syukur.html', ico: '🙏', done: () => { const v = (get('syukur-' + me(), {}) || {})[today()]; return Array.isArray(v) ? v.some(Boolean) : !!v; } },
     { link: 'pertanyaan-harian.html', ico: '❓', done: () => { const q = get('qa-cache', null); const d = q && Array.isArray(q.days) && q.days.find(x => x.date === today()); return !!(d && d.mine); } },
-    { link: 'kalender-mood.html', ico: '📅', done: () => !!(get('mood-' + me(), {}) || {})[today()] },
-    { link: 'jurnal-syukur.html', ico: '🙏', done: () => !!(get('syukur-' + me(), {}) || {})[today()] },
-    { link: 'love-quest.html', ico: '⚔️', done: () => { const d = get('lq-v2', null); return !!(d && d.daily && (d.daily[today()] || []).length); } },
-    { link: 'ketemuan.html', ico: '⏰', show: () => { const m = get('idx-meet', ''); return !!m && m >= today(); }, done: () => !!(get('hk-opened', {}) || {})[today()] }
+    { link: 'buku-harian.html', ico: '📔', done: () => { const a = (get('diary-' + me(), {}) || {})[today()], b = (get('diary-priv-' + me(), {}) || {})[today()]; return !!((a && a.t) || (b && b.t)); } },
+    { link: 'voucher-harian.html', ico: '🎟️', show: () => me() === 'Dara', done: () => { const c = (get('vklaim-Dara', {}) || {})[today()]; return !!(c && c.sent); } },
+    { link: 'kebiasaan-bareng.html', ico: '✅', show: () => habits().length > 0, done: () => { const ids = ((get('habitc-' + me(), {}) || {})[today()] || {}).ids || []; return habits().every(h => ids.includes(h.id)); } },
+    { link: 'ibadah-bareng.html', ico: '🕌', show: () => !!get('ibd-push', false) || Object.keys(get('ibadah-' + me(), {}) || {}).length > 0, done: () => { const r = (get('ibadah-' + me(), {}) || {})[today()]; return !!(r && (r.off || Object.keys(r.s || {}).length >= 5)); } }
   ];
+  function habits() { const m = {}, w = me(); ['Razan', 'Dara'].forEach(x => (((get('habit-' + x, {}) || {})['2000-01-01'] || {}).list || []).forEach(h => { if (h && h.id && (!m[h.id] || (h.at || 0) > (m[h.id].at || 0))) m[h.id] = h; })); return Object.values(m).filter(h => !h.del && (h.who === 'both' || h.who === w)); }
   function state() {
     const off = get('idx-ritual-off', []) || [];
     const shown = RITUALS.filter(r => (!r.show || r.show()) && !off.includes(r.link)).map(r => { let d = false; try { d = r.done(); } catch (e) {} return { ico: r.ico, d }; });

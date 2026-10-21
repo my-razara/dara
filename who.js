@@ -95,7 +95,16 @@
     var w = get('berdua-me'); if (valid(w) && w !== cur) { cur = w; apply(); location.reload(); }
   });
   // notif instan antar HP (push.js) — dimuat belakangan biar ga ngeberatin halaman
-  try { ['push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'lokasi.js'].forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
+  // dibuka di dalam halaman lain (fitur yang dilebur) → ga usah tombol melayang / kirim lokasi dobel, link keluar ke halaman utama
+  var EMB = false; try { EMB = window.self !== window.top; } catch (e) { EMB = true; }
+  if (EMB) {
+    html.classList.add('embed');
+    var es = document.createElement('style'); es.textContent = 'html.embed .sfx-btn,html.embed .sfx-tip,html.embed .cfab,html.embed #lok-pill{display:none!important}html.embed .top>a.pill[href="index.html"],html.embed a.back[href="index.html"],html.embed .back-btn[href="index.html"]{visibility:hidden}'; (document.head || html).appendChild(es);
+    document.addEventListener('click', function (e) { var a = e.target && e.target.closest && e.target.closest('a[href]'); if (!a || a.target || e.defaultPrevented) return; var h = a.getAttribute('href') || ''; if (!h || h.charAt(0) === '#' || /^(javascript|blob|data):/i.test(h) || a.hasAttribute('download')) return; a.target = '_top'; }, false);
+  }
+  // klaim voucher yang belum dikirim ke WA → layar ditutup dulu dari awal (klaim.js yang nampilin tombol WA-nya)
+  if (!EMB && get('klaim-pending')) { html.classList.add('klaimlock'); var ks = document.createElement('style'); ks.textContent = 'html.klaimlock body{visibility:hidden!important}'; (document.head || html).appendChild(ks); setTimeout(function () { if (!document.getElementById('klaim-ov')) html.classList.remove('klaimlock'); }, 5000); }
+  try { (EMB ? ['push.js', 'ritual.js', 'skor.js'] : ['push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'lokasi.js', 'klaim.js']).forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
   window.Who = {
     me: function () { return cur; },
     ready: function () { return !!cur; },
@@ -140,7 +149,8 @@
   var P = g('app-pin');
   var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
   var on = !!(P && P.h && P.s);
-  var need = on && (P.scope === 'all' || PRIV.indexOf(PAGE) >= 0 || PAGE === 'kunci-pin');
+  var EMB2 = false; try { EMB2 = window.self !== window.top; } catch (e) { EMB2 = true; }
+  var need = !EMB2 && on && (P.scope === 'all' || PRIV.indexOf(PAGE) >= 0 || PAGE === 'kunci-pin');
   var TO = Math.max(10000, (P && P.t != null ? +P.t : 1) * 60000);   // "langsung" = 10 detik (biar pindah halaman ga dikunci terus)
   var ss = null; try { ss = window.sessionStorage; } catch (e) {}
   function sg(k) { try { return +ss.getItem(k) || 0; } catch (e) { return 0; } }

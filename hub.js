@@ -5,7 +5,9 @@
   const GROUPS = {
     jadwal: { t: '📅 Jadwal Kita', tabs: [['jadwal-kita', '📅', 'Kalender'], ['jadwal-mingguan', '🗓️', 'Mingguan'], ['ketemuan', '⏰', 'Hitung Mundur']] },
     mood: { t: '🌈 Mood & Hati', tabs: [['kalender-mood', '😊', 'Mood'], ['jurnal-syukur', '🙏', 'Syukur'], ['buku-harian', '📔', 'Diary'], ['tidur-kita', '😴', 'Bobo'], ['tenangin-diri', '🌙', 'Tenang']] },
-    rutin: { t: '✅ Rutinitas Bareng', tabs: [['kebiasaan-bareng', '✅', 'Kebiasaan'], ['ibadah-bareng', '🕌', 'Ibadah'], ['fokus-bareng', '📚', 'Fokus']] }
+    rutin: { t: '✅ Rutinitas Bareng', tabs: [['kebiasaan-bareng', '✅', 'Habit'], ['ibadah-bareng', '🕌', 'Ibadah'], ['fokus-bareng', '📚', 'Fokus'], ['jaga-minum', '💧', 'Minum'], ['stretching', '🧘', 'Stretch']] },
+    voucher: { t: '🎟️ Voucher Razan', tabs: [['voucher-harian', '🎟️', 'Harian'], ['voucher-razan', '📒', 'Buku Voucher']] },
+    kreasi: { t: '🎨 Studio Kreasi', tabs: [['hias-kue', '🍰', 'Kue'], ['gelang-manik', '📿', 'Gelang'], ['dandan-berdua', '👗', 'Dandan'], ['bikin-komik', '🗯️', 'Komik']] }
   };
   const PAGE = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
   let G = null; for (const k in GROUPS) if (GROUPS[k].tabs.some(x => x[0] === PAGE)) G = GROUPS[k];
@@ -18,6 +20,7 @@
     try {
       if (id === 'kalender-mood') return (g('mood-' + me(), {}) || {})[today] ? '✓' : '';
       if (id === 'jurnal-syukur') { const v = (g('syukur-' + me(), {}) || {})[today]; return Array.isArray(v) && v.length ? '✓' : ''; }
+      if (id === 'voucher-harian') { const c = (g('vklaim-Dara', {}) || {})[today]; return c && c.id ? '✓' : (me() === 'Dara' ? '1' : ''); }
       if (id === 'buku-harian') { const r = (g('diary-' + me(), {}) || {})[today], p = (g('diary-priv-' + me(), {}) || {})[today]; return (r && r.t) || (p && p.t) ? '✓' : ''; }
       if (id === 'tidur-kita') { const r = g('tidur-' + me(), {}) || {}, h = now.getHours(), d0 = new Date(now); if (h < 12) d0.setDate(d0.getDate() - 1); const x = r[`${d0.getFullYear()}-${pad(d0.getMonth() + 1)}-${pad(d0.getDate())}`]; return x && x.b && !x.w ? '💤' : ''; }
       if (id === 'kebiasaan-bareng') { const L = {}; ['Razan', 'Dara'].forEach(w => (((g('habit-' + w, {}) || {})['2000-01-01'] || {}).list || []).forEach(h => { if (h && h.id && (!L[h.id] || (h.at || 0) > (L[h.id].at || 0))) L[h.id] = h; })); const m = me(), mine = Object.values(L).filter(h => !h.del && (h.who === 'both' || h.who === m)), dn = ((g('habitc-' + m, {}) || {})[today] || {}).ids || []; return mine.length ? (mine.every(h => dn.includes(h.id)) ? '✓' : dn.filter(i => mine.some(h => h.id === i)).length + '/' + mine.length) : ''; }
