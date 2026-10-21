@@ -51,7 +51,7 @@
     document.head.appendChild(css);
     const d = document.createElement('nav'); d.id = 'hub-tabs'; d.className = 'hub-tabs'; d.setAttribute('aria-label', G.t);
     d.innerHTML = `<div class="ht">${G.t}</div><div class="hr">${G.tabs.map(([id, e, n, sb]) => { const b = sb ? '' : badge(id), on = id === PAGE && (sb || '') === SUB; return `<a href="${id}.html${sb ? '?sub=' + sb : ''}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}><span>${e}</span>${n}${b ? `<i>${b}</i>` : ''}</a>`; }).join('')}</div>`;
-    d.querySelectorAll('a').forEach(a => a.addEventListener('click', ev => { if (a.classList.contains('on')) { ev.preventDefault(); return; } ev.preventDefault(); location.replace(a.getAttribute('href')); }));
+    d.querySelectorAll('a').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); if (a.classList.contains('on')) return; const h = a.getAttribute('href'), m = /^([a-z0-9-]+)\.html(?:\?sub=([a-z0-9-]+))?$/.exec(h); if (m && m[1] === PAGE && window.Sub) { if (m[2]) Sub.open(m[2]); else Sub.close(); return; } location.replace(h); }));
     // halaman yang layarnya "fixed" penuh (ketemuan, tenangin diri) → tab masuk di atas bar-nya
     const fx = document.querySelector('body > .hub');
     if (fx && getComputedStyle(fx).position === 'fixed') {

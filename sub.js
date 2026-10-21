@@ -26,7 +26,7 @@
   function open(k, push, q) {
     var s = SUBS.filter(function (x) { return x[0] === k; })[0]; if (!s) return;
     if (!ov) { ov = document.createElement('div'); ov.id = 'sub-ov'; document.body.appendChild(ov); }
-    ov.innerHTML = ''; ov.appendChild(strip(k));
+    ov.innerHTML = ''; ov.appendChild(window.__hubSubs && document.getElementById('hub-tabs') ? hubStrip() : strip(k));
     var ld = document.createElement('div'); ld.className = 'ld'; ld.textContent = 'Lagi dibuka…'; ov.appendChild(ld);
     frame = document.createElement('iframe'); frame.title = s[2]; frame.setAttribute('allow', 'microphone; camera; clipboard-write; autoplay; fullscreen');
     frame.onload = function () { ld.remove(); };
@@ -35,8 +35,22 @@
     document.documentElement.style.overflow = 'hidden';
     if (push) try { history.pushState({ sub: k }, '', location.pathname + '?sub=' + k); } catch (e) {}
     var t = document.querySelector('#sub-main a.on'); if (t) t.classList.remove('on');
+    markHub(k);
   }
-  function close() { if (ov) { ov.style.display = 'none'; ov.innerHTML = ''; } frame = null; cur = ''; document.documentElement.style.overflow = ''; }
+  // halaman yang tab-nya ikut strip hub (mis. Musik & Suara): pas fitur dibuka, strip-nya tetep strip hub yang sama
+  var PG = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
+  function hubKey(a) { var h = a.getAttribute('href') || '', m = /^([a-z0-9-]+)\.html(?:\?sub=([a-z0-9-]+))?$/.exec(h); return m ? { pg: m[1], sub: m[2] || '' } : null; }
+  function markHub(k) { document.querySelectorAll('#hub-tabs a, #sub-ov .hub-tabs a').forEach(function (a) { var x = hubKey(a), on = !!x && x.pg === PG && x.sub === (k || ''); a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); }); }
+  function hubStrip() {
+    var n = document.getElementById('hub-tabs').cloneNode(true); n.removeAttribute('id'); n.classList.remove('fx'); n.style.margin = 'calc(.45rem + env(safe-area-inset-top)) .6rem .35rem'; n.style.flex = '0 0 auto';
+    n.addEventListener('click', function (e) {
+      var a = e.target.closest('a'); if (!a) return; e.preventDefault(); var x = hubKey(a); if (!x) return;
+      if (x.pg === PG) { if (x.sub === cur) return; if (x.sub) open(x.sub, true); else back(); }
+      else location.replace(a.getAttribute('href'));
+    });
+    return n;
+  }
+  function close() { if (ov) { ov.style.display = 'none'; ov.innerHTML = ''; } frame = null; cur = ''; document.documentElement.style.overflow = ''; markHub(''); }
   function back() { if (history.state && history.state.sub) history.back(); else { close(); try { history.replaceState(null, '', location.pathname); } catch (e) {} } }
   window.addEventListener('popstate', function () { var k = history.state && history.state.sub; if (k) open(k, false); else close(); });
   function build() {
