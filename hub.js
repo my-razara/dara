@@ -9,8 +9,8 @@
     voucher: { t: '🎟️ Voucher Razan', tabs: [['voucher-harian', '🎟️', 'Harian'], ['hadiah-harian', '🎰', 'Gosok'], ['voucher-razan', '📒', 'Buku']] },
     kenangan: { t: '📸 Kenangan Kita', tabs: [['memories', '📸', 'Foto'], ['timeline-kita', '🕰️', 'Timeline'], ['polaroid-wall', '🖼️', 'Polaroid'], ['peta-kenangan', '📍', 'Peta'], ['peta-bintang', '🌌', 'Bintang']] },
     musik: { t: '🎵 Musik & Suara', tabs: [['playlist-dara', '🎵', 'Playlist'], ['playlist-dara', '🎶', 'Kotak', 'kotakmusik'], ['radio-razan', '📻', 'Radio'], ['piano-mini', '🎹', 'Piano'], ['rekam-suara', '🎙️', 'Rekam']] },
-    janji: { t: '🤝 Janji & Baikan', tabs: [['kupon-maaf', '🎟️', 'Tiket Baikan'], ['janji-kita', '📜', 'Janji Kita']] },
-    kenal: { t: '💞 Kenal Kita', tabs: [['kuis-kita', '🪞', 'Kuis'], ['dna-hubungan', '🧬', 'DNA'], ['dna-hubungan', '🧮', 'Hitung', 'kalkulator'], ['kamus-kita', '📖', 'Kamus'], ['masa-depan', '🔭', 'Masa Depan']] },
+    janji: { t: '🕊️ Janji & Baikan', tabs: [['kupon-maaf', '🎟️', 'Tiket Baikan'], ['janji-kita', '📜', 'Janji Kita']] },
+    kenal: { t: '🫶 Kenal Kita', tabs: [['kuis-kita', '🪞', 'Kuis'], ['dna-hubungan', '🧬', 'DNA'], ['dna-hubungan', '🧮', 'Hitung', 'kalkulator'], ['kamus-kita', '📖', 'Kamus'], ['masa-depan', '🔭', 'Masa Depan']] },
     kreasi: { t: '🎨 Studio Kreasi', tabs: [['hias-kue', '🍰', 'Kue'], ['gelang-manik', '📿', 'Gelang'], ['dandan-berdua', '👗', 'Dandan'], ['bikin-komik', '🗯️', 'Komik']] }
   };
   const PAGE = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
