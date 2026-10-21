@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Stiker Razara — buat WA 💬</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -67,15 +68,40 @@
   .cols button{width:30px;height:30px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--blush);cursor:pointer}
   .cols button.on{box-shadow:0 0 0 2.5px var(--ink)}
   .note{font-size:11px;color:var(--muted);line-height:1.6;text-align:center;margin-top:.7rem}
+  .hero{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;border:none;border-radius:22px;padding:1rem;background:linear-gradient(135deg,#fdeee8,#f6e6f6);box-shadow:0 6px 18px rgba(193,122,111,.15);cursor:pointer;font:inherit;color:inherit;margin-bottom:.4rem}
+  .hero .e{font-size:2.3rem}.hero b{display:block;font-size:15px;color:var(--deep)}.hero small{display:block;font-size:11.5px;color:var(--muted);line-height:1.45}
+  .mine{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+  .ed .sheet{max-height:96vh;padding-top:.7rem}
+  .stage{position:relative;width:min(300px,78vw);aspect-ratio:1;margin:0 auto .5rem;border-radius:18px;background:repeating-conic-gradient(#efe6dc 0 25%,#fff 0 50%) 0 0/18px 18px;overflow:hidden;touch-action:none;box-shadow:inset 0 0 0 1px rgba(193,122,111,.15)}
+  .stage canvas{width:100%;height:100%;display:block;touch-action:none}
+  .stage .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;font-size:12.5px;color:var(--muted);text-align:center;padding:1rem}
+  .stage .ph[hidden],.busy[hidden]{display:none!important}
+  .busy{position:absolute;inset:0;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--deep);font-weight:600;text-align:center;padding:1rem}
+  .tabs2{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.25rem;margin:.3rem 0 .5rem}
+  .tabs2 button{border:none;background:#f6eee6;border-radius:12px;padding:.4rem .1rem;font-size:10px;color:var(--muted);cursor:pointer;line-height:1.2}
+  .tabs2 button span{display:block;font-size:1.05rem}
+  .tabs2 button.on{background:var(--rose);color:#fff;font-weight:600}
+  .pane{min-height:120px}
+  .opt{display:flex;gap:.3rem;flex-wrap:wrap}
+  .opt button{font-size:11.5px;padding:.42rem .65rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .opt button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .sl{display:flex;align-items:center;gap:.5rem;font-size:11.5px;color:var(--muted);margin-top:.45rem}
+  .sl input{flex:1;accent-color:var(--rose)}
+  .sl b{min-width:2.4rem;text-align:right;font-weight:600;color:var(--deep)}
+  .hint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:.4rem}
+  .emo2{display:flex;gap:.25rem;flex-wrap:wrap}
+  .emo2 button{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--blush);background:#fff;font-size:1.2rem;cursor:pointer}
 
 </style>
-<script src="sfx.js" defer></script>
 </head>
 <body>
 
 <div class="wrap">
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><span></span></div>
   <div class="head"><p class="lbl">Stiker Razara</p><h1 class="title">Stiker <span>kita</span> 💬</h1><p class="sub">Tap stikernya buat disimpen / dikirim. Bisa bikin sendiri juga di bawah!</p></div>
+  <button class="hero" id="mk-photo"><span class="e">📸</span><span><b>Bikin stiker dari foto sendiri</b><small>Pakai foto kalian → potong bentuk, hapus background, kasih tulisan & hiasan → jadi stiker WA 😆</small></span></button>
+  <div id="mine-w" hidden><p class="sec">🗂️ Stiker buatanku</p><div class="mine" id="mine"></div></div>
+  <p class="sec">💬 Stiker siap pakai</p>
   <div class="grid" id="grid"></div>
   <p class="sec">✍️ Bikin stiker sendiri</p>
   <div class="card">
@@ -88,8 +114,20 @@
   <p class="note">Simpen stikernya, terus kirim sebagai gambar — atau masukin ke app pembuat stiker WA biar jadi stiker beneran 😉</p>
 </div>
 <div class="ov center" id="ov" onclick="if(event.target===this)this.classList.remove('show')">
-  <div class="sheet"><div class="big"><img id="pv-img" alt=""></div><div class="row" style="margin-top:1rem"><button class="btn ghost" onclick="$('ov').classList.remove('show')">Tutup</button><button class="btn" onclick="savePv()">⬇️ Simpan</button></div></div>
+  <div class="sheet"><div class="big"><img id="pv-img" alt=""></div><div class="row" style="margin-top:1rem"><button class="btn ghost" onclick="$('ov').classList.remove('show')">Tutup</button><button class="btn" onclick="savePv()">⬇️ Simpan</button></div><div class="row" id="pv-more"></div></div>
 </div>
+<div class="ov ed" id="ed"><div class="sheet">
+  <div class="drag"></div>
+  <div class="stage" id="stage"><canvas id="cv" width="512" height="512"></canvas>
+    <div class="ph" id="ph"><span style="font-size:2.4rem">📸</span>Pilih foto dulu ya<div class="row" style="margin:0;width:100%"><button class="btn" id="pick-cam">📷 Kamera</button><button class="btn ghost" id="pick-gal">🖼️ Galeri</button></div></div>
+    <div class="busy" id="busy" hidden></div>
+  </div>
+  <input type="file" id="f-cam" accept="image/*" capture="user" hidden><input type="file" id="f-gal" accept="image/*" hidden>
+  <div class="tabs2" id="tabs2"></div>
+  <div class="pane" id="pane"></div>
+  <div class="row"><button class="btn" id="ed-save">⬇️ Simpan</button><button class="btn ghost" id="ed-chat">💬 Kirim chat</button></div>
+  <div class="row"><button class="btn ghost" id="ed-new">🔄 Ganti foto</button><button class="btn ghost" id="ed-x">Tutup</button></div>
+</div></div>
 
 <div class="toast" id="toast"></div>
 <script>
@@ -153,7 +191,7 @@ function draw(emo, text, col, size = 512) {
 async function renderGrid() {
   await fontsReady();
   $('grid').innerHTML = PRESETS.map((p, i) => `<button class="st" data-i="${i}" aria-label="${p[1]}"><img src="${draw(p[0], p[1], p[2], 220).toDataURL()}" alt=""></button>`).join('');
-  $('grid').querySelectorAll('.st').forEach(b => b.onclick = () => { const p = PRESETS[+b.dataset.i]; pvCanvas = draw(p[0], p[1], p[2]); $('pv-img').src = pvCanvas.toDataURL(); $('ov').classList.add('show'); vib(8); });
+  $('grid').querySelectorAll('.st').forEach(b => b.onclick = () => { const p = PRESETS[+b.dataset.i]; pvCanvas = draw(p[0], p[1], p[2]); $('pv-more').innerHTML = ''; $('pv-img').src = pvCanvas.toDataURL(); $('ov').classList.add('show'); vib(8); });
   paintCustom();
 }
 function paintCustom() {
@@ -168,8 +206,195 @@ function saveCustom() { shareCanvas(draw(cEmo, $('txt').value.trim() || 'Kangen 
 function savePv() { if (pvCanvas) { shareCanvas(pvCanvas, 'stiker-razara.png', 'Stiker Razara'); lsSet('stiker-n', lsGet('stiker-n', 0) + 1); } }
 renderGrid();
 
-</script>
+// ═════ 📸 STIKER DARI FOTO SENDIRI ═════
+const ME = (window.Who && Who.me && Who.me()) || lsGet('berdua-me', 'Dara'), OT = ME === 'Razan' ? 'Dara' : 'Razan';
+const E = { src: null, mask: null, cut: null, x: 256, y: 256, sc: 1, rot: 0, shape: 'bebas', outline: true, filter: '', text: '', tcol: 0, tpos: 'b', tsize: 80, emo: [], sel: -1, mode: 'move', brush: 34, tab: 'bentuk' };
+let undo = [], drawQ = 0;
+const SHAPES = [['bebas', '✂️ Bebas'], ['bulat', '⭕ Bulat'], ['hati', '💗 Hati'], ['kotak', '⬜ Kotak'], ['bintang', '⭐ Bintang']];
+const FILTERS = [['', 'Normal'], ['brightness(1.12) contrast(1.05) saturate(1.15)', 'Cerah'], ['sepia(.25) saturate(1.3) hue-rotate(-8deg)', 'Hangat'], ['saturate(.9) hue-rotate(12deg) brightness(1.05)', 'Dingin'], ['grayscale(1) contrast(1.1)', 'Hitam putih'], ['sepia(.55) contrast(.95) brightness(1.05)', 'Vintage']];
+const DECOS = ['💗', '💕', '✨', '⭐', '🌸', '🎀', '👑', '😘', '🥺', '😂', '🔥', '💯', '🫶', '🐱', '🍓', '☁️'];
+function shapePath(x, k) {
+  const c = 256; x.beginPath();
+  if (k === 'bulat') x.arc(c, c, 220, 0, Math.PI * 2);
+  else if (k === 'kotak') { const r = 70, a = 36, b = 476; x.moveTo(a + r, a); x.arcTo(b, a, b, b, r); x.arcTo(b, b, a, b, r); x.arcTo(a, b, a, a, r); x.arcTo(a, a, b, a, r); }
+  else if (k === 'hati') { x.moveTo(256, 470); x.bezierCurveTo(60, 340, 20, 210, 70, 130); x.bezierCurveTo(130, 40, 230, 60, 256, 140); x.bezierCurveTo(282, 60, 382, 40, 442, 130); x.bezierCurveTo(492, 210, 452, 340, 256, 470); }
+  else if (k === 'bintang') { for (let i = 0; i < 10; i++) { const r = i % 2 ? 105 : 228, t = -Math.PI / 2 + i * Math.PI / 5; i ? x.lineTo(c + r * Math.cos(t), c + 15 + r * Math.sin(t)) : x.moveTo(c + r * Math.cos(t), c + 15 + r * Math.sin(t)); } }
+  x.closePath();
+}
+function rebuildCut() { if (!E.src) return; const c = E.cut || (E.cut = document.createElement('canvas')); c.width = E.src.width; c.height = E.src.height; const x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height); x.drawImage(E.src, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(E.mask, 0, 0); x.globalCompositeOperation = 'source-over'; }
+function composite(size) {
+  const S = size || 512, k = S / 512, out = document.createElement('canvas'); out.width = out.height = S; const o = out.getContext('2d');
+  if (!E.cut) return out;
+  // 1) foto (udah dipotong maskernya) + filter + bentuk
+  const L = document.createElement('canvas'); L.width = L.height = S; const l = L.getContext('2d');
+  l.save(); l.scale(k, k); l.filter = E.filter || 'none'; l.translate(E.x, E.y); l.rotate(E.rot); l.scale(E.sc, E.sc); l.drawImage(E.cut, -E.cut.width / 2, -E.cut.height / 2); l.restore();
+  if (E.shape !== 'bebas') { l.save(); l.scale(k, k); l.globalCompositeOperation = 'destination-in'; shapePath(l, E.shape); l.fill(); l.restore(); }
+  // 2) garis putih ala stiker (die-cut) + bayangan tipis
+  if (E.outline) {
+    const W = document.createElement('canvas'); W.width = W.height = S; const w = W.getContext('2d');
+    w.drawImage(L, 0, 0); w.globalCompositeOperation = 'source-in'; w.fillStyle = '#fff'; w.fillRect(0, 0, S, S);
+    o.save(); o.shadowColor = 'rgba(0,0,0,.22)'; o.shadowBlur = 10 * k; o.shadowOffsetY = 4 * k;
+    const r = 11 * k; for (let a = 0; a < 16; a++) o.drawImage(W, Math.cos(a / 16 * Math.PI * 2) * r, Math.sin(a / 16 * Math.PI * 2) * r);
+    o.restore();
+  }
+  o.drawImage(L, 0, 0);
+  // 3) hiasan emoji
+  o.save(); o.scale(k, k); o.textAlign = 'center'; o.textBaseline = 'middle';
+  E.emo.forEach(m => { o.font = `${m.s}px serif`; o.shadowColor = 'rgba(0,0,0,.18)'; o.shadowBlur = 6; o.fillText(m.e, m.x, m.y); });
+  o.shadowColor = 'transparent';
+  // 4) tulisan
+  if (E.text) {
+    let fs = E.tsize; o.font = `700 ${fs}px Caveat, 'Segoe Script', cursive`; while (o.measureText(E.text).width > 470 && fs > 30) { fs -= 3; o.font = `700 ${fs}px Caveat, 'Segoe Script', cursive`; }
+    const ty = E.tpos === 't' ? 62 : 452; o.lineJoin = 'round'; o.lineWidth = Math.max(10, fs * .24); o.strokeStyle = '#fff'; o.strokeText(E.text, 256, ty);
+    o.lineWidth = 3; o.strokeStyle = 'rgba(0,0,0,.14)'; o.strokeText(E.text, 256, ty + 3); o.fillStyle = COLS[E.tcol]; o.fillText(E.text, 256, ty);
+  }
+  o.restore();
+  return out;
+}
+function paint() { if (drawQ) return; drawQ = requestAnimationFrame(() => { drawQ = 0; const c = $('cv'), x = c.getContext('2d'); x.clearRect(0, 0, 512, 512); if (!E.src) return; x.drawImage(composite(512), 0, 0); if (E.sel >= 0 && E.emo[E.sel] && E.mode === 'move') { const m = E.emo[E.sel]; x.save(); x.setLineDash([6, 5]); x.strokeStyle = '#c17a6f'; x.lineWidth = 2; x.strokeRect(m.x - m.s * .6, m.y - m.s * .6, m.s * 1.2, m.s * 1.2); x.restore(); } }); }
+function busy(t) { $('busy').hidden = !t; $('busy').textContent = t || ''; }
+async function loadPhoto(file) {
+  if (!file) return; busy('Nyiapin foto…');
+  try {
+    const url = URL.createObjectURL(file), im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const m = 1024 / Math.max(im.width, im.height), w = Math.round(im.width * Math.min(1, m)), h = Math.round(im.height * Math.min(1, m));
+    const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, 0, 0, w, h); URL.revokeObjectURL(url);
+    E.src = c; E.mask = document.createElement('canvas'); E.mask.width = w; E.mask.height = h; const mx = E.mask.getContext('2d'); mx.fillStyle = '#000'; mx.fillRect(0, 0, w, h);
+    E.sc = 470 / Math.min(w, h); E.x = 256; E.y = 256; E.rot = 0; undo = []; rebuildCut();
+    $('ph').hidden = true; busy(''); paintPane(); paint();
+  } catch (e) { busy(''); toast('Fotonya ga kebaca 😢 coba foto lain'); }
+}
+// ── hapus background otomatis (deteksi orang, jalan di HP sendiri) ──
+let seg = null;
+async function autoCut() {
+  if (!E.src) return;
+  busy('🤖 Lagi motong orangnya… (pertama kali agak lama, ngunduh model ±250KB)');
+  try {
+    if (!seg) {
+      const V = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+      const fs = await V.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+      seg = await V.ImageSegmenter.createFromOptions(fs, { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite' }, runningMode: 'IMAGE', outputConfidenceMasks: true, outputCategoryMask: false });
+    }
+    const r = seg.segment(E.src), cm = r.confidenceMasks[0], w = cm.width, h = cm.height, f = cm.getAsFloat32Array();
+    const t = document.createElement('canvas'); t.width = w; t.height = h; const tx = t.getContext('2d'), id = tx.createImageData(w, h);
+    let on = 0; for (let i = 0; i < f.length; i++) { const a = Math.max(0, Math.min(1, (f[i] - .35) / .3)); id.data[i * 4 + 3] = a * 255; if (a > .5) on++; }
+    tx.putImageData(id, 0, 0); try { cm.close(); } catch (e) {}
+    if (on < f.length * .02) { busy(''); return toast('Orangnya ga ketemu di foto ini 😅 pakai 🧽 penghapus manual aja'); }
+    pushUndo(); const mx = E.mask.getContext('2d'); mx.clearRect(0, 0, E.mask.width, E.mask.height); mx.filter = 'blur(1px)'; mx.drawImage(t, 0, 0, E.mask.width, E.mask.height); mx.filter = 'none';
+    rebuildCut(); busy(''); paint(); toast('✂️ Background-nya kehapus! Rapihin pakai 🧽/🖌️ kalau perlu'); vib(20);
+  } catch (e) { console.warn(e); busy(''); toast('Hapus otomatis lagi ga bisa (butuh internet) — pakai 🧽 penghapus manual ya'); }
+}
+function pushUndo() { if (!E.mask) return; try { undo.push(E.mask.getContext('2d').getImageData(0, 0, E.mask.width, E.mask.height)); if (undo.length > 12) undo.shift(); } catch (e) {} }
+function doUndo() { const u = undo.pop(); if (!u) return toast('Ga ada yang bisa di-undo'); E.mask.getContext('2d').putImageData(u, 0, 0); rebuildCut(); paint(); }
+// ── layar: geser foto/hiasan, cubit buat zoom, kuas buat hapus/balikin ──
+const P = {};
+function toCanvas(e) { const r = $('cv').getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 512, y: (e.clientY - r.top) / r.height * 512 }; }
+function toSrc(p) { const dx = p.x - E.x, dy = p.y - E.y, c = Math.cos(-E.rot), s = Math.sin(-E.rot); return { x: (dx * c - dy * s) / E.sc + E.src.width / 2, y: (dx * s + dy * c) / E.sc + E.src.height / 2 }; }
+let drag = null, lastBrush = null;
+function brushAt(p) {
+  const q = toSrc(p), mx = E.mask.getContext('2d'), r = E.brush / E.sc;
+  mx.save(); mx.globalCompositeOperation = E.mode === 'erase' ? 'destination-out' : 'source-over'; mx.fillStyle = '#000'; mx.strokeStyle = '#000'; mx.lineCap = 'round'; mx.lineWidth = r * 2;
+  if (lastBrush) { mx.beginPath(); mx.moveTo(lastBrush.x, lastBrush.y); mx.lineTo(q.x, q.y); mx.stroke(); }
+  mx.beginPath(); mx.arc(q.x, q.y, r, 0, Math.PI * 2); mx.fill(); mx.restore(); lastBrush = q; rebuildCut(); paint();
+}
+$('cv').addEventListener('pointerdown', e => {
+  if (!E.src) return; e.preventDefault(); $('cv').setPointerCapture(e.pointerId); const p = toCanvas(e); P[e.pointerId] = p;
+  const ids = Object.keys(P);
+  if (ids.length === 2) { const [a, b] = ids.map(i => P[i]); drag = { pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y), a0: Math.atan2(b.y - a.y, b.x - a.x), sc0: E.sel >= 0 ? E.emo[E.sel].s : E.sc, rot0: E.rot }; return; }
+  if (E.mode !== 'move') { pushUndo(); lastBrush = null; brushAt(p); drag = { brush: true }; return; }
+  const hit = E.emo.map((m, i) => [m, i]).reverse().find(([m]) => Math.abs(p.x - m.x) < m.s * .6 && Math.abs(p.y - m.y) < m.s * .6);
+  E.sel = hit ? hit[1] : -1; drag = { p0: p, o0: hit ? { x: hit[0].x, y: hit[0].y } : { x: E.x, y: E.y } }; paintPane(); paint();
+});
+$('cv').addEventListener('pointermove', e => {
+  if (!P[e.pointerId] || !drag) return; const p = toCanvas(e); P[e.pointerId] = p;
+  if (drag.pinch) { const ids = Object.keys(P); if (ids.length < 2) return; const [a, b] = ids.map(i => P[i]), d = Math.hypot(a.x - b.x, a.y - b.y), ang = Math.atan2(b.y - a.y, b.x - a.x);
+    if (E.sel >= 0) E.emo[E.sel].s = Math.max(30, Math.min(300, drag.sc0 * d / drag.d0)); else { E.sc = Math.max(.05, drag.sc0 * d / drag.d0); E.rot = drag.rot0 + (ang - drag.a0); } paint(); return; }
+  if (drag.brush) return brushAt(p);
+  const dx = p.x - drag.p0.x, dy = p.y - drag.p0.y;
+  if (E.sel >= 0) { E.emo[E.sel].x = drag.o0.x + dx; E.emo[E.sel].y = drag.o0.y + dy; } else { E.x = drag.o0.x + dx; E.y = drag.o0.y + dy; } paint();
+});
+const up = e => { delete P[e.pointerId]; if (!Object.keys(P).length) { drag = null; lastBrush = null; paintPane(); } };
+$('cv').addEventListener('pointerup', up); $('cv').addEventListener('pointercancel', up);
+// ── panel pengaturan ──
+const TABS = [['bentuk', '✂️', 'Bentuk'], ['bg', '🧽', 'Hapus BG'], ['teks', '✍️', 'Tulisan'], ['hias', '😍', 'Hiasan'], ['filter', '🎨', 'Filter']];
+function paintPane() {
+  $('tabs2').innerHTML = TABS.map(t => `<button data-t="${t[0]}" class="${E.tab === t[0] ? 'on' : ''}"><span>${t[1]}</span>${t[2]}</button>`).join('');
+  $('tabs2').querySelectorAll('[data-t]').forEach(b => b.onclick = () => { E.tab = b.dataset.t; if (E.tab !== 'bg' && E.mode !== 'move') E.mode = 'move'; paintPane(); paint(); });
+  let h = '';
+  if (E.tab === 'bentuk') h = `<div class="opt">${SHAPES.map(s2 => `<button data-sh="${s2[0]}" class="${E.shape === s2[0] ? 'on' : ''}">${s2[1]}</button>`).join('')}</div>
+    <div class="opt" style="margin-top:.4rem"><button id="o-ol" class="${E.outline ? 'on' : ''}">⚪ Garis putih stiker</button><button id="o-rs">↺ Posisi awal</button></div>
+    <div class="sl">🔍<input type="range" id="o-sc" min="5" max="400" value="${Math.round(E.sc * 100)}"><b>${Math.round(E.sc * 100)}%</b></div>
+    <div class="sl">🔄<input type="range" id="o-rt" min="-180" max="180" value="${Math.round(E.rot * 180 / Math.PI)}"><b>${Math.round(E.rot * 180 / Math.PI)}°</b></div>
+    <p class="hint">Geser foto pakai jari, cubit 2 jari buat zoom & muter.</p>`;
+  else if (E.tab === 'bg') h = `<button class="btn" id="o-auto" style="padding:.7rem">🤖 Hapus background otomatis (orang)</button>
+    <div class="opt" style="margin-top:.5rem"><button data-md="erase" class="${E.mode === 'erase' ? 'on' : ''}">🧽 Hapus</button><button data-md="restore" class="${E.mode === 'restore' ? 'on' : ''}">🖌️ Balikin</button><button data-md="move" class="${E.mode === 'move' ? 'on' : ''}">✋ Geser</button><button id="o-un">↩️ Undo</button><button id="o-all">♻️ Reset</button></div>
+    <div class="sl">🖌️<input type="range" id="o-br" min="6" max="90" value="${E.brush}"><b>${E.brush}</b></div>
+    <p class="hint">Pilih 🧽 terus usap bagian yang mau dibuang. Salah hapus? 🖌️ Balikin atau ↩️ Undo.</p>`;
+  else if (E.tab === 'teks') h = `<input class="inp" id="o-tx" maxlength="22" placeholder="Tulisan stiker, mis. Ayang 🥺" value="${esc(E.text)}">
+    <div class="cols" style="margin-top:.45rem">${COLS.map((c, i) => `<button data-c="${i}" class="${i === E.tcol ? 'on' : ''}" style="background:${c}" aria-label="warna"></button>`).join('')}</div>
+    <div class="opt" style="margin-top:.45rem"><button data-tp="t" class="${E.tpos === 't' ? 'on' : ''}">⬆️ Atas</button><button data-tp="b" class="${E.tpos === 'b' ? 'on' : ''}">⬇️ Bawah</button></div>
+    <div class="sl">🔠<input type="range" id="o-ts" min="40" max="130" value="${E.tsize}"><b>${E.tsize}</b></div>`;
+  else if (E.tab === 'hias') h = `<div class="emo2">${DECOS.map(d => `<button data-d="${d}">${d}</button>`).join('')}</div>
+    ${E.sel >= 0 && E.emo[E.sel] ? `<div class="sl">${E.emo[E.sel].e}<input type="range" id="o-es" min="30" max="300" value="${Math.round(E.emo[E.sel].s)}"><b>${Math.round(E.emo[E.sel].s)}</b></div><div class="opt" style="margin-top:.35rem"><button id="o-ed">🗑️ Hapus hiasan ini</button><button id="o-eu">✔️ Selesai</button></div>` : '<p class="hint">Tap hiasan buat nambahin, terus geser di foto. Tap hiasannya buat ngatur ukuran / hapus.</p>'}`;
+  else h = `<div class="opt">${FILTERS.map((f, i) => `<button data-f="${i}" class="${E.filter === f[0] ? 'on' : ''}">${f[1]}</button>`).join('')}</div>`;
+  $('pane').innerHTML = h;
+  const on = (id, ev, fn) => { const el = $(id); if (el) el[ev] = fn; };
+  $('pane').querySelectorAll('[data-sh]').forEach(b => b.onclick = () => { E.shape = b.dataset.sh; paintPane(); paint(); });
+  on('o-ol', 'onclick', () => { E.outline = !E.outline; paintPane(); paint(); });
+  on('o-rs', 'onclick', () => { if (!E.src) return; E.sc = 470 / Math.min(E.src.width, E.src.height); E.x = 256; E.y = 256; E.rot = 0; paintPane(); paint(); });
+  on('o-sc', 'oninput', e => { E.sc = e.target.value / 100; e.target.nextElementSibling.textContent = e.target.value + '%'; paint(); });
+  on('o-rt', 'oninput', e => { E.rot = e.target.value * Math.PI / 180; e.target.nextElementSibling.textContent = e.target.value + '°'; paint(); });
+  on('o-auto', 'onclick', autoCut);
+  $('pane').querySelectorAll('[data-md]').forEach(b => b.onclick = () => { E.mode = b.dataset.md; E.sel = -1; paintPane(); paint(); });
+  on('o-un', 'onclick', doUndo);
+  on('o-all', 'onclick', () => { if (!E.mask) return; pushUndo(); const mx = E.mask.getContext('2d'); mx.globalCompositeOperation = 'source-over'; mx.fillStyle = '#000'; mx.fillRect(0, 0, E.mask.width, E.mask.height); rebuildCut(); paint(); });
+  on('o-br', 'oninput', e => { E.brush = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; });
+  on('o-tx', 'oninput', e => { E.text = e.target.value.trim(); paint(); });
+  $('pane').querySelectorAll('[data-c]').forEach(b => b.onclick = () => { E.tcol = +b.dataset.c; paintPane(); paint(); });
+  $('pane').querySelectorAll('[data-tp]').forEach(b => b.onclick = () => { E.tpos = b.dataset.tp; paintPane(); paint(); });
+  on('o-ts', 'oninput', e => { E.tsize = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; paint(); });
+  $('pane').querySelectorAll('[data-d]').forEach(b => b.onclick = () => { if (!E.src) return toast('Pilih foto dulu ya'); E.emo.push({ e: b.dataset.d, x: 120 + Math.random() * 272, y: 120 + Math.random() * 200, s: 90 }); E.sel = E.emo.length - 1; E.mode = 'move'; paintPane(); paint(); vib(8); });
+  on('o-es', 'oninput', e => { if (E.emo[E.sel]) { E.emo[E.sel].s = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; paint(); } });
+  on('o-ed', 'onclick', () => { E.emo.splice(E.sel, 1); E.sel = -1; paintPane(); paint(); });
+  on('o-eu', 'onclick', () => { E.sel = -1; paintPane(); paint(); });
+  $('pane').querySelectorAll('[data-f]').forEach(b => b.onclick = () => { E.filter = FILTERS[+b.dataset.f][0]; paintPane(); paint(); });
+}
+// ── simpan / koleksi / kirim ke chat ──
+const mine = () => lsGet('stiker-mine', []) || [];
+function addMine(c) { const t = document.createElement('canvas'); t.width = t.height = 320; t.getContext('2d').drawImage(c, 0, 0, 320, 320); let u = t.toDataURL('image/webp', .85); if (!/^data:image\/webp/.test(u)) u = t.toDataURL('image/png'); const L = mine(); L.unshift({ id: Date.now().toString(36), u }); while (L.length) { if (lsSet('stiker-mine', L.slice(0, 16))) break; L.pop(); } paintMine(); }
+function paintMine() {
+  const L = mine(); $('mine-w').hidden = !L.length;
+  $('mine').innerHTML = L.map(x => `<button class="st" data-m="${x.id}"><img src="${x.u}" alt=""></button>`).join('');
+  $('mine').querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+    const x = mine().find(y => y.id === b.dataset.m); if (!x) return;
+    const im = new Image(); im.onload = () => { pvCanvas = document.createElement('canvas'); pvCanvas.width = pvCanvas.height = 512; pvCanvas.getContext('2d').drawImage(im, 0, 0, 512, 512); }; im.src = x.u;
+    $('pv-img').src = x.u; $('pv-more').innerHTML = `<button class="btn ghost" id="pv-chat">💬 Kirim chat</button><button class="btn ghost" id="pv-del">🗑️ Hapus</button>`;
+    $('pv-chat').onclick = () => { if (pvCanvas) toChat(pvCanvas); };
+    $('pv-del').onclick = () => { if (!confirm('Hapus stiker ini dari koleksi?')) return; lsSet('stiker-mine', mine().filter(y => y.id !== x.id)); $('ov').classList.remove('show'); paintMine(); };
+    $('ov').classList.add('show');
+  });
+}
+async function toChat(c) {
+  try {
+    const data = c.toDataURL('image/png'), id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await new Promise((res, rej) => { const r = indexedDB.open('razara-chat', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => { try { const tx = r.result.transaction('img', 'readwrite'); tx.objectStore('img').put(data, id); tx.oncomplete = res; tx.onerror = rej; } catch (e) { rej(e); } }; r.onerror = rej; });
+    const k = 'chat-q-' + ME, Q = lsGet(k, []) || []; Q.push({ id, t: '', at: Date.now(), w: ME, k: 'msg', q: 1, pimg: 1, s: 1 }); lsSet(k, Q);
+    toast(`💬 Stikernya dikirim ke chat ${OT}…`); vib([15, 30, 15]);
+    setTimeout(() => { location.href = 'chat.html'; }, 900);
+  } catch (e) { toast('Gagal nyiapin stiker buat chat 😢 pakai Simpan aja dulu'); }
+}
+function openEd() { $('ed').classList.add('show'); $('ph').hidden = !!E.src; paintPane(); paint(); }
+$('mk-photo').onclick = openEd;
+$('pick-cam').onclick = () => $('f-cam').click(); $('pick-gal').onclick = () => $('f-gal').click();
+$('f-cam').onchange = e => { loadPhoto(e.target.files[0]); e.target.value = ''; };
+$('f-gal').onchange = e => { loadPhoto(e.target.files[0]); e.target.value = ''; };
+$('ed-new').onclick = () => $('f-gal').click();
+$('ed-x').onclick = () => $('ed').classList.remove('show');
+$('ed-save').onclick = () => { if (!E.src) return toast('Pilih foto dulu ya 📸'); E.sel = -1; const c = composite(512); addMine(c); shareCanvas(c, 'stiker-razara.png', 'Stiker Razara'); lsSet('stiker-n', lsGet('stiker-n', 0) + 1); toast('🗂️ Masuk ke "Stiker buatanku" juga'); };
+$('ed-chat').onclick = () => { if (!E.src) return toast('Pilih foto dulu ya 📸'); E.sel = -1; const c = composite(512); addMine(c); toChat(c); };
+paintMine();
 
+</script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {

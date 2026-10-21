@@ -95,6 +95,7 @@
   .m.stik .b{background:none!important;box-shadow:none;font-size:3.4rem;line-height:1.1;padding:0 .2rem}
   .m.stik .b .meta{float:none;justify-content:flex-end;top:0;background:rgba(255,255,255,.8);border-radius:8px;padding:0 .3rem;font-size:9.5px;white-space:nowrap;margin:0}
   .m.stik .b .tx{display:block}
+  .m.stik .b img.ph{max-width:150px;max-height:150px;width:auto;border-radius:0;background:none!important;box-shadow:none;display:block}
   .m.flash .b{animation:fl 1s}@keyframes fl{30%{box-shadow:0 0 0 4px rgba(193,122,111,.45)}}
   .m .sw{position:absolute;left:-26px;top:50%;transform:translateY(-50%);opacity:0;font-size:16px}
   .ai .b{background:#fff}.ai .lab{font-size:10px;font-weight:600;color:#8a6bc4;margin-bottom:.1rem}
@@ -361,7 +362,7 @@ async function flushOne(q) {
       const data = mem[q.id] || await IDB.get(q.id);
       if (!data) { q.up = 0; q.busy = 0; q.err = 2; renderP(); return false; }   // fotonya udah ga ada di HP
       mem[q.id] = data;
-      const u = await POST({ action: 'chat', op: 'img', data: data.split(',')[1], mime: 'image/jpeg' }, 90000);
+      const u = await POST({ action: 'chat', op: 'img', data: data.split(',')[1], mime: (/^data:(image\/(?:png|webp|jpeg));/.exec(data) || [])[1] || 'image/jpeg' }, 90000);
       if (!u || !u.ok || !u.url) throw new Error(u && u.error || 'gagal');
       q.img = u.url; q.up = 0; save();
     }
@@ -655,7 +656,7 @@ $('stk').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return
 // ── bales ──
 function setRep(r) { rep = r; $('rep').hidden = !r; if (r) { $('rep-w').textContent = r.w === ME ? 'Kamu' : r.w; $('rep-t').textContent = r.t; $('inp').focus(); } }
 $('rep-x').onclick = () => setRep(null);
-const snip = m => m.vn || m.pvn ? '🎤 Pesan suara' : m.s ? m.t : m.img && !m.t ? '📷 Foto' : (m.img ? '📷 ' : '') + String(m.t || '').slice(0, 100);
+const snip = m => m.vn || m.pvn ? '🎤 Pesan suara' : m.s ? (m.t || '🖼️ Stiker') : m.img && !m.t ? '📷 Foto' : (m.img ? '📷 ' : '') + String(m.t || '').slice(0, 100);
 
 // ── tampilan ──
 const HARI_ = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'], BLN_ = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];

@@ -138,7 +138,7 @@
         const Q = g(key, []) || [], q = Q[0]; if (!q) break;
         if (q.pimg && !q.img) {
           const data = await idbGet(q.id); if (!data) { s(key, (g(key, []) || []).filter(x => x.id !== q.id)); continue; }
-          const r = await post(u, { key: k, who: w, action: 'chat', op: 'img', data: data.split(',')[1], mime: 'image/jpeg' });
+          const r = await post(u, { key: k, who: w, action: 'chat', op: 'img', data: data.split(',')[1], mime: (/^data:(image\/(?:png|webp|jpeg));/.exec(data) || [])[1] || 'image/jpeg' });
           if (!r || !r.ok || !r.url) throw new Error('img');
           s(key, (g(key, []) || []).map(x => x.id === q.id ? Object.assign({}, x, { img: r.url }) : x)); q.img = r.url;
         }
