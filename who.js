@@ -104,3 +104,100 @@
     on: function (f) { subs.push(f); }
   };
 })();
+
+/* ═══ ⚡ MODE RINGAN + 🔒 KUNCI PIN (opsional, cuma berlaku di HP ini) ═══ */
+(function () {
+  if (window.Kunci) return;
+  var ls = null; try { ls = window.localStorage; } catch (e) { return; }
+  function g(k) { try { return JSON.parse(ls.getItem(k)); } catch (e) { return null; } }
+  var html = document.documentElement, head = document.head || html;
+  // ⚡ mode ringan: matiin efek blur kaca (paling berat di HP) — otomatis nyala di HP yang RAM-nya kecil / mode hemat data
+  var lite = g('lite-mode');
+  if (lite == null) { try { lite = (navigator.deviceMemory && navigator.deviceMemory <= 3) || (navigator.connection && navigator.connection.saveData) ? 1 : 0; } catch (e) { lite = 0; } }
+  if (lite) html.classList.add('lite');
+  var st = document.createElement('style');
+  st.textContent = 'html.lite *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}' +
+    'html.pinlock body{visibility:hidden!important}' +
+    '#pin-gate{position:fixed;inset:0;z-index:2147483600;visibility:visible;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;padding:1.2rem;font-family:Poppins,system-ui,sans-serif;background:linear-gradient(160deg,#fdf6f0,#f3e1d8);color:#2d1f1a;text-align:center;user-select:none;-webkit-user-select:none}' +
+    'html[data-user=Razan] #pin-gate{background:linear-gradient(160deg,#f5f9fd,#dce9f6)}html[data-user=Dara] #pin-gate{background:linear-gradient(160deg,#fdf6f8,#f6dbe3)}' +
+    '#pin-gate .pi{font-size:2.4rem;line-height:1}#pin-gate h3{font-size:16px;font-weight:700;margin:0}#pin-gate p{font-size:12px;color:#8a7a72;margin:0;min-height:1.2em}' +
+    '#pin-gate .dots{display:flex;gap:.7rem;margin:.2rem 0}#pin-gate .dots i{width:14px;height:14px;border-radius:50%;border:2px solid #c17a6f;display:block}#pin-gate .dots i.f{background:#c17a6f}' +
+    'html[data-user=Razan] #pin-gate .dots i{border-color:#5a8fcc}html[data-user=Razan] #pin-gate .dots i.f{background:#5a8fcc}' +
+    '#pin-gate .kp{display:grid;grid-template-columns:repeat(3,64px);gap:.7rem}#pin-gate .kp button{width:64px;height:64px;border-radius:50%;border:none;background:rgba(255,255,255,.85);font:600 22px Poppins,system-ui,sans-serif;color:#2d1f1a;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.06)}' +
+    '#pin-gate .kp button:active{transform:scale(.92)}#pin-gate .kp button.x{background:none;box-shadow:none;font-size:18px}' +
+    '#pin-gate .lp{border:none;background:none;color:#9a8070;font:500 12px Poppins,system-ui,sans-serif;text-decoration:underline;cursor:pointer;margin-top:.2rem}' +
+    '#pin-gate .shake{animation:pinSh .35s}@keyframes pinSh{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}' +
+    '@media (max-height:560px){#pin-gate .kp{grid-template-columns:repeat(3,54px)}#pin-gate .kp button{width:54px;height:54px;font-size:19px}}';
+  head.appendChild(st);
+
+  var PRIV = ['keuangan-dara', 'keuangan-razan', 'keuangan-berdua', 'period-tracker', 'buku-harian', 'chat', 'jarak-kita'];
+  function hash(salt, pin) {
+    var s = salt + '|' + pin + '|razara';
+    try { if (window.crypto && crypto.subtle && window.TextEncoder) return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function (b) { return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }); } catch (e) {}
+    var h = 5381; for (var r = 0; r < 500; r++) for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i) + r) | 0;
+    return Promise.resolve('x' + (h >>> 0).toString(16));
+  }
+  var P = g('app-pin');
+  var PAGE = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
+  var on = !!(P && P.h && P.s);
+  var need = on && (P.scope === 'all' || PRIV.indexOf(PAGE) >= 0 || PAGE === 'kunci-pin');
+  var TO = Math.max(10000, (P && P.t != null ? +P.t : 1) * 60000);   // "langsung" = 10 detik (biar pindah halaman ga dikunci terus)
+  var ss = null; try { ss = window.sessionStorage; } catch (e) {}
+  function sg(k) { try { return +ss.getItem(k) || 0; } catch (e) { return 0; } }
+  function sset(k, v) { try { ss.setItem(k, String(v)); } catch (e) {} }
+  function fresh() { var ok = sg('pin-ok'), seen = sg('pin-seen'); return ok && Date.now() - Math.max(ok, seen) < TO; }
+  function seenNow() { if (!html.classList.contains('pinlock')) sset('pin-seen', Date.now()); }
+  var gate = null, typed = '';
+  function show() {
+    if (gate) return; html.classList.add('pinlock');
+    gate = document.createElement('div'); gate.id = 'pin-gate'; gate.setAttribute('role', 'dialog'); gate.setAttribute('aria-label', 'Kunci PIN');
+    var n = P.n || 4;
+    gate.innerHTML = '<div class="pi">🔒</div><h3>Razara kekunci</h3><p class="msg">Masukin PIN kamu</p><div class="dots">' + Array(n + 1).join('<i></i>') + '</div>' +
+      '<div class="kp">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (d) { return '<button data-d="' + d + '">' + d + '</button>'; }).join('') + '<button class="x" data-x="1" aria-label="Hapus">⌫</button><button data-d="0">0</button><span></span></div>' +
+      '<button class="lp">Lupa PIN?</button>';
+    html.appendChild(gate);
+    var dots = gate.querySelectorAll('.dots i'), msg = gate.querySelector('.msg'), box = gate.querySelector('.dots');
+    function paint() { for (var i = 0; i < dots.length; i++) dots[i].className = i < typed.length ? 'f' : ''; }
+    function wait() { var f = g('pin-fail') || {}; return f.until && f.until > Date.now() ? Math.ceil((f.until - Date.now()) / 1000) : 0; }
+    function check() {
+      var w = wait(); if (w) { msg.textContent = 'Kebanyakan salah — tunggu ' + w + ' detik'; typed = ''; paint(); return; }
+      var t = typed;
+      hash(P.s, t).then(function (h) {
+        if (h === P.h) { try { ls.removeItem('pin-fail'); } catch (e) {} sset('pin-ok', Date.now()); sset('pin-seen', Date.now()); hide(); return; }
+        var f = g('pin-fail') || { n: 0 }; f.n = (f.n || 0) + 1; if (f.n >= 5) { f.until = Date.now() + 30000 * Math.pow(2, Math.min(4, f.n - 5)); }
+        try { ls.setItem('pin-fail', JSON.stringify(f)); } catch (e) {}
+        typed = ''; paint(); msg.textContent = f.until && f.until > Date.now() ? 'Kebanyakan salah — tunggu ' + wait() + ' detik' : 'PIN salah 🙈';
+        box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); try { navigator.vibrate && navigator.vibrate([40, 40, 40]); } catch (e) {}
+      });
+    }
+    gate.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('button'); if (!b) return;
+      if (b.classList.contains('lp')) {
+        if (!confirm('Lupa PIN?\n\nPIN cuma bisa dihapus dengan RESET app di HP ini: semua data yang kesimpen di HP ini dihapus (yang udah ke-sync bakal balik lagi setelah login ulang, tapi catatan rahasia yang cuma di HP ini ikut ilang).\n\nLanjut reset?')) return;
+        try { ls.clear(); } catch (e) {} try { ss.clear(); } catch (e) {} try { indexedDB.deleteDatabase('razara-chat'); } catch (e) {}
+        location.replace('index.html'); return;
+      }
+      try { navigator.vibrate && navigator.vibrate(8); } catch (e) {}
+      if (b.dataset.x) { typed = typed.slice(0, -1); paint(); return; }
+      if (b.dataset.d != null && typed.length < n) { typed += b.dataset.d; paint(); if (typed.length === n) setTimeout(check, 120); }
+    });
+    document.addEventListener('keydown', onKey, true);
+    function onKey(e) { if (!gate) { document.removeEventListener('keydown', onKey, true); return; } if (/^\d$/.test(e.key) && typed.length < n) { typed += e.key; paint(); if (typed.length === n) setTimeout(check, 120); e.preventDefault(); } else if (e.key === 'Backspace') { typed = typed.slice(0, -1); paint(); e.preventDefault(); } }
+    var w0 = wait(); if (w0) msg.textContent = 'Kebanyakan salah — tunggu ' + w0 + ' detik';
+  }
+  function hide() { if (gate) { gate.remove(); gate = null; } typed = ''; html.classList.remove('pinlock'); try { window.dispatchEvent(new Event('pin-unlock')); } catch (e) {} }
+  if (need) {
+    if (!fresh()) show(); else seenNow();
+    document.addEventListener('visibilitychange', function () { if (document.hidden) seenNow(); else if (!fresh()) show(); });
+    window.addEventListener('pagehide', seenNow);
+    setInterval(function () { if (!document.hidden) seenNow(); }, 5000);
+  } else if (on) {
+    // halaman yang ga dikunci tetep nyatet "terakhir aktif" biar pas pindah ke halaman pribadi ga langsung ditanya lagi
+    var touch = function () { if (!sg('pin-ok')) return; if (fresh()) sset('pin-seen', Date.now()); else sset('pin-ok', 0); };   // kelamaan ditinggal → harus PIN lagi
+    touch();
+    document.addEventListener('visibilitychange', touch);
+    window.addEventListener('pagehide', touch);
+    setInterval(function () { if (!document.hidden) touch(); }, 5000);
+  }
+  window.Kunci = { on: on, scope: on ? P.scope : '', PRIV: PRIV, hash: hash, locked: function () { return !!gate; }, lock: function () { if (on) { sset('pin-ok', 0); show(); } } };
+})();
