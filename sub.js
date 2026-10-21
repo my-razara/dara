@@ -40,8 +40,9 @@
   function back() { if (history.state && history.state.sub) history.back(); else { close(); try { history.replaceState(null, '', location.pathname); } catch (e) {} } }
   window.addEventListener('popstate', function () { var k = history.state && history.state.sub; if (k) open(k, false); else close(); });
   function build() {
-    var n = strip(''); n.id = 'sub-main';
-    var w = document.querySelector('.wrap') || document.querySelector('main') || document.body, top = w.querySelector(':scope > .top');
+    var n = strip(''); n.id = 'sub-main'; if (window.__hubSubs) n.style.display = 'none';   // tab-nya udah ada di strip hub
+    var vis = function (el) { return el && el.getClientRects().length > 0; }, w0 = document.querySelector('.wrap') || document.querySelector('main');
+    var w = vis(w0) ? w0 : document.body, top = w.querySelector(':scope > .top');
     if (top) top.insertAdjacentElement('afterend', n); else if (w === document.body) document.body.insertBefore(n, document.body.firstChild); else w.insertBefore(n, w.firstChild);
     // halaman layar penuh yang punya tombol melayang di atas → geser ke bawah strip biar ga ketutupan
     setTimeout(function () { try { var sb = n.getBoundingClientRect().bottom + 6, H = innerHeight; document.querySelectorAll('body *').forEach(function (el) { if (el === n || n.contains(el) || el.closest('#sub-ov')) return; var cs = getComputedStyle(el); if (cs.position !== 'fixed' && !(cs.position === 'absolute' && (!el.offsetParent || el.offsetParent === document.body || el.offsetParent === document.documentElement))) return; var r = el.getBoundingClientRect(); if (!r.height || r.height > H * 0.4 || r.top >= sb || r.bottom <= 0 || r.top > 120) return; el.style.top = (parseFloat(cs.top) || 0) + (sb - r.top) + 'px'; }); } catch (e) {} }, 60);

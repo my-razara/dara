@@ -6,12 +6,18 @@
     jadwal: { t: '📅 Jadwal Kita', tabs: [['jadwal-kita', '📅', 'Kalender'], ['jadwal-mingguan', '🗓️', 'Mingguan'], ['ketemuan', '⏰', 'Hitung Mundur']] },
     mood: { t: '🌈 Mood & Hati', tabs: [['kalender-mood', '😊', 'Mood'], ['jurnal-syukur', '🙏', 'Syukur'], ['buku-harian', '📔', 'Diary'], ['tidur-kita', '😴', 'Bobo'], ['tenangin-diri', '🌙', 'Tenang']] },
     rutin: { t: '✅ Rutinitas Bareng', tabs: [['kebiasaan-bareng', '✅', 'Habit'], ['ibadah-bareng', '🕌', 'Ibadah'], ['fokus-bareng', '📚', 'Fokus'], ['jaga-minum', '💧', 'Minum'], ['stretching', '🧘', 'Stretch']] },
-    voucher: { t: '🎟️ Voucher Razan', tabs: [['voucher-harian', '🎟️', 'Harian'], ['voucher-razan', '📒', 'Buku Voucher']] },
+    voucher: { t: '🎟️ Voucher Razan', tabs: [['voucher-harian', '🎟️', 'Harian'], ['hadiah-harian', '🎰', 'Gosok'], ['voucher-razan', '📒', 'Buku']] },
+    kenangan: { t: '📸 Kenangan Kita', tabs: [['memories', '📸', 'Foto'], ['timeline-kita', '🕰️', 'Timeline'], ['polaroid-wall', '🖼️', 'Polaroid'], ['peta-kenangan', '📍', 'Peta'], ['peta-bintang', '🌌', 'Bintang']] },
+    musik: { t: '🎵 Musik & Suara', tabs: [['playlist-dara', '🎵', 'Playlist'], ['playlist-dara', '🎶', 'Kotak', 'kotakmusik'], ['radio-razan', '📻', 'Radio'], ['piano-mini', '🎹', 'Piano'], ['rekam-suara', '🎙️', 'Rekam']] },
+    janji: { t: '🤝 Janji & Baikan', tabs: [['kupon-maaf', '🎟️', 'Tiket Baikan'], ['janji-kita', '📜', 'Janji Kita']] },
+    kenal: { t: '💞 Kenal Kita', tabs: [['kuis-kita', '🪞', 'Kuis'], ['dna-hubungan', '🧬', 'DNA'], ['dna-hubungan', '🧮', 'Hitung', 'kalkulator'], ['kamus-kita', '📖', 'Kamus'], ['masa-depan', '🔭', 'Masa Depan']] },
     kreasi: { t: '🎨 Studio Kreasi', tabs: [['hias-kue', '🍰', 'Kue'], ['gelang-manik', '📿', 'Gelang'], ['dandan-berdua', '👗', 'Dandan'], ['bikin-komik', '🗯️', 'Komik']] }
   };
   const PAGE = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
   let G = null; for (const k in GROUPS) if (GROUPS[k].tabs.some(x => x[0] === PAGE)) G = GROUPS[k];
   if (!G) return;
+  const SUB = (/[?&]sub=([a-z0-9-]+)/.exec(location.search) || [])[1] || '';
+  if (G.tabs.some(x => x[0] === PAGE && x[3])) window.__hubSubs = 1;   // sub.js ga usah bikin strip sendiri
   const g = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const pad = n => String(n).padStart(2, '0'), now = new Date(), today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const me = () => (window.Who && Who.me && Who.me()) || g('berdua-me', 'Dara');
@@ -44,7 +50,7 @@
     html.night .hub-tabs{background:rgba(40,28,26,.85)}`;
     document.head.appendChild(css);
     const d = document.createElement('nav'); d.id = 'hub-tabs'; d.className = 'hub-tabs'; d.setAttribute('aria-label', G.t);
-    d.innerHTML = `<div class="ht">${G.t}</div><div class="hr">${G.tabs.map(([id, e, n]) => { const b = badge(id); return `<a href="${id}.html" class="${id === PAGE ? 'on' : ''}" ${id === PAGE ? 'aria-current="page"' : ''}><span>${e}</span>${n}${b ? `<i>${b}</i>` : ''}</a>`; }).join('')}</div>`;
+    d.innerHTML = `<div class="ht">${G.t}</div><div class="hr">${G.tabs.map(([id, e, n, sb]) => { const b = sb ? '' : badge(id), on = id === PAGE && (sb || '') === SUB; return `<a href="${id}.html${sb ? '?sub=' + sb : ''}" class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''}><span>${e}</span>${n}${b ? `<i>${b}</i>` : ''}</a>`; }).join('')}</div>`;
     d.querySelectorAll('a').forEach(a => a.addEventListener('click', ev => { if (a.classList.contains('on')) { ev.preventDefault(); return; } ev.preventDefault(); location.replace(a.getAttribute('href')); }));
     // halaman yang layarnya "fixed" penuh (ketemuan, tenangin diri) → tab masuk di atas bar-nya
     const fx = document.querySelector('body > .hub');
@@ -53,8 +59,12 @@
       const bar = fx.querySelector('.bar'); if (bar) bar.style.paddingTop = '.45rem';
       return;
     }
-    const w = document.querySelector('.wrap') || document.body, top = w.querySelector(':scope > .top');
+    const vis = el => el && el.getClientRects().length > 0;
+    const w0 = document.querySelector('.wrap'), w = vis(w0) ? w0 : document.body, top = w.querySelector(':scope > .top');
     if (top) top.insertAdjacentElement('afterend', d); else w.insertBefore(d, w.firstChild);
+    // tombol "← Menu" yang nempel di pojok atas (absolute/fixed) jangan ketutupan strip → geser ke bawahnya
+    const shift = () => { try { const sb = d.getBoundingClientRect().bottom + window.scrollY + 6, H = innerHeight; document.querySelectorAll('body *').forEach(el => { if (el === d || d.contains(el) || el.dataset.hubShift || el.closest('#sub-ov,.ov,.sheet,[role=dialog]')) return; const cs = getComputedStyle(el); const abs = cs.position === 'absolute' && (!el.offsetParent || el.offsetParent === document.body || el.offsetParent === document.documentElement); if (cs.position !== 'fixed' && !abs) return; const r = el.getBoundingClientRect(); if (!r.height || r.height > H * 0.4 || r.top > 120 || r.bottom <= 0 || r.top + window.scrollY >= sb) return; const t = parseFloat(cs.top); if (isNaN(t)) return; el.dataset.hubShift = 1; el.style.top = (t + sb - (r.top + window.scrollY)) + 'px'; }); } catch (e) {} };
+    setTimeout(shift, 50);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
 })();

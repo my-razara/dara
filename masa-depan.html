@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Teropong Masa Depan — Razan & Dara 🔭</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="hub.js"></script>
 <script src="sync.js"></script>
 <script src="sfx.js" defer></script>
 <style>
@@ -61,8 +62,6 @@
   .yrs{display:flex;gap:.35rem;justify-content:center;margin-bottom:.9rem}
   .yrs button{flex:1;max-width:120px;padding:.6rem .3rem;border-radius:16px;border:1.5px solid var(--blush);background:#fff;cursor:pointer;color:var(--muted);font-size:11px;line-height:1.3}
   .yrs button b{display:block;font-size:1.05rem;color:var(--deep)}
-  .yrs button .mk{display:block;font-style:normal;font-size:11px;margin-top:.15rem;min-height:14px}
-  .hint{background:rgba(255,246,226,.92);border:1.5px dashed #c9a96e;border-radius:16px;padding:.7rem .8rem;font-size:12.5px;color:#5a4a2a;margin-bottom:.8rem;line-height:1.5}.hint .btn{margin-top:.5rem}
   .yrs button.on{background:linear-gradient(135deg,#3b3566,#6a5a9e);border-color:transparent;color:#e8e2ff}.yrs button.on b{color:#fff}
   .st{display:flex;gap:.5rem;margin-bottom:.9rem}
   .st div{flex:1;border-radius:16px;padding:.6rem;text-align:center;font-size:11.5px;background:#fff;border:1px solid rgba(193,122,111,.13)}
@@ -165,23 +164,18 @@ const Q = [
   { k: 'berantem', t: '🫣 Kalau berantem, siapa yang minta maaf duluan?', o: [['💙', 'Razan'], ['💗', 'Dara'], ['🤝', 'Barengan'], ['🍕', 'Yang laper duluan']] },
   { k: 'satu', t: '💭 Satu hal yang pasti masih sama', free: true, ph: 'Contoh: kamu masih suka nyolong kentang gorengku' }
 ];
-// identitas SELALU ngikut HP ini (who.js) — dulu ada tombol ganti sendiri di halaman ini, itu yang bikin jawaban kekirim atas nama yang salah
-const ME0 = lsGet('md-me', null);
-let me = (window.Who && Who.me()) || BD.me();
-(function paintWho() { const b = $('who-btn'); if (!b) return; b.textContent = `🙋 ${me}`; b.className = 'pill ' + me; b.onclick = () => { if (window.Who && Who.ask) Who.ask(); }; })();
-// kalau dulu HP ini ngirim pakai nama lain, kasih tau sekali
-const WRONG = ME0 && ME0 !== me ? ME0 : null; lsSet('md-me', me);
+if (lsGet('md-me', null) == null) lsSet('md-me', BD.me());
+let me = whoBtn('md-me', () => { me = lsGet('md-me', 'Dara'); BD.setMe(me); view = null; render(); });
+BD.setMe(me);
 let yi = lsGet('md-y', 1), view = null; // null = otomatis
 const slot = () => YRS[yi][1];
 const ansOf = w => ((lsGet('md-' + w, {}) || {})[slot()] || null);
 const draft = () => lsGet('md-draft-' + me + '-' + slot(), {});
 function done(a) { return a && a.done; }
 function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
-const ansAt = (w, d) => ((lsGet('md-' + w, {}) || {})[d] || null);
 function render() {
   bdStatus(); lsSet('md-y', yi);
-  const mk = d => { const r = done(ansAt('Razan', d)), dd = done(ansAt('Dara', d)); return r && dd ? '🔓' : (r ? '💙' : '') + (dd ? '💗' : ''); };
-  $('yrs').innerHTML = YRS.map(([n, d, l], i) => `<button class="${i === yi ? 'on' : ''}" data-i="${i}"><b>+${n} th</b>${l}<i class="mk">${mk(d) || '·'}</i></button>`).join('');
+  $('yrs').innerHTML = YRS.map(([n, , l], i) => `<button class="${i === yi ? 'on' : ''}" data-i="${i}"><b>+${n} th</b>${l}</button>`).join('');
   $('yrs').querySelectorAll('button').forEach(b => b.onclick = () => { yi = +b.dataset.i; view = null; render(); });
   const mine = ansOf(me), o = otherOf(me), theirs = ansOf(o);
   const stt = w => { const a = ansOf(w); return done(a) ? `✅ udah neropong<br><small>${fmtD(new Date(a.at))}</small>` : '⏳ belum'; };
@@ -206,12 +200,10 @@ function submit() {
   view = null; vib([15, 30, 15]); confetti(40, ['#6a5a9e', '#c9b6ea', '#c9a96e', '#fff']); toast(`🔒 Kekunci! ${BD.enabled ? otherOf(me) + ' dikasih tau lewat sinkron' : ''}`); render(); window.scrollTo(0, 0);
 }
 function wait() {
-  const o = otherOf(me), alt = YRS.map((y, i) => [y, i]).filter(([y, i]) => i !== yi && done(ansAt(o, y[1])));
-  const hint = alt.length ? `<div class="hint">👀 ${o} udah ngisi teropong <b>${alt.map(([y]) => y[2].toLowerCase()).join(' & ')}</b> — beda tahun sama yang kamu isi. ${alt.map(([y, i]) => `<button class="btn ghost" onclick="yi=${i};view=null;render();scrollTo(0,0)">🔭 Buka ${y[2].toLowerCase()}</button>`).join('')}</div>` : '';
-  $('main').innerHTML = hint + `<div class="lock">🔭<b>Teropongmu udah dikunci</b><small>Nunggu ${o} neropong juga. Begitu ${o} selesai, jawaban kalian kebuka barengan — biar ga saling nyontek 😏</small></div>
+  const o = otherOf(me);
+  $('main').innerHTML = `<div class="lock">🔭<b>Teropongmu udah dikunci</b><small>Nunggu ${o} neropong juga. Begitu ${o} selesai, jawaban kalian kebuka barengan — biar ga saling nyontek 😏</small></div>
     <a class="btn wa" target="_blank" rel="noopener" href="${waLink(o, `🔭 Aku udah ngisi Teropong Masa Depan (${YRS[yi][2].toLowerCase()}). Giliran kamu! Jawabanku kebuka kalau kamu udah ngisi juga 😏\n${location.href.split('#')[0].split('?')[0]}`)}">💬 Colek ${o} buat ngisi</a>
-    <button class="btn ghost" style="margin-top:.5rem" onclick="view='form';render()">✏️ Ubah jawabanku</button>
-    <button class="btn ghost" style="margin-top:.5rem" id="rf-b" onclick="refresh(1)">🔄 Cek lagi sekarang</button>`;
+    <button class="btn ghost" style="margin-top:.5rem" onclick="view='form';render()">✏️ Ubah jawabanku</button>`;
 }
 function compare() {
   const A = ansOf('Razan').a, B = ansOf('Dara').a; let same = 0, tot = 0;
@@ -225,16 +217,9 @@ function compare() {
   if (!lsGet('md-seen-' + slot(), 0)) { lsSet('md-seen-' + slot(), 1); setTimeout(() => confetti(70, ['#6a5a9e', '#c9b6ea', '#c9a96e', '#fff', '#f0a39a']), 300); }
 }
 BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes('md') && view !== 'form') render(); });
-// tarik data terbaru begitu dibuka + lebih sering pas lagi nunggu pasangan
-async function refresh(btn) { const b = btn && $('rf-b'); if (b) { b.disabled = true; b.textContent = '⏳ Ngecek…'; } try { BD.pull && await BD.pull(true); } catch (e) {} if (view !== 'form') render(); if (btn) toast(done(ansOf(otherOf(me))) ? '🔓 Kebuka!' : `${otherOf(me)} belum ngunci teropong ${YRS[yi][2].toLowerCase()}`); }
-try { BD.fast && BD.fast(2e4); } catch (e) {}
-setInterval(() => { if (!document.hidden && view !== 'form' && done(ansOf(me)) && !done(ansOf(otherOf(me)))) refresh(); }, 2e4);
-render(); refresh();
-if (WRONG) setTimeout(() => toast(`ℹ️ Sekarang Teropong ikut nama HP ini (${me}). Kalau dulu kamu ngisi sebagai ${WRONG}, isi ulang ya 🙏`, 7000), 900);
+render();
 
 </script>
-</script>
-
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {

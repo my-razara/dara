@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <title>Piano Mini — Razan & Dara 🎹</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="hub.js"></script>
 <script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
@@ -180,7 +181,7 @@ function flash(m) { const el = keyEl(m); if (!el) return; el.classList.add('on')
 function hit(m) {
   tone(m); flash(m); vib(5);
   if (recOn) recBuf.push([m, Date.now() - recT0]);
-  if (guide) { const want = guide.notes[guide.i]; if (want && want[0] + guide.sh === m) { guide.i++; if (guide.i >= guide.notes.length) { const t = guide.t; guide = null; markNext(); $('lyr').innerHTML = `🎉 Kamu berhasil mainin <i>${esc(t)}</i>!`; confetti(50); } else markNext(); } }
+  if (guide) { const want = guide.notes[guide.i]; if (want && want[0] + 12 * (oct - 4) === m) { guide.i++; if (guide.i >= guide.notes.length) { const t = guide.t; guide = null; markNext(); $('lyr').innerHTML = `🎉 Kamu berhasil mainin <i>${esc(t)}</i>!`; confetti(50); } else markNext(); } }
 }
 // sentuhan multi-jari + geser antar tuts
 const act = new Map();
@@ -193,47 +194,28 @@ document.addEventListener('keydown', e => { if (e.repeat || /INPUT|TEXTAREA/.tes
 // lagu public domain — [midi (oktaf 4 basis), ketukan, suku kata]
 const N = s => { const m = /^([A-G]#?)(\d)$/.exec(s); return 12 * (+m[2] + 1) + NAMES.indexOf(m[1]); };
 const P = str => str.trim().split(/\s+/).map(tk => { const [n, b, l] = tk.split('/'); return [N(n), +b || 1, (l || '').replace(/_/g, ' ')]; });
-// T = geser nada (semitone) biar muat di tuts; semua lagu versi FULL
-const T = (str, k) => P(str).map(([m, b, l]) => [m + k, b, l]);
 const SONGS = [
-  { t: 'Twinkle Twinkle Little Star', e: '⭐', n: P(`C4/1/Twin C4/1/kle G4/1/twin G4/1/kle A4/1/lit A4/1/tle G4/2/star F4/1/how F4/1/I E4/1/won E4/1/der D4/1/what D4/1/you C4/2/are
-    G4/1/Up G4/1/a F4/1/bove F4/1/the E4/1/world E4/1/so D4/2/high G4/1/like G4/1/a F4/1/dia F4/1/mond E4/1/in E4/1/the D4/2/sky
-    C4/1/Twin C4/1/kle G4/1/twin G4/1/kle A4/1/lit A4/1/tle G4/2/star F4/1/how F4/1/I E4/1/won E4/1/der D4/1/what D4/1/you C4/2/are`) },
-  { t: 'Happy Birthday to You', e: '🎂', n: P(`C4/.75/Hap C4/.25/py D4/1/birth C4/1/day F4/1/to E4/2/you C4/.75/Hap C4/.25/py D4/1/birth C4/1/day G4/1/to F4/2/you
-    C4/.75/Hap C4/.25/py C5/1/birth A4/1/day F4/1/sa E4/1/yang D4/2/ku A#4/.75/Hap A#4/.25/py A4/1/birth F4/1/day G4/1/to F4/2/you`) },
-  { t: 'Ode to Joy (Beethoven)', e: '🎻', n: T(`E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4/1.5 D4/.5 D4/2
-    E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4/1.5 C4/.5 C4/2
-    D4 D4 E4 C4 D4 E4/.5 F4/.5 E4 C4 D4 E4/.5 F4/.5 E4 D4 C4 D4 G3/2
-    E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4/1.5 C4/.5 C4/2`, 5) },
-  { t: 'Für Elise (Beethoven)', e: '🌙', n: T(`E5/.5 D#5/.5 E5/.5 D#5/.5 E5/.5 B4/.5 D5/.5 C5/.5 A4/1.5 C4/.5 E4/.5 A4/.5 B4/1.5 E4/.5 G#4/.5 B4/.5 C5/1.5
-    E4/.5 E5/.5 D#5/.5 E5/.5 D#5/.5 E5/.5 B4/.5 D5/.5 C5/.5 A4/1.5 C4/.5 E4/.5 A4/.5 B4/1.5 E4/.5 C5/.5 B4/.5 A4/1.5
-    B4/.5 C5/.5 D5/.5 E5/1.5 G4/.5 F5/.5 E5/.5 D5/1.5 F4/.5 E5/.5 D5/.5 C5/1.5 E4/.5 D5/.5 C5/.5 B4/1.5
-    E4/.5 E5/.5 E5/.5 E6/.5 D#5/.5 E5/.5 D#5/.5 E5/.5 D#5/.5 E5/.5 D#5/.5
-    E5/.5 D#5/.5 E5/.5 B4/.5 D5/.5 C5/.5 A4/1.5 C4/.5 E4/.5 A4/.5 B4/1.5 E4/.5 G#4/.5 B4/.5 C5/1.5
-    E4/.5 E5/.5 D#5/.5 E5/.5 D#5/.5 E5/.5 B4/.5 D5/.5 C5/.5 A4/1.5 C4/.5 E4/.5 A4/.5 B4/1.5 E4/.5 C5/.5 B4/.5 A4/2`, -12) },
-  { t: 'Mary Had a Little Lamb', e: '🐑', n: P(`E4/1/Ma D4/1/ry C4/1/had D4/1/a E4/1/lit E4/1/tle E4/2/lamb D4/1/lit D4/1/tle D4/2/lamb E4/1/lit G4/1/tle G4/2/lamb
-    E4/1/Ma D4/1/ry C4/1/had D4/1/a E4/1/lit E4/1/tle E4/1/lamb E4/1/its D4/1/fleece D4/1/was E4/1/white D4/1/as C4/4/snow`) },
-  { t: 'Frère Jacques', e: '🔔', n: T(`C4/1/Frè D4/1/re E4/1/Jac C4/1/ques C4/1/Frè D4/1/re E4/1/Jac C4/1/ques E4/1/Dor F4/1/mez G4/2/vous E4/1/dor F4/1/mez G4/2/vous
-    G4/.5/Son A4/.5/nez G4/.5/les F4/.5/ma E4/1/ti C4/1/nes G4/.5/son A4/.5/nez G4/.5/les F4/.5/ma E4/1/ti C4/1/nes C4/1/Ding G3/1/dang C4/2/dong C4/1/ding G3/1/dang C4/2/dong`, 5) }
+  { t: 'Twinkle Twinkle Little Star', e: '⭐', n: P('C4/1/Twin C4/1/kle G4/1/twin G4/1/kle A4/1/lit A4/1/tle G4/2/star F4/1/how F4/1/I E4/1/won E4/1/der D4/1/what D4/1/you C4/2/are') },
+  { t: 'Happy Birthday to You', e: '🎂', n: P('G4/.75/Hap G4/.25/py A4/1/birth G4/1/day C5/1/to B4/2/you G4/.75/Hap G4/.25/py A4/1/birth G4/1/day D5/1/to C5/2/you') },
+  { t: 'Ode to Joy (Beethoven)', e: '🎻', n: P('E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4/1.5 D4/.5 D4/2') },
+  { t: 'Für Elise (Beethoven)', e: '🌙', n: P('E5/.5 D#5/.5 E5/.5 D#5/.5 E5/.5 B4/.5 D5/.5 C5/.5 A4/1.5 C4/.5 E4/.5 A4/.5 B4/1.5 E4/.5 G#4/.5 B4/.5 C5/1.5') },
+  { t: 'Mary Had a Little Lamb', e: '🐑', n: P('E4 D4 C4 D4 E4 E4 E4/2 D4 D4 D4/2 E4 G4 G4/2') },
+  { t: 'Frère Jacques', e: '🔔', n: P('C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4/2 E4 F4 G4/2') }
 ];
-// geser oktaf: ikut pilihan nada rendah/tinggi kalau muat, kalau ga muat main di nada aslinya
-function fitSh(notes) { const sh = 12 * (oct - 4); let lo = 1e3, hi = 0; notes.forEach(([m]) => { lo = Math.min(lo, m); hi = Math.max(hi, m); }); return lo + sh >= 48 && hi + sh <= 76 ? sh : 0; }
-// pas belajar: kalau nada berikutnya di luar tuts, papan pindah oktaf sendiri
-function ensureKey(m) { if (keyEl(m)) return; const o = m < 60 ? 3 : 4; if (o !== oct) { oct = o; build(); } }
 function renderSongs() {
   $('songs').innerHTML = SONGS.map((s, i) => `<div class="song"><span class="e">${s.e}</span><span class="tx"><b>${s.t}</b><small>${s.n.length} nada · lagu bebas hak cipta</small></span><button onclick="listen(SONGS[${i}].n,SONGS[${i}].t)">▶</button><button onclick="learn(${i})">🎓 Belajar</button></div>`).join('');
 }
 function stopAll() { timers.forEach(clearTimeout); timers = []; guide = null; markNext(); $('lyr').textContent = ''; }
 function listen(notes, title, bpm = 110) {
   stopAll(); let t = 0; const beat = 60000 / bpm;
-  const sh = fitSh(notes); notes.forEach(([m, b, l], i) => { timers.push(setTimeout(() => { const mm = m + sh; tone(mm, Math.min(b * beat / 1000, 1.2)); flash(mm); if (l) $('lyr').innerHTML = esc(l); }, t)); t += b * beat; });
+  notes.forEach(([m, b, l], i) => { timers.push(setTimeout(() => { const mm = m + 12 * (oct - 4); tone(mm, Math.min(b * beat / 1000, 1.2)); flash(mm); if (l) $('lyr').innerHTML = esc(l); }, t)); t += b * beat; });
   timers.push(setTimeout(() => { $('lyr').innerHTML = ''; }, t + 600)); $('lyr').innerHTML = '🎶 ' + esc(title);
 }
-function learn(i) { stopAll(); guide = { notes: SONGS[i].n, i: 0, t: SONGS[i].t, sh: fitSh(SONGS[i].n) }; markNext(); $('pi').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+function learn(i) { stopAll(); guide = { notes: SONGS[i].n, i: 0, t: SONGS[i].t }; markNext(); $('pi').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
 function markNext() {
   $('pi').querySelectorAll('.nx').forEach(e => e.classList.remove('nx'));
   if (!guide) return; const w = guide.notes[guide.i]; if (!w) return;
-  ensureKey(w[0] + guide.sh); const el = keyEl(w[0] + guide.sh); if (el) el.classList.add('nx');
+  const el = keyEl(w[0] + 12 * (oct - 4)); if (el) el.classList.add('nx');
   $('lyr').innerHTML = `${esc(guide.t)} · <i>${guide.i + 1}/${guide.notes.length}</i>${w[2] ? ' — ' + esc(w[2]) : ''}`;
 }
 // rekam
@@ -269,8 +251,6 @@ function init() {
 init();
 
 </script>
-</script>
-
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
 <script>
 (function () {
