@@ -120,7 +120,7 @@
   <div id="ql"></div>
   <p class="sec">🕘 Terakhir diputer</p>
   <div id="hist"></div>
-  <p class="note">💡 Bisa juga dari app YouTube: tap <b>Bagikan → Untuk Dara</b> (kalau app-nya udah dipasang di HP).<br>📱 Pas layar HP mati, YouTube emang berhenti muter — biarin layarnya nyala ya.</p>
+  <p class="note">💡 Bisa juga dari app YouTube: tap <b>Bagikan → Untuk Dara</b> (kalau app-nya udah dipasang di HP).<br>📱 Pas layar HP mati YouTube berhenti di HP itu aja — HP pasangan tetep jalan, dan pas layarnya nyala lagi otomatis nyusul.</p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -171,6 +171,7 @@ $('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
 const RX = ['💗', '😂', '😮', '😭', '🔥', '👏'];
 // ── keadaan bersama ──
 let S = { vid: '', title: '', mode: lsGet('nb-mode', 'video'), play: false, pos: 0, q: [], rx: null, chat: [], by: ME, seq: 0 };
+let visAt = 0, hidAt = 0;
 let P = null, ready = false, base = { pos: 0, play: false, t: performance.now() }, mute = 0, lastRx = 0, curT = 0;
 const ON = () => !!(window.Meja && Meja.on());
 const now = () => performance.now();
@@ -193,6 +194,8 @@ function onState(e) {
   const st = e.data; paintPP();
   if (st === 1 || st === 2) { $('tapov') && $('tapov').remove(); }
   if (Date.now() < mute) return;
+  // layar HP mati / pindah app → YouTube pause sendiri: itu BUKAN pause beneran, jangan dikirim ke pasangan
+  if (st === 2 && (document.hidden || Date.now() - visAt < 2500 || Date.now() - hidAt < 1500)) return;
   if (st === 0) { next(true); return; }                                   // abis → lanjut antrean
   if (st === 1 && !base.play) { local({ play: true, pos: P.getCurrentTime() }); }
   else if (st === 2 && base.play) { local({ play: false, pos: P.getCurrentTime() }); }
@@ -214,12 +217,20 @@ setInterval(() => {
   if (!P || !ready || !S.vid) return;
   let t = 0; try { t = P.getCurrentTime() || 0; } catch (e) { return; }
   const exp = expected(), st = P.getPlayerState();
+  if (document.hidden || Date.now() - visAt < 3000) { curT = t; return; }   // baru balik dari layar mati → biarin nyusul dulu
   if (Date.now() > mute && st === 1) {
     if (Math.abs(t - exp) > 2.6 && Math.abs(t - curT - 1.5) > 2.6) local({ play: true, pos: t });   // aku yang geser
     else if (ON() && Math.abs(t - exp) > 1.4) { mute = Date.now() + 1500; P.seekTo(exp, true); }     // ketinggalan → kejar
   }
   curT = t; paintProg(t);
 }, 1500);
+// balik dari layar mati / app lain → langsung nyusul posisi pasangan (yang tadi ketinggalan)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { hidAt = Date.now(); return; }
+  visAt = Date.now();
+  if (ON() && S.vid) setTimeout(() => { try { applyPlayer(false); if (base.play) toast(`⏩ Nyusul ${OT} ke ${fmt(expected())}`); } catch (e) {} }, 400);
+});
+window.addEventListener('pagehide', () => { hidAt = Date.now(); });
 // ── aksi lokal → kirim ──
 function local(ch) { Object.assign(S, ch, { by: ME, seq: (S.seq || 0) + 1 }); base = { pos: S.pos, play: S.play, t: now() }; push(); paint(); }
 function push() { if (ON()) Meja.push(snap()); }

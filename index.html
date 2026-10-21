@@ -1413,6 +1413,42 @@ const updDate = link => { const d = UPDATED[link]; if (!d) return null; const [y
 const ALL = [];
 CATS.forEach(c => { if (c.key === 'secret') return; c.sections.forEach(sec => sec.items.forEach(it => ALL.push({ ...it, cat: c.key }))); });
 const byLink = l => ALL.find(i => i.link === l);
+// 🧭 hadiah yang udah dilebur → sekarang ada di mana (buat tur, pencarian & daftar A–Z)
+const MOVED = [
+  ['🧮', 'Kalkulator Cinta', 'DNA Hubungan → tab Hitung', 'dna-hubungan.html?sub=kalkulator', 'kalkulator cinta hitung'],
+  ['🫧', 'Pop-It Pesan', 'Kejutan Pesan → tab Pop-It', 'kejutan-pesan.html?m=4', 'pop it popit gelembung'],
+  ['🌷', 'Taman Bunga', 'Kejutan Pesan → tab Taman Bunga', 'kejutan-pesan.html?m=5', 'taman bunga mekar'],
+  ['🦢', 'Origami Hati', 'Kartu Ucapan → tab Origami', 'kartu-ucapan.html?sub=origami', 'origami lipat'],
+  ['🔣', 'Kode Rahasia', 'Kartu Ucapan → tab Kode Emoji', 'kartu-ucapan.html?sub=kode', 'kode rahasia emoji sandi'],
+  ['💐', 'Bucket Bunga', 'Kartu Ucapan → tab Buket', 'kartu-ucapan.html?sub=buket', 'bucket buket bunga rangkai'],
+  ['🏮', 'Lampion Harapan', 'Kembang Api → tab Lampion', 'kembang-api.html?sub=lampion', 'lampion harapan'],
+  ['🎩', 'Mind Reader', 'Ramalan & Tarot → tab Trik Sulap', 'ramalan-tarot.html?m=2', 'mind reader sulap trik'],
+  ['🧪', 'Ramuan Cinta', 'Ramalan & Tarot → tab Ramuan', 'ramalan-tarot.html?m=3', 'ramuan racik'],
+  ['🏆', 'Piala Penghargaan', 'Pencapaian → tab Bikin Piala', 'pencapaian.html?sub=piala', 'piala penghargaan sertifikat'],
+  ['💭', 'Hal Kecil', 'Pertanyaan Harian → tab Hal Kecil', 'pertanyaan-harian.html?sub=halkecil', 'hal kecil'],
+  ['🌀', 'Kaleidoskop', 'Buku Mewarnai → tab Mandala', 'mewarnai.html?sub=mandala', 'kaleidoskop mandala'],
+  ['🌧️', 'Jendela Berembun', 'Buku Mewarnai → tab Jendela', 'mewarnai.html?sub=jendela', 'jendela embun kaca hujan'],
+  ['🎶', 'Kotak Musik', 'Musik & Suara → tab Kotak', 'playlist-dara.html?sub=kotakmusik', 'kotak musik'],
+  ['🔏', 'Teka-teki Surat', 'Kotak Surat → tab Teka-teki', 'kotak-surat.html?m=2', 'teka teki surat gembok'],
+  ['⏳', 'Kapsul Waktu', 'Kotak Surat → tab Kapsul Waktu', 'kotak-surat.html?m=3', 'kapsul waktu masa depan surat'],
+  ['🤷', 'Mesin Terserah', 'Misi Acak → tab Terserah', 'misi-acak.html?m=3', 'mesin terserah makan apa ngapain'],
+  ['⚔️', 'Love Quest', 'Misinya pindah ke Tantangan Mingguan', 'tantangan-mingguan.html', 'love quest misi quest daily'],
+  ['🪙', 'Hadiah Harian', 'Voucher Razan → tab Gosok (gosok · capit · mystery box)', 'hadiah-harian.html', 'hadiah harian gosok capit mystery box']
+];
+// 🧭 yang dikumpulin jadi 1 kartu bertab
+const GROUPED = [
+  ['📸 Kenangan Kita', 'Foto · Timeline · Polaroid · Peta Kenangan · Peta Bintang', 'memories.html'],
+  ['🎵 Musik & Suara', 'Playlist · Kotak Musik · Radio Razan · Piano · Rekam Suara', 'playlist-dara.html'],
+  ['🕊️ Janji & Baikan', 'Tiket Baikan · Janji Kita', 'kupon-maaf.html'],
+  ['🫶 Kenal Kita', 'Kuis · DNA · Kalkulator · Kamus · Masa Depan', 'kuis-kita.html'],
+  ['🎨 Studio Kreasi', 'Hias Kue · Gelang · Dandan · Komik', 'hias-kue.html'],
+  ['✅ Rutinitas Bareng', 'Kebiasaan · Ibadah · Fokus · Jaga Minum · Stretching', 'kebiasaan-bareng.html'],
+  ['🌈 Mood & Hati', 'Mood · Syukur · Diary · Bobo & Bangun · Tenangin', 'kalender-mood.html'],
+  ['📅 Jadwal Kita', 'Kalender · Mingguan · Hitung Mundur', 'jadwal-kita.html'],
+  ['🎟️ Voucher Razan', 'Voucher Harian · Gosok & Capit · Buku Voucher', 'voucher-harian.html'],
+  ['🎮 Games', 'Arena Olahraga · Papan · Kata · Ingatan · Party · Puzzle (tap kartunya buat milih game)', '#games']
+];
+const movedHTML = list => list.map(([ic, n, w, u]) => `<a class="mv-it" href="${u}"><span class="e">${ic}</span><span class="m"><b>${n}</b><small>📍 ${w}</small></span><i>›</i></a>`).join('');
 // 🗂️ dilebur: Jadwal (kalender/mingguan/hitung mundur) & Mood (mood/syukur/tenangin) → cukup 1 kartu, sisanya jadi tab di dalam
 const HUB_HIDE = new Set(['jadwal-mingguan.html', 'ketemuan.html', 'jurnal-syukur.html', 'tenangin-diri.html', 'tidur-kita.html', 'ibadah-bareng.html', 'fokus-bareng.html', 'buku-harian.html', 'kunci-pin.html', 'gelang-manik.html', 'dandan-berdua.html', 'bikin-komik.html', 'jaga-minum.html', 'stretching.html', 'voucher-razan.html', 'hadiah-harian.html', 'timeline-kita.html', 'polaroid-wall.html', 'peta-kenangan.html', 'peta-bintang.html', 'radio-razan.html', 'piano-mini.html', 'rekam-suara.html', 'janji-kita.html', 'dna-hubungan.html', 'kamus-kita.html', 'masa-depan.html']);
 CATS.forEach(c => c.sections.forEach(sec => { sec.items = sec.items.filter(it => !HUB_HIDE.has(it.link)); }));
@@ -1650,7 +1686,9 @@ function runSearch() {
     if (filter === 'new' && !isNew(it)) return false;
     return !q || norm([it.label, it.sub, it.desc, m.kw].join(' ')).includes(q);
   });
-  $('search-res').innerHTML = `<p class="res-count">${list.length ? `${list.length} hasil` : `Nggak ketemu "${$('q').value}" 😅 — coba kata lain ya`}</p><div class="results">${list.map(miniHTML).join('')}</div>`;
+  const mv = q && filter === 'all' ? MOVED.filter(x => norm([x[1], x[2], x[4]].join(' ')).includes(q)) : [];
+  $('search-res').innerHTML = (mv.length ? `<p class="res-count">🧭 Udah pindah ke sini:</p><div class="mv-ls">${movedHTML(mv)}</div>` : '')
+    + `<p class="res-count">${list.length ? `${list.length} hasil` : mv.length ? '' : `Nggak ketemu "${$('q').value}" 😅 — coba kata lain, atau <a href="#" onclick="__allFitur();return false">liat semua fitur A–Z</a>`}</p><div class="results">${list.map(miniHTML).join('')}</div>`;
   bindMinis($('search-res'));
 }
 window.clearSearch = () => { $('q').value = ''; filter = 'all'; renderChips(); runSearch(); };
@@ -2910,6 +2948,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-21 22:00', t: '📶 Update sekarang hemat kuota (cuma file yang berubah yang didownload) · 🎬 Nonton Bareng: layar satu HP mati ga bikin HP pasangan ke-pause · 🧭 Bingung fitur pindah ke mana? Ada tombol 📚 Semua fitur A–Z & 🧭 Fitur pindah ke mana? di bawah home' },
     { d: '2026-10-21 21:00', t: '🧹 Rapiin lagi: 📬 Kotak Surat (+ teka-teki & kapsul waktu), 💌 Kartu Ucapan (+ buket bunga), 🎵 Musik & Suara, 📸 Kenangan Kita, 🤝 Janji & Baikan, 💞 Kenal Kita, 🎟️ Voucher (+ gosok & capit) · 🎮 Game dikelompokin: Arena Olahraga, Papan, Kata, Ingatan, Party, Puzzle' },
     { d: '2026-10-21 19:00', t: '🧹 Hadiah dirapiin: 11 hadiah dilebur ke hadiah yang mirip (contoh: Pop-It & Taman Bunga → Kejutan Pesan, Origami & Kode Rahasia → Kartu Ucapan, Lampion → Kembang Api), Love Quest pindah ke Tantangan Mingguan · 🎨 Studio Kreasi · 🎟️ Voucher Harian (klaim 1/hari, kirim ke WA) · ☀️ Ritual harian sekarang yang ngisi-ngisi aja' },
     { d: '2026-10-21 18:00', t: '🔒 Kunci PIN: bisa kunci seluruh app atau halaman pribadi aja (keuangan, period, diary, chat, lokasi) · ⚡ Home lebih enteng + Mode ringan (di 🧩 Atur tampilan home) biar ga ngelag' },
@@ -3114,6 +3153,60 @@ setTimeout(() => {
     setTimeout(() => { try { o.querySelector('#pt-t').focus(); } catch (e) {} }, 200);
   };
 
+  // ═════ 🧭 FITUR PINDAH KE MANA? + 📚 SEMUA FITUR A–Z ═════
+  function afSheet(id, html) {
+    let o = document.getElementById(id); if (o) o.remove();
+    o = document.createElement('div'); o.id = id; o.className = 'af-ov show'; o.innerHTML = `<div class="af-sh">${html}</div>`;
+    o.addEventListener('click', e => { if (e.target === o || e.target.closest('[data-x]')) o.remove(); });
+    document.body.appendChild(o); return o;
+  }
+  window.__tourPindah = () => {
+    try { localStorage.setItem('tour-pindah-1', '1'); } catch (e) {}
+    afSheet('af-tour', `<h3>🧭 Ada yang pindah tempat</h3><p class="sub2">Biar menu ga kepanjangan, hadiah yang mirip-mirip sekarang jadi satu. Ga ada yang ilang — datanya juga aman 🤍</p>
+      <p class="af-g">Dilebur jadi tab di hadiah lain</p><div class="mv-ls">${movedHTML(MOVED)}</div>
+      <p class="af-g">Dikumpulin jadi 1 kartu (pindah lewat tab di atas)</p><div class="mv-ls">${GROUPED.map(([n, w, u]) => `<a class="mv-it" href="${u}"><span class="e">${n.split(' ')[0]}</span><span class="m"><b>${n.slice(n.indexOf(' ') + 1)}</b><small>${w}</small></span><i>›</i></a>`).join('')}</div>
+      <button class="af-x" data-x>Oke, ngerti 👍</button>`);
+    const g = document.querySelector('#af-tour a[href="#games"]'); if (g) g.onclick = e => { e.preventDefault(); document.getElementById('af-tour').remove(); try { showCat(CATS.findIndex(c => c.key === 'games')); } catch (er) {} };
+  };
+  window.__allFitur = () => {
+    const L = ALL.filter(it => it.link && !/^#/.test(it.link)).map(it => ({ ic: it.icon, n: it.label, w: (it.cat === 'games' ? '🎮 Game' : it.cat === 'keuangan' ? '💰 Keuangan' : '🎁 Hadiah') + (it.sub ? ' · ' + it.sub : ''), it }))
+      .concat(MOVED.map(([ic, n, w, u, kw]) => ({ ic, n, w: '📍 ' + w, u, kw })))
+      .sort((a, b) => a.n.localeCompare(b.n, 'id'));
+    const o = afSheet('af-all', `<h3>📚 Semua fitur A–Z</h3><p class="sub2">${L.length} game & hadiah — ketik buat nyari</p><input class="af-q" id="af-q" placeholder="🔎 Cari…" autocomplete="off"><div class="af-ls" id="af-ls"></div><button class="af-x" data-x>Tutup</button>`);
+    const paint = () => {
+      const q = norm(o.querySelector('#af-q').value.trim());
+      const R = L.filter(x => !q || norm([x.n, x.w, x.kw || '', (x.it && ((META[x.it.link] || {}).kw || '')) || ''].join(' ')).includes(q));
+      let last = ''; o.querySelector('#af-ls').innerHTML = R.length ? R.map((x, i) => { const h = x.n[0].toUpperCase(), sep = h !== last && !q ? `<p class="af-h">${h}</p>` : ''; last = h; return sep + `<button data-i="${L.indexOf(x)}"><span class="e">${x.ic}</span><span class="m"><b>${escH(x.n)}</b><small>${escH(x.w)}</small></span></button>`; }).join('') : '<p class="sub2">Ga ketemu 😅</p>';
+      o.querySelectorAll('#af-ls [data-i]').forEach(b => b.onclick = () => { const x = L[+b.dataset.i]; o.remove(); if (x.u) location.href = x.u; else openItem(x.it); });
+    };
+    o.querySelector('#af-q').addEventListener('input', paint); paint();
+  };
+  // sekali muncul abis rapi-rapi (nunggu popup "ada yang baru" ditutup dulu)
+  (function tourOnce(n) {
+    let seen = '1'; try { seen = localStorage.getItem('tour-pindah-1'); } catch (e) {}
+    if (seen || n > 40) return;
+    const home = document.getElementById('home'), busy = document.querySelector('#kb-ov.show, .af-ov, #s-welcome:not(.hide), #who-gate, #pin-gate, #klaim-ov');
+    if (!home || !home.classList.contains('active') || busy) { setTimeout(() => tourOnce(n + 1), 2500); return; }
+    setTimeout(() => { if (!document.querySelector('#kb-ov.show, .af-ov')) __tourPindah(); }, 1200);
+  })(0);
+  const afCss = document.createElement('style');
+  afCss.textContent = `.af-row{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin:.2rem 0 .6rem}.af-row button{border:1px dashed rgba(193,122,111,.35);background:none;border-radius:50px;padding:.5rem .9rem;font:500 12px 'Poppins',sans-serif;color:var(--muted);cursor:pointer}
+  @keyframes fdUp{from{transform:translateY(100%)}}
+  .af-ov{position:fixed;inset:0;z-index:320;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center}
+  .af-sh{width:100%;max-width:480px;max-height:88vh;overflow-y:auto;background:var(--cream,#faf6f0);border-radius:24px 24px 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));animation:fdUp .28s ease}
+  .af-sh h3{font-size:16px;text-align:center;margin:.1rem 0 .2rem}.af-sh .sub2{font-size:12px;color:var(--muted,#9a8070);text-align:center;line-height:1.5;margin-bottom:.6rem}
+  .af-g{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold,#c9a96e);font-weight:700;margin:.8rem 0 .4rem;text-align:center}
+  .mv-ls{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.4rem}
+  .mv-it{display:flex;align-items:center;gap:.6rem;background:#fff;border:1px solid rgba(193,122,111,.14);border-radius:14px;padding:.5rem .7rem;text-decoration:none;color:var(--ink,#2d1f1a)}
+  .mv-it .e{font-size:1.35rem;flex-shrink:0}.mv-it .m{flex:1;min-width:0}.mv-it b{display:block;font-size:12.5px;font-weight:600}.mv-it small{display:block;font-size:11px;color:var(--muted,#9a8070);line-height:1.35;overflow-wrap:anywhere}.mv-it i{font-style:normal;color:var(--rose);font-weight:700}
+  .af-q{width:100%;font:400 14px 'Poppins',sans-serif;padding:.65rem .85rem;border-radius:14px;border:1.5px solid var(--blush,#e8c4b0);background:#fff;outline:none;margin-bottom:.5rem;box-sizing:border-box}
+  .af-ls{display:flex;flex-direction:column;gap:.3rem}.af-ls button{display:flex;align-items:center;gap:.6rem;background:#fff;border:1px solid rgba(193,122,111,.12);border-radius:13px;padding:.45rem .65rem;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink,#2d1f1a)}
+  .af-ls .e{font-size:1.25rem;flex-shrink:0;width:1.6rem;text-align:center}.af-ls .m{flex:1;min-width:0}.af-ls b{display:block;font-size:12.5px;font-weight:600}.af-ls small{display:block;font-size:10.5px;color:var(--muted,#9a8070);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .af-h{font-size:11px;font-weight:700;color:var(--rose);margin:.45rem 0 .1rem .3rem}
+  .af-x{display:block;width:100%;margin-top:.8rem;border:none;border-radius:50px;padding:.8rem;font:700 13px 'Poppins',sans-serif;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer}
+  html.night .mv-it,html.night .af-ls button,html.night .af-q{background:var(--card,#2b201e);color:#f3d9d2}`;
+  document.head.appendChild(afCss);
+
   // ═════ 🧩 ATUR TAMPILAN HOME ═════
   const SEC = [
     // [kunci, nama, tempat, cara nyari elemennya]
@@ -3270,7 +3363,7 @@ setTimeout(() => {
     try {
       const top = document.getElementById('today-slot'), rows = document.getElementById('home-rows');
       if (top) { const a = ptCard(), b = ibCard(); if (b) top.insertAdjacentHTML('afterbegin', b); if (a) top.insertAdjacentHTML('afterbegin', a); if (window.__musimCard && !top.querySelector('.ms-card')) { const m = window.__musimCard(); if (m) top.insertAdjacentHTML('afterbegin', m); } }
-      if (rows && !rows.querySelector('.hl-link')) rows.insertAdjacentHTML('beforeend', '<button class="hl-link" onclick="__hlEdit()">🧩 Atur tampilan home</button>');
+      if (rows && !rows.querySelector('.hl-link')) rows.insertAdjacentHTML('beforeend', '<button class="hl-link" onclick="__hlEdit()">🧩 Atur tampilan home</button><div class="af-row"><button onclick="__allFitur()">📚 Semua fitur A–Z</button><button onclick="__tourPindah()">🧭 Fitur pindah ke mana?</button></div>');
       if (rows) { const old = rows.querySelector('.sk-sec'); if (old) old.remove(); const h = skCard(); if (h) { const bx = rows.querySelector('.bx-sec'); if (bx) bx.insertAdjacentHTML('afterend', h); else rows.insertAdjacentHTML('afterbegin', h); } }
       apply(); paintIb(); paintOn(); paintCh();
     } catch (e) {}

@@ -1,7 +1,8 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v87';
+const VERSI = 'v88';
 const CACHE = 'untuk-dara-' + VERSI;
+// (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
 "nonton-bareng.html",
 "fokus-bareng.html",
@@ -216,10 +217,35 @@ async function sisipin(res) {
   } catch (e) { return res; }
 }
 
-// pas di-install: simpan semua halaman game/hadiah biar bisa dimainin offline (yang gagal dilewatin aja)
+// ═══ 📶 UPDATE HEMAT KUOTA ═══
+// versi.json = daftar "sidik jari" tiap file. Pas update, file yang sidik jarinya sama tinggal dipindah dari simpanan lama
+// (ga didownload ulang). Yang berubah aja yang diambil lagi. Halaman yang belum pernah dibuka di HP ini ga didownload duluan —
+// disimpen otomatis pas pertama dibuka (biar update ga nyedot kuota).
+const INTI = ['index.html', 'chat.html'];
+const pathOf = u => { try { const x = new URL(u, self.location.href); const b = x.pathname.split('/').pop(); return b || 'index.html'; } catch (e) { return ''; } };
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => Promise.all(HALAMAN.concat(ASET).map(u => c.add(u).catch(() => {})))));
+  e.waitUntil((async () => {
+    const c = await caches.open(CACHE);
+    let neu = null; try { const r = await fetch('versi.json', { cache: 'no-store' }); if (r.ok) neu = await r.json(); } catch (er) {}
+    const meta = await caches.open('untuk-dara-meta');
+    let old = null; try { const r = await meta.match('/__versi'); if (r) old = await r.json(); } catch (er) {}
+    const olds = (await caches.keys()).filter(k => k.startsWith('untuk-dara-') && k !== CACHE && k !== 'untuk-dara-meta');
+    const done = new Set(), redo = new Set();
+    for (const k of olds) {
+      const oc = await caches.open(k);
+      for (const req of await oc.keys()) {
+        const same = new URL(req.url).origin === self.location.origin, f = same ? pathOf(req.url) : '';
+        if (same && neu && neu[f] != null) {
+          if (old && old[f] === neu[f]) { const r = await oc.match(req); if (r) { await c.put(req, r); done.add(f); } }
+          else redo.add(f);                       // berubah → ambil lagi (cuma yang emang pernah dipakai di HP ini)
+        } else if (!same) { const r = await oc.match(req); if (r) await c.put(req, r); }   // font & ikon dari luar: pindahin aja
+      }
+    }
+    const want = new Set(ASET.concat(INTI).concat([...redo]));
+    await Promise.all([...want].filter(f => !done.has(f)).map(f => c.add(f).catch(() => {})));
+    if (neu) await meta.put('/__versi', new Response(JSON.stringify(neu)));
+  })());
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('untuk-dara-') && k !== CACHE && k !== 'untuk-dara-meta').map(k => caches.delete(k)))).then(() => self.clients.claim()));
