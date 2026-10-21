@@ -7,6 +7,9 @@
 <title>Jarak Kita — Razan & Dara 🧭</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <script src="sync.js"></script>
+<script src="lokasi.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <script src="sfx.js" defer></script>
 <style>
   :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
@@ -58,43 +61,82 @@
 
   .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .6rem}
   .bd-st.err{color:#b4554a}
-  .big{background:linear-gradient(160deg,#2b3a5e,#5a4a8e);color:#fff;border-radius:26px;padding:1.2rem 1rem;text-align:center;margin-bottom:.9rem;box-shadow:0 12px 28px rgba(43,58,94,.3);position:relative;overflow:hidden}
+  .share{background:#fff;border-radius:20px;padding:.8rem .8rem .75rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.8rem}
+  .share h3{font-size:12.5px;font-weight:700;margin-bottom:.45rem;display:flex;justify-content:space-between;gap:.4rem;align-items:center}
+  .share h3 small{font-weight:500;color:var(--muted);font-size:10.5px;text-align:right}
+  .seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem}
+  .seg button{border:1.5px solid var(--blush);background:#fff;border-radius:14px;padding:.45rem .15rem;font-size:10.5px;color:var(--muted);cursor:pointer;line-height:1.25}
+  .seg button span{display:block;font-size:1.1rem}
+  .seg button.on{border-color:var(--rose);background:#fdf0ec;color:var(--ink);font-weight:600}
+  .share .act{display:flex;gap:.4rem;margin-top:.55rem}
+  .share .act button{flex:1;border:none;border-radius:50px;padding:.55rem .4rem;font-size:12px;font-weight:600;cursor:pointer;background:#f6eee6;color:var(--deep)}
+  .mapw{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(193,122,111,.18);margin-bottom:.8rem;box-shadow:0 6px 20px rgba(193,122,111,.1);background:#e9eef2}
+  #map{height:300px;width:100%}
+  .map-off{height:300px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.6}
+  .mapb{position:absolute;right:8px;top:8px;z-index:500;display:flex;flex-direction:column;gap:.3rem}
+  .mapb button{border:none;border-radius:50px;background:rgba(255,255,255,.95);box-shadow:0 2px 8px rgba(0,0,0,.18);font-size:11px;font-weight:600;padding:.4rem .6rem;cursor:pointer;color:var(--deep);white-space:nowrap}
+  .mapb button.on{background:var(--rose);color:#fff}
+  .pin{font-size:26px;line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35));text-align:center}
+  .pin b{display:block;font:700 9.5px Poppins,sans-serif;background:#fff;border-radius:50px;padding:1px 5px;margin-top:-2px;color:#2d1f1a;white-space:nowrap}
+  .pin.off{opacity:.55;filter:grayscale(.6)}
+  .who{background:#fff;border-radius:20px;padding:.85rem .9rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.6rem;border-left:5px solid var(--c)}
+  .who .h{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+  .who .h b{font-size:14px}
+  .chip{font-size:10px;font-weight:700;border-radius:50px;padding:.15rem .5rem;white-space:nowrap}
+  .chip.on{background:#e8f6ee;color:#2e7d4f}.chip.pause{background:#fff4e0;color:#a06a10}.chip.off{background:#f3eeea;color:#9a8070}.chip.once{background:#eef3fb;color:#4a6fa8}
+  .who .pl{font-size:13px;margin-top:.35rem;line-height:1.45;overflow-wrap:anywhere}
+  .who .meta{display:flex;flex-wrap:wrap;gap:.3rem .7rem;font-size:11px;color:var(--muted);margin-top:.3rem}
+  .who .btns{display:flex;gap:.4rem;margin-top:.6rem}
+  .who .btns a,.who .btns button{flex:1;text-align:center;text-decoration:none;border:none;border-radius:50px;padding:.55rem .3rem;font-size:11.5px;font-weight:600;cursor:pointer;background:var(--rose);color:#fff;font-family:inherit}
+  .who .btns .g{background:#fff;color:var(--rose);border:1.5px solid var(--blush)}
+  .big{background:linear-gradient(160deg,#2b3a5e,#5a4a8e);color:#fff;border-radius:26px;padding:1.1rem 1rem;text-align:center;margin:.2rem 0 .9rem;box-shadow:0 12px 28px rgba(43,58,94,.3);position:relative;overflow:hidden}
   .big small{font-size:11.5px;opacity:.85;display:block}
-  .big .km{font-size:2.6rem;font-weight:700;line-height:1.1;margin:.3rem 0}
+  .big .km{font-size:2.4rem;font-weight:700;line-height:1.1;margin:.3rem 0}
   .big .km span{font-size:1rem;font-weight:500;opacity:.85}
-  .comp{width:150px;height:150px;margin:.6rem auto;border-radius:50%;background:radial-gradient(circle,#ffffff22,#ffffff08 70%);border:2px solid rgba(255,255,255,.35);position:relative}
+  .comp{width:140px;height:140px;margin:.6rem auto;border-radius:50%;background:radial-gradient(circle,#ffffff22,#ffffff08 70%);border:2px solid rgba(255,255,255,.35);position:relative}
   .comp i{position:absolute;font-style:normal;font-size:10px;opacity:.7}
   .comp .n{top:4px;left:50%;transform:translateX(-50%)}.comp .s{bottom:4px;left:50%;transform:translateX(-50%)}.comp .e{right:6px;top:50%;transform:translateY(-50%)}.comp .w{left:6px;top:50%;transform:translateY(-50%)}
   .arrow{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;transition:transform .4s}
-  .arrow b{font-size:2.2rem;margin-top:14px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
-  .comp .mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.4rem}
-  .trv{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;margin-top:.6rem}
+  .arrow b{font-size:2.1rem;margin-top:12px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+  .comp .mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:1.3rem}
+  .trv{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.35rem;margin-top:.6rem}
   .trv div{background:rgba(255,255,255,.12);border-radius:12px;padding:.4rem .2rem;font-size:10.5px;line-height:1.35}
   .trv b{display:block;font-size:12px}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.8rem}
-  .pc{background:#fff;border-radius:20px;padding:.85rem .7rem;text-align:center;border:1px solid rgba(193,122,111,.13);min-width:0}
+  .pc{background:#fff;border-radius:20px;padding:.8rem .6rem;text-align:center;border:1px solid rgba(193,122,111,.13);min-width:0}
   .pc.R{border-top:4px solid var(--rz)}.pc.D{border-top:4px solid var(--dr)}
-  .pc .w{font-size:2.2rem;line-height:1.2}
+  .pc .w{font-size:2rem;line-height:1.2}
   .pc b{display:block;font-size:13px;font-weight:700}
-  .pc .t{font-size:1.4rem;font-weight:700;color:var(--deep)}
+  .pc .t{font-size:1.3rem;font-weight:700;color:var(--deep)}
   .pc small{display:block;font-size:10.5px;color:var(--muted);line-height:1.45;word-break:break-word}
+  .fav{display:flex;align-items:center;gap:.55rem;background:#fff;border-radius:16px;padding:.6rem .75rem;margin-bottom:.4rem;border:1px solid rgba(193,122,111,.12);font-size:13px}
+  .fav .e{font-size:1.3rem}.fav .m{flex:1;min-width:0}.fav .m small{display:block;font-size:10.5px;color:var(--muted)}
+  .fav button{border:none;background:#fff1ee;color:#b4554a;border-radius:50px;font-size:11px;padding:.3rem .6rem;cursor:pointer;flex-shrink:0}
   .note{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
-  .sw{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:#fff;border-radius:16px;padding:.7rem .9rem;margin-bottom:.6rem;font-size:12.5px;border:1px solid rgba(193,122,111,.13)}
+  .chips2{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips2 button{font-size:12px;padding:.4rem .75rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer}
+  .chips2 button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .h4{font-size:14px;font-weight:700;color:var(--deep);text-align:center;margin-bottom:.4rem}
 
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <div class="top"><a href="index.html" class="pill">← Menu utama</a><button class="pill" id="who-btn"></button></div>
-  <div class="head"><span class="ico">🧭</span><p class="lbl">Seberapa jauh</p><h1 class="title">Jarak <span>Kita</span></h1><p class="sub">Liat seberapa jauh kalian sekarang, kompas yang nunjuk ke arah pasangan, sama cuaca di tempat masing-masing ☁️</p></div>
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head"><span class="ico">🧭</span><p class="lbl">Lokasi live berdua</p><h1 class="title">Jarak <span>Kita</span></h1><p class="sub">Kayak Find My Device versi kita — liat posisi masing-masing di peta, minta lokasi terbaru, sama tau kalau udah sampai 🏠</p></div>
   <p class="bd-st" id="bd-st"></p>
+  <div class="share" id="share"></div>
+  <div class="mapw"><div id="map"></div><div class="mapb" id="mapb"></div></div>
+  <div id="whos"></div>
   <div class="big" id="big"></div>
   <div class="two" id="two"></div>
-  <button class="btn" id="upd" onclick="update()">📍 Perbarui lokasiku</button>
-  <p class="note">🔒 Lokasi dibuletin ±1 km & cuma keliatan sama kalian berdua.<br>Kompas muter ngikutin arah HP (kalau HP-nya punya sensor).</p>
-  <button class="btn ghost" style="margin-top:.6rem" onclick="forget()">🙈 Hapus lokasiku</button>
+  <p class="sec">🏠 Tempat favorit</p>
+  <div id="favs"></div>
+  <button class="btn ghost" id="fav-add">＋ Tambah tempat dari lokasiku sekarang</button>
+  <p class="note">🔒 Lokasi cuma keliatan sama kalian berdua & yang disimpen cuma posisi terakhir + jejak hari ini (besoknya kehapus).<br>📱 Lokasi ke-update tiap ±5 menit <b>selama app kebuka</b> — pas app ditutup, HP emang ga ngizinin web baca lokasi. Kalau perlu, pakai tombol 📡 Minta lokasi.</p>
 </div>
+<div class="ov" id="ov"><div class="sheet" id="sh"></div></div>
 
 <div class="toast" id="toast"></div>
 <script>
@@ -138,61 +180,159 @@ function whoBtn(key, onChange) {
   paint(); return lsGet(key, 'Dara');
 }
 
-const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), setMe(w) { lsSet('berdua-me', w); }, status: () => '', on() {}, enabled: false };
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
 const SLOT = '2000-01-01';
-if (lsGet('jarak-me', null) == null) lsSet('jarak-me', BD.me());
-let me = whoBtn('jarak-me', () => { me = lsGet('jarak-me', 'Dara'); BD.setMe(me); render(); });
-BD.setMe(me);
-let heading = null, wx = lsGet('jarak-wx', {});
-const loc = w => (lsGet('lokasi-' + w, {}) || {})[SLOT] || null;
+const me = (window.Who && Who.me()) || BD.me(), ot = otherOf(me);
+$('me-pill').textContent = `🙋 ${me}`; $('me-pill').className = 'pill ' + me;
+const COL = { Razan: '#4a7fc1', Dara: '#d9776b' }, EM = { Razan: '💙', Dara: '💗' };
+let heading = null, wx = lsGet('jarak-wx', {}), map = null, mk = {}, line = null, favL = [], histL = {}, showHist = lsGet('jarak-hist', false), fitted = false;
+const raw = w => (lsGet('lokasi-' + w, {}) || {})[SLOT] || null;
+const loc = w => { const r = raw(w); return r && r.lat != null && r.st !== 'off' ? r : null; };
 const R = 6371, rad = d => d * Math.PI / 180;
 function dist(a, b) { const dl = rad(b.lat - a.lat), dn = rad(b.lng - a.lng), x = Math.sin(dl / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dn / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
 function bearing(a, b) { const y = Math.sin(rad(b.lng - a.lng)) * Math.cos(rad(b.lat)), x = Math.cos(rad(a.lat)) * Math.sin(rad(b.lat)) - Math.sin(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.cos(rad(b.lng - a.lng)); return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360; }
 const WMO = c => c === 0 ? ['☀️', 'Cerah'] : c <= 2 ? ['🌤️', 'Cerah berawan'] : c === 3 ? ['☁️', 'Mendung'] : c <= 48 ? ['🌫️', 'Berkabut'] : c <= 57 ? ['🌦️', 'Gerimis'] : c <= 67 ? ['🌧️', 'Hujan'] : c <= 77 ? ['🌨️', 'Salju'] : c <= 82 ? ['🌧️', 'Hujan deras'] : ['⛈️', 'Badai petir'];
 const ago = t => { const m = Math.round((Date.now() - t) / 6e4); return m < 2 ? 'barusan' : m < 60 ? m + ' menit lalu' : m < 1440 ? Math.round(m / 60) + ' jam lalu' : Math.round(m / 1440) + ' hari lalu'; };
 const dur = h => h < 1 / 60 ? '<1 mnt' : h < 1 ? Math.round(h * 60) + ' mnt' : h < 48 ? (Math.round(h * 10) / 10).toString().replace('.', ',') + ' jam' : Math.round(h / 24) + ' hari';
-function bdStatus() { const el = $('bd-st'), t = BD.status(); el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
-function render() {
-  bdStatus(); const a = loc(me), o = otherOf(me), b = loc(o);
-  if (!a || !b) {
-    $('big').innerHTML = `<small>Jarak kita</small><div class="km">?<span> km</span></div><small>${!a ? 'Tap "Perbarui lokasiku" dulu ya 📍' : `Nunggu ${o} buka halaman ini & bagiin lokasinya 🥺`}</small>`;
-  } else {
-    const d = dist(a, b), br = bearing(a, b), rot = heading == null ? br : br - heading;
-    const near = d < .4;
-    $('big').innerHTML = `<small>${near ? 'Kalian lagi' : `${me} → ${o}`}</small><div class="km">${near ? 'Bareng! 🥰' : d < 10 ? d.toFixed(1).replace('.', ',') : Math.round(d).toLocaleString('id-ID')}${near ? '' : '<span> km</span>'}</div>
-      ${near ? '<small>Deket banget — ngapain buka HP, peluk aja 😆</small>' : `<div class="comp"><i class="n">U</i><i class="s">S</i><i class="e">T</i><i class="w">B</i><div class="arrow" style="transform:rotate(${rot}deg)"><b>💗</b></div><span class="mid">${me === 'Razan' ? '🧑' : '👧'}</span></div>
-      <small>${o} ada di arah ${['utara', 'timur laut', 'timur', 'tenggara', 'selatan', 'barat daya', 'barat', 'barat laut'][Math.round(br / 45) % 8]} ${heading == null ? '(U = atas)' : '· kompas aktif'}</small>
-      <div class="trv"><div>🚶<b>${dur(d / 5)}</b>jalan kaki</div><div>🛵<b>${dur(d / 35)}</b>motor</div><div>🚗<b>${dur(d / 50)}</b>mobil</div><div>✈️<b>${dur(d / 700 + (d > 300 ? 1.5 : 0))}</b>pesawat</div></div>`}`;
-  }
-  $('two').innerHTML = ['Razan', 'Dara'].map(w => { const l = loc(w), x = wx[w]; return `<div class="pc ${w[0]}"><b>${w === 'Razan' ? '💙' : '💗'} ${w}</b>${l ? `<div class="w">${x ? WMO(x.c)[0] : '⏳'}</div><div class="t">${x ? Math.round(x.t) + '°' : ''}</div><small>${x ? WMO(x.c)[1] : 'ngecek cuaca…'}</small><small>📍 ${esc(l.city || 'lokasi kesimpen')}</small><small>${ago(l.at)}</small>` : '<div class="w">❔</div><small>belum bagiin lokasi</small>'}</div>`; }).join('');
+const jam = t => { const d = new Date(t); return pad(d.getHours()) + '.' + pad(d.getMinutes()); };
+const todayK = () => ymd(new Date());
+function bdStatus() { const el = $('bd-st'), t = BD.status ? BD.status() : ''; el.textContent = t; el.className = 'bd-st' + (/⚠️/.test(t) ? ' err' : ''); }
+const L0 = () => window.Lok;
+
+// ── berbagi lokasiku ──
+function paintShare() {
+  const m = L0() ? L0().mode() : { m: 'off' }, r = raw(me);
+  const opts = [['on', '🟢', 'Bagikan'], ['p1', '⏸️', 'Jeda 1 jam'], ['pb', '🌙', 'Sampai besok'], ['off', '🔴', 'Mati']];
+  const cur = m.m === 'on' ? 'on' : m.m === 'off' ? 'off' : (m.until && m.until - Date.now() > 2 * 36e5 ? 'pb' : 'p1');
+  $('share').innerHTML = `<h3><span>📍 Lokasiku</span><small>${m.m === 'on' ? (r && r.at && r.lat != null ? 'terakhir kekirim ' + ago(r.at) : 'nyiapin…') : m.m === 'pause' ? 'dijeda sampai ' + jam(m.until) : `${ot} ga bisa liat lokasimu`}</small></h3>
+    <div class="seg">${opts.map(o => `<button data-m="${o[0]}" class="${cur === o[0] ? 'on' : ''}"><span>${o[1]}</span>${o[2]}</button>`).join('')}</div>
+    ${m.m === 'on' ? '<div class="act"><button id="now">🔄 Kirim lokasi sekarang</button></div>' : ''}`;
+  $('share').querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+    if (!L0()) return toast('Bentar, lagi nyiapin…');
+    const k = b.dataset.m;
+    if (k === 'on') { if (!navigator.geolocation) return toast('HP ini ga bisa baca lokasi 😢'); L0().setMode('on'); toast(`🟢 Lokasimu dibagikan ke ${ot}`); }
+    else if (k === 'p1') { L0().setMode('pause', Date.now() + 36e5); toast('⏸️ Dijeda 1 jam'); }
+    else if (k === 'pb') { const t = new Date(); t.setDate(t.getDate() + 1); t.setHours(7, 0, 0, 0); L0().setMode('pause', t.getTime()); toast('🌙 Dijeda sampai besok jam 07.00'); }
+    else { if (!confirm(`Matiin berbagi lokasi? Posisimu ilang dari HP ${ot}.`)) return; L0().setMode('off'); toast('🔴 Berbagi lokasi mati'); }
+    setTimeout(render, 300);
+  });
+  if ($('now')) $('now').onclick = () => { $('now').disabled = true; $('now').textContent = '📡 Nyari lokasi…'; L0().send(true).then(ok => { toast(ok ? '📍 Lokasi kekirim' : '🙈 Lokasi ga kebaca — cek izin lokasi di pengaturan browser'); render(); }); };
 }
+
+// ── kartu masing-masing ──
+function stOf(r) {
+  if (!r || r.st === 'off' || r.lat == null) return ['off', '🔴 ga dibagikan'];
+  if (r.st === 'pause' && (!r.until || r.until > Date.now())) return ['pause', '⏸️ lagi jeda'];
+  if (r.st === 'once') return ['once', '📍 dikirim sekali'];
+  return Date.now() - r.at < 12 * 6e4 ? ['on', '🟢 live'] : ['off', '⚪ terakhir ' + ago(r.at)];
+}
+function aktif(w) { const x = ((lsGet('seen-' + w, {}) || {})[todayK()]) || null; return x && Date.now() - x.at < 3 * 6e4; }
+function paintWhos() {
+  $('whos').innerHTML = [ot, me].map(w => {
+    const r = raw(w), st = stOf(r), l = loc(w), f = l && l.fav && L0() ? L0().favs().find(x => x.id === l.fav) : null;
+    return `<div class="who" style="--c:${COL[w]}"><div class="h"><b>${EM[w]} ${w === me ? 'Kamu' : w}</b><span class="chip ${st[0]}">${st[1]}</span></div>
+      ${l ? `<div class="pl">${f ? `${f.e} Lagi di <b>${esc(f.n)}</b><br>` : ''}📍 ${esc(l.pl ? 'Dekat ' + l.pl : l.city || 'lokasi kesimpen')}${l.pl && l.city ? `, ${esc(l.city)}` : ''}</div>
+        <div class="meta"><span>🕒 ${ago(l.at)}</span>${l.acc ? `<span>🎯 ±${l.acc > 999 ? (l.acc / 1000).toFixed(1) + ' km' : l.acc + ' m'}</span>` : ''}${l.bat != null ? `<span>${l.chg ? '⚡' : l.bat <= 20 ? '🪫' : '🔋'} ${l.bat}%${l.chg ? ' ngecas' : ''}</span>` : ''}${aktif(w) ? '<span>🟢 lagi buka app</span>' : ''}</div>`
+        : `<div class="pl" style="color:var(--muted)">${w === me ? 'Lokasimu belum dibagikan — pilih 🟢 Bagikan di atas' : `${w} belum bagiin lokasinya`}</div>`}
+      ${w === ot ? `<div class="btns"><button id="req">📡 Minta lokasi</button>${l ? `<a class="g" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}">🧭 Rute Maps</a>` : ''}</div>` : ''}</div>`;
+  }).join('');
+  if ($('req')) $('req').onclick = () => { if (!L0()) return; const last = lsGet('lok-req-at', 0); if (Date.now() - last < 6e4) return toast('Udah diminta barusan, tunggu bentar ya 😊'); lsSet('lok-req-at', Date.now()); L0().request(); toast(`📡 ${ot} dapet notif — begitu dia tap, lokasinya muncul di sini`); };
+}
+
+// ── peta ──
+const pinIcon = (w, st) => L.divIcon({ className: '', html: `<div class="pin ${st === 'off' || st === 'pause' ? 'off' : ''}">${EM[w]}<b>${w === me ? 'Kamu' : w}</b></div>`, iconSize: [60, 44], iconAnchor: [30, 30] });
+function paintMap() {
+  if (!window.L) { if (!map && $('map').className !== 'map-off') { $('map').className = 'map-off'; $('map').innerHTML = '🗺️ Peta lagi dimuat… (butuh internet)'; } return; }
+  if (!map) {
+    $('map').className = ''; $('map').innerHTML = '';
+    map = L.map('map', { zoomControl: true, attributionControl: true }).setView([-6.2, 106.82], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+  }
+  const pts = [];
+  ['Razan', 'Dara'].forEach(w => {
+    const l = loc(w), st = stOf(raw(w))[0];
+    if (mk[w]) { map.removeLayer(mk[w]); mk[w] = null; }
+    if (!l) return;
+    mk[w] = L.marker([l.lat, l.lng], { icon: pinIcon(w, st), zIndexOffset: w === me ? 0 : 500 }).addTo(map).bindPopup(`${EM[w]} ${w}<br>${esc(l.pl || l.city || '')}<br><small>${ago(l.at)}</small>`);
+    pts.push([l.lat, l.lng]);
+  });
+  if (line) { map.removeLayer(line); line = null; }
+  if (pts.length === 2) line = L.polyline(pts, { color: '#c17a6f', weight: 2, dashArray: '6 6', opacity: .8 }).addTo(map);
+  favL.forEach(x => map.removeLayer(x)); favL = [];
+  (L0() ? L0().favs() : []).forEach(f => { favL.push(L.circle([f.lat, f.lng], { radius: f.r || 150, color: '#c9a96e', weight: 1, fillOpacity: .12 }).addTo(map).bindTooltip(`${f.e} ${f.n}`)); });
+  Object.values(histL).forEach(x => map.removeLayer(x)); histL = {};
+  if (showHist) ['Razan', 'Dara'].forEach(w => { const p = (((lsGet('lokhist-' + w, {}) || {})[todayK()]) || {}).p || []; if (p.length > 1) histL[w] = L.polyline(p.map(x => [x[0], x[1]]), { color: COL[w], weight: 3, opacity: .7 }).addTo(map); });
+  if (!fitted && pts.length) { fitted = true; if (pts.length === 1) map.setView(pts[0], 15); else map.fitBounds(pts, { padding: [50, 50], maxZoom: 16 }); }
+  $('mapb').innerHTML = `<button id="fit">🎯 Pusatkan</button><button id="hist" class="${showHist ? 'on' : ''}">📜 Jejak hari ini</button>`;
+  $('fit').onclick = () => { fitted = false; paintMap(); };
+  $('hist').onclick = () => { showHist = !showHist; lsSet('jarak-hist', showHist); paintMap(); if (showHist) toast('📜 Garis = jejak hari ini (kehapus besok)'); };
+  setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 200);
+}
+
+// ── jarak + kompas + cuaca ──
+function paintBig() {
+  const a = loc(me), b = loc(ot);
+  if (!a || !b) { $('big').innerHTML = `<small>Jarak kita</small><div class="km">?<span> km</span></div><small>${!a ? 'Nyalain 🟢 Bagikan dulu ya 📍' : `Nunggu ${ot} bagiin lokasinya 🥺`}</small>`; return; }
+  const d = dist(a, b), br = bearing(a, b), rot = heading == null ? br : br - heading, near = d < .3;
+  $('big').innerHTML = `<small>${near ? 'Kalian lagi' : `${me} → ${ot}`}</small><div class="km">${near ? 'Bareng! 🥰' : d < 10 ? d.toFixed(1).replace('.', ',') : Math.round(d).toLocaleString('id-ID')}${near ? '' : '<span> km</span>'}</div>
+    ${near ? '<small>Deket banget — ngapain buka HP, peluk aja 😆</small>' : `<div class="comp"><i class="n">U</i><i class="s">S</i><i class="e">T</i><i class="w">B</i><div class="arrow" style="transform:rotate(${rot}deg)"><b>💗</b></div><span class="mid">${me === 'Razan' ? '🧑' : '👧'}</span></div>
+    <small>${ot} ada di arah ${['utara', 'timur laut', 'timur', 'tenggara', 'selatan', 'barat daya', 'barat', 'barat laut'][Math.round(br / 45) % 8]} ${heading == null ? '(U = atas)' : '· kompas aktif'}</small>
+    <div class="trv"><div>🚶<b>${dur(d / 5)}</b>jalan kaki</div><div>🛵<b>${dur(d / 35)}</b>motor</div><div>🚗<b>${dur(d / 50)}</b>mobil</div><div>✈️<b>${dur(d / 700 + (d > 300 ? 1.5 : 0))}</b>pesawat</div></div>`}`;
+}
+function paintWx() { $('two').innerHTML = ['Razan', 'Dara'].map(w => { const l = loc(w), x = wx[w]; return `<div class="pc ${w[0]}"><b>${EM[w]} ${w}</b>${l ? `<div class="w">${x ? WMO(x.c)[0] : '⏳'}</div><div class="t">${x ? Math.round(x.t) + '°' : ''}</div><small>${x ? WMO(x.c)[1] : 'ngecek cuaca…'}</small><small>${esc(l.city || '')}</small>` : '<div class="w">❔</div><small>lokasi belum ada</small>'}</div>`; }).join(''); }
 async function weather(w) {
   const l = loc(w); if (!l) return;
-  const c = wx[w]; if (c && c.k === l.lat + ',' + l.lng && Date.now() - c.at < 20 * 6e4) return;
-  try { const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lng}&current=temperature_2m,weather_code`); const j = await r.json(); wx[w] = { t: j.current.temperature_2m, c: j.current.weather_code, at: Date.now(), k: l.lat + ',' + l.lng }; lsSet('jarak-wx', wx); render(); } catch (e) {}
+  const k = l.lat.toFixed(2) + ',' + l.lng.toFixed(2), c = wx[w]; if (c && c.k === k && Date.now() - c.at < 20 * 6e4) return;
+  try { const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lng}&current=temperature_2m,weather_code`); const j = await r.json(); wx[w] = { t: j.current.temperature_2m, c: j.current.weather_code, at: Date.now(), k }; lsSet('jarak-wx', wx); paintWx(); } catch (e) {}
 }
-function update() {
-  if (!navigator.geolocation) { toast('HP ini ga bisa baca lokasi 😢'); return; }
-  $('upd').disabled = true; $('upd').textContent = '📡 Nyari lokasi…';
-  navigator.geolocation.getCurrentPosition(async p => {
-    const lat = Math.round(p.coords.latitude * 100) / 100, lng = Math.round(p.coords.longitude * 100) / 100;
-    let city = '';
-    try { const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=id`); const j = await r.json(); city = [j.locality || j.city, j.principalSubdivision].filter(Boolean).join(', ').slice(0, 60); } catch (e) {}
-    BD.put('lokasi', me, SLOT, { lat, lng, city, at: Date.now() });
-    $('upd').disabled = false; $('upd').textContent = '📍 Perbarui lokasiku'; vib(15); toast('📍 Lokasi diperbarui'); render(); weather(me); weather(otherOf(me));
-  }, err => { $('upd').disabled = false; $('upd').textContent = '📍 Perbarui lokasiku'; toast(err.code === 1 ? '🙈 Izin lokasinya ditolak — buka pengaturan browser buat ngizinin' : '😵 Lokasi ga ketemu, coba lagi'); }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 5 * 6e4 });
+
+// ── tempat favorit ──
+function paintFavs() {
+  const F = L0() ? L0().favs() : [];
+  $('favs').innerHTML = F.length ? F.map(f => `<div class="fav"><span class="e">${esc(f.e)}</span><span class="m"><b>${esc(f.n)}</b><small>radius ${f.r || 150} m${f.by ? ' · ditambah ' + esc(f.by) : ''}</small></span><button data-d="${esc(f.id)}">Hapus</button></div>`).join('')
+    : '<p class="note" style="margin:0 0 .5rem">Belum ada. Tambahin misalnya 🏠 Rumah Dara, 🎓 Kampus, 🏢 Kantor — nanti status jadi "Lagi di Kampus" & pasangan dapet notif pas kamu sampai 💞</p>';
+  $('favs').querySelectorAll('[data-d]').forEach(b => b.onclick = () => { const f = F.find(x => x.id === b.dataset.d); if (!f || !confirm(`Hapus tempat "${f.n}"?`)) return; L0().saveFav(Object.assign({}, f, { del: 1 })); render(); });
 }
-function forget() { if (!loc(me) || !confirm('Hapus lokasimu dari sini?')) return; BD.put('lokasi', me, SLOT, null); delete wx[me]; lsSet('jarak-wx', wx); render(); toast('Lokasi dihapus'); }
+$('fav-add').onclick = () => {
+  if (!navigator.geolocation) return toast('HP ini ga bisa baca lokasi 😢');
+  let r = 150, e = '🏠';
+  const paint = () => {
+    const nm = $('f-n') ? $('f-n').value : '';
+    $('sh').innerHTML = `<div class="drag"></div><div class="h4">Tambah tempat favorit</div><p class="note" style="margin:0 0 .4rem">Pakai lokasimu sekarang. Pas kamu (atau ${ot}) sampai di sini, pasangannya dapet notif 💌</p>
+      <label class="lab">Ikon</label><div class="chips2" id="f-e">${['🏠', '🎓', '🏢', '🏫', '🕌', '☕', '🏋️', '🛒', '🏥', '⭐'].map(x => `<button data-e="${x}" class="${x === e ? 'on' : ''}">${x}</button>`).join('')}</div>
+      <label class="lab">Nama tempat</label><input class="inp" id="f-n" maxlength="24" placeholder="mis. Rumah Dara">
+      <label class="lab">Radius</label><div class="chips2" id="f-r">${[100, 150, 300, 500].map(x => `<button data-r="${x}" class="${x === r ? 'on' : ''}">${x} m</button>`).join('')}</div>
+      <div class="row"><button class="btn" id="f-ok">📍 Simpan di lokasiku sekarang</button></div><div class="row"><button class="btn ghost" id="f-x">Batal</button></div>`;
+    $('f-n').value = nm;
+    $('sh').querySelectorAll('[data-e]').forEach(b => b.onclick = () => { e = b.dataset.e; paint(); });
+    $('sh').querySelectorAll('[data-r]').forEach(b => b.onclick = () => { r = +b.dataset.r; paint(); });
+    $('f-x').onclick = () => $('ov').classList.remove('show');
+    $('f-ok').onclick = () => {
+      const n = $('f-n').value.trim(); if (!n) return toast('Isi nama tempatnya dulu');
+      $('f-ok').disabled = true; $('f-ok').textContent = '📡 Nyari lokasi…';
+      navigator.geolocation.getCurrentPosition(p => {
+        L0().saveFav({ id: 'f' + Date.now().toString(36), e, n, r, lat: +p.coords.latitude.toFixed(5), lng: +p.coords.longitude.toFixed(5), by: me, at0: Date.now() });
+        $('ov').classList.remove('show'); toast(`${e} ${esc(n)} disimpen`); render();
+      }, () => { $('f-ok').disabled = false; $('f-ok').textContent = '📍 Simpan di lokasiku sekarang'; toast('🙈 Lokasi ga kebaca — cek izin lokasi'); }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 3e4 });
+    };
+  };
+  paint(); $('ov').classList.add('show');
+};
+$('ov').addEventListener('click', e => { if (e.target.id === 'ov') $('ov').classList.remove('show'); });
+
+function render() { bdStatus(); paintShare(); paintWhos(); paintMap(); paintBig(); paintWx(); paintFavs(); }
 // kompas
-function onOri(e) { let h = e.webkitCompassHeading != null ? e.webkitCompassHeading : e.absolute && e.alpha != null ? 360 - e.alpha : null; if (h == null) return; heading = h; const a = document.querySelector('.arrow'); const A = loc(me), B2 = loc(otherOf(me)); if (a && A && B2) a.style.transform = `rotate(${bearing(A, B2) - heading}deg)`; }
+function onOri(e) { let h = e.webkitCompassHeading != null ? e.webkitCompassHeading : e.absolute && e.alpha != null ? 360 - e.alpha : null; if (h == null) return; heading = h; const a = document.querySelector('.arrow'); const A = loc(me), B2 = loc(ot); if (a && A && B2) a.style.transform = `rotate(${bearing(A, B2) - heading}deg)`; }
 function compass() {
   try {
     if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') { document.addEventListener('click', function f() { DeviceOrientationEvent.requestPermission().then(s => { if (s === 'granted') window.addEventListener('deviceorientation', onOri); }).catch(() => {}); document.removeEventListener('click', f); }, { once: true }); }
     else { window.addEventListener('deviceorientationabsolute', onOri); window.addEventListener('deviceorientation', onOri); }
   } catch (e) {}
 }
-BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.includes('lokasi')) { render(); weather('Razan'); weather('Dara'); } });
-render(); weather('Razan'); weather('Dara'); compass();
+BD.on(ev => { if (!ev.apps || !ev.apps.length) { bdStatus(); return; } if (ev.apps.some(a => /^lok|^seen/.test(a))) { if (!$('ov').classList.contains('show')) render(); weather('Razan'); weather('Dara'); } });
+window.addEventListener('load', () => { render(); weather('Razan'); weather('Dara'); });
+setInterval(() => { if (!document.hidden && !$('ov').classList.contains('show')) { paintShare(); paintWhos(); } }, 30e3);
+render(); compass();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
