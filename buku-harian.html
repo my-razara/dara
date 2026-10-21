@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Buku Harian Berdua — Razan & Dara 📔</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="hub.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .5rem}
+  .dn{display:flex;align-items:center;justify-content:space-between;gap:.4rem;background:#fff;border-radius:50px;border:1px solid rgba(193,122,111,.15);padding:.3rem;margin-bottom:.8rem}
+  .dn button{border:none;background:#fdf0ec;color:var(--rose);width:38px;height:38px;border-radius:50%;font:700 16px Poppins,sans-serif;cursor:pointer;flex-shrink:0}
+  .dn button:disabled{opacity:.3}
+  .dn b{flex:1;text-align:center;font-size:13px;font-weight:600;min-width:0}.dn b small{display:block;font-size:10.5px;color:var(--muted);font-weight:400}
+  .pg{background:#fffdf8;border-radius:20px;border:1px solid rgba(193,122,111,.15);padding:.85rem .9rem .9rem;margin-bottom:.8rem;box-shadow:0 4px 16px rgba(193,122,111,.06);border-top:5px solid var(--c);position:relative;background-image:repeating-linear-gradient(transparent 0 27px,rgba(193,122,111,.08) 27px 28px)}
+  .pg .h{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}
+  .pg .h b{flex:1;font-size:13px;min-width:0}.pg .h .mo{font-size:1.6rem}
+  .pg .tx{font-family:'Caveat',cursive;font-size:1.32rem;line-height:28px;color:#3b2a24;white-space:pre-wrap;overflow-wrap:anywhere}
+  .pg .lk{position:relative;min-height:110px}
+  .pg .lk .tx{filter:blur(6px);user-select:none;pointer-events:none}
+  .pg .lk .ov2{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:12.5px;color:var(--deep);font-weight:600;gap:.3rem;padding:.5rem}
+  .pg .lk .ov2 span{font-size:2rem}
+  .pg .empty2{font-size:12.5px;color:var(--muted);text-align:center;padding:.8rem .3rem;line-height:1.6}
+  .pg .ed{border:none;background:none;color:var(--rose);font:600 12px Poppins,sans-serif;cursor:pointer;padding:.2rem .3rem}
+  .pg .priv{font-size:10.5px;background:#f1e6dc;color:var(--deep);border-radius:50px;padding:.1rem .5rem;font-weight:600}
+  .rx{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.6rem;align-items:center}
+  .rx button{border:1.5px solid var(--blush);background:#fff;border-radius:50px;font-size:1.05rem;padding:.15rem .55rem;cursor:pointer}
+  .rx button.on{background:#fdf0ec;border-color:var(--rose)}
+  .cm{display:flex;gap:.35rem;margin-top:.45rem}.cm input{flex:1;min-width:0;font-size:12.5px;padding:.5rem .7rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;outline:none}
+  .cm button{border:none;border-radius:50px;background:var(--rose);color:#fff;font:700 12px Poppins,sans-serif;padding:.45rem .8rem;cursor:pointer;flex-shrink:0}
+  .gotrx{margin-top:.55rem;font-size:12px;background:#fff;border-radius:14px;padding:.45rem .65rem;border:1px dashed var(--blush);color:var(--deep);overflow-wrap:anywhere}
+  .moods{display:flex;gap:.25rem;flex-wrap:wrap;justify-content:center;margin-bottom:.5rem}
+  .moods button{font-size:1.35rem;border:1.5px solid transparent;background:#fff;border-radius:12px;padding:.15rem .3rem;cursor:pointer}
+  .moods button.on{border-color:var(--rose);background:#fdf0ec}
+  .wr .ta{background:#fff;font-family:'Caveat',cursive;font-size:1.3rem;line-height:1.35}
+  .pr{display:flex;align-items:center;gap:.4rem;font-size:11.5px;color:var(--muted);margin:.35rem 0 .1rem;line-height:1.4}
+  .pr button{border:none;background:none;font-size:1rem;cursor:pointer;flex-shrink:0}
+  .tog{display:flex;align-items:center;gap:.45rem;font-size:12px;color:var(--deep);margin-top:.5rem;cursor:pointer}
+  .tog input{accent-color:var(--rose);width:16px;height:16px}
+  .cnt{font-size:10.5px;color:var(--muted);text-align:right;margin-top:.15rem}
+  .ly{background:linear-gradient(135deg,#fff6e6,#fdebe3);border-radius:18px;padding:.7rem .8rem;margin-bottom:.8rem;border:1px solid rgba(201,169,110,.3);font-size:12px;cursor:pointer}
+  .ly b{display:block;font-size:12.5px;color:var(--deep)}
+  .ls{background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);overflow:hidden;margin-bottom:.8rem}
+  .ls button{display:flex;width:100%;align-items:center;gap:.55rem;border:none;background:none;border-top:1px solid #f4ebe3;padding:.55rem .75rem;text-align:left;cursor:pointer;font-family:Poppins,sans-serif}
+  .ls button:first-child{border-top:none}
+  .ls .d{font-size:11px;color:var(--muted);width:3.3rem;flex-shrink:0;line-height:1.3}.ls .d b{display:block;font-size:14px;color:var(--deep)}
+  .ls .s{flex:1;min-width:0;font-size:12px;color:var(--ink);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .ls .m{font-size:1rem;flex-shrink:0;white-space:nowrap}
+  .stat{text-align:center;font-size:12px;color:var(--muted);margin:-.2rem 0 .8rem;line-height:1.6}.stat b{color:var(--deep)}
+  .srch{margin-bottom:.6rem}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">📔</span><p class="lbl">Satu halaman tiap hari</p><h1 class="title">Buku Harian <span>Berdua</span></h1><p class="sub">Nulis cerita hari ini masing-masing — punya pasangan kebuka setelah kamu nulis punyamu 🙈</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="dn"><button id="prev" aria-label="Hari sebelumnya">‹</button><b id="dl"></b><button id="next" aria-label="Hari berikutnya">›</button></div>
+  <div id="mine"></div>
+  <div id="theirs"></div>
+  <p class="stat" id="stat"></p>
+  <div id="ly"></div>
+  <p class="sec">📚 Lembaran sebelumnya</p>
+  <input class="inp srch" id="q" placeholder="🔎 Cari di buku harian…" maxlength="40">
+  <div class="ls" id="ls"></div>
+  <p class="note" style="font-size:11px;color:var(--muted);text-align:center;line-height:1.6">🔒 Halaman “rahasia” cuma kesimpen di HP ini — ga kekirim ke mana-mana.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME), WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const COL = { Razan: 'var(--rz)', Dara: 'var(--dr)' };
+const MOODS = ['🥰', '😄', '🙂', '😴', '😔', '😢', '😤', '😰', '🤒', '🥳'];
+const PROMPTS = ['Hal paling lucu hari ini apa?', 'Hari ini kamu bangga sama diri sendiri karena…', 'Momen kecil yang bikin senyum hari ini?', 'Hari ini capek karena apa? Cerita aja', 'Kalau hari ini jadi film, judulnya apa?', 'Satu hal yang pengen kamu bilang ke aku hari ini…', 'Makan apa aja hari ini? 🍜', 'Hal baru yang kamu pelajarin hari ini?', 'Siapa yang bikin harimu lebih baik?', 'Besok pengen ngapain?', 'Lagu yang nemenin hari ini?', 'Hari ini kangen aku pas lagi ngapain? 🤭'];
+const RX = ['❤️', '🥺', '😂', '🤗', '🫂', '💪'];
+let cur = ymd(new Date()), editing = false, draft = null, pIdx = Math.floor(Math.random() * PROMPTS.length);
+const rowsOf = w => lsGet('diary-' + w, {}) || {};
+const priv = () => lsGet('diary-priv-' + ME, {}) || {};
+const entry = (w, d) => { if (w === ME) { const p = priv()[d]; if (p && p.t) return Object.assign({ p: 1 }, p); } const r = rowsOf(w)[d]; return r && r.t ? r : null; };
+const rxOf = (w, d) => (lsGet('diaryrx-' + w, {}) || {})[d] || null;   // reaksi DARI w ke cerita pasangannya
+const dlabel = d => { const x = parseYMD(d), t = ymd(new Date()), y = ymd(new Date(Date.now() - 864e5)); return [d === t ? 'Hari ini' : d === y ? 'Kemarin' : HARI[x.getDay()], `${x.getDate()} ${BULAN[x.getMonth()]} ${x.getFullYear()}`]; };
+// cerita pasangan kekunci kalau kamu belum nulis di tanggal itu (yang udah lewat 3 hari kebuka sendiri)
+const locked = d => !entry(ME, d) && (Date.now() - parseYMD(d).getTime()) < 3 * 864e5;
+function save() {
+  const t = $('w-t').value.trim().slice(0, 2000); if (!t) return toast('Tulis sesuatu dulu ya ✍️');
+  const e = draft.e || '', isPriv = $('w-p').checked, d = cur, had = !!rowsOf(ME)[d];
+  const P = priv();
+  if (isPriv) { P[d] = { t, e, at: Date.now() }; lsSet('diary-priv-' + ME, P); if (had) BD.put('diary', ME, d, null); }
+  else { delete P[d]; lsSet('diary-priv-' + ME, P); BD.put('diary', ME, d, { t, e, at: Date.now() }); }
+  editing = false; draft = null; vib(20); confetti(20); toast(isPriv ? '🔒 Kesimpen di HP ini aja' : '📔 Halaman hari ini kesimpen');
+  if (!isPriv && !had) try { window.Push && Push.notify({ title: `📔 ${ME} nulis buku harian${d === ymd(new Date()) ? ' hari ini' : ''}`, body: entry(OT, d) ? 'Yuk baca & kasih reaksi 🥰' : 'Tulis punyamu juga buat buka ceritanya 🙈', url: 'buku-harian.html?d=' + d, tag: 'diary' }); } catch (er) {}
+  render();
+}
+function paintMine() {
+  const d = cur, e = entry(ME, d), got = rxOf(OT, d);
+  if (!e || editing) {
+    if (!draft) draft = { e: e ? e.e : '', t: e ? e.t : '', p: e ? !!e.p : false };
+    $('mine').innerHTML = `<div class="pg wr" style="--c:${COL[ME]}"><div class="h"><b>✍️ Halaman kamu</b></div>
+      <div class="moods">${MOODS.map(m => `<button type="button" class="${m === draft.e ? 'on' : ''}" data-m="${m}">${m}</button>`).join('')}</div>
+      <p class="pr"><button type="button" id="w-r" aria-label="Ganti pertanyaan">🎲</button><span>${esc(PROMPTS[pIdx])}</span></p>
+      <textarea class="ta" id="w-t" rows="6" maxlength="2000" placeholder="Cerita apa aja hari ini…">${esc(draft.t)}</textarea><div class="cnt" id="w-c"></div>
+      <label class="tog"><input type="checkbox" id="w-p" ${draft.p ? 'checked' : ''}> 🔒 Rahasia — cuma buat aku (ga kekirim)</label>
+      <div class="row">${e ? '<button class="btn ghost" id="w-x">Batal</button>' : ''}<button class="btn" id="w-s">Simpan halaman</button></div></div>`;
+    const cnt = () => { $('w-c').textContent = $('w-t').value.length + '/2000'; draft.t = $('w-t').value; };
+    $('w-t').oninput = cnt; cnt();
+    $('w-p').onchange = () => { draft.p = $('w-p').checked; };
+    $('mine').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { draft.t = $('w-t').value; draft.e = draft.e === b.dataset.m ? '' : b.dataset.m; paintMine(); });
+    $('w-r').onclick = () => { draft.t = $('w-t').value; pIdx = (pIdx + 1) % PROMPTS.length; paintMine(); };
+    $('w-s').onclick = save; if ($('w-x')) $('w-x').onclick = () => { editing = false; draft = null; paintMine(); };
+    return;
+  }
+  $('mine').innerHTML = `<div class="pg" style="--c:${COL[ME]}"><div class="h"><span class="mo">${e.e || '📝'}</span><b>Kamu${e.p ? ' <span class="priv">🔒 rahasia</span>' : ''}</b><button class="ed" id="w-e">✏️ Ubah</button></div><div class="tx">${esc(e.t)}</div>
+    ${got && !e.p ? `<div class="gotrx">${got.rx || ''} <b>${OT}</b>${got.c ? `: “${esc(got.c)}”` : ' ngasih reaksi'}</div>` : ''}</div>`;
+  $('w-e').onclick = () => { editing = true; draft = null; paintMine(); };
+}
+function paintTheirs() {
+  const d = cur, e = entry(OT, d), my = rxOf(ME, d) || {};
+  if (!e) { $('theirs').innerHTML = `<div class="pg" style="--c:${COL[OT]}"><div class="h"><span class="mo">💭</span><b>${OT}</b></div><p class="empty2">${OT} belum nulis halaman ${d === ymd(new Date()) ? 'hari ini' : 'di tanggal ini'}.${d === ymd(new Date()) ? `<br><button class="ed" id="t-ask">🔔 Colek ${OT} buat nulis</button>` : ''}</p></div>`; if ($('t-ask')) $('t-ask').onclick = () => { try { window.Push && Push.notify({ title: `📔 ${ME} nungguin cerita kamu hari ini`, body: 'Nulis buku harian bentar yuk ✍️', url: 'buku-harian.html', tag: 'diary-ask' }); } catch (er) {} toast(`🔔 ${OT} udah dicolek`); }; return; }
+  if (locked(d)) { $('theirs').innerHTML = `<div class="pg" style="--c:${COL[OT]}"><div class="h"><span class="mo">🙈</span><b>${OT}</b></div><div class="lk"><div class="tx">${esc(String(e.t).replace(/\S/g, 'x').slice(0, 220))}</div><div class="ov2"><span>🔒</span>${OT} udah nulis!<br>Tulis punyamu dulu buat buka ceritanya</div></div></div>`; return; }
+  $('theirs').innerHTML = `<div class="pg" style="--c:${COL[OT]}"><div class="h"><span class="mo">${e.e || '📝'}</span><b>${OT}</b></div><div class="tx">${esc(e.t)}</div>
+    <div class="rx">${RX.map(r => `<button type="button" class="${my.rx === r ? 'on' : ''}" data-r="${r}">${r}</button>`).join('')}</div>
+    <div class="cm"><input id="t-c" maxlength="200" placeholder="Bales ceritanya…" value="${esc(my.c || '')}"><button id="t-s">Kirim</button></div></div>`;
+  const send = (rx, c) => { const v = { rx: rx != null ? rx : (my.rx || ''), c: c != null ? c : (my.c || ''), at: Date.now() }; BD.put('diaryrx', ME, d, v); try { window.Push && Push.notify({ title: `${v.rx || '💬'} ${ME} bales cerita kamu`, body: v.c ? `“${v.c}”` : 'Buka buku harian buat liat 📔', url: 'buku-harian.html?d=' + d, tag: 'diary-rx' }); } catch (er) {} vib(12); paintTheirs(); };
+  $('theirs').querySelectorAll('[data-r]').forEach(b => b.onclick = () => send(my.rx === b.dataset.r ? '' : b.dataset.r, null));
+  $('t-s').onclick = () => { send(null, $('t-c').value.trim().slice(0, 200)); toast('💌 Kekirim'); };
+}
+function allDates() { const s = new Set(); WHO.forEach(w => Object.keys(rowsOf(w)).forEach(k => s.add(k))); Object.keys(priv()).forEach(k => s.add(k)); return [...s].filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k) && (entry('Razan', k) || entry('Dara', k))).sort().reverse(); }
+function paintList() {
+  const q = $('q').value.trim().toLowerCase(), L = allDates().filter(d => d !== cur);
+  const rows = L.filter(d => !q || WHO.some(w => { const e = entry(w, d); return e && !(w === OT && locked(d)) && String(e.t).toLowerCase().includes(q); })).slice(0, q ? 60 : 30);
+  $('ls').innerHTML = rows.length ? rows.map(d => { const x = parseYMD(d), a = entry(ME, d), b = entry(OT, d); const sn = (a ? a.t : '') || (b && !locked(d) ? b.t : '') || '🙈 (kekunci)'; return `<button data-d="${d}"><span class="d"><b>${x.getDate()}</b>${BLN[x.getMonth()]} ${String(x.getFullYear()).slice(2)}</span><span class="s">${esc(sn)}</span><span class="m">${a ? a.e || '📝' : '·'}${b ? b.e || '📝' : '·'}</span></button>`; }).join('') : `<p class="empty">${q ? 'Ga ketemu 🔎' : 'Belum ada halaman lain — mulai nulis hari ini ya ✍️'}</p>`;
+  $('ls').querySelectorAll('[data-d]').forEach(b => b.onclick = () => go(b.dataset.d));
+}
+function paintExtra() {
+  const L = allDates(), both = L.filter(d => entry('Razan', d) && entry('Dara', d)).length;
+  let st = 0; for (let i = 0; i < 400; i++) { const k = ymd(new Date(Date.now() - i * 864e5)); if (entry('Razan', k) && entry('Dara', k)) st++; else if (i > 0) break; }
+  $('stat').innerHTML = L.length ? `📖 <b>${L.length}</b> halaman · 👫 ${both} hari nulis berdua${st ? ` · 🔥 streak <b>${st}</b> hari` : ''}` : '';
+  const t = new Date(), ly = L.filter(d => d.slice(5) === ymd(t).slice(5) && d < ymd(t));
+  $('ly').innerHTML = ly.length ? `<div class="ly" id="ly-b"><b>🕰️ Hari ini, ${t.getFullYear() - +ly[0].slice(0, 4)} tahun lalu</b>${esc(String((entry(ME, ly[0]) || entry(OT, ly[0]) || {}).t || '').slice(0, 90))}… <u>buka →</u></div>` : '';
+  if ($('ly-b')) $('ly-b').onclick = () => go(ly[0]);
+}
+function go(d) { const t = ymd(new Date()); if (d > t) d = t; cur = d; editing = false; draft = null; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function render() {
+  const [a, b] = dlabel(cur); $('dl').innerHTML = `${a}<small>${b}</small>`; $('next').disabled = cur >= ymd(new Date());
+  paintMine(); paintTheirs(); paintList(); paintExtra();
+  try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {}
+}
+const shift = n => { const x = parseYMD(cur); x.setDate(x.getDate() + n); go(ymd(x)); };
+$('prev').onclick = () => shift(-1); $('next').onclick = () => shift(1);
+$('q').oninput = paintList;
+BD.on(ev => { if (ev.apps && !ev.apps.some(a => /^diary/.test(a))) return; if (editing || (draft && !entry(ME, cur))) { paintTheirs(); paintList(); paintExtra(); return; } render(); });
+const qd = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(location.search); if (qd) { cur = qd[1] > ymd(new Date()) ? ymd(new Date()) : qd[1]; history.replaceState(null, '', location.pathname); }
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

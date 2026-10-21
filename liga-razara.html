@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Liga Razara — Razan vs Dara 🏆</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .5rem}
+  .ss{background:linear-gradient(150deg,#3b2f6b,#1e1838);color:#fff;border-radius:24px;padding:1rem 1rem 1.1rem;margin-bottom:.8rem;text-align:center;box-shadow:0 10px 26px rgba(30,24,56,.3);position:relative;overflow:hidden}
+  .ss .k{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;opacity:.8;font-weight:600}
+  .ss .sc{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.4rem;margin:.6rem 0 .5rem}
+  .ss .p b{display:block;font-size:clamp(2.2rem,12vw,3rem);line-height:1;font-variant-numeric:tabular-nums}
+  .ss .p small{font-size:12px;opacity:.9}
+  .ss .p.lead b{color:#ffd36e;text-shadow:0 0 18px rgba(255,211,110,.45)}
+  .ss .vs{font-size:12px;opacity:.6;font-weight:700}
+  .ss .bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:rgba(255,255,255,.15)}
+  .ss .bar i{display:block;height:100%}
+  .ss .ft{font-size:11.5px;opacity:.85;margin-top:.55rem;line-height:1.5}
+  .crown{font-size:1.4rem;display:block;height:1.6rem}
+  .bet{background:#fff;border-radius:18px;border:1.5px dashed #c9a96e;padding:.7rem .8rem;margin-bottom:.8rem;font-size:12.5px;line-height:1.5}
+  .bet b{color:var(--deep)}.bet .t{font-size:13.5px;font-weight:600;display:block;margin:.15rem 0;overflow-wrap:anywhere}
+  .bet button{border:none;background:none;color:var(--rose);font:600 12px Poppins,sans-serif;cursor:pointer;padding:0}
+  .ls{background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);overflow:hidden;margin-bottom:.8rem}
+  .ls .r{display:flex;align-items:center;gap:.55rem;padding:.55rem .75rem;border-top:1px solid #f4ebe3;font-size:12.5px}
+  .ls .r:first-child{border-top:none}
+  .ls .r .e{font-size:1.2rem;flex-shrink:0;width:1.6rem;text-align:center}
+  .ls .r .n{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.3}.ls .r .n small{display:block;font-size:10.5px;color:var(--muted)}
+  .ls .r .s{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ls .r .s .a{color:var(--rz)}.ls .r .s .b{color:var(--dr)}
+  .tabs{display:flex;gap:.35rem;justify-content:center;margin:.2rem 0 .7rem}
+  .hof{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.8rem}
+  .hof div{background:#fff;border-radius:18px;padding:.7rem .5rem;text-align:center;border:1px solid rgba(193,122,111,.13);border-top:4px solid var(--c);min-width:0}
+  .hof b{display:block;font-size:1.5rem;color:var(--deep)}.hof small{font-size:11px;color:var(--muted)}
+  .hof .tr{font-size:1rem;letter-spacing:.05em;margin-top:.2rem;overflow-wrap:anywhere;line-height:1.3}
+  .ttl{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.8rem}
+  .ttl span{font-size:11.5px;background:#fff;border:1px solid rgba(193,122,111,.18);border-radius:50px;padding:.3rem .65rem;color:var(--deep)}
+  .ttl span b{color:var(--c)}
+  .mbars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.35rem;align-items:end;height:120px;background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);padding:.6rem .5rem .4rem;margin-bottom:.8rem}
+  .mbars .m{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}
+  .mbars .pr{display:flex;gap:2px;align-items:flex-end;height:86px}
+  .mbars i{display:block;width:10px;border-radius:4px 4px 2px 2px;min-height:2px}
+  .mbars small{font-size:9.5px;color:var(--muted)}
+  .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
+  .chips{justify-content:center}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🏆</span><p class="lbl">1 musim = 1 bulan</p><h1 class="title">Liga <span>Razara</span></h1><p class="sub">Semua kemenangan di game berdua dikumpulin jadi klasemen bulanan — yang juara dapet piala, yang kalah nanggung taruhan 😆</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="ss" id="ss"></div>
+  <div class="bet" id="bet"></div>
+  <div class="tabs chips" id="tabs"></div>
+  <div id="view"></div>
+  <p class="note">Poin = jumlah menang di game berdua (online, satu HP, atau tantang jarak jauh). Lawan komputer ga dihitung.</p>
+</div>
+<div class="ov center" id="bo"><div class="sheet"><h3 style="font-size:15px;margin-bottom:.5rem">🎲 Taruhan musim ini</h3><p style="font-size:12px;color:var(--muted);margin-bottom:.6rem">Yang kalah di akhir bulan harus…</p>
+  <div class="chips" id="bo-s" style="margin-bottom:.6rem"></div><input class="inp" id="bo-t" maxlength="80" placeholder="mis. traktir es krim 🍦">
+  <div class="row"><button class="btn ghost" id="bo-x">Batal</button><button class="btn" id="bo-ok">Simpan</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+const NAMES = {"misi-acak": ["🎡", "Misi Acak"], "ular-tangga": ["🐍", "Ular Tangga Cinta"], "truth-or-dare": ["💬", "Truth or Dare"], "heart-catch": ["💝", "Heart Catch"], "kartu-ngobrol": ["🃏", "Kartu Ngobrol"], "congklak": ["🐚", "Congklak"], "word-search": ["🔍", "Word Search"], "scramble-kata": ["🔤", "Scramble Kata"], "balon-pompa": ["🎈", "Balon Pompa"], "tebak-warna": ["🌈", "Tebak Warna"], "tabletennis": ["🏓", "Table Tennis Rally"], "panas-dingin": ["🔥", "Panas Dingin"], "tarik-tambang": ["🪢", "Tarik Tambang"], "time-bomb": ["💣", "Time Bomb"], "aku-belum-pernah": ["😳", "Aku Belum Pernah"], "lanjut-cerita": ["✏️", "Lanjut Cerita"], "cermin": ["🪞", "Game Cermin"], "tarik-pilihan": ["🧲", "Tarik Pilihan"], "frekuensi": ["📡", "Frekuensi"], "sambung-kata": ["🔗", "Sambung Kata"], "bikin-ketawa": ["😂", "Bikin Ketawa"], "who-knows-me": ["🤷‍♂️", "Who Knows Me?"], "aku-adalah": ["🕵️", "Aku Adalah..."], "bunuh-serangga": ["🪳", "Bunuh Serangga!"], "masak-bareng": ["🍳", "Masak Bareng!"], "bangun-rumah": ["🏠", "Bangun Rumah"], "charades": ["🤦", "Charades Cepat"], "memory-match": ["🎴", "Memory Match"], "tebak-kenangan": ["🖼️", "Tebak Kenangan"], "puzzle-foto": ["🧩", "Puzzle Foto Kita"], "tictactoe": ["⭕", "Tic-Tac-Toe"], "empat-sejajar": ["🔵", "Empat Sejajar"], "perang-kapal": ["⚓", "Perang Kapal"], "dam": ["👑", "Dam"], "aquarium": ["🐟", "Aquarium Couple"], "gartic-berdua": ["🎨", "Gartic Berdua"], "frog-battle": ["🐸", "Frog Battle"], "badminton": ["🏸", "Badminton Battle"], "penalty": ["⚽", "Penalty Shootout"], "air-hockey": ["🏒", "Air Hockey"], "coin-drop": ["🪙", "Coin Drop Battle"], "balance-beam": ["🎪", "Balance Beam"], "sort-blocks": ["🟦", "Sort the Blocks"], "bowling": ["🎳", "Bowling Mini"], "archery": ["🏹", "Archery Duel"], "darts": ["🎯", "Darts Duel"], "titik-kotak": ["🔳", "Titik & Kotak"], "bolak-balik": ["🔘", "Bolak-Balik"], "susun-menara": ["🏗️", "Susun Menara"], "terbang-bareng": ["🐦", "Terbang Bareng"], "dadu-lima": ["🎲", "Dadu Lima"], "ambil-batang": ["🥢", "Ambil Batang"], "mini-golf": ["⛳", "Mini Golf"], "pecah-bata": ["🧱", "Pecah Bata"], "jejak-cahaya": ["🏍️", "Jejak Cahaya"], "ikutin-pola": ["🚦", "Ikutin Pola"], "dua-satu": ["🍀", "Dua Satu"], "potong-buah": ["🍉", "Potong Buah"], "lampu-mati": ["💡", "Lampu Mati"], "permata": ["💎", "Permata"], "satuin-hati": ["💞", "Satuin Hati"], "ulat-lapar": ["🐛", "Ulat Lapar"], "labirin-kejar": ["🏰", "Labirin Kejar"], "sapu-ranjau": ["🚩", "Sapu Ranjau"], "sudoku-mini": ["🔢", "Sudoku Mini"], "ketuk-irama": ["🥁", "Ketuk Irama"], "ketik-cepat": ["⌨️", "Ketik Cepat"], "balok-jatuh": ["🟪", "Balok Jatuh"], "tembak-permen": ["🍭", "Tembak Permen"], "lompat-awan": ["☁️", "Lompat Awan"], "kotak-surat": ["📬", "Kotak Surat"], "rating-ketemu": ["⭐", "Rating Ketemu"], "taman-bunga": ["🌸", "Taman Bunga"], "period-tracker": ["🩸", "Tracking Period"], "kupon-maaf": ["🎟️", "Tiket Baikan"], "kejutan-pesan": ["💌", "Kejutan Pesan"], "radio-razan": ["📻", "Radio Razan"], "dna-hubungan": ["🧬", "DNA Hubungan"], "hal-kecil": ["👀", "Hal Kecil"], "polaroid-wall": ["🎞️", "Polaroid Wall"], "moodboard-dara": ["🌷", "Moodboard"], "playlist-dara": ["🎵", "Playlist"], "koran-dara": ["📰", "Harian Razan"], "love-quest": ["⚔️", "Love Quest"], "kapsul-waktu": ["⏳", "Kapsul Waktu"], "pertanyaan-harian": ["❓", "Satu Pertanyaan Sehari"], "bucket-list": ["🪣", "Bucket List Berdua"], "ketemuan": ["🤝", "Ketemuan"], "tombol-kangen": ["🫂", "Tombol Kangen"], "ramalan-tarot": ["🔮", "Ramalan & Tarot"], "hadiah-harian": ["🎁", "Hadiah Harian"], "kotak-musik": ["🎶", "Kotak Musik"], "rapor-razan": ["📝", "Rapor Razan"], "kode-rahasia": ["🔐", "Kode Rahasia Kita"], "kartu-ucapan": ["✉️", "Kartu Ucapan"], "timeline-kita": ["🛤️", "Timeline Kita"], "tiup-lilin": ["🎂", "Tiup Lilin"], "lampion-harapan": ["🏮", "Lampion Harapan"], "pencapaian": ["🏆", "Pencapaian Kita"], "jadwal-kita": ["📅", "Jadwal Kita"], "jadwal-mingguan": ["🗓️", "Jadwal Mingguan"], "tantangan-mingguan": ["🎯", "Tantangan Mingguan"], "photobooth": ["📸", "Photobooth"], "peta-bintang": ["✨", "Peta Bintang Kita"], "peta-kenangan": ["📍", "Peta Kenangan"], "gembok-cinta": ["🔒", "Gembok Cinta"], "teka-teki-surat": ["🗝️", "Teka-teki Surat"], "jendela-embun": ["🪟", "Jendela Berembun"], "tenangin-diri": ["🌙", "Tenangin Diri"], "kalender-mood": ["🌈", "Mood & Hati"], "jurnal-syukur": ["🙏", "Jurnal Syukur"], "stiker-wa": ["🏷️", "Stiker Razara"], "kartu-pacar": ["🪪", "Kartu Tanda Pacar"], "penghargaan": ["🏅", "Piala Penghargaan"], "kalkulator-cinta": ["🧮", "Kalkulator Cinta"], "pop-it": ["🫧", "Pop-It Pesan"], "mesin-terserah": ["🍜", "Mesin Terserah"], "mesin-gombal": ["🤖", "Mesin Gombal AI"], "bucket-bunga": ["💐", "Bucket Bunga"], "kuis-kita": ["💭", "Kuis Kita"], "mind-reader": ["🧠", "Mind Reader"], "voucher-razan": ["🧾", "Voucher Razan"], "origami-hati": ["🦢", "Origami Hati"], "resep-kita": ["🥘", "Resep Kita"], "piano-mini": ["🎹", "Piano Mini"], "gelang-manik": ["📿", "Gelang Manik"], "hias-kue": ["🍰", "Hias Kue"], "bikin-komik": ["🗯️", "Bikin Komik"], "masa-depan": ["🔭", "Teropong Masa Depan"], "kamus-kita": ["📖", "Kamus Kita"], "dandan-berdua": ["👗", "Dandan Berdua"], "kaleidoskop": ["🌀", "Kaleidoskop"], "bioskop-kita": ["🎬", "Bioskop Kita"], "jarak-kita": ["🧭", "Jarak Kita"], "nonton-bareng": ["🎬", "Nonton & Dengerin Bareng"], "fokus-bareng": ["📚", "Fokus Bareng"], "tidur-kita": ["😴", "Bobo & Bangun"], "ibadah-bareng": ["🕌", "Ibadah Bareng"], "kebiasaan-bareng": ["✅", "Rutinitas Bareng"], "wrapped": ["🎁", "Razara Wrapped"], "rekam-suara": ["🎙️", "Rekam Suara"], "mewarnai": ["🖍️", "Buku Mewarnai"], "daftar-bareng": ["🧳", "Daftar Bareng"], "jaga-minum": ["💧", "Jaga Minum"], "janji-kita": ["📜", "Janji Kita"], "kembang-api": ["🎆", "Kembang Api"], "stretching": ["🧘", "Stretching Bareng"], "ramuan-cinta": ["🧪", "Ramuan Cinta"], "keuangan-dara": ["💰", "Kantong Dara"], "keuangan-razan": ["👛", "Kantong Razan"], "keuangan-berdua": ["🤑", "Keuangan Berdua"]};
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME), WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const nm = p => NAMES[p] || ['🎮', p.replace(/-/g, ' ')];
+const BETS = ['traktir es krim 🍦', 'pijitin 15 menit 💆', 'nurutin 1 permintaan 🧞', 'bayarin nobi 🎬', 'masakin / bawain makanan 🍳', 'nulis surat cinta ✍️'];
+let tab = lsGet('liga-tab', 'musim');
+const mk = d => d.slice(0, 7);
+const curM = () => ymd(new Date()).slice(0, 7);
+const mLabel = m => { const [y, mo] = m.split('-').map(Number); return `${BULAN[mo - 1]} ${y}`; };
+// semua baris skor → per bulan: { R, D, g: {page: [r,d]}, h: [[t,page,'R'|'D']] }
+function seasons() {
+  const S = {};
+  WHO.forEach(w => Object.entries(lsGet('skor-' + w, {}) || {}).forEach(([d, r]) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !r || !r.p) return;
+    const s = S[mk(d)] || (S[mk(d)] = { R: 0, D: 0, g: {}, h: [], days: {} });
+    Object.entries(r.p).forEach(([p, c]) => { s.R += c[0] || 0; s.D += c[1] || 0; const g = s.g[p] || (s.g[p] = [0, 0]); g[0] += c[0] || 0; g[1] += c[1] || 0; const dd = s.days[d] || (s.days[d] = [0, 0]); dd[0] += c[0] || 0; dd[1] += c[1] || 0; });
+    (r.h || []).forEach(x => s.h.push(x));
+  }));
+  Object.values(S).forEach(s => s.h.sort((a, b) => a[0] - b[0]));
+  return S;
+}
+const champ = s => !s || s.R === s.D ? '' : s.R > s.D ? 'Razan' : 'Dara';
+const betOf = m => { let b = null; WHO.forEach(w => { const r = (lsGet('liga-' + w, {}) || {})[m + '-01']; if (r && r.at && (!b || r.at > b.at)) b = r; }); return b && b.t ? b : null; };
+function paintSeason(S) {
+  const m = curM(), s = S[m] || { R: 0, D: 0 }, n = s.R + s.D, now = new Date(), end = new Date(now.getFullYear(), now.getMonth() + 1, 0), left = end.getDate() - now.getDate();
+  const lead = champ(s);
+  $('ss').innerHTML = `<p class="k">Musim ${esc(mLabel(m))}</p><div class="sc"><div class="p ${lead === 'Razan' ? 'lead' : ''}"><span class="crown">${lead === 'Razan' ? '👑' : ''}</span><b>${s.R}</b><small>Razan</small></div><span class="vs">VS</span><div class="p ${lead === 'Dara' ? 'lead' : ''}"><span class="crown">${lead === 'Dara' ? '👑' : ''}</span><b>${s.D}</b><small>Dara</small></div></div>
+    <div class="bar"><i style="width:${n ? s.R / n * 100 : 50}%;background:var(--rz2)"></i><i style="width:${n ? s.D / n * 100 : 50}%;background:var(--dr2)"></i></div>
+    <p class="ft">${n ? (lead ? `${lead} unggul ${Math.abs(s.R - s.D)} poin` : 'Masih seri — panas! 🔥') : 'Belum ada pertandingan musim ini — gas main! 🎮'} · ${left ? `${left} hari lagi musim selesai` : 'hari terakhir musim ini!'}</p>`;
+  const b = betOf(m);
+  $('bet').innerHTML = b ? `🎲 <b>Taruhan musim ini</b> — yang kalah harus:<span class="t">${esc(b.t)}</span><button id="bet-e">✏️ Ganti</button> <small style="color:var(--muted)">· diatur ${b.by === ME ? 'kamu' : b.by}</small>` : `🎲 <b>Belum ada taruhan musim ini.</b> Biar makin seru, pasang taruhan buat yang kalah! <button id="bet-e">＋ Pasang taruhan</button>`;
+  $('bet-e').onclick = openBet;
+}
+function view(S) {
+  const m = curM(), s = S[m] || { R: 0, D: 0, g: {}, h: [], days: {} };
+  if (tab === 'musim') {
+    const G = Object.entries(s.g).sort((a, b) => (b[1][0] + b[1][1]) - (a[1][0] + a[1][1]));
+    // rekor beruntun musim ini
+    let best = { w: '', n: 0 }, run = { w: '', n: 0 }; s.h.forEach(x => { if (x[2] === run.w) run.n++; else run = { w: x[2], n: 1 }; if (run.n > best.n) best = Object.assign({}, run); });
+    const bw = best.w === 'R' ? 'Razan' : best.w === 'D' ? 'Dara' : '';
+    const bd = Object.entries(s.days).map(([d, c]) => [d, c[0] + c[1]]).sort((a, b) => b[1] - a[1])[0];
+    return (G.length ? `<div class="ls">${G.map(([p, c]) => `<div class="r"><span class="e">${nm(p)[0]}</span><span class="n">${esc(nm(p)[1])}<small>${c[0] === c[1] ? 'seri' : (c[0] > c[1] ? 'Razan' : 'Dara') + ' unggul'}</small></span><span class="s"><span class="a">${c[0]}</span> – <span class="b">${c[1]}</span></span></div>`).join('')}</div>` : '<p class="empty">Belum ada game yang dimainin bulan ini 🎮</p>')
+      + `<div class="ttl">${bw ? `<span style="--c:var(--${best.w === 'R' ? 'rz' : 'dr'})">🔥 Rekor beruntun: <b>${bw} ${best.n}x</b></span>` : ''}${bd ? `<span>📅 Hari paling rame: <b>${parseYMD(bd[0]).getDate()} ${BLN[parseYMD(bd[0]).getMonth()]}</b> (${bd[1]} game)</span>` : ''}</div>`;
+  }
+  if (tab === 'piala') {
+    const past = Object.keys(S).filter(k => k < m).sort().reverse(), tro = { Razan: [], Dara: [] };
+    past.forEach(k => { const c = champ(S[k]); if (c) tro[c].push(k); });
+    return `<div class="hof">${WHO.map(w => `<div style="--c:var(--${w === 'Razan' ? 'rz' : 'dr'})"><b>${tro[w].length} 🏆</b><small>${w} · juara musim</small><div class="tr">${tro[w].slice(0, 12).map(() => '🏆').join('') || '—'}</div></div>`).join('')}</div>`
+      + (past.length ? `<div class="ls">${past.map(k => { const x = S[k], c = champ(x), b = betOf(k); return `<div class="r"><span class="e">${c ? '🏆' : '🤝'}</span><span class="n">${esc(mLabel(k))}<small>${c ? `Juara: ${c}` : 'Seri'}${b && c ? ` · ${otherOf(c)} harus ${esc(b.t)}` : ''}</small></span><span class="s"><span class="a">${x.R}</span> – <span class="b">${x.D}</span></span></div>`; }).join('')}</div>` : '<p class="empty">Lemari piala masih kosong — musim pertama lagi jalan 🏆</p>');
+  }
+  // gelar: game yang paling dikuasai tiap orang (semua musim)
+  const A = {}; Object.values(S).forEach(x => Object.entries(x.g).forEach(([p, c]) => { const a = A[p] || (A[p] = [0, 0]); a[0] += c[0]; a[1] += c[1]; }));
+  const title = (i, word) => Object.entries(A).filter(([p, c]) => c[i] >= 3 && c[i] > c[1 - i]).sort((a, b) => (b[1][i] - b[1][1 - i]) - (a[1][i] - a[1][1 - i])).slice(0, 4).map(([p, c]) => `<span style="--c:var(--${i ? 'dr' : 'rz'})">${nm(p)[0]} <b>${word} ${esc(nm(p)[1])}</b> · ${c[i]}–${c[1 - i]}</span>`).join('');
+  const ms = Object.keys(S).sort().slice(-6), mx = Math.max(5, ...ms.map(k => Math.max(S[k].R, S[k].D)));
+  const tot = Object.values(S).reduce((a, x) => [a[0] + x.R, a[1] + x.D], [0, 0]);
+  return `<div class="hof">${WHO.map((w, i) => `<div style="--c:var(--${i ? 'dr' : 'rz'})"><b>${tot[i]}</b><small>${w} · total menang</small></div>`).join('')}</div>`
+    + (ms.length ? `<div class="mbars">${ms.map(k => `<div class="m"><div class="pr"><i style="height:${Math.round(S[k].R / mx * 84)}px;background:var(--rz)"></i><i style="height:${Math.round(S[k].D / mx * 84)}px;background:var(--dr)"></i></div><small>${BLN[+k.slice(5) - 1]}</small></div>`).join('')}</div>` : '')
+    + `<p class="sec">👑 Gelar</p><div class="ttl">${title(0, 'Raja') + title(1, 'Ratu') || '<span>Menang ≥3x & unggul di satu game buat dapet gelar 👑</span>'}</div>`;
+}
+function render() {
+  const S = seasons(); paintSeason(S);
+  $('tabs').innerHTML = [['musim', '⚔️ Musim ini'], ['piala', '🏆 Lemari piala'], ['statistik', '📈 Statistik']].map(([k, l]) => `<button type="button" class="${tab === k ? 'on' : ''}" data-t="${k}">${l}</button>`).join('');
+  $('tabs').querySelectorAll('[data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; lsSet('liga-tab', tab); render(); });
+  $('view').innerHTML = view(S);
+  try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {}
+  // musim lalu baru kelar → umumin juaranya sekali
+  const prev = (() => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return ymd(d).slice(0, 7); })(), pc = champ(S[prev]);
+  if (pc && !lsGet('liga-seen-' + prev, 0)) { lsSet('liga-seen-' + prev, 1); const b = betOf(prev); setTimeout(() => { confetti(80); toast(`🏆 ${pc} juara Liga Razara ${mLabel(prev)}!${b ? ` ${otherOf(pc)} harus ${esc(b.t)} 😆` : ''}`, 6000); }, 600); }
+}
+function openBet() {
+  const b = betOf(curM());
+  $('bo-t').value = b ? b.t : '';
+  $('bo-s').innerHTML = BETS.map(t => `<button type="button">${esc(t)}</button>`).join('');
+  $('bo-s').querySelectorAll('button').forEach((x, i) => x.onclick = () => { $('bo-t').value = BETS[i]; });
+  $('bo').classList.add('show');
+}
+$('bo-x').onclick = () => $('bo').classList.remove('show');
+$('bo').onclick = e => { if (e.target === $('bo')) $('bo').classList.remove('show'); };
+$('bo-ok').onclick = () => {
+  const t = $('bo-t').value.trim().slice(0, 80); if (!t) return toast('Isi dulu taruhannya 😆');
+  BD.put('liga', ME, curM() + '-01', { t, at: Date.now(), by: ME }); $('bo').classList.remove('show'); render(); toast('🎲 Taruhan dipasang!');
+  try { window.Push && Push.notify({ title: `🎲 ${ME} pasang taruhan Liga Razara`, body: `Yang kalah bulan ini harus ${t} 😆`, url: 'liga-razara.html', tag: 'liga' }); } catch (e) {}
+};
+BD.on(ev => { if (!ev.apps || ev.apps.some(a => a === 'skor' || a === 'liga')) render(); });
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

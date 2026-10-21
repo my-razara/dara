@@ -98,6 +98,15 @@
   .qb{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem}
   .qb button{font-size:11px;border:1px solid var(--blush);background:#fff;border-radius:50px;padding:.3rem .6rem;color:var(--muted);cursor:pointer}
   .hint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:.35rem}
+  .aib{display:block;width:100%;margin-top:.7rem;border:1.5px dashed #b49be0;background:linear-gradient(135deg,#f6f0ff,#fff);color:#6a4fb0;border-radius:16px;padding:.65rem .5rem;font:600 12.5px Poppins,sans-serif;cursor:pointer}
+  .aibox{background:#f8f4ff;border:1px solid #e3d8f7;border-radius:16px;padding:.7rem;margin-top:.6rem}
+  .aibox .chips button.on{background:#7a5cc4;border-color:#7a5cc4}
+  .aiid{background:#fff;border-radius:14px;border:1px solid #e3d8f7;padding:.6rem .7rem;margin-top:.5rem}
+  .aiid b{display:block;font-size:13px;line-height:1.35;overflow-wrap:anywhere}.aiid small{display:block;font-size:11.5px;color:var(--muted);line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}
+  .aiid .ft{display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
+  .aiid .ft span{font-size:12px;font-weight:700;color:#6a4fb0}
+  .aiid button{border:none;border-radius:50px;background:#7a5cc4;color:#fff;font:700 11.5px Poppins,sans-serif;padding:.4rem .8rem;cursor:pointer}
+  .aiload{text-align:center;font-size:12px;color:#6a4fb0;padding:.6rem}
   .tog{display:flex;align-items:center;gap:.6rem;margin-top:.8rem;font-size:13px;cursor:pointer;background:#fff;border-radius:14px;padding:.65rem .8rem;border:1.5px solid var(--blush)}
   .tog.on{border-color:#2e7d4f;background:#eefaf2}
   .tog i{font-style:normal;font-size:1.2rem}
@@ -252,6 +261,7 @@ function edit(w, i) {
       <label class="lab">Mau ngapain minggu ini?</label>
       <div class="opts">${allOpts().map(x => `<button type="button" data-k="${esc(x.id)}" class="${f.k === x.id ? 'on' : ''}" style="--c:${x.c}"><span>${x.e}</span>${esc(x.n)}${x.s ? `<small>${esc(x.s)}</small>` : ''}</button>`).join('')}<button type="button" class="add" id="e-add"><span>＋</span>Opsi baru</button></div>
       ${f.k === 'rumah' ? '<p class="hint">🛋️ Full di rumah: rebahan, masak bareng, nonton, beres-beres — budget bisa Rp0.</p>' : ''}
+      ${AI.open ? aiBox(f) : `<button type="button" class="aib" id="ai-open">✨ Bingung? Minta 3 ide dari AI</button>`}
       <label class="lab">Tujuannya ke mana?</label><input class="inp" id="e-tj" maxlength="80" placeholder="${esc(o ? o.ph : 'Ke mana?')}" value="${esc(f.tj)}">
       <label class="lab">Ngapain aja? <span style="font-weight:400;color:var(--muted)">(1 baris 1 kegiatan)</span></label><textarea class="ta" id="e-ng" rows="3" maxlength="400" placeholder="jalan pagi&#10;foto-foto&#10;makan siang">${esc(f.ng)}</textarea>
       <label class="lab">Budget</label><input class="inp" id="e-b" inputmode="numeric" placeholder="Rp0" value="${f.b ? rp(f.b) : ''}">
@@ -267,6 +277,12 @@ function edit(w, i) {
     $('e-b').oninput = () => { const v = num($('e-b').value); $('e-b').value = v ? rp(v) : ''; };
     if ($('e-kp')) $('e-kp').oninput = () => { const v = num($('e-kp').value); $('e-kp').value = $('e-kp').value.trim() === '' ? '' : rp(v); };
     $('e-add').onclick = () => { grab(); addOpt(id => { f.k = id; paint(); }); };
+    if ($('ai-open')) $('ai-open').onclick = () => { grab(); AI.open = 1; AI.res = null; paint(); setTimeout(() => $('ai-area') && $('ai-area').scrollIntoView({ block: 'center', behavior: 'smooth' }), 50); };
+    if ($('ai-go')) $('ai-go').onclick = () => { grab(); AI.area = $('ai-area').value.trim().slice(0, 60); lsSet('wm-ai-area', AI.area); aiGo(f, w, paint); };
+    if ($('ai-area')) $('ai-area').oninput = () => { AI.area = $('ai-area').value; };
+    $('ed').querySelectorAll('[data-vb]').forEach(b => b.onclick = () => { grab(); const v = b.dataset.vb; AI.vibe = AI.vibe.includes(v) ? AI.vibe.filter(x => x !== v) : AI.vibe.concat([v]); paint(); });
+    $('ed').querySelectorAll('[data-use]').forEach(b => b.onclick = () => { grab(); const d = AI.res[+b.dataset.use]; f.tj = String(d.tj || '').slice(0, 80); f.ng = String(d.ng || '').replace(/\\n/g, '\n').slice(0, 400); if (+d.b > 0) f.b = Math.round(+d.b); if (d.tips) f.ct = String(d.tips).slice(0, 120); if (!f.k) f.k = 'jauh'; AI.open = 0; paint(); toast('✨ Idenya dipakai — tinggal diedit kalau perlu, terus Simpan'); vib(15); });
+    if ($('ai-x')) $('ai-x').onclick = () => { grab(); AI.open = 0; paint(); };
     if ($('e-ok')) $('e-ok').onclick = () => { grab(); f.ok = !f.ok; if (f.ok && f.kp === '') f.kp = f.b || ''; paint(); };
     $('e-save').onclick = () => {
       grab(); if (!f.k) return toast('Pilih dulu mau ngapain minggu ini 😊');
@@ -276,7 +292,46 @@ function edit(w, i) {
     if ($('e-del')) $('e-del').onclick = () => { if (!confirm('Hapus rencana minggu ini?')) return; savePlan(w.key, { del: 1 }); $('ov-ed').classList.remove('show'); render(); };
     $('e-x').onclick = () => $('ov-ed').classList.remove('show');
   };
+  AI.open = 0; AI.res = null; AI.busy = 0;
   paint(); $('ov-ed').classList.add('show'); $('ed').scrollTop = 0;
+}
+
+// ── ✨ AI perencana weekend ──
+const AI = { open: 0, res: null, busy: 0, area: lsGet('wm-ai-area', ''), vibe: [] };
+const VIBES = ['santai', 'romantis', 'seru', 'hemat', 'foto-foto', 'kuliner', 'alam'];
+function aiBox(f) {
+  const o = optOf(f.k);
+  return `<div class="aibox"><b style="font-size:12.5px;color:#6a4fb0">✨ Ide dari AI${o ? ` · ${o.e} ${esc(o.n)}` : ''}</b>
+    <label class="lab">Daerah / kota</label><input class="inp" id="ai-area" maxlength="60" placeholder="mis. Bekasi, Jakarta Timur" value="${esc(AI.area)}">
+    <label class="lab">Suasananya (boleh pilih beberapa)</label><div class="chips">${VIBES.map(v => `<button type="button" data-vb="${v}" class="${AI.vibe.includes(v) ? 'on' : ''}">${v}</button>`).join('')}</div>
+    <p class="hint">Budget pakai yang diisi di bawah${f.b ? ` (${rpS(f.b)})` : ' (kosong = bebas, tapi tetep wajar)'}.</p>
+    ${AI.busy ? '<div class="aiload">⏳ AI lagi mikir… (5–20 detik)</div>' : `<div class="row" style="margin-top:.5rem"><button type="button" class="btn ghost" id="ai-x">Tutup</button><button type="button" class="btn" id="ai-go" style="background:linear-gradient(135deg,#9a7ad8,#6a4fb0)">${AI.res ? '🔁 Ide lain' : '✨ Kasih ide'}</button></div>`}
+    ${(AI.res || []).map((d, i) => `<div class="aiid"><b>${esc(d.e || '✨')} ${esc(d.judul || '')}</b><small>📍 ${esc(d.tj || '-')}</small><small>${esc(String(d.ng || '').replace(/\\n/g, '\n'))}</small>${d.tips ? `<small>💡 ${esc(d.tips)}</small>` : ''}<div class="ft"><span>${+d.b ? '±' + rpS(+d.b) : 'Gratis / murah'}</span><button type="button" data-use="${i}">Pakai ini</button></div></div>`).join('')}</div>`;
+}
+function aiAsk(mode, text) {
+  return new Promise((res, rej) => {
+    const B = window.Berdua; if (!B || !B.url) return rej(new Error('offline'));
+    const x = new XMLHttpRequest(); x.open('POST', B.url, true); x.timeout = 70000; x.setRequestHeader('Content-Type', 'text/plain');
+    x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } }; x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+    x.send(JSON.stringify({ key: B.key, who: me, action: 'ai', mode, msgs: [{ r: 'user', t: text }] }));
+  });
+}
+const aiErr = r => ({ nokey: '🔑 AI belum diaktifin (GEMINI_KEY)', limit: '🙈 Jatah AI hari ini udah abis', sibuk: '😵 AI lagi rame, coba bentar lagi', keysalah: '🔑 Kunci AI salah' })[r && r.error] || '😵 AI lagi error, coba lagi ya';
+async function aiGo(f, w, paint) {
+  if (AI.busy) return; if (!navigator.onLine) return toast('Lagi offline 📴');
+  const o = optOf(f.k), been = [...new Set(Object.keys(rowsOf('Razan')).concat(Object.keys(rowsOf('Dara'))).filter(k => /^\d{4}-/.test(k)).sort().map(k => plan(k)).filter(p => p && p.tj && p.k !== 'rumah').map(p => p.tj.trim()))].slice(-12);
+  const q = [`Jenis kegiatan: ${o ? o.n + (o.s ? ' (' + o.s + ')' : '') : 'bebas'}`, `Tanggal: ${rangeLbl(w)}`, `Area/kota: ${AI.area || 'Jabodetabek'}`, `Budget berdua: ${f.b ? rp(f.b) : 'bebas tapi wajar'}`, `Suasana: ${AI.vibe.join(', ') || 'bebas'}`, `Udah pernah ke: ${been.join('; ') || '-'}`, f.k === 'rumah' ? 'Ini minggu full di rumah: kasih ide kegiatan seru di rumah (tj isi "Di rumah aja").' : '', f.k === 'jauh' ? 'Harus tempat baru yang belum pernah didatengin.' : ''].filter(Boolean).join('\n');
+  AI.busy = 1; paint();
+  try {
+    const r = await aiAsk('plan', q);
+    if (!r || !r.ok) { toast(aiErr(r), 3500); }
+    else {
+      let j = null; try { j = JSON.parse(String(r.t).replace(/^```(?:json)?\s*|\s*```$/g, '')); } catch (e) { const m = /\{[\s\S]*\}/.exec(r.t || ''); try { j = m && JSON.parse(m[0]); } catch (e2) {} }
+      const L = j && (Array.isArray(j) ? j : j.ide);
+      if (Array.isArray(L) && L.length) AI.res = L.slice(0, 3).filter(d => d && typeof d === 'object'); else toast('😵 Jawaban AI-nya aneh, coba lagi ya');
+    }
+  } catch (e) { toast('📴 Gagal nyambung ke AI'); }
+  AI.busy = 0; if ($('ov-ed').classList.contains('show')) paint();
 }
 
 // ── opsi custom ──
