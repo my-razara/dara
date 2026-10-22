@@ -96,7 +96,9 @@
   const rp = n => 'Rp' + Math.round(+n || 0).toLocaleString('id-ID');
   const seen = (() => { let S = g('push-once', []) || []; return k => { if (S.includes(k)) return false; S.push(k); if (S.length > 300) S = S.slice(-300); s('push-once', S); return true; }; })();
   const slow = {};   // 1 notif per fitur tiap 90 detik (biar nambahin banyak sekaligus ga nyepam)
-  function tell(key, o) { const now = Date.now(); if (slow[key] && now - slow[key] < 9e4) return; slow[key] = now; notify(Object.assign({ tag: 'upd-' + key }, o)); }
+  // awalan tag = kategori di 🔔 Atur Notif (mood/syukur/status → Buku harian & hati, minum → Kebiasaan, ketemu/hari penting → Jadwal, kuis/gambar → Game, surat → Chat & kiriman)
+  const TCAT = { mood: 'diary-', syukur: 'diary-', status: 'diary-', minum: 'minum-', ketemu: 'jadwal-', ingat: 'jadwal-', md: 'jadwal-', gbrm: 'ajak-', kuisj: 'ajak-', 'kuisj-g': 'ajak-' };
+  function tell(key, o) { const now = Date.now(); if (slow[key] && now - slow[key] < 9e4) return; slow[key] = now; notify(Object.assign({ tag: (/^srv-/.test(key) ? 'kiriman-' : TCAT[key] || '') + 'upd-' + key }, o)); }
   // [judul, isi, link] — app = nama data di Data Berdua
   const RULES = {
     mood: (d, p, w) => !p && [`🌈 ${w} nyatet mood hari ini`, 'Liat gimana perasaannya hari ini yuk', 'kalender-mood.html'],
@@ -109,7 +111,7 @@
     daftar: (d, p, w) => !p && [`🧳 ${w} nambahin ke Daftar Bareng`, pick(d), 'daftar-bareng.html'],
     ingat: (d, p, w) => !p && [`⭐ ${w} nambahin hari penting`, pick(d), 'pengingat.html'],
     wish: (d, p, w) => { const it = newItem(d, p); return it && [`🎁 ${w} nambahin wishlist`, pick(it), 'wishlist.html']; },
-    ketemu: (d, p, w) => { const it = newItem(d, p); return it && [`📅 ${w} nambahin rencana ketemu`, pick(it) || 'Cek jadwalnya yuk', 'ketemuan.html?m=0']; },
+    ketemu: (d, p, w) => { const it = newItem(d, p); return it && [`📅 ${w} nambahin rencana ketemu`, pick(it) || 'Cek jadwalnya yuk', 'jadwal-mingguan.html']; },
     kbx: (d, p, w) => { const it = newItem(d, p); return it && [`🤑 ${w} nyatet di Keuangan Berdua`, [pick(it), it.v ? rp(it.v) : ''].filter(Boolean).join(' · '), 'keuangan-berdua.html']; },
     kbg: (d, p, w) => !p && [`🎯 ${w} bikin target tabungan baru`, pick(d), 'keuangan-berdua.html'],
     md: (d, p, w) => d.done && !(p && p.done) && [`🔭 ${w} udah ngisi Teropong Masa Depan`, 'Giliran kamu, biar bisa diliat seberapa sehati', 'masa-depan.html'],
