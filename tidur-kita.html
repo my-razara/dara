@@ -84,6 +84,29 @@
   .log div{display:flex;gap:.5rem;align-items:center;padding:.55rem .8rem;font-size:12px;border-top:1px solid #f4ebe3}
   .log div:first-child{border-top:none}.log div span{flex:1;min-width:0;overflow-wrap:anywhere}.log div small{color:var(--muted);font-size:11px;white-space:nowrap}
   .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
+  .gift{display:flex;align-items:center;gap:.65rem;background:linear-gradient(135deg,#fff3d6,#ffe1ea);border:1.5px solid #f3c6a0;border-radius:20px;padding:.75rem .85rem;margin-bottom:.8rem;animation:gWig 2.4s ease-in-out infinite}
+  @keyframes gWig{0%,90%,100%{transform:none}93%{transform:rotate(-1.5deg)}96%{transform:rotate(1.5deg)}}
+  .gift .e{font-size:2rem;line-height:1}.gift .m{flex:1;min-width:0}.gift b{display:block;font-size:13px;overflow-wrap:anywhere}.gift small{display:block;font-size:11px;color:#8a6a50;line-height:1.4}
+  .gift button{border:none;border-radius:50px;background:#e07a4f;color:#fff;font:700 12px Poppins,sans-serif;padding:.55rem .75rem;cursor:pointer;flex-shrink:0}
+  .sp{background:#fff;border-radius:20px;padding:.85rem;border:1px solid rgba(193,122,111,.13);margin:.9rem 0 .2rem}
+  .sp>b{display:block;font-size:13px}.sp>small{display:block;font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:.1rem}
+  .sp2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.65rem}
+  .sp2 button{border:1.5px solid var(--blush);background:var(--cream);border-radius:16px;padding:.65rem .4rem;cursor:pointer;font:600 12px Poppins,sans-serif;color:var(--deep);line-height:1.3;min-width:0;text-align:center}
+  .sp2 button small{display:block;font-weight:400;font-size:10.5px;color:var(--muted);margin-top:.2rem;overflow-wrap:anywhere}
+  .sp2 button.has{border-color:#9ccfa8;background:#f1fbf3}
+  .rec{text-align:center}
+  .rec .k{font-size:12px;color:var(--muted);margin:-.2rem 0 .8rem;line-height:1.5}
+  .mic{width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;font-size:2.4rem;color:#fff;background:linear-gradient(135deg,#e891a6,#c25a78);box-shadow:0 10px 26px rgba(194,90,120,.35);margin:.2rem auto .5rem;display:flex;align-items:center;justify-content:center}
+  .mic.on{background:linear-gradient(135deg,#ef6b6b,#c53030);animation:mPul 1.2s ease-in-out infinite}
+  @keyframes mPul{50%{box-shadow:0 0 0 14px rgba(239,107,107,.18)}}
+  .rt{font:600 20px Poppins,sans-serif;font-variant-numeric:tabular-nums;color:var(--deep)}
+  .wv{height:30px;display:flex;align-items:center;justify-content:center;gap:2px;margin:.3rem 0 .6rem;overflow:hidden}
+  .wv i{display:block;width:3px;border-radius:2px;background:var(--rose);min-height:3px}
+  .pl{display:flex;align-items:center;gap:.7rem;background:#fff;border-radius:50px;padding:.45rem .6rem;border:1px solid rgba(193,122,111,.15);margin:.4rem 0 .6rem;text-align:left}
+  .pl button{width:44px;height:44px;border-radius:50%;border:none;background:var(--rose);color:#fff;font-size:16px;cursor:pointer;flex-shrink:0}
+  .pl .bar{flex:1;height:6px;border-radius:4px;background:#f0e2d8;overflow:hidden}.pl .bar i{display:block;height:100%;width:0;background:var(--rose)}
+  .pl small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0}
+  .gf-e{font-size:3.4rem;display:block;line-height:1.1;margin-bottom:.3rem}
 
 </style>
 </head>
@@ -93,11 +116,13 @@
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
   <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">😴</span><p class="lbl">Good night · good morning</p><h1 class="title">Bobo &amp; <span>Bangun</span></h1><p class="sub">Sekali tap pas mau bobo / baru bangun — pasangan langsung dapet notif, plus rekap jam tidur kalian seminggu</p></div>
   <p class="bd-st" id="bd-st"></p>
+  <div id="gift"></div>
   <div id="op"></div>
   <p class="me-st" id="me-st"></p>
   <div class="big"><button class="nt" id="b-bobo"><span>🌙</span>Aku mau bobo</button><button class="mr" id="b-bangun"><span>☀️</span>Aku udah bangun</button></div>
   <label class="lab" style="text-align:center">Tambahin pesan (opsional)</label>
   <div class="chips" id="msgs"></div>
+  <div class="sp"><b id="sp-h">🎙️ Titip suara</b><small id="sp-s"></small><div class="sp2"><button data-rec="pagi" id="sp-p"></button><button data-rec="malem" id="sp-m"></button></div></div>
   <p class="sec">📊 Seminggu terakhir</p>
   <div class="wk"><b style="font-size:12.5px">Lama tidur (jam)</b><div class="bars" id="bars"></div><div class="leg"><span style="--c:var(--rz)">Razan</span><span style="--c:var(--dr)">Dara</span></div></div>
   <div class="avg" id="avg"></div>
@@ -108,6 +133,23 @@
   <div class="log" id="log"></div>
   <p class="note">Lupa tap? Gapapa — yang kecatet cuma waktu yang kamu tap sendiri. Tap lagi buat ngoreksi (yang terbaru yang dipakai).</p>
 </div>
+
+<div class="ov center" id="rec-ov"><div class="sheet rec">
+  <h3 style="font-size:15px;margin-bottom:.4rem" id="rec-h">🎙️ Titip suara</h3>
+  <p class="k" id="rec-k"></p>
+  <div id="rec-a"><button class="mic" id="mic" aria-label="Rekam">🎙️</button><div class="rt" id="rt">0:00</div><div class="wv" id="wv"></div><p class="k" id="rec-tip">Tap buat mulai rekam · maks 1 menit</p></div>
+  <div id="rec-b" style="display:none"><div class="pl"><button id="pv-b">▶</button><span class="bar"><i id="pv-i"></i></span><small id="pv-d">0:00</small></div>
+    <div class="row"><button class="btn ghost" id="rec-re">🔄 Ulang</button><button class="btn" id="rec-go">📤 Titip</button></div></div>
+  <button class="btn ghost" style="margin-top:.6rem" id="rec-x">Batal</button>
+</div></div>
+<div class="ov center" id="gf-ov"><div class="sheet rec">
+  <span class="gf-e" id="gf-e">🎁</span>
+  <h3 style="font-size:15px;margin-bottom:.2rem" id="gf-h"></h3>
+  <p class="k" id="gf-k"></p>
+  <div class="pl"><button id="gf-b">…</button><span class="bar"><i id="gf-i"></i></span><small id="gf-d">0:00</small></div>
+  <a class="btn" id="gf-rep" href="chat.html">💬 Bales di chat</a>
+  <button class="btn ghost" style="margin-top:.5rem" id="gf-x">Tutup</button>
+</div></div>
 
 <div class="toast" id="toast"></div>
 <script>
@@ -174,7 +216,7 @@ function bobo() {
   x.b = t; delete x.w; x.bm = pick || ''; BD.put('tidur', ME, d, x);
   vib(30); toast(`🌙 Met bobo, ${ME}! ${OT} udah dikabarin 💤`, 3000);
   try { window.Push && Push.notify({ title: `🌙 ${ME} mau bobo`, body: pick || `Bilang met bobo ke ${ME} yuk 💤`, url: 'tidur-kita.html', tag: 'tidur-b' }); } catch (e) {}
-  pick = ''; render();
+  pick = ''; render(); gift('malem');
 }
 function bangun() {
   const t = Date.now(), r = rows(ME);
@@ -186,7 +228,7 @@ function bangun() {
   const dur = x.b ? (t - x.b) / H : 0;
   toast(`☀️ Pagi, ${ME}!${dur > 0 && dur < 18 ? ` Tidur ${jam(dur)} 😊` : ''}`, 3000);
   try { window.Push && Push.notify({ title: `☀️ ${ME} udah bangun`, body: pick || `Sapa pagi ${ME} yuk 🥰`, url: 'tidur-kita.html', tag: 'tidur-w' }); } catch (e) {}
-  pick = ''; render();
+  pick = ''; render(); gift('pagi');
 }
 const jam = h => { const m = Math.round(h * 60); return `${Math.floor(m / 60)}j ${pad(m % 60)}m`; };
 const ago = t => { const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'barusan' : m < 60 ? `${m} menit lalu` : `${Math.floor(m / 60)} jam ${m % 60 ? (m % 60) + ' mnt ' : ''}lalu`; };
@@ -246,6 +288,133 @@ $('b-bobo').onclick = bobo; $('b-bangun').onclick = bangun;
 BD.on(ev => { if (!ev.apps || ev.apps.includes('tidur')) render(); });
 setInterval(paintOp, 60000);
 render();
+// ═════ 🎙️ TITIP SUARA — direkam sekarang, keputer pas pasangan tap ☀️ bangun / 🌙 bobo ═════
+const SRV = BD.url || 'https://script.google.com/macros/s/AKfycbyCq294yq71M-BDzouyLttp2Kki0aumPAP0JzII0fvvnBakSQ5_eHkNTawXA01fQ3dC/exec', SKEY = BD.key || 'razara-berdua';
+const KIND = { pagi: ['☀️', 'pagi', 'bangun'], malem: ['🌙', 'malem', 'bobo'] };
+function post(body, ms) {
+  return new Promise((res, rej) => { const x = new XMLHttpRequest(); x.open('POST', SRV, true); x.timeout = ms || 60000; x.setRequestHeader('Content-Type', 'text/plain');
+    x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { rej(e); } }; x.onerror = x.ontimeout = () => rej(new Error('jaringan'));
+    x.send(JSON.stringify(Object.assign({ key: SKEY, who: ME }, body))); });
+}
+const fmtS = d => { d = Math.max(0, Math.round(d || 0)); return Math.floor(d / 60) + ':' + pad(d % 60); };
+function sItems(w) { const o = []; Object.values(lsGet('sapa-' + w, {}) || {}).forEach(r => ((r && r.items) || []).forEach(x => { if (x && x.id && x.vn) o.push(x); })); return o.sort((a, b) => (b.at || 0) - (a.at || 0)); }
+function heardBy(w) { const h = new Set(w === ME ? (lsGet('sapa-heard', []) || []) : []); Object.values(lsGet('sapadg-' + w, {}) || {}).forEach(r => ((r && r.ids) || []).forEach(i => h.add(i))); return h; }
+const SH = 30 * H;
+function pending(k) { const h = heardBy(ME), now = Date.now(); return sItems(OT).find(x => (!k || x.k === k) && now - x.at < SH && !h.has(x.id)) || null; }
+function paintSapa() {
+  $('sp-h').textContent = `🎙️ Titip suara buat ${OT}`;
+  $('sp-s').textContent = `Rekam sekarang — keputer otomatis pas ${OT} tap ☀️ bangun / 🌙 bobo di sini`;
+  const h = heardBy(OT), mine = sItems(ME), now = Date.now();
+  ['pagi', 'malem'].forEach(k => {
+    const x = mine.find(y => y.k === k && now - y.at < SH), b = $(k === 'pagi' ? 'sp-p' : 'sp-m');
+    const st = !x ? 'belum ada titipan' : h.has(x.id) ? `✓ udah didengerin` : `⏳ nunggu ${OT} ${KIND[k][2]} · ${fmtS(x.dur)}`;
+    b.innerHTML = `${KIND[k][0]} Buat pas dia ${KIND[k][2]}<small>${st}</small>`; b.classList.toggle('has', !!x);
+  });
+  const p = pending();
+  $('gift').innerHTML = p ? `<div class="gift"><span class="e">🎁</span><span class="m"><b>${OT} nitip suara ${KIND[p.k] ? KIND[p.k][0] + ' ' + KIND[p.k][1] : ''} buat kamu</b><small>Keputer pas kamu tap ${p.k === 'malem' ? '🌙 Aku mau bobo' : '☀️ Aku udah bangun'} — atau dengerin sekarang</small></span><button id="gift-go">▶ Dengerin</button></div>` : '';
+  if ($('gift-go')) $('gift-go').onclick = () => openGift(p);
+}
+// ── putar titipan ──
+const GA = new Audio(); GA.preload = 'auto';
+let gCur = null, gUrl = null;
+const gCache = {};
+async function vnData(vn) {
+  if (gCache[vn]) return gCache[vn];
+  const r = await post({ action: 'chat', op: 'vnget', id: vn }, 60000);
+  if (!r || !r.ok || !r.data) throw new Error(r && r.error || 'gagal');
+  return (gCache[vn] = 'data:' + (r.mime || 'audio/webm') + ';base64,' + r.data);
+}
+function gPaint() { $('gf-b').textContent = gCur && gCur.load ? '…' : GA.paused ? '▶' : '❚❚'; $('gf-i').style.width = GA.duration && isFinite(GA.duration) ? Math.min(100, GA.currentTime / GA.duration * 100) + '%' : '0%'; $('gf-d').textContent = fmtS(GA.paused && !GA.currentTime ? (gCur && gCur.x.dur) : GA.currentTime); }
+['timeupdate', 'play', 'pause', 'ended'].forEach(ev => GA.addEventListener(ev, gPaint));
+GA.addEventListener('play', () => { if (gCur && !gCur.marked) { gCur.marked = 1; markHeard(gCur.x); } });
+function markHeard(x) {
+  const L = lsGet('sapa-heard', []) || []; if (!L.includes(x.id)) { L.push(x.id); lsSet('sapa-heard', L.slice(-60)); }
+  const d = ymd(new Date()), r = (lsGet('sapadg-' + ME, {}) || {})[d] || {}, ids = (r.ids || []).filter(i => i !== x.id).concat(x.id);
+  BD.put('sapadg', ME, d, { ids: ids.slice(-12) });
+  try { window.Push && Push.notify({ title: `🎧 ${ME} udah dengerin titipan suaramu`, body: KIND[x.k] ? `Titipan ${KIND[x.k][0]} ${KIND[x.k][1]} kamu nyampe 🤍` : 'Nyampe 🤍', url: 'tidur-kita.html', tag: 'tidur-dgr' }); } catch (e) {}
+  paintSapa();
+}
+async function openGift(x) {
+  if (!x) return;
+  const k = KIND[x.k] || ['🎁', '', ''];
+  $('gf-e').textContent = k[0]; $('gf-h').textContent = `Titipan suara dari ${OT}`;
+  $('gf-k').textContent = `Direkam ${HARI[new Date(x.at).getDay()]} ${hm(x.at)} · khusus buat kamu ${k[2] === 'bangun' ? 'pas bangun ☀️' : 'pas mau bobo 🌙'}`;
+  $('gf-ov').classList.add('show'); vib([20, 40, 20]);
+  gCur = { x, load: 1 }; GA.pause(); gPaint();
+  try {
+    const d = await vnData(x.vn); if (!gCur || gCur.x !== x) return;
+    const bl = await (await fetch(d)).blob(); if (gUrl) URL.revokeObjectURL(gUrl); gUrl = URL.createObjectURL(bl);
+    GA.src = gUrl; gCur.load = 0; gPaint(); await GA.play().catch(() => {});
+  } catch (e) { if (gCur) gCur.load = 0; gPaint(); toast(navigator.onLine === false ? 'Lagi offline 📴 — titipannya belum bisa diputer' : 'Titipannya gagal diputer 😢 coba lagi', 3200); }
+}
+$('gf-b').onclick = () => { if (!gCur || gCur.load) return; if (!GA.src) return openGift(gCur.x); if (GA.paused) GA.play().catch(() => {}); else GA.pause(); };
+$('gf-x').onclick = () => { GA.pause(); $('gf-ov').classList.remove('show'); };
+$('gf-rep').onclick = () => GA.pause();
+function gift(k) { const p = pending(k); if (p) setTimeout(() => openGift(p), 700); }
+// prefetch biar pas tap langsung bunyi
+function prefetch() { const p = pending(); if (p && !gCache[p.vn] && navigator.onLine !== false) vnData(p.vn).catch(() => {}); }
+// ── rekam ──
+const RC = { mr: null, ch: [], t0: 0, tick: 0, st: null, an: null, ac: null, k: 'pagi', blob: null, dur: 0, mime: '' };
+const PA = new Audio(); let pUrl = null;
+function recMime() { if (!window.MediaRecorder) return null; for (const m of ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/aac']) { try { if (MediaRecorder.isTypeSupported(m)) return m; } catch (e) {} } return ''; }
+function openRec(k) {
+  RC.k = k; RC.blob = null; $('rec-a').style.display = ''; $('rec-b').style.display = 'none';
+  $('rec-h').textContent = `${KIND[k][0]} Titip suara ${KIND[k][1]}`;
+  $('rec-k').textContent = `Keputer pas ${OT} tap ${k === 'pagi' ? '☀️ Aku udah bangun' : '🌙 Aku mau bobo'}${k === 'pagi' ? ' — misal “selamat pagi sayang, semangat ya!”' : ' — misal “met bobo, mimpiin aku ya”'}`;
+  $('rt').textContent = '0:00'; $('wv').innerHTML = ''; $('mic').classList.remove('on'); $('mic').textContent = '🎙️'; $('rec-tip').textContent = 'Tap buat mulai rekam · maks 1 menit';
+  $('rec-ov').classList.add('show');
+}
+async function recStart() {
+  const mt = recMime(); if (mt === null || !navigator.mediaDevices) return toast('HP ini belum bisa rekam suara di sini 😢');
+  let st; try { st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); } catch (e) { return toast('Izinin mikrofon dulu ya 🎙️'); }
+  RC.st = st; RC.ch = [];
+  try { RC.mr = mt ? new MediaRecorder(st, { mimeType: mt, audioBitsPerSecond: 32000 }) : new MediaRecorder(st); } catch (e) { RC.mr = new MediaRecorder(st); }
+  RC.mr.ondataavailable = ev => { if (ev.data && ev.data.size) RC.ch.push(ev.data); };
+  RC.mr.onstop = recDone; RC.mr.start(250); RC.t0 = Date.now();
+  try { const C2 = window.AudioContext || window.webkitAudioContext, ac = new C2(), an = ac.createAnalyser(); an.fftSize = 256; ac.createMediaStreamSource(st).connect(an); RC.an = an; RC.ac = ac; } catch (e) {}
+  $('mic').classList.add('on'); $('mic').textContent = '⏹'; $('rec-tip').textContent = 'Lagi rekam… tap ⏹ kalau udah'; vib(20);
+  RC.tick = setInterval(() => {
+    const s2 = (Date.now() - RC.t0) / 1000; $('rt').textContent = fmtS(s2);
+    if (RC.an) { const a = new Uint8Array(RC.an.frequencyBinCount); RC.an.getByteTimeDomainData(a); let m = 0; for (const v of a) m = Math.max(m, Math.abs(v - 128)); $('wv').insertAdjacentHTML('beforeend', `<i style="height:${Math.max(3, Math.min(28, m / 2.2))}px"></i>`); while ($('wv').children.length > 60) $('wv').firstChild.remove(); }
+    if (s2 >= 60) recStop();
+  }, 150);
+}
+function recStop() { if (!RC.mr) return; try { RC.mr.stop(); } catch (e) { recDone(); } }
+function recKill() { clearInterval(RC.tick); try { RC.st && RC.st.getTracks().forEach(t => t.stop()); } catch (e) {} try { RC.ac && RC.ac.close(); } catch (e) {} RC.ac = null; RC.an = null; }
+function recDone() {
+  const dur = (Date.now() - RC.t0) / 1000, mime = (RC.mr && RC.mr.mimeType || 'audio/webm').split(';')[0];
+  recKill(); const ch = RC.ch; RC.mr = null; $('mic').classList.remove('on'); $('mic').textContent = '🎙️';
+  if (!$('rec-ov').classList.contains('show')) return;
+  if (dur < 1 || !ch.length) { $('rec-tip').textContent = 'Kependekan — coba lagi ya 🎙️'; return; }
+  RC.blob = new Blob(ch, { type: mime }); RC.dur = Math.round(dur); RC.mime = mime;
+  if (pUrl) URL.revokeObjectURL(pUrl); pUrl = URL.createObjectURL(RC.blob); PA.src = pUrl;
+  $('pv-d').textContent = fmtS(RC.dur); $('pv-i').style.width = '0%'; $('pv-b').textContent = '▶';
+  $('rec-a').style.display = 'none'; $('rec-b').style.display = '';
+}
+['timeupdate', 'play', 'pause', 'ended'].forEach(ev => PA.addEventListener(ev, () => { $('pv-b').textContent = PA.paused ? '▶' : '❚❚'; $('pv-i').style.width = PA.duration && isFinite(PA.duration) ? Math.min(100, PA.currentTime / PA.duration * 100) + '%' : '0%'; }));
+$('pv-b').onclick = () => { if (PA.paused) PA.play().catch(() => {}); else PA.pause(); };
+$('mic').onclick = () => { if (RC.mr) recStop(); else recStart(); };
+$('rec-re').onclick = () => { PA.pause(); openRec(RC.k); };
+$('rec-x').onclick = () => { PA.pause(); $('rec-ov').classList.remove('show'); if (RC.mr) { try { RC.mr.onstop = null; RC.mr.stop(); } catch (e) {} RC.mr = null; recKill(); } };
+$('rec-go').onclick = async () => {
+  if (!RC.blob) return; const b = $('rec-go'); if (b.disabled) return; b.disabled = true; b.textContent = 'Lagi ngirim…'; PA.pause();
+  try {
+    const data = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(RC.blob); });
+    const r = await post({ action: 'chat', op: 'vn', data: String(data).split(',')[1], mime: RC.mime || 'audio/webm' }, 120000);
+    if (!r || !r.ok || !r.vn) throw new Error(r && r.error || 'gagal');
+    const d = ymd(new Date()), cur = (lsGet('sapa-' + ME, {}) || {})[d] || {}, it = { id: 's' + Date.now().toString(36), k: RC.k, vn: r.vn, dur: RC.dur, at: Date.now() };
+    BD.put('sapa', ME, d, { items: ((cur.items || []).concat(it)).slice(-6) });
+    $('rec-ov').classList.remove('show'); vib([20, 30, 20]); confetti(25);
+    toast(`🎁 Titipan ${KIND[RC.k][0]} kesimpen — keputer pas ${OT} ${KIND[RC.k][2]}`, 3400);
+    try { window.Push && Push.notify({ title: `🎁 ${ME} nitip suara buat kamu`, body: RC.k === 'pagi' ? 'Keputer pas kamu tap ☀️ Aku udah bangun besok pagi 🤫' : 'Keputer pas kamu tap 🌙 Aku mau bobo nanti 🤫', url: 'tidur-kita.html', tag: 'tidur-sapa' }); } catch (e) {}
+    paintSapa();
+  } catch (e) { toast(navigator.onLine === false ? 'Lagi offline 📴 — coba lagi pas ada sinyal' : 'Gagal ngirim 😢 coba lagi', 3200); }
+  b.disabled = false; b.textContent = '📤 Titip';
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-rec]'); if (b) openRec(b.dataset.rec); });
+paintSapa(); setTimeout(prefetch, 1500);
+BD.on(ev => { if (!ev.apps || ev.apps.includes('sapa') || ev.apps.includes('sapadg')) { paintSapa(); prefetch(); } });
+if (/[?&]dengar=1/.test(location.search)) { const p = pending(); if (p) setTimeout(() => openGift(p), 500); }
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->

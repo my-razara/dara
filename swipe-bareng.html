@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Swipe Bareng — Razan & Dara 🗳️</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .5rem}
+  .scr{display:none}.scr.on{display:block}
+  .cur{background:linear-gradient(135deg,#fff,#fff4ef);border:1.5px solid var(--blush);border-radius:22px;padding:.9rem;margin-bottom:.9rem;box-shadow:0 6px 18px rgba(193,122,111,.1)}
+  .cur .t{display:flex;align-items:center;gap:.6rem}.cur .t .e{font-size:2rem;line-height:1}.cur .t b{display:block;font-size:14px}.cur .t small{display:block;font-size:11.5px;color:var(--muted)}
+  .prog{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin:.65rem 0 .7rem}
+  .prog div{background:var(--cream);border-radius:14px;padding:.45rem .55rem;font-size:11px;color:var(--muted);min-width:0}
+  .prog b{font-size:12px}.prog i{display:block;height:6px;border-radius:4px;background:#f0e2d8;margin-top:.3rem;overflow:hidden}.prog i span{display:block;height:100%;background:var(--c)}
+  .decks{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+  .dk{border:none;background:#fff;border-radius:20px;padding:.85rem .5rem;cursor:pointer;text-align:center;border:1px solid rgba(193,122,111,.14);box-shadow:0 4px 14px rgba(193,122,111,.07);font-family:inherit;color:var(--ink);min-width:0}
+  .dk span{display:block;font-size:2rem;line-height:1.15}.dk b{display:block;font-size:13px;margin-top:.15rem}.dk small{display:block;font-size:10.5px;color:var(--muted)}
+  .dk:active{transform:scale(.97)}
+  .dk:last-child:nth-child(odd){grid-column:1/-1}
+  .hist button{display:flex;width:100%;align-items:center;gap:.6rem;background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:16px;padding:.6rem .75rem;margin-bottom:.45rem;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
+  .hist .e{font-size:1.5rem}.hist .m{flex:1;min-width:0}.hist b{display:block;font-size:12.5px}.hist small{display:block;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ph{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.3rem 0 .6rem}
+  .ph b{font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ph small{font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .stack{position:relative;height:min(58vh,400px);min-height:280px;margin:0 auto .9rem;max-width:360px;touch-action:none;user-select:none;-webkit-user-select:none}
+  .cd{position:absolute;inset:0;border-radius:26px;background:linear-gradient(160deg,#fff,#fff6f1);border:1px solid rgba(193,122,111,.16);box-shadow:0 12px 30px rgba(122,63,53,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.2rem;will-change:transform}
+  .cd.back{transform:scale(.94) translateY(14px);opacity:.75;box-shadow:0 6px 16px rgba(122,63,53,.08)}
+  .cd .e{font-size:clamp(4rem,24vw,6rem);line-height:1.1}
+  .cd b{font-size:clamp(1.25rem,6.5vw,1.6rem);margin-top:.5rem;line-height:1.25;overflow-wrap:anywhere}
+  .cd small{font-size:12px;color:var(--muted);margin-top:.4rem}
+  .cd .ot{position:absolute;bottom:.9rem;left:0;right:0;font-size:11.5px;color:var(--muted)}
+  .cd .st{position:absolute;top:1.1rem;font:800 1.2rem Poppins,sans-serif;padding:.25rem .8rem;border-radius:12px;border:3px solid;opacity:0;letter-spacing:.05em}
+  .cd .st.y{left:1rem;color:#2f9e5b;border-color:#2f9e5b;transform:rotate(-12deg)}
+  .cd .st.n{right:1rem;color:#d0485a;border-color:#d0485a;transform:rotate(12deg)}
+  .acts{display:flex;justify-content:center;align-items:center;gap:1.1rem}
+  .acts button{border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.12);background:#fff;font-family:inherit}
+  .acts .no,.acts .yes{width:64px;height:64px;font-size:1.7rem}.acts .un{width:46px;height:46px;font-size:1.1rem;color:var(--muted)}
+  .acts .yes{background:linear-gradient(135deg,#ff8fa3,#e0475b);color:#fff}
+  .acts button:active{transform:scale(.92)}
+  .hint{font-size:11px;color:var(--muted);text-align:center;margin-top:.7rem}
+  .res h3{font-size:14px;margin:.9rem 0 .45rem}
+  .mt{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:16px;padding:.6rem .75rem;margin-bottom:.4rem;border:1px solid rgba(193,122,111,.13);transition:transform .2s,box-shadow .2s}
+  .mt .e{font-size:1.6rem}.mt b{font-size:13px;flex:1;min-width:0;overflow-wrap:anywhere}.mt.big{border:2px solid #f2a7b5;background:linear-gradient(135deg,#fff,#fff0f3)}
+  .mt.pick{transform:scale(1.03);box-shadow:0 8px 22px rgba(224,71,91,.3);border-color:#e0475b}
+  .mini{display:flex;flex-wrap:wrap;gap:.35rem}
+  .mini span{font-size:11.5px;background:#fff;border:1px solid rgba(193,122,111,.15);border-radius:50px;padding:.28rem .6rem;color:var(--muted)}
+  .wait{background:#fff7e8;border-radius:16px;padding:.7rem .8rem;font-size:12px;color:#8a5a20;line-height:1.5;margin:.3rem 0 .6rem;display:flex;align-items:center;gap:.6rem}
+  .wait span{flex:1;min-width:0}.wait button{border:none;border-radius:50px;background:#e8a23a;color:#fff;font:700 11.5px Poppins,sans-serif;padding:.45rem .7rem;cursor:pointer;flex-shrink:0}
+  .big-n{text-align:center;margin:.4rem 0 .2rem}.big-n b{display:block;font-size:2.6rem;color:#e0475b;line-height:1.1}.big-n small{font-size:12px;color:var(--muted)}
+  .match{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,rgba(255,143,163,.95),rgba(176,58,90,.96));padding:1.2rem;text-align:center;color:#fff}
+  .match.show{display:flex;animation:mIn .35s ease}
+  @keyframes mIn{from{opacity:0}to{opacity:1}}
+  .match h2{font:800 clamp(2rem,11vw,2.8rem) Poppins,sans-serif;letter-spacing:.02em;margin-bottom:.3rem;animation:mPop .5s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes mPop{from{transform:scale(.4)}to{transform:none}}
+  .match .e{font-size:5rem;display:block;line-height:1.1;margin:.4rem 0}
+  .match p{font-size:14px;opacity:.95;line-height:1.5;max-width:300px;margin:0 auto}
+  .match button{margin-top:1.2rem;border:none;border-radius:50px;background:#fff;color:#b03a5a;font:700 14px Poppins,sans-serif;padding:.85rem 1.6rem;cursor:pointer}
+  .ck{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.4rem}
+  .myc{margin-top:.8rem;max-height:34vh;overflow-y:auto}
+  .myc div{display:flex;align-items:center;gap:.5rem;padding:.45rem .2rem;border-top:1px solid #f1e6dd;font-size:12.5px}
+  .myc div span{flex:1;min-width:0;overflow-wrap:anywhere}.myc div small{color:var(--muted);font-size:10.5px}
+  .myc div button{border:none;background:none;font-size:14px;cursor:pointer;padding:.2rem .3rem}
+  @media (max-width:340px){.acts{gap:.8rem}.acts .no,.acts .yes{width:56px;height:56px;font-size:1.5rem}.dk{padding:.7rem .35rem}.dk b{font-size:12px}}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill" id="back">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+
+  <div class="scr on" id="s-home">
+    <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🗳️</span><p class="lbl">Bingung? Geser aja</p><h1 class="title">Swipe <span>Bareng</span></h1><p class="sub">Mau makan apa, ke mana, nonton apa — geser masing-masing di HP sendiri. Yang sama-sama ❤️ langsung <b>Match!</b></p></div>
+    <p class="bd-st" id="bd-st"></p>
+    <div id="cur"></div>
+    <p class="sec">🃏 Mulai ronde baru</p>
+    <div class="decks" id="decks"></div>
+    <button class="btn ghost" style="margin-top:.8rem" onclick="openKartu()">✏️ Tambah kartu sendiri</button>
+    <div id="hist-w" style="display:none"><p class="sec">🕰️ Hasil sebelumnya</p><div class="hist" id="hist"></div></div>
+  </div>
+
+  <div class="scr" id="s-play">
+    <div class="ph"><b id="p-t"></b><small id="p-n"></small></div>
+    <div class="stack" id="stack"></div>
+    <div class="acts"><button class="no" id="b-no" aria-label="Nggak">❌</button><button class="un" id="b-un" aria-label="Balikin">↩</button><button class="yes" id="b-yes" aria-label="Mau">❤️</button></div>
+    <p class="hint">Geser kanan = mau ❤️ · geser kiri = nggak ❌</p>
+  </div>
+
+  <div class="scr res" id="s-res"></div>
+</div>
+
+<div class="match" id="match"><div><h2>Match! 🎉</h2><span class="e" id="m-e"></span><p id="m-t"></p><button onclick="closeMatch()">Lanjut swipe →</button></div></div>
+
+<div class="ov" id="k-ov"><div class="sheet">
+  <div class="drag"></div>
+  <h3 style="text-align:center;font-size:15px;margin-bottom:.2rem">✏️ Kartu sendiri</h3>
+  <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:.4rem">Kartu tambahan ini ikut muncul di ronde berikutnya (keliatan di HP kalian berdua)</p>
+  <label class="lab">Masuk ke</label>
+  <div class="chips ck" id="k-d"></div>
+  <label class="lab">Isinya</label>
+  <div class="row" style="margin-top:0"><input class="inp" id="k-e" maxlength="4" placeholder="🍲" style="flex:0 0 64px;text-align:center"><input class="inp" id="k-t" maxlength="40" placeholder="Misal: Soto Betawi deket kantor"></div>
+  <button class="btn" style="margin-top:.7rem" id="k-go">➕ Tambahin</button>
+  <div class="myc" id="k-l"></div>
+  <button class="btn ghost" style="margin-top:.7rem" onclick="$('k-ov').classList.remove('show')">Tutup</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME), WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const COL = { Razan: 'var(--rz)', Dara: 'var(--dr)' };
+const N = 12, D0 = '2000-01-01';
+const DECKS = {
+  makan: { e: '🍜', n: 'Makan apa?', c: [['🌶️', 'Seblak'], ['🍲', 'Bakso'], ['🍜', 'Mie ayam'], ['🍢', 'Sate'], ['🍛', 'Nasi padang'], ['🍣', 'Sushi'], ['🍥', 'Ramen'], ['🍕', 'Pizza'], ['🍔', 'Burger'], ['🥞', 'Martabak telor'], ['🍗', 'Ayam geprek'], ['🥩', 'Korean BBQ'], ['🥟', 'Dimsum'], ['🐟', 'Pecel lele'], ['🍳', 'Nasi goreng'], ['🥣', 'Soto'], ['🫕', 'Shabu-shabu'], ['🥩', 'Steak'], ['🥗', 'Gado-gado'], ['🍝', 'Pasta'], ['🌮', 'Kebab'], ['🍱', 'Bento'], ['🦐', 'Seafood'], ['🍚', 'Nasi uduk']] },
+  jajan: { e: '🧋', n: 'Jajan apa?', c: [['🧋', 'Boba'], ['🍦', 'Es krim'], ['☕', 'Kopi susu'], ['🥞', 'Martabak manis'], ['🍡', 'Cilok'], ['🍩', 'Donat'], ['🥐', 'Croffle'], ['🍞', 'Roti bakar'], ['🥖', 'Churros'], ['🍘', 'Cimol'], ['🧊', 'Es teh jumbo'], ['🍌', 'Pisang goreng'], ['🌭', 'Corndog'], ['🐙', 'Takoyaki'], ['🍰', 'Dessert box'], ['🍵', 'Matcha latte'], ['🥤', 'Jus buah'], ['🍫', 'Cokelat'], ['🧇', 'Waffle'], ['🍮', 'Puding']] },
+  kencan: { e: '📍', n: 'Kencan ke mana?', c: [['🌳', 'Taman kota'], ['🛍️', 'Mall'], ['🎞️', 'Bioskop'], ['☕', 'Kafe aesthetic'], ['🏛️', 'Museum'], ['🏖️', 'Pantai'], ['⛰️', 'Ke daerah pegunungan'], ['🎡', 'Pasar malam'], ['🦒', 'Kebun binatang'], ['🕹️', 'Arcade & bowling'], ['🎤', 'Karaoke'], ['🧺', 'Piknik'], ['📚', 'Toko buku'], ['🚲', 'Car free day'], ['🖼️', 'Pameran seni'], ['🍢', 'Wisata kuliner'], ['🏺', 'Workshop pottery'], ['🎶', 'Nonton konser'], ['👕', 'Thrifting'], ['📸', 'Photobox'], ['🌅', 'Liat sunset'], ['🛶', 'Danau / naik perahu']] },
+  nonton: { e: '🎬', n: 'Nonton apa?', c: [['💘', 'Komedi romantis'], ['👻', 'Horor'], ['💥', 'Action'], ['🍥', 'Anime'], ['🇰🇷', 'Drakor'], ['🇮🇩', 'Film Indonesia'], ['🧸', 'Film animasi'], ['🌍', 'Dokumenter'], ['🕵️', 'Thriller misteri'], ['🚀', 'Sci-fi'], ['😂', 'Sitkom'], ['🎵', 'Film musikal'], ['📺', 'Reality show'], ['🎞️', 'Film klasik'], ['🔪', 'True crime'], ['🎮', 'Variety show'], ['🧙', 'Fantasi'], ['🦸', 'Superhero']] },
+  rumah: { e: '🏠', n: 'Ngapain bareng?', c: [['🍳', 'Masak bareng'], ['🎮', 'Main game di Razara'], ['🎬', 'Nonton bareng'], ['📞', 'Telponan sampe ketiduran'], ['🃏', 'Main kartu'], ['🖍️', 'Gambar & tebak'], ['🎤', 'Karaoke di rumah'], ['📖', 'Baca buku bareng'], ['🧘', 'Stretching bareng'], ['🎵', 'Bikin playlist'], ['🧩', 'Main puzzle'], ['📚', 'Belajar / fokus bareng'], ['💬', 'Deep talk'], ['📷', 'Foto-foto lucu'], ['🧹', 'Beres-beres bareng'], ['🧁', 'Bikin kue'], ['🛌', 'Rebahan aja'], ['🪴', 'Ngerawat tanaman']] }
+};
+const row = w => (lsGet('swipe-' + w, {}) || {})[D0] || { r: {} };
+const R = w => row(w).r || {};
+const hm = t => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const shuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const notify = o => { try { window.Push && Push.notify(o); } catch (e) {} };
+// ── ronde ──
+function rounds() { const m = {}; WHO.forEach(w => Object.entries(R(w)).forEach(([id, x]) => { if (x && Array.isArray(x.c) && (!m[id] || w === x.by)) m[id] = Object.assign({ id }, x); })); return Object.values(m).sort((a, b) => (b.at || 0) - (a.at || 0)); }
+const spec = id => rounds().find(x => x.id === id) || null;
+const votes = (w, id) => { const x = R(w)[id]; return (x && Array.isArray(x.v)) ? x.v : []; };
+const done = (w, id) => { const s = spec(id); if (!s) return 0; const v = votes(w, id); return s.c.reduce((n, _, i) => n + (v[i] === 0 || v[i] === 1 ? 1 : 0), 0); };
+const finished = (w, id) => { const s = spec(id); return !!s && done(w, id) >= s.c.length; };
+function saveMine(id, v) {
+  const s = spec(id); if (!s) return;
+  const me = row(ME), r = Object.assign({}, me.r || {});
+  r[id] = { d: s.d, by: s.by, at: s.at, c: s.c, v, fin: v.filter(x => x === 0 || x === 1).length >= s.c.length ? (r[id] && r[id].fin) || Date.now() : 0 };
+  const keep = Object.keys(r).sort((a, b) => (r[b].at || 0) - (r[a].at || 0)).slice(0, 10), out = {}; keep.forEach(k => out[k] = r[k]);
+  BD.put('swipe', ME, D0, { r: out, cur: id });
+}
+function custom() {
+  const m = {}; WHO.forEach(w => ((((lsGet('swipek-' + w, {}) || {})[D0] || {}).list) || []).forEach(x => { if (x && x.id && (!m[x.id] || (x.at || 0) > (m[x.id].at || 0))) m[x.id] = x; }));
+  return Object.values(m).filter(x => !x.del && DECKS[x.d]).sort((a, b) => (a.at || 0) - (b.at || 0));
+}
+function startRound(d) {
+  const a = rounds()[0];
+  if (a && !(finished(ME, a.id) && finished(OT, a.id)) && done(ME, a.id) + done(OT, a.id) > 0 && !confirm('Ronde sekarang belum selesai. Mulai ronde baru aja?')) return;
+  const cu = shuf(custom().filter(x => x.d === d)).slice(0, 6).map(x => [x.e || '✨', x.t]);
+  const have = new Set(cu.map(x => x[1].toLowerCase()));
+  const c = cu.concat(shuf(DECKS[d].c).filter(x => !have.has(x[1].toLowerCase()))).slice(0, N);
+  const id = 'r' + Date.now().toString(36), at = Date.now();
+  const me = row(ME), r = Object.assign({}, me.r || {}); r[id] = { d, by: ME, at, c, v: [], fin: 0 };
+  const keep = Object.keys(r).sort((x, y) => (r[y].at || 0) - (r[x].at || 0)).slice(0, 10), out = {}; keep.forEach(k => out[k] = r[k]);
+  BD.put('swipe', ME, D0, { r: out, cur: id });
+  notify({ title: `🗳️ ${ME} ngajak Swipe Bareng`, body: `${DECKS[d].e} ${DECKS[d].n} — ${c.length} kartu, yang sama-sama ❤️ jadi Match!`, url: 'swipe-bareng.html', tag: 'ajak-swipe' });
+  vib(20); play(id);
+}
+// ── layar ──
+let cur = '', view = 'home';
+function show(v) { view = v; ['home', 'play', 'res'].forEach(k => $('s-' + k).classList.toggle('on', k === v)); $('back').textContent = v === 'home' ? '← Menu utama' : '← Swipe Bareng'; $('back').setAttribute('href', v === 'home' ? 'index.html' : '#'); scrollTo(0, 0); }
+$('back').addEventListener('click', e => { if (view !== 'home') { e.preventDefault(); show('home'); paintHome(); } });
+function progBox(w, id) { const s = spec(id), n = done(w, id), t = s ? s.c.length : N; return `<div style="--c:${COL[w]}"><b>${w === ME ? 'Kamu' : w}</b> ${n >= t ? '✓ selesai' : `${n}/${t}`}<i><span style="width:${Math.round(n / t * 100)}%"></span></i></div>`; }
+const matchesOf = id => { const s = spec(id); if (!s) return []; const a = votes(ME, id), b = votes(OT, id); return s.c.map((c, i) => a[i] === 1 && b[i] === 1 ? c : null).filter(Boolean); };
+function paintHome() {
+  const a = rounds()[0];
+  if (a) {
+    const dk = DECKS[a.d] || { e: '🗳️', n: 'Ronde' }, mf = finished(ME, a.id), of = finished(OT, a.id), mm = matchesOf(a.id);
+    const fresh = !(mf && of) || Date.now() - (a.at || 0) < 2 * 864e5;
+    $('cur').innerHTML = fresh ? `<div class="cur"><div class="t"><span class="e">${dk.e}</span><span><b>${dk.n}</b><small>Ronde dari ${a.by === ME ? 'kamu' : a.by} · ${hm(a.at)}${mm.length ? ` · 💘 ${mm.length} match` : ''}</small></span></div><div class="prog">${progBox(ME, a.id)}${progBox(OT, a.id)}</div>${mf ? `<button class="btn" data-res="${a.id}">👀 Liat hasil</button>` : `<button class="btn" data-play="${a.id}">${done(ME, a.id) ? '▶ Lanjut swipe' : '▶ Mulai swipe'}</button>`}</div>` : '';
+  } else $('cur').innerHTML = '';
+  const cu = custom();
+  $('decks').innerHTML = Object.entries(DECKS).map(([k, d]) => { const n = cu.filter(x => x.d === k).length; return `<button class="dk" data-deck="${k}"><span>${d.e}</span><b>${d.n}</b><small>${d.c.length + n} kartu${n ? ` · ✏️ ${n} punya kita` : ''}</small></button>`; }).join('');
+  const H = rounds().slice(a && $('cur').innerHTML ? 1 : 0, 9);
+  $('hist-w').style.display = H.length ? '' : 'none';
+  $('hist').innerHTML = H.map(x => { const dk = DECKS[x.d] || { e: '🗳️', n: 'Ronde' }, both = finished(ME, x.id) && finished(OT, x.id), mm = matchesOf(x.id), dt = new Date(x.at || 0);
+    return `<button data-res="${x.id}"><span class="e">${dk.e}</span><span class="m"><b>${dk.n} · ${dt.getDate()} ${BLN[dt.getMonth()]}</b><small>${both ? (mm.length ? '💘 ' + mm.map(c => c[1]).join(', ') : 'Ga ada yang match 😆') : `⏳ belum selesai (${done(ME, x.id)}/${x.c.length} · ${OT} ${done(OT, x.id)}/${x.c.length})`}</small></span></button>`; }).join('');
+  try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {}
+}
+// ── swipe ──
+let V = [], busyFly = false;
+function play(id) {
+  const s = spec(id); if (!s) return;
+  cur = id; V = votes(ME, id).slice(); while (V.length < s.c.length) V.push(null);
+  if (finished(ME, id)) return results(id);
+  show('play'); paintPlay();
+}
+const nextIdx = () => V.findIndex(x => x !== 0 && x !== 1);
+function paintPlay() {
+  const s = spec(cur); if (!s) return show('home');
+  const i = nextIdx(); if (i < 0) return results(cur);
+  const dk = DECKS[s.d] || { e: '🗳️', n: 'Swipe' }, ov = votes(OT, cur);
+  $('p-t').textContent = `${dk.e} ${dk.n}`; $('p-n').textContent = `${i + 1} / ${s.c.length}`;
+  const card = (j, back) => { const c = s.c[j]; if (!c) return ''; return `<div class="cd${back ? ' back' : ''}" data-i="${j}"><span class="st y">MAU</span><span class="st n">NGGAK</span><span class="e">${esc(c[0])}</span><b>${esc(c[1])}</b><small>${dk.n}</small>${!back && (ov[j] === 0 || ov[j] === 1) ? `<span class="ot">🤫 ${OT} udah milih</span>` : ''}</div>`; };
+  $('stack').innerHTML = card(i + 1, true) + card(i, false);
+  $('b-un').style.visibility = V.some(x => x === 0 || x === 1) ? 'visible' : 'hidden';
+  drag($('stack').querySelector('.cd:not(.back)'));
+}
+function drag(el) {
+  if (!el) return;
+  let x0 = 0, y0 = 0, dx = 0, on = false, pid = null;
+  const y = el.querySelector('.st.y'), n = el.querySelector('.st.n');
+  el.addEventListener('pointerdown', e => { if (busyFly) return; on = true; pid = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; el.style.transition = 'none'; try { el.setPointerCapture(pid); } catch (x) {} });
+  el.addEventListener('pointermove', e => { if (!on || e.pointerId !== pid) return; dx = e.clientX - x0; const dy = (e.clientY - y0) * .25; el.style.transform = `translate(${dx}px,${dy}px) rotate(${dx / 18}deg)`; const k = Math.min(1, Math.abs(dx) / 90); y.style.opacity = dx > 0 ? k : 0; n.style.opacity = dx < 0 ? k : 0; });
+  const up = e => { if (!on || (e && e.pointerId !== pid)) return; on = false; const th = Math.max(70, el.offsetWidth * .26);
+    if (Math.abs(dx) > th) fly(dx > 0 ? 1 : 0); else { el.style.transition = 'transform .25s'; el.style.transform = ''; y.style.opacity = 0; n.style.opacity = 0; } };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+}
+function fly(val) {
+  if (busyFly) return; const el = $('stack').querySelector('.cd:not(.back)'); if (!el) return;
+  busyFly = true; const i = +el.dataset.i, W = innerWidth;
+  el.style.transition = 'transform .32s ease-in, opacity .32s'; el.style.transform = `translate(${val ? W : -W}px,40px) rotate(${val ? 24 : -24}deg)`; el.style.opacity = '0';
+  const st = el.querySelector(val ? '.st.y' : '.st.n'); if (st) st.style.opacity = 1;
+  vib(val ? 18 : 8);
+  setTimeout(() => { busyFly = false; vote(i, val); }, 260);
+}
+function vote(i, val) {
+  const s = spec(cur); if (!s) return;
+  V[i] = val; saveMine(cur, V.slice());
+  const ov = votes(OT, cur);
+  if (val === 1 && ov[i] === 1) { const c = s.c[i]; matchShow(c); notify({ title: `🎉 Match sama ${ME}!`, body: `Kalian sama-sama mau: ${c[0]} ${c[1]}`, url: 'swipe-bareng.html', tag: 'ajak-swipe-m' }); }
+  if (nextIdx() < 0) {
+    const of = finished(OT, cur), mm = matchesOf(cur);
+    notify(of ? { title: `🗳️ Hasil Swipe Bareng: ${mm.length} match`, body: mm.length ? mm.map(c => c[0] + ' ' + c[1]).join(', ').slice(0, 150) : 'Ga ada yang sama 😆 coba ronde lain yuk', url: 'swipe-bareng.html', tag: 'ajak-swipe-f' }
+      : { title: `🗳️ ${ME} udah selesai swipe`, body: 'Giliran kamu — liat ada yang match ga 👀', url: 'swipe-bareng.html', tag: 'ajak-swipe-f' });
+    if (!$('match').classList.contains('show')) results(cur);
+    return;
+  }
+  paintPlay();
+}
+function matchShow(c) { $('m-e').textContent = c[0]; $('m-t').innerHTML = `Kamu &amp; ${OT} sama-sama mau <b>${esc(c[1])}</b> 💘`; $('match').classList.add('show'); confetti(70, ['#fff', '#ffd1dc', '#ffb3c1', '#ffe08a']); vib([30, 40, 30, 40, 60]); }
+function closeMatch() { $('match').classList.remove('show'); if (nextIdx() < 0) results(cur); }
+$('b-yes').onclick = () => fly(1);
+$('b-no').onclick = () => fly(0);
+$('b-un').onclick = () => { if (busyFly) return; let j = -1; V.forEach((x, k) => { if (x === 0 || x === 1) j = k; }); if (j < 0) return; V[j] = null; saveMine(cur, V.slice()); vib(8); paintPlay(); };
+// ── hasil ──
+let colekN = {};
+function results(id) {
+  cur = id; const s = spec(id); if (!s) return show('home');
+  const dk = DECKS[s.d] || { e: '🗳️', n: 'Swipe' }, a = votes(ME, id), b = votes(OT, id), of = finished(OT, id), mf = finished(ME, id);
+  const mm = s.c.map((c, i) => a[i] === 1 && b[i] === 1 ? c : null).filter(Boolean);
+  const onlyMe = s.c.filter((c, i) => a[i] === 1 && b[i] !== 1), onlyOt = s.c.filter((c, i) => b[i] === 1 && a[i] !== 1);
+  let h = `<div class="head" style="margin:.5rem 0 .4rem"><span class="ico">${dk.e}</span><p class="lbl">Hasil ronde</p><h1 class="title" style="font-size:1.45rem">${dk.n}</h1></div>`;
+  if (!mf) h += `<div class="wait"><span>Kamu baru ${done(ME, id)}/${s.c.length} kartu</span><button data-play="${id}">▶ Lanjut</button></div>`;
+  if (!of) h += `<div class="wait"><span>⏳ ${OT} ${done(OT, id) ? `baru ${done(OT, id)}/${s.c.length} kartu` : 'belum mulai swipe'} — match bisa nambah nanti</span><button data-colek="${id}">👉 Colek</button></div>`;
+  h += `<div class="big-n"><b>${mm.length}</b><small>${mm.length ? '💘 Match — sama-sama mau' : (of && mf ? 'Ga ada yang match 😆' : 'match sejauh ini')}</small></div>`;
+  h += mm.map((c, i) => `<div class="mt big" data-k="${i}"><span class="e">${esc(c[0])}</span><b>${esc(c[1])}</b>💘</div>`).join('');
+  if (mm.length > 1) h += `<button class="btn" style="margin-top:.6rem" id="r-acak">🎲 Bingung juga? Acak dari yang match</button>`;
+  if (!mm.length && of && mf && (onlyMe.length || onlyOt.length)) h += `<p class="empty">Coba kompromi — salah satu dari yang di bawah, atau mulai ronde baru 😉</p>`;
+  if (onlyMe.length) h += `<h3>🙋 Cuma kamu yang mau</h3><div class="mini">${onlyMe.map(c => `<span>${esc(c[0])} ${esc(c[1])}</span>`).join('')}</div>`;
+  if (onlyOt.length && of) h += `<h3>🙋 Cuma ${OT} yang mau</h3><div class="mini">${onlyOt.map(c => `<span>${esc(c[0])} ${esc(c[1])}</span>`).join('')}</div>`;
+  const txt = `🗳️ Swipe Bareng — ${dk.n}\n` + (mm.length ? `💘 Kita sama-sama mau: ${mm.map(c => c[0] + ' ' + c[1]).join(', ')}` : 'Belum ada yang match nih 😆') + '\nGas kapan? 🥰';
+  h += `<div class="row" style="margin-top:1rem"><a class="btn wa" href="${waLink(OT, txt)}" target="_blank" rel="noopener">💬 Kirim ke WA</a><button class="btn ghost" data-new="${s.d}">🔁 Ronde baru</button></div>`;
+  h += `<button class="btn ghost" style="margin-top:.6rem" id="r-home">← Pilih kartu lain</button>`;
+  $('s-res').innerHTML = h; show('res');
+  if ($('r-acak')) $('r-acak').onclick = () => {
+    const els = [...$('s-res').querySelectorAll('.mt.big')]; if (!els.length) return; let k = 0, n = 14 + Math.floor(Math.random() * els.length);
+    const step = () => { els.forEach(e => e.classList.remove('pick')); els[k % els.length].classList.add('pick'); vib(6); if (k++ < n) setTimeout(step, 70 + k * 12); else { confetti(40); toast(`🎯 Udah, ${els[(k - 1) % els.length].querySelector('b').textContent} aja!`, 3200); } };
+    step();
+  };
+  $('r-home').onclick = () => { show('home'); paintHome(); };
+}
+// ── kartu sendiri ──
+let kD = 'makan';
+function openKartu() { paintKartu(); $('k-ov').classList.add('show'); }
+function paintKartu() {
+  $('k-d').innerHTML = Object.entries(DECKS).map(([k, d]) => `<button type="button" class="${k === kD ? 'on' : ''}" data-kd="${k}">${d.e} ${d.n}</button>`).join('');
+  const L = custom();
+  $('k-l').innerHTML = L.length ? L.slice().reverse().map(x => `<div><span>${esc(x.e || '✨')} ${esc(x.t)}</span><small>${DECKS[x.d].e} · ${x.by === ME ? 'kamu' : esc(x.by || '')}</small><button data-kdel="${esc(x.id)}" aria-label="Hapus">🗑️</button></div>`).join('') : '<p class="empty" style="padding:.6rem">Belum ada kartu tambahan</p>';
+}
+function myList() { return ((((lsGet('swipek-' + ME, {}) || {})[D0] || {}).list) || []).slice(); }
+$('k-go').onclick = () => {
+  const t = $('k-t').value.trim().slice(0, 40); if (!t) { $('k-t').focus(); return; }
+  if (custom().some(x => x.d === kD && x.t.toLowerCase() === t.toLowerCase())) return toast('Kartu itu udah ada 😉');
+  const L = myList(); L.push({ id: 'k' + Date.now().toString(36), d: kD, e: $('k-e').value.trim().slice(0, 4) || '✨', t, by: ME, at: Date.now() });
+  BD.put('swipek', ME, D0, { list: L.slice(-80) }); $('k-t').value = ''; $('k-e').value = ''; vib(12); toast('➕ Kartu ditambahin — muncul di ronde berikutnya'); paintKartu(); paintHome();
+};
+$('k-ov').addEventListener('click', e => {
+  if (e.target === $('k-ov')) { $('k-ov').classList.remove('show'); return; }
+  const d = e.target.closest('[data-kd]'); if (d) { kD = d.dataset.kd; paintKartu(); return; }
+  const x = e.target.closest('[data-kdel]'); if (x) { const c = custom().find(y => y.id === x.dataset.kdel); if (!c) return; const L = myList().filter(y => y.id !== c.id); L.push(Object.assign({}, c, { del: 1, at: Date.now() })); BD.put('swipek', ME, D0, { list: L.slice(-80) }); paintKartu(); paintHome(); }
+});
+// ── klik umum ──
+document.addEventListener('click', e => {
+  const d = e.target.closest('[data-deck]'); if (d) { startRound(d.dataset.deck); return; }
+  const p = e.target.closest('[data-play]'); if (p) { play(p.dataset.play); return; }
+  const r = e.target.closest('[data-res]'); if (r) { results(r.dataset.res); return; }
+  const n = e.target.closest('[data-new]'); if (n) { startRound(n.dataset.new); return; }
+  const c = e.target.closest('[data-colek]');
+  if (c) { const id = c.dataset.colek; colekN[id] = (colekN[id] || 0) + 1; if (colekN[id] > 2) return toast('Udah dicolek — sabar ya 😆'); notify({ title: `👉 ${ME} nungguin kamu swipe`, body: 'Ayo geser kartunya, siapa tau kita match 💘', url: 'swipe-bareng.html', tag: 'ajak-swipe-c' }); vib(15); toast(`👉 ${OT} udah dicolek`); }
+});
+BD.on(ev => {
+  if (ev.apps && ev.apps.length && !ev.apps.includes('swipe') && !ev.apps.includes('swipek')) return;
+  if (view === 'home') paintHome();
+  else if (view === 'res') results(cur);
+  else if (view === 'play' && !busyFly && !$('match').classList.contains('show')) { const s = spec(cur), card = $('stack').querySelector('.cd:not(.back)'); if (s && card && !card.style.transform) paintPlay(); }
+});
+try { BD.fast && BD.fast(15e3); } catch (e) {}
+paintHome();
+const q = /[?&]r=([\w]+)/.exec(location.search); if (q && spec(q[1])) play(q[1]);
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

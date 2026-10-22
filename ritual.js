@@ -18,6 +18,7 @@
     { link: 'buku-harian.html', ico: '📔', done: () => { const a = (get('diary-' + me(), {}) || {})[today()], b = (get('diary-priv-' + me(), {}) || {})[today()]; return !!((a && a.t) || (b && b.t)); } },
     { link: 'voucher-harian.html', ico: '🎟️', show: () => me() === 'Dara', done: () => { const c = (get('vklaim-Dara', {}) || {})[today()]; return !!(c && c.sent); } },
     { link: 'kebiasaan-bareng.html', ico: '✅', show: () => habits().length > 0, done: () => { const ids = ((get('habitc-' + me(), {}) || {})[today()] || {}).ids || []; return habits().every(h => ids.includes(h.id)); } },
+    { link: 'momen-harian.html', ico: '🤳', done: () => { const r = (get('momen-' + me(), {}) || {})[today()]; return !!(r && r.u); } },
     { link: 'ibadah-bareng.html', ico: '🕌', show: () => !!get('ibd-push', false) || Object.keys(get('ibadah-' + me(), {}) || {}).length > 0, done: () => { const r = (get('ibadah-' + me(), {}) || {})[today()]; return !!(r && (r.off || Object.keys(r.s || {}).length >= 5)); } }
   ];
   function habits() { const m = {}, w = me(); ['Razan', 'Dara'].forEach(x => (((get('habit-' + x, {}) || {})['2000-01-01'] || {}).list || []).forEach(h => { if (h && h.id && (!m[h.id] || (h.at || 0) > (m[h.id].at || 0))) m[h.id] = h; })); return Object.values(m).filter(h => !h.del && (h.who === 'both' || h.who === w)); }
