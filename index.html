@@ -452,6 +452,12 @@ html.lite #home .pc *,html.lite #home .pc{animation:none!important}
 html.lite #home *{box-shadow:none!important}
 html.lite body::before{display:none}
 </style>
+<style>
+.pop-pin{position:absolute;top:1rem;left:1.1rem;height:38px;padding:0 .8rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;font:600 12px 'Poppins',sans-serif;cursor:pointer;display:none;align-items:center;justify-content:center;color:var(--muted)}
+.pop-pin.on{background:linear-gradient(135deg,#f6a6c1,#d4718a);border-color:transparent;color:#fff}
+.grid-item.pin-press{transform:scale(.96);transition:transform .25s}
+.pin-hint{font-size:11px;color:var(--muted);text-align:center;margin:-.2rem 0 .6rem}
+</style>
 </head>
 <body>
 
@@ -605,6 +611,7 @@ html.lite body::before{display:none}
   <div class="popup-sheet">
     <div class="popup-drag"></div>
     <button class="pop-fav" id="pop-fav" onclick="toggleFavCur()">☆</button>
+    <button class="pop-pin" id="pop-pin" onclick="togglePinCur()">📌 Pin</button>
     <span class="popup-icon" id="popup-icon">🧩</span>
     <h2 class="popup-title" id="popup-title">Judul</h2>
     <p class="popup-desc" id="popup-desc">Deskripsi</p>
@@ -970,7 +977,7 @@ function renderCatScreen(i) {
       let cls = 'grid-item';
       if (item.feat) cls += ' grid-item-featured';
       if (item.locked) cls += ' locked';
-      el.className = cls;
+      el.className = cls; el.dataset.link = item.link || '';
       if (item.badge) {
         const b = document.createElement('div');
         b.className = 'featured-badge';
@@ -990,10 +997,26 @@ function renderCatScreen(i) {
     secEl.appendChild(grid);
     body.appendChild(secEl);
   });
+  if (!(LS0('idx-pins') || []).length) { const h = document.createElement('p'); h.className = 'pin-hint'; h.textContent = '💡 Tahan kartu (atau tap 📌 di popup) buat nge-pin — yang dipin pindah paling atas'; body.insertBefore(h, body.firstChild); }
   document.getElementById('home').classList.remove('active');
   document.getElementById('cat-screen').classList.add('active');
   body.scrollTop = 0;
 }
+function LS0(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+// tahan kartu ±0,5 detik → pin / lepas pin
+(function () {
+  let t = null, el = null, fired = false, x0 = 0, y0 = 0;
+  const end = () => { clearTimeout(t); if (el) el.classList.remove('pin-press'); el = null; };
+  document.addEventListener('pointerdown', e => {
+    const g = e.target.closest && e.target.closest('#cat-body .grid-item'); if (!g || !g.dataset.link || g.classList.contains('locked')) return;
+    el = g; fired = false; x0 = e.clientX; y0 = e.clientY; g.classList.add('pin-press');
+    t = setTimeout(() => { fired = true; const lb = (g.querySelector('.item-label') || {}).textContent || ''; if (window.togglePin) togglePin(g.dataset.link, lb); end(); }, 520);
+  });
+  document.addEventListener('pointermove', e => { if (el && (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10)) end(); });
+  ['pointerup', 'pointercancel'].forEach(k => document.addEventListener(k, end));
+  document.addEventListener('click', e => { if (fired && e.target.closest && e.target.closest('#cat-body .grid-item')) { e.stopPropagation(); e.preventDefault(); fired = false; } }, true);
+  document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('#cat-body .grid-item')) e.preventDefault(); });
+})();
 
 function renderSecretScreen(body) {
   const secEl = document.createElement('div');
@@ -1470,6 +1493,29 @@ CATS.forEach(c => c.sections.forEach(sec => {
     sec.items.splice(pos, 0, { icon: ic, wrap, label, sub: `${all.length} game · ${sub}`, desc: '', link: '#f-' + k, folder: all });
   });
 }));
+// 📌 PIN — awalnya ga ada yang dipin; kamu sendiri yang pin (tahan kartunya / tombol 📌 di popup). Kesimpen di HP ini aja.
+CATS.forEach(c => c.sections.forEach(sec => { sec.items.forEach(it => { delete it.feat; delete it.badge; }); sec.base = sec.items.slice(); }));
+ALL.forEach(it => { delete it.feat; delete it.badge; });
+window.applyPins = () => {
+  const P = LS.get('idx-pins', []) || [];
+  CATS.forEach(c => { if (c.key === 'secret') return; c.sections.forEach(sec => {
+    const base = sec.base || sec.items, inFold = [];
+    base.forEach(it => { if (it.folder) it.folder.forEach(x => { if (P.includes(x.link)) inFold.push(x); }); });
+    const mk = it => Object.assign({}, it, { feat: true, badge: '📌 Dipin' });
+    const pinned = P.map(l => base.find(it => it.link === l) || inFold.find(it => it.link === l)).filter(Boolean);
+    sec.items = pinned.map(mk).concat(base.filter(it => !P.includes(it.link)));
+  }); });
+};
+function pinToast(m) { const o = document.getElementById('pin-toast'); if (o) o.remove(); const t = document.createElement('div'); t.id = 'pin-toast'; t.textContent = m; t.style.cssText = 'position:fixed;left:50%;bottom:calc(5.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font:500 12.5px Poppins,sans-serif;padding:.6rem 1rem;border-radius:50px;z-index:400;max-width:88vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2)'; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
+window.togglePin = (link, label) => {
+  if (!link) return; let P = LS.get('idx-pins', []) || []; const on = !P.includes(link);
+  P = on ? [link].concat(P) : P.filter(x => x !== link); LS.set('idx-pins', P); applyPins();
+  try { navigator.vibrate && navigator.vibrate(on ? [15, 40, 15] : 10); } catch (e) {}
+  pinToast(on ? `📌 ${label || 'Dipin'} — sekarang paling atas & warnanya pink` : `📌 Pin ${label || ''} dilepas`);
+  try { if (document.getElementById('cat-screen').classList.contains('active')) { const i = CATS.findIndex(c => c.name === document.getElementById('cat-hname').textContent); if (i >= 0) { const b = document.getElementById('cat-body'), y = b.scrollTop; renderCatScreen(i); b.scrollTop = y; } } } catch (e) {}
+  return on;
+};
+applyPins();
 window.openFolder = f => {
   let o = document.getElementById('fd-ov');
   if (!o) { o = document.createElement('div'); o.id = 'fd-ov'; o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); }); document.body.appendChild(o);
@@ -1712,10 +1758,12 @@ openPopup = function (icon, title, desc, link) {
   $('pop-meta').innerHTML = tags.map(t => `<span class="tag">${t}</span>`).join('');
   $('pop-meta').style.display = tags.length ? 'flex' : 'none';
   $('pop-fav').style.display = curItem ? 'flex' : 'none';
-  favBtn();
+  favBtn(); pinBtn();
 };
+function pinBtn() { const b = $('pop-pin'); if (!b) return; if (!curItem) { b.style.display = 'none'; return; } const on = (LS.get('idx-pins', []) || []).includes(curItem.link); b.style.display = 'flex'; b.textContent = on ? '📌 Dipin' : '📌 Pin'; b.classList.toggle('on', on); }
+window.togglePinCur = () => { if (!curItem) return; togglePin(curItem.link, curItem.label); pinBtn(); };
 const _closePopup = closePopup;
-closePopup = function () { _closePopup(); curItem = null; $('pop-meta').style.display = 'none'; $('pop-fav').style.display = 'none'; };
+closePopup = function () { _closePopup(); curItem = null; $('pop-meta').style.display = 'none'; $('pop-fav').style.display = 'none'; $('pop-pin').style.display = 'none'; };
 const _openLink = openLink;
 openLink = function () {
   if (curLink) {
@@ -2070,7 +2118,8 @@ setTimeout(() => {
     return (HT[it.link] || '').includes(f);
   }
   function gridItem(item) {
-    return `<div class="grid-item${item.feat ? ' grid-item-featured' : ''}" data-link="${item.link}">${item.badge ? `<div class="featured-badge">${item.badge}</div>` : ''}<div class="item-icon-wrap ${item.wrap}">${item.icon}</div><p class="item-label">${item.label}</p><p class="item-sublabel">${item.sub}</p></div>`;
+    const pin = (get('idx-pins', []) || []).includes(item.link);
+    return `<div class="grid-item${pin ? ' grid-item-featured' : ''}" data-link="${item.link}">${pin ? `<div class="featured-badge">📌 Dipin</div>` : ''}<div class="item-icon-wrap ${item.wrap}">${item.icon}</div><p class="item-label">${item.label}</p><p class="item-sublabel">${item.sub}</p></div>`;
   }
   // tanda BARU / ⭐ di grid → pakai link kalau ada (biar tetep bener pas difilter)
   decorateGrid = function () {
@@ -2078,7 +2127,7 @@ setTimeout(() => {
     if (!cat || cat.key === 'secret') return;
     const items = cat.sections.flatMap(s => s.items);
     document.querySelectorAll('#cat-body .grid-item').forEach((el, i) => {
-      const it = el.dataset.link ? byLink(el.dataset.link) : items[i]; if (!it) return;
+      const it = (el.dataset.link && byLink(el.dataset.link)) || items.find(x => x.link === el.dataset.link) || items[i]; if (!it) return;
       el.querySelectorAll('.new-dot,.fav-mark').forEach(x => x.remove());
       if (it.folder ? it.folder.some(x => isNew({ ...x, cat: cat.key })) : isNew({ ...it, cat: cat.key })) el.insertAdjacentHTML('beforeend', '<span class="new-dot">BARU</span>');
       if (favs.includes(it.link)) el.insertAdjacentHTML('beforeend', '<span class="fav-mark">⭐</span>');
@@ -2949,6 +2998,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-10-22 10:00', t: '📌 Pin sendiri: sekarang ga ada game/hadiah yang dipin dari awal — tahan kartunya (atau tap 📌 di popup) buat nge-pin, yang dipin pindah paling atas & warnanya pink. Kesimpen di HP masing-masing' },
     { d: '2026-10-22 09:00', t: '🔔 Atur Notif: pilih notif apa aja yang masuk + 🌙 jam tenang (ada ringkasan pagi) · 🤖 Asisten AI sekarang jawabnya jauh lebih cepet' },
     { d: '2026-10-21 22:00', t: '📶 Update sekarang hemat kuota (cuma file yang berubah yang didownload) · 🎬 Nonton Bareng: layar satu HP mati ga bikin HP pasangan ke-pause · 🧭 Bingung fitur pindah ke mana? Ada tombol 📚 Semua fitur A–Z & 🧭 Fitur pindah ke mana? di bawah home' },
     { d: '2026-10-21 21:00', t: '🧹 Rapiin lagi: 📬 Kotak Surat (+ teka-teki & kapsul waktu), 💌 Kartu Ucapan (+ buket bunga), 🎵 Musik & Suara, 📸 Kenangan Kita, 🤝 Janji & Baikan, 💞 Kenal Kita, 🎟️ Voucher (+ gosok & capit) · 🎮 Game dikelompokin: Arena Olahraga, Papan, Kata, Ingatan, Party, Puzzle' },
