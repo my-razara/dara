@@ -101,6 +101,15 @@
   .vw p{color:#fff;font-size:13px;text-align:center;margin-top:.7rem;line-height:1.5;max-width:420px;overflow-wrap:anywhere}
   .vw p small{display:block;opacity:.7;font-size:11px}
   .vw .x{position:absolute;top:calc(.7rem + env(safe-area-inset-top));right:.8rem;border:none;background:rgba(255,255,255,.15);color:#fff;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer}
+  .kol{background:#fff;border-radius:20px;padding:.85rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.4rem;text-align:center}
+  .kol .mo{display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-bottom:.35rem}
+  .kol .mo b{font-size:14px;flex:1}
+  .kol .mo button{border:1px solid rgba(193,122,111,.2);background:#fff;width:34px;height:34px;border-radius:50%;color:var(--rose);cursor:pointer;font-size:15px;flex-shrink:0}
+  .kol .mo button:disabled{opacity:.3}
+  .kol p{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:.55rem}
+  .kol .chips{justify-content:center;margin-bottom:.6rem}
+  .kol .new{display:inline-block;font-size:10.5px;background:#ffe1ea;color:#a8405f;border-radius:50px;padding:.15rem .55rem;font-weight:600;margin-bottom:.4rem}
+  .kpv{width:100%;border-radius:14px;margin:.7rem 0 .5rem;box-shadow:0 6px 18px rgba(122,63,53,.15);display:block}
   .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.8rem}
   @media (max-width:340px){.tile .mid b{font-size:11px}.tile .mid button{font-size:10.5px;padding:.45rem .6rem}.stat b{font-size:15px}}
 
@@ -118,6 +127,12 @@
   <p class="sec">🗓️ Momen sebelumnya</p>
   <div class="hist" id="hist"></div>
   <button class="btn ghost more" id="more" style="display:none">Liat lebih banyak</button>
+  <p class="sec">🖼️ Kolase bulanan</p>
+  <div class="kol" id="kol"><div class="mo"><button id="k-prev" aria-label="Bulan sebelumnya">‹</button><b id="k-mo"></b><button id="k-next" aria-label="Bulan berikutnya">›</button></div>
+    <div id="k-new"></div><p id="k-info"></p>
+    <div class="chips" id="k-lay"><button type="button" data-l="wall" class="on">📱 Wallpaper</button><button type="button" data-l="kotak">🟦 Kotak</button></div>
+    <button class="btn" id="k-go">🖼️ Bikin kolase</button>
+    <div id="k-out"></div></div>
   <p class="note">🔒 Foto disimpen di Google Drive Razara (bisa dibuka lewat link-nya aja, ga muncul di mana-mana). Fotonya dikecilin dulu biar hemat kuota.</p>
 </div>
 
@@ -284,6 +299,71 @@ BD.on(ev => { if (!ev.apps || !ev.apps.length || ev.apps.includes('momen')) rend
 try { BD.fast && BD.fast(30e3); } catch (e) {}
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 render();
+// ═════ 🖼️ KOLASE BULANAN — semua momen sebulan disusun jadi 1 gambar ═════
+const mkey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+let kM = (() => { const n = new Date(); return n.getDate() <= 5 ? mkey(new Date(n.getFullYear(), n.getMonth() - 1, 1)) : mkey(n); })(), kL = 'wall', kBusy = false;
+const kShift = n => { const [y, m] = kM.split('-').map(Number); kM = mkey(new Date(y, m - 1 + n, 1)); };
+function kPhotos(mk) { const L = []; WHO.forEach(w => Object.entries(rows(w)).forEach(([d, x]) => { if (d.slice(0, 7) === mk && x && okUrl(x.u)) L.push({ d, w, u: x.u, c: x.c || '' }); })); return L.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : a.w === 'Razan' ? -1 : 1); }
+function paintKol() {
+  const [y, m] = kM.split('-').map(Number), L = kPhotos(kM), days = new Set(L.map(x => x.d)).size, nowK = mkey(new Date());
+  $('k-mo').textContent = `${BULAN[m - 1]} ${y}`; $('k-next').disabled = kM >= nowK;
+  $('k-info').textContent = L.length ? `${L.length} momen dari ${days} hari — disusun jadi 1 gambar buat disimpen / wallpaper` : 'Belum ada momen di bulan ini';
+  const n = new Date(), endSoon = kM === nowK && n.getDate() >= new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate() - 2, prevFresh = kM !== nowK && n.getDate() <= 5 && kM === mkey(new Date(n.getFullYear(), n.getMonth() - 1, 1));
+  $('k-new').innerHTML = L.length && (endSoon || prevFresh) ? `<span class="new">🎉 Kolase ${BULAN[m - 1]} udah bisa dibikin!</span>` : '';
+  $('k-go').disabled = !L.length || kBusy;
+  $('k-lay').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.l === kL));
+}
+$('k-prev').onclick = () => { kShift(-1); $('k-out').innerHTML = ''; paintKol(); };
+$('k-next').onclick = () => { kShift(1); $('k-out').innerHTML = ''; paintKol(); };
+$('k-lay').addEventListener('click', e => { const b = e.target.closest('[data-l]'); if (b) { kL = b.dataset.l; paintKol(); } });
+const idOf = u => (/id=([\w-]+)/.exec(u) || [])[1];
+const kCache = {};
+function imgEl(src, cors) { return new Promise((res, rej) => { const im = new Image(); if (cors) im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => rej(new Error('img')); im.src = src; }); }
+async function loadPhoto(u) {
+  if (kCache[u]) return kCache[u];
+  try { const im = await imgEl(thumb(u, 700), true); const c = document.createElement('canvas'); c.width = c.height = 2; const x = c.getContext('2d'); x.drawImage(im, 0, 0, 2, 2); x.getImageData(0, 0, 1, 1); return (kCache[u] = im); } catch (e) {}
+  const r = await post({ action: 'chat', op: 'imgget', id: idOf(u) }, 60000);
+  if (!r || !r.ok || !r.data) throw new Error(r && r.error || 'gagal');
+  return (kCache[u] = await imgEl('data:' + (r.mime || 'image/jpeg') + ';base64,' + r.data));
+}
+function rr(x, X, Y, W, H, R) { x.beginPath(); x.moveTo(X + R, Y); x.arcTo(X + W, Y, X + W, Y + H, R); x.arcTo(X + W, Y + H, X, Y + H, R); x.arcTo(X, Y + H, X, Y, R); x.arcTo(X, Y, X + W, Y, R); x.closePath(); }
+$('k-go').onclick = async () => {
+  const L = kPhotos(kM); if (!L.length || kBusy) return;
+  kBusy = true; paintKol(); $('k-out').innerHTML = '<p>Lagi nyusun foto… 0%</p>';
+  const ims = new Array(L.length); let done = 0, fail = 0;
+  const q = L.map((x, i) => i);
+  await Promise.all([0, 1, 2, 3].map(async () => { while (q.length) { const i = q.shift(); try { ims[i] = await loadPhoto(L[i].u); } catch (e) { fail++; } done++; const p = $('k-out').querySelector('p'); if (p) p.textContent = `Lagi nyusun foto… ${Math.round(done / L.length * 100)}%`; } }));
+  if (fail === L.length) { kBusy = false; paintKol(); $('k-out').innerHTML = `<p>Fotonya belum bisa diambil 😢 ${navigator.onLine === false ? 'Lagi offline — coba pas ada sinyal' : 'Coba lagi bentar ya (atau update server Razara dulu)'}</p>`; return; }
+  const W = 1080, H = kL === 'wall' ? 1920 : 1080, [y, m] = kM.split('-').map(Number);
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d');
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#fdf6f0'); g.addColorStop(1, '#f6dde3'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const top = kL === 'wall' ? 230 : 150, bot = kL === 'wall' ? 140 : 90, pad0 = 44, gap = 12;
+  x.textAlign = 'center'; x.fillStyle = '#7a3f35'; x.font = `700 ${kL === 'wall' ? 76 : 58}px Poppins, sans-serif`; x.fillText(`${BULAN[m - 1]} ${y}`, W / 2, kL === 'wall' ? 130 : 82);
+  x.fillStyle = '#c17a6f'; x.font = `500 ${kL === 'wall' ? 34 : 28}px Poppins, sans-serif`; x.fillText('Momen Harian · Razan & Dara', W / 2, kL === 'wall' ? 185 : 124);
+  const n = L.length, aw = W - pad0 * 2, ah = H - top - bot; let cols = 1;
+  for (let c = 1; c <= 10; c++) { const s = (aw - gap * (c - 1)) / c, rws = Math.ceil(n / c); if (rws * s + gap * (rws - 1) <= ah) { cols = c; break; } cols = c; }
+  const sz = Math.min((aw - gap * (cols - 1)) / cols, (ah - gap * (Math.ceil(n / cols) - 1)) / Math.ceil(n / cols)), rowsN = Math.ceil(n / cols);
+  const gw = cols * sz + gap * (cols - 1), gh = rowsN * sz + gap * (rowsN - 1), ox = (W - gw) / 2, oy = top + (ah - gh) / 2;
+  L.forEach((p, i) => {
+    const cx = ox + (i % cols) * (sz + gap), cy = oy + Math.floor(i / cols) * (sz + gap), im = ims[i], R = Math.max(8, sz * .08);
+    x.save(); rr(x, cx, cy, sz, sz, R); x.clip();
+    if (im) { const s2 = Math.max(sz / im.width, sz / im.height), dw = im.width * s2, dh = im.height * s2; x.drawImage(im, cx + (sz - dw) / 2, cy + (sz - dh) / 2, dw, dh); } else { x.fillStyle = '#ead9cf'; x.fillRect(cx, cy, sz, sz); }
+    const gg = x.createLinearGradient(0, cy + sz * .6, 0, cy + sz); gg.addColorStop(0, 'rgba(0,0,0,0)'); gg.addColorStop(1, 'rgba(0,0,0,.45)'); x.fillStyle = gg; x.fillRect(cx, cy + sz * .6, sz, sz * .4);
+    x.restore();
+    const fs = Math.max(13, sz * .13); x.font = `600 ${fs}px Poppins, sans-serif`; x.textAlign = 'left'; x.fillStyle = '#fff'; x.fillText(String(+p.d.slice(8)), cx + sz * .08, cy + sz - sz * .08);
+    x.beginPath(); x.arc(cx + sz - sz * .11, cy + sz - sz * .12, Math.max(5, sz * .055), 0, 7); x.fillStyle = p.w === 'Razan' ? '#4a7fc1' : '#e0797a'; x.fill(); x.lineWidth = Math.max(2, sz * .015); x.strokeStyle = '#fff'; x.stroke();
+  });
+  const days = new Set(L.map(p => p.d)), both = [...days].filter(d => WHO.every(w => rows(w)[d] && rows(w)[d].u)).length;
+  x.textAlign = 'center'; x.fillStyle = '#9a8070'; x.font = `500 ${kL === 'wall' ? 30 : 24}px Poppins, sans-serif`;
+  x.fillText(`${n} momen · ${both} hari dua-duanya upload   🔵 Razan  🔴 Dara`, W / 2, H - (kL === 'wall' ? 70 : 40));
+  kBusy = false; paintKol();
+  let url = ''; try { url = cv.toDataURL('image/jpeg', .9); } catch (e) { $('k-out').innerHTML = '<p>Kolasenya ga bisa disimpen di HP ini 😢</p>'; return; }
+  $('k-out').innerHTML = `<img class="kpv" src="${url}" alt="kolase"><div class="row"><button class="btn" id="k-save">💾 Simpan / bagikan</button></div>${fail ? `<p>${fail} foto gagal diambil, diganti kotak polos</p>` : ''}`;
+  $('k-save').onclick = () => shareCanvas(cv, `kolase-momen-${kM}.png`, `Kolase ${BULAN[m - 1]} ${y}`);
+  vib(20); confetti(30);
+};
+paintKol();
+BD.on(ev => { if (!ev.apps || !ev.apps.length || ev.apps.includes('momen')) paintKol(); });
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
