@@ -75,6 +75,14 @@
   .qt .sum{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:12px;color:var(--deep);cursor:pointer}
   .qt .sum input{accent-color:var(--rose);width:16px;height:16px}
   .qt.off .tm,.qt.off .sum{opacity:.4;pointer-events:none}
+  .dg{background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);padding:.75rem .85rem;margin-bottom:.8rem;font-size:12px;line-height:1.55}
+  .dg .r{display:flex;justify-content:space-between;gap:.5rem;padding:.3rem 0;border-top:1px solid #f4ebe3}.dg .r:first-of-type{border-top:none}
+  .dg .r span:first-child{color:var(--muted)}.dg .r span:last-child{text-align:right;font-weight:600;min-width:0;overflow-wrap:anywhere}
+  .dg .vd{margin:.5rem 0 .2rem;padding:.55rem .65rem;border-radius:12px;font-size:12px;line-height:1.5}
+  .dg .vd.ok{background:#eaf6ef;color:#2e7d4f}.dg .vd.warn{background:#fff3d6;color:#7a5410}.dg .vd.bad{background:#fdecea;color:#a33b2f}
+  .dg .bt{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}.dg .bt button{flex:1 1 auto;border:1.5px solid var(--blush);background:#fff;border-radius:50px;padding:.5rem .6rem;font:600 11.5px Poppins,sans-serif;color:var(--deep);cursor:pointer}
+  .gd{background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);padding:.75rem .85rem;margin-bottom:.8rem;font-size:12.5px;line-height:1.6}
+  .gd ol{padding-left:1.1rem;margin:.4rem 0 0}.gd li{margin-bottom:.35rem}.gd b{color:var(--deep)}
   .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
 
 </style>
@@ -86,6 +94,11 @@
   <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🔔</span><p class="lbl">Notif di HP ini</p><h1 class="title">Atur <span>Notif</span></h1><p class="sub">Pilih notif apa aja yang mau masuk, plus jam tenang biar tidur ga keganggu 🌙</p></div>
   <p class="bd-st" id="bd-st"></p>
   <div class="perm" id="perm"></div>
+  <p class="sec">🩺 Cek notif</p>
+  <div class="dg" id="dg"><p style="text-align:center;color:var(--muted)">⏳ Ngecek…</p></div>
+  <p class="sec">🔋 Notif suka telat?</p>
+  <div class="chips" id="br" style="justify-content:center;margin-bottom:.5rem"></div>
+  <div class="gd" id="gd"></div>
   <p class="sec">🌙 Jam tenang</p>
   <div class="qt" id="qt">
     <label class="hd"><span class="m"><b>Tahan notif pas jam tenang</b><small>Chat, kangen, OTW & voucher tetep bunyi. Sisanya dikumpulin jadi 1 notif ringkasan</small></span><span class="sw"><input type="checkbox" id="q-on"><i></i></span></label>
@@ -182,6 +195,46 @@ function paintPerm() {
   if ($('p-on')) $('p-on').onclick = async () => { try { const r = await Notification.requestPermission(); if (r === 'granted' && window.Push && Push.register) await Push.register(true); } catch (e) {} paintPerm(); };
   if ($('p-test')) $('p-test').onclick = () => { try { window.Push && Push.test(); toast('📨 Notif tes dikirim — tunggu bentar'); } catch (e) {} };
 }
+// ── 🩺 cek notif ──
+const OT = otherOf(ME);
+const tm = t => { if (!t) return '–'; const d = new Date(t), td = new Date(); const s = `${pad(d.getHours())}:${pad(d.getMinutes())}`; return d.toDateString() === td.toDateString() ? 'hari ini ' + s : `${d.getDate()} ${BLN[d.getMonth()]} ${s}`; };
+async function diag() {
+  if (!window.Push || !Push.status) { $('dg').innerHTML = '<p style="text-align:center;color:var(--muted)">Lagi nyiapin… buka ulang halaman ini bentar lagi</p>'; return; }
+  const st = await Push.status(), srv = st.srv || {}, last = srv.last || null, got = st.got || null;
+  let vd = '', cls = 'ok';
+  if (st.perm !== 'granted') { vd = '🔕 Izin notif di HP ini belum nyala — pencet tombol nyalain notif di atas.'; cls = 'bad'; }
+  else if (st.srv && !srv.n) { vd = '❗ HP ini belum kedaftar di server. Pencet 🔄 Daftar ulang.'; cls = 'bad'; }
+  else if (last && last.sent === 0) { vd = '❗ Notif terakhir gagal dikirim — alamat notif HP ini kayaknya kedaluwarsa. Pencet 🔄 Daftar ulang.'; cls = 'bad'; }
+  else if (!got) { vd = '🆕 HP ini baru mulai nyatet notif yang masuk. Pencet 🔔 Tes ke HP ini — kalau notifnya muncul & di sini ke-update, berarti aman.'; cls = 'warn'; }
+  else if (last && last.sent > 0 && got.at < last.at - 60000) { vd = '⚠️ Server udah ngirim notif tapi HP ini belum nerima — biasanya ditahan <b>penghemat baterai</b>. Ikutin panduan 🔋 di bawah.'; cls = 'warn'; }
+  else vd = '✅ Notif aman: yang dikirim server udah nyampe ke HP ini.';
+  $('dg').innerHTML = `<div class="r"><span>Izin notif</span><span>${st.perm === 'granted' ? '✅ nyala' : st.perm === 'denied' ? '🔕 diblokir' : '⏳ belum'}</span></div>
+    <div class="r"><span>HP kedaftar buat ${ME}</span><span>${st.srv ? (srv.n || 0) + ' HP' : '–'}</span></div>
+    <div class="r"><span>Terakhir dikirim server</span><span>${last ? tm(last.at) + (last.sent ? ' ✓' : ' ✗ gagal') : '–'}</span></div>
+    <div class="r"><span>Terakhir diterima HP ini</span><span>${got ? tm(got.at) : '–'}</span></div>
+    <div class="vd ${cls}">${vd}</div>
+    <div class="bt"><button id="d-re">🔄 Daftar ulang</button><button id="d-me">🔔 Tes ke HP ini</button><button id="d-ot">💌 Tes ke HP ${OT}</button></div>`;
+  $('d-re').onclick = async () => { $('d-re').textContent = '⏳…'; const ok = await Push.register(true); toast(ok ? '✅ HP ini udah didaftarin ulang' : '😢 Gagal — cek izin notif & internet'); setTimeout(diag, 800); };
+  $('d-me').onclick = () => { Push.test(); toast('📨 Dikirim — tunggu bentar, terus cek lagi di sini'); setTimeout(diag, 6000); };
+  $('d-ot').onclick = () => { Push.notify({ to: OT, title: `🔔 Tes notif dari ${ME}`, body: `Kalau ini muncul, notif ke HP kamu aman 👍`, url: 'atur-notif.html', tag: 'tes' }); toast(`📨 Tes dikirim ke ${OT} — tanya dia muncul ga`); };
+}
+// ── 🔋 panduan per merek HP ──
+const GUIDE = {
+  realme: ['📱 Realme', `<ol><li>Buka <b>Setelan → Aplikasi → Manajemen aplikasi → Chrome</b> (kalau Razara kepasang jadi aplikasi, cek juga <b>Razara</b>).</li><li><b>Penggunaan baterai</b> → nyalain <b>Izinkan aktivitas latar belakang</b> & <b>Izinkan mulai otomatis</b> (kalau ada pilihan <b>Tanpa batasan</b>, pilih itu).</li><li><b>Setelan → Baterai → Setelan lainnya → Optimalkan penggunaan baterai</b> → cari Chrome → <b>Jangan optimalkan</b>.</li><li><b>Notifikasi</b> Chrome/Razara → izinkan semua, prioritas tinggi / boleh muncul di layar kunci.</li><li>Buka layar app terakhir, tahan kartu Chrome/Razara → pencet 🔒 <b>Kunci</b> biar ga ditutup sistem.</li></ol>`],
+  samsung: ['📱 Samsung', `<ol><li>Buka <b>Setelan → Aplikasi → Chrome</b> (dan <b>Razara</b> kalau kepasang jadi aplikasi) → <b>Baterai</b> → pilih <b>Tidak dibatasi</b>.</li><li><b>Setelan → Perawatan perangkat (Baterai) → Batas penggunaan latar belakang</b> → pastiin Chrome <b>ga</b> ada di <i>Aplikasi tidur</i> / <i>Aplikasi tidur nyenyak</i>, terus tambahin ke <b>Aplikasi yang tidak pernah tidur</b>.</li><li>Di halaman yang sama, matiin <b>Tidurkan aplikasi yang tidak digunakan</b>.</li><li><b>Notifikasi</b> Chrome/Razara → izinkan, kategori notif situs boleh bunyi & muncul pop-up.</li></ol>`],
+  xiaomi: ['📱 Xiaomi/Redmi/POCO', `<ol><li><b>Setelan → Aplikasi → Kelola aplikasi → Chrome → Penghemat baterai → Tanpa batasan</b>.</li><li>Di halaman yang sama nyalain <b>Mulai otomatis</b>.</li><li>Kunci Chrome di layar app terakhir (tahan → 🔒).</li></ol>`],
+  oppo: ['📱 Oppo/Vivo', `<ol><li><b>Setelan → Aplikasi → Chrome → Penggunaan baterai</b> → izinkan aktivitas latar belakang & mulai otomatis.</li><li><b>Setelan → Baterai → Optimalkan</b> → Chrome → jangan optimalkan.</li><li>Kunci Chrome di layar app terakhir.</li></ol>`],
+  lain: ['📱 Lainnya', `<ol><li>Cari setelan <b>Baterai</b> buat Chrome / Razara → pilih <b>Tanpa batasan / Jangan optimalkan</b>.</li><li>Izinkan <b>mulai otomatis / aktivitas latar belakang</b> kalau ada.</li><li>Pastiin notif Chrome/Razara ga di-set senyap & mode Jangan Ganggu ga nyala.</li></ol>`]
+};
+const UA = navigator.userAgent || '';
+let brand = lsGet('notif-brand', /RMX\d|realme/i.test(UA) ? 'realme' : /SM-[A-Z]\d|Samsung/i.test(UA) ? 'samsung' : /Redmi|POCO|\bMi \d|M2\d{3}|Xiaomi/i.test(UA) ? 'xiaomi' : /CPH\d|OPPO|vivo|\bV2\d{3}/i.test(UA) ? 'oppo' : (ME === 'Razan' ? 'realme' : 'samsung'));
+function paintGuide() {
+  $('br').innerHTML = Object.entries(GUIDE).map(([k, v]) => `<button type="button" class="${k === brand ? 'on' : ''}" data-b="${k}">${v[0]}</button>`).join('');
+  $('br').querySelectorAll('[data-b]').forEach(b => b.onclick = () => { brand = b.dataset.b; lsSet('notif-brand', brand); paintGuide(); });
+  $('gd').innerHTML = GUIDE[brand][1] + '<p style="font-size:11px;color:var(--muted);margin-top:.4rem">Nama menunya bisa beda dikit tergantung versi HP. Abis diatur, pencet 💌 Tes buat ngecek.</p>';
+}
+paintGuide();
+setTimeout(diag, 600);
 BD.on(ev => { if (!ev.apps || ev.apps.includes('notifset')) render(); });
 paintPerm(); render();
 // pertama kali dibuka: titip setelan ke service worker

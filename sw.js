@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v94';
+const VERSI = 'v95';
 const CACHE = 'untuk-dara-' + VERSI;
 // (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
@@ -382,8 +382,11 @@ self.addEventListener('push', e => {
   let d = {};
   try { const j = e.data ? e.data.json() : {}; d = j.data || j.notification || j || {}; } catch (x) { try { d = { body: e.data.text() }; } catch (y) {} }
   const title = d.title || '💌 Ada kiriman buat kamu';
+  try { e.waitUntil(caches.open('untuk-dara-meta').then(c => c.put('/__lastpush', new Response(JSON.stringify({ at: Date.now(), t: String(title).slice(0, 60) }))))); } catch (x) {}
   e.waitUntil(self.registration.showNotification(title, { body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: d.tag || 'kiriman', renotify: true, vibrate: [120, 60, 120], data: { url: d.url || './' } }));
 });
+// alamat notif diganti browser → tandain, nanti halaman daftar ulang pas dibuka
+self.addEventListener('pushsubscriptionchange', e => { e.waitUntil(caches.open('untuk-dara-meta').then(c => c.put('/__pushchg', new Response('1')))); });
 self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(Promise.all([cekKabar(), cekIngat(), cekPet(), cekMisi()])); });
 self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); if (e.data === 'cek-ingat') e.waitUntil(cekIngat()); if (e.data === 'cek-pet') e.waitUntil(cekPet()); if (e.data === 'cek-misi') e.waitUntil(cekMisi()); });
 self.addEventListener('notificationclick', e => {

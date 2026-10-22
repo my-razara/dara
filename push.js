@@ -185,7 +185,7 @@
     if (!ready || regging) return false;
     const w = me(); if (!w || !('serviceWorker' in navigator) || !('Notification' in window) || Notification.permission !== 'granted') return false;
     const st = g('push-reg', {});
-    if (!force && st.who === w && st.token && Date.now() - (st.at || 0) < 3 * 864e5) return true;   // udah kedaftar (dicek ulang tiap 3 hari)
+    if (!force && st.who === w && st.token && Date.now() - (st.at || 0) < 864e5) return true;   // udah kedaftar (dicek ulang tiap hari — Chrome kadang ganti alamat notif diam-diam)
     regging = true;
     try {
       if (!window.firebase || !firebase.messaging) { await load(SDK + 'firebase-app-compat.js'); await load(SDK + 'firebase-messaging-compat.js'); }
@@ -203,8 +203,17 @@
   // kirim notif tes ke HP sendiri
   function test() { const w = me(); if (w) post({ action: 'notify', from: w, to: w, title: '🔔 Notif instan nyala!', body: 'Kalau pasangan ngirim sesuatu, langsung muncul di sini kayak chat 💌', url: './', tag: 'tes' }); }
 
-  window.Push = { ready, notify, register, test, fromWA };
+  window.Push = { ready, notify, register, test, fromWA, status };
   // otomatis daftar ulang kalau notif udah diizinin (misal abis ganti orang)
-  if (ready) setTimeout(() => { register(false); }, 2500);
+  // kalau service worker bilang "alamat notif berubah" → daftar ulang sekarang juga
+  async function pushChanged() { try { const c = await caches.open('untuk-dara-meta'), r = await c.match('/__pushchg'); if (r) { await c.delete('/__pushchg'); return true; } } catch (e) {} return false; }
+  if (ready) setTimeout(async () => { register(await pushChanged()); }, 2500);
+  // 🩺 status notif (dipakai halaman Atur Notif)
+  async function status() {
+    const out = { perm: 'Notification' in window ? Notification.permission : 'none', reg: g('push-reg', {}), got: null, srv: null };
+    try { const c = await caches.open('untuk-dara-meta'), r = await c.match('/__lastpush'); if (r) out.got = await r.json(); } catch (e) {}
+    try { const w = me(); if (w) { const r = await fetch(URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ key: KEY, action: 'pushreg', who: w, stat: 1 }) }).then(x => x.json()); if (r && r.ok) out.srv = r.stat || null; } } catch (e) {}
+    return out;
+  }
   if (window.Who && Who.on) Who.on(() => { try { localStorage.removeItem('push-reg'); } catch (e) {} });
 })();
