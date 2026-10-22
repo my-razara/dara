@@ -269,7 +269,21 @@ $('s-push').onchange = async () => {
 };
 $('s-tell').checked = lsGet('ibd-tell', true); $('s-tell').onchange = () => lsSet('ibd-tell', $('s-tell').checked);
 $('s-off').onchange = () => { const d = ymd(new Date()), r = Object.assign({ s: {} }, rowOf(ME, d)); if ($('s-off').checked) r.off = 1; else delete r.off; BD.put('ibadah', ME, d, r); render(); };
-try { $('hijri').textContent = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()); } catch (e) {}
+// 📅 tanggal Hijriah — nama bulannya bikin sendiri (browser HP kadang nampilin nama bulan Masehi + "SM")
+const HIJ = ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', "Sya'ban", 'Ramadhan', 'Syawal', 'Dzulqaidah', 'Dzulhijjah'];
+function hijri(d) {
+  try {   // angka dari kalender Umm al-Qura bawaan browser (kalau ada)
+    const P = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' }).formatToParts(d), g = t => +((P.find(x => x.type === t) || {}).value || NaN);
+    const dd = g('day'), mm = g('month'), yy = parseInt((P.find(x => x.type === 'year') || {}).value, 10);
+    if (dd >= 1 && dd <= 30 && mm >= 1 && mm <= 12 && yy > 1400 && yy < 1600) return [dd, mm, yy];
+  } catch (e) {}
+  // cadangan: hitungan tabular (selisih paling 1 hari)
+  const jd = Math.floor(d.getTime() / 864e5) + 2440588, l0 = jd - 1948440 + 10632, n = Math.floor((l0 - 1) / 10631), l1 = l0 - 10631 * n + 354;
+  const j = Math.floor((10985 - l1) / 5316) * Math.floor(50 * l1 / 17719) + Math.floor(l1 / 5670) * Math.floor(43 * l1 / 15238);
+  const l2 = l1 - Math.floor((30 - j) / 15) * Math.floor(17719 * j / 50) - Math.floor(j / 16) * Math.floor(15238 * j / 43) + 29, m = Math.floor(24 * l2 / 709);
+  return [l2 - Math.floor(709 * m / 24), m, 30 * n + j - 30];
+}
+(function () { const d = new Date(), [hd, hm, hy] = hijri(d); $('hijri').textContent = `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()} · ${hd} ${HIJ[hm - 1]} ${hy} H`; })();
 BD.on(ev => { if (!ev.apps || ev.apps.some(a => /^ibadah/.test(a))) render(); });
 setInterval(render, 20000);
 // koordinat setelan server ikut lokasi terbaru (paling sering sekali sehari)
