@@ -229,7 +229,7 @@
       const c = R.ch, win = winOf(ok ? v : null, c.v);
       putRow('tantangbalas', w, slot(), { id: c.id, g: PAGE, v: ok ? v : null, f, at: Date.now() });
       tgRec(win, c.id);
-      try { window.Push && Push.notify && Push.notify({ title: `${C.emoji} ${w} udah jawab tantanganmu di ${C.name}`, body: `${o}: ${c.f} · ${w}: ${f} — ${win === w ? `${w} menang 😎` : win ? 'kamu menang! 🎉' : 'seri 🤝'}`, url: page, tag: 'tantangb-' + PAGE }); } catch (e) {}
+      try { window.Push && Push.notify && Push.notify({ title: `${C.emoji} ${w} udah jawab tantanganmu di ${C.name}`, body: `${o}: ${c.f} · ${w}: ${f} — ${win === w ? `${w} unggul 😎` : win ? 'kamu unggul! 🎉' : 'seri 🤝'}`, url: page, tag: 'tantangb-' + PAGE }); } catch (e) {}
       const rec = g('tantang-rek-' + PAGE, { Razan: 0, Dara: 0 });
       ov(`<div class="dl-c"><span class="e">${win === w ? '🏆' : win ? '😤' : '🤝'}</span><h3>${win === w ? 'Kamu menang tantangan!' : win ? `${o} yang menang` : 'Seri!'}</h3>
         <div class="vs"><div class="${win === w ? 'w' : ''}">Kamu<b>${esc(f)}</b></div><div class="${win === o ? 'w' : ''}">${o}<b>${esc(c.f)}</b></div></div>

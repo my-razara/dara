@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v95';
+const VERSI = 'v96';
 const CACHE = 'untuk-dara-' + VERSI;
 // (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
@@ -309,14 +309,15 @@ async function cekKabar() {
   const meta = await metaGet();
   if (!meta.d) { await metaSet({ d: maxD }); return; }      // pertama kali: catat aja, jangan langsung notif
   if (maxD <= meta.d) return;
+  if (meta.at && Date.now() - meta.at < 6.5 * 864e5) return;   // notif update maksimal seminggu sekali (biar Chrome ga nganggep spam) — di dalam app tetep muncul
   const names = [], label = l => { const m = new RegExp("label:'((?:[^'\\\\]|\\\\.)*)'[^\\n]*?link:'" + l.replace(/[.]/g, '\\.') + "'").exec(html); return m ? m[1] : null; };
   Object.entries(upd).filter(([, d]) => d > meta.d && d <= today).sort((a, b) => b[1].localeCompare(a[1])).forEach(([l]) => { const n = label(l); if (n) names.push(n); });
   const news = kabar.filter(k => k.d > meta.d && k.d.slice(0, 10) <= today).sort((a, b) => b.d.localeCompare(a.d));
   const body = news.length ? news[0].t + (names.length ? `\n${names.slice(0, 3).join(', ')}${names.length > 3 ? ` +${names.length - 3} lagi` : ''}` : '')
     : names.length ? `${names.slice(0, 3).join(', ')}${names.length > 3 ? ` & ${names.length - 3} lainnya` : ''} — cobain yuk!` : 'Ada update baru di web kita 💝';
   const me = await siapa();
-  await self.registration.showNotification(me === 'Razan' ? '🚀 Update baru udah live!' : '🎁 Ada yang baru buat kamu!', { body, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: 'kabar-baru', renotify: true, data: { url: './' } });
-  await metaSet({ d: maxD });
+  await self.registration.showNotification('✨ Razara ada update', { body, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: 'kabar-baru', renotify: true, data: { url: './' } });
+  await metaSet({ d: maxD, at: Date.now() });
 }
 // ═══ PENGINGAT HARI SPESIAL ═══ (jadwalnya dititip menu utama lewat pengingat.js)
 async function cekIngat() {

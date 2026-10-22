@@ -164,7 +164,7 @@ const CATS = [
   ['pet', '🐾', 'Peliharaan', 'laper, kangen, naik level', 0], ['lain', '✨', 'Catatan bareng & lainnya', 'resep, wishlist, bioskop, kamus, keuangan, misi', 0],
   ['update', '🆕', 'Update app', 'ada fitur / hadiah baru', 0]
 ];
-const cur = () => Object.assign({ off: [], q: { on: false, from: 22, to: 6, sum: true } }, ((lsGet('notifset-' + ME, {}) || {})[SLOT]) || {});
+const cur = () => Object.assign({ off: ['lain'], q: { on: false, from: 22, to: 6, sum: true } }, ((lsGet('notifset-' + ME, {}) || {})[SLOT]) || {});   // bawaan: catatan bareng ga bunyi
 function save(S) {
   S.at = Date.now(); BD.put('notifset', ME, SLOT, S);
   // service worker (notif update & pengingat lokal) juga ikut setelan ini
@@ -231,7 +231,9 @@ let brand = lsGet('notif-brand', /RMX\d|realme/i.test(UA) ? 'realme' : /SM-[A-Z]
 function paintGuide() {
   $('br').innerHTML = Object.entries(GUIDE).map(([k, v]) => `<button type="button" class="${k === brand ? 'on' : ''}" data-b="${k}">${v[0]}</button>`).join('');
   $('br').querySelectorAll('[data-b]').forEach(b => b.onclick = () => { brand = b.dataset.b; lsSet('notif-brand', brand); paintGuide(); });
-  $('gd').innerHTML = GUIDE[brand][1] + '<p style="font-size:11px;color:var(--muted);margin-top:.4rem">Nama menunya bisa beda dikit tergantung versi HP. Abis diatur, pencet 💌 Tes buat ngecek.</p>';
+  const app = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  $('gd').innerHTML = GUIDE[brand][1] + '<p style="font-size:11px;color:var(--muted);margin-top:.4rem">Nama menunya bisa beda dikit tergantung versi HP. Abis diatur, pencet 💌 Tes buat ngecek.</p>'
+    + `<p style="margin-top:.7rem"><b>🛡️ Chrome bilang notif Razara "spam"?</b></p><ol><li>Pilih <b>Tetap izinkan</b> / <b>Bukan spam</b> — jangan pencet <i>Berhenti berlangganan</i>.</li><li>Kalau izinnya udah kecabut: buka Razara → ⋮ / ikon gembok di alamat → <b>Notifikasi → Izinkan</b>, terus pencet 🔄 Daftar ulang di atas.</li>${app ? '' : '<li>Lebih aman lagi kalau Razara <b>dipasang jadi aplikasi</b>: menu ⋮ Chrome → <b>Tambahkan ke layar utama / Instal aplikasi</b>. Notif dari app yang kepasang lebih jarang dicurigain & ga gampang ditahan baterai.</li>'}</ol>`;
 }
 paintGuide();
 setTimeout(diag, 600);

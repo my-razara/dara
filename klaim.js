@@ -60,7 +60,7 @@
     var who = p.from || 'Dara', row = (g('vklaim-' + who, {}) || {})[p.date] || {};
     put('vklaim', who, p.date, Object.assign({}, row, { id: p.id, e: p.e, t: p.t, note: p.note || '', at: p.at, sent: Date.now() }));
     try { localStorage.removeItem(K); } catch (e) {}
-    var tell = function (n) { if (window.Push && Push.notify) { try { Push.notify({ title: '🎟️ ' + who + ' klaim: ' + p.t + ' ' + p.e, body: (p.note ? '📝 ' + p.note + ' · ' : '') + 'Udah dikirim ke WA juga — tepatin ya 🥺', url: 'voucher-harian.html', tag: 'vklaim' }); } catch (e) {} } else if (n < 20) setTimeout(function () { tell(n + 1); }, 500); };
+    var tell = function (n) { if (window.Push && Push.notify) { try { Push.notify({ title: p.e + ' ' + who + ': ' + p.t, body: (p.note ? '📝 ' + p.note + ' · ' : '') + 'Pilihan hari ini, udah dikirim ke WA juga 🥺', url: 'voucher-harian.html', tag: 'vklaim' }); } catch (e) {} } else if (n < 20) setTimeout(function () { tell(n + 1); }, 500); };
     tell(0);
     if (ov) { ov.remove(); ov = null; } document.documentElement.classList.remove('klaimlock');
     try { window.dispatchEvent(new CustomEvent('klaim-sent', { detail: p })); } catch (e) {}

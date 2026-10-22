@@ -83,7 +83,7 @@
       const own = links.find(l => l.indexOf(site) === 0) || links.find(l => /github\.io/.test(l));
       const clean = text.replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
       const page = (location.pathname.split('/').pop() || 'index.html');
-      notify({ title: `💌 ${w} ngirimin sesuatu buat kamu`, body: clean.slice(0, 160), url: own || page, tag: 'wa-' + page });
+      notify({ title: `💌 Pesan dari ${w}`, body: clean.slice(0, 160), url: own || page, tag: 'wa-' + page });
     } catch (e) {}
   }
   document.addEventListener('click', e => { const a = e.target && e.target.closest && e.target.closest('a[href]'); if (a) fromWA(a.getAttribute('href')); }, true);
