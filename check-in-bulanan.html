@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Check-in Bulanan — Razan & Dara 🩺</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="hub.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .5rem}
+  .mo{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.1rem 0 .7rem}
+  .mo button{border:none;background:#fff;border:1px solid rgba(193,122,111,.18);width:36px;height:36px;border-radius:50%;cursor:pointer;color:var(--rose);font-size:15px;flex-shrink:0}
+  .mo button:disabled{opacity:.3}
+  .mo b{font-size:14.5px;text-align:center;flex:1}
+  .stt{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:.8rem}
+  .stt div{background:#fff;border-radius:14px;padding:.45rem .6rem;font-size:11.5px;color:var(--muted);border:1px solid rgba(193,122,111,.13);border-left:4px solid var(--c);min-width:0}
+  .stt b{color:var(--ink)}
+  .q{background:#fff;border-radius:18px;padding:.75rem .8rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.55rem}
+  .q>b{display:block;font-size:13px;margin-bottom:.45rem}
+  .rt{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.3rem}
+  .rt button{border:1.5px solid var(--blush);background:var(--cream);border-radius:12px;padding:.35rem 0;cursor:pointer;font-size:1.25rem;line-height:1.1;min-width:0}
+  .rt button small{display:block;font-size:9.5px;color:var(--muted);font-family:Poppins,sans-serif}
+  .rt button.on{background:var(--rose);border-color:var(--rose)}.rt button.on small{color:#fff}
+  .q .ta{min-height:64px;font-size:13.5px}
+  .opt{font-weight:400;color:var(--muted);font-size:11px}
+  .lock{text-align:center;background:linear-gradient(135deg,#fff3d6,#ffe1ea);border-radius:20px;padding:1rem;margin-bottom:.8rem}
+  .lock .e{font-size:2.4rem;display:block}.lock b{display:block;font-size:14px;margin:.2rem 0}.lock small{font-size:12px;color:#8a6a50;line-height:1.5;display:block}
+  .lock button{margin-top:.6rem;border:none;border-radius:50px;background:#e07a4f;color:#fff;font:700 12px Poppins,sans-serif;padding:.5rem .9rem;cursor:pointer}
+  .cmp{background:#fff;border-radius:18px;padding:.7rem .8rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.55rem}
+  .cmp>b{display:block;font-size:12.5px;margin-bottom:.35rem}
+  .cmp .r{display:flex;align-items:center;gap:.45rem;font-size:11.5px;margin:.2rem 0}
+  .cmp .r span{width:44px;flex-shrink:0;color:var(--muted)}
+  .cmp .r i{display:block;height:10px;border-radius:6px;background:var(--c)}
+  .cmp .r em{font-style:normal;font-size:1rem}
+  .cmp small{display:block;font-size:11px;color:#8a5a20;margin-top:.3rem;line-height:1.4}
+  .sum{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:.7rem}
+  .sum div{background:#fff;border-radius:18px;padding:.65rem;text-align:center;border:1px solid rgba(193,122,111,.13);border-top:4px solid var(--c);min-width:0}
+  .sum b{display:block;font-size:1.6rem;color:var(--deep);line-height:1.1}.sum small{font-size:11px;color:var(--muted)}
+  .txt{background:#fff;border-radius:18px;padding:.75rem .8rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.55rem}
+  .txt>b{display:block;font-size:12.5px;margin-bottom:.35rem}
+  .txt p{font-size:12.5px;line-height:1.55;padding:.45rem .6rem;border-radius:12px;background:var(--cream);margin-bottom:.35rem;overflow-wrap:anywhere;border-left:3px solid var(--c)}
+  .txt p small{display:block;font-size:10.5px;color:var(--muted)}
+  .trend{background:#fff;border-radius:18px;padding:.75rem .7rem .55rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.7rem}
+  .trend svg{width:100%;height:auto;display:block}
+  .leg{display:flex;gap:.8rem;justify-content:center;font-size:11px;color:var(--muted);margin-top:.3rem}
+  .leg span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;background:var(--c);vertical-align:-1px}
+  .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🩺</span><p class="lbl">Sebulan sekali · 3 menit</p><h1 class="title">Check-in <span>Bulanan</span></h1><p class="sub">Cek kabar hubungan kita bulan ini — jawaban pasangan baru kebuka setelah kamu ngisi punyamu 🤫</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="mo"><button id="prev" aria-label="Bulan sebelumnya">‹</button><b id="mo"></b><button id="next" aria-label="Bulan berikutnya">›</button></div>
+  <div class="stt" id="stt"></div>
+  <div id="main"></div>
+  <div id="trend"></div>
+  <p class="note">Jawab jujur tapi tetep lembut ya 🤍 Ini bukan buat nyalahin, tapi biar kita makin kenal & makin baik.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME), WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const COL = { Razan: 'var(--rz)', Dara: 'var(--dr)' }, HEX = { Razan: '#4a7fc1', Dara: '#d9776b' };
+const Q = [['kom', '💬', 'Komunikasi kita'], ['wkt', '⏳', 'Waktu bareng'], ['prh', '🤗', 'Ngerasa diperhatiin & disayang'], ['seru', '😆', 'Seru-seruan bareng'], ['aman', '🛡️', 'Ngerasa aman & nyaman cerita apa aja']];
+const T = [['mk', '🙏', 'Satu hal yang bikin aku makasih sama kamu bulan ini', 1], ['pg', '✨', 'Satu hal yang pengen kita lakuin bulan depan', 1], ['bt', '🌱', 'Satu hal kecil yang bisa kita perbaiki', 0]];
+const FACE = [['😞', 'kurang'], ['😕', 'lumayan'], ['🙂', 'oke'], ['😊', 'bagus'], ['🥰', 'banget']];
+// bulan yang lagi diisi: bulan ini, atau bulan lalu kalau sekarang tgl 1–7 & bulan lalu belum diisi
+const key = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-01`;
+const rows = w => lsGet('checkin-' + w, {}) || {};
+const rowOf = (w, k) => { const r = rows(w)[k]; return r && r.s ? r : null; };
+const now = new Date(), KNOW = key(now), KPREV = key(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+let cur = now.getDate() <= 7 && !rowOf(ME, KPREV) ? KPREV : KNOW;
+let edit = false, draft = null;
+const lbl = k => { const d = parseYMD(k); return `${BULAN[d.getMonth()]} ${d.getFullYear()}`; };
+const shift = (k, n) => { const d = parseYMD(k); return key(new Date(d.getFullYear(), d.getMonth() + n, 1)); };
+const avg = r => r ? Q.reduce((a, q) => a + (r.s[q[0]] || 0), 0) / Q.length : 0;
+function paint() {
+  $('mo').textContent = `${lbl(cur)}${cur === KNOW ? ' · bulan ini' : ''}`;
+  $('next').disabled = cur >= KNOW;
+  const a = rowOf(ME, cur), b = rowOf(OT, cur);
+  $('stt').innerHTML = WHO.map(w => { const r = rowOf(w, cur); return `<div style="--c:${COL[w]}"><b>${w === ME ? 'Kamu' : w}</b><br>${r ? '✓ udah ngisi' : 'belum ngisi'}</div>`; }).join('');
+  if (!a || edit) form(a); else if (!b) $('main').innerHTML = `<div class="lock"><span class="e">🤫</span><b>Jawabanmu udah kesimpen!</b><small>Jawaban ${OT} kebuka di sini setelah ${OT} ngisi punyanya</small><button id="colek">👉 Ingetin ${OT}</button></div>` + mine(a) + `<button class="btn ghost" id="ed" style="margin-top:.3rem">✏️ Ubah jawabanku</button>`;
+  else result(a, b);
+  if ($('colek')) $('colek').onclick = () => { const k = 'ck-colek-' + cur, n = lsGet(k, 0); if (n >= 2) return toast('Udah diingetin — sabar ya 😆'); lsSet(k, n + 1); try { window.Push && Push.notify({ title: `🩺 ${ME} nungguin Check-in ${lbl(cur)} kamu`, body: 'Isi 3 menit aja, biar jawaban kita kebuka 🤫', url: 'check-in-bulanan.html', tag: 'janji-checkin-c' }); } catch (e) {} vib(15); toast(`👉 ${OT} udah diingetin`); };
+  if ($('ed')) $('ed').onclick = () => { edit = true; draft = null; paint(); scrollTo(0, 0); };
+  paintTrend();
+  try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {}
+}
+function mine(a) { return `<div class="txt" style="--c:${COL[ME]}"><b>📝 Jawabanmu</b>${Q.map(q => `<p style="--c:${COL[ME]}">${q[1]} ${q[2]}: <b>${FACE[(a.s[q[0]] || 3) - 1][0]} ${a.s[q[0]] || '-'}/5</b></p>`).join('')}${T.map(t => a[t[0]] ? `<p style="--c:${COL[ME]}"><small>${t[1]} ${t[2]}</small>${esc(a[t[0]])}</p>` : '').join('')}</div>`; }
+function form(a) {
+  draft = draft || { s: Object.assign({}, a ? a.s : {}), mk: a ? a.mk || '' : '', pg: a ? a.pg || '' : '', bt: a ? a.bt || '' : '' };
+  $('main').innerHTML = Q.map(q => `<div class="q"><b>${q[1]} ${q[2]}</b><div class="rt">${FACE.map((f, i) => `<button type="button" data-q="${q[0]}" data-v="${i + 1}" class="${draft.s[q[0]] === i + 1 ? 'on' : ''}">${f[0]}<small>${f[1]}</small></button>`).join('')}</div></div>`).join('') +
+    T.map(t => `<div class="q"><b>${t[1]} ${t[2]}${t[3] ? '' : ' <span class="opt">(opsional)</span>'}</b><textarea class="ta" data-t="${t[0]}" maxlength="300" placeholder="${t[0] === 'bt' ? 'Bilangnya baik-baik ya 🤍' : 'Tulis di sini…'}">${esc(draft[t[0]])}</textarea></div>`).join('') +
+    `<div class="row">${edit ? '<button class="btn ghost" id="cancel">Batal</button>' : ''}<button class="btn" id="save">💌 Simpan check-in</button></div>`;
+  $('main').querySelectorAll('[data-q]').forEach(b => b.onclick = () => { draft.s[b.dataset.q] = +b.dataset.v; vib(6); $('main').querySelectorAll(`[data-q="${b.dataset.q}"]`).forEach(x => x.classList.toggle('on', x === b)); });
+  $('main').querySelectorAll('[data-t]').forEach(t => t.oninput = () => { draft[t.dataset.t] = t.value; });
+  if ($('cancel')) $('cancel').onclick = () => { edit = false; draft = null; paint(); };
+  $('save').onclick = () => {
+    const miss = Q.find(q => !draft.s[q[0]]); if (miss) return toast(`Pilih nilai buat “${miss[2]}” dulu ya`);
+    const mt = T.find(t => t[3] && !String(draft[t[0]] || '').trim()); if (mt) { toast('Isi dulu yang ini ya 🤍'); const el = $('main').querySelector(`[data-t="${mt[0]}"]`); if (el) el.focus(); return; }
+    const first = !rowOf(ME, cur);
+    BD.put('checkin', ME, cur, { s: draft.s, mk: draft.mk.trim().slice(0, 300), pg: draft.pg.trim().slice(0, 300), bt: (draft.bt || '').trim().slice(0, 300), at: Date.now() });
+    edit = false; draft = null; vib([20, 30, 20]); confetti(40); scrollTo(0, 0);
+    const o = rowOf(OT, cur);
+    toast(o ? `🔓 Jawaban ${OT} kebuka!` : `💌 Kesimpen! ${OT} dikabarin`, 3000);
+    if (first) try { window.Push && Push.notify({ title: o ? `🩺 ${ME} juga udah isi Check-in ${lbl(cur)}` : `🩺 ${ME} udah isi Check-in ${lbl(cur)}`, body: o ? 'Jawaban kalian udah kebuka — liat yuk 🥰' : 'Isi punyamu biar jawaban kalian kebuka 🤫', url: 'check-in-bulanan.html', tag: 'janji-checkin' }); } catch (e) {}
+    paint();
+  };
+}
+function result(a, b) {
+  const R = { [ME]: a, [OT]: b };
+  let h = `<div class="sum">${WHO.map(w => `<div style="--c:${COL[w]}"><b>${avg(R[w]).toFixed(1)}</b><small>rata-rata ${w === ME ? 'kamu' : w}</small></div>`).join('')}</div>`;
+  h += Q.map(q => { const x = a.s[q[0]], y = b.s[q[0]], gap = Math.abs(x - y);
+    const tip = gap >= 2 ? `💭 Kalian ngerasain beda — enak diobrolin santai, ${Math.min(x, y) === x ? 'kamu' : OT} ngerasa kurang di sini` : gap === 0 && x >= 4 ? '💞 Sehati — dua-duanya ngerasa bagus!' : gap === 0 && x <= 2 ? '🌱 Dua-duanya ngerasa ini perlu dijaga lebih' : '';
+    return `<div class="cmp"><b>${q[1]} ${q[2]}</b>${WHO.map(w => `<div class="r"><span>${w === ME ? 'Kamu' : w}</span><i style="--c:${COL[w]};width:${R[w].s[q[0]] * 15}%"></i><em>${FACE[R[w].s[q[0]] - 1][0]}</em></div>`).join('')}${tip ? `<small>${tip}</small>` : ''}</div>`; }).join('');
+  h += T.map(t => { const xs = WHO.filter(w => R[w][t[0]]); if (!xs.length) return ''; return `<div class="txt"><b>${t[1]} ${t[2]}</b>${xs.map(w => `<p style="--c:${COL[w]}"><small>${w === ME ? 'Kamu' : w}</small>${esc(R[w][t[0]])}</p>`).join('')}</div>`; }).join('');
+  const plan = WHO.map(w => R[w].pg).filter(Boolean);
+  h += `<div class="row"><a class="btn wa" href="${waLink(OT, `🩺 Check-in ${lbl(cur)} kita udah kebuka! Bulan depan kita: ${plan.join(' & ')} 🥰`)}" target="_blank" rel="noopener">💬 Ngobrolin di WA</a><button class="btn ghost" id="ed">✏️ Ubah punyaku</button></div>`;
+  $('main').innerHTML = h;
+}
+function paintTrend() {
+  const ks = []; for (let i = 5; i >= 0; i--) ks.push(shift(KNOW, -i));
+  const pts = WHO.map(w => ks.map(k => { const r = rowOf(w, k), b = rowOf(otherOf(w), k); return r && (w === ME || rowOf(ME, k)) ? avg(r) : null; }));
+  if (!pts.flat().some(v => v != null)) { $('trend').innerHTML = ''; return; }
+  const W = 300, H = 120, X = i => 22 + i * (W - 40) / 5, Y = v => 12 + (5 - v) / 4 * (H - 34);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rata-rata 6 bulan">`;
+  [1, 3, 5].forEach(v => { s += `<line x1="18" x2="${W - 8}" y1="${Y(v)}" y2="${Y(v)}" stroke="#f0e2d8" stroke-width="1"/><text x="4" y="${Y(v) + 3}" font-size="8" fill="#9a8070">${v}</text>`; });
+  ks.forEach((k, i) => { const d = parseYMD(k); s += `<text x="${X(i)}" y="${H - 4}" font-size="8.5" fill="#9a8070" text-anchor="middle">${BLN[d.getMonth()]}</text>`; });
+  WHO.forEach((w, j) => { const P = pts[j].map((v, i) => v == null ? null : [X(i), Y(v)]); const seg = P.filter(Boolean); if (seg.length > 1) s += `<polyline fill="none" stroke="${HEX[w]}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="${seg.map(p => p.join(',')).join(' ')}"/>`; seg.forEach(p => { s += `<circle cx="${p[0]}" cy="${p[1]}" r="3.2" fill="${HEX[w]}"/>`; }); });
+  s += '</svg>';
+  $('trend').innerHTML = `<p class="sec">📈 6 bulan terakhir</p><div class="trend">${s}<div class="leg"><span style="--c:var(--rz)">Razan</span><span style="--c:var(--dr)">Dara</span></div></div>`;
+}
+$('prev').onclick = () => { cur = shift(cur, -1); edit = false; draft = null; paint(); };
+$('next').onclick = () => { if (cur < KNOW) { cur = shift(cur, 1); edit = false; draft = null; paint(); } };
+BD.on(ev => { if ((!ev.apps || !ev.apps.length || ev.apps.includes('checkin')) && !edit && !(draft && $('save'))) paint(); });
+paint();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

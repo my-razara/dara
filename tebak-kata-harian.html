@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Tebak Kata Harian — Razan & Dara 🟩</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .wrap{padding-bottom:calc(1rem + env(safe-area-inset-bottom))}
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.3rem 0 .3rem}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin:.1rem 0 .7rem}
+  .vs div{background:#fff;border-radius:14px;padding:.4rem .55rem;font-size:11px;color:var(--muted);border:1px solid rgba(193,122,111,.13);border-left:4px solid var(--c);min-width:0;line-height:1.4}
+  .vs b{color:var(--ink);font-size:11.5px}
+  .board{display:grid;grid-template-rows:repeat(6,1fr);gap:5px;width:min(100%,clamp(160px,calc((100svh - 390px) * .82),290px));margin:0 auto .7rem}
+  .brow{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+  .brow.shake{animation:tkSh .4s}@keyframes tkSh{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+  .tl{aspect-ratio:1;border:2px solid #e6d8cf;border-radius:10px;display:flex;align-items:center;justify-content:center;font:700 clamp(1.15rem,6.5vw,1.6rem) Poppins,sans-serif;text-transform:uppercase;color:var(--ink);background:#fff;user-select:none}
+  .tl.f{border-color:#b9a597;animation:tkPop .12s}@keyframes tkPop{50%{transform:scale(1.08)}}
+  .tl.s2,.tl.s1,.tl.s0{color:#fff;border-color:transparent}
+  .tl.s2{background:#5aa66a}.tl.s1{background:#e2b23c}.tl.s0{background:#a8988f}
+  .tl.flip{animation:tkFl .45s ease both}@keyframes tkFl{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+  .kb{display:flex;flex-direction:column;gap:6px;user-select:none;-webkit-user-select:none;max-width:480px;margin:0 auto}
+  .kr{display:flex;gap:4px;justify-content:center}
+  .kr button{flex:1;min-width:0;height:48px;border:none;border-radius:8px;background:#efe4dc;color:var(--ink);font:600 13.5px Poppins,sans-serif;text-transform:uppercase;cursor:pointer;padding:0;touch-action:manipulation}
+  .kr button.w{flex:1.6;font-size:11px}
+  .kr .sp{flex:.5}
+  .kr button.s2{background:#5aa66a;color:#fff}.kr button.s1{background:#e2b23c;color:#fff}.kr button.s0{background:#c9bab1;color:#fff}
+  .kr button:active{filter:brightness(.92)}
+  .res{background:#fff;border-radius:20px;padding:.9rem;border:1px solid rgba(193,122,111,.13);margin:.2rem 0 .8rem;text-align:center}
+  .res h3{font-size:16px;margin-bottom:.2rem}.res p{font-size:12px;color:var(--muted);line-height:1.5}
+  .grid{font-size:15px;line-height:1.15;letter-spacing:1px;margin:.45rem 0;white-space:pre}
+  .ans{display:inline-block;font:700 15px Poppins,sans-serif;letter-spacing:.15em;background:var(--cream);border-radius:10px;padding:.25rem .6rem;margin:.2rem 0;text-transform:uppercase}
+  .ot{background:var(--cream);border-radius:16px;padding:.7rem;margin-top:.7rem}
+  .ot b{font-size:13px}.ot small{display:block;font-size:11.5px;color:var(--muted);line-height:1.45}
+  .ot button{margin-top:.5rem;border:none;border-radius:50px;background:var(--rose);color:#fff;font:700 12px Poppins,sans-serif;padding:.5rem .9rem;cursor:pointer}
+  .win{font:700 15px Poppins,sans-serif;margin:.6rem 0 .1rem;color:var(--deep)}
+  .st4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.35rem;margin:.3rem 0 .7rem}
+  .st4 div{background:#fff;border-radius:14px;padding:.45rem .2rem;text-align:center;border:1px solid rgba(193,122,111,.13);min-width:0}
+  .st4 b{display:block;font-size:16px;color:var(--deep)}.st4 small{font-size:9.5px;color:var(--muted);line-height:1.2;display:block}
+  .dist{background:#fff;border-radius:16px;padding:.6rem .7rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.7rem}
+  .dist div{display:flex;align-items:center;gap:.4rem;font-size:11px;margin:.18rem 0}
+  .dist i{display:block;height:16px;border-radius:5px;background:#c9bab1;color:#fff;font-style:normal;font-size:10px;text-align:right;padding-right:5px;line-height:16px;min-width:18px}
+  .dist i.me{background:#5aa66a}
+  .hist div{display:flex;align-items:center;gap:.5rem;background:#fff;border-radius:14px;padding:.5rem .7rem;margin-bottom:.35rem;font-size:12px;border:1px solid rgba(193,122,111,.12)}
+  .hist div span{flex:1;min-width:0}.hist small{color:var(--muted);font-size:11px;white-space:nowrap}
+  .hist .w{font:700 11px Poppins,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--deep)}
+  .help{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin:.2rem 0 .7rem}
+  .help i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin:0 2px}
+  .nx{font-size:11.5px;color:var(--muted);margin-top:.5rem}
+  @media (max-height:700px){.head .ico{font-size:1.7rem}.head .lbl{display:none}}
+  @media (max-width:340px){.kr button{height:44px;font-size:12px}.kr{gap:3px}.board{gap:4px}.brow{gap:4px}}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head" style="margin:.5rem 0 .5rem"><span class="ico">🟩</span><p class="lbl">1 kata · 6 kesempatan · tiap hari</p><h1 class="title">Tebak Kata <span>Harian</span></h1></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div class="vs" id="vs"></div>
+  <div class="board" id="board"></div>
+  <div id="res"></div>
+  <div class="kb" id="kb"></div>
+  <p class="help" id="help"><i style="background:#5aa66a"></i> huruf & tempatnya pas · <i style="background:#e2b23c"></i> hurufnya ada, tempatnya salah · <i style="background:#a8988f"></i> ga ada</p>
+  <div id="stats"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME), WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const COL = { Razan: 'var(--rz)', Dara: 'var(--dr)' };
+const WL = 'abadi acara agama ajaib akrab alami ambil angin angka antar apung arena asing atlet bahan bakar bakso balap balas balok bambu bantu baris barat basah batik batin bawah bebas becak bedak bekal belah belai benar benda besar betis biasa bibir bijak bikin binar bisik bocah bolos bonus botol buaya bubur bujuk bukit bulan bulat bumbu bunga bunyi buruk busur butir cabai cakap calon canda capek cepat cerah ceria cinta cicak cuaca cukup curah dahan dalam damai danau dapur darah darat datar dekat depan deras detak dodol domba donat duduk dunia ember empat emosi gajah galak garam garis gelap gelas gemar gemas gempa gerak getar gigit gitar gosok gulai gurih habis hadap hadir hafal hampa hanya harap harga harum hasil hebat helai hemat heran hidup hijau hitam hujan hutan indah intan jahat jahit jajan jalan jambu janji jarak jaket jamur jawab jeruk jodoh juara judul jujur jurus kabar kabut kaget kakak kakek kalah kamar kamus kapal karet karya kasih kasur kawan kebun kecap kecil kedai kejar kelas kenal kerja kesal ketan kipas kirim kisah kotak kubis kunci kursi lahir lampu lapar latih lebah lebar lekas lelah lemah lemak lemon lilin lukis lumut lurus mahal makan malam malas mampu manis mandi marah masak masuk mawar mekar melon mimpi minum minta mirip model modal mohon motor mulai mulia mulut murah murni musik nakal nanas nasib ombak orang padat pagar pahit pakai paket palsu panas panen papan pasar pasir pasti patah payah pecah pedas pegal pelan peluk penuh perak perut pesan pesta petak petik pilih pintu pisah pohon pokok polos pompa pucat puisi pulau punya pupuk putih putri putus rajin rakit ramah ramai rapat rawat rebus redup rekam resep rindu robot rumah rusak sabar sabun sahur sakit salah salju satai sawah sayap sayur sedih sehat sejuk selai semut senam senja sepak serba sinar sisir siswa sobat sopan suara sudut sulit sumur sunyi super surat susah tabah tahan tahun takut taman tanah tanam tanda tanya tarik tawar tebak tebal tegar teguh teman tempe tenda tidur tikus timun tinta tirai titik tomat tubuh tugas tujuh tulis tulus tumis tunas tunda turun tusuk ujian ulang umpan untuk upaya utama utara wajah wajar waktu warna warga yakin manja mesra setia kecup kekal pijat'.split(' '), WSET = new Set(WL);
+// urutan kata acak tapi sama di 2 HP (diacak pakai angka tetap)
+const ORDER = (() => { const a = WL.map((_, i) => i); let s = 1005 >>> 0; const rnd = () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; })();
+const E0 = new Date(2026, 9, 22);
+const ansOf = d => { const x = parseYMD(d), n = Math.round((x - E0) / 864e5), L = WL.length; return WL[ORDER[((n % L) + L) % L]]; };
+const TD = ymd(new Date()), ANS = ansOf(TD);
+const rows = w => lsGet('katah-' + w, {}) || {};
+const rowOf = (w, d) => rows(w)[d] || null;
+function score(g, a) { const r = [0, 0, 0, 0, 0], c = {}; for (let i = 0; i < 5; i++) { if (g[i] === a[i]) r[i] = 2; else c[a[i]] = (c[a[i]] || 0) + 1; } for (let i = 0; i < 5; i++) if (r[i] !== 2 && c[g[i]] > 0) { r[i] = 1; c[g[i]]--; } return r; }
+const EMO = ['⬜', '🟨', '🟩'];
+const gridOf = (gs, a) => gs.map(g => score(g, a).map(x => EMO[x]).join('')).join('\n');
+let cur = '', confirmW = '', busy = false;
+const me0 = () => rowOf(ME, TD) || { g: [], done: 0, ok: 0 };
+function save(r) { BD.put('katah', ME, TD, r); }
+// ── papan ──
+function paintBoard(flipRow) {
+  const r = me0(), H = [];
+  for (let i = 0; i < 6; i++) {
+    const g = r.g[i], live = !g && i === r.g.length && !r.done;
+    const sc = g ? score(g, ANS) : null;
+    H.push(`<div class="brow" data-r="${i}">${[0, 1, 2, 3, 4].map(j => { const ch = g ? g[j] : live ? (cur[j] || '') : ''; const cl = sc ? ` s${sc[j]}${flipRow === i ? ' flip' : ''}` : ch ? ' f' : ''; return `<div class="tl${cl}" style="${flipRow === i ? `animation-delay:${j * .12}s` : ''}">${esc(ch)}</div>`; }).join('')}</div>`);
+  }
+  $('board').innerHTML = H.join('');
+}
+const KR = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+function paintKb() {
+  const r = me0(), st = {};
+  r.g.forEach(g => score(g, ANS).forEach((x, j) => { st[g[j]] = Math.max(st[g[j]] == null ? -1 : st[g[j]], x); }));
+  $('kb').style.display = r.done ? 'none' : ''; $('help').style.display = r.done ? 'none' : '';
+  $('kb').innerHTML = `<div class="kr">${[...KR[0]].map(k => `<button data-k="${k}" class="${st[k] != null ? 's' + st[k] : ''}">${k}</button>`).join('')}</div>` +
+    `<div class="kr"><span class="sp"></span>${[...KR[1]].map(k => `<button data-k="${k}" class="${st[k] != null ? 's' + st[k] : ''}">${k}</button>`).join('')}<span class="sp"></span></div>` +
+    `<div class="kr"><button class="w" data-k="enter">Enter</button>${[...KR[2]].map(k => `<button data-k="${k}" class="${st[k] != null ? 's' + st[k] : ''}">${k}</button>`).join('')}<button class="w" data-k="del" aria-label="Hapus">⌫</button></div>`;
+}
+function shake() { const el = $('board').querySelector(`[data-r="${me0().g.length}"]`); if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); } vib([30, 30, 30]); }
+function key(k) {
+  const r = me0(); if (r.done || busy) return;
+  if (k === 'del') { cur = cur.slice(0, -1); confirmW = ''; paintBoard(); return; }
+  if (k === 'enter') return submit();
+  if (/^[a-z]$/.test(k) && cur.length < 5) { cur += k; vib(5); paintBoard(); }
+}
+function submit() {
+  const r = me0();
+  if (cur.length < 5) { shake(); toast('Kurang hurufnya — harus 5 😉'); return; }
+  if (!WSET.has(cur) && confirmW !== cur) { confirmW = cur; shake(); toast(`“${cur.toUpperCase()}” ga ada di kamus Razara — tekan Enter lagi kalau yakin`, 3200); return; }
+  confirmW = '';
+  const g = r.g.concat(cur), ok = cur === ANS, done = ok || g.length >= 6;
+  const nr = { g, done: done ? 1 : 0, ok: ok ? 1 : 0, t0: r.t0 || Date.now(), t1: done ? Date.now() : 0 };
+  save(nr); cur = ''; busy = true;
+  paintBoard(g.length - 1); paintKb();
+  setTimeout(() => {
+    busy = false;
+    if (done) {
+      if (ok) { confetti(60); vib([30, 40, 30, 40, 80]); } else vib(60);
+      const o = rowOf(OT, TD);
+      const body = o && o.done ? verdictTxt() : 'Giliran kamu — bisa lebih cepet ga? 😏';
+      try { window.Push && Push.notify({ title: `🟩 ${ME} selesai Tebak Kata (${ok ? g.length : 'X'}/6)`, body, url: 'tebak-kata-harian.html', tag: 'ajak-kata' }); } catch (e) {}
+    }
+    render();
+  }, 5 * 120 + 380);
+}
+// ── hasil ──
+const nOf = r => r && r.done ? (r.ok ? r.g.length : 7) : null;   // 7 = gagal
+function winnerOf(d) { const a = rowOf('Razan', d), b = rowOf('Dara', d), x = nOf(a), y = nOf(b); if (x == null || y == null) return null; if (x === y) return 'seri'; return x < y ? 'Razan' : 'Dara'; }
+function verdictTxt() { const w = winnerOf(TD); return w === 'seri' ? 'Seri hari ini 🤝' : w ? `${w} menang hari ini 🏆` : ''; }
+function paintRes() {
+  const r = me0(), o = rowOf(OT, TD);
+  if (!r.done) { $('res').innerHTML = ''; return; }
+  const n = r.ok ? r.g.length : 'X';
+  let h = `<div class="res" data-noskor><h3>${r.ok ? ['', '🤯 Langsung ketebak!', '🔥 Jago banget!', '🎉 Mantap!', '😊 Ketebak!', '😅 Hampir aja!', '😮‍💨 Fiuh, ketebak!'][r.g.length] : '😢 Belum ketebak'}</h3>`;
+  h += `<p>Jawabannya</p><span class="ans">${ANS}</span><div class="grid">${gridOf(r.g, ANS)}</div><p>${n}/6</p>`;
+  const share = `🟩 Tebak Kata Razara ${new Date().getDate()} ${BLN[new Date().getMonth()]} — ${n}/6\n${gridOf(r.g, ANS)}`;
+  h += `<div class="row"><a class="btn wa" href="${waLink(OT, share)}" target="_blank" rel="noopener">💬 Pamer ke ${OT}</a></div>`;
+  h += `<div class="ot">`;
+  if (!o || !o.g || !o.g.length) h += `<b>${OT} belum main hari ini</b><small>Kalau dia main, hasilnya muncul di sini</small><button data-colek="1">👉 Colek ${OT}</button>`;
+  else if (!o.done) h += `<b>${OT} lagi main (${o.g.length}/6)</b><small>Tunggu dia selesai buat liat siapa yang menang 👀</small>`;
+  else { const w = winnerOf(TD); h += `<b>${OT}: ${o.ok ? o.g.length : 'X'}/6</b><div class="grid">${gridOf(o.g, ANS)}</div><div class="win">${w === 'seri' ? '🤝 Seri hari ini!' : w === ME ? '🏆 Kamu menang hari ini!' : `🏆 ${OT} menang hari ini!`}</div>`; }
+  h += `</div><p class="nx" id="nx"></p></div>`;
+  $('res').innerHTML = h; tick();
+  // 🏆 catet ke Liga: cuma HP pemenangnya yang nyatet, sekali per hari
+  const w = winnerOf(TD); if (w === ME) { const S = lsGet('katah-sk', {}) || {}; if (!S[TD]) { S[TD] = 1; lsSet('katah-sk', S); try { window.Skor && Skor.add('tebak-kata-harian', ME); } catch (e) {} } }
+}
+function tick() { const n = new Date(), t = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n, s = Math.floor(t / 1000); const el = $('nx'); if (el) el.textContent = `⏳ Kata baru dalam ${pad(Math.floor(s / 3600))}:${pad(Math.floor(s % 3600 / 60))}:${pad(s % 60)}`; }
+setInterval(() => { tick(); if (ymd(new Date()) !== TD && !document.hidden) location.reload(); }, 1000);
+function paintVs() {
+  $('vs').innerHTML = WHO.map(w => { const r = rowOf(w, TD), mine = w === ME; let t = 'belum main';
+    if (r && r.done) t = mine || me0().done ? `selesai ${r.ok ? r.g.length : 'X'}/6` : 'udah selesai 🤫'; else if (r && r.g && r.g.length) t = `lagi main · ${r.g.length}/6`;
+    return `<div style="--c:${COL[w]}"><b>${mine ? 'Kamu' : w}</b><br>${t}</div>`; }).join('');
+}
+function paintStats() {
+  const S = {}; WHO.forEach(w => { const R = rows(w), ds = Object.keys(R).filter(d => /^\d{4}-/.test(d) && R[d] && R[d].done).sort(); const dist = [0, 0, 0, 0, 0, 0]; let ok = 0; ds.forEach(d => { if (R[d].ok) { ok++; dist[R[d].g.length - 1]++; } }); let st = 0; const x = new Date(); if (!(R[ymd(x)] && R[ymd(x)].ok)) x.setDate(x.getDate() - 1); while (R[ymd(x)] && R[ymd(x)].ok) { st++; x.setDate(x.getDate() - 1); } S[w] = { n: ds.length, ok, dist, st }; });
+  const days = new Set(); WHO.forEach(w => Object.keys(rows(w)).forEach(d => { if (/^\d{4}-/.test(d)) days.add(d); }));
+  const won = { Razan: 0, Dara: 0, seri: 0 }; days.forEach(d => { const w = winnerOf(d); if (w) won[w]++; });
+  const m = S[ME], mx = Math.max(1, ...m.dist);
+  let h = `<p class="sec">📊 Statistik kamu</p><div class="st4"><div><b>${m.n}</b><small>main</small></div><div><b>${m.n ? Math.round(m.ok / m.n * 100) : 0}%</b><small>ketebak</small></div><div><b>🔥 ${m.st}</b><small>streak</small></div><div><b>${won[ME]}</b><small>menang lawan ${OT}</small></div></div>`;
+  h += `<div class="dist">${m.dist.map((c, i) => `<div><span style="width:12px">${i + 1}</span><i class="${me0().done && me0().ok && me0().g.length === i + 1 ? 'me' : ''}" style="width:${Math.max(8, c / mx * 100)}%">${c}</i></div>`).join('')}</div>`;
+  h += `<p class="sec">⚔️ Razan vs Dara</p><div class="st4" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div><b style="color:var(--rz)">${won.Razan}</b><small>Razan menang</small></div><div><b>${won.seri}</b><small>seri</small></div><div><b style="color:var(--dr)">${won.Dara}</b><small>Dara menang</small></div></div>`;
+  const past = [...days].filter(d => d < TD).sort().reverse().slice(0, 7);
+  if (past.length) h += `<p class="sec">🕰️ Hari-hari sebelumnya</p><div class="hist">${past.map(d => { const a = rowOf(ME, d), b = rowOf(OT, d), w = winnerOf(d), dt = parseYMD(d); const f = r => r && r.done ? (r.ok ? r.g.length : 'X') + '/6' : '–'; return `<div><span><span class="w">${ansOf(d)}</span><br><small>${dt.getDate()} ${BLN[dt.getMonth()]} · kamu ${f(a)} · ${OT} ${f(b)}</small></span><small>${w === 'seri' ? '🤝' : w ? (w === ME ? '🏆 kamu' : '🏆 ' + w) : ''}</small></div>`; }).join('')}</div>`;
+  $('stats').innerHTML = h;
+}
+function render() { paintVs(); paintBoard(); paintKb(); paintRes(); paintStats(); try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {} }
+$('kb').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) key(b.dataset.k); });
+document.addEventListener('keydown', e => { if (e.ctrlKey || e.metaKey || e.altKey) return; const k = e.key.toLowerCase(); if (k === 'enter') { e.preventDefault(); key('enter'); } else if (k === 'backspace') key('del'); else if (/^[a-z]$/.test(k)) key(k); });
+document.addEventListener('click', e => { if (e.target.closest('[data-colek]')) { const k = 'katah-colek-' + TD, n = lsGet(k, 0); if (n >= 2) return toast('Udah dicolek — sabar ya 😆'); lsSet(k, n + 1); try { window.Push && Push.notify({ title: `👉 ${ME} nantangin kamu Tebak Kata`, body: `${ME} udah selesai hari ini — kamu bisa lebih cepet ga? 🟩`, url: 'tebak-kata-harian.html', tag: 'ajak-kata-c' }); } catch (x) {} vib(15); toast(`👉 ${OT} udah dicolek`); } });
+BD.on(ev => { if (!ev.apps || !ev.apps.length || ev.apps.includes('katah')) { if (!busy) { paintVs(); paintRes(); paintStats(); } } });
+try { BD.fast && BD.fast(30e3); } catch (e) {}
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

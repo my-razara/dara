@@ -9,7 +9,7 @@
     voucher: { t: '🎟️ Voucher Razan', tabs: [['voucher-harian', '🎟️', 'Harian'], ['hadiah-harian', '🎰', 'Gosok'], ['voucher-razan', '📒', 'Buku']] },
     kenangan: { t: '📸 Kenangan Kita', tabs: [['memories', '📸', 'Foto'], ['timeline-kita', '🕰️', 'Timeline'], ['polaroid-wall', '🖼️', 'Polaroid'], ['peta-kenangan', '📍', 'Peta'], ['peta-bintang', '🌌', 'Bintang']] },
     musik: { t: '🎵 Musik & Suara', tabs: [['playlist-dara', '🎵', 'Playlist'], ['playlist-dara', '🎶', 'Kotak', 'kotakmusik'], ['radio-razan', '📻', 'Radio'], ['piano-mini', '🎹', 'Piano'], ['rekam-suara', '🎙️', 'Rekam']] },
-    janji: { t: '🕊️ Janji & Baikan', tabs: [['kupon-maaf', '🎟️', 'Tiket Baikan'], ['janji-kita', '📜', 'Janji Kita']] },
+    janji: { t: '🕊️ Janji & Baikan', tabs: [['kupon-maaf', '🎟️', 'Tiket Baikan'], ['janji-kita', '📜', 'Janji Kita'], ['check-in-bulanan', '🩺', 'Check-in']] },
     kenal: { t: '🫶 Kenal Kita', tabs: [['kuis-kita', '🪞', 'Kuis'], ['dna-hubungan', '🧬', 'DNA'], ['dna-hubungan', '🧮', 'Hitung', 'kalkulator'], ['kamus-kita', '📖', 'Kamus'], ['masa-depan', '🔭', 'Masa Depan']] },
     kreasi: { t: '🎨 Studio Kreasi', tabs: [['hias-kue', '🍰', 'Kue'], ['gelang-manik', '📿', 'Gelang'], ['dandan-berdua', '👗', 'Dandan'], ['bikin-komik', '🗯️', 'Komik']] }
   };
@@ -30,6 +30,7 @@
       if (id === 'buku-harian') { const r = (g('diary-' + me(), {}) || {})[today], p = (g('diary-priv-' + me(), {}) || {})[today]; return (r && r.t) || (p && p.t) ? '✓' : ''; }
       if (id === 'tidur-kita') { const r = g('tidur-' + me(), {}) || {}, h = now.getHours(), d0 = new Date(now); if (h < 12) d0.setDate(d0.getDate() - 1); const x = r[`${d0.getFullYear()}-${pad(d0.getMonth() + 1)}-${pad(d0.getDate())}`]; return x && x.b && !x.w ? '💤' : ''; }
       if (id === 'kebiasaan-bareng') { const L = {}; ['Razan', 'Dara'].forEach(w => (((g('habit-' + w, {}) || {})['2000-01-01'] || {}).list || []).forEach(h => { if (h && h.id && (!L[h.id] || (h.at || 0) > (L[h.id].at || 0))) L[h.id] = h; })); const m = me(), mine = Object.values(L).filter(h => !h.del && (h.who === 'both' || h.who === m)), dn = ((g('habitc-' + m, {}) || {})[today] || {}).ids || []; return mine.length ? (mine.every(h => dn.includes(h.id)) ? '✓' : dn.filter(i => mine.some(h => h.id === i)).length + '/' + mine.length) : ''; }
+      if (id === 'check-in-bulanan') { const n2 = new Date(), m2 = n2.getDate() <= 7 ? new Date(n2.getFullYear(), n2.getMonth() - 1, 1) : n2, k2 = `${m2.getFullYear()}-${pad(m2.getMonth() + 1)}-01`, r2 = (g('checkin-' + me(), {}) || {})[k2]; return r2 && r2.s ? '✓' : (n2.getDate() >= 25 || n2.getDate() <= 7 ? '1' : ''); }
       if (id === 'ibadah-bareng') { const r = (g('ibadah-' + me(), {}) || {})[today]; const n = r ? (r.off ? 5 : Object.keys(r.s || {}).length) : 0; return n ? (n >= 5 ? '✓' : n + '/5') : ''; }
       if (id === 'ketemuan') { const m = g('idx-meet', ''); if (m && m >= today) { const a = new Date(m + 'T00:00:00'), b = new Date(today + 'T00:00:00'), n = Math.round((a - b) / 864e5); return n === 0 ? 'hari ini' : 'H-' + n; } }
     } catch (e) {}
