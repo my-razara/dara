@@ -61,7 +61,7 @@
     if (lastSent[tag] && now - lastSent[tag] < 8000) return;            // jangan dobel kalau kepencet 2x
     lastSent[tag] = now;
     const title = String(o.title).slice(0, 80), text = String(o.body || '').slice(0, 180), url = o.url || './';
-    if (to !== w && tag !== 'tes') { try { inboxAdd(to, { f: w, t: title, b: text, u: url, g: tag, at: now }); } catch (e) {} }
+    if (to !== w && tag !== 'tes' && !/^online/.test(tag)) { try { inboxAdd(to, { f: w, t: title, b: text, u: url, g: tag, at: now }); } catch (e) {} }
     if (!ready) return;
     // ditunda dikit biar sempet kekirim walaupun halaman langsung pindah ke WA
     const body = { action: 'notify', from: w, to, title, body: text, url, tag };

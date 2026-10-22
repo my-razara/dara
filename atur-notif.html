@@ -105,6 +105,8 @@
     <div class="tm">dari <select id="q-from"></select> sampai <select id="q-to"></select></div>
     <label class="sum"><input type="checkbox" id="q-sum"> ☀️ Kirim 1 notif ringkasan pas jam tenang selesai</label>
   </div>
+  <p class="sec">🟢 Kabar online</p>
+  <div class="qt" id="ot-w"><label class="hd"><span class="m"><b id="ot-b">Kabarin pasangan pas aku buka Razara</b><small>Dia dapet notif “🟢 kamu lagi online” kalau kamu buka app setelah ≥30 menit ga buka. Paling sering 2 jam sekali</small></span><span class="sw"><input type="checkbox" id="ot-on"><i></i></span></label></div>
   <p class="sec">🔔 Jenis notif</p>
   <div class="ls" id="ls"></div>
   <p class="note">Setelan ini cuma buat <b id="me2"></b> — pasangan atur sendiri di HP-nya.<br>Notif yang dimatiin tetep masuk ke 📥 kotak kiriman di home, jadi ga ada yang ketinggalan.</p>
@@ -157,6 +159,7 @@ const ME = (window.Who && Who.me()) || BD.me(), SLOT = '2000-01-01';
 $('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME; $('me2').textContent = ME;
 const CATS = [
   ['chat', '💬', 'Chat, surat & kiriman', 'chat, bales, tempel pesan, surat, kiriman hadiah', 1], ['kangen', '💗', 'Kangen & semangat', 'tombol kangen, disemangatin', 1],
+  ['online', '🟢', 'Pasangan online', 'pas dia baru buka Razara (paling sering 2 jam sekali, ga bunyi pas jam tenang)', 0],
   ['lokasi', '🧭', 'Lokasi & OTW', 'OTW berangkat/udah deket/sampai, minta lokasi', 1], ['voucher', '🎟️', 'Voucher', 'klaim & ditepatin', 1],
   ['game', '🎮', 'Game & Liga', 'diajak main, tantangan, kuis & tebak gambar, liga', 0], ['diary', '📔', 'Buku harian, mood & status', 'nulis cerita, catat mood, syukur, pasang status', 0],
   ['bobo', '😴', 'Bobo & bangun', 'good night / good morning', 0], ['rutin', '✅', 'Kebiasaan, fokus & minum', 'diingetin, kelar fokus, target minum', 0],
@@ -241,6 +244,14 @@ BD.on(ev => { if (!ev.apps || ev.apps.includes('notifset')) render(); });
 paintPerm(); render();
 // pertama kali dibuka: titip setelan ke service worker
 try { caches.open('untuk-dara-meta').then(c => c.put('/__notifset', new Response(JSON.stringify(cur())))); } catch (e) {}
+// 🟢 kabarin pasangan pas aku online (yang ngatur yang online-nya)
+(function () {
+  const OTN = ME === 'Razan' ? 'Dara' : 'Razan';
+  $('ot-b').textContent = `Kabarin ${OTN} pas aku buka Razara`;
+  const paint = () => { $('ot-on').checked = cur().tellOn !== false; $('ot-w').classList.toggle('off', cur().tellOn === false); };
+  $('ot-on').onchange = () => { const S = cur(); S.tellOn = $('ot-on').checked; save(S); paint(); toast($('ot-on').checked ? `🟢 ${OTN} bakal dikabarin pas kamu online` : `${OTN} ga dikabarin lagi pas kamu online`); };
+  paint();
+})();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->

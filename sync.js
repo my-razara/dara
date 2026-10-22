@@ -252,8 +252,40 @@
     if (!URL || document.hidden) return;
     const t = tday(), cur = (g('seen-' + me(), {}) || {})[t], p = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '') || 'index';
     if (cur && Date.now() - cur.at < (Hemat.on() ? 300e3 : 90e3) && (cur.p === p || Hemat.on())) return;
+    let prev = 0; try { Object.values(g('seen-' + me(), {}) || {}).forEach(x => { if (x && x.at > prev) prev = x.at; }); } catch (e) {}
     put('seen', me(), t, { at: Date.now(), p });
+    if (Date.now() - prev >= 30 * 6e4) tellOnline();
   }
+  // ── 🟢 baru buka app (abis ≥30 menit ga buka) → pasangan dapet notif. Paling sering 2 jam sekali, bisa dimatiin di 🔔 Atur Notif ──
+  function tellOnline() {
+    try {
+      const w = me(), o = other(w), set = ((g('notifset-' + w, {}) || {})['2000-01-01']) || {};
+      if (set.tellOn === false || window.self !== window.top) return;
+      if (Date.now() - (g('on-told', 0) || 0) < 2 * 36e5) return;
+      let oAt = 0; Object.values(g('seen-' + o, {}) || {}).forEach(x => { if (x && x.at > oAt) oAt = x.at; });
+      if (Date.now() - oAt < 3 * 6e4) return;                         // dia lagi online juga → udah keliatan di app
+      s('on-told', Date.now());
+      const go = n => { if (window.Push && Push.notify) { try { Push.notify({ title: `🟢 ${w} lagi online`, body: 'Baru buka Razara — sapa yuk 👋', url: 'chat.html', tag: 'online' }); } catch (e) {} } else if (n < 15) setTimeout(() => go(n + 1), 700); };
+      go(0);
+    } catch (e) {}
+  }
+  // ── 🟢 pas lagi buka app & pasangan baru online → muncul tanda kecil ──
+  function onlineToast() {
+    try {
+      if (window.self !== window.top || document.hidden) return;
+      const o = other(me()); let at = 0; Object.values(g('seen-' + o, {}) || {}).forEach(x => { if (x && x.at > at) at = x.at; });
+      const k = 'on-saw-' + o, last = g(k, 0) || 0; if (at <= last) return; s(k, at);
+      if (!last || at - last < 30 * 6e4 || Date.now() - at > 3 * 6e4) return;
+      const el = document.createElement('a'); el.href = 'chat.html';
+      el.style.cssText = 'position:fixed;left:50%;top:calc(.7rem + env(safe-area-inset-top));transform:translate(-50%,-160%);z-index:2147483000;display:flex;align-items:center;gap:.5rem;background:#fff;color:#2d1f1a;text-decoration:none;border-radius:50px;padding:.55rem 1rem;font:600 13px Poppins,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.18);border:1.5px solid #9ad3a8;transition:transform .35s cubic-bezier(.3,1.4,.5,1);white-space:nowrap;max-width:calc(100% - 2rem)';
+      el.innerHTML = `<span style="width:9px;height:9px;border-radius:50%;background:#3fbf6a;box-shadow:0 0 0 3px rgba(63,191,106,.25);flex-shrink:0"></span>${o} baru aja online · sapa 👋`;
+      (document.body || document.documentElement).appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transform = 'translate(-50%,0)'; }));
+      try { navigator.vibrate && navigator.vibrate(25); } catch (e) {}
+      setTimeout(() => { el.style.transform = 'translate(-50%,-160%)'; setTimeout(() => el.remove(), 500); }, 4500);
+    } catch (e) {}
+  }
+  subs.push(ev => { if (ev && ev.apps && ev.apps.includes('seen')) onlineToast(); });
   const kick = force => { beat(); flush(); pull(force); setTimeout(live, 1200); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => kick(true)); else setTimeout(() => kick(true), 0);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(false); });
