@@ -223,4 +223,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
   window.Lok = { mode, setMode, send, request, favs, saveFav, favAt, row, dist, PAGE, otw, otwStart, otwStop: () => otwStop('batal'), otwDone: () => otwStop('sampai'), MV };
+  // 🧹 jejak lokasi di HP ini juga cuma disimpen 30 hari (sama kayak di server)
+  try { const t0 = new Date(Date.now() - 30 * 864e5), lim = `${t0.getFullYear()}-${String(t0.getMonth() + 1).padStart(2, '0')}-${String(t0.getDate()).padStart(2, '0')}`;
+    if (localStorage.getItem('lokhist-prune') !== lim) { localStorage.setItem('lokhist-prune', lim); ['Razan', 'Dara'].forEach(w => { const k = 'lokhist-' + w, m = JSON.parse(localStorage.getItem(k) || 'null'); if (!m) return; let ch = 0; Object.keys(m).forEach(d => { if (/^\d{4}-\d{2}-\d{2}$/.test(d) && d >= '2020-01-01' && d < lim) { delete m[d]; ch++; } }); if (ch) localStorage.setItem(k, JSON.stringify(m)); }); } } catch (e) {}
 })();
