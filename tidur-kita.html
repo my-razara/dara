@@ -106,6 +106,24 @@
   .pl button{width:44px;height:44px;border-radius:50%;border:none;background:var(--rose);color:#fff;font-size:16px;cursor:pointer;flex-shrink:0}
   .pl .bar{flex:1;height:6px;border-radius:4px;background:#f0e2d8;overflow:hidden}.pl .bar i{display:block;height:100%;width:0;background:var(--rose)}
   .pl small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0}
+  .mp{background:#fff;border-radius:20px;padding:.85rem;border:1px solid rgba(193,122,111,.13);margin:.7rem 0 .2rem}
+  .mp>b{display:block;font-size:13px}.mp>small{display:block;font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:.1rem}
+  .mp .go{margin-top:.6rem;width:100%;border:1.5px dashed #b9a6d8;background:#f7f3ff;border-radius:16px;padding:.7rem;font:600 12.5px Poppins,sans-serif;color:#5b4a8a;cursor:pointer}
+  .dr{background:#f7f3ff;border-radius:16px;padding:.6rem .7rem;margin-top:.55rem;border-left:4px solid var(--c)}
+  .dr .h{display:flex;justify-content:space-between;gap:.4rem;font-size:11px;color:var(--muted)}
+  .dr .h b{color:var(--ink);font-size:12px}
+  .dr p{font-size:12.5px;line-height:1.55;margin:.25rem 0 0;overflow-wrap:anywhere}
+  .dr .ku{display:inline-block;font-size:10.5px;background:#ffe1ea;color:#a8405f;border-radius:50px;padding:.1rem .5rem;margin-top:.3rem;font-weight:600}
+  .dr .rx{display:flex;gap:.3rem;margin-top:.4rem;flex-wrap:wrap;align-items:center}
+  .dr .rx button{border:1.5px solid #e2d8f5;background:#fff;border-radius:50px;font-size:15px;padding:.1rem .45rem;cursor:pointer}
+  .dr .rx button.on{background:#e9dfff;border-color:#9b86d6}
+  .dr .rx small{font-size:11px;color:var(--muted)}
+  .dr .ed{border:none;background:none;color:var(--muted);font-size:11px;text-decoration:underline;cursor:pointer;padding:0}
+  .mpc{font-size:11px;color:var(--muted);text-align:center;margin-top:.55rem}
+  .mpl{margin-top:.5rem}.mpl summary{font-size:11.5px;color:#5b4a8a;cursor:pointer;text-align:center;list-style:none}
+  .mk{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;margin:.5rem 0}
+  .mk button{border:1.5px solid var(--blush);background:#fff;border-radius:50px;padding:.38rem .65rem;font:500 12px Poppins,sans-serif;color:var(--muted);cursor:pointer}
+  .mk button.on{background:#7a65b8;border-color:#7a65b8;color:#fff}
   .gf-e{font-size:3.4rem;display:block;line-height:1.1;margin-bottom:.3rem}
 
 </style>
@@ -123,6 +141,7 @@
   <label class="lab" style="text-align:center">Tambahin pesan (opsional)</label>
   <div class="chips" id="msgs"></div>
   <div class="sp"><b id="sp-h">🎙️ Titip suara</b><small id="sp-s"></small><div class="sp2"><button data-rec="pagi" id="sp-p"></button><button data-rec="malem" id="sp-m"></button></div></div>
+  <div class="mp" id="mimpi"></div>
   <p class="sec">📊 Seminggu terakhir</p>
   <div class="wk"><b style="font-size:12.5px">Lama tidur (jam)</b><div class="bars" id="bars"></div><div class="leg"><span style="--c:var(--rz)">Razan</span><span style="--c:var(--dr)">Dara</span></div></div>
   <div class="avg" id="avg"></div>
@@ -149,6 +168,17 @@
   <div class="pl"><button id="gf-b">…</button><span class="bar"><i id="gf-i"></i></span><small id="gf-d">0:00</small></div>
   <a class="btn" id="gf-rep" href="chat.html">💬 Bales di chat</a>
   <button class="btn ghost" style="margin-top:.5rem" id="gf-x">Tutup</button>
+</div></div>
+
+<div class="ov" id="mp-ov"><div class="sheet" style="text-align:center">
+  <div class="drag"></div>
+  <h3 style="font-size:15px;margin-bottom:.2rem">💭 Semalem mimpi apa?</h3>
+  <p style="font-size:11.5px;color:var(--muted);margin-bottom:.5rem">Ceritain dikit — nanti dia bisa kasih reaksi</p>
+  <div class="mk" id="mp-k"></div>
+  <textarea class="ta" id="mp-t" maxlength="300" rows="3" placeholder="Aku mimpi kita lagi…"></textarea>
+  <div class="mk"><button type="button" id="mp-ku">🥰 Aku mimpiin kamu</button></div>
+  <div class="row"><button class="btn ghost" id="mp-lupa">😅 Lupa mimpi apa</button><button class="btn" id="mp-go">💭 Simpan</button></div>
+  <button class="btn ghost" style="margin-top:.5rem" id="mp-x">Nanti aja</button>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -228,7 +258,7 @@ function bangun() {
   const dur = x.b ? (t - x.b) / H : 0;
   toast(`☀️ Pagi, ${ME}!${dur > 0 && dur < 18 ? ` Tidur ${jam(dur)} 😊` : ''}`, 3000);
   try { window.Push && Push.notify({ title: `☀️ ${ME} udah bangun`, body: pick || `Sapa pagi ${ME} yuk 🥰`, url: 'tidur-kita.html', tag: 'tidur-w' }); } catch (e) {}
-  pick = ''; render(); gift('pagi');
+  pick = ''; render(); gift('pagi', askDream);
 }
 const jam = h => { const m = Math.round(h * 60); return `${Math.floor(m / 60)}j ${pad(m % 60)}m`; };
 const ago = t => { const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'barusan' : m < 60 ? `${m} menit lalu` : `${Math.floor(m / 60)} jam ${m % 60 ? (m % 60) + ' mnt ' : ''}lalu`; };
@@ -348,9 +378,10 @@ async function openGift(x) {
   } catch (e) { if (gCur) gCur.load = 0; gPaint(); toast(navigator.onLine === false ? 'Lagi offline 📴 — titipannya belum bisa diputer' : 'Titipannya gagal diputer 😢 coba lagi', 3200); }
 }
 $('gf-b').onclick = () => { if (!gCur || gCur.load) return; if (!GA.src) return openGift(gCur.x); if (GA.paused) GA.play().catch(() => {}); else GA.pause(); };
-$('gf-x').onclick = () => { GA.pause(); $('gf-ov').classList.remove('show'); };
+$('gf-x').onclick = () => { GA.pause(); $('gf-ov').classList.remove('show'); const f = afterGift; afterGift = null; if (f) setTimeout(f, 400); };
 $('gf-rep').onclick = () => GA.pause();
-function gift(k) { const p = pending(k); if (p) setTimeout(() => openGift(p), 700); }
+let afterGift = null;
+function gift(k, after) { const p = pending(k); if (p) { afterGift = after || null; setTimeout(() => openGift(p), 700); } else if (after) setTimeout(after, 900); }
 // prefetch biar pas tap langsung bunyi
 function prefetch() { const p = pending(); if (p && !gCache[p.vn] && navigator.onLine !== false) vnData(p.vn).catch(() => {}); }
 // ── rekam ──
@@ -415,6 +446,60 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-rec]
 paintSapa(); setTimeout(prefetch, 1500);
 BD.on(ev => { if (!ev.apps || ev.apps.includes('sapa') || ev.apps.includes('sapadg')) { paintSapa(); prefetch(); } });
 if (/[?&]dengar=1/.test(location.search)) { const p = pending(); if (p) setTimeout(() => openGift(p), 500); }
+// ═════ 💭 JURNAL MIMPI — abis bangun, cerita semalem mimpi apa ═════
+const MK = [['indah', '😊', 'indah'], ['lucu', '🤪', 'aneh/lucu'], ['serem', '😱', 'serem'], ['sedih', '😢', 'sedih']];
+const RXS = ['🥰', '😂', '😱', '🤗'];
+const dreams = w => lsGet('mimpi-' + w, {}) || {};
+const rxOf = (w, d) => (((lsGet('mimpirx-' + w, {}) || {})[d]) || {}).e || '';
+let mpK = 'indah', mpKu = false;
+function askDream() { const d = ymd(new Date()); if (dreams(ME)[d] || new Date().getHours() >= 15) return; openDream(); }
+function openDream() {
+  const x = dreams(ME)[ymd(new Date())]; mpK = x && x.k !== 'lupa' ? x.k : 'indah'; mpKu = !!(x && x.ku); $('mp-t').value = x && x.t || '';
+  paintMk(); $('mp-ov').classList.add('show');
+}
+function paintMk() { $('mp-k').innerHTML = MK.map(m => `<button type="button" class="${m[0] === mpK ? 'on' : ''}" data-mk="${m[0]}">${m[1]} ${m[2]}</button>`).join(''); $('mp-ku').classList.toggle('on', mpKu); }
+$('mp-k').addEventListener('click', e => { const b = e.target.closest('[data-mk]'); if (b) { mpK = b.dataset.mk; paintMk(); } });
+$('mp-ku').onclick = () => { mpKu = !mpKu; vib(8); paintMk(); };
+$('mp-x').onclick = () => $('mp-ov').classList.remove('show');
+$('mp-ov').addEventListener('click', e => { if (e.target === $('mp-ov')) $('mp-ov').classList.remove('show'); });
+function saveDream(lupa) {
+  const d = ymd(new Date()), had = dreams(ME)[d], t = $('mp-t').value.trim().slice(0, 300);
+  if (!lupa && !t) { $('mp-t').focus(); return toast('Ceritain dikit dong 💭 atau tap “Lupa mimpi apa”'); }
+  const x = lupa ? { k: 'lupa', at: Date.now() } : { t, k: mpK, ku: mpKu ? 1 : 0, at: Date.now() };
+  BD.put('mimpi', ME, d, x); $('mp-ov').classList.remove('show'); vib(15);
+  toast(lupa ? 'Oke, semoga nanti malem mimpi indah 💤' : `💭 Kesimpen — ${OT} dikabarin`);
+  if (!lupa && (!had || had.k === 'lupa')) try { window.Push && Push.notify({ title: `💭 ${ME} cerita mimpinya semalem`, body: mpKu ? `…dan dia mimpiin kamu 🥰 “${t.slice(0, 80)}”` : `${(MK.find(m => m[0] === mpK) || ['', '💭'])[1]} “${t.slice(0, 100)}”`, url: 'tidur-kita.html', tag: 'tidur-mimpi' }); } catch (e) {}
+  paintDream();
+}
+$('mp-go').onclick = () => saveDream(false);
+$('mp-lupa').onclick = () => saveDream(true);
+function dreamCard(w, d, x) {
+  const k = MK.find(m => m[0] === x.k) || ['', '💭', ''], dt = parseYMD(d), mine = w === ME, rx = rxOf(mine ? OT : ME, d);
+  const rxRow = mine ? (rx ? `<div class="rx"><small>${OT} ngasih ${rx}</small></div>` : '') : `<div class="rx">${RXS.map(e => `<button data-rx="${d}" data-e="${e}" class="${rx === e ? 'on' : ''}">${e}</button>`).join('')}</div>`;
+  return `<div class="dr" style="--c:${COL[w]}"><div class="h"><b>${mine ? 'Kamu' : w} · ${k[1]} ${k[2]}</b><span>${d === ymd(new Date()) ? 'semalem' : `${HARI[dt.getDay()].slice(0, 3)} ${dt.getDate()} ${BLN[dt.getMonth()]}`}</span></div><p>${esc(x.t)}</p>${x.ku ? `<span class="ku">🥰 mimpiin ${mine ? OT : 'kamu'}</span>` : ''}${rxRow}${mine && d === ymd(new Date()) ? '<button class="ed" data-ed="1">ubah</button>' : ''}</div>`;
+}
+function paintDream() {
+  const d = ymd(new Date()), m = dreams(ME)[d], o = dreams(OT)[d];
+  let h = `<b>💭 Jurnal Mimpi</b><small>Abis bangun, cerita semalem mimpi apa — ${OT} bisa kasih reaksi</small>`;
+  if (o && o.t) h += dreamCard(OT, d, o);
+  if (m && m.t) h += dreamCard(ME, d, m); else h += `<button class="go" data-ask="1">${m && m.k === 'lupa' ? '😅 Lupa mimpi apa — inget sekarang?' : '💭 Semalem aku mimpi…'}</button>`;
+  const cnt = w => Object.values(dreams(w)).filter(x => x && x.ku).length, a = cnt(OT), b = cnt(ME);
+  if (a || b) h += `<p class="mpc">🥰 ${OT} udah ${a}× mimpiin kamu · kamu ${b}× mimpiin ${OT}</p>`;
+  const past = []; WHO.forEach(w => Object.entries(dreams(w)).forEach(([dd, x]) => { if (dd < d && x && x.t) past.push([dd, w, x]); }));
+  past.sort((p, q) => q[0] < p[0] ? -1 : q[0] > p[0] ? 1 : 0);
+  if (past.length) h += `<details class="mpl"><summary>📖 Mimpi-mimpi sebelumnya (${past.length})</summary>${past.slice(0, 12).map(([dd, w, x]) => dreamCard(w, dd, x)).join('')}</details>`;
+  $('mimpi').innerHTML = h;
+}
+$('mimpi').addEventListener('click', e => {
+  if (e.target.closest('[data-ask]') || e.target.closest('[data-ed]')) return openDream();
+  const r = e.target.closest('[data-rx]'); if (!r) return;
+  const d = r.dataset.rx, em = r.dataset.e, cur = rxOf(ME, d), nw = cur === em ? '' : em;
+  BD.put('mimpirx', ME, d, { e: nw, at: Date.now() }); vib(10);
+  if (nw) try { window.Push && Push.notify({ title: `💭 ${ME} ngasih ${nw} ke mimpimu`, body: `“${String((dreams(OT)[d] || {}).t || '').slice(0, 90)}”`, url: 'tidur-kita.html', tag: 'tidur-mimpi-rx' }); } catch (x) {}
+  paintDream();
+});
+BD.on(ev => { if (!ev.apps || ev.apps.includes('mimpi') || ev.apps.includes('mimpirx')) paintDream(); });
+paintDream();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->

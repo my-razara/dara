@@ -11,7 +11,7 @@
     musik: { t: '🎵 Musik & Suara', tabs: [['playlist-dara', '🎵', 'Playlist'], ['playlist-dara', '🎶', 'Kotak', 'kotakmusik'], ['radio-razan', '📻', 'Radio'], ['piano-mini', '🎹', 'Piano'], ['rekam-suara', '🎙️', 'Rekam']] },
     janji: { t: '🕊️ Janji & Baikan', tabs: [['kupon-maaf', '🎟️', 'Tiket Baikan'], ['janji-kita', '📜', 'Janji Kita'], ['check-in-bulanan', '🩺', 'Check-in']] },
     kenal: { t: '🫶 Kenal Kita', tabs: [['kuis-kita', '🪞', 'Kuis'], ['dna-hubungan', '🧬', 'DNA'], ['dna-hubungan', '🧮', 'Hitung', 'kalkulator'], ['kamus-kita', '📖', 'Kamus'], ['masa-depan', '🔭', 'Masa Depan']] },
-    kreasi: { t: '🎨 Studio Kreasi', tabs: [['hias-kue', '🍰', 'Kue'], ['gelang-manik', '📿', 'Gelang'], ['dandan-berdua', '👗', 'Dandan'], ['bikin-komik', '🗯️', 'Komik']] }
+    kreasi: { t: '🎨 Studio Kreasi', tabs: [['hias-kue', '🍰', 'Kue'], ['gelang-manik', '📿', 'Gelang'], ['dandan-berdua', '👗', 'Dandan'], ['bikin-komik', '🗯️', 'Komik'], ['papan-coret', '🖊️', 'Coret']] }
   };
   const PAGE = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
   let G = null; for (const k in GROUPS) if (GROUPS[k].tabs.some(x => x[0] === PAGE)) G = GROUPS[k];
