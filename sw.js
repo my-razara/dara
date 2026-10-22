@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v90';
+const VERSI = 'v91';
 const CACHE = 'untuk-dara-' + VERSI;
 // (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
@@ -15,6 +15,7 @@ const HALAMAN = [
 "liga-razara.html",
 "kunci-pin.html",
 "voucher-harian.html",
+"atur-notif.html",
 "_teka-teki-surat.html",
 "_kapsul-waktu.html",
 "_mesin-terserah.html",
@@ -286,8 +287,16 @@ async function siapa() { try { const c = await caches.open('untuk-dara-meta'), r
 // Sumbernya daftar UPDATED + KABAR di index.html — jadi tiap upload update baru, notifnya otomatis.
 async function metaGet() { try { const c = await caches.open('untuk-dara-meta'); const r = await c.match('/__kabar'); return r ? await r.json() : {}; } catch (e) { return {}; } }
 async function metaSet(o) { try { const c = await caches.open('untuk-dara-meta'); await c.put('/__kabar', new Response(JSON.stringify(o))); } catch (e) {} }
+// setelan 🔔 Atur Notif (dititip halaman atur-notif): jenis yang dimatiin & jam tenang
+async function notifOk(cat) {
+  try { const c = await caches.open('untuk-dara-meta'), r = await c.match('/__notifset'); if (!r) return true; const S = await r.json();
+    if ((S.off || []).includes(cat)) return false;
+    const q = S.q; if (q && q.on) { const h = new Date().getHours(), f = +q.from, t = +q.to; if (f !== t && (f > t ? (h >= f || h < t) : (h >= f && h < t))) return false; }
+  } catch (e) {} return true;
+}
 async function cekKabar() {
   if (self.Notification && Notification.permission !== 'granted') return;
+  if (!(await notifOk('update'))) return;
   let html = '';
   try { const r = await fetch('index.html?cek=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return; html = await r.text(); } catch (e) { return; }
   const now = new Date(), today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -312,6 +321,7 @@ async function cekKabar() {
 // ═══ PENGINGAT HARI SPESIAL ═══ (jadwalnya dititip menu utama lewat pengingat.js)
 async function cekIngat() {
   if (self.Notification && Notification.permission !== 'granted') return;
+  if (!(await notifOk('jadwal'))) return;
   try {
     const c = await caches.open('untuk-dara-meta'), r = await c.match('/__ingat'); if (!r) return;
     const { list } = await r.json(), sr = await c.match('/__ingat-sent'), sent = sr ? await sr.json() : {};

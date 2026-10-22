@@ -760,7 +760,7 @@ $('menu').onclick = e => { if (e.target.id === 'menu') $('menu').classList.remov
 
 // ── 🤖 ASISTEN AI ──
 const SUG = [`Ide kencan murah buat minggu ini 💡`, `Bikinin ucapan manis buat ${OT} 💌`, `Game apa yang seru dimainin malem ini? 🎮`, `Ide hadiah kecil buat ${OT} 🎁`, `Bikinin pantun gombal 😆`, `Aku lagi capek, temenin ngobrol bentar 🥺`];
-let aiBusy = false;
+let aiBusy = false, aiT0 = 0, aiTok = 0, aiTick = null;
 function md(s) { let h = esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|\n)[*-] (.+)/g, '$1• $2'); return h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
 function renderAI(scroll) {
   const el = $('L-ai'); let h = `<div class="hi"><div class="e">🤖</div><b>Asisten Razara</b><p>AI temen ngobrol kalian. Bisa bantu ide kencan, ucapan, hadiah, atau sekadar nemenin ngobrol. Dia <b>bukan ${OT}</b> & ga bisa nyampein pesan ke ${OT}.</p></div>`;
@@ -769,17 +769,19 @@ function renderAI(scroll) {
   AI.forEach((m, i) => { const d = dayLbl(m.at); if (d !== lastD) { h += `<div class="day"><span>${d}</span></div>`; lastD = d; }
     if (m.r === 'sys') { h += `<div class="note">${m.t}${m.retry ? `<br><button data-retry="${i}">Coba lagi</button>` : ''}</div>`; return; }
     h += m.r === 'user' ? `<div class="m me"><div class="b"><span class="tx">${linkify(m.t)}</span><span class="meta">${hm(m.at)}</span></div></div>` : `<div class="m ai"><div class="b"><div class="lab">🤖 Asisten AI</div><span class="tx">${md(m.t)}</span><span class="meta">${hm(m.at)}</span></div></div>`; });
-  if (aiBusy) h += `<div class="m ai"><div class="b"><div class="lab">🤖 Asisten AI</div><span class="dots"><i></i><i></i><i></i></span></div></div>`;
+  if (aiBusy) { const sec = Math.round((Date.now() - aiT0) / 1000); h += `<div class="m ai"><div class="b"><div class="lab">🤖 Asisten AI</div><span class="dots"><i></i><i></i><i></i></span> <small style="font-size:11px;color:var(--muted)">${sec < 8 ? 'lagi mikir…' : sec < 20 ? 'masih mikir, bentar ya…' : 'AI-nya lagi rame nih 😵'}</small>${sec >= 22 ? `<div style="margin-top:.4rem"><button type="button" data-cancel="1" style="border:none;border-radius:50px;background:var(--rose);color:#fff;font:600 11.5px Poppins,sans-serif;padding:.35rem .75rem;cursor:pointer">🔁 Batalin & coba lagi</button></div>` : ''}</div></div>`; }
   if (AI.length) h += `<p class="note" style="font-size:10.5px">AI bisa salah. Obrolan ini dikirim ke Google Gemini — jangan ketik password, PIN, atau rahasia ya.</p>`;
   el.innerHTML = h; if (scroll !== false) el.scrollTop = el.scrollHeight;
 }
-$('L-ai').addEventListener('click', e => { const q = e.target.closest('[data-q]'); if (q) return aiSend(q.dataset.q); const r = e.target.closest('[data-retry]'); if (r) { AI.splice(+r.dataset.retry, 1); lsSet('ai-h-' + ME, AI); aiAsk(); } });
+$('L-ai').addEventListener('click', e => { if (e.target.closest('[data-cancel]')) { aiTok++; aiBusy = false; clearInterval(aiTick); return aiAsk(); } const q = e.target.closest('[data-q]'); if (q) return aiSend(q.dataset.q); const r = e.target.closest('[data-retry]'); if (r) { AI.splice(+r.dataset.retry, 1); lsSet('ai-h-' + ME, AI); aiAsk(); } });
 function aiSend(t) { t = String(t || '').trim(); if (!t || aiBusy) return; AI.push({ r: 'user', t, at: Date.now() }); lsSet('ai-h-' + ME, AI.slice(-80)); aiAsk(); }
 async function aiAsk() {
-  aiBusy = true; renderAI();
+  aiBusy = true; aiT0 = Date.now(); const tok = ++aiTok; renderAI();
+  clearInterval(aiTick); aiTick = setInterval(() => { if (!aiBusy) return clearInterval(aiTick); const sec = (Date.now() - aiT0) / 1000; if (sec > 7.5 && sec < 9 || sec > 19.5 && sec < 21 || sec > 22 && sec < 23.5) renderAI(); }, 1500);
   const msgs = AI.filter(m => m.r !== 'sys').slice(-16).map(m => ({ r: m.r === 'model' ? 'model' : 'user', t: m.t }));
   let r = null; try { r = await POST({ action: 'ai', msgs }, 60000); } catch (e) { r = { ok: false, error: 'jaringan' }; }
-  aiBusy = false;
+  if (tok !== aiTok) return;          // udah dibatalin & dicoba lagi
+  aiBusy = false; clearInterval(aiTick);
   if (r && r.ok && r.t) { AI.push({ r: 'model', t: r.t, at: Date.now() }); try { window.SFX && SFX.play('pop'); } catch (e) {} }
   else {
     const E = { nokey: `AI-nya belum disetel 🔧 ${ME === 'Razan' ? 'Masukin <b>GEMINI_KEY</b> di Apps Script dulu ya (liat panduan dari Claude).' : 'Bilang ke Razan buat nyalain AI-nya ya 😆'}`, limit: `Jatah ngobrol sama AI hari ini udah habis (${r && r.max || ''} pesan) 😴 Besok lanjut lagi ya!`, sibuk: 'Server AI Google-nya lagi rame banget 😵 Tunggu semenit terus coba lagi ya.', kuota: 'AI-nya lagi kecapean (jatah gratis dari Google lagi penuh) 😵 Coba lagi beberapa menit lagi.', keysalah: 'Kunci GEMINI_KEY-nya kayaknya salah 🔑 Cek lagi di Apps Script.', action: 'Server belum diupdate buat chat & AI. Tempel kode Apps Script terbaru & deploy versi baru ya.', jaringan: 'Ga nyambung ke internet 📶' };
