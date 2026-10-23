@@ -34,7 +34,7 @@
       try {
         const x = new XMLHttpRequest(); x.open('POST', URL, true); x.timeout = 20000; x.setRequestHeader('Content-Type', 'text/plain');
         x.onload = () => { try { res(JSON.parse(x.responseText)); } catch (e) { res(null); } }; x.onerror = x.ontimeout = () => res(null);
-        x.send(JSON.stringify(Object.assign({ key: KEY }, body)));
+        x.send(JSON.stringify(Object.assign({ key: KEY, kode: (window.RZ && RZ.kode()) || undefined }, body)));
       } catch (e) { res(null); }
     });
   }
@@ -45,7 +45,7 @@
     if (window.Berdua && Berdua.put) { Berdua.put(app, who, date, data); return; }
     const k = app + '-' + who, m = g(k, {}) || {}; m[date] = data; s(k, m);
     const now = Date.now(), st = g('bd-stamp', {}) || {}; st[`${app}|${who}|${date}`] = now; s('bd-stamp', st);
-    const b = JSON.stringify({ key: KEY, action: 'put', rows: [{ app, who, date, data, updated: now }] });
+    const b = JSON.stringify({ key: KEY, kode: (window.RZ && RZ.kode()) || undefined, action: 'put', rows: [{ app, who, date, data, updated: now }] });
     try { if (navigator.sendBeacon && navigator.sendBeacon(URL, new Blob([b], { type: 'text/plain' }))) return; } catch (e) {}
     post({ action: 'put', rows: [{ app, who, date, data, updated: now }] });
   }
@@ -66,7 +66,7 @@
     // ditunda dikit biar sempet kekirim walaupun halaman langsung pindah ke WA
     const body = { action: 'notify', from: w, to, title, body: text, url, tag };
     try {
-      if (navigator.sendBeacon) { const ok = navigator.sendBeacon(URL, new Blob([JSON.stringify(Object.assign({ key: KEY }, body))], { type: 'text/plain' })); if (ok) return; }
+      if (navigator.sendBeacon) { const ok = navigator.sendBeacon(URL, new Blob([JSON.stringify(Object.assign({ key: KEY, kode: (window.RZ && RZ.kode()) || undefined }, body))], { type: 'text/plain' })); if (ok) return; }
     } catch (e) {}
     post(body);
   }
@@ -77,7 +77,7 @@
     try {
       if (!/wa\.me|api\.whatsapp\.com|^whatsapp:/i.test(href)) return;
       const u = new window.URL(href, location.href), text = u.searchParams.get('text') || '';
-      if (!text) return;
+      if (!text || /#kode=/.test(text)) return;   // link kode Razara ga ikut dikirim lewat notif
       const w = me(); if (!w) return;
       const site = base(), links = (text.match(/https?:\/\/\S+/g) || []);
       const own = links.find(l => l.indexOf(site) === 0) || links.find(l => /github\.io/.test(l));

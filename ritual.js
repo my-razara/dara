@@ -32,7 +32,7 @@
     if (window.Berdua && Berdua.put) { Berdua.put(app, who, date, data); return; }
     const k = app + '-' + who, m = get(k, {}) || {}; m[date] = data; set(k, m);
     const now = Date.now(), st = get('bd-stamp', {}) || {}; st[`${app}|${who}|${date}`] = now; set('bd-stamp', st);
-    const body = JSON.stringify({ key: KEY, action: 'put', rows: [{ app, who, date, data, updated: now }] });
+    const body = JSON.stringify({ key: KEY, kode: (window.RZ && RZ.kode()) || undefined, action: 'put', rows: [{ app, who, date, data, updated: now }] });
     try { if (navigator.sendBeacon && navigator.sendBeacon(URL, new Blob([body], { type: 'text/plain' }))) return; } catch (e) {}
     try { const x = new XMLHttpRequest(); x.open('POST', URL, true); x.setRequestHeader('Content-Type', 'text/plain'); x.send(body); } catch (e) {}
   }

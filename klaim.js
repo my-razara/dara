@@ -15,7 +15,7 @@
     if (window.Berdua && Berdua.put) { Berdua.put(app, who, date, data); return; }
     var k = app + '-' + who, m = g(k, {}) || {}; m[date] = data; s(k, m);
     var now = Date.now(), st = g('bd-stamp', {}) || {}; st[app + '|' + who + '|' + date] = now; s('bd-stamp', st);
-    var body = JSON.stringify({ key: KEY, action: 'put', rows: [{ app: app, who: who, date: date, data: data, updated: now }] });
+    var body = JSON.stringify({ key: KEY, kode: (window.RZ && RZ.kode()) || undefined, action: 'put', rows: [{ app: app, who: who, date: date, data: data, updated: now }] });
     try { if (navigator.sendBeacon && navigator.sendBeacon(URL, new Blob([body], { type: 'text/plain' }))) return; } catch (e) {}
     try { var x = new XMLHttpRequest(); x.open('POST', URL, true); x.setRequestHeader('Content-Type', 'text/plain'); x.send(body); } catch (e) {}
   }

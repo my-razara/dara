@@ -1,3 +1,63 @@
+/* ═══ 🔑 KODE PASANGAN — tiap permintaan ke server Razara dibawain kode rahasia yang disimpen di HP ini (bukan di kodingan) ═══
+   Kode masuk lewat link  …/#kode=rz-xxxx  (sekali tap) atau diketik di layar kode. */
+(function () {
+  if (window.RZ) return;
+  var K = 'rz-kode', ls = null; try { ls = window.localStorage; } catch (e) {}
+  var ok = function (k) { return /^rz-[a-z0-9]{12,40}$/i.test(String(k || '').trim()); };
+  function kode() { try { var v = ls.getItem(K); return v && ok(v) ? v : ''; } catch (e) { return ''; } }
+  function set(k) { k = String(k || '').trim(); if (!ok(k)) return false; try { ls.setItem(K, k); } catch (e) { return false; } return true; }
+  // link #kode=… → simpen, terus ilangin dari alamat biar ga kebaca orang
+  try { var m = /(?:^#|&)kode=(rz-[A-Za-z0-9]{12,40})/.exec(location.hash || ''); if (m) { var fresh = kode() !== m[1]; set(m[1]); history.replaceState(null, '', location.pathname + location.search); if (fresh) setTimeout(function () { toast('🔑 Kode Razara kesimpen di HP ini'); }, 600); } } catch (e) {}
+  var SRV = /^https:\/\/script\.google\.com\/macros\//;
+  function addQ(u) { var k = kode(); if (!k || /[?&]kode=/.test(u)) return u; return u + (u.indexOf('?') < 0 ? '?' : '&') + 'kode=' + encodeURIComponent(k); }
+  function addB(b) { var k = kode(); if (!k || typeof b !== 'string' || b.charAt(0) !== '{') return b; try { var o = JSON.parse(b); if (o && typeof o === 'object' && !o.kode) { o.kode = k; return JSON.stringify(o); } } catch (e) {} return b; }
+  function seen(t) { if (typeof t === 'string' && /"error"\s*:\s*"kode"/.test(t.slice(0, 200))) ask(true); }
+  // XHR
+  try {
+    var X = XMLHttpRequest.prototype, o0 = X.open, s0 = X.send;
+    X.open = function (m, u) { var a = Array.prototype.slice.call(arguments); this.__rz = SRV.test(String(u || '')); if (this.__rz) { this.__rzm = String(m || 'GET').toUpperCase(); if (this.__rzm === 'GET') a[1] = addQ(String(u)); } return o0.apply(this, a); };
+    X.send = function (b) { if (this.__rz) { if (this.__rzm !== 'GET') b = addB(b); var x = this; this.addEventListener('load', function () { try { seen(x.responseText); } catch (e) {} }); } return s0.call(this, b); };
+  } catch (e) {}
+  // fetch
+  try {
+    var f0 = window.fetch;
+    if (f0) window.fetch = function (input, init) {
+      try {
+        var u = typeof input === 'string' ? input : (input && input.url) || '';
+        if (SRV.test(u)) {
+          var m = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+          if (m === 'GET' && typeof input === 'string') input = addQ(input);
+          else if (m !== 'GET' && init && typeof init.body === 'string') init = Object.assign({}, init, { body: addB(init.body) });
+          return f0.call(window, input, init).then(function (r) { try { r.clone().text().then(seen).catch(function () {}); } catch (e) {} return r; });
+        }
+      } catch (e) {}
+      return f0.apply(window, arguments);
+    };
+  } catch (e) {}
+  function toast(t) { try { var el = document.createElement('div'); el.textContent = t; el.style.cssText = 'position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font:500 12.5px Poppins,system-ui,sans-serif;padding:.65rem 1.1rem;border-radius:50px;z-index:2147483001;max-width:calc(100% - 2rem);text-align:center'; (document.body || document.documentElement).appendChild(el); setTimeout(function () { el.remove(); }, 3200); } catch (e) {} }
+  // layar masukin kode (muncul kalau server nolak karena belum ada kode / kodenya salah)
+  var shown = false;
+  function ask(auto) {
+    var EMB = false; try { EMB = window.self !== window.top; } catch (e) { EMB = true; }
+    if (EMB) { try { window.top.RZ && window.top.RZ.ask(auto); } catch (e) {} return; }
+    if (shown || document.getElementById('rz-gate')) return;
+    if (!document.body) { document.addEventListener('DOMContentLoaded', function () { ask(auto); }); return; }
+    shown = true;
+    var g = document.createElement('div'); g.id = 'rz-gate';
+    g.style.cssText = 'position:fixed;inset:0;z-index:2147483200;background:rgba(30,22,28,.6);display:flex;align-items:center;justify-content:center;padding:1.2rem;font-family:Poppins,system-ui,sans-serif;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)';
+    g.innerHTML = '<div style="background:#fff;color:#2d1f1a;border-radius:24px;padding:1.4rem 1.2rem 1.2rem;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.3)">' +
+      '<div style="font-size:2.4rem;line-height:1.1">🔑</div><h3 style="font-size:16px;margin:.3rem 0 .25rem">Masukin kode Razara</h3>' +
+      '<p style="font-size:12px;color:#8a7a72;line-height:1.5;margin:0 0 .8rem">' + (kode() ? 'Kode di HP ini udah ga cocok sama server. ' : 'Biar data kalian ga bisa dibuka orang lain, HP ini butuh kode Razara sekali aja. ') + 'Minta link kodenya ke pasanganmu, atau tempel kodenya di sini.</p>' +
+      '<input id="rz-in" placeholder="rz-…" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;box-sizing:border-box;font:600 15px Poppins,system-ui,sans-serif;text-align:center;padding:.7rem;border:2px solid #eee;border-radius:14px;outline:none;color:#2d1f1a">' +
+      '<div id="rz-err" style="color:#c0392b;font-size:11.5px;min-height:1.3em;margin:.3rem 0 .4rem"></div>' +
+      '<div style="display:flex;gap:.5rem"><button id="rz-no" style="flex:1;border:none;border-radius:50px;padding:.75rem;font:600 13px Poppins,system-ui,sans-serif;background:#f3eee9;color:#7a6a62;cursor:pointer">Nanti</button><button id="rz-ok" style="flex:1;border:none;border-radius:50px;padding:.75rem;font:700 13px Poppins,system-ui,sans-serif;background:#c17a6f;color:#fff;cursor:pointer">Simpan</button></div></div>';
+    document.body.appendChild(g);
+    var inp = g.querySelector('#rz-in');
+    g.querySelector('#rz-no').onclick = function () { g.remove(); shown = false; };
+    g.querySelector('#rz-ok').onclick = function () { var v = inp.value.replace(/\s+/g, ''); var mm = /(rz-[A-Za-z0-9]{12,40})/.exec(v); if (!mm || !set(mm[1])) { g.querySelector('#rz-err').textContent = 'Kodenya ga valid — awalnya “rz-”'; return; } g.remove(); toast('🔑 Kode kesimpen'); setTimeout(function () { location.reload(); }, 700); };
+  }
+  window.RZ = { kode: kode, set: set, ask: ask, has: function () { return !!kode(); }, link: function () { var k = kode(); return k ? location.origin + location.pathname.replace(/[^\/]*$/, '') + '#kode=' + k : ''; }, clear: function () { try { ls.removeItem(K); } catch (e) {} } };
+})();
 /* ═══ SIAPA YANG PAKAI HP INI — satu pilihan buat seluruh web ═══
    Dipilih sekali (pakai PIN), semua halaman otomatis ngikut: data, notif, sama warna tema.
    Dara = nuansa pink 💗 · Razan = nuansa biru 💙 */

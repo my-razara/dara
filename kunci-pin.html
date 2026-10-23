@@ -69,6 +69,10 @@
   .lt{display:flex;align-items:center;gap:.6rem;background:#fff;border-radius:18px;border:1px solid rgba(193,122,111,.13);padding:.7rem .85rem;margin-top:.8rem;font-size:12.5px;cursor:pointer}
   .lt span{flex:1;line-height:1.45}.lt small{display:block;font-size:10.5px;color:var(--muted)}
   .lt input{accent-color:var(--rose);width:18px;height:18px}
+  .kd{background:#fff;border-radius:20px;border:1px solid rgba(193,122,111,.13);padding:.9rem 1rem;margin-top:.8rem;text-align:center}
+  .kd b{display:block;font-size:14px}.kd small{display:block;font-size:11.5px;color:var(--muted);line-height:1.5;margin:.2rem 0 .6rem}
+  .kd code{font:600 13px ui-monospace,monospace;background:var(--cream);padding:.2rem .5rem;border-radius:8px;letter-spacing:.05em}
+  .kd .row{margin-top:.5rem}
 
 </style>
 </head>
@@ -79,6 +83,7 @@
   <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🔒</span><p class="lbl">Privasi di HP ini</p><h1 class="title">Kunci <span>PIN</span></h1><p class="sub">Biar kalau HP dipinjem orang, isi Razara (atau halaman pribadinya aja) ga bisa dibuka tanpa PIN</p></div>
   <div class="st" id="st"></div>
   <div id="form"></div>
+  <div class="kd" id="kd"></div>
   <label class="lt"><input type="checkbox" id="lite"><span>⚡ Mode ringan<small>Matiin efek blur & animasi hiasan biar HP ga ngelag (berlaku di semua halaman)</small></span></label>
   <p class="note">PIN cuma kesimpen di HP ini (diacak, bukan teks asli) & ga kekirim ke mana-mana. Tiap HP pasang PIN sendiri-sendiri.<br>Lupa PIN = harus reset app di HP ini (data yang udah ke-sync balik lagi, catatan rahasia yang cuma di HP ini ilang).</p>
 </div>
@@ -181,6 +186,15 @@ function render() {
 $('lite').checked = document.documentElement.classList.contains('lite');
 $('lite').onchange = () => { const v = $('lite').checked; document.documentElement.classList.toggle('lite', v); lsSet('lite-mode', v ? 1 : 0); toast(v ? '⚡ Mode ringan nyala' : '✨ Efek penuh nyala lagi'); };
 render();
+// ═════ 🔑 KODE PASANGAN ═════
+function paintKd() {
+  const R = window.RZ, k = R && R.kode(), OT = ME === 'Razan' ? 'Dara' : 'Razan';
+  $('kd').innerHTML = k ? `<b>🔑 Kode Razara terpasang</b><small>Server cuma mau ngelayanin HP yang punya kode ini. Kode: <code>rz-••••${esc(k.slice(-4))}</code></small><div class="row"><a class="btn wa" id="kd-wa" href="${waLink(OT, `🔑 Kode Razara buat HP kamu — tap sekali aja ya:\n${R.link()}`)}" target="_blank" rel="noopener">💬 Kirim ke ${OT}</a><button class="btn ghost" id="kd-ch">✏️ Ganti</button></div>`
+    : `<b>🔑 Kode Razara belum ada</b><small>Biar data kalian ga bisa dibuka orang lain. Buka link kode dari pasanganmu, atau tempel kodenya di sini.</small><button class="btn" id="kd-in">🔑 Masukin kode</button>`;
+  if ($('kd-in')) $('kd-in').onclick = () => R && R.ask();
+  if ($('kd-ch')) $('kd-ch').onclick = () => R && R.ask();
+}
+paintKd();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
