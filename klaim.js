@@ -53,8 +53,8 @@
     ov.innerHTML = '<div class="kb"><div class="tk"><span class="e">' + esc(p.e) + '</span><b>' + esc(p.t) + '</b><small>Voucher harian · diklaim</small>' + (p.note ? '<div class="nt">📝 ' + esc(p.note) + '</div>' : '') + '</div>' +
       '<h3>Satu langkah lagi! 🥺</h3><p>Kirim klaimnya ke WA ' + esc(p.to || 'Razan') + ' dulu ya — app-nya kebuka lagi setelah kamu kirim.</p>' +
       '<div class="pv">' + esc(msg(p)) + '</div><a class="go" href="' + link(p) + '" target="_blank" rel="noopener">💬 Kirim ke WA ' + esc(p.to || 'Razan') + '</a><div class="err"></div>' +
-      (p.opened ? '<button type="button" class="sent">✅ Udah kekirim ke WA</button>' : '') + '</div>';
-    ov.querySelector('.go').addEventListener('click', function () { var q = g(K, null); if (q) { q.opened = Date.now(); s(K, q); } setTimeout(function () { if (g(K, null) && ov && !ov.querySelector('.sent')) show(); }, 2500); });
+      (p.opened || Date.now() - (p.at || 0) > 18e4 ? '<button type="button" class="sent">✅ Udah kekirim ke WA</button>' : '') + '</div>';
+    ov.querySelector('.go').addEventListener('click', function () { var q = g(K, null); if (q) { q.opened = Date.now(); q.hid = 0; s(K, q); } setTimeout(function () { if (g(K, null) && ov && !ov.querySelector('.sent')) show(); }, 400); });
     var sb = ov.querySelector('.sent'); if (sb) sb.addEventListener('click', function () { done(); });
   }
   function nag(t) { if (!ov) return; var e = ov.querySelector('.err'), b = ov.querySelector('.kb'); if (e) e.textContent = t; if (b) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } try { navigator.vibrate && navigator.vibrate([40, 40, 40]); } catch (x) {} }
@@ -69,19 +69,22 @@
     try { window.dispatchEvent(new CustomEvent('klaim-sent', { detail: p })); } catch (e) {}
   }
   // balik dari WA → anggep kekirim (kalau baliknya kecepetan = WA-nya ga kebuka)
+  // (HP suka "kedip" sebentar pas pindah ke WA — jadi tandanya ga pernah dihapus, cukup dicatet kalau app sempet ketutup)
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) return; var p = g(K, null); if (!p) return;
-    if (p.opened && Date.now() - p.opened >= 2000) done();
-    else if (p.opened) { p.opened = 0; s(K, p); show(); nag('WA-nya belum kebuka — pencet tombolnya lagi ya'); }
+    var p = g(K, null); if (!p || EMB) return;
+    if (document.hidden) { if (p.opened && !p.hid) { p.hid = Date.now(); s(K, p); } return; }
+    if (p.opened && Date.now() - p.opened >= 1500 && (p.hid || Date.now() - p.opened >= 4000)) done();
     else show();
   });
-  window.addEventListener('popstate', function () { var pp = g(K, null); if (pp && !EMB && pp.opened && Date.now() - pp.opened >= 2000) { done(); return; } if (pp && !EMB) { try { history.pushState({ klaim: 1 }, '', location.href); } catch (e) {} show(); nag('Kirim ke WA dulu ya 🥺'); } });
+  window.addEventListener('popstate', function () { var pp = g(K, null); if (pp && !EMB && pp.opened) { done(); return; } if (pp && !EMB) { try { history.pushState({ klaim: 1 }, '', location.href); } catch (e) {} show(); nag('Kirim ke WA dulu ya 🥺'); } });
   window.addEventListener('beforeunload', function (e) { if (g(K, null) && !EMB && !(g(K, {}).opened)) { e.preventDefault(); e.returnValue = ''; } });
   window.addEventListener('storage', function (e) { if (e.key === K) { if (g(K, null)) show(); else if (ov) { ov.remove(); ov = null; document.documentElement.classList.remove('klaimlock'); } } });
+  setInterval(function () { if (document.hidden || EMB) return; var p = g(K, null); if (p && p.opened && p.hid && Date.now() - p.opened >= 1500) done(); }, 1000);
   window.Klaim = {
     start: function (p) { p = Object.assign({ from: 'Dara', to: 'Razan', at: Date.now() }, p); s(K, p); put('vklaim', p.from, p.date, { id: p.id, e: p.e, t: p.t, note: p.note || '', at: p.at }); show(); },
     pending: function () { return g(K, null); },
     show: show
   };
-  (function () { var p0 = g(K, null); if (!p0) return; if (!EMB && p0.opened && Date.now() - p0.opened >= 2000) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', done); else done(); return; } show(); })();
+  (function () { var p0 = g(K, null); if (!p0) return; var td = new Date(), tds = td.getFullYear() + '-' + ('0' + (td.getMonth() + 1)).slice(-2) + '-' + ('0' + td.getDate()).slice(-2);
+    if (!EMB && (p0.opened || (p0.date && p0.date < tds))) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', done); else done(); return; } show(); })();
 })();
