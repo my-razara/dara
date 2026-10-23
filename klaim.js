@@ -36,6 +36,7 @@
       '#klaim-ov h3{font-size:15px;margin:0 0 .3rem}#klaim-ov p{font-size:12px;color:#8a7a72;line-height:1.55;margin:0 0 .8rem}' +
       '#klaim-ov .pv{background:#e7f8ec;border-radius:14px 14px 4px 14px;padding:.6rem .75rem;font-size:12px;text-align:left;white-space:pre-wrap;color:#1f3a28;margin:0 0 .9rem;overflow-wrap:anywhere}' +
       '#klaim-ov .go{display:block;width:100%;border:none;border-radius:50px;padding:1rem;font:700 15px Poppins,system-ui,sans-serif;color:#fff;background:#25a35a;box-shadow:0 8px 20px rgba(37,163,90,.3);cursor:pointer;text-decoration:none}' +
+      '#klaim-ov .sent{display:block;width:100%;margin-top:.7rem;border:1.5px solid #9ad3a8;background:#fff;color:#2f7d4a;border-radius:50px;padding:.75rem;font:600 13px Poppins,system-ui,sans-serif;cursor:pointer}' +
       '#klaim-ov .go:active{transform:scale(.98)}#klaim-ov .err{color:#b03a2e;font-size:12px;min-height:1.3em;margin-top:.6rem}' +
       '#klaim-ov .shake{animation:klSh .35s}@keyframes klSh{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}';
     (document.head || document.documentElement).appendChild(st);
@@ -51,8 +52,10 @@
     }
     ov.innerHTML = '<div class="kb"><div class="tk"><span class="e">' + esc(p.e) + '</span><b>' + esc(p.t) + '</b><small>Voucher harian · diklaim</small>' + (p.note ? '<div class="nt">📝 ' + esc(p.note) + '</div>' : '') + '</div>' +
       '<h3>Satu langkah lagi! 🥺</h3><p>Kirim klaimnya ke WA ' + esc(p.to || 'Razan') + ' dulu ya — app-nya kebuka lagi setelah kamu kirim.</p>' +
-      '<div class="pv">' + esc(msg(p)) + '</div><a class="go" href="' + link(p) + '" target="_blank" rel="noopener">💬 Kirim ke WA ' + esc(p.to || 'Razan') + '</a><div class="err"></div></div>';
-    ov.querySelector('.go').addEventListener('click', function () { var q = g(K, null); if (q) { q.opened = Date.now(); s(K, q); } });
+      '<div class="pv">' + esc(msg(p)) + '</div><a class="go" href="' + link(p) + '" target="_blank" rel="noopener">💬 Kirim ke WA ' + esc(p.to || 'Razan') + '</a><div class="err"></div>' +
+      (p.opened ? '<button type="button" class="sent">✅ Udah kekirim ke WA</button>' : '') + '</div>';
+    ov.querySelector('.go').addEventListener('click', function () { var q = g(K, null); if (q) { q.opened = Date.now(); s(K, q); } setTimeout(function () { if (g(K, null) && ov && !ov.querySelector('.sent')) show(); }, 2500); });
+    var sb = ov.querySelector('.sent'); if (sb) sb.addEventListener('click', function () { done(); });
   }
   function nag(t) { if (!ov) return; var e = ov.querySelector('.err'), b = ov.querySelector('.kb'); if (e) e.textContent = t; if (b) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } try { navigator.vibrate && navigator.vibrate([40, 40, 40]); } catch (x) {} }
   function done() {
@@ -72,7 +75,7 @@
     else if (p.opened) { p.opened = 0; s(K, p); show(); nag('WA-nya belum kebuka — pencet tombolnya lagi ya'); }
     else show();
   });
-  window.addEventListener('popstate', function () { if (g(K, null) && !EMB) { try { history.pushState({ klaim: 1 }, '', location.href); } catch (e) {} show(); nag('Kirim ke WA dulu ya 🥺'); } });
+  window.addEventListener('popstate', function () { var pp = g(K, null); if (pp && !EMB && pp.opened && Date.now() - pp.opened >= 2000) { done(); return; } if (pp && !EMB) { try { history.pushState({ klaim: 1 }, '', location.href); } catch (e) {} show(); nag('Kirim ke WA dulu ya 🥺'); } });
   window.addEventListener('beforeunload', function (e) { if (g(K, null) && !EMB && !(g(K, {}).opened)) { e.preventDefault(); e.returnValue = ''; } });
   window.addEventListener('storage', function (e) { if (e.key === K) { if (g(K, null)) show(); else if (ov) { ov.remove(); ov = null; document.documentElement.classList.remove('klaimlock'); } } });
   window.Klaim = {
@@ -80,5 +83,5 @@
     pending: function () { return g(K, null); },
     show: show
   };
-  if (g(K, null)) show();
+  (function () { var p0 = g(K, null); if (!p0) return; if (!EMB && p0.opened && Date.now() - p0.opened >= 2000) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', done); else done(); return; } show(); })();
 })();
