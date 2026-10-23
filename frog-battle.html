@@ -87,7 +87,11 @@
   .pad{display:flex;gap:.4rem;align-items:center}
   /* lawan komputer: kontrol cuma satu, dilebarin — kiri/kanan di kiri, loncat di kanan */
   body.botmode .pad.d{display:none}
-  .pwr-ind:empty{display:none}
+  .pwr-ind:empty{visibility:hidden}
+  /* tanda power-up melayang di atas tombol, biar tombol ga geser pas dapet item */
+  .controls{position:relative}
+  .pwr-wrap{position:absolute;left:0;right:0;bottom:100%;display:flex;justify-content:space-between;padding:0 .6rem .35rem;pointer-events:none;z-index:30}
+  body.botmode #pwr-d{display:none}
   body.botmode .pad.r{flex:1}
   body.botmode .pad.r .cbtn[data-k="left"]{order:1}
   body.botmode .pad.r .cbtn[data-k="right"]{order:2}
@@ -102,6 +106,9 @@
   .cbtn.on{transform:scale(.9);filter:brightness(1.6)}
   .pwr-ind{font-size:10px;font-weight:700;color:#fff;background:rgba(0,0,0,.4);border-radius:50px;padding:.1rem .45rem;min-height:18px;white-space:nowrap}
   @media (max-width:360px){.cbtn{width:50px;height:50px}}
+  /* 2 pemain di HP kecil: 6 tombol dikecilin dikit biar tombol Dara ga kepotong */
+  body:not(.botmode) .cbtn{width:min(58px,calc((100vw - 4.6rem) / 6))}
+  body:not(.botmode) .pad{gap:min(.4rem,1.2vw)}
 
   .toast{position:fixed;top:3.4rem;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(255,159,67,.95);color:#1a0d1a;font-size:12px;font-weight:700;padding:.4rem .95rem;border-radius:50px;opacity:0;transition:all .25s;z-index:500;pointer-events:none;white-space:normal;text-align:center;max-width:calc(100% - 2rem)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -211,9 +218,7 @@
         <div class="cbtn jump" data-p="r" data-k="jump">🦘</div>
         <div class="cbtn" data-p="r" data-k="right">➡️</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:.3rem;align-items:center">
-        <span class="pwr-ind" id="pwr-r"></span><span class="pwr-ind" id="pwr-d"></span>
-      </div>
+      <div class="pwr-wrap"><span class="pwr-ind" id="pwr-r"></span><span class="pwr-ind" id="pwr-d"></span></div>
       <div class="pad d">
         <div class="cbtn" data-p="d" data-k="left">⬅️</div>
         <div class="cbtn jump" data-p="d" data-k="jump">🦘</div>
