@@ -84,6 +84,12 @@
   .log div{display:flex;gap:.5rem;align-items:center;padding:.55rem .8rem;font-size:12px;border-top:1px solid #f4ebe3}
   .log div:first-child{border-top:none}.log div span{flex:1;min-width:0;overflow-wrap:anywhere}.log div small{color:var(--muted);font-size:11px;white-space:nowrap}
   .note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin-top:.6rem}
+  .bl{display:none;background:linear-gradient(160deg,#2e3260,#1c1f3a);color:#f3ecdf;border-radius:20px;padding:.9rem;margin:.2rem 0 .9rem;text-align:center}
+  .bl.show{display:block}
+  .bl b{display:block;font-size:14px;color:#fff}.bl small{display:block;font-size:11.5px;color:#c6bcd8;line-height:1.5;margin:.2rem 0 .6rem}
+  .bl .inp{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;font-size:13px}
+  .bl .inp::placeholder{color:#a59cb8}
+  .bl .btn{margin-top:.55rem}.bl .btn.y{background:linear-gradient(135deg,#fff3c4,#f3d58c);color:#2a2340}
   .gift{display:flex;align-items:center;gap:.65rem;background:linear-gradient(135deg,#fff3d6,#ffe1ea);border:1.5px solid #f3c6a0;border-radius:20px;padding:.75rem .85rem;margin-bottom:.8rem;animation:gWig 2.4s ease-in-out infinite}
   @keyframes gWig{0%,90%,100%{transform:none}93%{transform:rotate(-1.5deg)}96%{transform:rotate(1.5deg)}}
   .gift .e{font-size:2rem;line-height:1}.gift .m{flex:1;min-width:0}.gift b{display:block;font-size:13px;overflow-wrap:anywhere}.gift small{display:block;font-size:11px;color:#8a6a50;line-height:1.4}
@@ -134,6 +140,7 @@
   <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
   <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">😴</span><p class="lbl">Good night · good morning</p><h1 class="title">Bobo &amp; <span>Bangun</span></h1><p class="sub">Sekali tap pas mau bobo / baru bangun — pasangan langsung dapet notif, plus rekap jam tidur kalian seminggu</p></div>
   <p class="bd-st" id="bd-st"></p>
+  <div class="bl" id="bl"></div>
   <div id="gift"></div>
   <div id="op"></div>
   <p class="me-st" id="me-st"></p>
@@ -500,6 +507,27 @@ $('mimpi').addEventListener('click', e => {
 });
 BD.on(ev => { if (!ev.apps || ev.apps.includes('mimpi') || ev.apps.includes('mimpirx')) paintDream(); });
 paintDream();
+// ═════ 🌙 MODE BOBO (cuma di HP Razan): kunci Razara di HP Dara sampai jam 06:00 ═════
+function nextSix() { const n = new Date(), t = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 6, 0, 0); if (n >= t) t.setDate(t.getDate() + 1); return t.getTime(); }
+function boboSt() { const r = (lsGet('bobo-Razan', {}) || {})['2000-01-01']; return r && r.on && (!r.until || Date.now() < r.until) ? r : null; }
+function paintBl() {
+  if (ME !== 'Razan') return; const r = boboSt(); $('bl').classList.add('show');
+  $('bl').innerHTML = r ? `<b>🔒 Razara di HP Dara lagi dikunci</b><small>Sampai jam ${hm(r.until)} · chat tetep bisa dia buka</small><button class="btn y" id="bl-off">☀️ Buka kunci sekarang</button>`
+    : `<b>🌙 Mode Bobo buat Dara</b><small>Kunci Razara di HP Dara biar dia istirahat. Chat tetep bisa dibuka, kebuka sendiri jam 06:00</small><input class="inp" id="bl-m" maxlength="120" placeholder="Waktunya bobo sayang, besok lagi ya 🤍"><button class="btn" id="bl-on">🌙 Kunci sekarang</button>`;
+  if ($('bl-on')) $('bl-on').onclick = () => {
+    const msg = ($('bl-m').value.trim() || 'Waktunya bobo sayang, besok lagi mainnya ya 🤍').slice(0, 120), until = nextSix();
+    BD.put('bobo', 'Razan', '2000-01-01', { on: 1, at: Date.now(), until, msg }); vib(20);
+    try { window.Push && Push.notify({ title: '🌙 Waktunya bobo, sayang', body: msg, url: 'index.html', tag: 'kangen-bobo' }); } catch (e) {}
+    toast(`🔒 Razara di HP Dara dikunci sampai ${hm(until)}`, 3000); paintBl();
+  };
+  if ($('bl-off')) $('bl-off').onclick = () => {
+    BD.put('bobo', 'Razan', '2000-01-01', { on: 0, at: Date.now() }); vib(15);
+    try { window.Push && Push.notify({ title: '☀️ Razan udah buka kunci Razara', body: 'Udah boleh main lagi 🥰', url: 'index.html', tag: 'kangen-bobo' }); } catch (e) {}
+    toast('☀️ Kuncinya udah dibuka'); paintBl();
+  };
+}
+paintBl();
+BD.on(ev => { if (!ev.apps || ev.apps.includes('bobo')) paintBl(); });
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->

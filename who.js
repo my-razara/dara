@@ -271,3 +271,42 @@
   }
   window.Kunci = { on: on, scope: on ? P.scope : '', PRIV: PRIV, hash: hash, locked: function () { return !!gate; }, lock: function () { if (on) { sset('pin-ok', 0); show(); } } };
 })();
+/* ═══ 🌙 MODE BOBO — Razan bisa ngunci Razara di HP Dara sementara (biar Dara istirahat). Chat tetep bisa dibuka. Kebuka sendiri jam 06:00 ═══ */
+(function () {
+  var EMB = false; try { EMB = window.self !== window.top; } catch (e) { EMB = true; }
+  if (EMB || window.__boboLock) return; window.__boboLock = 1;
+  function g(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
+  var PAGE = (location.pathname.split('/').pop() || 'index.html');
+  var ov = null;
+  function st() { var r = (g('bobo-Razan') || {})['2000-01-01']; return r && r.on && (!r.until || Date.now() < r.until) ? r : null; }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function hm(t) { var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  function show(r) {
+    if (!document.body) return;
+    if (!ov) {
+      ov = document.createElement('div'); ov.id = 'bobo-lock';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;padding:1.4rem;text-align:center;font-family:Poppins,system-ui,sans-serif;color:#f3ecdf;background:radial-gradient(ellipse 80% 60% at 50% 0%,#3a3f78,#171a2e 70%)';
+      document.documentElement.appendChild(ov); document.documentElement.style.overflow = 'hidden';
+    }
+    var key = (r.at || 0) + '|' + (r.until || 0);
+    if (ov.dataset.k === key) return; ov.dataset.k = key;
+    ov.innerHTML = '<div style="max-width:330px;width:100%"><div style="font-size:4.2rem;line-height:1.1;filter:drop-shadow(0 0 22px rgba(246,239,210,.45))">🌙</div>' +
+      '<h2 style="font-size:1.35rem;margin:.6rem 0 .3rem;color:#fff">Waktunya bobo, sayang</h2>' +
+      '<p style="font-size:13.5px;line-height:1.6;color:#d8cfe8;margin:0 0 .6rem">' + esc(r.msg || 'Besok lagi mainnya ya, sekarang istirahat dulu 🤍') + '</p>' +
+      '<p style="font-size:11.5px;color:#a59cb8;margin:0 0 1.2rem">— Razan · Razara dikunci sampai jam ' + hm(r.until) + '</p>' +
+      '<button id="bobo-ok" style="display:block;width:100%;border:none;border-radius:50px;padding:.9rem;font:700 14px Poppins,system-ui,sans-serif;color:#2a2340;background:linear-gradient(135deg,#fff3c4,#f3d58c);cursor:pointer;margin-bottom:.6rem">😴 Oke, aku bobo</button>' +
+      '<a href="chat.html" style="display:block;border-radius:50px;padding:.8rem;font:600 13px Poppins,system-ui,sans-serif;color:#f3ecdf;border:1.5px solid rgba(255,255,255,.25);text-decoration:none">💬 Chat Razan</a></div>';
+    ov.querySelector('#bobo-ok').onclick = function () {
+      try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+      try { window.Push && Push.notify({ title: '😴 Dara: oke, aku bobo', body: 'Met bobo juga sayang 🤍', url: 'tidur-kita.html', tag: 'tidur-oke' }); } catch (e) {}
+      this.textContent = '💤 Met bobo, mimpi indah ya'; this.disabled = true;
+    };
+  }
+  function hide() { if (ov) { ov.remove(); ov = null; document.documentElement.style.overflow = ''; } }
+  function check() { var me = g('berdua-me'); var r = me === 'Dara' && g('who-ok') ? st() : null; if (r && PAGE !== 'chat.html') show(r); else hide(); }
+  function needSync() { if (g('berdua-me') === 'Dara' && !window.Berdua && !document.querySelector('script[src="sync.js"]')) { var sc = document.createElement('script'); sc.src = 'sync.js'; document.head.appendChild(sc); } }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { check(); setTimeout(needSync, 1500); }); else { check(); setTimeout(needSync, 1500); }
+  setInterval(check, 2000);
+  window.addEventListener('storage', check); window.addEventListener('berdua', check);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+})();
