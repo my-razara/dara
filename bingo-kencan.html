@@ -187,7 +187,7 @@ function render(fresh) {
   $('prog').innerHTML = `<span>✅ <b>${n}</b>/24 kegiatan</span><span>🎟️ <b>${ln.length}</b> garis</span>`;
   $('grid').innerHTML = card.map((c, i) => `<button class="cl${i === FREE ? ' free' : on[i] ? ' on' : ''}${lnCells.has(i) ? ' ln' : ''}${fresh === i ? ' new' : ''}" data-i="${i}" aria-label="${esc(c[1])}"><span class="e">${esc(c[0])}</span><small>${esc(c[1])}</small></button>`).join('');
   const used = Object.assign({}, rowOf(ME).u || {});
-  $('kup-w').innerHTML = ln.length ? `<p class="sec">🎟️ Kupon bingo kamu</p><div class="kup">${ln.map((li, k) => { const u = used[li]; return `<div class="${u ? 'used' : ''}"><span>🎟️</span><em>Kupon #${k + 1} — bebas minta 1 hal kecil ke ${OT}<small>${u ? `udah dipake ${new Date(u).getDate()} ${BLN[new Date(u).getMonth()]}` : 'dari garis bingo ' + lineName(li)}</small></em>${u ? '<button disabled>✓</button>' : `<a class="kb-use" data-use="${li}" href="${waLink(OT, `🎟️ Aku pake Kupon Bingo Kencan (${lineName(li)})!\nPermintaanku: `)}" target="_blank" rel="noopener">Pakai</a>`}</div>`; }).join('')}</div>` : '';
+  $('kup-w').innerHTML = ln.length ? `<p class="sec">🎟️ Kupon bingo kamu</p><div class="kup">${ln.map((li, k) => { const u = used[li]; return `<div class="${u ? 'used' : ''}"><span>🎟️</span><em>Kupon #${k + 1} — bebas minta 1 hal kecil ke ${OT}<small>${u ? `udah dipake ${new Date(u).getDate()} ${BLN[new Date(u).getMonth()]}` : 'dari garis bingo ' + lineName(li)}</small></em>${u ? '<button disabled>✓</button>' : `<a class="kb-use" data-nopush="1" data-use="${li}" href="${waLink(OT, `🎟️ Aku pake Kupon Bingo Kencan (${lineName(li)})!\nPermintaanku: `)}" target="_blank" rel="noopener">Pakai</a>`}</div>`; }).join('')}</div>` : '';
   try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {}
 }
 const lineName = li => li < 10 ? (li % 2 === 0 ? `baris ${li / 2 + 1}` : `kolom ${'BINGO'[(li - 1) / 2]}`) : 'miring';
@@ -213,7 +213,7 @@ $('c-done').onclick = () => {
     if (nl.length) {
       $('b-t').innerHTML = `Garis ${nl.map(lineName).join(' & ')} lengkap 🎉<br>Kalian berdua dapet <b>kupon bingo</b> — bebas minta 1 hal kecil ke satu sama lain 🎟️`;
       $('bingo').classList.add('show'); confetti(90); vib([40, 60, 40, 60, 120]);
-      try { window.Push && Push.notify({ title: `🎱 BINGO! Garis ${nl.map(lineName).join(' & ')} lengkap`, body: `${ME} nyentang “${c[1]}” — kalian dapet kupon bingo 🎟️`, url: 'bingo-kencan.html', tag: 'jadwal-bingo-l' }); } catch (e) {}
+      try { window.Push && Push.notify({ title: `🎱 Satu baris Bingo Kencan kalian lengkap 🥰`, body: `${ME} nyentang “${c[1]}” — masing-masing boleh minta 1 hal kecil 🤍`, url: 'bingo-kencan.html', tag: 'jadwal-bingo-l' }); } catch (e) {}
     } else {
       toast(`✅ ${c[1]}`); confetti(25);
       try { window.Push && Push.notify({ title: `🎱 ${ME} nyentang “${c[1]}” di Bingo Kencan`, body: `${after.length ? after.length + ' garis udah lengkap · ' : ''}${merged().on.filter(Boolean).length - 1}/24 kegiatan bulan ini`, url: 'bingo-kencan.html', tag: 'jadwal-bingo' }); } catch (e) {}
@@ -226,6 +226,7 @@ $('c-ov').addEventListener('click', e => { if (e.target === $('c-ov')) $('c-ov')
 document.addEventListener('click', e => {
   const u = e.target.closest('[data-use]'); if (!u) return; const li = +u.dataset.use;
   putMine(r => { r.u[li] = Date.now(); });
+  try { window.Push && Push.notify({ title: `🎱 ${ME} pake 1 permintaan kecil dari Bingo Kencan`, body: 'Cek WA ya, ada permintaan buat kamu 🤭', url: 'bingo-kencan.html', tag: 'jadwal-bingo-k' }); } catch (x) {}
   setTimeout(render, 500);
 });
 $('prev').onclick = () => { const [y, m] = cur.split('-').map(Number); cur = mk(new Date(y, m - 2, 1)); render(); };

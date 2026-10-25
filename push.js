@@ -86,7 +86,7 @@
       notify({ title: `💌 Pesan dari ${w}`, body: clean.slice(0, 160), url: own || page, tag: 'wa-' + page });
     } catch (e) {}
   }
-  document.addEventListener('click', e => { const a = e.target && e.target.closest && e.target.closest('a[href]'); if (a) fromWA(a.getAttribute('href')); }, true);
+  document.addEventListener('click', e => { const a = e.target && e.target.closest && e.target.closest('a[href]'); if (a && !a.closest('[data-nopush]')) fromWA(a.getAttribute('href')); }, true);   // data-nopush = halamannya udah ngirim notif sendiri
   const _open = window.open;
   window.open = function (u) { try { if (typeof u === 'string') fromWA(u); } catch (e) {} return _open.apply(window, arguments); };
 
@@ -129,7 +129,7 @@
         const w = me();
         if (data && w && who === w) {
           if (app === 'kangen' && data.n) notify({ title: `💗 ${w} lagi kangen kamu`, body: data.n > 1 ? `Udah ${data.n}x hari ini 🥺 bales pelukannya yuk` : 'Tap buat bales kangennya 🤍', url: 'tombol-kangen.html', tag: 'kangen' });
-          else if (app === 'ajak' && data.g) notify({ title: `🎮 ${w} ngajak main ${GAME[data.g] || data.g}!`, body: 'Online dari HP masing-masing — dia lagi nunggu kamu gabung', url: `${data.g}.html?online=1`, tag: 'ajak' });
+          else if (app === 'ajak' && data.g) notify({ title: `🎮 ${w} ngajak kamu main ${GAME[data.g] || data.g}`, body: 'Online dari HP masing-masing — dia lagi nunggu kamu gabung', url: `${data.g}.html?online=1`, tag: 'ajak' });
           else if (app === 'janji' && data.t && data.sig && Object.keys(data.sig).length === 1 && data.sig[w] && Date.now() - (data.at || 0) < 6e4) notify({ title: `📜 ${w} ngusulin janji baru`, body: `“${String(data.t).slice(0, 120)}” — tanda tangan yuk ✍️`, url: 'janji-kita.html', tag: 'janji' });
           else if (app === 'kuisj' && (!prev || prev.id !== data.id)) tell('kuisj', { title: `🧠 ${w} bikin kuis buat kamu`, body: 'Seberapa kenal kamu sama dia? Jawab yuk', url: 'who-knows-me.html?beda=1' });
           else if (RULES[app]) { const m = RULES[app](data, prev, w); if (m) tell(app, { title: m[0], body: m[1], url: m[2] }); }

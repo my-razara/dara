@@ -112,7 +112,7 @@
     const r = await post({ op: 'new', id, cfg: { meja: 1, seed, c: C.cfg ? C.cfg() : null, n: C.name, e: C.emoji } });
     if (!r || !r.ok) { st = 'idle'; ov(`<div class="mj-c"><span class="e">😢</span><h3>Gagal bikin meja</h3><p>${r && r.error === 'game' ? 'Server belum diupdate — tempel Apps Script terbaru & deploy versi baru dulu ya.' : 'Cek internet terus coba lagi.'}</p><button id="mj-x">Oke</button></div>`); $$('mj-x').onclick = ovClose; return; }
     try { B().put('ajak', me(), tday(), { g: PAGE, id, at: Date.now(), n: C.name, e: C.emoji }); } catch (e) {}
-    try { window.Push && Push.notify && Push.notify({ title: `🌐 ${me()} ngajak main ${C.name} online!`, body: 'Dari HP masing-masing — buka & gabung ya 🎮', url: `${PAGE}.html?online=1`, tag: 'meja-' + PAGE }); } catch (e) {}
+    try { window.Push && Push.notify && Push.notify({ title: `🌐 ${me()} ngajak kamu main ${C.name} bareng`, body: 'Dari HP masing-masing — buka & gabung ya 🎮', url: `${PAGE}.html?online=1`, tag: 'meja-' + PAGE }); } catch (e) {}
     ov(`<div class="mj-c"><span class="e">${esc(C.emoji)}</span><h3>Nunggu ${op()} gabung…</h3><p>${op()} dapet notif ajakan main ${esc(C.name)}. Begitu gabung, game langsung mulai di dua HP 🎮</p><button class="g" id="mj-x">Batal</button></div>`);
     $$('mj-x').onclick = leave;
     poll(); tick();

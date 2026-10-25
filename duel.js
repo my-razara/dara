@@ -156,7 +156,7 @@
     const r = await post({ op: 'new', id, cfg: { duel: 1, seed, c: C.cfg ? C.cfg() : null, n: C.name, e: C.emoji } });
     if (!r || !r.ok) { st = 'idle'; ov(`<div class="dl-c"><span class="e">😢</span><h3>Gagal bikin duel</h3><p>${r && r.error === 'game' ? 'Server belum diupdate — tempel Apps Script terbaru & deploy versi baru dulu ya.' : 'Cek internet terus coba lagi.'}</p><button id="dl-x">Oke</button></div>`); $$('dl-x').onclick = ovClose; return; }
     try { B().put('ajak', me(), tday(), { g: PAGE, id, at: Date.now(), v: 'duel', n: C.name, e: C.emoji }); } catch (e) {}
-    try { window.Push && Push.notify && Push.notify({ title: `⚔️ ${me()} ngajak duel ${C.name}!`, body: 'Main barengan dari HP masing-masing — siapa skornya paling bagus? 😏', url: `${PAGE}.html?online=1`, tag: 'duel-' + PAGE }); } catch (e) {}
+    try { window.Push && Push.notify && Push.notify({ title: `⚔️ ${me()} ngajak adu skor ${C.name}`, body: 'Main barengan dari HP masing-masing — siapa skornya paling bagus? 😏', url: `${PAGE}.html?online=1`, tag: 'duel-' + PAGE }); } catch (e) {}
     ov(`<div class="dl-c"><span class="e">${esc(C.emoji)}</span><h3>Nunggu ${op()} gabung…</h3><p>${op()} dapet notif ajakan duel ${esc(C.name)}. Begitu dia gabung, hitung mundur langsung jalan & kalian main barengan dengan tantangan yang sama persis ⚔️</p><button class="g" id="dl-x">Batal</button></div>`);
     $$('dl-x').onclick = cancel;
     poll(); tick();
@@ -222,7 +222,7 @@
       if (!ok && gaveUp) { ovClose(); return; }
       const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
       putRow('tantang', w, slot(), { id, g: PAGE, n: C.name, e: C.emoji, seed: R.seed, c: R.c || null, v: ok ? v : null, f, at: Date.now() });
-      try { window.Push && Push.notify && Push.notify({ title: `${C.emoji} ${w} nantang kamu di ${C.name}!`, body: `Skor ${w}: ${f}. Bisa ngalahin? 😏 (kesempatan cuma sekali)`, url: `${page}?tantang=${id}`, tag: 'tantang-' + PAGE }); } catch (e) {}
+      try { window.Push && Push.notify && Push.notify({ title: `${C.emoji} ${w} pengen adu skor sama kamu di ${C.name}`, body: `Skor ${w}: ${f}. Bisa ngalahin? 😏 (kesempatan cuma sekali)`, url: `${page}?tantang=${id}`, tag: 'tantang-' + PAGE }); } catch (e) {}
       ov(`<div class="dl-c"><span class="e">📨</span><h3>Tantangan terkirim!</h3><div class="vs"><div class="w">Skor kamu<b>${esc(f)}</b></div></div><p>${o} dapet notif & main dengan tantangan yang sama persis. Hasilnya nanti muncul di halaman game ini 😏</p><button id="dl-x">Oke</button></div>`);
       try { window.SFX && SFX.play('win'); } catch (e) {}
     } else {

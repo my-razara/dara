@@ -52,7 +52,7 @@
     }
     ov.innerHTML = '<div class="kb"><div class="tk"><span class="e">' + esc(p.e) + '</span><b>' + esc(p.t) + '</b><small>Voucher harian · diklaim</small>' + (p.note ? '<div class="nt">📝 ' + esc(p.note) + '</div>' : '') + '</div>' +
       '<h3>Satu langkah lagi! 🥺</h3><p>Kirim klaimnya ke WA ' + esc(p.to || 'Razan') + ' dulu ya — app-nya kebuka lagi setelah kamu kirim.</p>' +
-      '<div class="pv">' + esc(msg(p)) + '</div><a class="go" href="' + link(p) + '" target="_blank" rel="noopener">💬 Kirim ke WA ' + esc(p.to || 'Razan') + '</a><div class="err"></div>' +
+      '<div class="pv">' + esc(msg(p)) + '</div><a class="go" data-nopush="1" href="' + link(p) + '" target="_blank" rel="noopener">💬 Kirim ke WA ' + esc(p.to || 'Razan') + '</a><div class="err"></div>' +
       (p.opened || Date.now() - (p.at || 0) > 18e4 ? '<button type="button" class="sent">✅ Udah kekirim ke WA</button>' : '') + '</div>';
     ov.querySelector('.go').addEventListener('click', function () { var q = g(K, null); if (q) { q.opened = Date.now(); q.hid = 0; s(K, q); } setTimeout(function () { if (g(K, null) && ov && !ov.querySelector('.sent')) show(); }, 400); });
     var sb = ov.querySelector('.sent'); if (sb) sb.addEventListener('click', function () { done(); });

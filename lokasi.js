@@ -175,9 +175,9 @@
     put('lokasi', w, SLOT, data); s('lok-sent', now);
     if (moved > 250 || !prev || !prev.pl) place(lat, lng).then(nm => { const r2 = row(w); if (r2 && r2.st === 'otw' && nm && nm.pl) put('lokasi', w, SLOT, Object.assign({}, r2, { pl: nm.pl, city: nm.city })); });
     const to = o.to.kind === 'op' ? 'kamu' : `${o.to.e} ${o.to.n}`;
-    if (!o.told) { o.told = 1; s('lok-otw', o); try { window.Push && Push.notify({ title: `${MV[o.mv]} ${w} OTW ke ${to}!`, body: eta ? `Perkiraan sampai ±${eta} menit lagi (${d.toFixed(1).replace('.', ',')} km) — pantau di Jarak Kita` : 'Pantau posisinya di Jarak Kita', url: 'jarak-kita.html', tag: 'otw-start' }); } catch (e) {} }
+    if (!o.told) { o.told = 1; s('lok-otw', o); try { window.Push && Push.notify({ title: `${MV[o.mv]} ${w} OTW ke ${to}`, body: eta ? `Perkiraan sampai ±${eta} menit lagi (${d.toFixed(1).replace('.', ',')} km) — pantau di Jarak Kita` : 'Pantau posisinya di Jarak Kita', url: 'jarak-kita.html', tag: 'otw-start' }); } catch (e) {} }
     if (d != null && d <= .15) return otwStop('sampai');
-    if (d != null && !o.near && (d < 1 || eta <= 5)) { o.near = 1; s('lok-otw', o); try { window.Push && Push.notify({ title: `🥰 ${w} udah deket!`, body: `±${eta} menit lagi sampai — siap-siap ya`, url: 'jarak-kita.html', tag: 'otw-near' }); } catch (e) {} }
+    if (d != null && !o.near && (d < 1 || eta <= 5)) { o.near = 1; s('lok-otw', o); try { window.Push && Push.notify({ title: `🥰 ${w} udah deket`, body: `±${eta} menit lagi sampai — siap-siap ya`, url: 'jarak-kita.html', tag: 'otw-near' }); } catch (e) {} }
   }
   function otwWatch(on) {
     if (on && wid == null && navigator.geolocation && otw()) { wid = navigator.geolocation.watchPosition(otwPos, () => {}, { enableHighAccuracy: true, maximumAge: 1e4, timeout: 3e4 }); lock(true); }
