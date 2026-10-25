@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lagu Hari Ini — Razan & Dara 🎧</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:-.4rem 0 .5rem}
+  .sg{background:#fff;border-radius:22px;padding:.85rem;border:1px solid rgba(193,122,111,.13);margin-bottom:.75rem;border-top:5px solid var(--c);box-shadow:0 6px 18px rgba(193,122,111,.08)}
+  .sg .h{display:flex;justify-content:space-between;align-items:center;gap:.5rem;font-size:11.5px;color:var(--muted);margin-bottom:.45rem}
+  .sg .h b{font-size:13px;color:var(--ink)}
+  .sg .tt{display:flex;align-items:center;gap:.6rem}
+  .sg .cv{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;background:linear-gradient(135deg,#2a2340,#5b4a8a);color:#fff}
+  .sg .cv.yt{background:linear-gradient(135deg,#ff4e45,#c4302b)}.sg .cv.sp{background:linear-gradient(135deg,#1ed760,#169c46)}
+  .sg .tt b{display:block;font-size:14px;line-height:1.3;overflow-wrap:anywhere}.sg .tt small{display:block;font-size:11px;color:var(--muted)}
+  .sg .why{font-family:'Caveat',cursive;font-size:1.2rem;line-height:1.3;color:var(--deep);background:var(--cream);border-radius:14px;padding:.5rem .7rem;margin:.6rem 0 .1rem;overflow-wrap:anywhere}
+  .sg .pl{margin-top:.55rem;display:flex;gap:.4rem;flex-wrap:wrap}
+  .sg .pl button,.sg .pl a{border:none;border-radius:50px;padding:.5rem .85rem;font:700 12px Poppins,sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
+  .sg .pl .go{background:var(--rose);color:#fff}.sg .pl .ex{background:var(--cream);color:var(--deep)}
+  .emb{margin-top:.6rem;border-radius:14px;overflow:hidden;background:#000}
+  .emb iframe{display:block;width:100%;border:0}
+  .rx{display:flex;gap:.3rem;margin-top:.55rem;align-items:center;flex-wrap:wrap}
+  .rx button{border:1.5px solid var(--blush);background:#fff;border-radius:50px;font-size:16px;padding:.15rem .5rem;cursor:pointer}
+  .rx button.on{background:#ffe1ea;border-color:#e7a6b8}
+  .rx small{font-size:11px;color:var(--muted)}
+  .empty2{text-align:center;padding:1rem .5rem}
+  .empty2 .e{font-size:2.2rem;display:block}.empty2 b{display:block;font-size:13px;margin:.2rem 0}.empty2 small{font-size:11.5px;color:var(--muted);line-height:1.5;display:block}
+  .add{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;border:none;border-radius:22px;padding:.95rem;font:700 14px Poppins,sans-serif;color:#fff;background:linear-gradient(135deg,#7a65b8,#4a3a80);box-shadow:0 8px 22px rgba(74,58,128,.28);cursor:pointer;margin-bottom:.8rem}
+  .hist div.r{display:flex;align-items:center;gap:.55rem;background:#fff;border-radius:14px;padding:.5rem .7rem;margin-bottom:.35rem;border:1px solid rgba(193,122,111,.12);border-left:4px solid var(--c);font-size:12px;cursor:pointer}
+  .hist div.r span{flex:1;min-width:0}.hist div.r b{display:block;font-size:12.5px;overflow-wrap:anywhere;font-weight:600}.hist div.r small{color:var(--muted);font-size:10.5px}
+  .hist div.r em{font-style:normal;font-size:1rem}
+  .tabs2{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.2rem 0 .6rem}
+  .tabs2 button{border:1.5px solid var(--blush);background:#fff;border-radius:50px;padding:.5rem;font:600 12px Poppins,sans-serif;color:var(--muted);cursor:pointer}
+  .tabs2 button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+  .hint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:.3rem}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill"></span></div>
+  <div class="head" style="margin:.6rem 0 .7rem"><span class="ico">🎧</span><p class="lbl">1 lagu · 1 alasan · tiap hari</p><h1 class="title">Lagu <span>Hari Ini</span></h1><p class="sub">Kasih satu lagu buat pasangan hari ini, plus alasannya — “dengerin ini, inget kamu pas…” 🎶</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div id="ot"></div>
+  <div id="me"></div>
+  <p class="sec">📼 Lagu-lagu sebelumnya</p>
+  <div class="tabs2" id="ht"></div>
+  <div class="hist" id="hist"></div>
+</div>
+
+<div class="ov" id="a-ov"><div class="sheet">
+  <div class="drag"></div>
+  <h3 style="text-align:center;font-size:15px;margin-bottom:.4rem">🎧 Lagu buat <span id="a-to"></span></h3>
+  <label class="lab">Link lagu (YouTube / Spotify)</label>
+  <input class="inp" id="a-u" inputmode="url" placeholder="Tempel link dari tombol Bagikan → Salin link">
+  <p class="hint" id="a-st">Buka lagunya di YouTube / Spotify → Bagikan → Salin link → tempel di sini</p>
+  <label class="lab">Judul lagu</label>
+  <input class="inp" id="a-t" maxlength="70" placeholder="Misal: Kangen — Dewa 19">
+  <label class="lab">Kenapa lagu ini?</label>
+  <textarea class="ta" id="a-n" maxlength="200" rows="3" placeholder="Dengerin ini, inget kamu pas…"></textarea>
+  <button class="btn" style="margin-top:.8rem" id="a-go">🎧 Kasih lagunya</button>
+  <button class="btn ghost" style="margin-top:.5rem" onclick="$('a-ov').classList.remove('show')">Batal</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const ME = (window.Who && Who.me()) || BD.me(), OT = otherOf(ME), WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = `🙋 ${ME}`; $('me-pill').className = 'pill ' + ME;
+const COL = { Razan: 'var(--rz)', Dara: 'var(--dr)' };
+const TD = () => ymd(new Date());
+const songs = w => lsGet('lagu-' + w, {}) || {};
+const rxOf = (w, d) => (((lsGet('lagurx-' + w, {}) || {})[d]) || {}).e || '';
+const RX = ['🥹', '😍', '🎶', '😂', '🤗'];
+// ── baca link ──
+function parse(u) {
+  u = String(u || '').trim(); let m;
+  if ((m = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/|music\.youtube\.com\/watch\?(?:.*&)?v=)([\w-]{11})/.exec(u))) return { k: 'yt', id: m[1], url: 'https://www.youtube.com/watch?v=' + m[1] };
+  if ((m = /open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]{10,30})/.exec(u))) return { k: 'sp', t: m[1], id: m[2], url: `https://open.spotify.com/${m[1]}/${m[2]}` };
+  return null;
+}
+const embedOf = s => s.k === 'yt' ? `<iframe src="https://www.youtube-nocookie.com/embed/${s.id}?autoplay=1&rel=0" height="190" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy" title="YouTube"></iframe>`
+  : `<iframe src="https://open.spotify.com/embed/${s.t || 'track'}/${s.id}?utm_source=generator" height="${(s.t || 'track') === 'track' ? 152 : 352}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" title="Spotify"></iframe>`;
+function card(w, d, x, mine) {
+  const s = parse(x.u) || { k: '', url: x.u }, rx = rxOf(mine ? OT : ME, d), dt = parseYMD(d);
+  return `<div class="sg" style="--c:${COL[w]}" data-d="${d}" data-w="${w}"><div class="h"><b>${mine ? `Lagumu buat ${OT}` : `🎁 Dari ${w} buat kamu`}</b><span>${d === TD() ? 'hari ini' : `${HARI[dt.getDay()].slice(0, 3)}, ${dt.getDate()} ${BLN[dt.getMonth()]}`}</span></div>
+    <div class="tt"><span class="cv ${s.k}">${s.k === 'yt' ? '▶' : s.k === 'sp' ? '♫' : '🎵'}</span><span><b>${esc(x.t || 'Lagu tanpa judul')}</b><small>${s.k === 'yt' ? 'YouTube' : s.k === 'sp' ? 'Spotify' : 'Link lagu'}</small></span></div>
+    ${x.n ? `<div class="why">“${esc(x.n)}”</div>` : ''}
+    <div class="pl">${s.k ? `<button class="go" data-play="1">▶ Putar di sini</button>` : ''}<a class="ex" href="${esc(s.url)}" target="_blank" rel="noopener">↗ Buka di ${s.k === 'sp' ? 'Spotify' : 'YouTube'}</a></div>
+    <div class="emb" hidden></div>
+    ${mine ? (rx ? `<div class="rx"><small>${OT} ngasih ${rx}</small></div>` : `<div class="rx"><small>${OT} belum kasih reaksi</small></div>`) : `<div class="rx">${RX.map(e => `<button data-rx="${e}" class="${rx === e ? 'on' : ''}">${e}</button>`).join('')}</div>`}</div>`;
+}
+let htab = 'dia';
+function render() {
+  const t = TD(), o = songs(OT)[t], m = songs(ME)[t];
+  $('ot').innerHTML = o && o.u ? card(OT, t, o, false) : `<div class="sg" style="--c:${COL[OT]}"><div class="empty2"><span class="e">🎧</span><b>${OT} belum ngasih lagu hari ini</b><small>Nanti kalau dia kasih, kamu dapet notif</small></div></div>`;
+  $('me').innerHTML = m && m.u ? card(ME, t, m, true) + `<button class="btn ghost" id="chg" style="margin:-.3rem 0 .8rem">🔄 Ganti lagu hari ini</button>` : `<button class="add" id="add">🎧 Kasih lagu buat ${OT} hari ini</button>`;
+  if ($('add')) $('add').onclick = openAdd; if ($('chg')) $('chg').onclick = openAdd;
+  $('ht').innerHTML = `<button data-h="dia" class="${htab === 'dia' ? 'on' : ''}">🎁 Dari ${OT}</button><button data-h="aku" class="${htab === 'aku' ? 'on' : ''}">📤 Dari kamu</button>`;
+  const w = htab === 'dia' ? OT : ME, H = Object.entries(songs(w)).filter(([d, x]) => d < t && x && x.u).sort((a, b) => a[0] < b[0] ? 1 : -1).slice(0, 30);
+  $('hist').innerHTML = H.length ? H.map(([d, x]) => { const dt = parseYMD(d), rx = rxOf(w === ME ? OT : ME, d); return `<div class="r" style="--c:${COL[w]}" data-open="${d}" data-w="${w}"><span><b>${esc(x.t || 'Lagu')}</b><small>${HARI[dt.getDay()].slice(0, 3)}, ${dt.getDate()} ${BLN[dt.getMonth()]}${x.n ? ' · “' + esc(String(x.n).slice(0, 40)) + (x.n.length > 40 ? '…' : '') + '”' : ''}</small></span><em>${rx || ''}</em></div>`; }).join('') : `<p class="empty">Belum ada lagu sebelumnya</p>`;
+  try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {}
+}
+// ── kasih lagu ──
+function openAdd() { const m = songs(ME)[TD()] || {}; $('a-to').textContent = OT; $('a-u').value = m.u || ''; $('a-t').value = m.t || ''; $('a-n').value = m.n || ''; chk(); $('a-ov').classList.add('show'); setTimeout(() => { try { $('a-u').focus(); } catch (e) {} }, 200); }
+function chk() { const v = $('a-u').value.trim(), s = parse(v); $('a-st').textContent = !v ? 'Buka lagunya di YouTube / Spotify → Bagikan → Salin link → tempel di sini' : s ? (s.k === 'yt' ? '✅ Link YouTube kebaca' : '✅ Link Spotify kebaca') : '⚠️ Linknya belum kebaca — pakai link YouTube atau Spotify ya'; }
+$('a-u').oninput = chk;
+$('a-u').addEventListener('paste', () => setTimeout(() => { const m = /(https?:\/\/\S+)/.exec($('a-u').value); if (m) $('a-u').value = m[1]; chk(); }, 30));
+$('a-go').onclick = () => {
+  const raw = $('a-u').value.trim(), url = (/(https?:\/\/\S+)/.exec(raw) || [])[1] || raw, s = parse(url);
+  if (!s) { $('a-u').focus(); return toast('Tempel link YouTube / Spotify dulu ya'); }
+  const t = $('a-t').value.trim().slice(0, 70); if (!t) { $('a-t').focus(); return toast('Tulis judul lagunya dulu 🎶'); }
+  const n = $('a-n').value.trim().slice(0, 200), had = songs(ME)[TD()];
+  BD.put('lagu', ME, TD(), { u: s.url, t, n, at: Date.now() });
+  $('a-ov').classList.remove('show'); vib([20, 30, 20]); confetti(30); toast(`🎧 Lagunya kekirim ke ${OT}`);
+  if (!had || had.u !== s.url) try { window.Push && Push.notify({ title: `🎧 ${ME} ngasih lagu buat kamu`, body: `${t}${n ? ' — “' + n.slice(0, 90) + '”' : ''}`, url: 'lagu-hari-ini.html', tag: 'diary-lagu' }); } catch (e) {}
+  render();
+};
+$('a-ov').addEventListener('click', e => { if (e.target === $('a-ov')) $('a-ov').classList.remove('show'); });
+// ── putar, reaksi, riwayat ──
+document.addEventListener('click', e => {
+  const pb = e.target.closest('[data-play]');
+  if (pb) { const c = pb.closest('.sg'), x = songs(c.dataset.w)[c.dataset.d], s = x && parse(x.u), em = c.querySelector('.emb'); if (!s || !em) return; if (!em.hidden) { em.hidden = true; em.innerHTML = ''; pb.textContent = '▶ Putar di sini'; return; } em.innerHTML = embedOf(s); em.hidden = false; pb.textContent = '■ Tutup'; return; }
+  const rb = e.target.closest('[data-rx]');
+  if (rb) { const c = rb.closest('.sg'), d = c.dataset.d, cur = rxOf(ME, d), nw = cur === rb.dataset.rx ? '' : rb.dataset.rx; BD.put('lagurx', ME, d, { e: nw, at: Date.now() }); vib(10);
+    if (nw) { const x = songs(OT)[d] || {}; try { window.Push && Push.notify({ title: `${nw} ${ME} suka lagu yang kamu kasih`, body: x.t || '', url: 'lagu-hari-ini.html', tag: 'diary-lagu-rx' }); } catch (x2) {} }
+    render(); return; }
+  const hb = e.target.closest('[data-h]'); if (hb) { htab = hb.dataset.h; render(); return; }
+  const ob = e.target.closest('[data-open]');
+  if (ob) { const w = ob.dataset.w, d = ob.dataset.open, x = songs(w)[d]; if (!x) return; const box = document.createElement('div'); box.innerHTML = card(w, d, x, w === ME); ob.replaceWith(box.firstElementChild); }
+});
+BD.on(ev => { try { $('bd-st').textContent = BD.status ? BD.status() : ''; } catch (e) {} if (!document.querySelector('.emb:not([hidden])') && ev.apps && (ev.apps.includes('lagu') || ev.apps.includes('lagurx'))) render(); });
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

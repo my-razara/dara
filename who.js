@@ -271,39 +271,69 @@
   }
   window.Kunci = { on: on, scope: on ? P.scope : '', PRIV: PRIV, hash: hash, locked: function () { return !!gate; }, lock: function () { if (on) { sset('pin-ok', 0); show(); } } };
 })();
-/* ═══ 🌙 MODE BOBO — Razan bisa ngunci Razara di HP Dara sementara (biar Dara istirahat). Chat tetep bisa dibuka. Kebuka sendiri jam 06:00 ═══ */
+/* ═══ 🌙 MODE BOBO — Razan bisa ngunci Razara di HP Dara (manual atau otomatis tiap malam). Chat tetep bisa dibuka ═══ */
 (function () {
   var EMB = false; try { EMB = window.self !== window.top; } catch (e) { EMB = true; }
   if (EMB || window.__boboLock) return; window.__boboLock = 1;
   function g(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
   var PAGE = (location.pathname.split('/').pop() || 'index.html');
   var ov = null;
-  function st() { var r = (g('bobo-Razan') || {})['2000-01-01']; return r && r.on && (!r.until || Date.now() < r.until) ? r : null; }
+  function p2(n) { return ('0' + n).slice(-2); }
+  function ymd(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function mins(hm) { var m = /^(\d{1,2}):(\d{2})$/.exec(hm || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  // jendela otomatis: dari jam "from" sampai "to" (boleh lewat tengah malam). Kunci malam ini = tanggal mulainya
+  function autoNow(a, now) {
+    var f = mins(a.from), t = mins(a.to); if (f == null || t == null || f === t) return null;
+    var cur = now.getHours() * 60 + now.getMinutes(), inWin = f < t ? (cur >= f && cur < t) : (cur >= f || cur < t); if (!inWin) return null;
+    var start = new Date(now); if (!(f < t) && cur < t) start.setDate(start.getDate() - 1);
+    var end = new Date(start); end.setHours(Math.floor(t / 60), t % 60, 0, 0); if (!(f < t)) end.setDate(end.getDate() + 1);
+    return { key: ymd(start), until: end.getTime() };
+  }
+  function st() {
+    var r = (g('bobo-Razan') || {})['2000-01-01']; if (!r) return null; var now = new Date();
+    if (r.on && (!r.until || now.getTime() < r.until)) return r;
+    var a = r.auto; if (a && a.on) { var w = autoNow(a, now); if (w && r.skip !== w.key) return { on: 1, auto: 1, until: w.until, msg: a.msg || r.msg, at: 'auto' + w.key }; }
+    return null;
+  }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function hm(t) { var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  function hm(t) { var d = new Date(t); return p2(d.getHours()) + ':' + p2(d.getMinutes()); }
+  function left(t) { var m = Math.max(0, Math.ceil((t - Date.now()) / 6e4)); return m >= 60 ? Math.floor(m / 60) + ' jam ' + (m % 60) + ' menit' : m + ' menit'; }
+  function css() {
+    if (document.getElementById('bobo-css')) return; var c = document.createElement('style'); c.id = 'bobo-css';
+    c.textContent = '#bobo-lock .st{position:absolute;border-radius:50%;background:#fff;animation:boboTw 3s ease-in-out infinite}@keyframes boboTw{50%{opacity:.15;transform:scale(.6)}}' +
+      '#bobo-lock .mn{font-size:4.6rem;line-height:1.1;display:inline-block;filter:drop-shadow(0 0 24px rgba(246,239,210,.5));animation:boboFl 5s ease-in-out infinite}@keyframes boboFl{50%{transform:translateY(-10px) rotate(-6deg)}}' +
+      '#bobo-lock .zz{position:absolute;font:700 15px Poppins,system-ui,sans-serif;color:#c6bcd8;animation:boboZ 3.2s ease-in infinite;opacity:0}@keyframes boboZ{0%{opacity:0;transform:translate(0,0) scale(.7)}30%{opacity:1}100%{opacity:0;transform:translate(26px,-46px) scale(1.2)}}';
+    (document.head || document.documentElement).appendChild(c);
+  }
   function show(r) {
-    if (!document.body) return;
+    if (!document.body) return; css();
     if (!ov) {
       ov = document.createElement('div'); ov.id = 'bobo-lock';
-      ov.style.cssText = 'position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;padding:1.4rem;text-align:center;font-family:Poppins,system-ui,sans-serif;color:#f3ecdf;background:radial-gradient(ellipse 80% 60% at 50% 0%,#3a3f78,#171a2e 70%)';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;padding:1.4rem;text-align:center;font-family:Poppins,system-ui,sans-serif;color:#f3ecdf;background:radial-gradient(ellipse 80% 60% at 50% 0%,#3a3f78,#171a2e 70%);overflow:hidden';
       document.documentElement.appendChild(ov); document.documentElement.style.overflow = 'hidden';
     }
     var key = (r.at || 0) + '|' + (r.until || 0);
-    if (ov.dataset.k === key) return; ov.dataset.k = key;
-    ov.innerHTML = '<div style="max-width:330px;width:100%"><div style="font-size:4.2rem;line-height:1.1;filter:drop-shadow(0 0 22px rgba(246,239,210,.45))">🌙</div>' +
-      '<h2 style="font-size:1.35rem;margin:.6rem 0 .3rem;color:#fff">Waktunya bobo, sayang</h2>' +
-      '<p style="font-size:13.5px;line-height:1.6;color:#d8cfe8;margin:0 0 .6rem">' + esc(r.msg || 'Besok lagi mainnya ya, sekarang istirahat dulu 🤍') + '</p>' +
-      '<p style="font-size:11.5px;color:#a59cb8;margin:0 0 1.2rem">— Razan · Razara dikunci sampai jam ' + hm(r.until) + '</p>' +
-      '<button id="bobo-ok" style="display:block;width:100%;border:none;border-radius:50px;padding:.9rem;font:700 14px Poppins,system-ui,sans-serif;color:#2a2340;background:linear-gradient(135deg,#fff3c4,#f3d58c);cursor:pointer;margin-bottom:.6rem">😴 Oke, aku bobo</button>' +
-      '<a href="chat.html" style="display:block;border-radius:50px;padding:.8rem;font:600 13px Poppins,system-ui,sans-serif;color:#f3ecdf;border:1.5px solid rgba(255,255,255,.25);text-decoration:none">💬 Chat Razan</a></div>';
-    ov.querySelector('#bobo-ok').onclick = function () {
-      try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
-      try { window.Push && Push.notify({ title: '😴 Dara: oke, aku bobo', body: 'Met bobo juga sayang 🤍', url: 'tidur-kita.html', tag: 'tidur-oke' }); } catch (e) {}
-      this.textContent = '💤 Met bobo, mimpi indah ya'; this.disabled = true;
-    };
+    if (ov.dataset.k !== key) {
+      ov.dataset.k = key;
+      var stars = ''; for (var i = 0; i < 40; i++) { var z = 1 + Math.random() * 2.2; stars += '<i class="st" style="left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 100) + '%;width:' + z + 'px;height:' + z + 'px;animation-delay:' + (Math.random() * 3) + 's;opacity:' + (.4 + Math.random() * .6) + '"></i>'; }
+      ov.innerHTML = stars + '<div style="position:relative;max-width:330px;width:100%"><div style="position:relative;display:inline-block"><span class="mn">🌙</span><span class="zz" style="left:62%;top:6%">z</span><span class="zz" style="left:70%;top:-4%;animation-delay:1.1s">z</span><span class="zz" style="left:78%;top:-14%;animation-delay:2.2s">Z</span></div>' +
+        '<h2 style="font-size:1.35rem;margin:.6rem 0 .3rem;color:#fff">Waktunya bobo, sayang</h2>' +
+        '<p style="font-size:13.5px;line-height:1.6;color:#d8cfe8;margin:0 0 .6rem">' + esc(r.msg || 'Besok lagi mainnya ya, sekarang istirahat dulu 🤍') + '</p>' +
+        '<p style="font-size:11.5px;color:#a59cb8;margin:0">— Razan · ' + (r.auto ? 'kunci otomatis tiap malam' : 'Razara dikunci') + ' sampai jam ' + hm(r.until) + '</p>' +
+        '<p id="bobo-left" style="font:600 12.5px Poppins,system-ui,sans-serif;color:#f3d58c;margin:.35rem 0 1.2rem"></p>' +
+        '<button id="bobo-ok" style="display:block;width:100%;border:none;border-radius:50px;padding:.9rem;font:700 14px Poppins,system-ui,sans-serif;color:#2a2340;background:linear-gradient(135deg,#fff3c4,#f3d58c);cursor:pointer;margin-bottom:.6rem">😴 Oke, aku bobo</button>' +
+        '<a href="chat.html" style="display:block;border-radius:50px;padding:.8rem;font:600 13px Poppins,system-ui,sans-serif;color:#f3ecdf;border:1.5px solid rgba(255,255,255,.25);text-decoration:none">💬 Chat Razan</a></div>';
+      ov.querySelector('#bobo-ok').onclick = function () {
+        try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+        var k = 'bobo-ok-' + key; if (!g(k)) { try { localStorage.setItem(k, '1'); } catch (e) {} try { window.Push && Push.notify({ title: '😴 Dara: oke, aku bobo', body: 'Met bobo juga sayang 🤍', url: 'tidur-kita.html', tag: 'tidur-oke' }); } catch (e) {} }
+        this.textContent = '💤 Met bobo, mimpi indah ya'; this.disabled = true;
+      };
+    }
+    var lf = ov.querySelector('#bobo-left'); if (lf) lf.textContent = '⏳ Kebuka lagi dalam ' + left(r.until);
   }
   function hide() { if (ov) { ov.remove(); ov = null; document.documentElement.style.overflow = ''; } }
   function check() { var me = g('berdua-me'); var r = me === 'Dara' && g('who-ok') ? st() : null; if (r && PAGE !== 'chat.html') show(r); else hide(); }
+  window.__boboState = st;
   function needSync() { if (g('berdua-me') === 'Dara' && !window.Berdua && !document.querySelector('script[src="sync.js"]')) { var sc = document.createElement('script'); sc.src = 'sync.js'; document.head.appendChild(sc); } }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { check(); setTimeout(needSync, 1500); }); else { check(); setTimeout(needSync, 1500); }
   setInterval(check, 2000);
