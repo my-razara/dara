@@ -198,6 +198,25 @@
   @keyframes dim{to{opacity:.3}}
   .spot{opacity:0}.spot.go{animation:apr 1s ease forwards}
   .hideat.go{animation:van .8s ease forwards}
+  .when[data-at]:not(.go) *{animation-play-state:paused!important}
+  .laugh .m-o{display:block}.laugh .m-s{display:none}.laugh{animation:lgh .3s ease-in-out infinite alternate}
+  @keyframes lgh{to{transform:translateY(-2px) rotate(-2deg)}}
+  .ride .arm.r{transform:rotate(-78deg)}.ride .arm.l{transform:rotate(-35deg)}.ride2 .arm.r{transform:rotate(-60deg)}
+  .wheel{transform-box:fill-box;transform-origin:center;animation:spin .45s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .scrollx{animation:scx var(--t,4s) linear infinite}
+  @keyframes scx{to{transform:translateX(-360px)}}
+  .bump{animation:bmp .28s ease-in-out infinite alternate}
+  @keyframes bmp{to{transform:translateY(-2px)}}
+  @keyframes nony{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+  .eps{display:flex;flex-direction:column;gap:.45rem;width:min(100%,290px);margin:1rem 0 0}
+  .eps button{display:flex;align-items:center;gap:.6rem;text-align:left;padding:.55rem .75rem;border-radius:14px;border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-family:Poppins,sans-serif}
+  .eps button.on{border-color:#f0a39a;background:rgba(240,163,154,.2)}
+  .eps .n{font:700 11px Poppins,sans-serif;color:#e7c98f;flex-shrink:0;width:2.6rem}
+  .eps .m{flex:1;min-width:0}.eps .m b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.eps .m small{font-size:10.5px;color:#cdb8c4}
+  .eps .tg{font-size:9.5px;font-weight:700;border-radius:50px;padding:.12rem .45rem;background:#ffd27a;color:#5a3a10;flex-shrink:0}
+  .eps .tg.ok{background:rgba(255,255,255,.15);color:#e6d3dc}
+  .poster .play{margin:1rem 0 .7rem}
   .dstep.go{animation:mv 1.4s 2.2s cubic-bezier(.25,.8,.35,1) forwards}
   .dstep.go .arm.r{transform:rotate(-168deg)}
   .lim,.lim .lg,.lim .arm,.lim .skirt{animation-iteration-count:8!important}
@@ -221,15 +240,17 @@
     <a class="back" href="timeline-kita.html">← Timeline Kita</a>
     <p class="lbl">Razara Pictures</p>
     <h1>Film Kita</h1>
-    <p class="ep">Episode 1 · Razan &amp; Dara · <span id="durtxt">2:34</span></p>
+    <p class="ep">Razan &amp; Dara · <span id="eptxt">Episode 1</span> · <span id="durtxt">2:34</span></p>
+    <div class="eps" id="eps"></div>
     <button class="play" id="play" disabled aria-label="Putar film">▶</button>
     <p class="note" id="pnote">Nyiapin film… ⏳</p>
   </div>
   <div class="poster hidden" id="endscr">
-    <p class="lbl">Episode 1 · selesai</p>
+    <p class="lbl" id="endlbl">Episode 1 · selesai</p>
     <h1 style="font-size:clamp(40px,13vw,58px)">Bersambung… 🤍</h1>
     <p class="ep" id="endtxt">Makasih udah nonton</p>
     <div class="end-btns">
+      <button class="pri hidden" id="e-next">▶ Lanjut Episode 2</button>
       <a class="pri" id="e-wa" href="#" target="_blank" rel="noopener">💌 Bilang ke Razan</a>
       <button id="e-again">🔁 Putar lagi</button>
       <a href="timeline-kita.html">🗺️ Balik ke Timeline Kita</a>
@@ -278,10 +299,11 @@ function whoBtn(key, onChange) {
   b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
   paint(); return lsGet(key, 'Dara');
 }
-const CUES = {"scenes": [{"id": "intro", "a": 0.0, "b": 7.47}, {"id": "mpls", "a": 7.47, "b": 27.15}, {"id": "rohis", "a": 27.15, "b": 39.92}, {"id": "chat", "a": 39.92, "b": 57.67}, {"id": "tz", "a": 57.67, "b": 79.3}, {"id": "jadian", "a": 79.3, "b": 87.32}, {"id": "museum", "a": 87.32, "b": 93.95}, {"id": "tmii", "a": 93.95, "b": 100.32}, {"id": "tim", "a": 100.32, "b": 105.42}, {"id": "ragunan", "a": 105.42, "b": 111.44}, {"id": "kotatua", "a": 111.44, "b": 118.17}, {"id": "montage", "a": 118.17, "b": 126.91}, {"id": "now", "a": 126.91, "b": 138.3}, {"id": "ending", "a": 138.3, "b": 153.21}], "lines": [{"s": "intro", "w": "R", "t": "Ini cerita tentang kita.", "a": 4.0, "b": 5.87}, {"s": "mpls", "w": "R", "t": "Juli 2023. Hari pertama MPLS.", "a": 8.27, "b": 12.03}, {"s": "mpls", "w": "R", "t": "Mata aku langsung kagum sama satu orang.", "a": 12.53, "b": 15.17}, {"s": "mpls", "w": "R", "t": "Kamu diem, ga banyak ngomong…", "a": 15.77, "b": 17.7}, {"s": "mpls", "w": "R", "t": "tapi pas Pak Hardi nanya, kamu yang pertama angkat tangan dan maju ke depan tanpa ragu.", "a": 18.05, "b": 23.38}, {"s": "mpls", "w": "R", "t": "Di situ aku tau, kamu beda.", "a": 23.98, "b": 25.95}, {"s": "rohis", "w": "R", "t": "Ternyata kamu juga ikut rohis.", "a": 27.75, "b": 30.02}, {"s": "rohis", "w": "R", "t": "Pas bersih-bersih masjid, kamu tetap sama. Tenang, fokus, ga banyak bicara.", "a": 30.52, "b": 35.69}, {"s": "rohis", "w": "R", "t": "Dan entah kenapa, aku makin penasaran.", "a": 36.19, "b": 38.82}, {"s": "chat", "w": "R", "t": "September. Chat pertama kita bukan soal hal yang besar.", "a": 40.52, "b": 43.97}, {"s": "chat", "w": "D", "t": "Aku izin ga bisa ikut rapat ya 🙏", "a": 44.47, "b": 46.76}, {"s": "chat", "w": "R", "t": "Singkat, sopan, selesai. Tapi aku bales lebih dari sekadar \"oke\".", "a": 47.36, "b": 51.6}, {"s": "chat", "w": "R", "t": "Pelan-pelan aku sadar, aku ga mau jadi yang duluan berhenti bales.", "a": 52.1, "b": 56.57}, {"s": "tz", "w": "R", "t": "Desember. Aku beraniin diri ngajak kamu pergi. Udah siap-siap mental buat ditolak…", "a": 58.27, "b": 63.91}, {"s": "tz", "w": "R", "t": "Tapi ternyata…", "a": 64.41, "b": 65.65}, {"s": "tz", "w": "D", "t": "Boleh.", "a": 66.35, "b": 67.16}, {"s": "tz", "w": "R", "t": "Aku syok. Beneran syok.", "a": 68.06, "b": 69.73}, {"s": "tz", "w": "R", "t": "Kita ke Timezone. Di tengah suara mesin game, aku cuma mikir satu hal:", "a": 70.33, "b": 75.19}, {"s": "tz", "w": "R", "t": "aku seneng dan bahagia sama kamu.", "a": 75.69, "b": 78.0}, {"s": "jadian", "w": "R", "t": "10 Mei 2025.", "a": 80.5, "b": 82.9}, {"s": "jadian", "w": "R", "t": "Hari kita resmi jadi \"kita\".", "a": 83.5, "b": 85.52}, {"s": "museum", "w": "R", "t": "Museum Nasional. Katanya cuma minta temenin sebentar, eh keterusan sampe sore.", "a": 87.82, "b": 92.95}, {"s": "tmii", "w": "R", "t": "TMII. Pengennya berdua, tapi dulu belum cukup berani… jadinya rame-rame deh.", "a": 94.35, "b": 99.32}, {"s": "tim", "w": "R", "t": "Mau ke planetarium, eh tutup. Ya udah, kita piknik aja.", "a": 100.72, "b": 104.42}, {"s": "ragunan", "w": "R", "t": "Ragunan. Direncanain dari jauh-jauh hari, dan aku ga sabar nunggu hari H-nya.", "a": 105.82, "b": 110.44}, {"s": "kotatua", "w": "R", "t": "Kota Tua. Mendadak, capek abis kondangan, tapi seru banget jelajahin museum bareng.", "a": 111.84, "b": 116.97}, {"s": "montage", "w": "R", "t": "Dan masih banyak momen kecil lainnya… sederhana, tapi buat aku berarti banget.", "a": 118.77, "b": 124.71}, {"s": "now", "w": "R", "t": "Sampai hari ini, angka ini terus nambah.", "a": 127.91, "b": 130.67}, {"s": "now", "w": "R", "t": "Bukan karena semuanya sempurna, tapi karena semuanya terasa berarti kalau ada kamu.", "a": 131.27, "b": 136.9}, {"s": "ending", "w": "R", "t": "Makasih ya, udah jadi kamu.", "a": 139.1, "b": 141.11}, {"s": "ending", "w": "R", "t": "Ini baru episode satu. Masih banyak cerita yang mau aku tulis bareng kamu.", "a": 142.01, "b": 146.89}, {"s": "ending", "w": "D", "t": "Bersambung…", "a": 148.09, "b": 149.21}], "dur": 154.14};
+const C1 = {"scenes": [{"id": "intro", "a": 0.0, "b": 7.47}, {"id": "mpls", "a": 7.47, "b": 27.15}, {"id": "rohis", "a": 27.15, "b": 39.92}, {"id": "chat", "a": 39.92, "b": 57.67}, {"id": "tz", "a": 57.67, "b": 79.3}, {"id": "jadian", "a": 79.3, "b": 87.32}, {"id": "museum", "a": 87.32, "b": 93.95}, {"id": "tmii", "a": 93.95, "b": 100.32}, {"id": "tim", "a": 100.32, "b": 105.42}, {"id": "ragunan", "a": 105.42, "b": 111.44}, {"id": "kotatua", "a": 111.44, "b": 118.17}, {"id": "montage", "a": 118.17, "b": 126.91}, {"id": "now", "a": 126.91, "b": 138.3}, {"id": "ending", "a": 138.3, "b": 153.21}], "lines": [{"s": "intro", "w": "R", "t": "Ini cerita tentang kita.", "a": 4.0, "b": 5.87}, {"s": "mpls", "w": "R", "t": "Juli 2023. Hari pertama MPLS.", "a": 8.27, "b": 12.03}, {"s": "mpls", "w": "R", "t": "Mata aku langsung kagum sama satu orang.", "a": 12.53, "b": 15.17}, {"s": "mpls", "w": "R", "t": "Kamu diem, ga banyak ngomong…", "a": 15.77, "b": 17.7}, {"s": "mpls", "w": "R", "t": "tapi pas Pak Hardi nanya, kamu yang pertama angkat tangan dan maju ke depan tanpa ragu.", "a": 18.05, "b": 23.38}, {"s": "mpls", "w": "R", "t": "Di situ aku tau, kamu beda.", "a": 23.98, "b": 25.95}, {"s": "rohis", "w": "R", "t": "Ternyata kamu juga ikut rohis.", "a": 27.75, "b": 30.02}, {"s": "rohis", "w": "R", "t": "Pas bersih-bersih masjid, kamu tetap sama. Tenang, fokus, ga banyak bicara.", "a": 30.52, "b": 35.69}, {"s": "rohis", "w": "R", "t": "Dan entah kenapa, aku makin penasaran.", "a": 36.19, "b": 38.82}, {"s": "chat", "w": "R", "t": "September. Chat pertama kita bukan soal hal yang besar.", "a": 40.52, "b": 43.97}, {"s": "chat", "w": "D", "t": "Aku izin ga bisa ikut rapat ya 🙏", "a": 44.47, "b": 46.76}, {"s": "chat", "w": "R", "t": "Singkat, sopan, selesai. Tapi aku bales lebih dari sekadar \"oke\".", "a": 47.36, "b": 51.6}, {"s": "chat", "w": "R", "t": "Pelan-pelan aku sadar, aku ga mau jadi yang duluan berhenti bales.", "a": 52.1, "b": 56.57}, {"s": "tz", "w": "R", "t": "Desember. Aku beraniin diri ngajak kamu pergi. Udah siap-siap mental buat ditolak…", "a": 58.27, "b": 63.91}, {"s": "tz", "w": "R", "t": "Tapi ternyata…", "a": 64.41, "b": 65.65}, {"s": "tz", "w": "D", "t": "Boleh.", "a": 66.35, "b": 67.16}, {"s": "tz", "w": "R", "t": "Aku syok. Beneran syok.", "a": 68.06, "b": 69.73}, {"s": "tz", "w": "R", "t": "Kita ke Timezone. Di tengah suara mesin game, aku cuma mikir satu hal:", "a": 70.33, "b": 75.19}, {"s": "tz", "w": "R", "t": "aku seneng dan bahagia sama kamu.", "a": 75.69, "b": 78.0}, {"s": "jadian", "w": "R", "t": "10 Mei 2025.", "a": 80.5, "b": 82.9}, {"s": "jadian", "w": "R", "t": "Hari kita resmi jadi \"kita\".", "a": 83.5, "b": 85.52}, {"s": "museum", "w": "R", "t": "Museum Nasional. Katanya cuma minta temenin sebentar, eh keterusan sampe sore.", "a": 87.82, "b": 92.95}, {"s": "tmii", "w": "R", "t": "TMII. Pengennya berdua, tapi dulu belum cukup berani… jadinya rame-rame deh.", "a": 94.35, "b": 99.32}, {"s": "tim", "w": "R", "t": "Mau ke planetarium, eh tutup. Ya udah, kita piknik aja.", "a": 100.72, "b": 104.42}, {"s": "ragunan", "w": "R", "t": "Ragunan. Direncanain dari jauh-jauh hari, dan aku ga sabar nunggu hari H-nya.", "a": 105.82, "b": 110.44}, {"s": "kotatua", "w": "R", "t": "Kota Tua. Mendadak, capek abis kondangan, tapi seru banget jelajahin museum bareng.", "a": 111.84, "b": 116.97}, {"s": "montage", "w": "R", "t": "Dan masih banyak momen kecil lainnya… sederhana, tapi buat aku berarti banget.", "a": 118.77, "b": 124.71}, {"s": "now", "w": "R", "t": "Sampai hari ini, angka ini terus nambah.", "a": 127.91, "b": 130.67}, {"s": "now", "w": "R", "t": "Bukan karena semuanya sempurna, tapi karena semuanya terasa berarti kalau ada kamu.", "a": 131.27, "b": 136.9}, {"s": "ending", "w": "R", "t": "Makasih ya, udah jadi kamu.", "a": 139.1, "b": 141.11}, {"s": "ending", "w": "R", "t": "Ini baru episode satu. Masih banyak cerita yang mau aku tulis bareng kamu.", "a": 142.01, "b": 146.89}, {"s": "ending", "w": "D", "t": "Bersambung…", "a": 148.09, "b": 149.21}], "dur": 154.14};
+const C2 = {"scenes": [{"id": "intro", "a": 0.0, "b": 12.82}, {"id": "lost", "a": 12.82, "b": 23.46}, {"id": "dimsum", "a": 23.46, "b": 40.48}, {"id": "rs", "a": 40.48, "b": 50.09}, {"id": "sadar", "a": 50.09, "b": 57.59}, {"id": "nona", "a": 57.59, "b": 68.06}, {"id": "motor", "a": 68.06, "b": 75.56}, {"id": "jadian", "a": 75.56, "b": 93.41}, {"id": "risih", "a": 93.41, "b": 108.3}, {"id": "ending", "a": 108.3, "b": 120.95}], "lines": [{"s": "intro", "w": "R", "t": "Sebelumnya, di Film Kita…", "a": 4.2, "b": 5.97}, {"s": "intro", "w": "R", "t": "Abis Timezone, chat kita makin rame. Tapi ternyata, ceritanya ga semulus itu.", "a": 6.47, "b": 11.62}, {"s": "lost", "w": "R", "t": "Kita sempet hilang kontak.", "a": 13.62, "b": 15.53}, {"s": "lost", "w": "R", "t": "Kamu pergi ke Bekasi, aku fokus kerja jadi orang IT.", "a": 16.03, "b": 19.84}, {"s": "lost", "w": "R", "t": "Empat bulan. Sepi.", "a": 20.44, "b": 21.86}, {"s": "dimsum", "w": "R", "t": "Sampai suatu hari, HP aku bunyi.", "a": 23.96, "b": 26.33}, {"s": "dimsum", "w": "D", "t": "Boleh minta link dimsumnya ga?", "a": 26.83, "b": 28.84}, {"s": "dimsum", "w": "R", "t": "Kamu cuma minta link. Aku kasih… tapi sekalian aku beliin.", "a": 29.44, "b": 33.2}, {"s": "dimsum", "w": "R", "t": "Dari dimsum itu, kamu mulai cerita-cerita lagi. Dan pelan-pelan, kita deket lagi.", "a": 33.8, "b": 39.28}, {"s": "rs", "w": "R", "t": "Waktu kamu harus ke rumah sakit, aku yang nganterin.", "a": 41.08, "b": 44.33}, {"s": "rs", "w": "R", "t": "Ga banyak yang bisa aku lakuin. Tapi aku mau ada, buat kamu.", "a": 44.83, "b": 48.79}, {"s": "sadar", "w": "R", "t": "Dan setelah sempat kehilangan, aku sadar…", "a": 50.69, "b": 53.58}, {"s": "sadar", "w": "R", "t": "aku sayang banget sama kamu.", "a": 54.08, "b": 55.99}, {"s": "nona", "w": "R", "t": "Di HP aku, nama kontak kamu: Anonymous.", "a": 58.09, "b": 60.87}, {"s": "nona", "w": "R", "t": "Anonymous… jadi Nony… jadi Nona.", "a": 61.37, "b": 63.54}, {"s": "nona", "w": "R", "t": "Panggilan sayang pertama aku buat kamu.", "a": 64.14, "b": 66.76}, {"s": "motor", "w": "R", "t": "Di motor, kita sering ketawa tiba-tiba. Gara-gara hal random, yang cuma kita yang ngerti.", "a": 68.56, "b": 74.16}, {"s": "jadian", "w": "R", "t": "10 Mei 2025. Di gang deket rumah kamu.", "a": 76.36, "b": 80.42}, {"s": "jadian", "w": "R", "t": "\"Ente mau ga kalau jadi istri ane? Karena menurut ane, ente tuh keibuan banget.\"", "a": 81.12, "b": 86.16}, {"s": "jadian", "w": "R", "t": "Iya, dulu kita masih ane-ente. Kebawa dari rohis.", "a": 86.76, "b": 89.95}, {"s": "jadian", "w": "D", "t": "Masih abu-abu.", "a": 90.65, "b": 92.01}, {"s": "risih", "w": "R", "t": "Abu-abu? Aku bingung. Jadi aku… ngechat terus.", "a": 93.81, "b": 96.85}, {"s": "risih", "w": "D", "t": "Kayaknya ane risih deh.", "a": 97.45, "b": 99.23}, {"s": "risih", "w": "R", "t": "Waktu itu aku belum tau, gengsi kamu tingkat tinggi.", "a": 100.13, "b": 103.32}, {"s": "risih", "w": "R", "t": "Ternyata abu-abunya kamu itu… artinya iya.", "a": 103.82, "b": 106.5}, {"s": "ending", "w": "R", "t": "Di episode berikutnya: seratus hari pertama kita… yang jatuh pas di hari ulang tahun kamu.", "a": 109.1, "b": 114.83}, {"s": "ending", "w": "D", "t": "Bersambung…", "a": 115.83, "b": 116.95}], "dur": 122.15};
 
+let CUES = C1;
 const ME = (window.Who && Who.me()) || lsGet('berdua-me', 'Dara');
-const AUDIO = 'film-kita-1.mp3';
 const SK = { R: '#f2c7a5', D: '#f6d3b8' };
 // ═══ KARAKTER ═══
 function razan(x, y, s, cls = '', p = {}) {
@@ -349,6 +371,7 @@ function cat(x, y, s, cls = '') {
   <g class="ce"><ellipse cx="-4.5" cy="-31" rx="1.7" ry="2.2" fill="#2b1e17"/><ellipse cx="4.5" cy="-31" rx="1.7" ry="2.2" fill="#2b1e17"/></g>
   <path d="M-1.3 -27.5 L1.3 -27.5 L0 -26Z" fill="#f08a9a"/><path d="M0 -26 q-1.6 2 -3.2 .6 M0 -26 q1.6 2 3.2 .6" stroke="#8a4b3c" stroke-width=".9" fill="none"/>
   <path d="M-7 -27 l-8 -1.5 M-7 -25.5 l-8 1 M7 -27 l8 -1.5 M7 -25.5 l8 1" stroke="#fff" stroke-width=".7" opacity=".9"/>
+  ${/cover/.test(cls) ? '<ellipse cx="-5" cy="-31" rx="5.5" ry="4.2" fill="#f2a65e" stroke="#d9823c" stroke-width=".8"/><ellipse cx="5" cy="-31" rx="5.5" ry="4.2" fill="#f2a65e" stroke="#d9823c" stroke-width=".8"/>' : ''}
   </g></g>`;
 }
 const heart = (x, y, s, c = '#ef6f8b', cls = '', st = '') => `<g transform="translate(${x} ${y}) scale(${s})"><path class="${cls}" style="${st}" d="M0 6 C-14 -4 -9 -16 0 -9 C9 -16 14 -4 0 6Z" fill="${c}"/></g>`;
@@ -375,9 +398,16 @@ function poolPics(n) {
   return u.slice(0, n);
 }
 const PIC = {};
+function earlyPics(n) {
+  const A = ((MEM && MEM.albums) || []).filter(a => a && a.date).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const pre = A.filter(a => a.date < JADIAN), list = pre.length ? pre : A; const out = [];
+  list.forEach(a => { const it = (a.items || []).filter(x => x && x.type === 'image' && x.id).map(x => x.id); (it.length ? it.slice(0, 2) : (a.cover && a.coverType !== 'video' ? [a.cover] : [])).forEach(id => out.length < n && out.push(id)); });
+  return out;
+}
 function prepPics() {
   [['museum', '2025-10-11'], ['tmii', '2025-12-25'], ['tim', '2026-05-01'], ['ragunan', '2026-05-16'], ['kotatua', '2026-05-31'], ['jadian', '2025-05-10']].forEach(([k, d]) => PIC[k] = albumPics(d, 2));
   PIC.montage = poolPics(9);
+  PIC.early = earlyPics(3);
   Object.values(PIC).flat().forEach(id => { const im = new Image(); im.src = thumb(id, 600); });
 }
 function pol(id, cap, x, y, w, r, d) {
@@ -386,7 +416,7 @@ function pol(id, cap, x, y, w, r, d) {
 const SVG = (inner) => `<svg class="bg" viewBox="0 0 360 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
 const hariBareng = () => Math.max(0, Math.round((today0() - parseYMD(JADIAN)) / 864e5));
 // ═══ ADEGAN ═══
-const SCN = {
+const SCN1 = {
   intro: () => ({
     svg: BG('#1b1330', '#4a2a45', 'g0') + stars(60, -300, 520, 3) + ground(560, '#2c1d2c') +
       `<g class="mv" style="--x0:-120px;--x1:440px;--t:9s;--d:3.2s"><g class="walk">${cat(0, 560, 1.15)}</g></g>`,
@@ -554,6 +584,156 @@ function place(k, chip, idx, bg, chars) {
     html: `<div class="chip">${chip}</div>${pins}${pols}`
   };
 }
+// ═══ EPISODE 2: Sebelum Jadi Kita ═══
+function moto(x, y, s, riders, cls = '') {
+  const wheel = (cx) => `<g transform="translate(${cx} 0)"><circle r="14" fill="#2b2b30"/><circle r="7" fill="#9aa3ad"/><g class="wheel"><path d="M-7 0 H7 M0 -7 V7" stroke="#5b636c" stroke-width="2"/></g></g>`;
+  const r = riders ? (dara(-22, -27, 1.0, 'sit ride2 ' + (riders.cls || '')) + razan(10, -28, 1.0, 'sit ride ' + (riders.cls || ''))) : '';
+  return `<g transform="translate(${x} ${y}) scale(${s})"><g class="${cls}">
+  <ellipse cx="0" cy="14" rx="62" ry="5" fill="#000" opacity=".14"/>
+  ${wheel(-40)}${wheel(42)}
+  <path d="M-56 -8 Q-58 -30 -34 -32 L10 -32 Q22 -32 26 -20 L30 -6 L-48 -6Z" fill="#4a7fc1"/>
+  <path d="M-48 -32 Q-30 -40 6 -36 L8 -30 L-46 -28Z" fill="#2a2526"/>
+  <path d="M24 -18 L38 -58" stroke="#3a3f47" stroke-width="5" stroke-linecap="round"/><path d="M32 -60 L46 -56" stroke="#2a2526" stroke-width="5" stroke-linecap="round"/>
+  <path d="M30 -6 Q46 -30 56 -10 L56 0 L36 0Z" fill="#4a7fc1"/><circle cx="56" cy="-30" r="5" fill="#fff4b0"/>
+  ${r}</g></g>`;
+}
+const cloud = (x, y, s, fill, cls = '', st = '') => `<g transform="translate(${x} ${y}) scale(${s})"><g class="${cls}" style="${st}"><circle cx="-22" cy="4" r="16" fill="${fill}"/><circle cx="0" cy="-6" r="22" fill="${fill}"/><circle cx="24" cy="4" r="16" fill="${fill}"/><rect x="-36" y="2" width="72" height="18" rx="9" fill="${fill}"/><circle cx="-6" cy="34" r="5" fill="${fill}"/><circle cx="-14" cy="46" r="3" fill="${fill}"/></g></g>`;
+const phoneHTML = (st, name, inner, color = '#4a7fc1') => `<div class="phone" style="${st};background:${color}"><div class="scr" data-n="${name}">${inner}</div></div>`;
+const SCN2 = {
+  intro: () => ({
+    svg: BG('#1b1330', '#3d2740', 'g20') + stars(50, -300, 520, 5) + ground(560, '#2c1d2c') +
+      `<g class="mv" style="--x0:-120px;--x1:440px;--t:10s;--d:1s"><g class="walk">${cat(0, 560, 1.1)}</g></g>`,
+    html: `<div class="hideat" data-at="0" style="position:absolute;inset:0"><div class="big fade" style="top:28%;font:600 11px Poppins,sans-serif;letter-spacing:.35em;color:#e7c98f;animation-delay:.2s">FILM KITA · EPISODE 2</div>
+      <div class="big fade" style="top:34%;font-size:clamp(40px,13vw,58px);color:#ffe2b8;animation-delay:.9s;line-height:1.05">Sebelum<br>Jadi Kita</div></div>
+      <div class="when" data-at="0" style="position:absolute;left:0;right:0;top:24%;display:flex;justify-content:center;gap:8px">
+        ${[['🏫', 'MPLS 2023', -5], ['💬', 'izin rapat 🙏', 3], ['🎮', '"Boleh 😊"', -3]].map(([e, t, r], i) => `<div class="pol" style="position:relative;width:28%;--r:${r}deg;--d:${(.2 + i * .5).toFixed(1)}s;filter:sepia(.5)"><div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:30px;background:#f6ecdf">${e}</div><b>${t}</b></div>`).join('')}
+      </div>
+      <div class="when" data-at="1" style="position:absolute;left:10%;right:10%;top:52%;display:flex;flex-direction:column;gap:6px">
+        ${['hahaha', 'iyaa bener', '😂', 'besok sekolah?', '🤭', 'eh tau ga…'].map((t, i) => `<div class="bb ${i % 2 ? 'dme' : 'me'}" data-at="1" style="--d:${(.2 + i * .35).toFixed(2)}s;font-size:11px;${i % 2 ? '' : 'align-self:flex-start'}">${t}</div>`).join('')}
+      </div>`
+  }),
+  lost: () => ({
+    svg: `<rect x="-400" y="-500" width="1160" height="820" fill="#dfeef6"/><rect x="-400" y="250" width="1160" height="70" fill="#b9b5ae"/><path d="M-400 285 H760" stroke="#fff" stroke-width="3" stroke-dasharray="18 14"/>
+      <g transform="translate(286 120)"><rect x="-3" y="20" width="6" height="110" fill="#8a8f96"/><rect x="-58" y="-28" width="116" height="52" rx="6" fill="#2f7d4f" stroke="#fff" stroke-width="2.5"/><text x="-8" y="8" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="20" fill="#fff">BEKASI</text><path d="M34 -6 L48 0 L34 6Z" fill="#fff"/></g>
+      <g class="mv" style="--x0:-20px;--x1:120px;--t:9s;--d:.3s"><g class="walk">${dara(90, 262, .78, 'walk')}</g><g transform="translate(118 262)"><rect x="0" y="-34" width="22" height="30" rx="5" fill="#ef9ab0"/><rect x="7" y="-42" width="8" height="9" rx="3" fill="none" stroke="#c96b86" stroke-width="2.5"/><circle cx="5" cy="-2" r="3" fill="#555"/><circle cx="17" cy="-2" r="3" fill="#555"/></g></g>
+      <rect x="-400" y="320" width="1160" height="900" fill="#2c3550"/><rect x="-400" y="318" width="1160" height="4" fill="#fff" opacity=".6"/>
+      <rect x="40" y="380" width="70" height="90" rx="4" fill="#3b4566"/><circle cx="300" cy="380" r="18" fill="#fff4cf" opacity=".85"/>
+      ${razan(176, 570, 1.05, 'sit')}
+      <rect x="40" y="520" width="280" height="14" rx="4" fill="#8b6a4e"/><rect x="60" y="534" width="10" height="200" fill="#6e523b"/><rect x="290" y="534" width="10" height="200" fill="#6e523b"/>
+      <g transform="translate(236 452)"><rect x="-44" y="-50" width="88" height="58" rx="5" fill="#1a1f2e" stroke="#4a7fc1" stroke-width="3"/>${[0, 1, 2, 3, 4, 5].map(i => `<rect x="${-36 + (i % 2) * 8}" y="${-42 + i * 8}" width="${20 + (i * 13) % 40}" height="4" rx="2" fill="${['#7eb3f5', '#f0a39a', '#b5e3b0'][i % 3]}" class="tw" style="--d:${i * .3}s;--t:1.6s"/>`).join('')}<rect x="-6" y="8" width="12" height="14" fill="#3b3f4a"/><rect x="-22" y="20" width="44" height="5" rx="2" fill="#3b3f4a"/></g>
+      <g transform="translate(108 512)"><rect x="-38" y="-6" width="64" height="6" rx="2" fill="#9aa3ad"/><rect x="-34" y="-34" width="56" height="30" rx="3" fill="#cfd6de"/><rect x="-30" y="-30" width="48" height="22" fill="#2b3a55"/></g>
+      <g transform="translate(300 506)"><rect x="-8" y="-14" width="16" height="16" rx="3" fill="#fff"/><path d="M8 -10 q8 0 0 8" stroke="#fff" stroke-width="2.5" fill="none"/><path class="float" style="--t:2.2s" d="M-2 -18 q4 -6 0 -12" stroke="#fff" stroke-width="1.6" fill="none" opacity=".7"/></g>`,
+    html: `<div class="chip">📵 2024 · Hilang kontak</div>
+      <div class="chip when" data-at="1" style="top:51.5%;background:#2f7d4f;color:#fff;animation:none;opacity:1;transform:translateX(-50%)">💻 orang IT, sibuk kerja</div>
+      <div class="when" data-at="2" style="position:absolute;left:50%;top:56.5%;transform:translateX(-50%);display:flex;gap:5px">${['1 bln', '2 bln', '3 bln', '4 bln'].map((t, i) => `<span class="appear" style="--d:${(i * .45).toFixed(2)}s;white-space:nowrap;background:#fff;color:#7a3f35;font:700 10px Poppins,sans-serif;padding:.3rem .45rem;border-radius:7px;box-shadow:0 3px 8px rgba(0,0,0,.2)">📅 ${t}</span>`).join('')}</div>
+      <div class="when" data-at="2" style="position:absolute;left:0;right:0;top:61.5%;text-align:center"><span class="appear" style="--d:1.8s;display:inline-block;background:rgba(0,0,0,.55);color:#ddd;font:500 10.5px Poppins,sans-serif;padding:.3rem .7rem;border-radius:50px">💬 terakhir dilihat 4 bulan lalu</span></div>`
+  }),
+  dimsum: () => ({
+    svg: BG('#fde6ea', '#fff3e4', 'g22') + ground(540, '#f3dccd', '#ead0bd') +
+      razan(300, 560, 1.0, 'phoneR', { phone: 1 }) +
+      `<g class="when grow" data-at="2" style="--d:1.2s"><g transform="translate(250 418)"><ellipse cx="0" cy="18" rx="46" ry="9" fill="#000" opacity=".1"/><rect x="-44" y="-6" width="88" height="24" rx="10" fill="#d9b57c"/><path d="M-44 0 H44 M-44 8 H44" stroke="#b8925a" stroke-width="2"/>
+        ${[[-22, -12], [0, -16], [22, -12]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path d="M-13 6 Q-14 -10 0 -12 Q14 -10 13 6Z" fill="#fff6ea"/><path d="M-5 -10 q5 -5 10 0" stroke="#e8d6bd" stroke-width="1.5" fill="none"/><circle cx="-4" cy="-1" r="1.3" fill="#3a2a24"/><circle cx="4" cy="-1" r="1.3" fill="#3a2a24"/><path d="M-2 2 q2 2 4 0" stroke="#3a2a24" stroke-width="1" fill="none"/><circle cx="-7" cy="2" r="2" fill="#f6a2b5" opacity=".6"/><circle cx="7" cy="2" r="2" fill="#f6a2b5" opacity=".6"/></g>`).join('')}
+        ${[-20, 0, 20].map((x, i) => `<path class="float" style="--d:${i * .5}s;--t:2.2s" d="M${x} -34 q6 -8 0 -16 q-6 -8 0 -16" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>`).join('')}</g></g>`,
+    html: `<div class="chip">🥟 Awal 2025 · Chat duluan</div>
+      ${phoneHTML('left:5%;top:15%;width:52%;--r:-3deg;--d:.2s', 'Anonymous', `
+        <div class="bb in" data-at="1">Boleh minta link dimsumnya ga?</div>
+        <div class="bb me" data-at="2" style="--d:.3s">🔗 link dimsum</div>
+        <div class="bb me" data-at="2" style="--d:1.6s">eh udah aku beliin aja 😄</div>
+        ${['HAH serius??', '🥹 makasihh', 'eh tau ga tadi…', 'terus terus?', 'wkwkwk', '😂😂'].map((t, i) => `<div class="bb ${i % 2 ? 'me' : 'in'}" data-at="3" style="--d:${(.2 + i * .5).toFixed(1)}s">${t}</div>`).join('')}`)}
+      <div class="when" data-at="0" style="position:absolute;left:8%;right:8%;top:11%"><div class="appear" style="background:rgba(255,255,255,.96);border-radius:14px;padding:.45rem .7rem;font:500 10.5px Poppins,sans-serif;color:#3a2a24;box-shadow:0 6px 18px rgba(0,0,0,.15);animation:apr .4s forwards,van .5s 2.6s forwards">💬 <b>Anonymous</b>: Boleh minta link…</div></div>`
+  }),
+  rs: () => ({
+    svg: BG('#f6d8c6', '#fbefe6', 'g23') +
+      `<g transform="translate(180 470)"><rect x="-150" y="-230" width="300" height="230" fill="#f4f7f9" stroke="#dbe2e8" stroke-width="2"/><rect x="-150" y="-238" width="300" height="12" fill="#cfd9e2"/>
+        ${[-120, -70, 40, 90].map(x => [-200, -140, -80].map(y => `<rect x="${x}" y="${y}" width="30" height="34" rx="3" fill="#bcd3e4"/>`).join('')).join('')}
+        <rect x="-36" y="-200" width="72" height="72" rx="10" fill="#fff" stroke="#e05a5a" stroke-width="3"/><rect x="-8" y="-188" width="16" height="48" rx="3" fill="#e05a5a"/><rect x="-24" y="-172" width="48" height="16" rx="3" fill="#e05a5a"/>
+        <rect x="-70" y="-118" width="140" height="20" rx="4" fill="#e05a5a"/><text x="0" y="-103" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="13" fill="#fff">RUMAH SAKIT</text>
+        <rect x="-30" y="-80" width="60" height="80" fill="#9fc2d9"/><path d="M0 -80 V0" stroke="#fff" stroke-width="2"/></g>` + ground(470, '#cfc6bb', '#bdb3a6') +
+      `<g class="mve" style="--x0:-260px;--x1:0px;--t:2.8s;--d:0s"><g style="animation:van .6s 3.4s forwards">${moto(170, 540, 1.05, { cls: '' })}</g></g>
+       <g class="appear" style="--d:3.6s">${moto(80, 548, .8)}${razan(200, 555, 1.1, '')}${dara(258, 555, 1.1, '')}</g>
+       <g class="when" data-at="1">${floatHearts(230, 380, 4)}</g>`,
+    html: `<div class="chip">🏥 Nganterin ke rumah sakit</div>`
+  }),
+  sadar: () => {
+    const P = PIC.early || [];
+    return {
+      svg: BG('#141a36', '#3b2f5c', 'g24') + stars(70, -300, 470, 13) + ground(500, '#2a2340') +
+        `<g class="when grow" data-at="1" style="--d:.1s"><g transform="translate(180 380)"><g class="beat"><path d="M0 70 C-120 -10 -80 -120 0 -50 C80 -120 120 -10 0 70Z" fill="#ff6f91" opacity=".85"/></g></g></g>` +
+        razan(180, 520, 1.25, '') +
+        `<g class="appear" style="--d:.6s">${cloud(265, 210, 1.5, '#fff')}<g transform="translate(265 240) scale(.36)"><g>${dara(0, 0, 1, '')}</g></g></g>
+         <g class="when" data-at="1">${floatHearts(180, 400, 8)}</g>`,
+      html: `<div class="chip dark">💭 Setelah sempet kehilangan…</div>${P[0] ? pol(P[0], '', 6, 17, 34, -6, 2) : ''}`
+    };
+  },
+  nona: () => ({
+    svg: BG('#ffe3ea', '#fff4ec', 'g25') + Array.from({ length: 9 }, (_, i) => `<g class="float" style="--d:${(i * .6).toFixed(1)}s;--t:3.4s">${heart(20 + i * 40, 620, .8, '#f6b3c3')}</g>`).join('') + ground(560, '#f6d8d6') +
+      razan(285, 580, 1.0, 'phoneR', { phone: 1 }) + `<g class="when" data-at="2">${floatHearts(285, 420, 5)}</g>`,
+    html: `<div class="chip">📱 Nama kontak kamu</div>
+      <div style="position:absolute;left:9%;right:9%;top:16%;background:#fff;border-radius:22px;padding:18px 12px 20px;text-align:center;box-shadow:0 12px 30px rgba(193,122,111,.22);opacity:0;animation:fIn .8s .3s forwards">
+        <div style="width:74px;height:74px;border-radius:50%;margin:0 auto 10px;background:linear-gradient(135deg,#f6c1cf,#e58fa6);display:flex;align-items:center;justify-content:center;font-size:34px">👤</div>
+        <div style="position:relative;height:44px">
+          <div class="hideat" data-at="1" style="position:absolute;left:0;right:0;font:700 26px Poppins,sans-serif;color:#3a2a24">Anonymous</div>
+          <div class="when" data-at="1" style="position:absolute;left:0;right:0;font:700 26px Poppins,sans-serif;color:#3a2a24;animation:nony 2.6s .5s both">Nony</div>
+          <div class="when" data-at="1" style="position:absolute;left:0;right:0;font:700 30px Poppins,sans-serif;color:#c2557a;animation:fIn .9s 3s both">Nona 🌸</div>
+        </div>
+        <div style="font:400 11px Poppins,sans-serif;color:#9a8070">📞 Kontak · ⭐ Favorit</div>
+      </div>
+      <div class="big when" data-at="2" style="top:52%;font-size:clamp(24px,8vw,34px);color:#c2557a;text-shadow:none;animation:fIn 1s forwards">panggilan sayang pertama 💗</div>`
+  }),
+  motor: () => {
+    const P = PIC.early || [];
+    const blds = Array.from({ length: 2 }, (_, k) => [0, 70, 130, 210, 290].map((x, i) => `<rect x="${x + k * 360}" y="${300 - (i * 37) % 90}" width="${50 + (i * 13) % 20}" height="${130 + (i * 37) % 90}" fill="${['#e7c3b0', '#d9b2a6', '#efd2c0'][i % 3]}"/>`).join('')).join('');
+    const trees = Array.from({ length: 2 }, (_, k) => [40, 160, 260].map(x => `<g transform="translate(${x + k * 360} 440)"><rect x="-3" y="-10" width="6" height="30" fill="#7b5a3c"/><circle cx="0" cy="-22" r="20" fill="#6fb26a"/></g>`).join('')).join('');
+    return {
+      svg: BG('#ffcfa6', '#ffeedd', 'g26') + `<circle cx="80" cy="120" r="30" fill="#fff1c6"/>` +
+        `<g class="scrollx" style="--t:9s">${blds}</g><g class="scrollx" style="--t:4.5s">${trees}</g>` +
+        `<rect x="-400" y="460" width="1160" height="900" fill="#8f8f97"/><g class="scrollx" style="--t:1.2s">${Array.from({ length: 12 }, (_, i) => `<rect x="${-40 + i * 60}" y="530" width="30" height="5" fill="#fff"/>`).join('')}</g>` +
+        `<g class="bump">${moto(180, 505, 1.15, { cls: 'laugh' })}</g>` +
+        [[60, 330, '-8'], [250, 300, '6'], [150, 260, '-3'], [300, 380, '9']].map(([x, y, r], i) => `<g transform="translate(${x} ${y}) rotate(${r})"><text class="float" style="--d:${(i * .7).toFixed(1)}s;--t:2.4s" font-family="Poppins" font-weight="800" font-size="${18 + i * 3}" fill="${['#ff7a59', '#e58fa6', '#4a7fc1', '#ffb347'][i]}">${['HAHAHA', 'wkwk', '😂', 'HAHA'][i]}</text></g>`).join(''),
+      html: `<div class="chip">🛵 Ketawa random di motor</div>${P[1] ? pol(P[1], '', 60, 15, 32, 6, 2.5) : ''}`
+    };
+  },
+  jadian: () => ({
+    svg: BG('#3b2a5c', '#f2a07b', 'g27') + stars(25, -300, 150, 17) +
+      `<rect x="-400" y="150" width="480" height="400" fill="#c7a088"/><rect x="280" y="170" width="480" height="380" fill="#b98f7b"/>
+       ${[[10, 220], [10, 320], [300, 240], [300, 330]].map(([x, y]) => `<rect x="${x}" y="${y}" width="44" height="50" rx="4" fill="#ffe0a6" opacity=".9"/>`).join('')}
+       <rect x="-400" y="430" width="480" height="20" fill="#a37f6b"/><rect x="280" y="430" width="480" height="20" fill="#9a7666"/>
+       <g transform="translate(70 340)"><rect x="-3" y="0" width="6" height="200" fill="#4a4a52"/><path d="M0 0 Q20 -10 32 0" stroke="#4a4a52" stroke-width="5" fill="none"/><path d="M24 0 h18 l-4 10 h-10Z" fill="#4a4a52"/><circle cx="33" cy="14" r="60" fill="#ffd27a" opacity=".16"/><circle cx="33" cy="12" r="6" fill="#fff3c4"/></g>` +
+      ground(540, '#8d7e78', '#7c6c66') + cat(318, 430, .7) +
+      razan(130, 580, 1.2, '') + dara(238, 580, 1.2, '') +
+      `<g class="when" data-at="3"><g class="grow">${cloud(250, 330, 1.4, '#b9b9c2')}</g><text x="250" y="338" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="13" fill="#fff" class="appear" style="--d:.6s">abu-abu</text></g>
+       <g class="when" data-at="3"><text x="98" y="380" font-size="26" font-weight="700" fill="#fff" font-family="Poppins" class="tw" style="--t:1s;--d:1s">?</text></g>`,
+    html: `<div class="chip dark">📍 10 Mei 2025 · Gang deket rumah Dara</div>
+      <div class="big fade" style="top:12%;font-size:clamp(36px,12vw,50px);color:#fff4dc;animation-delay:.5s">10 · 05 · 2025</div>
+      <div class="say" data-at="1" style="left:5%;top:23%;white-space:normal;max-width:76%;font:500 12.5px/1.45 Poppins,sans-serif;border-bottom-left-radius:4px">"Ente mau ga kalau jadi istri ane? Karena menurut ane, ente tuh keibuan banget." 🥺</div>
+      <div class="chip when" data-at="2" style="top:42%;animation:none;opacity:1;transform:translateX(-50%)">🕌 ane–ente: kebawa dari rohis</div>
+      <div class="say" data-at="3" style="right:4%;top:35.5%;background:#e58fa6;color:#fff;font-size:15px">Masih abu-abu.</div>`
+  }),
+  risih: () => ({
+    svg: BG('#eef3fb', '#fdeef1', 'g28') + ground(560, '#e6dcd6', '#d9ccc4') +
+      razan(92, 590, 1.05, 'phoneR', { phone: 1 }) + dara(272, 590, 1.05, '') + cat(185, 588, .85, 'cover') +
+      `<g transform="translate(272 360)"><g class="hideat" data-at="3">${cloud(0, 0, 1.25, '#b9b9c2')}<text x="0" y="8" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="12" fill="#fff">abu-abu</text></g>
+       <g class="when" data-at="3"><g class="grow">${cloud(0, 0, 1.25, '#f48aa8')}</g><text x="0" y="8" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="15" fill="#fff" class="appear" style="--d:.7s">iya 🤭</text></g></g>
+       <g class="when" data-at="3">${floatHearts(272, 400, 6, .6)}</g>`,
+    html: `<div class="chip">😅 Abis "masih abu-abu"…</div>
+      ${phoneHTML('left:4%;top:13%;width:50%;--r:-3deg;--d:.1s', 'Anonymous', `
+        ${['halo', 'udah makan?', 'lagi apa', 'eh', 'ente', '🙂', 'p', 'pp'].map((t, i) => `<div class="bb me" data-at="0" style="--d:${(.3 + i * .32).toFixed(2)}s">${t}</div>`).join('')}
+        <div class="bb in" data-at="1">Kayaknya ane risih deh 😶</div>`)}
+      <div class="when" data-at="0" style="position:absolute;left:57%;top:22%"><span class="appear" style="--d:2.4s;display:inline-block;background:#4a7fc1;color:#fff;font:700 11px Poppins,sans-serif;padding:.3rem .65rem;border-radius:50px">📤 37 pesan</span></div>`
+  }),
+  ending: () => ({
+    svg: BG('#2a1838', '#7a3f55', 'g29') + stars(50, -300, 300, 23) + ground(540, '#3a2340') +
+      `<g transform="translate(180 470)" class="appear" style="--d:.4s"><rect x="-70" y="-50" width="140" height="56" rx="10" fill="#fbe3e8"/><rect x="-70" y="-50" width="140" height="14" rx="7" fill="#f48aa8"/><rect x="-52" y="-92" width="104" height="44" rx="9" fill="#fff4ea"/><rect x="-52" y="-92" width="104" height="11" rx="5" fill="#f6b3c3"/>
+        <text x="0" y="-104" text-anchor="middle" font-family="Poppins" font-weight="800" font-size="28" fill="#ffd27a">100</text>${[-30, 30].map(x => `<rect x="${x - 2}" y="-118" width="4" height="22" fill="#9ad0f5"/><path class="tw" style="--t:.6s" d="M${x} -126 q4 6 0 9 q-4 -3 0 -9z" fill="#ffb347"/>`).join('')}</g>
+       ${[[70, 300, '#f48aa8'], [292, 280, '#7eb3f5'], [250, 330, '#ffd27a']].map(([x, y, c], i) => `<g class="ch" style="animation-delay:${i * .4}s"><ellipse cx="${x}" cy="${y}" rx="18" ry="22" fill="${c}"/><path d="M${x} ${y + 22} q-6 30 4 60" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6"/></g>`).join('')}` +
+      cat(270, 540, .8),
+    html: `<div class="big fade" style="top:12%;font:600 11px Poppins,sans-serif;letter-spacing:.3em;color:#e7c98f;animation-delay:.2s">EPISODE 3 · TAHUN PERTAMA</div>
+      <div class="big fade" style="top:17%;font-size:clamp(34px,11vw,46px);color:#fff4dc;animation-delay:.8s">18 · 08 · 2025</div>
+      <div class="big fade" style="top:27%;font:500 12.5px Poppins,sans-serif;color:#ffd0dc;animation-delay:1.6s">hari ke-100 = ulang tahun kamu 🎂</div>
+      <div class="big when" data-at="1" style="top:33%;font:600 13px Poppins,sans-serif;color:#ffd0dc;letter-spacing:.2em;animation:fIn 1s forwards">BERSAMBUNG…</div>`
+  })
+};
+
 // ═══ PEMUTAR ═══
 const audio = new Audio(); audio.preload = 'auto';
 let ready = false, cur = null, curLine = -1, raf = 0, playing = false, fake = null, ctlT = 0, lastShown = '';
@@ -562,7 +742,7 @@ const tNow = () => fake ? fake.t + (playing ? (performance.now() - fake.at) / 10
 function sceneAt(t) { const S = CUES.scenes; for (let i = S.length - 1; i >= 0; i--) if (t >= S[i].a) return S[i]; return S[0]; }
 function mount(sc, t) {
   const st = $('stage'); [...st.children].forEach(c => { c.classList.add('out'); setTimeout(() => c.remove(), 650); });
-  const d = SCN[sc.id](), el = document.createElement('div'); el.className = 'scn'; el.dataset.id = sc.id;
+  const d = EPS[EP].scn[sc.id](), el = document.createElement('div'); el.className = 'scn'; el.dataset.id = sc.id;
   el.innerHTML = SVG(d.svg) + `<div class="safe">${d.html || ''}</div>`;
   st.appendChild(el); cur = sc.id; curLine = -1;
   if (sc.id === 'now') countUp(el);
@@ -580,7 +760,7 @@ function tick() {
   const L = CUES.lines, el = $('stage').lastElementChild;
   // baris dalam adegan → nyalain elemen data-at
   const inS = L.filter(l => l.s === sc.id); let k = -1; inS.forEach((l, i) => { if (t >= l.a - .05) k = i; });
-  if (k !== curLine && el) { curLine = k; el.querySelectorAll('[data-at]').forEach(n => { if (+n.dataset.at <= k) n.classList.add('go'); }); if (sc.id === 'tz' && k >= 3) el.querySelectorAll('.rz').forEach(r => r.classList.add('shock')); if (sc.id === 'tz' && k >= 4) el.querySelectorAll('.rz').forEach(r => r.classList.remove('shock')); }
+  if (k !== curLine && el) { curLine = k; el.querySelectorAll('[data-at]').forEach(n => { if (+n.dataset.at <= k) n.classList.add('go'); }); const hk = (EPS[EP].hooks || {})[sc.id]; if (hk) hk(el, k); }
   // subtitle
   let s = null; for (const l of L) if (t >= l.a - .05 && t <= l.b + .5) s = l;
   const key = s ? s.a + '' : '';
@@ -597,6 +777,7 @@ async function wake(on) { try { if (on && navigator.wakeLock && !wl) { wl = awai
 function setPlaying(p) {
   playing = p; $('frame').classList.toggle('paused-ui', !p); $('stage').classList.toggle('paused', !p); $('b-play').textContent = p ? '⏸' : '▶';
   document.body.classList.add('playing'); wake(p);
+  if (p && EPS[EP + 1] && !BLOB[EP + 1]) setTimeout(() => preload(EP + 1), 15000);
   if (p) { showCtl(false); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); } else showCtl(true);
 }
 function play() {
@@ -612,10 +793,11 @@ function seek(t) {
 function showCtl(stay) { $('frame').classList.add('ctl-on'); $('ctl').classList.add('show'); $('xbtn').classList.add('show'); clearTimeout(ctlT); if (!stay) ctlT = setTimeout(() => { if (playing) { $('frame').classList.remove('ctl-on'); $('ctl').classList.remove('show'); $('xbtn').classList.remove('show'); } }, 2600); }
 function finish() {
   playing = false; cancelAnimationFrame(raf); wake(false); document.body.classList.remove('playing');
-  try { const n = lsGet('film-kita-1', 0) + 1; lsSet('film-kita-1', n); } catch (e) {}
+  try { const n = lsGet('film-kita-' + EP, 0) + 1; lsSet('film-kita-' + EP, n); } catch (e) {}
+  $('endlbl').textContent = `Episode ${EP} · selesai`; const nx = EPS[EP + 1]; $('e-next').classList.toggle('hidden', !nx); if (nx) $('e-next').textContent = `▶ Lanjut Episode ${EP + 1}`; $('e-wa').classList.toggle('pri', !nx);
   const other = otherOf(ME);
   $('e-wa').textContent = `💌 Bilang ke ${other}`;
-  $('e-wa').href = waLink(other, ME === 'Dara' ? 'Aku udah nonton Film Kita 🎬🥹🤍' : 'Film Kita episode 1 udah jadi, tonton ya 🎬🤍 my-razara.github.io/dara/film-kita.html');
+  $('e-wa').href = waLink(other, ME === 'Dara' ? `Aku udah nonton Film Kita episode ${EP} 🎬🥹🤍` : `Film Kita episode ${EP} udah jadi, tonton ya 🎬🤍 my-razara.github.io/dara/film-kita.html?ep=${EP}`);
   $('endscr').classList.remove('hidden'); $('ctl').classList.remove('show'); $('xbtn').classList.remove('show'); $('subt').textContent = '';
   try { document.fullscreenElement && document.exitFullscreen(); } catch (e) {}
 }
@@ -623,9 +805,10 @@ audio.addEventListener('ended', finish);
 $('play').onclick = () => {
   $('poster').classList.add('hidden'); $('endscr').classList.add('hidden');
   try { const f = $('frame'); f.requestFullscreen && f.requestFullscreen({ navigationUI: 'hide' }).catch(() => {}); } catch (e) {}
-  seek(0); play();
+  if (!ready) return; seek(0); play();
 };
 $('e-again').onclick = () => { $('endscr').classList.add('hidden'); seek(0); play(); };
+$('e-next').onclick = async () => { const n = EP + 1, had = !!BLOB[n]; $('endscr').classList.add('hidden'); if (!had) $('poster').classList.remove('hidden'); await selectEp(n); if (had) { seek(0); play(); } };
 $('tap').onclick = () => { if (!$('poster').classList.contains('hidden') || !$('endscr').classList.contains('hidden')) return; if (playing) pause(); else play(); };
 $('b-play').onclick = e => { e.stopPropagation(); playing ? pause() : play(); };
 const scIdx = () => CUES.scenes.findIndex(s => s.id === sceneAt(tNow()).id);
@@ -635,25 +818,46 @@ $('b-cc').onclick = () => { const off = !$('frame').classList.toggle('nocc'); $(
 if (lsGet('film-cc', true) === false) { $('frame').classList.add('nocc'); $('b-cc').classList.add('off'); }
 $('xbtn').onclick = () => { pause(); try { document.fullscreenElement && document.exitFullscreen(); } catch (e) {} location.href = 'timeline-kita.html'; };
 $('bar').onpointerdown = e => { const r = $('bar').getBoundingClientRect(); seek((e.clientX - r.left) / r.width * dur()); showCtl(!playing); };
-$('mks').innerHTML = CUES.scenes.slice(1).map(s => `<span class="mk" style="left:${s.a / dur() * 100}%"></span>`).join('');
 document.addEventListener('visibilitychange', () => { if (document.hidden && playing) pause(); });
-$('durtxt').textContent = mmss(dur());
 $('pstars').innerHTML = Array.from({ length: 40 }, (_, i) => `<circle class="tw" style="--d:${(i * .23 % 3).toFixed(2)}s" cx="${(i * 37) % 100}" cy="${(i * 53) % 100}" r=".35" fill="#fff"/>`).join('');
+// ═══ EPISODE ═══
+const EPS = {
+  1: { t: 'Awal Cerita', s: 'MPLS → jadian → kencan', cues: C1, scn: SCN1, audio: 'film-kita-1.mp3', hooks: { tz: (el, k) => el.querySelectorAll('.rz').forEach(r => r.classList.toggle('shock', k === 3)) } },
+  2: { t: 'Sebelum Jadi Kita', s: 'dimsum → "masih abu-abu"', cues: C2, scn: SCN2, audio: 'film-kita-2.mp3', hooks: { risih: (el, k) => el.querySelectorAll('.rz').forEach(r => r.classList.toggle('shock', k === 1)) } }
+};
+let EP = 1; const BLOB = {};
+function paintEps() {
+  $('eps').innerHTML = Object.keys(EPS).map(Number).map(n => { const e = EPS[n], w = lsGet('film-kita-' + n, 0); return `<button data-ep="${n}" class="${n === EP ? 'on' : ''}"><span class="n">EP ${n}</span><span class="m"><b>${e.t}</b><small>${mmss(e.cues.dur)} · ${e.s}</small></span>${w ? '<span class="tg ok">✓</span>' : '<span class="tg">BARU</span>'}</button>`; }).join('');
+  $('eptxt').textContent = 'Episode ' + EP; $('durtxt').textContent = mmss(dur());
+}
+async function selectEp(n, url) {
+  if (!EPS[n]) return; EP = n; CUES = EPS[n].cues; cur = null; fake = null; ready = false; $('play').disabled = true;
+  try { audio.pause(); } catch (e) {}
+  $('mks').innerHTML = CUES.scenes.slice(1).map(s => `<span class="mk" style="left:${s.a / dur() * 100}%"></span>`).join('');
+  paintEps(); if (url) try { history.replaceState(null, '', 'film-kita.html?ep=' + n); } catch (e) {}
+  await loadAudio(n);
+}
+async function preload(n) { if (BLOB[n] || !EPS[n]) return; try { const r = await fetch(EPS[n].audio); if (r.ok) BLOB[n] = URL.createObjectURL(await r.blob()); } catch (e) {} }
+$('eps').onclick = e => { const b = e.target.closest('[data-ep]'); if (b && +b.dataset.ep !== EP) selectEp(+b.dataset.ep, 1); };
 // ambil audio sekali (biar bisa ditonton offline juga)
-async function loadAudio() {
-  const note = $('pnote');
-  try {
-    const r = await fetch(AUDIO); if (!r.ok) throw 0;
+async function loadAudio(n) {
+  const note = $('pnote'), src = EPS[n].audio;
+  if (BLOB[n]) { audio.src = BLOB[n]; }
+  else try {
+    note.textContent = 'Nyiapin film… ⏳';
+    const r = await fetch(src); if (!r.ok) throw 0;
     const tot = +r.headers.get('content-length') || 0, rd = r.body && r.body.getReader ? r.body.getReader() : null; let blob;
-    if (rd && tot) { const parts = []; let got = 0; for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; note.textContent = `Nyiapin film… ${Math.round(got / tot * 100)}%`; } blob = new Blob(parts, { type: 'audio/mpeg' }); }
+    if (rd && tot) { const parts = []; let got = 0; for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; if (EP === n) note.textContent = `Nyiapin film… ${Math.round(got / tot * 100)}%`; } blob = new Blob(parts, { type: 'audio/mpeg' }); }
     else blob = await r.blob();
-    audio.src = URL.createObjectURL(blob); ready = true;
-  } catch (e) { audio.src = AUDIO; ready = true; }
-  $('play').disabled = false;
+    BLOB[n] = URL.createObjectURL(blob); if (EP === n) audio.src = BLOB[n];
+  } catch (e) { if (EP === n) audio.src = src; }
+  if (EP !== n) return;
+  ready = true; $('play').disabled = false;
   note.innerHTML = (MEM && MEM.albums && MEM.albums.length ? '' : 'Biar foto asli kita ikut muncul, buka <a href="memories.html">📸 Kenangan Kita</a> sekali dulu ya.<br>') + '🔊 Nyalain suara HP · tap layar buat jeda';
 }
 document.body.classList.add('playing');
-prepPics(); loadAudio();
+prepPics();
+(() => { const q = +(new URLSearchParams(location.search).get('ep') || 0), ks = Object.keys(EPS).map(Number); const unw = ks.find(n => !lsGet('film-kita-' + n, 0)); selectEp(EPS[q] ? q : (unw || ks[ks.length - 1])); })();
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
