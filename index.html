@@ -3597,6 +3597,8 @@ setTimeout(() => {
   .pc.mini .pc-m{margin:0}
   .pc-new{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:inherit}
   .pc-new .eggs{font-size:30px;letter-spacing:-.15em;flex:0 0 auto}
+  .pc-av.v3{width:78px;height:90px}.pc-av.v3 .pe,.pc-av.v3 .pa{display:none}.pc-av .m3{position:absolute;inset:0;pointer-events:none}
+  .pc.mini .pc-av.v3{width:46px;height:54px}
   .pc-hearts{position:absolute;pointer-events:none;font-size:15px;animation:pcHeart 1s ease-out forwards}
   @keyframes pcHeart{to{transform:translateY(-38px) scale(1.3);opacity:0}}
 </style>
@@ -3629,6 +3631,24 @@ setTimeout(() => {
       if (r.ok) { try { window.SFX && SFX.play('pop'); } catch (e) {} render(true); const av = document.getElementById('pc-av'); if (av) for (let i = 0; i < 4; i++) { const h = document.createElement('span'); h.className = 'pc-hearts'; h.textContent = ['💕', '✨', '💗', '⭐'][i]; h.style.left = (10 + i * 15) + 'px'; h.style.top = '10px'; h.style.animationDelay = i * .08 + 's'; av.appendChild(h); setTimeout(() => h.remove(), 1300); } }
     });
   }
+  // ── 🐾 versi 3D kecil (dimuat belakangan, kalau HP-nya kuat) ──
+  let M3 = null, mHost = null, m3Try = false;
+  function mini3D() {
+    const st = Pet.state(), av = document.getElementById('pc-av'); if (!st || !av) return;
+    if (!M3) { if (!m3Try) { m3Try = true; setTimeout(load3D, 1200); } return; }
+    av.classList.add('v3'); av.appendChild(mHost);
+    const S = Pet.stage(Pet.lvl(st.xp)), v = Pet.now(st);
+    try { M3.set({ a: st.a, col: st.col && st.col !== 'asli' ? st.col : null, fit: st.fit || {}, scale: S.sc / 1.1 }); M3.mood(Pet.mood(st).f); M3.dirt(Math.max(0, Math.min(1, (60 - v.b) / 55))); } catch (e) {}
+  }
+  function load3D() {
+    let ok = false; try { const c = document.createElement('canvas'); ok = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+    if (!ok) return;
+    const go = () => { try { if (!window.Pet3D || !Pet3D.supported()) return; mHost = document.createElement('div'); mHost.className = 'm3'; const av = document.getElementById('pc-av'); if (!av) return; av.classList.add('v3'); av.appendChild(mHost); M3 = Pet3D.create(mHost, { mini: true }); mini3D();
+      if (window.IntersectionObserver) new IntersectionObserver(es => es.forEach(e => M3 && M3.pause(!e.isIntersecting))).observe(slot); } catch (e) { M3 = null; } };
+    if (window.Pet3D) return go();
+    const sc = document.createElement('script'); sc.src = 'pet3d.js'; sc.onload = go; document.head.appendChild(sc);
+  }
+  const render0 = render; render = function (hop) { render0(hop); mini3D(); if (hop && M3) try { M3.react('jump'); } catch (e) {} };
   render();
   try { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && ev.apps.includes('pet')) render(); }); } catch (e) {}
   setInterval(() => { if (!document.hidden) render(); }, 60000);
