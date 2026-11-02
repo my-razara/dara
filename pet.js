@@ -19,6 +19,25 @@
     { k: 'kacamata', e: '🕶️', n: 'Kacamata', lv: 5 }, { k: 'syal', e: '🧣', n: 'Syal', lv: 6 }, { k: 'mahkota', e: '👑', n: 'Mahkota', lv: 8 }, { k: 'toga', e: '🎓', n: 'Toga', lv: 10 },
     { k: 'pelangi', e: '🌈', n: 'Pelangi', lv: 1, st: 7 }, { k: 'sayap', e: '🪽', n: 'Sayap', lv: 1, st: 14 }, { k: 'bintang', e: '🌟', n: 'Bintang', lv: 1, st: 30 }
   ];
+  // ── 👗 Lemari 3D: 5 bagian, dibeli pakai koin (yang lama kebuka lewat level/streak tetep gratis) ──
+  const SLOTS = [['top', '🎩', 'Kepala'], ['eye', '👓', 'Mata'], ['body', '👕', 'Baju'], ['neck', '🧣', 'Leher'], ['back', '🪽', 'Punggung']];
+  const ITEMS = [
+    { k: 'pita', s: 'top', e: '🎀', n: 'Pita', lv: 2 }, { k: 'bunga', s: 'top', e: '🌸', n: 'Bunga', lv: 3 }, { k: 'topi', s: 'top', e: '🎩', n: 'Topi Tinggi', lv: 4 }, { k: 'mahkota', s: 'top', e: '👑', n: 'Mahkota', lv: 8 },
+    { k: 'toga', s: 'top', e: '🎓', n: 'Toga', lv: 10 }, { k: 'pelangi', s: 'top', e: '🌈', n: 'Pelangi', st: 7 }, { k: 'bintang', s: 'top', e: '🌟', n: 'Bintang', st: 30 },
+    { k: 'kupluk', s: 'top', e: '🧶', n: 'Kupluk', p: 40 }, { k: 'cap', s: 'top', e: '🧢', n: 'Topi Biru', p: 45 }, { k: 'ultah', s: 'top', e: '🥳', n: 'Topi Ultah', p: 30 }, { k: 'chef', s: 'top', e: '👨‍🍳', n: 'Topi Koki', p: 60 },
+    { k: 'pantai', s: 'top', e: '👒', n: 'Topi Pantai', p: 55 }, { k: 'penyihir', s: 'top', e: '🧙', n: 'Topi Penyihir', p: 80 }, { k: 'florcrown', s: 'top', e: '💐', n: 'Mahkota Bunga', p: 70 }, { k: 'tiara', s: 'top', e: '💎', n: 'Tiara', p: 90 }, { k: 'headphone', s: 'top', e: '🎧', n: 'Headphone', p: 75 },
+    { k: 'kacamata', s: 'eye', e: '🕶️', n: 'Kacamata Hitam', lv: 5 }, { k: 'bulat', s: 'eye', e: '👓', n: 'Kacamata Bulat', p: 35 }, { k: 'hatiglass', s: 'eye', e: '😍', n: 'Kacamata Hati', p: 50 }, { k: 'bintangglass', s: 'eye', e: '🤩', n: 'Kacamata Bintang', p: 50 },
+    { k: 'monokel', s: 'eye', e: '🧐', n: 'Monokel', p: 60 }, { k: 'masker', s: 'eye', e: '😴', n: 'Masker Tidur', p: 40 },
+    { k: 'kaos', s: 'body', e: '👕', n: 'Kaos Merah', p: 30 }, { k: 'belang', s: 'body', e: '🦓', n: 'Kaos Belang', p: 40 }, { k: 'polkadot', s: 'body', e: '🩷', n: 'Polkadot', p: 40 }, { k: 'hoodie', s: 'body', e: '🧥', n: 'Hoodie', p: 70 },
+    { k: 'sweater', s: 'body', e: '🍂', n: 'Sweater', p: 60 }, { k: 'jas', s: 'body', e: '🤵', n: 'Jas', p: 90 }, { k: 'batik', s: 'body', e: '🟫', n: 'Batik', p: 80 }, { k: 'jersey', s: 'body', e: '⚽', n: 'Jersey Bola', p: 65 },
+    { k: 'piyama', s: 'body', e: '🌙', n: 'Piyama', p: 50 }, { k: 'gaun', s: 'body', e: '👗', n: 'Gaun', p: 75 }, { k: 'overall', s: 'body', e: '👖', n: 'Overall Jeans', p: 60 }, { k: 'superhero', s: 'body', e: '🦸', n: 'Superhero', p: 85 },
+    { k: 'syal', s: 'neck', e: '🧣', n: 'Syal', lv: 6 }, { k: 'dasi', s: 'neck', e: '👔', n: 'Dasi', p: 45 }, { k: 'dasikupu', s: 'neck', e: '🎗️', n: 'Dasi Kupu', p: 40 }, { k: 'lonceng', s: 'neck', e: '🔔', n: 'Kalung Lonceng', p: 35 },
+    { k: 'mutiara', s: 'neck', e: '📿', n: 'Kalung Mutiara', p: 70 }, { k: 'medali', s: 'neck', e: '🏅', n: 'Medali', p: 60 },
+    { k: 'sayap', s: 'back', e: '🪽', n: 'Sayap Malaikat', st: 14 }, { k: 'kupu', s: 'back', e: '🦋', n: 'Sayap Kupu', p: 80 }, { k: 'ransel', s: 'back', e: '🎒', n: 'Ransel', p: 55 }, { k: 'jubah', s: 'back', e: '🦹', n: 'Jubah', p: 70 }, { k: 'balon', s: 'back', e: '🎈', n: 'Balon', p: 45 }
+  ];
+  const FUR = [['asli', 'Asli', 0], ['putih', 'Putih', 40], ['abu', 'Abu', 40], ['cokelat', 'Cokelat', 40], ['hitam', 'Hitam', 40], ['pink', 'Pink', 50], ['biru', 'Biru', 50], ['ungu', 'Ungu', 50], ['mint', 'Mint', 50], ['kuning', 'Kuning', 50]];
+  const COIN0 = 100;   // modal awal koin buat berdua
+  const COIN = { makan: 3, elus: 2, mandi: 4, main: 2, tidur: 2 };
   const STATS = [['k', '🍗', 'Kenyang'], ['s', '💗', 'Senang'], ['b', '🛁', 'Bersih'], ['e', '⚡', 'Energi']];
   const DECAY = { k: 7, s: 5, b: 3, e: 4 };          // turun per jam
   const ACTS = { makan: '🍗', elus: '🤲', mandi: '🛁', main: '🎾', tidur: '🌙' };
@@ -44,8 +63,11 @@
     const born = Math.min(...rows.map(r => r.born || Date.now()));
     const td = ymd(new Date()), dc = {}; rows.forEach(r => { if (r.dc && r.dc.d === td) Object.entries(r.dc.c || {}).forEach(([k, n]) => dc[k] = (dc[k] || 0) + n); });
     const wd = rows.some(r => r.wd === td);
-    return { a: cfg.a, n: cfg.n, acc: cfg.acc || '', v: base.v || { k: 80, s: 80, b: 80, e: 80 }, t: base.t || Date.now(), sleep: base.sleep || 0, by: base.w, days, log, xp, born, dc, wd };
+    const fit = cfg.fit || legacyFit(cfg.acc), col = cfg.col || 'asli';
+    const own = [...new Set(rows.flatMap(r => r.own || []))], coins = COIN0 + rows.reduce((s, r) => s + (r.ce || 0) - (r.sp || 0), 0);
+    return { a: cfg.a, n: cfg.n, acc: cfg.acc || '', fit, col, own, coins, v: base.v || { k: 80, s: 80, b: 80, e: 80 }, t: base.t || Date.now(), sleep: base.sleep || 0, by: base.w, days, log, xp, born, dc, wd };
   }
+  function legacyFit(acc) { const it = ITEMS.find(x => x.k === acc); return it ? { [it.s]: it.k } : {}; }
   // nilai sekarang setelah dikurangin waktu
   function now(st, at) {
     at = at || Date.now(); const v = Object.assign({}, st.v);
@@ -96,7 +118,7 @@
   function setup(o) {
     const w = me(), old = rowOf(w) || {}, st = state();
     const row = Object.assign({}, old, { cfg: Date.now() });
-    ['a', 'n', 'acc'].forEach(k => { if (o[k] != null) row[k] = o[k]; else if (st && st[k] != null && row[k] == null) row[k] = st[k]; });
+    ['a', 'n', 'acc', 'fit', 'col'].forEach(k => { if (o[k] != null) row[k] = o[k]; else if (st && st[k] != null) row[k] = st[k]; });
     if (!st) Object.assign(row, { v: { k: 80, s: 80, b: 90, e: 90 }, t: Date.now(), born: Date.now(), xp: 0, days: [], log: [] });
     else if (!old.t) Object.assign(row, { v: now(st), t: Date.now(), sleep: st.sleep || 0, born: st.born });
     save(w, row); return state();
@@ -137,12 +159,15 @@
     const dc0 = old.dc && old.dc.d === today ? old.dc : { d: today, c: {} }, dc = { d: today, c: Object.assign({}, dc0.c, { [name]: (dc0.c[name] || 0) + 1 }) };
     const W0 = wish(st), wishNow = W0 && !W0.done && W0.a === name && W0.p + 1 >= W0.n;
     if (wishNow) { gain += 25; msg += ` · 🎁 Keinginan ${nm} kepenuhin! +25 XP`; }
-    const row = Object.assign({}, old, { dc, wd: wishNow ? today : old.wd, v, t: Date.now(), sleep, xp: (old.xp || 0) + gain, days: [...new Set((old.days || []).concat(today))].slice(-40), log: (old.log || []).concat([[name, Date.now()]]).slice(-6) });
-    if (!old.a) { row.a = st.a; row.n = st.n; row.acc = st.acc; row.cfg = 1; row.born = st.born; }
+    let coin = COIN[name] || 0; if (name === 'main') coin += Math.min(10, Math.round((opt.score || 0) / 2)); if (wishNow) coin += 15;
+    const first = !(st.days || []).includes(today0()); if (first) coin += 5;
+    const upNow = lvl(st.xp + gain) > lvl(st.xp); if (upNow) coin += 25;
+    const row = Object.assign({}, old, { ce: (old.ce || 0) + coin, dc, wd: wishNow ? today : old.wd, v, t: Date.now(), sleep, xp: (old.xp || 0) + gain, days: [...new Set((old.days || []).concat(today))].slice(-40), log: (old.log || []).concat([[name, Date.now()]]).slice(-6) });
+    if (!old.a) { row.a = st.a; row.n = st.n; row.acc = st.acc; row.fit = st.fit; row.col = st.col; row.cfg = 1; row.born = st.born; }
     const before = lvl(st.xp); save(w, row);
     const after = lvl(st.xp + gain);
     try { const k = 'pet-tell', l = g(k, 0); if (window.Push && Date.now() - l > 4 * H) { localStorage.setItem(k, JSON.stringify(Date.now())); Push.notify({ title: `${A.e} ${w} barusan ${ACTN[name]} ${nm}`, body: wishNow ? `Keinginan ${nm} hari ini kepenuhin 🎁` : `Giliran kamu nengokin ${nm} yuk 🐾`, url: 'peliharaan.html', tag: 'pet' }); } } catch (e) {}
-    return { ok: true, msg, gain, up: after > before ? after : 0, wish: wishNow };
+    return { ok: true, msg, gain, coin, up: after > before ? after : 0, wish: wishNow };
   }
   // titip ke service worker buat notif "laper"
   function tellSW() {
@@ -156,10 +181,26 @@
   // bonus XP dari luar (misal hadiah Tantangan Mingguan)
   function bonus(xp, why) {
     const st = state(); if (!st) return false;
-    const w = me(), old = rowOf(w) || {}, row = Object.assign({}, old, { xp: (old.xp || 0) + (xp || 0), log: (old.log || []).concat([['hadiah', Date.now()]]).slice(-6) });
+    const w = me(), old = rowOf(w) || {}, row = Object.assign({}, old, { ce: (old.ce || 0) + Math.round((xp || 0) / 2), xp: (old.xp || 0) + (xp || 0), log: (old.log || []).concat([['hadiah', Date.now()]]).slice(-6) });
     if (!old.a) { row.a = st.a; row.n = st.n; row.acc = st.acc; row.cfg = 1; row.born = st.born; }
     save(w, row); return true;
   }
-  window.Pet = { bonus, APP, ANIMALS, FOODS, ACC, STATS, ACTS, ACTN, state, now, lvl, lvlXp, stage, animal, accOf, asleep, streak, mood, ago, setup, act, tellSW, me, wish, accLock };
+  // ── 🪙 koin & toko ──
+  const itemOf = k => ITEMS.find(x => x.k === k);
+  function owns(st, k) { const it = itemOf(k); if (!it) return false; if (it.p) return (st.own || []).includes(k); return !accLock(it, st); }
+  function ownsFur(st, c) { const f = FUR.find(x => x[0] === c); return !!f && (!f[2] || (st.own || []).includes('fur:' + c)); }
+  function buy(k) {
+    const st = state(); if (!st) return { ok: false, msg: 'Adopsi dulu yuk 🐾' };
+    const fur = k.startsWith('fur:'), it = fur ? null : itemOf(k), price = fur ? (FUR.find(x => 'fur:' + x[0] === k) || [])[2] : it && it.p;
+    if (!price) return { ok: false, msg: 'Item ini kebuka lewat level/streak 🔒' };
+    if ((st.own || []).includes(k)) return { ok: false, msg: 'Udah punya 😊' };
+    if (st.coins < price) return { ok: false, msg: `Koinnya kurang ${price - st.coins} 🪙 — rawat & ajak main dulu yuk` };
+    const w = me(), old = rowOf(w) || {}, row = Object.assign({}, old, { sp: (old.sp || 0) + price, own: [...new Set((old.own || []).concat(k))] });
+    if (!old.a) { row.a = st.a; row.n = st.n; row.acc = st.acc; row.fit = st.fit; row.col = st.col; row.cfg = 1; row.born = st.born; }
+    save(w, row); return { ok: true, msg: `🛍️ Kebeli! −${price} 🪙` };
+  }
+  function wear(slot, k) { const st = state(); if (!st || (k && !owns(st, k))) return false; const fit = Object.assign({}, st.fit); if (k) fit[slot] = k; else delete fit[slot]; setup({ fit }); }
+  function today0() { return ymd(new Date()); }
+  window.Pet = { bonus, APP, SLOTS, ITEMS, FUR, COIN0, itemOf, owns, ownsFur, buy, wear, ANIMALS, FOODS, ACC, STATS, ACTS, ACTN, state, now, lvl, lvlXp, stage, animal, accOf, asleep, streak, mood, ago, setup, act, tellSW, me, wish, accLock };
   setTimeout(tellSW, 1500);
 })();
