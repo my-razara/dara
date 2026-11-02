@@ -157,8 +157,16 @@
   .info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin-bottom:.8rem}
   .info div{background:var(--warm);border-radius:14px;padding:.5rem .2rem;text-align:center}
   .info b{display:block;font-size:1.05rem;color:var(--deep)}.info small{font-size:9.5px;color:var(--muted)}
+  .th{display:block;width:46px;height:46px;margin:0 auto .1rem;font-size:1.5rem;line-height:46px;text-align:center}
+  .th img{width:100%;height:100%;display:block;object-fit:contain}
+  .th.big{width:60px;height:60px;line-height:60px;font-size:1.9rem}
+  .ld3d{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);width:42%;aspect-ratio:3/4;border-radius:48% 48% 40% 40%;background:linear-gradient(110deg,rgba(255,255,255,.35) 30%,rgba(255,255,255,.75) 50%,rgba(255,255,255,.35) 70%);background-size:200% 100%;animation:shim 1.2s linear infinite;z-index:2}
+  .ld3d+small{position:absolute;left:0;right:0;bottom:6%;text-align:center;font-size:10.5px;color:var(--muted);z-index:2}
+  @keyframes shim{to{background-position:-200% 0}}
+  .no3d{position:absolute;left:8%;right:8%;top:38%;text-align:center;background:rgba(255,255,255,.88);border-radius:16px;padding:.7rem;font-size:11.5px;line-height:1.5;color:var(--deep);z-index:2}
+  .no3d small{display:block;color:var(--muted);font-size:9.5px;margin-top:.2rem;word-break:break-all}
   .setup h3{text-align:center;font-size:15px;margin:.4rem 0 .6rem}
-  .setup .grid .opt span{font-size:1.8rem}
+  .setup .grid .opt .nm2{font-size:11px}
   @media (max-width:340px){.stabs button{font-size:0}.stabs button span{font-size:1.15rem}.opt span{font-size:1.35rem}.acts button{font-size:11px}}
 
 </style>
@@ -218,7 +226,7 @@ const ROOMS = [['kamar', '🛏️', 'Kamar', 'e', 30], ['dapur', '🍳', 'Dapur'
 const FURC = { asli: null, putih: '#f4f1ee', abu: '#a6a9b0', cokelat: '#8b5e3c', pink: '#f6a8c0', biru: '#8fc4ef', ungu: '#b9a1e6', mint: '#9ed9bf', kuning: '#f7d46b', hitam: '#3b3a40' };
 let room = lsGet('pet-room', 'kamar'), panel = 'room', slotTab = 'top', preview = null, busy = false, built = false, setupSel = { a: 'kucing', n: '' };
 if (!ROOMS.some(r => r[0] === room)) room = 'kamar';
-let V = null, v3state = 'load';   // 'load' | 'ok' | 'off'
+let V = null, v3state = 'load', v3err = '';   // 'load' | 'ok' | 'off'
 const BDx = window.Berdua;
 function bdStatus() { const el = $('bd-st'); if (el && BDx) el.textContent = BDx.status(); }
 $('me-pill').textContent = `🙋 ${Pet.me()}`;
@@ -226,16 +234,16 @@ $('me-pill').textContent = `🙋 ${Pet.me()}`;
 // ── 3D: dimuat belakangan biar halaman cepet kebuka ──
 function load3D() {
   let ok = false; try { const c = document.createElement('canvas'); ok = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
-  if (!ok) { v3state = 'off'; paintStage(); return; }
+  if (!ok) { v3state = 'off'; v3err = 'WebGL mati / ga ada'; paintStage(); return; }
   const s = document.createElement('script'); s.src = 'pet3d.js';
-  s.onload = () => { if (window.Pet3D && Pet3D.supported()) { v3state = 'ok'; mount3D(); } else { v3state = 'off'; paintStage(); } };
-  s.onerror = () => { v3state = 'off'; paintStage(); };
+  s.onload = () => { if (window.Pet3D && Pet3D.supported()) { v3state = 'ok'; mount3D(); fillThumbs(); } else { v3state = 'off'; v3err = 'Pet3D ga kebaca'; paintStage(); } };
+  s.onerror = () => { v3state = 'off'; v3err = 'pet3d.js gagal diunduh (cek sinyal)'; paintStage(); };
   document.head.appendChild(s);
 }
 function mount3D() {
   const host = $('v3'); if (!host || v3state !== 'ok') return;
   if (V && host.querySelector('canvas')) return;
-  try { V = Pet3D.create(host, { onTap: tapPet, rubbing: () => !!rub }); } catch (e) { V = null; v3state = 'off'; }
+  try { V = Pet3D.create(host, { onTap: tapPet, rubbing: () => !!rub }); } catch (e) { V = null; v3state = 'off'; v3err = String(e && e.message || e).slice(0, 120); }
   paintStage();
 }
 function look(st) {
@@ -293,11 +301,15 @@ function paintStage(st) {
     $('pet2d').innerHTML = '';
     V.set({ a: st.a, col: lk.col === 'asli' ? null : lk.col, fit: lk.fit, scale: S.sc / 1.1 });
     V.mood(md.f); V.dirt(Math.max(0, Math.min(1, (60 - v.b) / 55)));
+  } else if (v3state === 'load') {
+    $('pet2d').innerHTML = ''; $('pet2d').style.display = 'none';
+    if (!$('room').querySelector('.ld3d')) $('room').insertAdjacentHTML('beforeend', `<div class="ld3d" id="ld3d"></div><small id="ld3t">✨ lagi nyiapin ${esc(st.n || 'peliharaan')}…</small>`);
+    return;
   } else {
-    const A = Pet.animal(st.a), top = Pet.itemOf(lk.fit.top || lk.fit.eye || lk.fit.neck || ''), sz = Math.round(110 * S.sc);
-    $('pet2d').innerHTML = `<span class="pe" style="font-size:${sz}px">${A.e}</span>${top ? `<span class="pa" style="font-size:${Math.round(sz * .4)}px">${top.e}</span>` : ''}${v3state === 'load' ? '<span class="loading3d">✨ nyiapin versi 3D…</span>' : ''}`;
-    $('pet2d').onclick = () => tapPet();
+    $('pet2d').style.display = 'none';
+    if (!$('room').querySelector('.no3d')) $('room').insertAdjacentHTML('beforeend', `<div class="no3d">🙈 HP ini belum bisa nampilin peliharaan 3D.<br>Coba update Chrome / aktifin "akselerasi hardware", terus buka lagi ya.<small>${esc(v3err)}</small></div>`);
   }
+  const ld = $('ld3d'); if (ld && v3state !== 'load') { ld.remove(); const t = $('ld3t'); t && t.remove(); }
 }
 function paintRooms(st) {
   const v = Pet.now(st);
@@ -334,15 +346,15 @@ function paintLemari(st) {
   const P = $('panel'), tabs = Pet.SLOTS.concat([['col', '🎨', 'Warna']]);
   let html = `<div class="stabs">${tabs.map(([k, ic, n]) => `<button data-s="${k}" class="${k === slotTab ? 'on' : ''}"><span>${ic}</span>${n}</button>`).join('')}</div>`;
   if (slotTab === 'col') {
-    html += `<div class="grid">${Pet.FUR.map(([k, n, p]) => { const own = Pet.ownsFur(st, k), cur = st.col || 'asli', pv = preview && preview.col === k; return `<button class="opt ${cur === k && !preview ? 'on' : ''} ${pv ? 'pv' : ''}" data-c="${k}"><div class="sw" style="background:${FURC[k] || 'conic-gradient(#f2a65e,#d9a066,#f6efe9,#f2a65e)'}"></div><span class="nm2">${n}</span>${own ? (cur === k ? '<small>dipake</small>' : '<small>✓ punya</small>') : `<small class="pr">🪙 ${p}</small>`}</button>`; }).join('')}</div>`;
+    html += `<div class="grid">${Pet.FUR.map(([k, n, p]) => { const own = Pet.ownsFur(st, k), cur = st.col || 'asli', pv = preview && preview.col === k; return `<button class="opt ${cur === k && !preview ? 'on' : ''} ${pv ? 'pv' : ''}" data-c="${k}"><span class="th" data-th="fur:${k}:${st.a}"><div class="sw" style="background:${FURC[k] || 'conic-gradient(#f2a65e,#d9a066,#f6efe9,#f2a65e)'};margin-top:9px"></div></span><span class="nm2">${n}</span>${own ? (cur === k ? '<small>dipake</small>' : '<small>✓ punya</small>') : `<small class="pr">🪙 ${p}</small>`}</button>`; }).join('')}</div>`;
   } else {
     const worn = st.fit[slotTab] || '';
-    html += `<div class="grid"><button class="opt ${!worn && !preview ? 'on' : ''}" data-k=""><span>✖️</span><span class="nm2">Lepas</span></button>${Pet.ITEMS.filter(it => it.s === slotTab).map(it => { const own = Pet.owns(st, it.k), pv = preview && preview.k === it.k; return `<button class="opt ${worn === it.k && !preview ? 'on' : ''} ${pv ? 'pv' : ''} ${!own && !it.p ? 'lock' : ''}" data-k="${it.k}"><span>${it.e}</span><span class="nm2">${it.n}</span>${own ? (worn === it.k ? '<small>dipake</small>' : '<small>✓ punya</small>') : it.p ? `<small class="pr">🪙 ${it.p}</small>` : `<small>🔒 ${it.st ? `🔥${it.st} hari` : `Lv ${it.lv}`}</small>`}</button>`; }).join('')}</div>`;
+    html += `<div class="grid"><button class="opt ${!worn && !preview ? 'on' : ''}" data-k=""><span>✖️</span><span class="nm2">Lepas</span></button>${Pet.ITEMS.filter(it => it.s === slotTab).map(it => { const own = Pet.owns(st, it.k), pv = preview && preview.k === it.k; return `<button class="opt ${worn === it.k && !preview ? 'on' : ''} ${pv ? 'pv' : ''} ${!own && !it.p ? 'lock' : ''}" data-k="${it.k}"><span class="th" data-th="item:${it.k}">${it.e}</span><span class="nm2">${it.n}</span>${own ? (worn === it.k ? '<small>dipake</small>' : '<small>✓ punya</small>') : it.p ? `<small class="pr">🪙 ${it.p}</small>` : `<small>🔒 ${it.st ? `🔥${it.st} hari` : `Lv ${it.lv}`}</small>`}</button>`; }).join('')}</div>`;
   }
   let bb = '';
   if (preview && preview.k) { const it = Pet.itemOf(preview.k); bb = it.p ? `<div class="buybar"><p><b>${it.e} ${it.n}</b><br>Lagi dicobain · koin 🪙 ${Math.max(0, st.coins)}</p><button class="b0" id="pv-x">Batal</button><button class="b1" id="pv-buy">Beli 🪙 ${it.p}</button></div>` : `<div class="buybar"><p><b>${it.e} ${it.n}</b><br>Kebuka kalau ${it.st ? `dirawat ${it.st} hari berturut-turut 🔥` : `${esc(st.n)} udah Lv ${it.lv}`}</p><button class="b0" id="pv-x">Oke</button></div>`; }
   else if (preview && preview.col) { const f = Pet.FUR.find(x => x[0] === preview.col); bb = `<div class="buybar"><p><b>🎨 Bulu ${f[1]}</b><br>Lagi dicobain · koin 🪙 ${Math.max(0, st.coins)}</p><button class="b0" id="pv-x">Batal</button><button class="b1" id="pv-buy">Beli 🪙 ${f[2]}</button></div>`; }
-  P.innerHTML = html + bb;
+  P.innerHTML = html + bb; fillThumbs();
   P.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { slotTab = b.dataset.s; preview = null; paint(); });
   P.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
     const k = b.dataset.k;
@@ -362,6 +374,15 @@ function paintLemari(st) {
     paint();
   };
 }
+// isi gambar 3D kecil sedikit-sedikit biar ga nge-lag
+const TQ = []; let tBusy = false;
+function fillThumbs() {
+  if (v3state !== 'ok' || !window.Pet3D || !Pet3D.thumb) return;
+  document.querySelectorAll('[data-th]:not([data-ok])').forEach(el => { el.dataset.ok = 1; TQ.push(el); });
+  if (tBusy) return; tBusy = true;
+  const step = () => { const t0 = performance.now(); while (TQ.length && performance.now() - t0 < 14) { const el = TQ.shift(); if (!el.isConnected) continue; const [k, key, a] = el.dataset.th.split(':'); try { const u = Pet3D.thumb(k, key, { a }); if (u) el.innerHTML = `<img src="${u}" alt="">`; } catch (e) {} } if (TQ.length) requestAnimationFrame(step); else tBusy = false; };
+  requestAnimationFrame(step);
+}
 function coinPop() { const c = $('coin'); if (!c) return; c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
 
 // ── adopsi / ganti ──
@@ -370,10 +391,11 @@ function renderSetup(first, st) {
   if (st && !keepSel) setupSel = { a: st.a, n: st.n || '' };
   const host = first ? $('app') : $('panel');
   host.innerHTML = `<div class="setup">${first ? '<div class="head"><span class="ico">🐾</span><p class="lbl">Peliharaan berdua</p><h1 class="title">Adopsi <span>Yuk</span></h1><p class="sub">Satu peliharaan 3D buat kalian berdua. Yang ngasih makan di HP satu, keliatan di HP satunya 💕</p></div>' : ''}
-    <h3>Pilih hewannya</h3><div class="grid" id="ans">${Pet.ANIMALS.map(a => `<button class="opt ${a.k === setupSel.a ? 'on' : ''}" data-k="${a.k}"><span>${a.e}</span><span class="nm2">${a.n}</span></button>`).join('')}</div>
+    <h3>Pilih hewannya</h3><div class="grid" id="ans">${Pet.ANIMALS.map(a => `<button class="opt ${a.k === setupSel.a ? 'on' : ''}" data-k="${a.k}"><span class="th big" data-th="animal:${a.k}">${a.e}</span><span class="nm2">${a.n}</span></button>`).join('')}</div>
     <h3>Kasih nama</h3><input class="inp" id="pn" maxlength="14" placeholder="Mochi, Boba, Kiko…" value="${esc(setupSel.n)}">
     <button class="btn" id="go" style="margin-top:.8rem">${first ? '🐾 Adopsi sekarang' : '💾 Simpan'}</button>
     ${first ? '' : '<p class="sub" style="text-align:center;font-size:11px;margin-top:.6rem">Level, XP, koin & baju tetep kebawa walaupun ganti hewan.</p>'}</div>`;
+  fillThumbs(); if (first && v3state === 'load' && !window.__p3l) { window.__p3l = 1; load3D(); }
   $('ans').querySelectorAll('.opt').forEach(b => b.onclick = () => { setupSel.a = b.dataset.k; setupSel.n = $('pn').value; keepSel = true; renderSetup(first, st); keepSel = false; });
   $('go').onclick = () => {
     const n = $('pn').value.trim(); if (!n) { toast('Kasih nama dulu ya 🥰'); $('pn').focus(); return; }
@@ -476,7 +498,7 @@ function play(kind) {
 }
 try { BDx && BDx.on(ev => { if (ev.apps && ev.apps.includes('pet') && !busy && document.activeElement !== $('pn')) render(); else if (!ev.apps || !ev.apps.length) bdStatus(); }); } catch (e) {}
 setInterval(() => { if (!document.hidden && !busy && !preview && document.activeElement !== $('pn')) render(); }, 60000);
-render(); load3D();
+render(); if (!window.__p3l) { window.__p3l = 1; load3D(); }
 
 </script>
 <!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
