@@ -524,7 +524,9 @@
 
   // dipakai halaman lain kalau mau: SFX.play('win'), SFX.play('coin'), SFX.music(false)
   window.SFX = { play, music: on => on ? startBgm() : stopBgm(), get mode() { return mode; }, get playing() { return playing; }, get song() { return SONG && { name: SONG.name, bpm: SONG.bpm, inst: SONG.inst, lead: SONG.leadI, drums: SONG.drums }; }, _tap: () => out, _compose: compose };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { addButton(); observe(); }); else { addButton(); observe(); }
+  // tombol 🎵 cuma ada di Beranda (pojok kanan atas) — halaman lain ga ada tombol, setelan suara ikut yang di Beranda
+  const addB = () => { if (HOME) addButton(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { addB(); observe(); }); else { addB(); observe(); }
 })();
 
 /* ═══ PENJAGA PERFORMA ═══

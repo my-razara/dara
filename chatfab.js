@@ -179,7 +179,9 @@
     };
   }
   function add() {
-    if (!me()) return; css();
+    if (!me()) return;
+    if (page !== 'index' && page !== '') { setTimeout(peek, 2500); setInterval(peek, 90e3); hookChat0(); return; }   // selain Beranda: ga ada tombol 💬, chat baru tetep muncul dari atas & bisa dibales
+    css();
     btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cfab'; btn.dataset.sfxSkip = '1';
     btn.addEventListener('click', e => { e.stopPropagation(); if (btn.classList.contains('mini')) { btn.classList.remove('mini'); shrink(); return; } location.href = 'chat.html'; });
     if (window.__fabDock(btn, 2)) { paint(); setTimeout(peek, 2500); setInterval(peek, 90e3); hookChat0(); return; }
