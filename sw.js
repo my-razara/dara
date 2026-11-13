@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v122';
+const VERSI = 'v123';
 const CACHE = 'untuk-dara-' + VERSI;
 // (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
@@ -188,7 +188,7 @@ const HALAMAN = [
 "who-knows-me.html",
 "word-search.html"
 ];
-const ASET = ['who.js', 'push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'musim.js', 'pet.js', 'sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'duel.js', 'meja.js', 'hub.js', 'sub.js', 'ui2.js', 'ui2.css', 'sehat.js', 'klaim.js', 'lokasi.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png'];
+const ASET = ['who.js', 'push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'musim.js', 'pet.js', 'sfx.js', 'sync.js', 'cadangan.js', 'pengingat.js', 'online.js', 'duel.js', 'meja.js', 'hub.js', 'sub.js', 'ui2.js', 'ui2.css', 'sehat.js', 'pembuka.js', 'klaim.js', 'lokasi.js', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png', 'icons/badge-96.png'];
 
 // ── disisipin ke tiap halaman: warna bar atas HP ngikutin warna bagian paling atas halaman ──
 const SYNC_BAR = `<script>(function(){
