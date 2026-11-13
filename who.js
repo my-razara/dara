@@ -41,6 +41,7 @@
     var EMB = false; try { EMB = window.self !== window.top; } catch (e) { EMB = true; }
     if (EMB) { try { window.top.RZ && window.top.RZ.ask(auto); } catch (e) {} return; }
     if (shown || document.getElementById('rz-gate')) return;
+    var wg = document.getElementById('who-gate'); if (wg && wg.className === 'ob') return;   // lagi di layar pertama kali → kodenya diminta di langkah 2
     if (!document.body) { document.addEventListener('DOMContentLoaded', function () { ask(auto); }); return; }
     shown = true;
     var g = document.createElement('div'); g.id = 'rz-gate';
@@ -117,11 +118,79 @@
     return changed;
   }
   function close() { var o = document.getElementById('who-gate'); if (o) o.remove(); }
+  // ── 👋 pertama kali di HP baru: layar penuh 3 langkah (siapa + PIN → kode Razara → notif) ──
+  var obCss = '#who-gate.ob{background:linear-gradient(180deg,#fdf7f9,#fbedf1 60%,#f2c4d0 140%);align-items:stretch;padding:0;-webkit-backdrop-filter:none;backdrop-filter:none;overflow-y:auto}' +
+    '#who-gate.ob .obw{width:100%;max-width:400px;margin:0 auto;padding:calc(1.2rem + env(safe-area-inset-top)) 1.3rem calc(1.4rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;min-height:100%;color:#2a1c22;text-align:center}' +
+    '#who-gate .obb{font-size:11px;letter-spacing:.42em;font-weight:600;color:#d4718a;margin-top:.3rem}' +
+    '#who-gate .obs{display:flex;gap:6px;justify-content:center;margin:.9rem 0 1.3rem}#who-gate .obs i{width:26px;height:5px;border-radius:5px;background:#f2c4d0}#who-gate .obs i.on{background:#d4718a;width:40px}' +
+    '#who-gate .ob h2{font-size:1.5rem;font-weight:700;letter-spacing:-.4px}#who-gate .ob .obp{font-size:12.5px;color:#9a8590;margin:.3rem 0 1.2rem;line-height:1.5}' +
+    '#who-gate .obwho{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}' +
+    '#who-gate .obwho button{background:#fff;border:2px solid rgba(138,51,82,.08);border-radius:24px;padding:1rem .5rem .8rem;font:600 15px Poppins,sans-serif;color:#2a1c22;cursor:pointer}' +
+    '#who-gate .obwho button i{width:60px;height:60px;border-radius:21px;margin:0 auto .55rem;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;font-style:normal;color:#fff}' +
+    '#who-gate .obwho button small{display:block;font-size:10.5px;color:#9a8590;font-weight:400}' +
+    '#who-gate .obwho button.on.D{border-color:#d4718a;background:#fdeef2;box-shadow:0 12px 24px -12px rgba(212,113,138,.7)}#who-gate .obwho button.on.R{border-color:#5a8fcc;background:#eaf2fa;box-shadow:0 12px 24px -12px rgba(90,143,204,.7)}' +
+    '#who-gate .obpin{margin-top:1.2rem;font-size:12px;color:#9a8590}#who-gate .obdots{display:flex;gap:12px;justify-content:center;margin:.55rem 0 .2rem;min-height:14px}#who-gate .obdots i{width:13px;height:13px;border-radius:13px;border:2px solid #d4718a}#who-gate .obdots i.f{background:#d4718a}' +
+    '#who-gate .obpad{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin:.9rem .4rem 0}#who-gate .obpad button{height:50px;border-radius:17px;background:#fff;border:1px solid rgba(138,51,82,.09);font:500 19px Poppins,sans-serif;color:#2a1c22;cursor:pointer}#who-gate .obpad button.x{background:none;border:none;font-size:15px;color:#9a8590}#who-gate .obpad button:active{transform:scale(.94)}' +
+    '#who-gate .ob .err{margin:.3rem 0 0}#who-gate .ob input.k{width:100%;font:600 16px Poppins,sans-serif;text-align:center;padding:.85rem;border:2px solid rgba(138,51,82,.12);border-radius:18px;outline:none;letter-spacing:normal;margin:0 0 .3rem;background:#fff}' +
+    '#who-gate .obgo{display:block;width:100%;border:none;border-radius:18px;padding:.95rem;font:600 14px Poppins,sans-serif;color:#fff;background:linear-gradient(135deg,#d4718a,#8a3352);cursor:pointer;margin-top:.6rem}#who-gate .obgo.R{background:linear-gradient(135deg,#5a8fcc,#2c4f7c)}' +
+    '#who-gate .oblater{background:none;border:none;font:500 12.5px Poppins,sans-serif;color:#9a8590;margin-top:.7rem;cursor:pointer;padding:.4rem}' +
+    '#who-gate .obbig{font-size:3.4rem;margin:.6rem 0 .3rem}';
+  function onboard(opt) {
+    if (!document.getElementById('ob-css')) { var sc = document.createElement('style'); sc.id = 'ob-css'; sc.textContent = obCss; (document.head || html).appendChild(sc); }
+    var o = document.createElement('div'); o.id = 'who-gate'; o.className = 'ob'; document.body.appendChild(o);
+    var pick = valid(get('berdua-me')) ? get('berdua-me') : null, pin = '', changed = false, R = window.RZ;
+    var needKode = !!(R && !R.has()), needNotif = 'Notification' in window && 'serviceWorker' in navigator && Notification.permission === 'default';
+    var steps = 1 + (needKode ? 1 : 0) + (needNotif ? 1 : 0);
+    function frame(i, body) { o.innerHTML = '<div class="obw"><div class="obb">RAZARA</div><div class="obs">' + Array.apply(null, Array(steps)).map(function (_, j) { return '<i class="' + (j === i ? 'on' : '') + '"></i>'; }).join('') + '</div>' + body + '</div>'; }
+    function finish() { o.remove(); try { navigator.vibrate && navigator.vibrate(20); } catch (e) {} if (opt.onDone) opt.onDone(pick, changed); else location.reload(); }
+    function s1() {
+      frame(0, '<h2>Ini HP siapa? 👀</h2><p class="obp">Cukup sekali — semua halaman, notif &amp; warna tema langsung ngikut</p>' +
+        '<div class="obwho"><button class="D" data-w="Dara"><i style="background:linear-gradient(140deg,#f3b5c4,#d4718a)">D</i>Dara<small>tema pink 💗</small></button><button class="R" data-w="Razan"><i style="background:linear-gradient(140deg,#9cc3ec,#5a8fcc)">R</i>Razan<small>tema biru 💙</small></button></div>' +
+        '<p class="obpin">' + (pick ? 'Masukin PIN ' + pick : 'Pilih dulu, terus masukin PIN') + '</p><div class="obdots"></div><div class="err"></div>' +
+        '<div class="obpad">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (n) { return '<button data-n="' + n + '">' + n + '</button>'; }).join('') + '<button class="x" data-c="1">Hapus</button><button data-n="0">0</button><button class="x" data-b="1">⌫</button></div>');
+      var dots = o.querySelector('.obdots'), err = o.querySelector('.err'), box = o.querySelector('.obw');
+      function paint() {
+        o.querySelectorAll('.obwho button').forEach(function (b) { b.classList.toggle('on', b.dataset.w === pick); });
+        o.querySelector('.obpin').textContent = pick ? 'Masukin PIN ' + pick : 'Pilih dulu, terus masukin PIN';
+        var n = Math.max(pin.length + 1, 2), h = ''; for (var i = 0; i < Math.min(n, 4); i++) h += '<i class="' + (i < pin.length ? 'f' : '') + '"></i>'; dots.innerHTML = pick ? h : '';
+      }
+      o.querySelectorAll('.obwho button').forEach(function (b) { b.onclick = function () { pick = b.dataset.w; pin = ''; err.textContent = ''; paint(); }; });
+      o.querySelectorAll('.obpad button').forEach(function (b) {
+        b.onclick = function () {
+          if (!pick) { err.textContent = 'Pilih Dara atau Razan dulu 👆'; return; }
+          if (b.dataset.c) pin = ''; else if (b.dataset.b) pin = pin.slice(0, -1); else if (pin.length < 4) pin += b.dataset.n;
+          err.textContent = ''; paint();
+          if (pin.length >= PIN[pick].length) {
+            if (pin === PIN[pick]) { changed = done(pick) || changed; setTimeout(next, 180); }
+            else if (pin.length >= 4 || pin.length === PIN[pick].length) { err.textContent = 'PIN-nya salah 🙈'; pin = ''; box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake'); try { navigator.vibrate && navigator.vibrate([40, 40, 40]); } catch (e) {} setTimeout(paint, 250); }
+          }
+        };
+      });
+      paint();
+    }
+    var stage = 0;
+    function next() { stage++; if (stage === 1 && needKode) return s2(); if (stage <= 2 && needNotif) { stage = 2; return s3(); } finish(); }
+    function s2() {
+      frame(1, '<div class="obbig">🔑</div><h2>Satu lagi: kode Razara</h2><p class="obp">Biar data kalian ga bisa dibuka orang lain. Minta link kodenya ke ' + (pick === 'Razan' ? 'Dara' : 'Razan') + ', atau tempel kodenya di sini.</p>' +
+        '<input class="k" placeholder="rz-…" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="err"></div><button class="obgo ' + (pick || '')[0] + '">Simpan</button><button class="oblater">Nanti aja</button>');
+      var inp = o.querySelector('input'), err = o.querySelector('.err');
+      o.querySelector('.obgo').onclick = function () { var m = /(rz-[A-Za-z0-9]{12,40})/.exec(inp.value.replace(/\s+/g, '')); if (!m || !R.set(m[1])) { err.textContent = 'Kodenya ga valid — awalnya “rz-”'; return; } changed = true; next(); };
+      o.querySelector('.oblater').onclick = next;
+    }
+    function s3() {
+      frame(steps - 1, '<div class="obbig">🔔</div><h2>Nyalain notif?</h2><p class="obp">Biar langsung tau kalau ' + (pick === 'Razan' ? 'Dara' : 'Razan') + ' ngechat, kangen, atau ngirim sesuatu 💌<br>Bisa diatur lagi kapan aja.</p>' +
+        '<button class="obgo ' + (pick || '')[0] + '">Nyalain notif</button><button class="oblater">Nanti aja</button>');
+      o.querySelector('.obgo').onclick = function () { try { Notification.requestPermission().then(function (p) { if (p === 'granted') { try { window.Push && Push.register && Push.register(true); } catch (e) {} } finish(); }, finish); } catch (e) { finish(); } };
+      o.querySelector('.oblater').onclick = finish;
+    }
+    s1();
+  }
   // opt: { force: true } = wajib pilih (pertama kali), { revert } = halaman lama yang minta ganti
   function ask(target, opt) {
     opt = opt || {};
     if (!document.body) { document.addEventListener('DOMContentLoaded', function () { ask(target, opt); }); return; }
     close();
+    if (opt.force && !cur) return onboard(opt);
     var pick = valid(target) ? target : (cur ? (cur === 'Razan' ? 'Dara' : 'Razan') : (valid(get('berdua-me')) ? get('berdua-me') : null));
     var o = document.createElement('div'); o.id = 'who-gate';
     o.innerHTML = '<div class="wb"><h3>' + (opt.force ? '👋 Ini HP siapa?' : '🔄 Ganti orang') + '</h3><p>' + (opt.force ? 'Pilih sekali aja — semua game, hadiah, notif & warna tema langsung ngikut.' : 'Semua halaman, notif & warna tema bakal ikut ganti.') + '</p>' +

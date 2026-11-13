@@ -85,13 +85,18 @@
   const top = el('u2-top', 'beranda', 1, `<button class="u2-av" id="u2-av" aria-label="Ganti orang"></button><div class="u2-hi"><small id="u2-sp"></small><b id="u2-nm"></b></div>
     <div class="u2-ic"><button id="u2-mu" aria-label="Musik">🎵</button><button id="u2-ch" aria-label="Chat">💬<em id="u2-chn"></em></button><button id="u2-ib" aria-label="Kiriman">🔔<em id="u2-ibn"></em></button></div>`);
   const lblBuat = el('u2-lbl', 'beranda', 15, '<span>Buat kamu hari ini</span>');
+  const tilesEl = el('u2-tiles', 'beranda', 17, '');
   el('u2-lbl', 'beranda', 39, '<span>🏃 Sehat &amp; Jadwal</span><a href="#sehat">Buka →</a>');
   const shCard = el('u2-card u2-sh', 'beranda', 40, '');
   el('u2-ttl', 'jelajah', 100, '<h2>Jelajah</h2>');
-  const seg = el('u2-seg u2-ns', 'jelajah', 160, '');
+  const seg = el('u2-seg u2-ns', 'jelajah', 115, '');
+  const more = el('u2-more u2-ns', 'jelajah', 175, '');
   const shHost = el('u2-sehat', 'sehat', 300, '');
   el('u2-ttl', 'kita', 200, '<h2>Kita</h2>');
   const couple = el('u2-card u2-couple', 'kita', 201, '');
+  el('u2-lbl', 'kita', 205, '<span>Lagi ngapain?</span>');
+  el('u2-lbl', 'kita', 225, '<span>Hari spesial</span><a href="jadwal-kita.html">Kalender →</a>');
+  const hs = el('u2-hs', 'kita', 226, '');
   el('u2-lbl', 'kita', 279, '<span>Pengaturan</span>');
   const sett = el('u2-card u2-set', 'kita', 280, '');
   el('u2-love', 'kita', 290, 'Dibuat dengan cinta, Razan 🤍', 'button').onclick = sambut;
@@ -107,11 +112,11 @@
     [e => has(e, 'ng-wrap'), 'beranda', 16], [e => has(e, 'ch-card'), 'beranda', 18], [e => has(e, 'on-card'), 'beranda', 19],
     [e => has(e, 'pt-card'), 'beranda', 20], [e => has(e, 'ib-card'), 'beranda', 21], [e => has(e, 'kh-card'), 'beranda', 23], [e => has(e, 'lg-card'), 'beranda', 24],
     [e => has(e, 'ck-card'), 'beranda', 25], [e => has(e, 'sa-card'), 'beranda', 22], [e => has(e, 'rk-card'), 'beranda', 27], [e => has(e, 'sr-card'), 'beranda', 26],
-    [e => has(e, 'st-card'), 'kita', 210], [e => has(e, 'rit'), 'beranda', 30],
-    [e => has(e, 'bx-sec'), 'kita', 220], [e => has(e, 'ig-sec'), 'kita', 230], [e => has(e, 'sk-sec'), 'kita', 240], [e => has(e, 'tj-sec'), 'kita', 250],
-    [e => has(e, 'cad-link'), 'kita', 270], [e => has(e, 'hl-link') || has(e, 'af-row'), 'kita', 285],
-    [e => has(e, 'rnd-btn'), 'jelajah', 120, 1], [e => has(e, 'mem-card'), 'jelajah', 150, 1], [e => has(e, 'otd-card'), 'jelajah', 155, 1],
-    [e => has(e, 'hx-sec') && /^⭐/.test(ttl(e)), 'jelajah', 130, 1], [e => has(e, 'hx-sec') && /^🆕/.test(ttl(e)), 'jelajah', 140, 1],
+    [e => has(e, 'st-card'), 'kita', 210], [e => has(e, 'rit'), 'kita', 212],
+    [e => has(e, 'bx-sec'), 'kita', 220], [e => has(e, 'ig-sec'), 'x', 0], [e => has(e, 'sk-sec'), 'kita', 240], [e => has(e, 'tj-sec'), 'kita', 250],
+    [e => has(e, 'cad-link'), 'x', 0], [e => has(e, 'hl-link') || has(e, 'af-row'), 'x', 0],
+    [e => has(e, 'rnd-btn'), 'jelajah', 118, 1], [e => has(e, 'mem-card'), 'jelajah', 176, 'u2-lain'], [e => has(e, 'otd-card'), 'jelajah', 177, 'u2-lain'],
+    [e => has(e, 'hx-sec') && /^⭐/.test(ttl(e)), 'x', 0], [e => has(e, 'hx-sec') && /^🆕/.test(ttl(e)), 'x', 0],
     [e => has(e, 'hx-sec') && /^▶/.test(ttl(e)), 'beranda', 60], [e => has(e, 'hx-sec') && /^🕘/.test(ttl(e)), 'beranda', 61]
   ];
   function tag(e) {
@@ -121,13 +126,38 @@
     const pane = r ? r[1] : 'beranda', ord = r ? r[2] : 90;
     if (e.dataset.pane !== pane) e.dataset.pane = pane;
     if (e.style.order !== String(ord)) e.style.order = ord;
-    if (r && r[3]) e.classList.add('u2-ns');
+    if (r && r[3]) { e.classList.add('u2-ns'); if (typeof r[3] === 'string') e.classList.add(r[3]); }
+    const tile = pane === 'beranda' && ord >= 18 && ord <= 27; if (tile !== e.classList.contains('u2-tiled')) e.classList.toggle('u2-tiled', tile);
   }
   function route() {
     [...home.children].forEach(tag);
     ['today-slot', 'home-rows'].forEach(id => { const h = $(id); if (h) [...h.children].forEach(tag); });
-    const vis = [...home.querySelectorAll('[data-pane="beranda"]')].some(e => { const o = +e.style.order; return o >= 16 && o <= 27 && e.style.display !== 'none' && e.offsetParent !== null; });
+    paintTiles();
+    const bx = home.querySelector('.bx-sec .bx-row');
+    if (bx && !bx.querySelector('.u2-bxm') && bx.children.length > 8) { const m = document.createElement('button'); m.className = 'bx u2-bxm'; m.innerHTML = '<span>➕</span>Lainnya'; m.onclick = () => { bx.classList.add('open'); m.remove(); vib(6); }; bx.insertBefore(m, bx.children[7]); }
+    const vis = tilesEl.children.length > 0 || [...home.querySelectorAll('[data-pane="beranda"]')].some(e => +e.style.order === 16 && e.style.display !== 'none' && e.offsetParent !== null);
     lblBuat.style.display = vis ? '' : 'none';
+  }
+  // 🧩 kartu kabar → kotak kecil 3 kolom (kartu aslinya tetep ada, cuma ngumpet; tap kotak = tap kartu aslinya)
+  const cut = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+  const emo = t => { const m = /(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)/u.exec(t || ''); return m ? m[1] : '✨'; };
+  let tileSig = '';
+  function paintTiles() {
+    const L = [];
+    home.querySelectorAll('.u2-tiled').forEach(e => {
+      if (e.style.display === 'none') return;
+      const b = (e.querySelector('b') || {}).textContent || '', sm = (e.querySelector('small') || {}).textContent || '', ic = (e.querySelector('.sr-e, .e, .st-e, .ck-e, span') || {}).textContent || e.textContent;
+      let t = b, s2 = sm, m;
+      if (has(e, 'rk-card')) { m = /ke-(\d+)/.exec(b); t = 'Rekap bulan'; s2 = m ? `ke-${m[1]} siap` : 'udah siap'; }
+      else if (has(e, 'sr-card') && (m = /Surat dari (\w+)/.exec(b))) { t = 'Surat baru'; s2 = 'dari ' + m[1]; }
+      else if (has(e, 'ib-card') && (m = /(\d+) kiriman baru dari (\w+)/.exec(b))) { t = m[1] + ' kiriman'; s2 = 'dari ' + m[2]; }
+      L.push({ e, ic: emo(ic), t: cut(t.replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, ''), 22), s: cut(s2, 26), hot: has(e, 'hot') || has(e, 'ib-card') || has(e, 'ch-card') });
+    });
+    const rit = home.querySelector('.rit');
+    if (rit) { const tx = ttl(rit), m = /·\s*(.+)$/.exec(tx); L.push({ rit: 1, ic: emo(tx), t: cut(tx.replace(/·.*$/, '').replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, '').replace(/ hari ini/i, ''), 18), s: m ? m[1] + ' hari ini' : 'hari ini' }); }
+    const sig = L.map(x => x.ic + x.t + x.s + (x.hot ? 1 : 0)).join('|'); if (sig === tileSig) return; tileSig = sig;
+    tilesEl.innerHTML = L.map((x, i) => `<button data-i="${i}">${x.hot ? '<em></em>' : ''}<span>${x.ic}</span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></button>`).join('');
+    tilesEl.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { const x = L[+b.dataset.i]; vib(6); if (x.rit) { setTab('kita'); setTimeout(() => { const r = home.querySelector('.rit'); if (r) home.scrollTop = Math.max(0, r.offsetTop - 12); }, 60); return; } x.e.click(); });
   }
   let rq = 0; const routeSoon = () => { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; route(); }); };
   try { const mo = new MutationObserver(routeSoon); [home, $('today-slot'), $('home-rows')].forEach(h => h && mo.observe(h, { childList: true })); } catch (e) {}
@@ -139,7 +169,7 @@
     if (cur && cur !== t) { pos[cur] = home.scrollTop; if (cur === 'jelajah' && home.classList.contains('searching') && window.clearSearch) try { clearSearch(); } catch (e) {} }
     const was = cur; cur = t; home.dataset.tab = t; ss.set('u2-tab', t);
     nav.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-    if (t === 'jelajah' && cb && !cb.children.length) openCat('games', true);
+    if (t === 'jelajah' && cb && !cb.children.length) { if (catNow === 'lain') { paintSeg(); } else openCat(catNow === 'hadiah' ? 'hadiah' : catNow === 'fav' ? 'fav' : 'games', true); }
     if (t === 'sehat' && window.Sehat && !shHost.dataset.m) { shHost.dataset.m = 1; Sehat.mount(shHost); } else if (t === 'sehat' && window.Sehat) Sehat.paint();
     if (t === 'kita') paintKita();
     if (t === 'beranda') paintBeranda();
@@ -158,10 +188,19 @@
   window.navGo = k => { if (k === 'home') return setTab('beranda'); openCat(k); };
 
   // ── Jelajah: kategori ──
-  const SEGS = [['games', '🎮', 'Game'], ['hadiah', '🎁', 'Hadiah'], ['fav', '⭐', 'Favorit'], ['keuangan', '💰', 'Kantong'], ['secret', '🔒', 'Rahasia']];
+  const SEGS = [['games', '🎮', 'Game'], ['hadiah', '🎁', 'Hadiah'], ['lain', '✨', 'Lainnya']];
   let catNow = ss.get('u2-cat') || 'games', catAsk = false;
+  const segOf = k => k === 'games' || k === 'hadiah' ? k : 'lain';
+  function paintMore() {
+    more.innerHTML = `<div class="u2-card u2-set"><button data-m="fav"><span>⭐</span>Favorit kamu<small></small></button><button data-m="keuangan"><span>💰</span>Kantong (keuangan)<small>pakai sandi</small></button><button data-m="secret"><span>🔒</span>Rahasia tahunan<small>pakai sandi</small></button><button data-m="az"><span>📚</span>Semua fitur A–Z<small></small></button><button data-m="tour"><span>🧭</span>Fitur pindah ke mana?<small></small></button></div>`;
+    more.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { const k = b.dataset.m; vib(6); if (k === 'az') return window.__allFitur && __allFitur(); if (k === 'tour') return window.__tourPindah && __tourPindah(); openCat(k, false, true); });
+  }
   function cnt(k) { try { const c = CATS.find(x => x.key === k); return c && c.sections ? c.sections.reduce((a, s) => a + s.items.reduce((b, it) => b + (it.folder ? it.folder.length : 1), 0), 0) : 0; } catch (e) { return 0; } }
-  function paintSeg() { seg.innerHTML = SEGS.map(([k, e, n]) => { const c = k === 'games' || k === 'hadiah' ? cnt(k) : 0; return `<button data-c="${k}" class="${k === catNow ? 'on' : ''}">${e} ${n}${c ? `<small>${c}</small>` : ''}</button>`; }).join(''); seg.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { vib(6); openCat(b.dataset.c, false, true); }); }
+  function paintSeg() {
+    seg.innerHTML = SEGS.map(([k, e, n]) => { const c = k === 'games' || k === 'hadiah' ? cnt(k) : 0; return `<button data-c="${k}" class="${k === segOf(catNow) ? 'on' : ''}">${e} ${n}${c ? `<small>${c}</small>` : ''}</button>`; }).join('');
+    seg.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { vib(6); if (b.dataset.c === 'lain') { catNow = 'lain'; ss.set('u2-cat', 'lain'); paintSeg(); return; } openCat(b.dataset.c, false, true); });
+    home.dataset.jv = catNow === 'lain' ? 'lain' : 'cat';
+  }
   function openCat(k, silent, scroll) {
     if (k === 'fav') { catNow = 'fav'; ss.set('u2-cat', k); paintSeg(); if (nav0) nav0('fav'); }
     else { let i = -1; try { i = CATS.findIndex(c => c.key === k); } catch (e) {} if (i < 0) return; if (k === 'keuangan' || k === 'secret') catAsk = k; else { catNow = k; ss.set('u2-cat', k); } paintSeg(); try { showCat(i); } catch (e) { try { renderCatScreen(i); } catch (er) {} } }
@@ -174,6 +213,7 @@
     cs.classList.remove('active'); home.classList.add('active');
     if (catAsk) { catNow = catAsk; catAsk = false; ss.set('u2-cat', catNow); paintSeg(); }
     if (cur !== 'jelajah') setTab('jelajah', true);
+    nav.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === cur));
   }).observe(cs, { attributes: true, attributeFilter: ['class'] });
 
   // ══════════ 🏠 BERANDA ══════════
@@ -205,24 +245,36 @@
   // ══════════ 👫 KITA ══════════
   function paintKita() {
     couple.innerHTML = `<div class="u2-pair"><i class="d">D</i><i class="r">R</i><em>💗</em></div><div><b>Dara &amp; Razan</b><small>bareng sejak 10 Mei 2025</small><small>${hariKe().toLocaleString('id-ID')} hari 💞</small></div>`;
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    const nextY = (m, d) => { let x = new Date(t0.getFullYear(), m - 1, d); if (x < t0) x = new Date(t0.getFullYear() + 1, m - 1, d); return x; };
+    const dd = x => Math.round((x - t0) / 864e5), an = nextY(5, 10), ul = nextY(8, 18), mt = (localStorage.getItem('idx-meet') || '').replace(/"/g, ''), mtD = /^\d{4}-\d{2}-\d{2}$/.test(mt) ? new Date(mt + 'T00:00') : null;
+    const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    hs.innerHTML = `<div class="a"><p>💍 Anniv ke-${an.getFullYear() - 2025}</p><b>${dd(an) || '🎉'}</b><small>${dd(an) ? 'hari lagi · 10 Mei' : 'hari ini!'}</small></div>
+      <div class="u"><p>🎂 Ultah Dara</p><b>${dd(ul) || '🎉'}</b><small>${dd(ul) ? 'hari lagi · 18 Agu' : 'hari ini!'}</small></div>
+      <button class="k" data-meet><p>🤝 Ketemu</p><b>${mtD && dd(mtD) >= 0 ? (dd(mtD) || '🎉') : '?'}</b><small>${mtD && dd(mtD) >= 0 ? (dd(mtD) ? `hari lagi · ${mtD.getDate()} ${BLN[mtD.getMonth()]}` : 'hari ini!') : 'atur tanggal'}</small></button>`;
+    const mb = hs.querySelector('[data-meet]'); if (mb) mb.onclick = () => { if (window.openMeet) openMeet(); };
     const th = g('idx-theme', null) || (localStorage.getItem('idx-theme') || 'auto'), TH = { auto: 'Otomatis', dark: 'Gelap', light: 'Terang' };
     sett.innerHTML = `<button data-k="tema"><span>🎨</span>Tema terang / gelap<small>${TH[th] || 'Otomatis'}</small></button>
       <button data-k="atur"><span>🧩</span>Atur tampilan &amp; mode ringan<small></small></button>
       <a href="atur-notif.html"><span>🔔</span>Notifikasi<small></small></a>
       <button data-k="suara"><span>🎵</span>Suara &amp; musik<small></small></button>
       <a href="kunci-pin.html"><span>🔒</span>Kunci PIN<small></small></a>
-      <button data-k="who"><span>🙋</span>HP ini punya<small>${esc(me())}</small></button>`;
+      <button data-k="who"><span>🙋</span>HP ini punya<small>${esc(me())}</small></button>
+      <a href="cadangan.html"><span>💾</span>Cadangan &amp; pindah HP<small></small></a>
+      <button data-k="az"><span>📚</span>Semua fitur A–Z<small></small></button>
+      <a href="statistik-fitur.html"><span>📊</span>Statistik fitur<small></small></a>`;
     sett.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
       const k = b.dataset.k;
       if (k === 'tema' && window.cycleTheme) { cycleTheme(); setTimeout(paintKita, 50); }
       if (k === 'atur' && window.__hlEdit) __hlEdit();
       if (k === 'suara') $('u2-mu').click();
       if (k === 'who' && window.Who && Who.ask) Who.ask();
+      if (k === 'az' && window.__allFitur) __allFitur();
     });
   }
 
   // ── mulai ──
-  paintSeg(); pembuka();
+  paintSeg(); paintMore(); pembuka();
   addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h)) { setTab(h); history.replaceState(null, '', location.pathname); } });
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a) return; const h = a.getAttribute('href').slice(1); if (TABS.includes(h)) { e.preventDefault(); setTab(h); } });
   const h0 = location.hash.slice(1);

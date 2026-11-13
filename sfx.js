@@ -290,6 +290,24 @@
     return best;
   }
 
+
+  // ── 📌 halaman yang punya bar atas (.top): 🎵 & 💬 nempel di bar itu, ga ngambang lagi ──
+  window.__fabDock = window.__fabDock || function (el, order) {
+    try {
+      const H = document.documentElement; if (H.classList.contains('ui2') || H.classList.contains('embed')) return false;
+      const bar = document.querySelector('.wrap > .top') || document.querySelector('body > .top'); if (!bar) return false;
+      const cs = getComputedStyle(bar), r = bar.getBoundingClientRect(); if (cs.display === 'none' || cs.position === 'fixed' || r.top > 160 || r.height > 90) return false;
+      if (!document.getElementById('fab-dock-css')) { const st = document.createElement('style'); st.id = 'fab-dock-css'; st.textContent = '.fab-dock{display:inline-flex;gap:6px;align-items:center;margin-left:auto;margin-right:6px;flex-shrink:0}.fab-dock>.docked{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:34px!important;height:34px!important;min-width:0!important;font-size:15px!important;box-shadow:none!important;transform:none!important;opacity:1!important;z-index:auto!important;visibility:visible!important;margin:0!important;padding:0!important;border:1px solid rgba(193,122,111,.22)!important;background:rgba(255,255,255,.88)!important;display:flex!important;align-items:center;justify-content:center;border-radius:12px!important;animation:none!important}html.night .fab-dock>.docked{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.12)!important}.fab-dock>.docked i{top:-6px!important;right:-6px!important}.top.fab-tight>a.pill:first-child{font-size:0!important;padding-left:.75rem!important;padding-right:.75rem!important}.top.fab-tight>a.pill:first-child::before{content:"←";font-size:14px}'; document.head.appendChild(st); }
+      let d = bar.querySelector('.fab-dock');
+      if (!d) { d = document.createElement('span'); d.className = 'fab-dock'; const k = bar.children; if (k.length >= 2) bar.insertBefore(d, k[k.length - 1]); else bar.appendChild(d); }
+      el.classList.add('docked'); el.dataset.moved = '1'; el.style.order = order;
+      const sib = [...d.children].find(x => +x.style.order > order); if (sib) d.insertBefore(el, sib); else d.appendChild(el);
+      const fit = () => { bar.classList.remove('fab-tight'); if (bar.scrollWidth > bar.clientWidth + 2) bar.classList.add('fab-tight'); };
+      fit(); setTimeout(fit, 400); addEventListener('resize', fit);
+      return true;
+    } catch (e) { return false; }
+  };
+
   // ── tombol 🎵 ──
   const ICON = { all: '🎵', fx: '🔔', off: '🔇' }, LABEL = { all: 'Musik & efek suara nyala', fx: 'Efek suara aja (musik mati)', off: 'Semua suara mati' };
   let btn = null;
@@ -422,9 +440,10 @@
       document.body.appendChild(ov); ctx();
     }
 
-    document.body.appendChild(btn); document.body.appendChild(tip); paint(); shrink();
     const tipAt = (x, y) => { tip.style.setProperty('bottom', 'auto', 'important'); tip.style.setProperty('top', (y > 70 ? y - 44 : y + 56) + 'px', 'important'); tip.style.setProperty('left', Math.max(8, Math.min(innerWidth - 220, x - 40)) + 'px', 'important'); };
-    window.__fabDrag(btn, 'fab-pos-sfx', { start: () => clearTimeout(lpT), moved: tipAt });
+    document.body.appendChild(tip);
+    if (window.__fabDock(btn, 1)) { paint(); const r0 = btn.getBoundingClientRect(); tipAt(r0.left, r0.top + 8); }
+    else { document.body.appendChild(btn); paint(); shrink(); window.__fabDrag(btn, 'fab-pos-sfx', { start: () => clearTimeout(lpT), moved: tipAt }); }
     const gameHide = () => { const g2 = window.__inGame(); btn.style.display = g2 ? 'none' : ''; if (g2) tip.classList.remove('show'); }; gameHide(); setTimeout(gameHide, 600); setInterval(gameHide, 2000);
     function modalOpen(doc, win) {
       // ada pop-up/sheet yang nutupin layar (latar gelap transparan) → tombol melayang ngumpet dulu biar ga nutupin tombol Simpan dsb

@@ -106,13 +106,69 @@
     try {
       const u = (window.Berdua && Berdua.url) || URL, k = (window.Berdua && Berdua.key) || KEY;
       const r = await fetch(`${u}?action=chat&key=${k}&who=${w}&peek=1&t=${Date.now()}`).then(x => x.json());
-      if (r && r.ok) { s('chat-peek-' + w, { n: r.unread || 0, last: r.last, at: Date.now() }); paint(); }
+      if (r && r.ok) { s('chat-peek-' + w, { n: r.unread || 0, last: r.last, at: Date.now() }); paint(); try { maybeToast(r); } catch (e) {} }
     } catch (e) {}
+  }
+
+  // ── 📌 halaman yang punya bar atas (.top): 🎵 & 💬 nempel di bar itu, ga ngambang lagi ──
+  window.__fabDock = window.__fabDock || function (el, order) {
+    try {
+      const H = document.documentElement; if (H.classList.contains('ui2') || H.classList.contains('embed')) return false;
+      const bar = document.querySelector('.wrap > .top') || document.querySelector('body > .top'); if (!bar) return false;
+      const cs = getComputedStyle(bar), r = bar.getBoundingClientRect(); if (cs.display === 'none' || cs.position === 'fixed' || r.top > 160 || r.height > 90) return false;
+      if (!document.getElementById('fab-dock-css')) { const st = document.createElement('style'); st.id = 'fab-dock-css'; st.textContent = '.fab-dock{display:inline-flex;gap:6px;align-items:center;margin-left:auto;margin-right:6px;flex-shrink:0}.fab-dock>.docked{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:34px!important;height:34px!important;min-width:0!important;font-size:15px!important;box-shadow:none!important;transform:none!important;opacity:1!important;z-index:auto!important;visibility:visible!important;margin:0!important;padding:0!important;border:1px solid rgba(193,122,111,.22)!important;background:rgba(255,255,255,.88)!important;display:flex!important;align-items:center;justify-content:center;border-radius:12px!important;animation:none!important}html.night .fab-dock>.docked{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.12)!important}.fab-dock>.docked i{top:-6px!important;right:-6px!important}.top.fab-tight>a.pill:first-child{font-size:0!important;padding-left:.75rem!important;padding-right:.75rem!important}.top.fab-tight>a.pill:first-child::before{content:"←";font-size:14px}'; document.head.appendChild(st); }
+      let d = bar.querySelector('.fab-dock');
+      if (!d) { d = document.createElement('span'); d.className = 'fab-dock'; const k = bar.children; if (k.length >= 2) bar.insertBefore(d, k[k.length - 1]); else bar.appendChild(d); }
+      el.classList.add('docked'); el.dataset.moved = '1'; el.style.order = order;
+      const sib = [...d.children].find(x => +x.style.order > order); if (sib) d.insertBefore(el, sib); else d.appendChild(el);
+      const fit = () => { bar.classList.remove('fab-tight'); if (bar.scrollWidth > bar.clientWidth + 2) bar.classList.add('fab-tight'); };
+      fit(); setTimeout(fit, 400); addEventListener('resize', fit);
+      return true;
+    } catch (e) { return false; }
+  };
+  function hookChat0() {
+    const hookChat = n => { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && ev.apps.includes('chat')) peek(true); }); else if (n < 20) setTimeout(() => hookChat(n + 1), 400); }; hookChat(0); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });
+  }
+  // ── 💬 chat baru pas lagi di halaman lain / lagi main → muncul dari atas, bisa langsung dibales ──
+  function maybeToast(r) {
+    const w = me(); if (!r || !r.unread || !r.last || r.last.w === w) return;
+    const at = r.last.at || 0; if (at <= g('chat-toast-at', 0)) return; s('chat-toast-at', at);
+    if (Date.now() - at > 30 * 60e3) return;
+    const wl = document.getElementById('s-welcome'); if (wl && !wl.classList.contains('hide') && getComputedStyle(wl).display !== 'none') return;
+    showToast(r.last, r.unread);
+  }
+  function showToast(L, n) {
+    const old = document.getElementById('ctoast'); if (old) old.remove();
+    if (!document.getElementById('ctoast-css')) { const st = document.createElement('style'); st.id = 'ctoast-css'; st.textContent = '#ctoast{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:2147482000;max-width:440px;margin:0 auto;background:#2a1c22;color:#fff;border-radius:20px;padding:10px 12px;box-shadow:0 18px 30px -12px rgba(0,0,0,.55);font-family:Poppins,system-ui,sans-serif;animation:ctIn .35s cubic-bezier(.3,1.4,.5,1);touch-action:none}#ctoast.out{transition:transform .25s,opacity .25s;transform:translateY(-120%);opacity:0}@keyframes ctIn{from{transform:translateY(-120%)}}#ctoast .r1{display:flex;align-items:center;gap:10px}#ctoast .a{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:15px}#ctoast .m{flex:1;min-width:0;cursor:pointer}#ctoast .m b{display:block;font-size:12px}#ctoast .m small{display:block;font-size:11.5px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ctoast .bl{background:#fff;color:#2a1c22;border:none;border-radius:12px;padding:7px 12px;font:600 11.5px Poppins,system-ui,sans-serif;flex-shrink:0;cursor:pointer}#ctoast .r2{display:flex;gap:6px;margin-top:9px}#ctoast input{flex:1;min-width:0;border:none;border-radius:12px;padding:9px 12px;font:400 14px Poppins,system-ui,sans-serif;outline:none;color:#2a1c22}#ctoast .sd{border:none;border-radius:12px;padding:0 14px;font:600 12px Poppins,system-ui,sans-serif;color:#fff;background:#d4718a;cursor:pointer}'; document.head.appendChild(st); }
+    const o = document.createElement('div'); o.id = 'ctoast'; o.dataset.sfxSkip = '1';
+    const col = L.w === 'Razan' ? '#5a8fcc' : '#d4718a', esc = t => String(t || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    o.innerHTML = `<div class="r1"><div class="a" style="background:${col}">${esc((L.w || '?')[0])}</div><div class="m"><b>${esc(L.w)}${n > 1 ? ` · ${n} pesan baru` : ''}</b><small>${esc(L.t)}</small></div><button class="bl">Balas</button></div>`;
+    document.body.appendChild(o);
+    let t = setTimeout(close, 7000), open = false, y0 = null;
+    function close() { clearTimeout(t); o.classList.add('out'); setTimeout(() => o.remove(), 260); }
+    o.querySelector('.m').onclick = () => { location.href = 'chat.html'; };
+    o.addEventListener('pointerdown', e => { if (e.target.closest('input,button')) return; y0 = e.clientY; });
+    o.addEventListener('pointermove', e => { if (y0 != null && e.clientY - y0 < -25) { y0 = null; close(); } });
+    o.addEventListener('pointerup', () => { y0 = null; });
+    o.querySelector('.bl').onclick = e => {
+      e.stopPropagation(); if (open) return; open = true; clearTimeout(t);
+      o.insertAdjacentHTML('beforeend', '<div class="r2"><input placeholder="Bales…" maxlength="500" enterkeyhint="send"><button class="sd">Kirim</button></div>');
+      const inp = o.querySelector('input'), go = () => {
+        const txt = inp.value.trim(); if (!txt) return close();
+        const w = me(), k = 'chat-q-' + w, Q = g(k, []) || [];
+        Q.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: txt, at: Date.now(), w, k: 'msg', q: 1 }); s(k, Q); s('chat-q-lock', 0); waitT = 0;
+        setTimeout(outbox, 50); o.querySelector('.r2').innerHTML = '<small style="font-size:12px;opacity:.85">✓ Kekirim ke ' + esc(L.w) + '</small>';
+        try { navigator.vibrate && navigator.vibrate(15); } catch (er) {} t = setTimeout(close, 1400);
+      };
+      o.querySelector('.sd').onclick = go; inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') go(); });
+      setTimeout(() => inp.focus(), 50);
+    };
   }
   function add() {
     if (!me()) return; css();
     btn = document.createElement('button'); btn.type = 'button'; btn.className = 'cfab'; btn.dataset.sfxSkip = '1';
     btn.addEventListener('click', e => { e.stopPropagation(); if (btn.classList.contains('mini')) { btn.classList.remove('mini'); shrink(); return; } location.href = 'chat.html'; });
+    if (window.__fabDock(btn, 2)) { paint(); setTimeout(peek, 2500); setInterval(peek, 90e3); hookChat0(); return; }
     document.body.appendChild(btn); window.__fabDrag(btn, 'fab-pos-chat'); paint(); shrink(); setTimeout(peek, 2500);
     setTimeout(lift, 900); addEventListener('resize', liftLater); setInterval(() => { if (!document.hidden) lift(); }, 4000);
     try { new MutationObserver(m => { if (m.some(x => x.target !== btn && !btn.contains(x.target))) liftLater(); }).observe(document.body, { attributes: true, attributeFilter: ['class', 'style'], childList: true, subtree: true }); } catch (e) {}
@@ -120,7 +176,7 @@
     const vis = () => { if (btn) btn.style.display = document.getElementById('olc-fab') || window.__inGame() ? 'none' : ''; }; vis(); setTimeout(vis, 600); setInterval(vis, 1500);
     setInterval(peek, 90e3);
     // ⚡ chat baru kedeteksi sama sync (nunggu di server) → badge langsung update
-    const hookChat = n => { if (window.Berdua && Berdua.on) Berdua.on(ev => { if (ev.apps && ev.apps.includes('chat')) peek(true); }); else if (n < 20) setTimeout(() => hookChat(n + 1), 400); }; hookChat(0); document.addEventListener('visibilitychange', () => { if (!document.hidden) peek(); });
+    hookChat0();
   }
   // ── 📤 pesan chat yg ngantri pas ga ada internet: dikirim dari halaman mana aja begitu internet balik ──
   function idbGet(k) { return new Promise(res => { try { const r = indexedDB.open('razara-chat', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => { try { const q = r.result.transaction('img', 'readonly').objectStore('img').get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); } catch (e) { res(null); } }; r.onerror = () => res(null); } catch (e) { res(null); } }); }
