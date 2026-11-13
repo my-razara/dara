@@ -94,6 +94,25 @@
     '#who-gate .wa{display:flex;gap:.5rem}#who-gate .wa button{flex:1;border:none;border-radius:50px;padding:.75rem;font:600 13px Poppins,sans-serif;cursor:pointer}' +
     '#who-gate .ok{color:#fff;background:#c17a6f}#who-gate .ok.R{background:#5a8fcc}#who-gate .ok.D{background:#d4718a}#who-gate .no{background:#f3eee9;color:#7a6a62}';
   var st = document.createElement('style'); st.textContent = css; (document.head || html).appendChild(st);
+  // ── tampilan baru (Nov 2026) buat halaman dalam: tombol balik kotak, kartu & tombol ikut warna tema ──
+  try {
+    var base = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+    if (base !== 'index' && base !== '') {
+      html.classList.add('ui2p');
+      var pc = document.createElement('style'); pc.id = 'ui2p-css';
+      pc.textContent = 'html.ui2p .top>a.pill[href="index.html"],html.ui2p .top>a.pill[href="./"]{font-size:0!important;width:38px;height:38px;padding:0!important;border-radius:14px!important;display:inline-flex!important;align-items:center;justify-content:center;background:var(--card,#fff)!important;border:1px solid rgba(138,51,82,.1)!important;flex-shrink:0}' +
+        'html.ui2p .top>a.pill[href="index.html"]::before,html.ui2p .top>a.pill[href="./"]::before{content:"←";font-size:16px;color:var(--ink)}' +
+        'html.ui2p .top>.pill:not(a){border-radius:14px;min-height:38px;display:inline-flex;align-items:center;background:var(--card,#fff);border-color:rgba(138,51,82,.1);color:var(--deep);font-weight:500}' +
+        'html.ui2p .card{border-radius:22px;border-color:rgba(138,51,82,.09);box-shadow:0 6px 20px -12px rgba(138,51,82,.22)}' +
+        'html.ui2p [class="btn"]{border-radius:18px;background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 10px 22px -12px var(--deep)}' +
+        'html.ui2p .btn.ghost{border-radius:18px}html.ui2p .btn.wa{border-radius:18px}' +
+        'html.ui2p .chips button.on{background:var(--deep);border-color:var(--deep)}' +
+        'html.ui2p .hub-tabs a.on{background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 6px 14px -6px var(--deep)}' +
+        'html.ui2p .sheet{border-radius:28px 28px 0 0}html.ui2p .ov.center .sheet{border-radius:28px}' +
+        'html.night.ui2p [class="btn"],html.night.ui2p .hub-tabs a.on{background:linear-gradient(135deg,#c95f7b,#7a3f5a)}html.night.ui2p .chips button.on{background:var(--rose);border-color:var(--rose)}';
+      (document.head || html).appendChild(pc);
+    }
+  } catch (e) {}
   function apply() { if (cur) html.setAttribute('data-user', cur); else html.removeAttribute('data-user'); }
   // isi semua kunci lama biar halaman lama otomatis ngikut
   function mirror() { if (!cur) return; var v = JSON.stringify(cur); KEYS.forEach(function (k) { try { if (ls.getItem(k) !== v) rawSet.call(ls, k, v); } catch (e) {} }); }

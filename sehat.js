@@ -26,6 +26,25 @@
     else { const m = rowsOf(APP, w); m[d] = row; ls(APP + '-' + w, m); }
   }
   const tgtGerak = () => g('sehat-tgt', 30);
+  const CFG = '2000-01-01';
+  function goalBerdua() { let best = null; WHO.forEach(w => { const c = rowsOf(APP, w)[CFG]; if (c && c.goal && (!best || (c.gat || 0) > best.gat)) best = { goal: c.goal, gat: c.gat || 0 }; }); return best ? best.goal : g('sehat-goal', 300); }
+  function setTarget() {
+    let d = tgtGerak(), wk = goalBerdua();
+    const o = document.createElement('div'); o.className = 'sh-sheet';
+    const draw = () => { o.innerHTML = `<div><div class="gr"></div><h3>🎯 Atur target</h3><p class="s">Pelan-pelan aja, yang penting rutin 💪</p>
+      <p class="sh-day" style="margin-top:.2rem">Gerak harian kamu</p><div class="sh-dur">${[15, 20, 30, 45, 60].map(n => `<button data-d="${n}" class="${d === n ? 'on' : ''}">${n} mnt</button>`).join('')}</div>
+      <p class="sh-day">Target berdua seminggu</p><div class="sh-dur">${[150, 200, 300, 400, 500].map(n => `<button data-w="${n}" class="${wk === n ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <p class="s" style="text-align:center">menit · keliatan sama ${ot(me())} juga</p><button class="sh-go" data-ok>Simpan</button></div>`;
+      o.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { d = +b.dataset.d; draw(); });
+      o.querySelectorAll('[data-w]').forEach(b => b.onclick = () => { wk = +b.dataset.w; draw(); });
+      o.querySelector('[data-ok]').onclick = () => {
+        const g0 = goalBerdua(); ls('sehat-tgt', d); ls('sehat-goal', wk);
+        if (wk !== g0) { const w = me(), c = Object.assign({}, rowsOf(APP, w)[CFG] || {}, { goal: wk, gat: Date.now() }); put(w, CFG, c); }
+        o.remove(); vib(15); toast(`🎯 Target: ${d} mnt sehari · ${wk} mnt berdua seminggu`); paint(); try { window.__u2 && __u2.refresh(); } catch (e) {}
+      };
+    };
+    o.onclick = e => { if (e.target === o) o.remove(); }; draw(); document.body.appendChild(o);
+  }
   function minum(w, d) { const r = rowsOf('minum', w)[d || ymd(new Date())] || {}; const goal = r.g || g('minum-goal', 8); return { n: Math.floor((r.ml || 0) / 250), g: goal, p: Math.min(1, (r.ml || 0) / (goal * 250)) }; }
   function tidur(w) {
     const r = rowsOf('tidur', w), t = day0(), y = new Date(t); y.setDate(y.getDate() - 1);
@@ -129,6 +148,7 @@
     host.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { sel = b.dataset.d; paint(); });
     host.querySelectorAll('[data-ck]').forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleDone(b.dataset.ck); });
     host.querySelectorAll('[data-wo]').forEach(b => b.onclick = () => startWO(b.dataset.wo));
+    host.querySelectorAll('[data-tgt]').forEach(b => b.onclick = e => { e.preventDefault(); setTarget(); });
     const mn = host.querySelector('[data-manual]'); if (mn) mn.onclick = manual;
   }
   function hariHTML() {
@@ -137,7 +157,7 @@
     let h = `<div class="sh-week">${HR.map((n, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); const k = ymd(d); return `<button data-d="${k}" class="${k === sel ? 'on' : ''} ${k === ymd(t) ? 'td' : ''}">${n}<b>${d.getDate()}</b><i class="${(sRow(w, k).m || 0) > 0 ? 'y' : ''}"></i></button>`; }).join('')}</div>`;
     const isToday = sel === ymd(t), G = gerak(w, sel), M = minum(w, sel), T = tidur(w);
     h += `<div class="u2-card sh-sum"><svg width="108" height="108" viewBox="-54 -54 108 108">${ring(47, G.p, '#d4718a', '#fbe3ea', 10)}${ring(34, M.p, '#6fa8dc', '#e1eef9', 10)}${isToday ? ring(21, T.p, '#a08ad6', '#ece6f8', 10) : ''}</svg>
-      <div class="sh-lg"><a href="#" data-wo-go><i style="background:#d4718a"></i>Gerak<b>${G.m}<small>/${tgtGerak()} mnt</small></b></a><a href="jaga-minum.html"><i style="background:#6fa8dc"></i>Minum<b>${M.n}<small>/${M.g} gelas</small></b></a>${isToday ? `<a href="tidur-kita.html"><i style="background:#a08ad6"></i>Tidur<b>${T.h ? String(Math.round(T.h * 10) / 10).replace('.', ',') : '–'}<small>/8 jam</small></b></a>` : ''}</div></div>`;
+      <div class="sh-lg"><a href="#" data-tgt style="justify-content:flex-end;color:var(--rose);font-weight:600;font-size:10.5px;margin:0 0 .2rem">🎯 Atur target</a><a href="#" data-wo-go><i style="background:#d4718a"></i>Gerak<b>${G.m}<small>/${tgtGerak()} mnt</small></b></a><a href="jaga-minum.html"><i style="background:#6fa8dc"></i>Minum<b>${M.n}<small>/${M.g} gelas</small></b></a>${isToday ? `<a href="tidur-kita.html"><i style="background:#a08ad6"></i>Tidur<b>${T.h ? String(Math.round(T.h * 10) / 10).replace('.', ',') : '–'}<small>/8 jam</small></b></a>` : ''}</div></div>`;
     const d = pYMD(sel), L = jadwalOn(sel), done = sRow(w, sel).done || [], now = new Date(), hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     const nextId = isToday ? (L.find(x => x.time && x.time >= hm && !done.includes(x.id)) || {}).id : null;
     h += `<div class="sh-lbl"><span>${isToday ? 'Agenda hari ini' : `Agenda ${['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][d.getDay()]}, ${d.getDate()}`}</span><a href="jadwal-kita.html?d=${sel}">Kalender →</a></div>`;
@@ -153,10 +173,10 @@
     return h;
   }
   function olahragaHTML() {
-    const wr = weekMins('Razan'), wd = weekMins('Dara'), goal = g('sehat-goal', 300), mx = Math.max(goal / 2, wr, wd, 1), st = streak();
+    const wr = weekMins('Razan'), wd = weekMins('Dara'), goal = goalBerdua(), mx = Math.max(goal / 2, wr, wd, 1), st = streak();
     let h = `<div class="u2-card sh-duo"><div class="h"><b>Minggu ini berdua</b>${st ? `<span>🔥 ${st} hari beruntun</span>` : ''}</div>
       ${WHO.map(w => { const n = w === 'Razan' ? wr : wd; return `<div class="sh-vs"><span class="w" style="color:${COL[w]}">${w}</span><div class="tr"><b style="width:${Math.round(n / mx * 100)}%;background:${COL[w]}"></b></div><small>${n} mnt</small></div>`; }).join('')}
-      <div class="sh-goal">🎯<div class="tr"><b style="width:${Math.min(100, Math.round((wr + wd) / goal * 100))}%"></b></div><span><b>${wr + wd}</b>/${goal} mnt</span></div></div>`;
+      <div class="sh-goal" data-tgt style="cursor:pointer">🎯<div class="tr"><b style="width:${Math.min(100, Math.round((wr + wd) / goal * 100))}%"></b></div><span><b>${wr + wd}</b>/${goal} mnt ✏️</span></div></div>`;
     let pet = null; try { pet = window.Pet && Pet.state(); } catch (e) {}
     if (pet) { const A = Pet.animal(pet.a); h += `<a class="sh-pet" href="peliharaan.html"><span class="e">${A.e}</span><span><b>${esc(pet.n || A.n)} ikut semangat!</b><br>Tiap 5 menit olahraga = +1 🪙 buat ${esc(pet.n || A.n)} (maks 12 sehari)</span></a>`; }
     const lv = partnerLive(); if (lv) h += `<div class="u2-card" style="padding:.7rem .9rem;margin-bottom:.8rem;font-size:12px">🟢 <b>${ot(me())}</b> lagi latihan <b>${esc((WO[lv.k] || {}).n || lv.k)}</b> sekarang. Ikutan yuk!</div>`;
@@ -211,6 +231,12 @@
     let i = 0, left = W.mv[0].s, paused = false, used = 0, wake = null, liveT = 0;
     try { navigator.wakeLock && navigator.wakeLock.request('screen').then(w => wake = w).catch(() => {}); } catch (e) {}
     setLive(k); liveT = setInterval(() => setLive(k), 60e3);
+    // 🏃 status di tab Kita otomatis "Lagi olahraga" selama latihan
+    const stKey = 'status-' + me(), stLast = () => { const m = g(stKey, {}) || {}, ks = Object.keys(m).sort(); return ks.length ? m[ks[ks.length - 1]] : null; };
+    const prevSt = stLast(), secs = W.mv.reduce((a, m) => a + m.s, 0);
+    try { BD() && BD().put && BD().put('status', me(), ymd(new Date()), { e: '🏃', t: `Lagi olahraga · ${W.n}`, at: Date.now(), until: Date.now() + (secs + 600) * 1000, auto: 1 }); window.__renderRows && __renderRows(); } catch (e) {}
+    try { window.Push && Push.notify({ title: `🏃 ${me()} mulai ${W.n}`, body: 'Ikutan yuk, biar latihan bareng 💪', url: './#sehat', tag: 'sehat' }); } catch (e) {}
+    const stBack = () => { try { const c = stLast(); if (!c || !c.auto) return; const ok = prevSt && prevSt.e && !prevSt.auto && (!prevSt.until || prevSt.until > Date.now()); BD().put('status', me(), ymd(new Date()), ok ? Object.assign({}, prevSt, { at: Date.now() }) : { e: '', t: '', at: Date.now(), until: 1 }); window.__renderRows && __renderRows(); } catch (e) {} };
     const C = 2 * Math.PI * 45;
     const beep = n => { try { window.SFX && SFX.play(n || 'tap'); } catch (e) {} };
     function draw() {
@@ -230,7 +256,7 @@
     function next() { if (i >= W.mv.length - 1) return finish(false); i++; left = W.mv[i].s; vib([20, 40, 20]); if (!g('lt-mute', 0)) beep(W.mv[i].rest ? 'tap' : 'pop'); draw(); }
     const tick = setInterval(() => { if (paused || document.hidden) return; left--; used++; if (left <= 3 && left > 0 && !g('lt-mute', 0)) beep('tap'); if (left <= 0) next(); else { const b = el.querySelector('.lt-big .c b'), c = el.querySelectorAll('.lt-big circle')[1]; if (b) b.textContent = `${Math.floor(left / 60)}:${pad(left % 60)}`; if (c) c.setAttribute('stroke-dashoffset', (C * (1 - (1 - left / W.mv[i].s))).toFixed(1)); } }, 1000);
     function finish(quit) {
-      clearInterval(tick); clearInterval(liveT); try { wake && wake.release(); } catch (e) {}
+      clearInterval(tick); clearInterval(liveT); try { wake && wake.release(); } catch (e) {} stBack();
       const mins = Math.round(used / 60);
       if (quit && mins < 1) { setLive(null); el.remove(); LT = null; return; }
       const c = mins >= 1 ? logMins(W.n, mins) : (setLive(null), 0);
