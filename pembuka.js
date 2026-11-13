@@ -51,7 +51,7 @@
       ${!night && pet ? `<div class="pb-bub">hai ${who}! 🐾</div><div class="pb-peek">${PE}</div>` : ''}
       <div class="pb-slide" id="pb-slide"><div class="pb-knob" id="pb-knob">${night ? '🌙' : '💗'}</div><p>Geser buat masuk<small>atau tap aja</small></p></div>`;
     w.querySelectorAll('.pb-pol img').forEach(im => { im.onload = () => im.classList.add('ok'); im.onerror = () => { if (!im.dataset.t) { im.dataset.t = 1; im.src = `https://drive.google.com/thumbnail?id=${im.dataset.id}&sz=w400`; } else im.remove(); }; });
-    const go = () => { if (w.classList.contains('hide')) return; vib(15); try { window.enterApp(); } catch (e) { w.classList.add('hide'); } setTab('beranda'); setTimeout(sambutOnce, 700); };
+    const go = () => { if (w.classList.contains('hide')) return; vib(15); try { window.enterApp(); } catch (e) { w.classList.add('hide'); } setTab('beranda');; };
     const nb = w.querySelector('[data-go]'); if (nb) nb.onclick = go;
     // geser buat masuk (tap juga bisa)
     const sl = $('pb-slide'), kn = $('pb-knob'); let x0 = null, dx = 0;
@@ -60,17 +60,6 @@
     const up = () => { if (x0 == null) return; x0 = null; sl.classList.remove('drag'); const max = sl.clientWidth - kn.offsetWidth - 12; if (dx < 8 || dx > max * .6) { kn.style.transform = `translateX(${max}px)`; setTimeout(go, 120); } else kn.style.transform = ''; };
     sl.addEventListener('pointerup', up); sl.addEventListener('pointercancel', () => { x0 = null; sl.classList.remove('drag'); kn.style.transform = ''; });
   }
-  // 💌 sambutan: kalimat lama Razan, muncul sekali + bisa dibuka lagi dari tab Kita
-  function sambut() {
-    const app = (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches)) || navigator.standalone === true;
-    const o = document.createElement('div'); o.className = 'u2-sambut';
-    o.innerHTML = `<div><small>✨ Selamat datang di</small><h2>${app ? 'Aplikasi' : 'Website'} Kesayangan Aku</h2><span class="nm">Dara Syifa Aulia 🌸</span>
-      <p>Di sini ada semua yang aku buat khusus buat kamu — dari games, hadiah digital, sampai hal-hal kecil yang bikin aku inget kamu setiap hari.</p><i>— Dengan cinta, Razan 🤍</i><button>Masuk ke Dunia Kita 💝</button></div>`;
-    o.onclick = e => { if (e.target === o || e.target.tagName === 'BUTTON') o.remove(); };
-    document.body.appendChild(o);
-  }
-  function sambutOnce() { if (g('u2-sambut', 0)) return; sv('u2-sambut', Date.now()); sambut(); }
-
-  window.Pembuka = { sapa, sambut, sambutOnce };
+  window.Pembuka = { sapa };
   pembuka();
 })();

@@ -20,7 +20,6 @@
   document.documentElement.classList.add('ui2');
 
   // 🌅 layar pembuka ada di pembuka.js (dimuat paling awal biar ga kedip layar lama)
-  const sambut = () => window.Pembuka && Pembuka.sambut(), sambutOnce = () => window.Pembuka && Pembuka.sambutOnce();
   const sapa = () => window.Pembuka ? Pembuka.sapa() : ['Halo', '🤍'];
 
   // ══════════ 🧱 KERANGKA ══════════
@@ -42,7 +41,6 @@
   const hs = el('u2-hs', 'kita', 226, '');
   el('u2-lbl', 'kita', 279, '<span>Pengaturan</span>');
   const sett = el('u2-card u2-set', 'kita', 280, '');
-  el('u2-love', 'kita', 290, 'Dibuat dengan cinta, Razan 🤍', 'button').onclick = sambut;
   // isi grid kategori lama (#cat-body) pindah ke Jelajah
   const cb = $('cat-body'); if (cb) { cb.dataset.u2 = '1'; cb.dataset.pane = 'jelajah'; cb.style.order = 170; cb.classList.add('u2-ns'); home.appendChild(cb); }
 
@@ -119,7 +117,7 @@
     route();
     if (!keep && was !== t) home.scrollTop = pos[t] || 0;
   }
-  window.__u2 = { setTab, refresh: () => { paintBeranda(); if (cur === 'sehat' && window.Sehat) Sehat.paint(); }, sambut };
+  window.__u2 = { setTab, refresh: () => { paintBeranda(); if (cur === 'sehat' && window.Sehat) Sehat.paint(); } };
 
   // ── menu bawah ──
   const nav = $('bnav');
@@ -227,6 +225,4 @@
   setInterval(() => { if (!document.hidden && cur === 'beranda') paintBeranda(); }, 60e3);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { paintBeranda(); if (cur === 'sehat' && window.Sehat) Sehat.paint(); } });
   try { window.Berdua && Berdua.on && Berdua.on(ev => { if (ev.apps && ev.apps.length) { badges(); if (cur === 'beranda') paintBeranda(); } }); } catch (e) {}
-  // kalau welcome udah dilewatin (balik dari halaman lain) & belum pernah liat sambutan
-  if (document.documentElement.classList.contains('no-welcome')) setTimeout(sambutOnce, 1200);
 })();
