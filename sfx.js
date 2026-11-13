@@ -291,20 +291,34 @@
   }
 
 
-  // ── 📌 halaman yang punya bar atas (.top): 🎵 & 💬 nempel di bar itu, ga ngambang lagi ──
+  // ── 📌 🎵 & 💬 nempel di bar atas halaman (kalau barnya standar), atau di pojok kanan atas kalau pojoknya kosong ──
   window.__fabDock = window.__fabDock || function (el, order) {
     try {
       const H = document.documentElement; if (H.classList.contains('ui2') || H.classList.contains('embed')) return false;
-      const bar = document.querySelector('.wrap > .top') || document.querySelector('body > .top'); if (!bar) return false;
-      const cs = getComputedStyle(bar), r = bar.getBoundingClientRect(); if (cs.display === 'none' || cs.position === 'fixed' || r.top > 160 || r.height > 90) return false;
-      if (!document.getElementById('fab-dock-css')) { const st = document.createElement('style'); st.id = 'fab-dock-css'; st.textContent = '.fab-dock{display:inline-flex;gap:6px;align-items:center;margin-left:auto;margin-right:6px;flex-shrink:0}.fab-dock>.docked{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:34px!important;height:34px!important;min-width:0!important;font-size:15px!important;box-shadow:none!important;transform:none!important;opacity:1!important;z-index:auto!important;visibility:visible!important;margin:0!important;padding:0!important;border:1px solid rgba(193,122,111,.22)!important;background:rgba(255,255,255,.88)!important;display:flex!important;align-items:center;justify-content:center;border-radius:12px!important;animation:none!important}html.night .fab-dock>.docked{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.12)!important}.fab-dock>.docked i{top:-6px!important;right:-6px!important}.top.fab-tight>a.pill:first-child{font-size:0!important;padding-left:.75rem!important;padding-right:.75rem!important}.top.fab-tight>a.pill:first-child::before{content:"←";font-size:14px}'; document.head.appendChild(st); }
-      let d = bar.querySelector('.fab-dock');
-      if (!d) { d = document.createElement('span'); d.className = 'fab-dock'; const k = bar.children; if (k.length >= 2) bar.insertBefore(d, k[k.length - 1]); else bar.appendChild(d); }
+      if (!document.getElementById('fab-dock-css')) { const st = document.createElement('style'); st.id = 'fab-dock-css'; st.textContent = '.fab-dock{display:inline-flex;gap:6px;align-items:center;margin-left:auto;margin-right:6px;flex-shrink:0}.fab-corner{position:fixed;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:8900;display:flex;gap:6px}.fab-dock>.docked,.fab-corner>.docked{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:34px!important;height:34px!important;min-width:0!important;font-size:15px!important;box-shadow:none!important;transform:none!important;opacity:1!important;z-index:auto!important;visibility:visible!important;margin:0!important;padding:0!important;border:1px solid rgba(193,122,111,.22)!important;background:rgba(255,255,255,.88)!important;display:flex!important;align-items:center;justify-content:center;border-radius:12px!important;animation:none!important}.fab-corner>.docked{box-shadow:0 4px 12px rgba(60,30,40,.12)!important}html.night .fab-dock>.docked,html.night .fab-corner>.docked{background:rgba(40,30,40,.85)!important;border-color:rgba(255,255,255,.12)!important}.fab-dock>.docked i,.fab-corner>.docked i{top:-6px!important;right:-6px!important}.top.fab-tight>a.pill:first-child{font-size:0!important;padding-left:.75rem!important;padding-right:.75rem!important}.top.fab-tight>a.pill:first-child::before{content:"←";font-size:14px}'; document.head.appendChild(st); }
       el.classList.add('docked'); el.dataset.moved = '1'; el.style.order = order;
-      const sib = [...d.children].find(x => +x.style.order > order); if (sib) d.insertBefore(el, sib); else d.appendChild(el);
-      const fit = () => { bar.classList.remove('fab-tight'); if (bar.scrollWidth > bar.clientWidth + 2) bar.classList.add('fab-tight'); };
-      fit(); setTimeout(fit, 400); addEventListener('resize', fit);
-      return true;
+      const put = d => { const sib = [...d.children].find(x => +x.style.order > order); if (sib) d.insertBefore(el, sib); else d.appendChild(el); };
+      // 1) bar atas standar: [← balik] … [🙋 nama]
+      const okBar = b => { if (!b) return false; const cs = getComputedStyle(b), r = b.getBoundingClientRect(); return cs.display.indexOf('flex') >= 0 && cs.position !== 'fixed' && r.top < 160 && r.top > -10 && r.height < 90 && r.width >= innerWidth * .7; };
+      const bar = [...document.querySelectorAll('.top')].find(t => okBar(t) && (t.querySelector('#me-pill') || (t.lastElementChild && t.lastElementChild.classList.contains('pill'))));
+      if (bar) {
+        let d = bar.querySelector('.fab-dock');
+        if (!d) { d = document.createElement('span'); d.className = 'fab-dock'; bar.insertBefore(d, bar.lastElementChild); }
+        put(d);
+        const fit = () => { bar.classList.remove('fab-tight'); if (bar.scrollWidth > bar.clientWidth + 2) bar.classList.add('fab-tight'); };
+        fit(); setTimeout(fit, 400); addEventListener('resize', fit);
+        return true;
+      }
+      // 2) pojok kanan atas, cuma kalau di situ ga ada tombol/tulisan
+      if ((window.__inGame && window.__inGame()) || document.querySelector('script[src*="hub.js"], script[src*="sub.js"]')) { el.classList.remove('docked'); delete el.dataset.moved; return false; }   // game / halaman bertab gabungan → tetep kayak dulu
+      let c = document.querySelector('.fab-corner');
+      if (!c) {
+        const busy = [[innerWidth - 24, 28], [innerWidth - 64, 28], [innerWidth - 24, 52], [innerWidth - 64, 52]].some(([x, y]) => { const e = document.elementFromPoint(x, y); return e && e !== document.body && e !== H && !!e.closest('a,button,input,select,textarea,label,[onclick],canvas,img,svg,video,iframe,h1,h2,h3,h4,p,span,b,small,li,td'); });
+        if (busy) { el.classList.remove('docked'); delete el.dataset.moved; return false; }
+        c = document.createElement('div'); c.className = 'fab-corner'; c.style.display = 'none'; document.body.appendChild(c);
+        const gh = () => { c.style.display = window.__inGame && window.__inGame() ? 'none' : 'flex'; let y = 0; document.querySelectorAll('.hub-tabs, .sub-tabs').forEach(t => { const r = t.getBoundingClientRect(); if (r.top < 200 && r.bottom > y) y = r.bottom; }); c.style.top = y ? (y + 10) + 'px' : ''; };   // ada tab gabungan di atas → turun ke bawahnya setTimeout(gh, 700); setInterval(gh, 1500);   // lagi main game → ngumpet kayak dulu
+      }
+      put(c); return true;
     } catch (e) { return false; }
   };
 

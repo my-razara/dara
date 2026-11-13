@@ -107,6 +107,7 @@
         'html.ui2p [class="btn"]{border-radius:18px;background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 10px 22px -12px var(--deep)}' +
         'html.ui2p .btn.ghost{border-radius:18px}html.ui2p .btn.wa{border-radius:18px}' +
         'html.ui2p .chips button.on{background:var(--deep);border-color:var(--deep)}' +
+        'html.ui2p .sub-tabs a.on{background:linear-gradient(135deg,var(--rose),var(--deep))!important}' +
         'html.ui2p .hub-tabs a.on{background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 6px 14px -6px var(--deep)}' +
         'html.ui2p .sheet{border-radius:28px 28px 0 0}html.ui2p .ov.center .sheet{border-radius:28px}' +
         'html.night.ui2p [class="btn"],html.night.ui2p .hub-tabs a.on{background:linear-gradient(135deg,#c95f7b,#7a3f5a)}html.night.ui2p .chips button.on{background:var(--rose);border-color:var(--rose)}';

@@ -42,7 +42,8 @@
     css.textContent = `.hub-tabs{position:relative;z-index:5;margin:0 0 .75rem;background:rgba(255,255,255,.82);border:1px solid rgba(193,122,111,.16);border-radius:18px;padding:.45rem .45rem .5rem;box-shadow:0 4px 16px rgba(193,122,111,.07);font-family:'Poppins',system-ui,sans-serif}
     .hub-tabs .ht{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#c9a96e;font-weight:600;text-align:center;margin:0 0 .35rem}
     .hub-tabs .hr{display:grid;grid-template-columns:repeat(${G.tabs.length},minmax(0,1fr));gap:.3rem}
-    .hub-tabs a{position:relative;display:block;text-align:center;text-decoration:none;color:#9a8070;border-radius:13px;padding:.35rem .15rem .32rem;font-size:10.5px;font-weight:500;line-height:1.2;min-width:0;overflow:hidden;overflow-wrap:anywhere}
+    .hub-tabs a{position:relative;display:block;text-align:center;text-decoration:none;color:#9a8070;border-radius:13px;padding:.35rem .15rem .32rem;font-size:10.5px;font-weight:500;line-height:1.2;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    @media (max-width:360px){.hub-tabs a{font-size:9.5px;letter-spacing:-.2px;padding-left:.05rem;padding-right:.05rem}}
     .hub-tabs a span{display:block;font-size:1.15rem;line-height:1.25}
     .hub-tabs a.on{background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(168,88,76,.25)}
     .hub-tabs a i{position:absolute;top:2px;right:3px;font-style:normal;font-size:8.5px;font-weight:700;background:#2e7d4f;color:#fff;border-radius:50px;padding:0 .3rem;line-height:1.5}

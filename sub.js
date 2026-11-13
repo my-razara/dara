@@ -9,7 +9,7 @@
   if (!SUBS.length) return;
   var ov = null, frame = null, cur = '';
   var css = '.sub-tabs{position:relative;z-index:60;margin:.55rem auto .7rem;max-width:460px;width:calc(100% - 1.5rem);background:rgba(255,255,255,.9);border:1px solid rgba(193,122,111,.16);border-radius:16px;padding:.3rem;display:grid;gap:.25rem;box-shadow:0 4px 14px rgba(193,122,111,.08);font-family:Poppins,system-ui,sans-serif;box-sizing:border-box}' +
-    '.sub-tabs a{display:flex;align-items:center;justify-content:center;gap:.3rem;text-align:center;text-decoration:none;color:#9a8070;border-radius:12px;padding:.42rem .3rem;font-size:11.5px;font-weight:600;line-height:1.2;min-width:0;overflow-wrap:anywhere}' +
+    '.sub-tabs a{display:flex;align-items:center;justify-content:center;gap:.3rem;text-align:center;text-decoration:none;color:#9a8070;border-radius:12px;padding:.42rem .3rem;font-size:11.5px;font-weight:600;line-height:1.2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}@media (max-width:380px){.sub-tabs a{flex-direction:column;gap:.05rem;font-size:10.5px;padding:.38rem .15rem}.sub-tabs a span{font-size:1.15rem;line-height:1.15}}' +
     '.sub-tabs a span{font-size:1.05rem}.sub-tabs a.on{background:linear-gradient(135deg,#d48c80,#a8584c);color:#fff;box-shadow:0 3px 10px rgba(168,88,76,.25)}' +
     'html[data-user=Razan] .sub-tabs a.on{background:linear-gradient(135deg,#7eaee0,#4a7fc1)}html[data-user=Dara] .sub-tabs a.on{background:linear-gradient(135deg,#e891a6,#c25a78)}' +
     '#sub-ov{position:fixed;inset:0;z-index:9500;background:var(--cream,#faf6f0);display:flex;flex-direction:column}#sub-ov .sub-tabs{margin:calc(.45rem + env(safe-area-inset-top)) auto .35rem;flex:0 0 auto}' +

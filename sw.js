@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v127';
+const VERSI = 'v128';
 const CACHE = 'untuk-dara-' + VERSI;
 // (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
@@ -339,6 +339,23 @@ async function cekIngat() {
   } catch (e) {}
 }
 
+// ═══ 🏃 PENGINGAT SEHAT ═══ (ringkasan dititip sync.js) — maks 1 notif sehari, ga pas jam tidur
+async function cekSehat() {
+  if (self.Notification && Notification.permission !== 'granted') return;
+  try {
+    const c = await caches.open('untuk-dara-meta'), r = await c.match('/__sehat'); if (!r) return;
+    const v = await r.json(), d = new Date(), h = d.getHours(), p = n => String(n).padStart(2, '0'), today = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    const sr = await c.match('/__sehat-sent'), sent = sr ? await sr.json() : {}; if (sent.d === today) return;
+    const fresh = v.d === today, m = fresh ? v.m : 0, gl = fresh ? Math.floor((v.ml || 0) / 250) : 0, goal = v.g || 8;
+    let title = '', body = '';
+    if (h >= 17 && h < 21 && m < (v.tgt || 30) / 2) { title = '🏃 Belum gerak hari ini'; body = m ? `Baru ${m} menit. Stretching 5 menit aja juga udah lumayan 💪` : 'Yoga santai atau stretching 5 menit aja yuk, biar badan ga kaku 💪'; }
+    else if (h >= 14 && h < 18 && gl < goal / 2) { title = '💧 Jangan lupa minum'; body = gl ? `Baru ${gl} gelas hari ini, target ${goal}. Minum segelas dulu yuk` : `Target ${goal} gelas hari ini. Minum segelas dulu yuk`; }
+    else return;
+    await self.registration.showNotification(title, { body, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: 'sehat-ingat', data: { url: './#sehat' } });
+    await c.put('/__sehat-sent', new Response(JSON.stringify({ d: today })));
+  } catch (e) {}
+}
+
 // ═══ PELIHARAAN LAPER ═══ (status dititip pet.js)
 async function cekPet() {
   if (self.Notification && Notification.permission !== 'granted') return;
@@ -391,8 +408,8 @@ self.addEventListener('push', e => {
 });
 // alamat notif diganti browser → tandain, nanti halaman daftar ulang pas dibuka
 self.addEventListener('pushsubscriptionchange', e => { e.waitUntil(caches.open('untuk-dara-meta').then(c => c.put('/__pushchg', new Response('1')))); });
-self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(Promise.all([cekKabar(), cekIngat(), cekPet(), cekMisi()])); });
-self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); if (e.data === 'cek-ingat') e.waitUntil(cekIngat()); if (e.data === 'cek-pet') e.waitUntil(cekPet()); if (e.data === 'cek-misi') e.waitUntil(cekMisi()); });
+self.addEventListener('periodicsync', e => { if (e.tag === 'cek-kabar') e.waitUntil(Promise.all([cekKabar(), cekIngat(), cekPet(), cekMisi(), cekSehat()])); });
+self.addEventListener('message', e => { if (e.data === 'cek-kabar') e.waitUntil(cekKabar()); if (e.data === 'cek-ingat') e.waitUntil(cekIngat()); if (e.data === 'cek-pet') e.waitUntil(cekPet()); if (e.data === 'cek-misi') e.waitUntil(cekMisi()); if (e.data === 'cek-sehat') e.waitUntil(cekSehat()); });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;

@@ -37,11 +37,22 @@
   }
 
   // ── tulis: langsung ke HP, kirimnya nyusul ──
+  // 🏃 titip ringkasan gerak & minum hari ini ke service worker (buat pengingat halus sekali sehari)
+  function snapSehat(who) {
+    try {
+      if (who !== me() || !window.caches) return;
+      const d = new Date(), td = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const mn = (g('minum-' + who, {}) || {})[td] || {}, sh = (g('sehat-' + who, {}) || {})[td] || {};
+      const v = { d: td, who, m: Math.round(sh.m || 0), tgt: g('sehat-tgt', 30), ml: mn.ml || 0, g: mn.g || g('minum-goal', 8), at: Date.now() };
+      caches.open('untuk-dara-meta').then(c => c.put('/__sehat', new Response(JSON.stringify(v)))).catch(() => {});
+    } catch (e) {}
+  }
   function put(app, who, date, data) {
     if (!okApp(app) || !WHO.includes(who) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
     const lk = keyOf(app, who), m = g(lk, {}) || {};
     if (data == null) delete m[date]; else m[date] = data;
     s(lk, m);
+    if (app === 'minum' || app === 'sehat') snapSehat(who);
     const now = Date.now(), st = g('bd-stamp', {}); st[id(app, who, date)] = now; s('bd-stamp', st);
     if (!URL) return;
     const q = g('bd-queue', []).filter(x => id(x.app, x.who, x.date) !== id(app, who, date));
