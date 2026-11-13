@@ -220,6 +220,7 @@
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a) return; const h = a.getAttribute('href').slice(1); if (TABS.includes(h)) { e.preventDefault(); setTab(h); } });
   const h0 = location.hash.slice(1);
   setTab(TABS.includes(h0) ? h0 : (ss.get('u2-tab') || 'beranda'), true);
+  route(); requestAnimationFrame(() => document.documentElement.classList.add('u2-ready'));
   if (TABS.includes(h0)) { try { history.replaceState(null, '', location.pathname); } catch (e) {} const wl = $('s-welcome'); if (wl) wl.style.display = 'none'; }
   setInterval(() => { if (!document.hidden) { badges(); route(); } }, 3000);
   setInterval(() => { if (!document.hidden && cur === 'beranda') paintBeranda(); }, 60e3);
