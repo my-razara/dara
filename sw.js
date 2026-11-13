@@ -1,6 +1,6 @@
 // ═══ Untuk Dara — service worker (bikin website bisa di-install & tetap jalan pas offline) ═══
 // Naikkan angka VERSI kalau mau maksa semua HP buang simpanan lama.
-const VERSI = 'v119';
+const VERSI = 'v120';
 const CACHE = 'untuk-dara-' + VERSI;
 // (daftar lama — sekarang halaman disimpen pas dibuka)
 const HALAMAN = [
@@ -352,7 +352,10 @@ async function cekPet() {
     if (now - (sent.at || 0) < 6 * 36e5) return;
     const me = await siapa(), fed = p.fed ? `${p.fed.w === me ? 'Kamu' : p.fed.w} terakhir ngasih makan ${Math.round((now - p.fed.t) / 36e5)} jam lalu.` : '';
     let title = '', body = '';
-    if (k < 25) { title = `${p.e} ${p.n} laper nih 🥺`; body = `${fed} Kasih makan yuk!`.trim(); }
+    const idle = (now - (p.ref || p.t)) / 36e5;
+    if (idle > 48) { title = `${p.e} ${p.n} kabur ke rumah nenek 🧳`; body = 'Udah 2 hari ga ada yang ngurus. Panggil pulang bareng yuk 📣'; }
+    else if (idle > 24 || p.sick) { title = `${p.e} ${p.n} lagi sakit 🤒`; body = 'Kasih obat 💊 atau rawat berdua biar cepet sembuh'; }
+    else if (k < 25) { title = `${p.e} ${p.n} laper nih 🥺`; body = `${fed} Kasih makan yuk!`.trim(); }
     else if (s < 20) { title = `${p.e} ${p.n} kesepian…`; body = 'Udah lama ga diajak main. Elus atau ajak main bentar yuk 🎾'; }
     else return;
     await self.registration.showNotification(title, { body, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: 'pet', renotify: true, data: { url: 'peliharaan.html' } });

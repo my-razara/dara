@@ -1457,6 +1457,7 @@ const UPDATED = {
   'tebak-warna.html':           '2026-10-07',
   'who-knows-me.html':          '2026-10-12',
   'word-search.html':           '2026-09-30',
+  'peliharaan.html':            '2026-11-13',
 };
 const NEW_DAYS = 30;
 const updDate = link => { const d = UPDATED[link]; if (!d) return null; const [y, mo, da] = d.split('-').map(Number); return new Date(y, mo - 1, da).getTime(); };
@@ -3033,6 +3034,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-11-13 20:00', t: '🐾 Peliharaan sekarang bisa 🤒 sakit kalau dicuekin seharian — sembuhin pakai 💊 obat (15 koin) atau dirawat berdua. Kalau 2 hari ga diurus, dia 🧳 kabur ke rumah nenek dan baru pulang kalau kita berdua manggil 📣 Terus yang lagi bobo sekarang bisa ☀️ dibangunin' },
     { d: '2026-11-03 17:30', t: '🎬 Film Kita episode 1–3 sekarang pakai suara baru yang lebih natural, plus efek suara & musik latar yang ngikutin tiap adegan 🎧 Tonton lagi di 📸 Kenangan Kita → tab Timeline' },
     { d: '2026-11-02 09:00', t: '🐾 Peliharaan sekarang 3D! Bisa diputer, dielus, dimandiin sampe berbusa. Ada 4 ruangan (kamar, dapur, kamar mandi, main), 🪙 koin dari ngurus & main, terus 👗 lemari isi 44 baju + 10 warna bulu yang bisa dibeli. Baju yang udah kebuka tetep aman 🤍' },
     { d: '2026-10-26 17:00', t: '🎬 Film Kita · Episode 3 “Tahun Pertama” udah tayang — ganti ke aku-kamu (yang bikin ngambek 😤), hari ke-100 pas ultah, kaca baru, lari sampe kandang rusa, sampai setahun 🤍 Tonton di 📸 Kenangan Kita → tab Timeline' },
@@ -3591,6 +3593,7 @@ setTimeout(() => {
   .pc-acts button{border:1px solid rgba(193,122,111,.18);background:var(--cream);border-radius:14px;padding:.4rem 0 .3rem;font:500 9.5px 'Poppins',sans-serif;color:var(--deep);cursor:pointer;line-height:1.2}
   .pc-acts button span{display:block;font-size:17px;margin-bottom:.05rem}
   .pc-acts button:active{transform:scale(.93)}
+  .pc-acts button.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:11px;padding:.55rem .4rem}.pc-acts button.wide span{display:inline;margin:0}.pc-acts button:disabled{opacity:.55}
   .pc-f{display:flex;justify-content:space-between;align-items:center;gap:.4rem;margin-top:.5rem;font-size:10.5px;color:var(--muted)}
   .pc-f a{color:var(--rose);font-weight:600;text-decoration:none;white-space:nowrap}
   .pc.mini .pc-acts,.pc.mini .pc-bars,.pc.mini .pc-f{display:none}
@@ -3599,6 +3602,7 @@ setTimeout(() => {
   .pc-new{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:inherit}
   .pc-new .eggs{font-size:30px;letter-spacing:-.15em;flex:0 0 auto}
   .pc-av.v3{width:78px;height:90px}.pc-av.v3 .pe,.pc-av.v3 .pa{display:none}.pc-av .m3{position:absolute;inset:0;pointer-events:none}
+  .pc.f-kabur .pc-av.v3 .pe{display:block;position:relative;z-index:1}.pc.f-kabur .pe{animation:pcBreath 3.5s ease-in-out infinite}.pc.f-sakit .pe{animation:pcSad 3s ease-in-out infinite;filter:saturate(.7)}
   .pc-av.ld{width:78px;height:90px;background:linear-gradient(110deg,rgba(232,196,176,.25) 30%,rgba(255,255,255,.7) 50%,rgba(232,196,176,.25) 70%);background-size:200% 100%;animation:pcShim 1.2s linear infinite}.pc-av.ld .pe,.pc-av.ld .pa{visibility:hidden}
   .pc.mini .pc-av.ld{width:46px;height:54px}
   @keyframes pcShim{to{background-position:-200% 0}}
@@ -3619,18 +3623,20 @@ setTimeout(() => {
     const st = Pet.state();
     if (!st) { slot.innerHTML = `<div class="pc"><a class="pc-new" href="peliharaan.html"><span class="eggs">🐱🐶🐰</span><span class="pc-i"><span class="pc-n"><b>Adopsi peliharaan yuk!</b></span><span class="pc-m" style="display:block">Satu peliharaan buat berdua — pilih hewannya, kasih nama, rawat bareng 🐾</span></span><span style="color:var(--rose);font-weight:700">→</span></a></div>`; return; }
     const A = Pet.animal(st.a), v = Pet.now(st), L = Pet.lvl(st.xp), S = Pet.stage(L), md = Pet.mood(st), fk = st.fit ? (st.fit.top || st.fit.eye || st.fit.neck || st.fit.back) : '', fi = fk && Pet.itemOf ? Pet.itemOf(fk) : null, acc = fi ? { e: fi.e, k: { top: 'topi', eye: 'kacamata', neck: 'syal', back: 'sayap' }[fi.s] } : Pet.accOf(st.acc), mini = get('pet-mini', false);
-    const last = st.log[0];
+    const last = st.log[0], aw = Pet.away && Pet.away(st), sk = Pet.sick && Pet.sick(st), zz = Pet.asleep(st), meW = Pet.me(), nmE = (st.n || A.n).replace(/</g, '&lt;');
+    const acts = aw ? `<button data-a="panggil" class="wide" ${aw.calls[meW] ? 'disabled' : ''}><span>📣</span>${aw.calls[meW] ? `Udah manggil · tunggu ${meW === 'Razan' ? 'Dara' : 'Razan'}` : `Panggil ${nmE} pulang dari rumah nenek`}</button>`
+      : Object.entries(Pet.ACTS).map(([k, ic]) => k === 'tidur' && zz ? `<button data-a="bangun"><span>☀️</span>Bangun</button>` : k === 'main' && sk ? `<button data-a="obat"><span>💊</span>Obat</button>` : `<button data-a="${k}"><span>${ic}</span>${{ makan: 'Makan', elus: 'Elus', mandi: 'Mandi', main: 'Main', tidur: 'Tidur' }[k]}</button>`).join('');
     slot.innerHTML = `<div class="pc f-${md.f}${mini ? ' mini' : ''}${hop ? ' hop' : ''}" id="pc">
       <button class="pc-x" id="pc-x" aria-label="Lipat">${mini ? '▾' : '▴'}</button>
-      <div class="pc-h"><button class="pc-av" id="pc-av" aria-label="Buka kamar"><span class="pe" style="font-size:${Math.round((mini ? 30 : 46) * S.sc)}px">${A.e}</span>${acc.e ? `<span class="pa ${POS[acc.k] || 'side'}">${acc.e}</span>` : ''}${Pet.asleep(st) ? '<span class="zz">💤</span>' : ''}</button>
-      <div class="pc-i"><div class="pc-n"><b>${(st.n || A.n).replace(/</g, '&lt;')}</b><small>Lv ${L} · ${S.n}</small></div><p class="pc-m">${md.t}</p>${(() => { const W = Pet.wish && Pet.wish(st); return W ? `<p class="pc-w ${W.done ? 'done' : ''}">${W.done ? `🎁 Keinginan hari ini udah kepenuhin` : `🎯 Pengen ${W.txt} ${W.n}x hari ini · <b>${W.p}/${W.n}</b>`}</p>` : ''; })()}
+      <div class="pc-h"><button class="pc-av" id="pc-av" aria-label="Buka kamar"><span class="pe" style="font-size:${Math.round((mini ? 30 : 46) * S.sc)}px">${aw ? '🧳' : A.e}</span>${acc.e && !aw ? `<span class="pa ${POS[acc.k] || 'side'}">${acc.e}</span>` : ''}${Pet.asleep(st) ? '<span class="zz">💤</span>' : ''}</button>
+      <div class="pc-i"><div class="pc-n"><b>${(st.n || A.n).replace(/</g, '&lt;')}</b><small>Lv ${L} · ${S.n}</small></div><p class="pc-m">${md.t}</p>${(() => { const W = Pet.wish && Pet.wish(st); return W && !aw ? `<p class="pc-w ${W.done ? 'done' : ''}">${W.done ? `🎁 Keinginan hari ini udah kepenuhin` : `🎯 Pengen ${W.txt} ${W.n}x hari ini · <b>${W.p}/${W.n}</b>`}</p>` : ''; })()}
       <div class="pc-bars">${Pet.STATS.map(([k, ic]) => `<span class="pc-bar">${ic}<i><b style="width:${Math.round(v[k])}%;background:${v[k] < 30 ? '#e05a5a' : COL[k]}"></b></i></span>`).join('')}</div></div></div>
-      <div class="pc-acts">${Object.entries(Pet.ACTS).map(([k, ic]) => `<button data-a="${k}"><span>${ic}</span>${{ makan: 'Makan', elus: 'Elus', mandi: 'Mandi', main: 'Main', tidur: 'Tidur' }[k]}</button>`).join('')}</div>
-      <div class="pc-f"><span>${last ? `${last.w === Pet.me() ? 'Kamu' : last.w} ${Pet.ACTN[last.a]} ${Pet.ago(last.t)}` : 'Belum diurus hari ini'}</span><a href="peliharaan.html">Buka kamar →</a></div></div>`;
+      <div class="pc-acts">${acts}</div>
+      <div class="pc-f"><span>${last ? `${last.w === Pet.me() ? 'Kamu' : last.w} ${Pet.ACTN[last.a] || 'ngurus'} ${Pet.ago(last.t)}` : 'Belum diurus hari ini'}</span><a href="peliharaan.html">Buka kamar →</a></div></div>`;
     document.getElementById('pc-x').onclick = () => { set('pet-mini', !mini); render(); };
     document.getElementById('pc-av').onclick = e => { if (mini) { set('pet-mini', false); render(); return; } location.href = 'peliharaan.html'; };
     slot.querySelectorAll('.pc-acts button').forEach(b => b.onclick = () => {
-      const r = Pet.act(b.dataset.a); toast(r.up ? `🎉 Naik ke level ${r.up}!${r.wish ? ' 🎁' : ''}` : r.msg); if (r.wish) { try { window.SFX && SFX.play('win'); } catch (e) {} }
+      const r = b.dataset.a === 'panggil' ? Pet.panggil() : Pet.act(b.dataset.a); toast(r.up ? `🎉 Naik ke level ${r.up}!${r.wish ? ' 🎁' : ''}` : r.msg); if (r.wish) { try { window.SFX && SFX.play('win'); } catch (e) {} }
       try { navigator.vibrate && navigator.vibrate(r.ok ? 15 : [30, 30, 30]); } catch (e) {}
       if (r.ok) { try { window.SFX && SFX.play('pop'); } catch (e) {} render(true); const av = document.getElementById('pc-av'); if (av) for (let i = 0; i < 4; i++) { const h = document.createElement('span'); h.className = 'pc-hearts'; h.textContent = ['💕', '✨', '💗', '⭐'][i]; h.style.left = (10 + i * 15) + 'px'; h.style.top = '10px'; h.style.animationDelay = i * .08 + 's'; av.appendChild(h); setTimeout(() => h.remove(), 1300); } }
     });

@@ -167,6 +167,20 @@
   .no3d small{display:block;color:var(--muted);font-size:9.5px;margin-top:.2rem;word-break:break-all}
   .setup h3{text-align:center;font-size:15px;margin:.4rem 0 .6rem}
   .setup .grid .opt .nm2{font-size:11px}
+  .sick{display:flex;align-items:center;gap:.5rem;background:#fff4e8;border:1px solid #f3c9a0;border-radius:16px;padding:.55rem .6rem;margin-bottom:.6rem;font-size:11.5px;line-height:1.35;color:var(--deep)}
+  .sick>span{font-size:1.6rem;flex:0 0 auto}.sick>div{flex:1;min-width:0}.sick small{display:block;color:var(--muted);font-size:10px;margin-top:.1rem}
+  .sick small i{font-style:normal;white-space:nowrap}.sick small i.ok{color:#2f7a4a;font-weight:600}
+  .sick button{flex:0 0 auto;border:none;background:var(--rose);color:#fff;border-radius:12px;padding:.45rem .5rem;font:600 11px Poppins,sans-serif;cursor:pointer;line-height:1.2}
+  .sick button small{color:#fff;opacity:.85;margin:0;font-size:9.5px}
+  .away{text-align:center}
+  .away .letter{background:#fffaf2;border:1px dashed #e4c9a8;border-radius:16px;padding:.8rem .7rem;font-size:12px;line-height:1.55;color:var(--deep);margin-bottom:.6rem}
+  .away .letter i{display:block;font-size:2rem;font-style:normal;line-height:1.2;margin-bottom:.2rem}
+  .away .calls{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.6rem}
+  .away .calls span{background:var(--warm);border-radius:12px;padding:.45rem .2rem;font-size:11px;color:var(--deep)}
+  .away .calls span.ok{background:#e4f5ea;color:#2f7a4a;font-weight:600}
+  .away .big{width:100%;border:none;background:var(--rose);color:#fff;border-radius:14px;padding:.75rem;font:600 13px Poppins,sans-serif;cursor:pointer}
+  .away .big:disabled{opacity:.55;cursor:default}
+  .gone{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);font-size:3.2rem;opacity:.75;z-index:2;pointer-events:none;animation:zz 3s ease-in-out infinite}
   @media (max-width:340px){.stabs button{font-size:0}.stabs button span{font-size:1.15rem}.opt span{font-size:1.35rem}.acts button{font-size:11px}}
 
 </style>
@@ -295,7 +309,7 @@ function paintStage(st) {
   r.className = 'room r-' + room + (night && room === 'kamar' ? ' night' : '');
   if ($('deco').dataset.r !== room) { $('deco').innerHTML = DECO[room]; $('deco').dataset.r = room; }
   $('bub').innerHTML = md.t;
-  $('zz').innerHTML = night ? '<span class="zz">💤</span>' : '';
+  $('zz').innerHTML = md.f === 'kabur' ? '<span class="gone">🧳</span>' : night ? '<span class="zz">💤</span>' : '';
   const lk = look(st);
   if (v3state === 'ok' && V) {
     $('pet2d').innerHTML = '';
@@ -322,24 +336,39 @@ function paintPanel(st) {
   if (panel === 'riwayat') {
     const days = Math.max(1, Math.floor((Date.now() - st.born) / 864e5) + 1);
     P.innerHTML = `<div class="info"><div><b>${days}</b><small>hari bareng</small></div><div><b>🔥 ${Pet.streak(st)}</b><small>hari dirawat</small></div><div><b>${st.xp}</b><small>total XP</small></div></div>` +
-      (st.log.map(l => `<div class="lg"><span>${Pet.ACTS[l.a] || '🐾'}</span><span style="font-size:12px"><b style="color:var(--${l.w === 'Razan' ? 'rz' : 'dr'})">${l.w}</b> ${Pet.ACTN[l.a] || l.a}</span><small>${Pet.ago(l.t)}</small></div>`).join('') || '<p class="empty">Belum ada yang ngurus. Mulai yuk!</p>');
+      (st.log.map(l => `<div class="lg"><span>${Pet.ACTS[l.a] || (Pet.ACTI || {})[l.a] || '🐾'}</span><span style="font-size:12px"><b style="color:var(--${l.w === 'Razan' ? 'rz' : 'dr'})">${l.w}</b> ${Pet.ACTN[l.a] || l.a}</span><small>${Pet.ago(l.t)}</small></div>`).join('') || '<p class="empty">Belum ada yang ngurus. Mulai yuk!</p>');
     return;
   }
   if (panel === 'ganti') return renderSetup(false, st);
+  const aw = Pet.away(st), sk = Pet.sick(st), me = Pet.me(), o = me === 'Razan' ? 'Dara' : 'Razan';
+  if (aw) {
+    P.innerHTML = `<div class="away"><div class="letter"><i>🧳💌</i><b>Surat dari ${esc(nm)}</b><br>"Aku nginep di rumah nenek dulu ya… 2 hari ga ada yang ngurus aku 🥺 Kalau kalian <b>berdua</b> manggil, aku langsung pulang deh."</div>
+      <div class="calls">${['Razan', 'Dara'].map(w => `<span class="${aw.calls[w] ? 'ok' : ''}">${w} ${aw.calls[w] ? '✓ udah manggil' : '⏳ belum'}</span>`).join('')}</div>
+      <button class="big" id="call" ${aw.calls[me] ? 'disabled' : ''}>${aw.calls[me] ? `📣 Udah manggil · tunggu ${o}` : `📣 Panggil ${esc(nm)} pulang`}</button></div>`;
+    $('call').onclick = callHome; return;
+  }
+  const sickCard = sk ? `<div class="sick"><span>🤒</span><div><b>${esc(nm)} lagi sakit</b><small>Sembuh kalau dirawat berdua: <i class="${sk.by.Razan ? 'ok' : ''}">Razan ${sk.by.Razan ? '✓' : '⏳'}</i> · <i class="${sk.by.Dara ? 'ok' : ''}">Dara ${sk.by.Dara ? '✓' : '⏳'}</i></small></div><button id="obat">💊 Obat<small>🪙 ${Pet.OBAT}</small></button></div>` : '';
   if (room === 'kamar') {
-    P.innerHTML = `<div class="acts"><button data-a="elus"><span>🤲</span>Elus<small>usap pakai jari</small></button><button data-a="tidur"><span>${sleeping ? '💤' : '🌙'}</span>${sleeping ? 'Lagi bobo' : 'Tidurin'}<small>energi ${Math.round(v.e)}%</small></button></div><p class="tip">💡 Tap ${esc(nm)} buat becanda · geser buat muter badannya</p>`;
+    const wake = Math.max(1, Math.round((st.sleep - Date.now()) / 6e4));
+    P.innerHTML = sickCard + `<div class="acts"><button data-a="elus"><span>🤲</span>Elus<small>usap pakai jari</small></button>${sleeping ? `<button data-a="bangun"><span>☀️</span>Bangunin<small>bangun sendiri ±${wake < 60 ? wake + ' mnt' : Math.round(wake / 60) + ' jam'}</small></button>` : `<button data-a="tidur"><span>🌙</span>Tidurin<small>energi ${Math.round(v.e)}%</small></button>`}</div><p class="tip">💡 Tap ${esc(nm)} buat becanda · geser buat muter badannya</p>`;
   } else if (room === 'dapur') {
-    P.innerHTML = `<div class="foods">${Pet.FOODS.map(f => `<button data-f="${f.k}" class="${f.k === A.fav ? 'fav' : ''}"><span>${f.e}</span>${f.n}</button>`).join('')}</div><p class="tip">⭐ Favorit ${esc(nm)}: ${(Pet.FOODS.find(f => f.k === A.fav) || {}).e || ''} — kenyangnya lebih banyak · kenyang ${Math.round(v.k)}%</p>`;
-    P.querySelectorAll('[data-f]').forEach(b => b.onclick = () => feed(b.dataset.f));
+    P.innerHTML = sickCard + `<div class="foods">${Pet.FOODS.map(f => `<button data-f="${f.k}" class="${f.k === A.fav ? 'fav' : ''}"><span>${f.e}</span>${f.n}</button>`).join('')}</div><p class="tip">⭐ Favorit ${esc(nm)}: ${(Pet.FOODS.find(f => f.k === A.fav) || {}).e || ''} — kenyangnya lebih banyak · kenyang ${Math.round(v.k)}%</p>`;
+    P.querySelectorAll('[data-f]').forEach(b => b.onclick = () => feed(b.dataset.f)); bindObat();
     return;
   } else if (room === 'mandi') {
-    P.innerHTML = `<div class="acts"><button data-a="mandi"><span>🧽</span>Sabunin<small>gosok sampe berbusa</small></button><button data-a="elus"><span>🤲</span>Elus<small>biar ga takut air</small></button></div><p class="tip">${v.b < 60 ? `🙈 ${esc(nm)} udah kotor, liat noda di badannya` : `✨ ${esc(nm)} masih wangi (${Math.round(v.b)}%)`}</p>`;
+    P.innerHTML = sickCard + `<div class="acts"><button data-a="mandi"><span>🧽</span>Sabunin<small>gosok sampe berbusa</small></button><button data-a="elus"><span>🤲</span>Elus<small>biar ga takut air</small></button></div><p class="tip">${v.b < 60 ? `🙈 ${esc(nm)} udah kotor, liat noda di badannya` : `✨ ${esc(nm)} masih wangi (${Math.round(v.b)}%)`}</p>`;
   } else if (room === 'main') {
-    P.innerHTML = `<div class="acts"><button data-g="bola"><span>🎾</span>Tangkap Bola<small>10 detik · dapet 🪙</small></button><button data-g="balon"><span>🎈</span>Pop Balon<small>12 detik · dapet 🪙</small></button></div><p class="tip">🎮 Makin banyak ketangkep, makin banyak koin buat beli baju</p>`;
-    P.querySelectorAll('[data-g]').forEach(b => b.onclick = () => play(b.dataset.g));
+    P.innerHTML = sickCard + `<div class="acts"><button data-g="bola"><span>🎾</span>Tangkap Bola<small>10 detik · dapet 🪙</small></button><button data-g="balon"><span>🎈</span>Pop Balon<small>12 detik · dapet 🪙</small></button></div><p class="tip">${sk ? `🤒 ${esc(nm)} belum kuat main, sembuhin dulu ya` : '🎮 Makin banyak ketangkep, makin banyak koin buat beli baju'}</p>`;
+    P.querySelectorAll('[data-g]').forEach(b => b.onclick = () => play(b.dataset.g)); bindObat();
     return;
   }
-  P.querySelectorAll('[data-a]').forEach(b => b.onclick = () => start(b.dataset.a));
+  P.querySelectorAll('[data-a]').forEach(b => b.onclick = () => start(b.dataset.a)); bindObat();
+}
+function bindObat() { const b = $('obat'); if (b) b.onclick = () => { if (busy) return; const r = Pet.act('obat'); done(r); if (r.ok) confetti(30); }; }
+function callHome() {
+  if (busy) return; const r = Pet.panggil(); vib(r.ok ? [20, 40, 20] : [30, 30, 30]);
+  if (r.back) { toast(r.msg); confetti(80); try { window.SFX && SFX.play('win'); } catch (e) {} paint(); if (V) setTimeout(() => V.react('jump'), 200); return; }
+  toast(r.msg); paint();
 }
 // ── 👗 lemari + toko ──
 function paintLemari(st) {
@@ -421,7 +450,7 @@ function done(r) {
 }
 let tapT = 0;
 function tapPet() {
-  if (busy || rub) return; const now = Date.now(); if (now - tapT < 450) return; tapT = now;
+  if (busy || rub || Pet.away(Pet.state())) return; const now = Date.now(); if (now - tapT < 450) return; tapT = now;
   if (V) V.react('giggle'); const b = petBox(); if (b) fx(['😆', '💗', '✨', '🤭'][Math.floor(Math.random() * 4)], b.x - 10, b.y - 40); vib(8);
 }
 function start(a) {
@@ -429,11 +458,12 @@ function start(a) {
   if (a === 'mandi') return modeRub('mandi');
   if (a === 'elus') return modeRub('elus');
   if (a === 'tidur') return done(Pet.act('tidur'));
+  if (a === 'bangun') return done(Pet.act('bangun'));
 }
 // makan: makanan terbang ke mulut, terus dikunyah
 function feed(k) {
   if (busy) return; const st = Pet.state(), v = Pet.now(st), f = Pet.FOODS.find(x => x.k === k);
-  if (Pet.asleep(st)) { toast(`${st.n} lagi bobo 💤`); return; }
+  if (Pet.asleep(st)) { toast(`${st.n} lagi bobo 💤 bangunin dulu di Kamar ☀️`); return; }
   if (v.k >= 95 && !f.treat) { toast(`${st.n} masih kenyang 😋`); if (V) V.react('nod'); return; }
   const room = $('room'), b = petBox(); if (!room || !b) return;
   busy = true; const e = document.createElement('span'); e.className = 'food-fly'; e.textContent = f.e; e.style.left = '12px'; e.style.top = (room.clientHeight - 60) + 'px'; room.appendChild(e);
@@ -445,7 +475,7 @@ function feed(k) {
 let rub = null;
 function modeRub(kind) {
   const st = Pet.state(); if (kind === 'mandi' && Pet.now(st).b >= 92) { toast(`${st.n} masih wangi kok ✨`); return; }
-  if (kind === 'mandi' && Pet.asleep(st)) { toast(`${st.n} lagi bobo 💤`); return; }
+  if (kind === 'mandi' && Pet.asleep(st)) { toast(`${st.n} lagi bobo 💤 bangunin dulu di Kamar ☀️`); return; }
   busy = true; rub = { kind, n: 0, need: kind === 'mandi' ? 55 : 28 };
   $('mode').innerHTML = `<span>${kind === 'mandi' ? '🧽 Gosok-gosok badannya sampai berbusa!' : '🤲 Usap-usap pakai jari'}</span><div class="mbar"><b id="rb"></b></div>`;
   setTimeout(() => { if (rub && rub.n === 0) { rub = null; busy = false; $('mode').innerHTML = ''; } }, 9000);
@@ -469,7 +499,8 @@ function bindRub() {
 // main: tangkap bola / pop balon → koin
 function play(kind) {
   if (busy) return; const st = Pet.state(), v = Pet.now(st);
-  if (Pet.asleep(st)) { toast(`${st.n} lagi bobo 💤`); return; }
+  if (Pet.asleep(st)) { toast(`${st.n} lagi bobo 💤 bangunin dulu di Kamar ☀️`); return; }
+  if (Pet.sick(st)) { toast(`${st.n} lagi sakit 🤒 belum kuat main`); return; }
   if (v.e < 15) { toast(`${st.n} capek 😪 tidurin dulu`); return; }
   if (v.k < 10) { toast(`${st.n} kelaperan, kasih makan dulu 🥺`); return; }
   const room = $('room'); busy = true; let score = 0, left = kind === 'bola' ? 10 : 12; const els = [];
