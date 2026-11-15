@@ -1513,7 +1513,7 @@ window.openFolder = f => {
     #fd-ov .fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}#fd-ov .fg button{border:1px solid rgba(193,122,111,.15);background:#fff;border-radius:18px;padding:.7rem .4rem;font-family:inherit;cursor:pointer;min-width:0;text-align:center;color:var(--ink,#2d1f1a)}
     #fd-ov .fg button span{display:block;font-size:1.8rem;line-height:1.2}#fd-ov .fg button b{display:block;font-size:12.5px;font-weight:600;overflow-wrap:anywhere;line-height:1.3}#fd-ov .fg button small{display:block;font-size:10.5px;color:var(--muted,#9a8070);line-height:1.35;margin-top:.15rem;overflow-wrap:anywhere}
     #fd-ov .fx{display:block;width:100%;margin-top:.8rem;border:none;background:none;color:var(--muted,#9a8070);font:500 13px inherit;cursor:pointer;padding:.5rem}html.night #fd-ov .fg button{background:var(--card,#2b201e);color:#f3d9d2}`; document.head.appendChild(st); }
-  o.innerHTML = `<div class="fs"><h3>${f.icon} ${f.label}</h3><p class="fsub">Pilih mau main yang mana</p><div class="fg">${f.folder.map((it, i) => `<button data-i="${i}"><span>${it.icon}</span><b>${it.label}</b><small>${it.sub || ''}</small></button>`).join('')}</div><button class="fx">Tutup</button></div>`;
+  o.innerHTML = `<div class="fs"><h3>${f.icon} ${f.label}</h3><p class="fsub">Pilih mau main yang mana</p><div class="fg">${f.folder.map((it, i) => `<button data-i="${i}" data-link="${it.link || ''}"><span>${it.icon}</span><b>${it.label}</b><small>${it.sub || ''}</small></button>`).join('')}</div><button class="fx">Tutup</button></div>`;
   o.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { const it = f.folder[+b.dataset.i]; o.classList.remove('show'); if (it.keuUser) openKeuangan(it.keuUser); else openPopup(it.icon, it.label, it.desc, it.link); });
   o.querySelector('.fx').onclick = () => o.classList.remove('show');
   o.classList.add('show');
@@ -2994,6 +2994,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-11-15 22:30', t: '🎨 Semua ikon game, hadiah, folder, fitur berdua & daftar A–Z sekarang pakai ikon buatan sendiri — ga ada emoji campur lagi di menu.' },
     { d: '2026-11-15 21:00', t: '✨ Ikon baru buatan sendiri (26 game & hadiah dulu, sisanya nyusul) + efek halus: pindah tab, tombol pencet, angka hari naik pas buka, confetti di hari spesial & pas target gerak kecapai, hati keluar dari tombol tengah. Mode ringan = efeknya mati otomatis.' },
     { d: '2026-11-13 23:45', t: '🎵💬 Tombol musik & chat sekarang cuma ada di pojok kanan atas Beranda — di game, hadiah & halaman lain udah ga ada tombol yang nempel. Chat baru tetep muncul dari atas & bisa langsung dibales, setelan suara ikut yang di Beranda' },
     { d: '2026-11-13 23:30', t: '🧹 Rapih-rapih: 🎵 & 💬 sekarang nempel di bar atas atau pojok kanan atas di hampir semua halaman (di dalem game tetep ngumpet). Label tab yang dulu kepotong (kayak "Timelin-e") udah rapi. Plus pengingat halus 💧 minum & 🏃 gerak — maksimal sekali sehari, cuma kalau notif nyala' },
@@ -3281,7 +3282,7 @@ setTimeout(() => {
     const paint = () => {
       const q = norm(o.querySelector('#af-q').value.trim());
       const R = L.filter(x => !q || norm([x.n, x.w, x.kw || '', (x.it && ((META[x.it.link] || {}).kw || '')) || ''].join(' ')).includes(q));
-      let last = ''; o.querySelector('#af-ls').innerHTML = R.length ? R.map((x, i) => { const h = x.n[0].toUpperCase(), sep = h !== last && !q ? `<p class="af-h">${h}</p>` : ''; last = h; return sep + `<button data-i="${L.indexOf(x)}"><span class="e">${x.ic}</span><span class="m"><b>${escH(x.n)}</b><small>${escH(x.w)}</small></span></button>`; }).join('') : '<p class="sub2">Ga ketemu 😅</p>';
+      let last = ''; o.querySelector('#af-ls').innerHTML = R.length ? R.map((x, i) => { const h = x.n[0].toUpperCase(), sep = h !== last && !q ? `<p class="af-h">${h}</p>` : ''; last = h; return sep + `<button data-i="${L.indexOf(x)}" data-link="${x.it ? x.it.link : ''}"><span class="e">${x.ic}</span><span class="m"><b>${escH(x.n)}</b><small>${escH(x.w)}</small></span></button>`; }).join('') : '<p class="sub2">Ga ketemu 😅</p>';
       o.querySelectorAll('#af-ls [data-i]').forEach(b => b.onclick = () => { const x = L[+b.dataset.i]; o.remove(); if (x.u) location.href = x.u; else openItem(x.it); });
     };
     o.querySelector('#af-q').addEventListener('input', paint); paint();
