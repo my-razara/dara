@@ -98,7 +98,7 @@
     const rit = home.querySelector('.rit');
     if (rit) { const tx = ttl(rit), m = /·\s*(.+)$/.exec(tx); L.push({ rit: 1, ic: emo(tx), t: cut(tx.replace(/·.*$/, '').replace(/^\p{Extended_Pictographic}\uFE0F?\s*/u, '').replace(/ hari ini/i, ''), 18), s: m ? m[1] + ' hari ini' : 'hari ini' }); }
     const sig = L.map(x => x.ic + x.t + x.s + (x.hot ? 1 : 0)).join('|'); if (sig === tileSig) return; tileSig = sig;
-    tilesEl.innerHTML = L.map((x, i) => `<button data-i="${i}">${x.hot ? '<em></em>' : ''}<span>${x.ic}</span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></button>`).join('');
+    tilesEl.innerHTML = L.map((x, i) => `<button data-i="${i}" data-link="${x.e ? esc(x.e.getAttribute('href') || x.e.dataset.link || '') : ''}">${x.hot ? '<em></em>' : ''}<span>${x.ic}</span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></button>`).join('');
     tilesEl.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { const x = L[+b.dataset.i]; vib(6); if (x.rit) { setTab('kita'); setTimeout(() => { const r = home.querySelector('.rit'); if (r) home.scrollTop = Math.max(0, r.offsetTop - 12); }, 60); return; } x.e.click(); });
   }
   let rq = 0; const routeSoon = () => { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; route(); }); };
