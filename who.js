@@ -109,6 +109,7 @@
         'html.ui2p .chips button.on{background:var(--deep);border-color:var(--deep)}' +
         'html.ui2p .sub-tabs a.on{background:linear-gradient(135deg,var(--rose),var(--deep))!important}' +
         'html.ui2p .hub-tabs a.on{background:linear-gradient(135deg,var(--rose),var(--deep));box-shadow:0 6px 14px -6px var(--deep)}' +
+        '@media (prefers-reduced-motion:no-preference){html.ui2p:not(.lite) :is(.btn,.pill,.chips button,.hub-tabs a,.sub-tabs a,.card[onclick],a.card){transition:transform .14s ease}html.ui2p:not(.lite) :is(.btn,.pill,.chips button,.hub-tabs a,.sub-tabs a):active{transform:scale(.96)}}' +
         'html.ui2p .sheet{border-radius:28px 28px 0 0}html.ui2p .ov.center .sheet{border-radius:28px}' +
         'html.night.ui2p [class="btn"],html.night.ui2p .hub-tabs a.on{background:linear-gradient(135deg,#c95f7b,#7a3f5a)}html.night.ui2p .chips button.on{background:var(--rose);border-color:var(--rose)}';
       (document.head || html).appendChild(pc);
@@ -253,7 +254,7 @@
   }
   // klaim voucher yang belum dikirim ke WA → layar ditutup dulu dari awal (klaim.js yang nampilin tombol WA-nya)
   if (!EMB && get('klaim-pending')) { html.classList.add('klaimlock'); var ks = document.createElement('style'); ks.textContent = 'html.klaimlock body{visibility:hidden!important}'; (document.head || html).appendChild(ks); setTimeout(function () { if (!document.getElementById('klaim-ov')) html.classList.remove('klaimlock'); }, 5000); }
-  try { (EMB ? ['push.js', 'ritual.js', 'skor.js'] : ['push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'lokasi.js', 'klaim.js']).forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
+  try { (EMB ? ['push.js', 'ritual.js', 'skor.js', 'ikon.js'] : ['push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'lokasi.js', 'klaim.js', 'ikon.js']).forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
   window.Who = {
     me: function () { return cur; },
     ready: function () { return !!cur; },

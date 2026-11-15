@@ -105,7 +105,34 @@
   try { const mo = new MutationObserver(routeSoon); [home, $('today-slot'), $('home-rows')].forEach(h => h && mo.observe(h, { childList: true })); } catch (e) {}
 
   // ── tab ──
-  const pos = {}; let cur = null;
+  const pos = {}; let cur = null, swT = 0;
+  // ✨ efek: ringan, & mati kalau Mode ringan / HP disetel "kurangi animasi"
+  const fxOk = () => !document.documentElement.classList.contains('lite') && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function fx() { const f = document.createElement('div'); f.className = 'u2-fx'; document.body.appendChild(f); setTimeout(() => f.remove(), 3200); return f; }
+  function confetti(n) {
+    if (!fxOk()) return; const f = fx(), C = ['#f59bb3', '#a3c8f2', '#f7d58a', '#9fe0c3', '#c9b2ec', '#ffffff'];
+    for (let i = 0; i < (n || 40); i++) { const e = document.createElement('i'); e.style.left = Math.random() * 100 + '%'; e.style.background = C[i % C.length]; e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px'); e.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg'); e.style.animationDuration = (1.6 + Math.random() * 1.2) + 's'; e.style.animationDelay = Math.random() * .3 + 's'; f.appendChild(e); }
+  }
+  function hearts(x, y) {
+    if (!fxOk()) return; const f = fx(), E = ['💗', '💕', '💖', '🤍', '💞'];
+    for (let i = 0; i < 6; i++) { const e = document.createElement('b'); e.textContent = E[i % E.length]; e.style.left = (x - 10 + (i - 2.5) * 8) + 'px'; e.style.top = (y - 20) + 'px'; e.style.setProperty('--dx', ((i - 2.5) * 18) + 'px'); e.style.animationDelay = i * 45 + 'ms'; f.appendChild(e); }
+  }
+  function countUp() {
+    const b = home.querySelector('#today-slot .today .td-days b'); if (!b) return; const N = parseInt(b.textContent.replace(/\D/g, ''), 10); if (!N) return;
+    const t0 = performance.now(), D = 900, step = now => { const k = Math.min(1, (now - t0) / D), v = Math.round(N * (1 - Math.pow(1 - k, 3))); if (b.isConnected) b.textContent = v.toLocaleString('id-ID'); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  function intro() {
+    if (ss.get('u2-intro') || cur !== 'beranda') return; ss.set('u2-intro', '1');
+    if (fxOk()) {
+      const L = [...home.querySelectorAll('[data-pane="beranda"]')].filter(e => e.offsetParent !== null).sort((a, b) => (+a.style.order || 0) - (+b.style.order || 0));
+      L.forEach((e, i) => e.style.setProperty('--i', Math.min(i, 8))); home.classList.add('u2-in'); setTimeout(() => home.classList.remove('u2-in'), 1400);
+      countUp();
+    }
+    // 🎉 hari spesial (anniv, mensive, ultah, ketemuan) → confetti sekali sehari
+    const sp = home.querySelector('#today-slot .td-special'), d = new Date(), k = 'u2-cel-' + d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    if (sp && /anniversary|mensive|ulang tahun|Hari ini ketemuan|hari kita bareng/i.test(sp.textContent) && !g(k, 0)) { sv(k, 1); setTimeout(() => confetti(60), 500); }
+  }
   function setTab(t, keep) {
     if (!TABS.includes(t)) t = 'beranda';
     if (cur && cur !== t) { pos[cur] = home.scrollTop; if (cur === 'jelajah' && home.classList.contains('searching') && window.clearSearch) try { clearSearch(); } catch (e) {} }
@@ -117,15 +144,16 @@
     if (t === 'beranda') paintBeranda();
     route();
     if (!keep && was !== t) home.scrollTop = pos[t] || 0;
+    if (was && was !== t && fxOk()) { home.classList.remove('u2-sw'); void home.offsetWidth; home.classList.add('u2-sw'); clearTimeout(swT); swT = setTimeout(() => home.classList.remove('u2-sw'), 450); }
   }
-  window.__u2 = { setTab, refresh: () => { paintBeranda(); if (cur === 'sehat' && window.Sehat) Sehat.paint(); } };
+  window.__u2 = { intro, confetti, hearts, setTab, refresh: () => { paintBeranda(); if (cur === 'sehat' && window.Sehat) Sehat.paint(); } };
 
   // ── menu bawah ──
   const nav = $('bnav');
   nav.className = 'bnav u2-nav';
   nav.innerHTML = `<button data-t="beranda"><span>🏠</span>Beranda</button><button data-t="jelajah"><span>🧭</span>Jelajah</button><button class="u2-fab" id="u2-fab" aria-label="Kirim kangen"><span>💗</span></button><button data-t="sehat"><span>🏃</span>Sehat</button><button data-t="kita"><span>👫</span>Kita</button>`;
   nav.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { if (b.dataset.t === cur) { home.scrollTo({ top: 0, behavior: 'smooth' }); return; } vib(6); setTab(b.dataset.t); });
-  $('u2-fab').onclick = () => { vib(12); location.href = 'tombol-kangen.html'; };
+  $('u2-fab').onclick = e => { vib(12); const r = $('u2-fab').getBoundingClientRect(); hearts(r.left + r.width / 2, r.top); setTimeout(() => location.href = 'tombol-kangen.html', fxOk() ? 380 : 0); };
   const nav0 = window.navGo;
   window.navGo = k => { if (k === 'home') return setTab('beranda'); openCat(k); };
 
@@ -237,7 +265,7 @@
   document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a) return; const h = a.getAttribute('href').slice(1); if (TABS.includes(h)) { e.preventDefault(); setTab(h); } });
   const h0 = location.hash.slice(1);
   setTab(TABS.includes(h0) ? h0 : (ss.get('u2-tab') || 'beranda'), true);
-  route(); requestAnimationFrame(() => document.documentElement.classList.add('u2-ready'));
+  route(); requestAnimationFrame(() => { document.documentElement.classList.add('u2-ready'); const wl = $('s-welcome'); if (!wl || getComputedStyle(wl).display === 'none' || wl.classList.contains('hide')) setTimeout(intro, 120); });
   if (TABS.includes(h0)) { try { history.replaceState(null, '', location.pathname); } catch (e) {} const wl = $('s-welcome'); if (wl) wl.style.display = 'none'; }
   setInterval(() => { if (!document.hidden) { badges(); route(); } }, 3000);
   setInterval(() => { if (!document.hidden && cur === 'beranda') paintBeranda(); }, 60e3);

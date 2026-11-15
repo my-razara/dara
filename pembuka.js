@@ -51,7 +51,7 @@
       ${!night && pet ? `<div class="pb-bub">hai ${who}! 🐾</div><div class="pb-peek">${PE}</div>` : ''}
       <div class="pb-slide" id="pb-slide"><div class="pb-knob" id="pb-knob">${night ? '🌙' : '💗'}</div><p>Geser buat masuk<small>atau tap aja</small></p></div>`;
     w.querySelectorAll('.pb-pol img').forEach(im => { im.onload = () => im.classList.add('ok'); im.onerror = () => { if (!im.dataset.t) { im.dataset.t = 1; im.src = `https://drive.google.com/thumbnail?id=${im.dataset.id}&sz=w400`; } else im.remove(); }; });
-    const go = () => { if (w.classList.contains('hide')) return; vib(15); try { window.enterApp(); } catch (e) { w.classList.add('hide'); } setTab('beranda');; };
+    const go = () => { if (w.classList.contains('hide')) return; vib(15); try { window.enterApp(); } catch (e) { w.classList.add('hide'); } setTab('beranda'); setTimeout(() => { try { window.__u2 && __u2.intro && __u2.intro(); } catch (e) {} }, 250); };
     const nb = w.querySelector('[data-go]'); if (nb) nb.onclick = go;
     // geser buat masuk (tap juga bisa)
     const sl = $('pb-slide'), kn = $('pb-knob'); let x0 = null, dx = 0;

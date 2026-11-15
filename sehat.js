@@ -124,7 +124,8 @@
   // ── catat menit + koin buat peliharaan ──
   function logMins(kind, mins) {
     mins = Math.max(1, Math.round(mins)); const w = me(), d = ymd(new Date()), r = Object.assign({}, sRow(w, d));
-    r.m = (r.m || 0) + mins; r.s = (r.s || []).concat([[kind, mins, Date.now()]]).slice(-12);
+    const before = r.m || 0; r.m = (r.m || 0) + mins; r.s = (r.s || []).concat([[kind, mins, Date.now()]]).slice(-12);
+    if (before < tgtGerak() && r.m >= tgtGerak()) setTimeout(() => { try { window.__u2 && __u2.confetti(70); } catch (e) {} toast(`🎯 Target gerak hari ini kecapai! Mantap 💪`); }, 600);
     const can = Math.max(0, 12 - (r.c || 0)), coin = Math.min(can, Math.floor(mins / 5)); r.c = (r.c || 0) + coin; delete r.live;
     put(w, d, r);
     let got = 0; try { if (coin && window.Pet && Pet.reward && Pet.reward(coin, Math.min(20, mins))) got = coin; } catch (e) {}
