@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<script src="who.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Keluarga Kita — Razara 👨‍👩‍👧</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<script src="sync.js"></script>
+<script src="sfx.js" defer></script>
+<style>
+  :root{--cream:#faf6f0;--warm:#f5ede0;--blush:#e8c4b0;--rose:#c17a6f;--deep:#7a3f35;--ink:#2d1f1a;--gold:#c9a96e;--muted:#9a8070;--sage:#b5c4b1;--rz:#4a7fc1;--rz2:#7eb3f5;--dr:#d9776b;--dr2:#f0a39a}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input,textarea,select{font-family:'Poppins',sans-serif}
+  html,body{background:var(--cream)}
+  body{font-family:'Poppins',sans-serif;font-weight:300;color:var(--ink);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 60% 45% at 15% 8%,rgba(232,196,176,.4),transparent 70%),radial-gradient(ellipse 55% 45% at 90% 90%,rgba(201,169,110,.2),transparent 70%)}
+  .hand{font-family:'Caveat',cursive}
+  .wrap{max-width:480px;margin:0 auto;padding:calc(.9rem + env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom));position:relative;z-index:1}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .pill{font-size:12px;color:var(--muted);text-decoration:none;background:rgba(255,255,255,.75);border:1px solid rgba(193,122,111,.18);padding:.4rem .85rem;border-radius:50px;cursor:pointer;white-space:nowrap}
+  .pill.Razan{color:var(--rz)}.pill.Dara{color:var(--dr)}
+  .head{text-align:center;margin:1rem 0 .9rem}
+  .head .ico{font-size:2.6rem;display:block;line-height:1.1}
+  .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+  .title{font-size:clamp(1.5rem,7vw,1.9rem);font-weight:700;margin:.15rem 0 .25rem;line-height:1.15}
+  .title span{color:var(--rose)}
+  .sub{font-size:12.5px;color:var(--muted);line-height:1.6;max-width:330px;margin:0 auto}
+  .card{background:#fff;border:1px solid rgba(193,122,111,.13);border-radius:20px;padding:1rem;margin-bottom:.8rem;box-shadow:0 4px 18px rgba(193,122,111,.06)}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+  .sec{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600;text-align:center;margin:1.4rem 0 .6rem}
+  .inp,.ta{width:100%;font-size:14px;padding:.7rem .85rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--cream);outline:none;color:var(--ink);resize:none}
+  .inp:focus,.ta:focus{border-color:var(--rose);background:#fff}
+  .lab{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .35rem}
+  .chips{display:flex;gap:.35rem;flex-wrap:wrap}
+  .chips button{font-size:12px;padding:.42rem .78rem;border-radius:50px;border:1.5px solid var(--blush);background:#fff;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--rose);border-color:var(--rose);color:#fff;font-weight:500}
+  .btn{display:block;width:100%;padding:.9rem .5rem;border-radius:50px;border:none;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#d48c80,#a8584c);cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 6px 18px rgba(168,88,76,.22);white-space:normal;line-height:1.3}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--rose);border:1.5px solid var(--blush);box-shadow:none}
+  .btn.wa{background:#25a35a;box-shadow:0 6px 18px rgba(37,163,90,.25)}
+  .btn:disabled{opacity:.45}
+  .row{display:flex;gap:.5rem;margin-top:.7rem}.row>*{flex:1;min-width:0}
+  .ov{position:fixed;inset:0;z-index:40;background:rgba(45,31,26,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  .ov.center{align-items:center;padding:1.2rem}
+  .sheet{width:100%;max-width:480px;background:var(--cream);border-radius:24px 24px 0 0;padding:1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:gUp .3s ease}
+  .ov.center .sheet{border-radius:24px;max-width:360px;animation:gPop .4s cubic-bezier(.3,1.5,.5,1);text-align:center}
+  @keyframes gUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes gPop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}
+  .drag{width:38px;height:4px;border-radius:2px;background:var(--blush);margin:0 auto .9rem}
+  .empty{text-align:center;font-size:12.5px;color:var(--muted);padding:1rem;line-height:1.7}
+  .toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2d1f1a;color:#fff;font-size:12.5px;padding:.65rem 1.1rem;border-radius:50px;z-index:60;max-width:calc(100% - 2rem);text-align:center;transition:opacity .3s;opacity:0;pointer-events:none}
+  .toast a{color:#ffd9c9}
+  .cp{position:fixed;border-radius:2px;animation:gCf linear forwards;pointer-events:none;z-index:9999}
+  @keyframes gCf{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @media (max-width:350px){.wrap{padding-left:.75rem;padding-right:.75rem}.btn{font-size:13px}}
+
+  .bd-st{font-size:11px;color:var(--muted);text-align:center;min-height:1.1em;margin:.1rem 0 .3rem}
+  .k-card{background:var(--card,#fff);border:1px solid rgba(138,51,82,.09);border-radius:22px;padding:1rem;margin-bottom:.8rem;box-shadow:0 6px 20px -12px rgba(138,51,82,.22)}
+  .lock{text-align:center;padding:2.2rem 1rem}.lock span{font-size:3rem;display:block}.lock h3{font-size:16px;margin:.5rem 0 .3rem}.lock p{font-size:12.5px;color:var(--muted);line-height:1.6}
+  .kid{display:flex;align-items:center;gap:.8rem}
+  .kid .e{width:54px;height:54px;border-radius:19px;background:linear-gradient(140deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:1.7rem;flex-shrink:0}
+  .kid b{display:block;font-size:15px;color:var(--ink)}.kid small{display:block;font-size:11.5px;color:var(--muted);line-height:1.4}
+  .kid button{margin-left:auto;flex-shrink:0;border:none;background:var(--warm);color:var(--deep);border-radius:13px;padding:.5rem .7rem;font:600 11.5px Poppins,sans-serif;cursor:pointer}
+  .seg{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;margin:0 0 .8rem;padding:.1rem 0}
+  .seg::-webkit-scrollbar{display:none}
+  .seg button{flex:0 0 auto;border:1.5px solid var(--blush);background:var(--card,#fff);color:var(--deep);border-radius:50px;padding:.5rem .85rem;font:500 12px Poppins,sans-serif;cursor:pointer;white-space:nowrap}
+  .seg button.on{background:var(--deep);border-color:var(--deep);color:#fff;font-weight:600}
+  .h4{font-size:13.5px;font-weight:600;color:var(--ink);margin:.1rem .1rem .55rem;display:flex;justify-content:space-between;align-items:baseline;gap:.5rem}
+  .h4 small{font-size:10.5px;color:var(--muted);font-weight:400}
+  .tip{font-size:13.5px;line-height:1.65;color:var(--ink)}
+  .tip-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:.35rem}
+  .play{display:flex;gap:.6rem;align-items:flex-start;padding:.55rem 0;border-top:1px dashed rgba(138,51,82,.12);font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .play:first-of-type{border-top:none}.play span{font-size:1.2rem;flex-shrink:0}
+  .note{font-size:11px;color:var(--muted);line-height:1.55;margin-top:.6rem}
+  .scr{display:flex;gap:.6rem;align-items:center;background:#eef7f1;border-radius:16px;padding:.65rem .8rem;font-size:12px;color:#2f6b4f;line-height:1.5}
+  .scr span{font-size:1.3rem}
+  .ms{display:flex;align-items:center;gap:.6rem;padding:.55rem 0;border-top:1px solid rgba(138,51,82,.07);font-size:12.5px;color:var(--ink)}
+  .ms:first-child{border-top:none}
+  .ms button{width:26px;height:26px;border-radius:9px;border:1.5px solid var(--blush);background:none;flex-shrink:0;cursor:pointer;color:#fff;font-size:12px;padding:0}
+  .ms button.y{background:#5fbf9a;border-color:#5fbf9a}
+  .ms small{margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap}
+  .row2{display:flex;gap:.45rem;margin-top:.6rem}.row2>*{flex:1;min-width:0}
+  .inp{width:100%;font:400 13.5px Poppins,sans-serif;padding:.65rem .8rem;border-radius:14px;border:1.5px solid var(--blush);background:var(--card,#fff);outline:none;color:var(--ink)}
+  .kb{display:block;width:100%;border:none;border-radius:16px;padding:.75rem;font:600 13px Poppins,sans-serif;color:#fff;background:linear-gradient(135deg,var(--rose),var(--deep));cursor:pointer;margin-top:.6rem}
+  .kb.g{background:var(--card,#fff);color:var(--deep);border:1.5px solid var(--blush)}
+  .li{display:flex;align-items:center;gap:.6rem;padding:.55rem 0;border-top:1px solid rgba(138,51,82,.07);font-size:12.5px;color:var(--ink)}
+  .li:first-child{border-top:none}.li .m{flex:1;min-width:0}.li small{display:block;font-size:10.5px;color:var(--muted)}
+  .li .x{border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;padding:.2rem .4rem}
+  .who-R{color:var(--rz)}.who-D{color:var(--dr)}
+  details.tp{background:var(--card,#fff);border:1px solid rgba(138,51,82,.09);border-radius:18px;margin-bottom:.5rem;padding:.2rem .9rem}
+  details.tp summary{list-style:none;cursor:pointer;padding:.7rem 0;font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:.55rem}
+  details.tp summary::-webkit-details-marker{display:none}details.tp summary::after{content:'›';margin-left:auto;color:var(--muted);transition:transform .2s}details.tp[open] summary::after{transform:rotate(90deg)}
+  details.tp ul{margin:0 0 .8rem 1.1rem;font-size:12.5px;line-height:1.6;color:var(--ink)}details.tp li{margin-bottom:.3rem}
+  .chips2{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.55rem}
+  .chips2 button{border:1.5px dashed var(--blush);background:none;border-radius:50px;padding:.35rem .7rem;font:500 11.5px Poppins,sans-serif;color:var(--deep);cursor:pointer}
+  .q{font-size:14px;line-height:1.55;font-weight:600;color:var(--ink);margin-bottom:.6rem}
+  .ans{background:var(--warm);border-radius:14px;padding:.6rem .75rem;margin-top:.45rem;font-size:12.5px;line-height:1.55;color:var(--ink)}
+  .ans b{display:block;font-size:11px;margin-bottom:.15rem}
+  .dur{display:flex;gap:.35rem;margin:.6rem 0}.dur button{flex:1;border:1.5px solid var(--blush);background:var(--card,#fff);border-radius:50px;padding:.5rem 0;font:500 12px Poppins,sans-serif;color:var(--deep);cursor:pointer}
+  .dur button.on{background:var(--deep);border-color:var(--deep);color:#fff}
+  .sh{position:fixed;inset:0;z-index:9000;background:rgba(42,28,34,.45);display:flex;align-items:flex-end;justify-content:center}
+  .sh>div{background:var(--cream);width:100%;max-width:480px;border-radius:26px 26px 0 0;padding:1rem 1.1rem calc(1.2rem + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto}
+  .sh h3{font-size:16px;margin-bottom:.2rem;color:var(--ink)}.sh p.s{font-size:11.5px;color:var(--muted);margin-bottom:.7rem}
+  .sh label{display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.7rem 0 .3rem}
+  /* 🧸 MODE ANAK */
+  .ma{position:fixed;inset:0;z-index:9500;background:linear-gradient(180deg,#fff8ec,#ffe9f0);display:flex;flex-direction:column;font-family:Poppins,sans-serif;touch-action:manipulation;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
+  .ma-h{display:flex;align-items:center;justify-content:space-between;padding:calc(.7rem + env(safe-area-inset-top)) .9rem .5rem}
+  .ma-h .t{font-size:13px;font-weight:600;color:#8a5a2b;background:#fff;border-radius:50px;padding:.35rem .8rem}
+  .ma-h button{border:none;background:#fff;border-radius:14px;width:42px;height:42px;font-size:18px;cursor:pointer}
+  .ma-b{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.5rem 1rem 1.2rem;min-height:0}
+  .ma-menu{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;width:100%;max-width:420px}
+  .ma-menu button{border:none;border-radius:28px;aspect-ratio:1;font:700 16px Poppins,sans-serif;color:#5a3a20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;cursor:pointer;box-shadow:0 10px 20px -10px rgba(120,70,30,.35)}
+  .ma-menu button span{font-size:3rem}
+  .ma-back{border:none;background:#fff;border-radius:16px;padding:.6rem 1rem;font:600 14px Poppins,sans-serif;color:#8a5a2b;margin-top:.8rem;cursor:pointer}
+  .ma-q{font-size:20px;font-weight:700;color:#5a3a20;text-align:center;margin-bottom:.8rem}
+  .ma-trace{width:min(84vw,360px);aspect-ratio:1;background:#fff;border-radius:28px;box-shadow:0 10px 24px -12px rgba(120,70,30,.35);touch-action:none}
+  .ma-bar{width:min(84vw,360px);height:12px;border-radius:12px;background:#fff;margin-top:.8rem;overflow:hidden}.ma-bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd166,#ef8a5a);transition:width .15s}
+  .ma-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;width:100%;max-width:400px}
+  .ma-grid button{border:none;border-radius:50%;aspect-ratio:1;cursor:pointer;box-shadow:0 8px 16px -8px rgba(0,0,0,.35);font-size:2.6rem;background:#fff}
+  .ma-grid.sq button{border-radius:26px}
+  .ma-big{font-size:7rem;line-height:1;margin:.5rem 0;animation:maPop .4s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes maPop{from{transform:scale(.4)}}
+  .ma-shapes{position:relative;width:min(90vw,380px);height:min(110vw,460px)}
+  .ma-shapes .slot,.ma-shapes .pc{position:absolute;width:86px;height:86px;display:flex;align-items:center;justify-content:center}
+  .ma-shapes .pc{touch-action:none;cursor:grab;filter:drop-shadow(0 6px 8px rgba(0,0,0,.2))}
+  .ma-end{text-align:center;color:#5a3a20}.ma-end span{font-size:5rem;display:block}.ma-end h2{font-size:22px;margin:.5rem 0}.ma-end p{font-size:14px;line-height:1.6}
+  .gate{position:fixed;inset:0;z-index:9600;background:rgba(42,28,34,.55);display:flex;align-items:center;justify-content:center;padding:1.2rem}
+  .gate>div{background:#fff;border-radius:24px;padding:1.2rem;width:100%;max-width:320px;text-align:center}
+  .gate h4{font-size:14px;margin-bottom:.2rem;color:#2a1c22}.gate p{font-size:12px;color:#9a8590;margin-bottom:.7rem}
+  .gate .k{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-top:.6rem}.gate .k button{height:44px;border-radius:14px;border:1px solid #eee;background:#faf6f0;font:500 17px Poppins,sans-serif;cursor:pointer}
+  .gate .v{font:700 22px Poppins,sans-serif;min-height:1.4em;color:#2a1c22;letter-spacing:.1em}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top"><a href="index.html" class="pill">← Menu utama</a><span class="pill" id="me-pill" style="cursor:default"></span></div>
+  <div class="head"><span class="ico">👨‍👩‍👧</span><div class="lbl">Keluarga kita</div><h1 class="title">Jadi <span>Ayah &amp; Ibu</span></h1><p class="sub">Teman belajar buat kita berdua — pelan-pelan, bareng-bareng 🤍</p></div>
+  <p class="bd-st" id="bd-st"></p>
+  <div id="app"></div>
+</div>
+<div id="toast" style="position:fixed;left:50%;bottom:calc(1.4rem + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(45,31,26,.92);color:#fff;padding:.6rem 1rem;border-radius:50px;font-size:12.5px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:88vw;text-align:center"></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const WA = { Razan: '6285692740607', Dara: '6287703706518' };
+const JADIAN = '2025-05-10';
+const $ = id => document.getElementById(id);
+function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function parseYMD(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+const today0 = () => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); };
+const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const fmtD = d => `${d.getDate()} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
+const otherOf = w => w === 'Razan' ? 'Dara' : 'Razan';
+const waLink = (to, text) => `https://wa.me/${WA[to] || ''}?text=${encodeURIComponent(text)}`;
+let __toastT;
+function toast(m, ms = 2600) { const t = $('toast'); if (!t) return; t.innerHTML = m; t.style.opacity = '1'; clearTimeout(__toastT); __toastT = setTimeout(() => t.style.opacity = '0', ms); }
+function confetti(n = 60, colors = ['#c17a6f', '#f0a39a', '#c9a96e', '#b5c4b1', '#7eb3f5', '#fff']) {
+  for (let i = 0; i < n; i++) setTimeout(() => { const el = document.createElement('div'); el.className = 'cp'; el.style.cssText = `left:${Math.random() * 100}vw;top:-10px;background:${colors[i % colors.length]};animation-duration:${1.6 + Math.random() * 2}s;width:${6 + Math.random() * 7}px;height:${6 + Math.random() * 7}px;border-radius:${Math.random() > .5 ? '50%' : '2px'}`; document.body.appendChild(el); setTimeout(() => el.remove(), 4200); }, i * 18);
+}
+async function shareCanvas(cv, name, title) {
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  if (!blob) return;
+  const file = new File([blob], name, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || name }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('⬇️ Gambar disimpan');
+}
+function wrapText(ctx, text, maxW) { const out = []; String(text).split('\n').forEach(par => { const w = par.split(' '); let l = ''; for (const s of w) { const t = l ? l + ' ' + s : s; if (ctx.measureText(t).width > maxW && l) { out.push(l); l = s; } else l = t; } out.push(l); }); return out; }
+async function fontsReady() { try { await document.fonts.load('40px Caveat'); await document.fonts.load('600 26px Poppins'); } catch (e) {} }
+// siapa yang lagi pakai HP ini (Razan / Dara)
+function whoBtn(key, onChange) {
+  const b = $('who-btn'); if (!b) return lsGet(key, 'Dara');
+  const paint = () => { const w = lsGet(key, 'Dara'); b.textContent = `🙋 ${w} ▾`; b.className = 'pill ' + w; };
+  b.onclick = () => { lsSet(key, otherOf(lsGet(key, 'Dara'))); paint(); onChange && onChange(); };
+  paint(); return lsGet(key, 'Dara');
+}
+
+const BD = window.Berdua || { put(app, who, date, data) { const k = app + '-' + who, m = lsGet(k, {}); if (data == null) delete m[date]; else m[date] = data; lsSet(k, m); }, me: () => lsGet('berdua-me', 'Dara'), status: () => '', on() {}, enabled: false };
+const me = (window.Who && Who.me()) || BD.me(), ot = otherOf(me), CFG = '2000-01-01', WHO = ['Razan', 'Dara'];
+$('me-pill').textContent = '🙋 ' + me;
+const rowOf = (app, w) => (lsGet(app + '-' + w, {}) || {})[CFG] || {};
+function cfg() { let b = null; WHO.forEach(w => { const r = rowOf('kelcfg', w); if (r.at && (!b || r.at > b.at)) b = r; }); return b || {}; }
+function setCfg(o) { const c = Object.assign({}, cfg(), o, { at: Date.now() }); BD.put('kelcfg', me, CFG, c); }
+function bdStatus() { const el = $('bd-st'); if (el && BD.status) el.textContent = BD.status(); }
+
+// ── 📚 isi: patokan umum dari WHO, UNICEF, IDAI & Buku KIA (tiap anak beda — kalau khawatir, tanya dokter/bidan) ──
+const BAND = [
+  { k: 'hamil', n: 'Masa kehamilan', tips: ['Ajak ngobrol & nyanyiin si kecil di perut. Menjelang akhir kehamilan, bayi udah bisa denger suara kalian.', 'Ayah: temenin kontrol kandungan sesekali, terus tanya ke bidan/dokter apa yang bisa dibantu di rumah.', 'Bahas bareng dari sekarang: nanti gantian begadang, mandiin, sama ganti popok gimana?', 'Istirahat cukup & makan bergizi buat ibu itu hadiah pertama buat anak. Ikutin arahan dokter/bidan ya.', 'Siapin Buku KIA & baca bareng — isinya panduan resmi dari hamil sampai anak umur 6 tahun.'], main: ['📖 Bacain cerita pendek ke perut sebelum tidur', '🎶 Puter lagu tenang sambil elus perut bareng'], ms: [] },
+  { k: '0', to: 3, n: '0–3 bulan', tips: ['Sering gendong & kontak kulit (skin-to-skin) — bikin bayi tenang dan merasa aman.', 'Ceritain apa yang lagi kalian lakuin ("sekarang ganti popok ya"). Itu dasar dia belajar bahasa.', 'Tanggepin tangisannya. Bayi segini belum bisa "manja" — dia lagi ngasih tau lagi butuh sesuatu.', 'Ayah & ibu gantian istirahat. Orang tua yang cukup tidur jauh lebih sabar.', 'Tidurin bayi telentang di kasur yang rata, tanpa bantal, selimut tebal, atau boneka di sekitarnya.'], main: ['🤸 Tummy time 1–3 menit beberapa kali sehari pas dia bangun, sambil diajak ngobrol', '🎨 Gerakin kain/mainan warna kontras pelan-pelan biar diikutin matanya', '😊 Bikin ekspresi lucu terus tunggu dia "bales" senyum'], ms: [['m1', 'Senyum waktu diajak ngobrol'], ['m2', 'Ngangkat kepala sebentar pas tengkurap'], ['m3', 'Ngeliatin wajah ayah/ibu'], ['m4', 'Tenang pas digendong atau diajak ngobrol']] },
+  { k: '3', to: 6, n: '3–6 bulan', tips: ['Bales ocehannya kayak lagi ngobrol beneran — dia lagi latihan gantian ngomong.', 'Kasih mainan yang aman buat digenggam & digigit.', 'Bacain buku bergambar besar, walaupun cuma bentar.', 'Rutinitas tidur yang sama tiap malam bikin bayi lebih gampang tidur.'], main: ['🤸 Tummy time lebih lama, taruh mainan di depannya', '🔔 Kasih kerincingan buat digenggam & digoyang', '🙈 Main cilukba pakai kain'], ms: [['m5', 'Kepala stabil tanpa ditopang'], ['m6', 'Masukin tangan ke mulut'], ['m7', 'Ketawa'], ['m8', 'Tengkurap sambil nyangga pakai lengan'], ['m9', 'Mulai ngeraih mainan']] },
+  { k: '6', to: 9, n: '6–9 bulan', tips: ['Mulai MPASI sesuai arahan dokter/bidan — kenalin rasa satu-satu, sabar kalau ditolak.', 'Main cilukba: dia belajar kalau yang "ilang" bakal balik lagi.', 'Sebut nama benda yang lagi dia liat atau pegang.', 'Mulai amanin rumah: colokan, sudut meja, barang kecil yang bisa ketelen.'], main: ['⚽ Duduk disandarin sambil main bola empuk', '🧸 Taruh mainan agak jauh biar dia usaha ngeraih/merayap', '🥣 Masukin & keluarin mainan dari wadah'], ms: [['m10', 'Guling dari tengkurap ke telentang'], ['m11', 'Duduk sambil nyangga pakai tangan'], ['m12', 'Mindahin mainan dari tangan satu ke tangan lain'], ['m13', 'Ngoceh "ba-ba", "ma-ma"']] },
+  { k: '9', to: 12, n: '9–12 bulan', tips: ['Biarin dia makan pakai tangan sendiri walau berantakan — itu latihan motorik halus.', 'Bilang "jangan" dengan tenang terus alihin ke hal lain, bukan dibentak.', 'Ajarin dadah, tepuk tangan, sama nunjuk.'], main: ['🧱 Susun & robohin balok atau gelas plastik', '🍌 Ambil potongan makanan lunak pakai jari (latihan jepit)', '🛋️ Taruh mainan di sofa biar dia berdiri sambil pegangan'], ms: [['m14', 'Duduk sendiri tanpa ditopang'], ['m15', 'Berdiri sambil pegangan'], ['m16', 'Ngambil benda kecil pakai jempol & telunjuk'], ['m17', 'Dadah atau tepuk tangan']] },
+  { k: '12', to: 18, n: '1 tahun – 1,5 tahun', tips: ['Biarin dia jalan & eksplor, cukup diawasin dari deket.', 'Kasih 2 pilihan sederhana ("mau baju biru atau merah?") biar dia belajar mutusin.', 'Puji usahanya: "wah kamu nyoba lagi ya!"', 'Belum perlu layar — main & ngobrol jauh lebih ngebantu otaknya.'], main: ['📦 Dorong kardus/mainan dorong sambil jalan', '🖍️ Corat-coret pakai krayon besar di kertas lebar', '🧺 Masukin bola ke ember atau keranjang'], ms: [['m18', 'Jalan beberapa langkah sendiri'], ['m19', 'Corat-coret pakai krayon'], ['m20', 'Minum dari gelas (dibantu)'], ['m21', 'Nunjuk benda yang dia mau']] },
+  { k: '18', to: 24, n: '1,5 – 2 tahun', tips: ['Pas tantrum: tenangin dulu, kasih nama perasaannya ("kamu kesel ya"), baru kasih batasan.', 'Bacain buku tiap hari & ajak nunjuk gambarnya.', 'Libatin di kerjaan kecil: naro baju kotor ke keranjang.', 'Rutinitas yang sama tiap hari bikin dia merasa aman.'], main: ['⚽ Nendang bola besar', '🧱 Nyusun 3–4 balok jadi menara', '🫧 Tiup gelembung sabun terus kejar-kejaran'], ms: [['m22', 'Jalan tanpa pegangan'], ['m23', 'Lari kecil'], ['m24', 'Makan pakai sendok (masih berantakan)'], ['m25', 'Nyebut beberapa kata']] },
+  { k: '24', to: 36, n: '2–3 tahun', tips: ['Layar maksimal ±1 jam sehari & ditemenin — lebih sedikit lebih baik.', 'Ajarin nama emosi: seneng, sedih, marah, takut.', 'Pakai aturan yang sama dari ayah & ibu, biar dia ga bingung.', 'Biarin dia nyoba sendiri (pakai sepatu, makan) walaupun lama.'], main: ['🐸 Lompat dua kaki di tempat (lompat kodok)', '📿 Ronce manik-manik besar atau potongan sedotan', '🏐 Lempar-tangkap bola empuk'], ms: [['m26', 'Lompat pakai dua kaki'], ['m27', 'Lari'], ['m28', 'Nendang bola'], ['m29', 'Ngomong 2–3 kata dalam satu kalimat']] },
+  { k: '36', to: 48, n: '3–4 tahun', tips: ['Ajak main pura-pura (masak-masakan, dokter-dokteran) — bagus buat bahasa & empati.', 'Ajarin gantian & berbagi lewat permainan.', 'Tanya "menurut kamu kenapa?" biar dia belajar mikir.'], main: ['✂️ Gunting kertas pakai gunting anak (diawasin)', '🦘 Lompat-lompat di atas garis', '🏐 Tangkap bola besar'], ms: [['m30', 'Pakai baju sendiri (sebagian)'], ['m31', 'Pakai sendok & garpu'], ['m32', 'Naik turun tangga'], ['m33', 'Cerita singkat apa yang dia lakuin']] },
+  { k: '48', to: 72, n: '4–6 tahun', tips: ['Ajak beresin mainan sendiri pakai lagu atau timer biar seru.', 'Ngobrol soal harinya: "tadi yang paling seru apa?"', 'Kenalin huruf & angka lewat main, bukan dipaksa.', 'Kasih contoh minta maaf & bilang terima kasih.'], main: ['🦶 Lompat satu kaki', '✏️ Mewarnai & nebalin garis/huruf', '🚲 Sepeda roda bantu atau lari estafet kecil'], ms: [['m34', 'Tangkap bola besar'], ['m35', 'Gambar orang dengan beberapa bagian badan'], ['m36', 'Lompat satu kaki'], ['m37', 'Ngancingin kancing besar']] }
+];
+const SCREEN = m => m == null ? null : m < 24 ? ['🙅', 'Belum perlu layar dulu, kecuali video call sama keluarga.'] : m < 72 ? ['⏱️', 'Layar maksimal ±1 jam sehari, kontennya edukatif, & ditemenin.'] : ['📱', 'Atur aturan layar bareng, & jangan pas makan atau sebelum tidur.'];
+const TOPIK = [
+  ['😭', 'Ngadepin tantrum', ['Tetap tenang dulu — anak "minjem" ketenangan dari kita.', 'Pastiin aman (jauhin barang yang bisa bahaya).', 'Kasih nama perasaannya: "kamu kesel ya karena harus pulang."', 'Batasan tetep batasan — jangan langsung diturutin biar tangisnya berhenti.', 'Abis reda, peluk & ngobrol pelan.']],
+  ['🧭', 'Disiplin tanpa bentak & pukul', ['Bikin aturan sedikit tapi jelas, & ulangin terus.', 'Konsekuensinya nyambung sama kesalahannya (mainan dilempar → disimpen dulu).', 'Lebih sering puji perilaku baik daripada negur yang salah.', 'Ayah & ibu kompak, aturannya sama.', 'Bentakan & pukulan bikin anak takut, bukan ngerti.']],
+  ['😴', 'Tidur', ['Rutinitas yang sama: mandi, baju tidur, cerita, lampu redup.', 'Jam tidur kurang lebih sama tiap hari.', 'Layar dimatiin ±1 jam sebelum tidur.', 'Bayi: tidur telentang di kasur rata, tanpa bantal, selimut tebal, atau boneka.']],
+  ['🍽️', 'Makan', ['Orang tua nentuin apa & kapan makan, anak yang nentuin seberapa banyak.', 'Makan bareng di meja, tanpa nonton.', 'Makanan baru dikenalin berkali-kali — wajar kalau awalnya ditolak.', 'MPASI & porsi ikutin arahan dokter/bidan & Buku KIA.']],
+  ['📱', 'Layar & HP', ['Di bawah 2 tahun: hindarin, kecuali video call.', '2–5 tahun: maksimal ±1 jam sehari, ditemenin & diajak ngobrol soal isinya.', 'Bukan pas makan & sebelum tidur.', 'Anak niru — kita juga kurangin main HP di depan dia.']],
+  ['🗣️', 'Bahasa & ngobrol', ['Ngobrol terus, ceritain apa aja yang kalian lakuin.', 'Bacain buku tiap hari, walau cuma 5 menit.', 'Tanya pertanyaan terbuka ("tadi ngapain aja?").', 'Dengerin sampai dia selesai ngomong.']],
+  ['💛', 'Emosi & percaya diri', ['Kasih nama emosinya, semua emosi boleh — yang dibatesin itu perilakunya.', 'Puji usahanya, bukan cuma hasilnya.', 'Biarin dia gagal & coba lagi, kita nemenin.', 'Tiap hari 10–15 menit main berdua penuh perhatian, tanpa HP.']],
+  ['👫', 'Kompak jadi ayah & ibu', ['Sepakatin aturan penting berdua dulu.', 'Kalau beda pendapat, bahasnya jangan di depan anak.', 'Gantian istirahat & jaga waktu berdua.', 'Saling bilang makasih & apresiasi tiap hari.']]
+];
+const CEK = ['Minggu ini, momen paling bikin seneng jadi orang tua apa?', 'Bagian mana yang paling bikin capek minggu ini?', 'Satu hal yang bisa aku bantu minggu depan apa?', 'Kapan terakhir kita quality time berdua tanpa HP?', 'Ada aturan buat si kecil yang perlu kita samain?', 'Apa yang kamu kagumi dari caraku jadi ayah/ibu minggu ini?', 'Kamu udah cukup tidur & istirahat belum minggu ini?', 'Satu hal kecil apa yang pengen kita coba bareng si kecil minggu depan?', 'Hal apa dari orang tua kita dulu yang pengen kita terusin?', 'Hal apa dari cara kita dibesarin yang pengen kita ubah?', 'Minggu ini kamu ngerasa didukung ga? Bagian mana yang kurang?', 'Doa atau harapan kita buat si kecil minggu ini apa?'];
+const NILAI0 = ['Jujur walaupun susah', 'Minta maaf & saling maafin', 'Ibadah bareng', 'Makan malam bareng tanpa HP', 'Ga ada bentak & pukul', 'Berani nyoba, ga takut salah', 'Sayang sama hewan & alam', 'Hormat sama yang lebih tua'];
+
+// ── data ──
+function anak() { const c = cfg(); return c.anak || {}; }
+function umurBulan() { const a = anak(), l = parseYMD(a.lahir); if (!l || l > today0()) return null; const n = today0(); let m = (n.getFullYear() - l.getFullYear()) * 12 + n.getMonth() - l.getMonth(); if (n.getDate() < l.getDate()) m--; return Math.max(0, m); }
+function band(m) { if (m == null) return BAND[0]; return BAND.slice(1).find(b => m < b.to) || BAND[BAND.length - 1]; }
+function mingguHamil() { const h = parseYMD(cfg().hpl) || (parseYMD(anak().lahir) > today0() ? parseYMD(anak().lahir) : null); if (!h) return null; const d = Math.round((h - today0()) / 864e5); return Math.max(0, Math.min(42, 40 - Math.ceil(d / 7))); }
+const tum = () => { const out = { ms: {}, ukur: [], mo: [], kon: [] }; WHO.forEach(w => { const r = rowOf('tumbuh', w); Object.assign(out.ms, r.ms || {}); ['ukur', 'mo', 'kon'].forEach(k => (r[k] || []).forEach(x => out[k].push(Object.assign({ w }, x)))); }); out.ukur.sort((a, b) => b.d.localeCompare(a.d)); out.mo.sort((a, b) => b.d.localeCompare(a.d)); out.kon.sort((a, b) => a.d.localeCompare(b.d)); return out; };
+const myT = () => Object.assign({ ms: {}, ukur: [], mo: [], kon: [] }, rowOf('tumbuh', me));
+const putT = r => BD.put('tumbuh', me, CFG, r);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const weekKey = () => { const d = today0(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return ymd(d); };
+const weekIdx = () => Math.floor((parseYMD(weekKey()) - new Date(2026, 0, 5)) / (7 * 864e5));
+
+// ── tampilan ──
+let tab = lsGet('kel-tab', 'hari');
+function render() {
+  bdStatus();
+  const c = cfg(), app = $('app');
+  if (!c.on) { app.innerHTML = `<div class="k-card lock"><span>🔒</span><h3>Halaman ini belum dibuka</h3><p>Nanti dibuka pas waktunya 🤍</p></div>`; return; }
+  const a = anak(), m = umurBulan(), wk = mingguHamil();
+  const who = a_hasLahir() ? `<b>${esc(a.n || 'Si kecil')}</b><small>${m < 24 ? `${m} bulan` : `${Math.floor(m / 12)} tahun ${m % 12 ? (m % 12) + ' bulan' : ''}`} · lahir ${fmtD(parseYMD(a.lahir))}</small>` : wk != null ? `<b>Lagi nunggu si kecil 🤰</b><small>${wk ? `±${wk} minggu · ` : ''}perkiraan lahir ${fmtD(parseYMD(c.hpl) || parseYMD(a.lahir))}</small>` : `<b>Keluarga kecil kita</b><small>Atur perkiraan lahir atau tanggal lahir si kecil</small>`;
+  const T = [['hari', '☀️ Hari ini'], ['tumbuh', '🌱 Tumbuh'], ['belajar', '📚 Belajar'], ['berdua', '💞 Kita berdua'], ['anak', '🧸 Mode Anak']];
+  let h = `<div class="k-card kid"><span class="e">${a_hasLahir() ? '👶' : '🤍'}</span><div>${who}</div><button id="atur">⚙️ Atur</button></div>
+    <div class="seg">${T.map(([k, n]) => `<button data-t="${k}" class="${tab === k ? 'on' : ''}">${n}</button>`).join('')}</div>`;
+  h += tab === 'hari' ? hariH(m) : tab === 'tumbuh' ? tumbuhH(m) : tab === 'belajar' ? belajarH() : tab === 'berdua' ? berduaH() : anakH(m);
+  app.innerHTML = h;
+  app.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { tab = b.dataset.t; lsSet('kel-tab', tab); render(); });
+  $('atur').onclick = atur;
+  bind();
+}
+function hariH(m) {
+  const B = band(a_hasLahir() ? m : null), doy = Math.floor((today0() - new Date(2026, 0, 1)) / 864e5), tip = B.tips[((doy % B.tips.length) + B.tips.length) % B.tips.length], S = SCREEN(a_hasLahir() ? m : null);
+  return `<div class="k-card"><div class="tip-k">💡 Tips hari ini · ${B.n}</div><p class="tip">${esc(tip)}</p></div>
+    <div class="k-card"><div class="h4">🤸 Ide main hari ini <small>tanpa layar</small></div>${B.main.map(x => { const i = x.indexOf(' '); return `<div class="play"><span>${x.slice(0, i)}</span><div>${esc(x.slice(i + 1))}</div></div>`; }).join('')}</div>
+    ${S ? `<div class="scr"><span>${S[0]}</span><div>${S[1]}</div></div>` : ''}
+    <p class="note">Patokan umum dari WHO, UNICEF, IDAI & Buku KIA. Tiap anak beda — kalau ada yang bikin khawatir, tanya dokter anak atau bidan ya.</p>`;
+}
+const a_hasLahir = () => { const l = parseYMD(anak().lahir); return !!l && l <= today0(); };
+function tumbuhH(m) {
+  const t = tum(), B = band(a_hasLahir() ? m : null);
+  let h = '';
+  if (a_hasLahir()) {
+    const idx = BAND.indexOf(B), bands = [BAND[idx - 1], B].filter(x => x && x.ms.length);
+    h += `<div class="k-card"><div class="h4">🎯 Yang umumnya mulai bisa <small>${esc(B.n)}</small></div>${bands.map(b => b.ms.map(([id, n]) => `<div class="ms"><button data-ms="${id}" class="${t.ms[id] ? 'y' : ''}">${t.ms[id] ? '✓' : ''}</button><span>${esc(n)}</span>${t.ms[id] ? `<small>${fmtD(parseYMD(t.ms[id]))}</small>` : ''}</div>`).join('')).join('')}<p class="note">Bukan lomba — tiap anak punya waktunya sendiri. Kalau banyak yang belum muncul, ngobrolin sama dokter anak.</p></div>`;
+  }
+  h += `<div class="k-card"><div class="h4">📏 Berat & tinggi</div>${t.ukur.slice(0, 6).map(x => `<div class="li"><div class="m">${x.bb ? x.bb + ' kg' : ''}${x.bb && x.tb ? ' · ' : ''}${x.tb ? x.tb + ' cm' : ''}<small>${fmtD(parseYMD(x.d))} · <span class="who-${x.w[0]}">${x.w}</span></small></div>${x.w === me ? `<button class="x" data-del="ukur|${x.id}">✕</button>` : ''}</div>`).join('') || '<p class="note" style="margin:0">Belum ada catatan.</p>'}
+    <div class="row2"><input class="inp" id="bb" type="number" inputmode="decimal" step="0.1" placeholder="Berat (kg)"><input class="inp" id="tb" type="number" inputmode="decimal" step="0.1" placeholder="Tinggi (cm)"></div><button class="kb" id="add-uk">+ Catat</button></div>`;
+  h += `<div class="k-card"><div class="h4">⭐ Momen pertama</div>${t.mo.slice(0, 8).map(x => `<div class="li"><div class="m">${esc(x.t)}<small>${fmtD(parseYMD(x.d))} · <span class="who-${x.w[0]}">${x.w}</span></small></div>${x.w === me ? `<button class="x" data-del="mo|${x.id}">✕</button>` : ''}</div>`).join('') || '<p class="note" style="margin:0">Misalnya: pertama kali ketawa, tengkurap, jalan, manggil "ayah"…</p>'}
+    <input class="inp" id="mo" style="margin-top:.6rem" placeholder="Momen apa hari ini?" maxlength="120"><button class="kb" id="add-mo">+ Simpan momen</button></div>`;
+  const up = t.kon.filter(x => x.d >= ymd(today0()));
+  h += `<div class="k-card"><div class="h4">🩺 Jadwal kontrol & imunisasi <small>isi dari Buku KIA / dokter</small></div>${up.slice(0, 6).map(x => `<div class="li"><div class="m">${esc(x.t)}<small>${fmtD(parseYMD(x.d))}</small></div>${x.w === me ? `<button class="x" data-del="kon|${x.id}">✕</button>` : ''}</div>`).join('') || '<p class="note" style="margin:0">Belum ada jadwal.</p>'}
+    <div class="row2"><input class="inp" id="kt" placeholder="Misal: Imunisasi / kontrol" maxlength="60"><input class="inp" id="kd" type="date"></div><button class="kb" id="add-kon">+ Tambah jadwal</button></div>`;
+  return h;
+}
+function belajarH() {
+  return TOPIK.map(([e, n, L]) => `<details class="tp"><summary><span>${e}</span>${esc(n)}</summary><ul>${L.map(x => `<li>${esc(x)}</li>`).join('')}</ul></details>`).join('') +
+    `<p class="note">Disusun dari panduan umum WHO, UNICEF, IDAI & Buku KIA Kemenkes. Bukan pengganti saran dokter anak atau psikolog.</p>`;
+}
+function berduaH() {
+  const L = []; WHO.forEach(w => (rowOf('nilaikel', w).list || []).forEach(x => L.push(Object.assign({ w }, x)))); L.sort((a, b) => a.at - b.at);
+  const have = new Set(L.map(x => x.t.toLowerCase()));
+  const wk = weekKey(), q = CEK[((weekIdx() % CEK.length) + CEK.length) % CEK.length];
+  const ans = w => ((lsGet('cekortu-' + w, {}) || {})[wk] || {}).a || '';
+  return `<div class="k-card"><div class="h4">🧭 Nilai keluarga kita</div><p class="note" style="margin:0 0 .4rem">Mau kayak gimana kita ngedidik si kecil? Tulis bareng, biar kompak.</p>
+      ${L.map(x => `<div class="li"><div class="m">${esc(x.t)}<small class="who-${x.w[0]}">${x.w}</small></div>${x.w === me ? `<button class="x" data-dn="${x.id}">✕</button>` : ''}</div>`).join('')}
+      <input class="inp" id="nv" style="margin-top:.6rem" placeholder="Tulis nilai keluarga…" maxlength="80"><button class="kb" id="add-nv">+ Tambah</button>
+      <div class="chips2">${NILAI0.filter(x => !have.has(x.toLowerCase())).map(x => `<button data-sug="${esc(x)}">+ ${esc(x)}</button>`).join('')}</div></div>
+    <div class="k-card"><div class="h4">💞 Cek ayah & ibu <small>minggu ini</small></div><p class="q">${esc(q)}</p>
+      ${WHO.map(w => ans(w) ? `<div class="ans"><b class="who-${w[0]}">${w}</b>${esc(ans(w))}</div>` : '').join('')}
+      <textarea class="inp" id="ca" rows="3" style="margin-top:.6rem;resize:none" placeholder="Jawaban kamu…" maxlength="400">${esc(ans(me))}</textarea><button class="kb" id="add-ca">${ans(me) ? 'Ubah jawaban' : 'Kirim jawaban'}</button>
+      <p class="note">${ans(ot) ? '' : `Jawaban ${ot} muncul di sini kalau udah diisi.`}</p></div>`;
+}
+let durM = lsGet('ma-dur', 15);
+function anakH(m) {
+  const S = SCREEN(a_hasLahir() ? m : null), kecil = a_hasLahir() && m < 24;
+  return `<div class="k-card"><div class="h4">🧸 Mode Anak</div><p class="tip" style="font-size:12.5px">Main bareng si kecil: tebalin garis, cocokin bentuk, kenalin warna & hewan. Ada timer — abis waktunya, layar kekunci & ngajak main di luar. Buat keluar, ayah/ibu jawab hitungan dulu.</p>
+      ${kecil ? `<div class="scr" style="margin-top:.6rem;background:#fff4e2;color:#8a5a2b"><span>🙅</span><div>Si kecil belum 2 tahun — panduan dokter anak nyaranin belum pakai layar dulu. Mending pakai ide main di tab Hari ini ya.</div></div>` : S ? `<div class="scr" style="margin-top:.6rem"><span>${S[0]}</span><div>${S[1]}</div></div>` : ''}
+      <label style="display:block;font-size:11.5px;font-weight:600;color:var(--deep);margin:.8rem 0 .1rem">Lama main</label>
+      <div class="dur">${[10, 15, 20].map(n => `<button data-dur="${n}" class="${durM === n ? 'on' : ''}">${n} menit</button>`).join('')}</div>
+      <button class="kb" id="ma-go">▶ Mulai main bareng</button></div>`;
+}
+function bind() {
+  const app = $('app');
+  app.querySelectorAll('[data-ms]').forEach(b => b.onclick = () => {
+    const r = myT(), id = b.dataset.ms, other = (rowOf('tumbuh', ot).ms || {})[id]; r.ms = Object.assign({}, r.ms);
+    if (r.ms[id]) delete r.ms[id]; else if (other) return toast(`Udah dicentang sama ${ot} 🤍`); else r.ms[id] = ymd(today0());
+    putT(r); vib(10); render();
+  });
+  const add = (k, o) => { const r = myT(); r[k] = (r[k] || []).concat([Object.assign({ id: uid() }, o)]).slice(-60); putT(r); vib([10, 30, 10]); render(); };
+  const ukb = $('add-uk'); if (ukb) ukb.onclick = () => { const bb = parseFloat($('bb').value), tb = parseFloat($('tb').value); if (!(bb > 0) && !(tb > 0)) return toast('Isi berat atau tinggi dulu'); add('ukur', { d: ymd(today0()), bb: bb > 0 ? bb : null, tb: tb > 0 ? tb : null }); toast('📏 Kecatet'); };
+  const mob = $('add-mo'); if (mob) mob.onclick = () => { const t = $('mo').value.trim(); if (!t) return $('mo').focus(); add('mo', { d: ymd(today0()), t }); toast('⭐ Momennya kesimpen'); };
+  const knb = $('add-kon'); if (knb) knb.onclick = () => { const t = $('kt').value.trim(), d = $('kd').value; if (!t || !parseYMD(d)) return toast('Isi nama & tanggalnya dulu'); add('kon', { d, t }); toast('🩺 Jadwal ditambah'); };
+  app.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { const [k, id] = b.dataset.del.split('|'), r = myT(); r[k] = (r[k] || []).filter(x => x.id !== id); putT(r); render(); });
+  const nv = (t) => { t = (t || '').trim(); if (!t) return; const r = rowOf('nilaikel', me); BD.put('nilaikel', me, CFG, { list: (r.list || []).concat([{ id: uid(), t, at: Date.now() }]).slice(-40) }); vib(10); render(); };
+  const nvb = $('add-nv'); if (nvb) nvb.onclick = () => nv($('nv').value);
+  app.querySelectorAll('[data-sug]').forEach(b => b.onclick = () => nv(b.dataset.sug));
+  app.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => { const r = rowOf('nilaikel', me); BD.put('nilaikel', me, CFG, { list: (r.list || []).filter(x => x.id !== b.dataset.dn) }); render(); });
+  const cab = $('add-ca'); if (cab) cab.onclick = () => { const t = $('ca').value.trim(); if (!t) return $('ca').focus(); BD.put('cekortu', me, weekKey(), { a: t, at: Date.now() }); vib([10, 30, 10]); toast(`💞 Kekirim — ${ot} bisa liat jawabanmu`); try { window.Push && Push.notify({ title: `💞 ${me} jawab cek ayah & ibu minggu ini`, body: 'Giliran kamu jawab ya 🤍', url: 'keluarga.html', tag: 'keluarga' }); } catch (e) {} render(); };
+  app.querySelectorAll('[data-dur]').forEach(b => b.onclick = () => { durM = +b.dataset.dur; lsSet('ma-dur', durM); render(); });
+  const mg = $('ma-go'); if (mg) mg.onclick = () => modeAnak(durM);
+}
+function atur() {
+  const c = cfg(), a = c.anak || {};
+  const o = document.createElement('div'); o.className = 'sh';
+  o.innerHTML = `<div><h3>⚙️ Atur keluarga</h3><p class="s">Keliatan & nyambung di HP ${ot} juga</p>
+    <label>Perkiraan lahir (HPL)</label><input class="inp" id="s-hpl" type="date" value="${esc(c.hpl || '')}">
+    <label>Nama si kecil</label><input class="inp" id="s-n" maxlength="30" placeholder="Nama panggilan" value="${esc(a.n || '')}">
+    <label>Tanggal lahir</label><input class="inp" id="s-l" type="date" value="${esc(a.lahir || '')}">
+    <button class="kb" id="s-ok">Simpan</button><button class="kb g" id="s-hide">🔒 Sembunyiin lagi halaman ini</button><button class="kb g" id="s-x" style="border:none">Batal</button></div>`;
+  document.body.appendChild(o);
+  o.onclick = e => { if (e.target === o) o.remove(); };
+  $('s-x').onclick = () => o.remove();
+  $('s-ok').onclick = () => { setCfg({ hpl: $('s-hpl').value || '', anak: { n: $('s-n').value.trim(), lahir: $('s-l').value || '' } }); o.remove(); toast('💾 Kesimpen'); render(); };
+  $('s-hide').onclick = () => { setCfg({ on: 0 }); o.remove(); toast('🔒 Disembunyiin lagi'); setTimeout(() => location.href = 'index.html', 700); };
+}
+
+// ══════════ 🧸 MODE ANAK ══════════
+const say = t => { try { if (!window.speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'id-ID'; u.rate = .9; u.pitch = 1.15; speechSynthesis.speak(u); } catch (e) {} };
+const hore = () => { vib([20, 40, 20]); try { window.SFX && SFX.play('win'); } catch (e) {} confetti(40); };
+function modeAnak(min) {
+  const el = document.createElement('div'); el.className = 'ma'; document.body.appendChild(el);
+  const end = Date.now() + min * 6e4; let timer = 0, done = false;
+  try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {}
+  history.pushState({ ma: 1 }, ''); const pop = () => history.pushState({ ma: 1 }, ''); addEventListener('popstate', pop);
+  el.innerHTML = `<div class="ma-h"><span class="t" id="ma-t"></span><button id="ma-lock" aria-label="Keluar (orang tua)">🔒</button></div><div class="ma-b" id="ma-b"></div>`;
+  const B = $('ma-b');
+  const tick = () => { const s = Math.max(0, Math.round((end - Date.now()) / 1000)); $('ma-t').textContent = `⏱️ ${Math.floor(s / 60)}:${pad(s % 60)}`; if (s <= 0 && !done) { done = true; selesai(); } };
+  tick(); timer = setInterval(tick, 1000);
+  function close() { clearInterval(timer); removeEventListener('popstate', pop); try { document.fullscreenElement && document.exitFullscreen(); } catch (e) {} el.remove(); try { speechSynthesis.cancel(); } catch (e) {} }
+  $('ma-lock').onclick = () => gate(close);
+  function selesai() { B.innerHTML = `<div class="ma-end"><span>🌳</span><h2>Udahan dulu yuk!</h2><p>Waktunya main di luar,<br>atau peluk ayah & ibu 🤗</p></div>`; say('Udahan dulu yuk! Waktunya main di luar.'); }
+  function menu() {
+    if (done) return selesai();
+    B.innerHTML = `<div class="ma-menu"><button data-g="garis" style="background:#ffe1a8"><span>✏️</span>Tebalin</button><button data-g="bentuk" style="background:#cfe8ff"><span>🔷</span>Bentuk</button><button data-g="warna" style="background:#ffd3e0"><span>🎨</span>Warna</button><button data-g="hewan" style="background:#d6f2df"><span>🐾</span>Hewan</button></div>`;
+    B.querySelectorAll('[data-g]').forEach(b => b.onclick = () => { vib(8); ({ garis, bentuk, warna, hewan })[b.dataset.g](); });
+  }
+  const back = () => `<button class="ma-back" id="ma-bk">⬅ Pilih mainan lain</button>`;
+  const bindBack = () => { const b = $('ma-bk'); if (b) b.onclick = menu; };
+  // ✏️ tebalin garis
+  const PATHS = [['Garis lurus', 'M50 150 L250 150'], ['Gelombang', 'M40 150 Q80 90 120 150 T200 150 T280 150'], ['Zig-zag', 'M40 190 L90 110 L140 190 L190 110 L240 190'], ['Lingkaran', 'M150 60 A90 90 0 1 1 149.9 60'], ['Segitiga', 'M150 60 L245 230 L55 230 Z'], ['Kotak', 'M70 70 L230 70 L230 230 L70 230 Z'], ['Angka 1', 'M120 90 L160 60 L160 240'], ['Huruf L', 'M100 60 L100 240 L210 240']];
+  let pi = 0;
+  function garis() {
+    if (done) return selesai();
+    const [nm, d] = PATHS[pi % PATHS.length];
+    B.innerHTML = `<div class="ma-q">✏️ ${nm}</div><svg class="ma-trace" id="tr" viewBox="0 0 300 300"><path d="${d}" fill="none" stroke="#f1dcc0" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/><path id="tp" d="${d}" fill="none" stroke="#e0a86a" stroke-width="5" stroke-dasharray="2 12" stroke-linecap="round"/><polyline id="ink" fill="none" stroke="#ef6f8f" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" points=""/></svg><div class="ma-bar"><b id="pb"></b></div>${back()}`;
+    bindBack(); say(nm);
+    const svg = $('tr'), p = $('tp'), L = p.getTotalLength(), pts = []; for (let s = 0; s <= L; s += 8) { const q = p.getPointAtLength(s); pts.push([q.x, q.y, 0]); }
+    let ink = [], downP = false, win = false;
+    const loc = e => { const r = svg.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 300, (e.clientY - r.top) / r.height * 300]; };
+    const mv = e => { if (!downP || win) return; const [x, y] = loc(e); ink.push(`${x.toFixed(0)},${y.toFixed(0)}`); if (ink.length > 400) ink.shift(); $('ink').setAttribute('points', ink.join(' ')); pts.forEach(q => { if (!q[2] && Math.hypot(q[0] - x, q[1] - y) < 24) q[2] = 1; }); const pr = pts.filter(q => q[2]).length / pts.length; $('pb').style.width = Math.round(pr * 100) + '%'; if (pr > .85) { win = true; hore(); say('Hebat!'); pi++; setTimeout(garis, 1500); } };
+    svg.addEventListener('pointerdown', e => { downP = true; try { svg.setPointerCapture(e.pointerId); } catch (er) {} mv(e); });
+    svg.addEventListener('pointermove', mv); svg.addEventListener('pointerup', () => { downP = false; });
+  }
+  // 🔷 cocokin bentuk
+  const SH = { lingkaran: c => `<circle cx="43" cy="43" r="38" fill="${c}"/>`, kotak: c => `<rect x="6" y="6" width="74" height="74" rx="8" fill="${c}"/>`, segitiga: c => `<path d="M43 5 L81 78 L5 78 Z" fill="${c}"/>`, bintang: c => `<path d="M43 4l11 24 26 3-19 18 5 26-23-13-23 13 5-26L6 31l26-3z" fill="${c}"/>`, hati: c => `<path d="M43 78C43 78 6 55 6 30C6 16 16 7 28 7C35 7 40 11 43 16C46 11 51 7 58 7C70 7 80 16 80 30C80 55 43 78 43 78Z" fill="${c}"/>` };
+  const SCOL = { lingkaran: '#ff8a8a', kotak: '#6fb3ff', segitiga: '#ffc94d', bintang: '#b28cff', hati: '#ff7fb0' };
+  function bentuk() {
+    if (done) return selesai();
+    const ks = Object.keys(SH).sort(() => Math.random() - .5).slice(0, 3), W = Math.min(innerWidth * .9, 380), H = Math.min(innerWidth * 1.1, 460);
+    B.innerHTML = `<div class="ma-q">🔷 Cocokin bentuknya!</div><div class="ma-shapes" id="sb"></div>${back()}`; bindBack();
+    const box = $('sb'), sp = Math.max(2, (W - 3 * 86) / 4), xs = [0, 1, 2].map(i => sp + i * (86 + sp)), order = ks.slice().sort(() => Math.random() - .5); let ok = 0;
+    ks.forEach((k, i) => { const s = document.createElement('div'); s.className = 'slot'; s.style.left = xs[i] + 'px'; s.style.top = '10px'; s.innerHTML = `<svg viewBox="0 0 86 86" width="86" height="86" style="opacity:.25">${SH[k]('#5a3a20')}</svg>`; s.dataset.k = k; box.appendChild(s); });
+    order.forEach((k, i) => {
+      const p = document.createElement('div'); p.className = 'pc'; const x0 = xs[i], y0 = H - 110; p.style.left = x0 + 'px'; p.style.top = y0 + 'px'; p.innerHTML = `<svg viewBox="0 0 86 86" width="86" height="86">${SH[k](SCOL[k])}</svg>`; box.appendChild(p);
+      let st = null;
+      p.addEventListener('pointerdown', e => { st = [e.clientX, e.clientY, parseFloat(p.style.left), parseFloat(p.style.top)]; try { p.setPointerCapture(e.pointerId); } catch (er) {} say(k); });
+      p.addEventListener('pointermove', e => { if (!st) return; p.style.left = (st[2] + e.clientX - st[0]) + 'px'; p.style.top = (st[3] + e.clientY - st[1]) + 'px'; });
+      p.addEventListener('pointerup', () => { if (!st) return; st = null; const sl = [...box.querySelectorAll('.slot')].find(s => s.dataset.k === k), dx = parseFloat(p.style.left) - parseFloat(sl.style.left), dy = parseFloat(p.style.top) - parseFloat(sl.style.top);
+        if (Math.hypot(dx, dy) < 55 && !p.dataset.ok) { p.dataset.ok = 1; p.style.left = sl.style.left; p.style.top = sl.style.top; p.style.pointerEvents = 'none'; vib(15); ok++; if (ok === 3) { hore(); say('Pinter banget!'); setTimeout(bentuk, 1600); } else say('Yey!'); }
+        else { p.style.transition = 'left .3s, top .3s'; p.style.left = x0 + 'px'; p.style.top = y0 + 'px'; setTimeout(() => p.style.transition = '', 320); } });
+    });
+  }
+  // 🎨 warna
+  const WR = [['merah', '#ff5a5a'], ['kuning', '#ffd23f'], ['hijau', '#4cc38a'], ['biru', '#4a90ff'], ['ungu', '#9b6bff'], ['oranye', '#ff9a3c']];
+  function warna() {
+    if (done) return selesai();
+    const opts = WR.slice().sort(() => Math.random() - .5), t = opts[Math.floor(Math.random() * opts.length)];
+    B.innerHTML = `<div class="ma-q">Mana warna <span style="color:${t[1]}">${t[0].toUpperCase()}</span>?</div><div class="ma-grid">${opts.map(c => `<button data-c="${c[0]}" style="background:${c[1]}" aria-label="${c[0]}"></button>`).join('')}</div>${back()}`;
+    bindBack(); say('Mana warna ' + t[0] + '?');
+    B.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { if (b.dataset.c === t[0]) { hore(); say('Betul! ' + t[0]); setTimeout(warna, 1500); } else { vib([30, 30]); say('Itu ' + b.dataset.c + '. Coba lagi ya'); } });
+  }
+  // 🐾 hewan
+  const HW = [['🐱', 'Kucing', 'meong meong'], ['🐶', 'Anjing', 'guk guk'], ['🐮', 'Sapi', 'mooo'], ['🐔', 'Ayam', 'kukuruyuk'], ['🦆', 'Bebek', 'kwek kwek'], ['🐸', 'Katak', 'kwak kwak'], ['🐑', 'Domba', 'mbeee'], ['🐘', 'Gajah', 'nguuung'], ['🦁', 'Singa', 'aum']];
+  function hewan() {
+    if (done) return selesai();
+    B.innerHTML = `<div class="ma-q">🐾 Tap hewannya!</div><div id="hw-big" style="height:8.5rem;display:flex;align-items:center;justify-content:center"></div><div class="ma-grid sq">${HW.map((h, i) => `<button data-h="${i}">${h[0]}</button>`).join('')}</div>${back()}`;
+    bindBack();
+    B.querySelectorAll('[data-h]').forEach(b => b.onclick = () => { const h = HW[+b.dataset.h]; $('hw-big').innerHTML = `<div style="text-align:center"><div class="ma-big">${h[0]}</div><b style="font-size:20px;color:#5a3a20">${h[1]}</b></div>`; vib(10); say(`${h[1]}! ${h[2]}`); });
+  }
+  menu();
+}
+// 🔒 gerbang orang tua: jawab hitungan
+function gate(onOk) {
+  const a = 3 + Math.floor(Math.random() * 7), b = 4 + Math.floor(Math.random() * 6); let v = '';
+  const o = document.createElement('div'); o.className = 'gate';
+  o.innerHTML = `<div><h4>Khusus ayah / ibu</h4><p>Berapa ${a} + ${b}?</p><div class="v" id="g-v"></div><div class="k">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '✕', 0, '⌫'].map(n => `<button data-n="${n}">${n}</button>`).join('')}</div></div>`;
+  document.body.appendChild(o);
+  o.querySelectorAll('[data-n]').forEach(btn => btn.onclick = () => { const n = btn.dataset.n; if (n === '✕') { o.remove(); return; } if (n === '⌫') v = v.slice(0, -1); else if (v.length < 2) v += n; $('g-v').textContent = v; if (v.length >= String(a + b).length) { if (+v === a + b) { o.remove(); onOk(); } else { vib([40, 40]); v = ''; setTimeout(() => $('g-v').textContent = '', 300); } } });
+}
+try { BD.on(ev => { if (ev.apps && ev.apps.some(x => ['kelcfg', 'tumbuh', 'nilaikel', 'cekortu'].includes(x)) && !document.querySelector('.ma, .sh') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') render(); else if (!ev.apps || !ev.apps.length) bdStatus(); }); } catch (e) {}
+render();
+
+</script>
+<!-- TAMBAHAN: konfirmasi pakai panel sendiri (kotak pop-up bawaan browser suka nggak muncul di mode aplikasi) -->
+<script>
+(function () {
+  if (window.__cfPatched) return; window.__cfPatched = true;
+  const native = window.confirm.bind(window);
+  let lastTap = null, lastTapAt = 0, bypass = null;
+  // catat tombol yang terakhir di-tap (buat dijalankan ulang setelah dikonfirmasi)
+  document.addEventListener('click', e => { lastTap = e.target; lastTapAt = Date.now(); }, true);
+  const css = document.createElement('style');
+  css.textContent = `.cf-ov{position:fixed;inset:0;z-index:2147483000;background:rgba(45,31,26,.45);display:flex;align-items:flex-end;justify-content:center;animation:cfFade .2s ease}
+  @keyframes cfFade{from{opacity:0}to{opacity:1}}
+  .cf{background:#faf6f0;border-radius:22px 22px 0 0;width:100%;max-width:460px;padding:1.3rem 1.2rem calc(1.2rem + env(safe-area-inset-bottom));animation:cfUp .25s ease;font-family:'Poppins',system-ui,sans-serif;text-align:center}
+  @keyframes cfUp{from{transform:translateY(100%)}to{transform:none}}
+  .cf p{font-size:14px;color:#2d1f1a;line-height:1.6;margin:0 0 1.1rem;white-space:pre-line;font-weight:500}
+  .cf button{display:block;width:100%;padding:.85rem;border-radius:50px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin:0 0 .5rem}
+  .cf .cf-yes{background:#c17a6f;color:#fff}
+  .cf .cf-home{background:#fff;color:#c17a6f;border:1.5px solid #c17a6f}
+  .cf .cf-no{background:none;color:#9a8070;font-weight:500;margin:0}`;
+  document.head.appendChild(css);
+  function panel(msg, onYes) {
+    const isExit = /keluar|tutup restoran/i.test(msg);
+    const ov = document.createElement('div'); ov.className = 'cf-ov';
+    ov.innerHTML = `<div class="cf"><p></p><button class="cf-yes">${isExit ? '↺ Ya, keluar dari permainan' : 'Ya, lanjutkan'}</button>${isExit ? '<button class="cf-home">🏠 Keluar ke menu</button>' : ''}<button class="cf-no">Batal</button></div>`;
+    ov.querySelector('p').textContent = msg;
+    const close = () => ov.remove();
+    ov.querySelector('.cf-yes').onclick = () => { close(); onYes(); };
+    ov.querySelector('.cf-no').onclick = close;
+    if (isExit) ov.querySelector('.cf-home').onclick = () => { location.href = 'index.html'; };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }
+  window.confirm = function (msg) {
+    msg = String(msg == null ? '' : msg);
+    if (bypass === msg) { bypass = null; return true; }               // dijalankan ulang setelah "Ya"
+    const target = lastTap;
+    if (!target || Date.now() - lastTapAt > 800 || !document.contains(target)) return native(msg);   // bukan dari tap → pakai cara lama
+    panel(msg, () => { bypass = msg; target.click(); setTimeout(() => { if (bypass === msg) bypass = null; }, 500); });
+    return false;
+  };
+})();
+</script>
+</body>
+</html>

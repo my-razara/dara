@@ -39,7 +39,8 @@
   el('u2-lbl', 'kita', 205, '<span>Lagi ngapain?</span>');
   el('u2-lbl', 'kita', 225, '<span>Hari spesial</span><a href="jadwal-kita.html">Kalender →</a>');
   const hs = el('u2-hs', 'kita', 226, '');
-  el('u2-lbl', 'kita', 279, '<span>Pengaturan</span>');
+  const kel = el('u2-card u2-kel', 'kita', 276, '');
+  const lblSet = el('u2-lbl', 'kita', 279, '<span>Pengaturan</span>');
   const sett = el('u2-card u2-set', 'kita', 280, '');
   // isi grid kategori lama (#cat-body) pindah ke Jelajah
   const cb = $('cat-body'); if (cb) { cb.dataset.u2 = '1'; cb.dataset.pane = 'jelajah'; cb.style.order = 170; cb.classList.add('u2-ns'); home.appendChild(cb); }
@@ -112,7 +113,7 @@
     nav.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
     if (t === 'jelajah' && cb && !cb.children.length) { if (catNow === 'lain') { paintSeg(); } else openCat(catNow === 'hadiah' ? 'hadiah' : catNow === 'fav' ? 'fav' : 'games', true); }
     if (t === 'sehat' && window.Sehat && !shHost.dataset.m) { shHost.dataset.m = 1; Sehat.mount(shHost); } else if (t === 'sehat' && window.Sehat) Sehat.paint();
-    if (t === 'kita') paintKita();
+    if (t === 'kita') { paintKita(); paintKel(); }
     if (t === 'beranda') paintBeranda();
     route();
     if (!keep && was !== t) home.scrollTop = pos[t] || 0;
@@ -213,6 +214,22 @@
       if (k === 'az' && window.__allFitur) __allFitur();
     });
   }
+
+  // ── 👨‍👩‍👧 Keluarga (disimpen dulu: kebuka kalau "Pengaturan" ditahan 1,5 detik) ──
+  const kelOn = () => { let b = null; ['Razan', 'Dara'].forEach(w => { const r = ((g('kelcfg-' + w, {}) || {})['2000-01-01']) || {}; if (r.at && (!b || r.at > b.at)) b = r; }); return b || {}; };
+  function paintKel() { const c = kelOn(); kel.style.display = c.on ? '' : 'none'; if (c.on) kel.innerHTML = `<a href="keluarga.html" style="display:flex;align-items:center;gap:.75rem;padding:.85rem .95rem;text-decoration:none;color:var(--ink)"><span style="width:44px;height:44px;border-radius:15px;background:linear-gradient(140deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">👨‍👩‍👧</span><span style="flex:1;min-width:0"><b style="display:block;font-size:13.5px">Keluarga Kita</b><small style="display:block;font-size:11px;color:var(--muted)">Jadi ayah &amp; ibu — bareng-bareng</small></span><span style="color:var(--rose)">→</span></a>`; }
+  (function () {
+    let t = 0; const L = lblSet;
+    L.addEventListener('pointerdown', () => { clearTimeout(t); t = setTimeout(() => {
+      vib([20, 40, 20]); const c = kelOn(), o = document.createElement('div'); o.className = 'sh-sheet';
+      o.innerHTML = `<div><div class="gr"></div><h3>👨‍👩‍👧 ${c.on ? 'Halaman Keluarga udah kebuka' : 'Buka halaman Keluarga?'}</h3><p class="s">${c.on ? 'Mau disembunyiin lagi? Bisa dibuka lagi kapan aja dengan cara yang sama.' : 'Tips jadi ayah & ibu, tumbuh kembang, nilai keluarga, & Mode Anak. Abis dibuka, ' + other() + ' juga bisa liat di tab Kita.'}</p><button class="sh-go" data-y>${c.on ? 'Sembunyiin lagi' : 'Buka sekarang 🤍'}</button><button class="sh-go" data-n style="background:none;color:var(--muted);box-shadow:none">Batal</button></div>`;
+      o.onclick = e => { if (e.target === o || e.target.closest('[data-n]')) o.remove(); };
+      o.querySelector('[data-y]').onclick = () => { const w = me(), r = ((g('kelcfg-' + w, {}) || {})['2000-01-01']) || {}, nx = Object.assign({}, c, r, { on: c.on ? 0 : 1, at: Date.now() }); try { window.Berdua && Berdua.put('kelcfg', w, '2000-01-01', nx); } catch (e) {} o.remove(); paintKel(); };
+      document.body.appendChild(o);
+    }, 1500); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(k => L.addEventListener(k, () => clearTimeout(t)));
+    L.addEventListener('contextmenu', e => e.preventDefault());
+  })();
 
   // ── mulai ──
   paintSeg(); paintMore();
