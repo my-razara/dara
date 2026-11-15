@@ -254,7 +254,7 @@
   }
   // klaim voucher yang belum dikirim ke WA → layar ditutup dulu dari awal (klaim.js yang nampilin tombol WA-nya)
   if (!EMB && get('klaim-pending')) { html.classList.add('klaimlock'); var ks = document.createElement('style'); ks.textContent = 'html.klaimlock body{visibility:hidden!important}'; (document.head || html).appendChild(ks); setTimeout(function () { if (!document.getElementById('klaim-ov')) html.classList.remove('klaimlock'); }, 5000); }
-  try { (EMB ? ['push.js', 'ritual.js', 'skor.js', 'ikon.js'] : ['push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'lokasi.js', 'klaim.js', 'ikon.js']).forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
+  try { (EMB ? ['push.js', 'ritual.js', 'skor.js'] : ['push.js', 'ritual.js', 'skor.js', 'chatfab.js', 'lokasi.js', 'klaim.js']).forEach(function (f) { var ps = document.createElement('script'); ps.src = f; ps.defer = true; (document.head || html).appendChild(ps); }); } catch (e) {}
   window.Who = {
     me: function () { return cur; },
     ready: function () { return !!cur; },
@@ -429,4 +429,16 @@
   setInterval(check, 2000);
   window.addEventListener('storage', check); window.addEventListener('berdua', check);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
+})();
+
+/* ═══ 🎨 IKON — dimuat paling awal + emoji lama diumpetin sampai ikonnya kepasang (biar logo lama ga sempet kedip) ═══ */
+(function () {
+  if (window.IKON || window.__ikw) return; window.__ikw = 1;
+  var H = document.documentElement;
+  try { var st = document.createElement('style'); st.textContent = 'html:not(.ik-off) :is(.grid-item .item-icon-wrap,.mini .mi-ico,a.bx>span,.u2-bxm>span,.fg button>span:first-child,#af-ls .e,#bnav button>span,#u2-fab>span,.rit-pill>span:first-child,.u2-tiles button>span:first-of-type,.ng-e,.u2-next>span:first-child,.u2-set>:is(button,a)>span:first-child,.rb-ico,.mem-card>.mc-ico,#home a[href]>span.e:first-child,.sh-ev a.b[href]>span:first-child,.sh-links a[href]>span:first-child,.sh-ev>time,.u2-ic button):not(.has-ik):not([data-ikx]):not([data-ik]),html:not(.ik-off) .u2-ring svg>text:not([data-ikx]),html:not(.ik-off):not(.ik-hd) :is(.head .ico,.intro-icon,.hero-icon,.hero-ico,.header-icon,.big-ico,.p-ico,.m-ico,span.ico,span.icon,.g-ico,h1,h2):not(.has-ik){visibility:hidden}'; (document.head || H).appendChild(st); } catch (e) {}
+  try {
+    if (document.readyState === 'loading' && document.currentScript) document.write('<script src="ikon.js"><\/script>');
+    else { var sc = document.createElement('script'); sc.src = 'ikon.js'; (document.head || H).appendChild(sc); }
+  } catch (e) {}
+  setTimeout(function () { if (!window.IKON) H.classList.add('ik-off'); }, 3500);   // ikon.js gagal kemuat → balik ke emoji
 })();

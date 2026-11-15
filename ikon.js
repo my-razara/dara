@@ -217,7 +217,7 @@
   const PURE = /^\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*$/u;
   const TAIL = /\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*$/u;
   const LEAD = /^\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*/u;
-  let hdr = 0;
+  let hdr = 0, ttl = 0;
   let sprite = false;
   function ensure() {
     if (sprite || !document.body) return; sprite = true;
@@ -226,9 +226,11 @@
     document.body.prepend(d);
   }
   const svg = k => `<svg class="ik" viewBox="0 0 48 48" aria-hidden="true"><use href="#ik-${k.replace(/\.html$/, '')}"/></svg>`;
-  const put = (el, k) => { if (!el || !k || el.dataset.ik === k) return; el.dataset.ik = k; el.innerHTML = svg(k); el.classList.add('has-ik'); };
+  const mark = el => { if (el && !el.dataset.ik && !el.dataset.ikx) el.dataset.ikx = 1; };   // dicek, emang ga ada ikonnya → boleh keliatan
+  const put = (el, k) => { if (!el) return; if (!k) return mark(el); if (el.dataset.ik === k) return; el.dataset.ik = k; el.innerHTML = svg(k); el.classList.add('has-ik'); };
   function apply(root) {
     root = root || document; ensure();
+    if (MENU) {
     root.querySelectorAll('.grid-item[data-link]').forEach(g => put(g.querySelector('.item-icon-wrap'), keyOf(g.dataset.link)));
     root.querySelectorAll('.mini[data-link]').forEach(g => put(g.querySelector('.mi-ico'), keyOf(g.dataset.link)));
     root.querySelectorAll('a.bx[href]').forEach(a => { const h = a.getAttribute('href'), t = a.textContent.trim().toLowerCase(); put(a.querySelector('span'), h === '#tempel' ? 'tempel' : h === '#' ? (/online/.test(t) ? 'main-online' : /lainnya/.test(t) ? 'lainnya' : null) : keyOf(h)); });
@@ -240,12 +242,13 @@
     root.querySelectorAll('.u2-bxm > span').forEach(e => put(e, 'lainnya'));
     root.querySelectorAll('.u2-tiles button > span:first-of-type, .ng-e, .u2-next > span:first-child').forEach(e => { const l = (e.closest('[data-link]') || {}).dataset; put(e, (l && keyOf(l.link)) || emo(e)); });
     root.querySelectorAll('.u2-set > :is(button,a) > span:first-child:not(.has-ik)').forEach(e => { const p = e.parentElement; put(e, SETK[p.dataset.m] || keyOf(p.getAttribute('href')) || emo(e)); });
-    root.querySelectorAll('.sh-ev a.b[href] > span:first-child, .sh-links a[href] > span:first-child').forEach(e => { const h = e.parentElement.getAttribute('href'), k = h === '#' ? emo(e) : keyOf(h); if (k && k !== 'jadwal-kita.html') put(e, k); });
-    root.querySelectorAll('.u2-ic button:not([data-ik])').forEach(b => { const k = emo({ textContent: [...b.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('') }); if (!k) return; b.dataset.ik = k; [...b.childNodes].forEach(n => n.nodeType === 3 && n.remove()); b.insertAdjacentHTML('afterbegin', svg(k)); b.classList.add('ik-btn'); });
-    root.querySelectorAll('.sh-ev > time').forEach(e => { const a = e.parentElement.querySelector('a.b[href]'), h = a && a.getAttribute('href'), k = h && h !== '#' ? keyOf(h) : emo(e); if (k && k !== 'jadwal-kita.html') put(e, k); });
-    root.querySelectorAll('.u2-ring svg > text').forEach(t => { const k = emo(t); if (!k) return; ensure(); t.insertAdjacentHTML('afterend', `<use href="#ik-${k.replace(/\.html$/, '')}" x="-10" y="-10" width="20" height="20"/>`); t.remove(); });
+    root.querySelectorAll('.sh-ev a.b[href] > span:first-child, .sh-links a[href] > span:first-child').forEach(e => { const h = e.parentElement.getAttribute('href'), k = h === '#' ? emo(e) : keyOf(h); if (k && k !== 'jadwal-kita.html') put(e, k); else mark(e); });
+    root.querySelectorAll('.u2-ic button:not([data-ik])').forEach(b => { const k = emo({ textContent: [...b.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('') }); if (!k) return mark(b); b.dataset.ik = k; [...b.childNodes].forEach(n => n.nodeType === 3 && n.remove()); b.insertAdjacentHTML('afterbegin', svg(k)); b.classList.add('ik-btn'); });
+    root.querySelectorAll('.sh-ev > time').forEach(e => { const a = e.parentElement.querySelector('a.b[href]'), h = a && a.getAttribute('href'), k = h && h !== '#' ? keyOf(h) : emo(e); if (k && k !== 'jadwal-kita.html') put(e, k); else mark(e); });
+    root.querySelectorAll('.u2-ring svg > text:not([data-ikx])').forEach(t => { const k = emo(t); if (!k) return t.setAttribute('data-ikx', 1); ensure(); t.insertAdjacentHTML('afterend', `<use href="#ik-${k.replace(/\.html$/, '')}" x="-10" y="-10" width="20" height="20"/>`); t.remove(); });
     root.querySelectorAll('.rb-ico').forEach(e => put(e, 'dadu-lima.html'));
     root.querySelectorAll('.u2-set button[data-m] > span:first-child').forEach(e => put(e, SETK[e.parentElement.dataset.m]));
+    }
     let page = (location.pathname.split('/').pop() || 'index.html');
     if (location.href === 'about:srcdoc') {   // tab pertama halaman gabungan = halaman aslinya
       page = '';
@@ -256,21 +259,23 @@
       const inj = () => { try { const w = f.contentWindow, d = f.contentDocument; if (!w || w.IKON || !d || !d.head) return; const sc = d.createElement('script'); sc.src = new URL('ikon.js', location.href).href; d.head.appendChild(sc); } catch (e) {} };
       f.addEventListener('load', inj); inj();
     });
-    if (S[page] && !hdr) {   // logo depan halaman: emoji gede pertama di atas
+    if (S[page] && !hdr && document.body) {   // logo depan halaman: emoji gede pertama di atas
       const c = [...document.querySelectorAll(HDR)].find(e => e.dataset.ik || (e.children.length === 0 && PURE.test(e.textContent.trim())));
       if (c) { put(c, page); hdr = 1; }
-      else if (location.href !== 'about:srcdoc') {   // ga ada logo gede: emoji di ujung judul diganti ikon kecil
+    }
+    if (S[page] && !ttl && document.body) {
+      if (location.href !== 'about:srcdoc') {   // emoji di ujung/depan judul diganti ikon kecil
         const h = [...document.querySelectorAll('h1, h2')].find(x => x.offsetParent && x.getBoundingClientRect().top < 420 && TAIL.test(x.textContent.trim()));
         if (h) {
           const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT); let n, last = null;
           while ((n = w.nextNode())) if (n.textContent.trim()) last = n;
           const m = last && TAIL.exec(last.textContent.replace(/\s+$/, ''));
-          if (m) { ensure(); last.textContent = last.textContent.replace(/\s+$/, '').slice(0, m.index) + ' '; last.after(Object.assign(document.createElement('span'), { className: 'ik-inl', innerHTML: svg(page) })); hdr = 1; }
+          if (m) { ensure(); last.textContent = last.textContent.replace(/\s+$/, '').slice(0, m.index) + ' '; last.after(Object.assign(document.createElement('span'), { className: 'ik-inl', innerHTML: svg(page) })); ttl = 1; }
         } else {   // emoji di depan judul ("🩸 Period Dara")
           const h2 = [...document.querySelectorAll('h1, h2')].find(x => x.offsetParent && x.getBoundingClientRect().top < 420 && LEAD.test(x.textContent.trim()));
           const w = h2 && document.createTreeWalker(h2, NodeFilter.SHOW_TEXT); let n = w && w.nextNode(); while (n && !n.textContent.trim()) n = w.nextNode();
           const m = n && LEAD.exec(n.textContent.replace(/^\s+/, ''));
-          if (m) { ensure(); n.textContent = ' ' + n.textContent.replace(/^\s+/, '').slice(m[0].length).replace(/^\s+/, ''); n.before(Object.assign(document.createElement('span'), { className: 'ik-inl', innerHTML: svg(page) })); hdr = 1; }
+          if (m) { ensure(); n.textContent = ' ' + n.textContent.replace(/^\s+/, '').slice(m[0].length).replace(/^\s+/, ''); n.before(Object.assign(document.createElement('span'), { className: 'ik-inl', innerHTML: svg(page) })); ttl = 1; }
         }
       }
     }
@@ -278,8 +283,13 @@
   const css = document.createElement('style');
   css.textContent = '.has-ik{font-size:0!important;line-height:0!important}#bnav span.has-ik{width:24px;height:24px;display:block;margin:0 auto 1px}#bnav span.has-ik .ik{width:100%;height:100%}#bnav button:not(.on) span.has-ik .ik{filter:grayscale(.85);opacity:.6}#u2-fab span.has-ik{width:30px;height:30px;display:block}#u2-fab span.has-ik .ik{width:100%;height:100%}.rit-pill span.has-ik{width:18px;height:18px;display:inline-block}.rit-pill span.has-ik .ik,.sh-links span.has-ik .ik{width:100%;height:100%}.sh-links span.has-ik{width:26px;height:26px;display:block;margin:0 auto}.ng-e.has-ik,.u2-next>span.has-ik,.u2-bxm>span.has-ik{width:30px;height:30px;display:inline-flex;flex:none}.ng-e.has-ik .ik,.u2-next>span.has-ik .ik{width:100%;height:100%}.u2-bxm>span.has-ik{display:block;width:34px;height:34px;margin:0 auto}.u2-bxm>span.has-ik .ik{width:100%;height:100%}.u2-tiles span.has-ik{width:30px;height:30px;display:block;margin:0 auto}.u2-tiles span.has-ik .ik{width:100%;height:100%}.sh-ev a.b>span.has-ik{width:30px;height:30px;display:inline-flex;flex:none}.sh-ev a.b>span.has-ik .ik{width:100%;height:100%}.u2-ic .ik{width:22px;height:22px}.ik-inl{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.14em;-webkit-text-fill-color:initial}.ik-inl .ik{width:100%;height:100%;display:block}.sh-ev>time.has-ik{display:block}.sh-ev>time.has-ik .ik{width:18px;height:18px;margin:0 0 0 auto}.fg button>span.has-ik{width:40px;height:40px;display:block;margin:0 auto .2rem}.fg .has-ik .ik,.mc-ico.has-ik .ik,.rb-ico.has-ik .ik{width:82%;height:82%}span.e.has-ik{display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:30px;flex:none}span.e.has-ik .ik{width:28px;height:28px;margin:0}.u2-set span.has-ik{width:26px;height:26px;display:inline-flex}.u2-set span.has-ik .ik{width:100%;height:100%}.has-ik .ik{width:76%;height:76%;display:block;margin:auto}.mi-ico.has-ik{width:34px;height:34px;display:inline-flex}.mi-ico.has-ik .ik{width:100%;height:100%}.bx>span.has-ik{width:34px;height:34px;display:block;margin:0 auto}.bx>span.has-ik .ik{width:100%;height:100%}:is(.head .ico,.intro-icon,.hero-icon,.hero-ico,.header-icon,.big-ico,.p-ico,.m-ico,span.ico,span.icon,.g-ico).has-ik{width:64px;height:64px;margin:0 auto .2rem;display:block}:is(.head .ico,.intro-icon,.hero-icon,.hero-ico,.header-icon,.big-ico,.p-ico,.m-ico,span.ico,span.icon,.g-ico).has-ik .ik{width:100%;height:100%}';
   (document.head || document.documentElement).appendChild(css);
+  // langsung diganti pas elemennya muncul (sebelum sempet kegambar), jadi emoji lama ga sempet keliatan
+  const H0 = document.documentElement;
   let q = 0; const soon = () => { if (q) return; q = setTimeout(() => { q = 0; try { apply(); } catch (e) {} }, 60); };
-  const start = () => { try { apply(); new MutationObserver(soon).observe(document.body, { childList: true, subtree: true }); } catch (e) {} };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  const now = () => { try { apply(); } catch (e) {} };
+  new MutationObserver(() => (MENU || !H0.classList.contains('ik-hd')) ? now() : soon()).observe(H0, { childList: true, subtree: true });
+  const done = () => { now(); requestAnimationFrame(() => { now(); H0.classList.add('ik-hd'); setTimeout(() => { if (!hdr) hdr = 2; }, 1500); setTimeout(() => { if (!ttl) ttl = 2; }, 20000); }); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', done); else done();
+  now();
   window.IKON = { apply, keys: () => Object.keys(S), has: l => !!keyOf(l), svg: l => { const k = keyOf(l); return k ? (ensure(), svg(k)) : ''; } };
 })();
