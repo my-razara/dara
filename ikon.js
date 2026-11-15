@@ -213,6 +213,11 @@
   const SETK = { fav: 'rating-ketemu.html', keuangan: 'keuangan-berdua.html', secret: 'kunci-pin.html', az: 'lainnya', tour: 'jarak-kita.html' };
   const keyOf = l => { if (!l) return null; l = String(l); if (/^#f-[a-z]+$/.test(l)) return S[l.slice(1)] ? l.slice(1) : null; l = l.split('#')[0]; const b = l.split('/').pop(); return S[b] ? b : S[b.split('?')[0]] ? b.split('?')[0] : ALIAS[b] || null; };
   const MENU = /(^|\/)(index\.html|statistik-fitur\.html)?$/.test(location.pathname) && location.href !== 'about:srcdoc';
+  const HDR = '.head .ico, .intro-icon, .hero-icon, .hero-ico, .header-icon, .big-ico, .p-ico, .m-ico, span.ico, span.icon, .g-ico';
+  const PURE = /^\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*$/u;
+  const TAIL = /\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*$/u;
+  const LEAD = /^\p{Extended_Pictographic}[\uFE0F\u200D\p{Extended_Pictographic}]*/u;
+  let hdr = 0;
   let sprite = false;
   function ensure() {
     if (sprite || !document.body) return; sprite = true;
@@ -244,12 +249,34 @@
     let page = (location.pathname.split('/').pop() || 'index.html');
     if (location.href === 'about:srcdoc') {   // tab pertama halaman gabungan = halaman aslinya
       page = '';
-      try { const t = parent.document.querySelectorAll('#tabs > *'); if (t[0] && t[0].classList.contains('on')) page = parent.location.pathname.split('/').pop(); } catch (e) {}
+      try { page = parent.location.pathname.split('/').pop(); } catch (e) {}
     }
-    if (S[page]) put(document.querySelector('.head .ico, .intro-icon, .hero-icon'), page);
+    root.querySelectorAll('iframe:not([data-ikf])').forEach(f => {   // tab halaman gabungan (srcdoc) ga selalu muat ikon.js sendiri
+      f.dataset.ikf = 1;
+      const inj = () => { try { const w = f.contentWindow, d = f.contentDocument; if (!w || w.IKON || !d || !d.head) return; const sc = d.createElement('script'); sc.src = new URL('ikon.js', location.href).href; d.head.appendChild(sc); } catch (e) {} };
+      f.addEventListener('load', inj); inj();
+    });
+    if (S[page] && !hdr) {   // logo depan halaman: emoji gede pertama di atas
+      const c = [...document.querySelectorAll(HDR)].find(e => e.dataset.ik || (e.children.length === 0 && PURE.test(e.textContent.trim())));
+      if (c) { put(c, page); hdr = 1; }
+      else if (location.href !== 'about:srcdoc') {   // ga ada logo gede: emoji di ujung judul diganti ikon kecil
+        const h = [...document.querySelectorAll('h1, h2')].find(x => x.offsetParent && x.getBoundingClientRect().top < 420 && TAIL.test(x.textContent.trim()));
+        if (h) {
+          const w = document.createTreeWalker(h, NodeFilter.SHOW_TEXT); let n, last = null;
+          while ((n = w.nextNode())) if (n.textContent.trim()) last = n;
+          const m = last && TAIL.exec(last.textContent.replace(/\s+$/, ''));
+          if (m) { ensure(); last.textContent = last.textContent.replace(/\s+$/, '').slice(0, m.index) + ' '; last.after(Object.assign(document.createElement('span'), { className: 'ik-inl', innerHTML: svg(page) })); hdr = 1; }
+        } else {   // emoji di depan judul ("🩸 Period Dara")
+          const h2 = [...document.querySelectorAll('h1, h2')].find(x => x.offsetParent && x.getBoundingClientRect().top < 420 && LEAD.test(x.textContent.trim()));
+          const w = h2 && document.createTreeWalker(h2, NodeFilter.SHOW_TEXT); let n = w && w.nextNode(); while (n && !n.textContent.trim()) n = w.nextNode();
+          const m = n && LEAD.exec(n.textContent.replace(/^\s+/, ''));
+          if (m) { ensure(); n.textContent = ' ' + n.textContent.replace(/^\s+/, '').slice(m[0].length).replace(/^\s+/, ''); n.before(Object.assign(document.createElement('span'), { className: 'ik-inl', innerHTML: svg(page) })); hdr = 1; }
+        }
+      }
+    }
   }
   const css = document.createElement('style');
-  css.textContent = '.has-ik{font-size:0!important;line-height:0!important}#bnav span.has-ik{width:24px;height:24px;display:block;margin:0 auto 1px}#bnav span.has-ik .ik{width:100%;height:100%}#bnav button:not(.on) span.has-ik .ik{filter:grayscale(.85);opacity:.6}#u2-fab span.has-ik{width:30px;height:30px;display:block}#u2-fab span.has-ik .ik{width:100%;height:100%}.rit-pill span.has-ik{width:18px;height:18px;display:inline-block}.rit-pill span.has-ik .ik,.sh-links span.has-ik .ik{width:100%;height:100%}.sh-links span.has-ik{width:26px;height:26px;display:block;margin:0 auto}.ng-e.has-ik,.u2-next>span.has-ik,.u2-bxm>span.has-ik{width:30px;height:30px;display:inline-flex;flex:none}.ng-e.has-ik .ik,.u2-next>span.has-ik .ik{width:100%;height:100%}.u2-bxm>span.has-ik{display:block;width:34px;height:34px;margin:0 auto}.u2-bxm>span.has-ik .ik{width:100%;height:100%}.u2-tiles span.has-ik{width:30px;height:30px;display:block;margin:0 auto}.u2-tiles span.has-ik .ik{width:100%;height:100%}.sh-ev a.b>span.has-ik{width:30px;height:30px;display:inline-flex;flex:none}.sh-ev a.b>span.has-ik .ik{width:100%;height:100%}.u2-ic .ik{width:22px;height:22px}.sh-ev>time.has-ik{display:block}.sh-ev>time.has-ik .ik{width:18px;height:18px;margin:0 0 0 auto}.fg button>span.has-ik{width:40px;height:40px;display:block;margin:0 auto .2rem}.fg .has-ik .ik,.mc-ico.has-ik .ik,.rb-ico.has-ik .ik{width:82%;height:82%}span.e.has-ik{display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:30px;flex:none}span.e.has-ik .ik{width:28px;height:28px;margin:0}.u2-set span.has-ik{width:26px;height:26px;display:inline-flex}.u2-set span.has-ik .ik{width:100%;height:100%}.has-ik .ik{width:76%;height:76%;display:block;margin:auto}.mi-ico.has-ik{width:34px;height:34px;display:inline-flex}.mi-ico.has-ik .ik{width:100%;height:100%}.bx>span.has-ik{width:34px;height:34px;display:block;margin:0 auto}.bx>span.has-ik .ik{width:100%;height:100%}:is(.head .ico,.intro-icon,.hero-icon).has-ik{width:64px;height:64px;margin:0 auto .2rem;display:block}:is(.head .ico,.intro-icon,.hero-icon).has-ik .ik{width:100%;height:100%}';
+  css.textContent = '.has-ik{font-size:0!important;line-height:0!important}#bnav span.has-ik{width:24px;height:24px;display:block;margin:0 auto 1px}#bnav span.has-ik .ik{width:100%;height:100%}#bnav button:not(.on) span.has-ik .ik{filter:grayscale(.85);opacity:.6}#u2-fab span.has-ik{width:30px;height:30px;display:block}#u2-fab span.has-ik .ik{width:100%;height:100%}.rit-pill span.has-ik{width:18px;height:18px;display:inline-block}.rit-pill span.has-ik .ik,.sh-links span.has-ik .ik{width:100%;height:100%}.sh-links span.has-ik{width:26px;height:26px;display:block;margin:0 auto}.ng-e.has-ik,.u2-next>span.has-ik,.u2-bxm>span.has-ik{width:30px;height:30px;display:inline-flex;flex:none}.ng-e.has-ik .ik,.u2-next>span.has-ik .ik{width:100%;height:100%}.u2-bxm>span.has-ik{display:block;width:34px;height:34px;margin:0 auto}.u2-bxm>span.has-ik .ik{width:100%;height:100%}.u2-tiles span.has-ik{width:30px;height:30px;display:block;margin:0 auto}.u2-tiles span.has-ik .ik{width:100%;height:100%}.sh-ev a.b>span.has-ik{width:30px;height:30px;display:inline-flex;flex:none}.sh-ev a.b>span.has-ik .ik{width:100%;height:100%}.u2-ic .ik{width:22px;height:22px}.ik-inl{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.14em;-webkit-text-fill-color:initial}.ik-inl .ik{width:100%;height:100%;display:block}.sh-ev>time.has-ik{display:block}.sh-ev>time.has-ik .ik{width:18px;height:18px;margin:0 0 0 auto}.fg button>span.has-ik{width:40px;height:40px;display:block;margin:0 auto .2rem}.fg .has-ik .ik,.mc-ico.has-ik .ik,.rb-ico.has-ik .ik{width:82%;height:82%}span.e.has-ik{display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:30px;flex:none}span.e.has-ik .ik{width:28px;height:28px;margin:0}.u2-set span.has-ik{width:26px;height:26px;display:inline-flex}.u2-set span.has-ik .ik{width:100%;height:100%}.has-ik .ik{width:76%;height:76%;display:block;margin:auto}.mi-ico.has-ik{width:34px;height:34px;display:inline-flex}.mi-ico.has-ik .ik{width:100%;height:100%}.bx>span.has-ik{width:34px;height:34px;display:block;margin:0 auto}.bx>span.has-ik .ik{width:100%;height:100%}:is(.head .ico,.intro-icon,.hero-icon,.hero-ico,.header-icon,.big-ico,.p-ico,.m-ico,span.ico,span.icon,.g-ico).has-ik{width:64px;height:64px;margin:0 auto .2rem;display:block}:is(.head .ico,.intro-icon,.hero-icon,.hero-ico,.header-icon,.big-ico,.p-ico,.m-ico,span.ico,span.icon,.g-ico).has-ik .ik{width:100%;height:100%}';
   (document.head || document.documentElement).appendChild(css);
   let q = 0; const soon = () => { if (q) return; q = setTimeout(() => { q = 0; try { apply(); } catch (e) {} }, 60); };
   const start = () => { try { apply(); new MutationObserver(soon).observe(document.body, { childList: true, subtree: true }); } catch (e) {} };
