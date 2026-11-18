@@ -13,7 +13,7 @@
   const setTab = t => { try { window.__u2 && __u2.setTab(t); } catch (e) {} };
   function sapa() {
     const h = new Date().getHours();
-    return h >= 4 && h < 10 ? ['Pagi', '🌷'] : h >= 10 && h < 15 ? ['Siang', '☀️'] : h >= 15 && h < 18 ? ['Sore', '🌇'] : ['Malem', '🌙'];
+    return h >= 4 && h < 10 ? ['Pagi', '🌷'] : h >= 10 && h < 15 ? ['Siang', '☀️'] : h >= 15 && h < 19 ? ['Sore', '🌇'] : ['Malem', '🌙'];
   }
   function photos() {
     let D = null, pw = null; try { D = JSON.parse(localStorage.getItem('mem-idx') || 'null'); pw = localStorage.getItem('mem-pw'); } catch (e) {}
@@ -30,7 +30,7 @@
   }
   function pembuka() {
     const w = $('s-welcome'); if (!w) return;
-    const night = document.documentElement.classList.contains('night'), [sp, se] = sapa(), who = me(), dara = who === 'Dara';
+    const [sp, se] = sapa(), night = sp === 'Malem', who = me(), dara = who === 'Dara';
     let pet = null; try { pet = window.Pet && Pet.state(); } catch (e) {}
     const PE = pet ? (Pet.animal(pet.a) || {}).e : '🐱', PN = pet ? (pet.n || 'Miko') : '';
     const P = photos(), FB = [['🎞️', 'photobooth pertama', '#fde2c8,#f6b98f'], ['🦌', 'kandang rusa', '#d7ecd9,#9fcfa8'], ['🥟', 'dimsum pertama 🤍', '#fbd3df,#e98fa8']];
@@ -43,9 +43,9 @@
     const note = night
       ? `<a class="pb-note" href="tidur-kita.html"><span class="e">😴</span><span><b>Bobo &amp; Bangun</b><small>kasih tau ${other()} kamu mau bobo</small></span></a>`
       : `<button class="pb-note" data-go><span class="e">💌</span><span><b>Pesan hari ini dari ${dara ? 'Razan' : 'kamu buat Dara'}</b><small>tap buat baca</small></span></button>`;
-    w.className = 'pb';
+    w.className = 'pb' + (night ? ' malam' : '');
     w.innerHTML = `<div class="pb-moon"></div><div class="pb-brand">RAZARA</div>
-      <div class="pb-stack ${night ? 'bed' : ''}">${pol('a', 0)}${pol('b', 1)}${pol('c', 2)}<div class="pb-bed"><b>💤</b><span>${PE}</span><i></i></div></div>
+      <div class="pb-stack ${night ? 'bed' : ''}">${pol('a', 0)}${pol('b', 1)}${pol('c', 2)}<div class="pb-bed"><b><em>z</em><em>z</em><em>Z</em></b><u></u><span>${PE}</span><i></i></div></div>
       <div class="pb-gt"><small>${HARI[new Date().getDay()]} · hari ke-${hariKe().toLocaleString('id-ID')}</small><h1>${sp}, <span>${who}</span> ${se}</h1><p>${line}</p></div>
       ${note}
       ${!night && pet ? `<div class="pb-bub">hai ${who}! 🐾</div><div class="pb-peek">${PE}</div>` : ''}
