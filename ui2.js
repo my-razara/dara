@@ -226,7 +226,7 @@
     const th = g('idx-theme', null) || (localStorage.getItem('idx-theme') || 'auto'), TH = { auto: 'Otomatis', dark: 'Gelap', light: 'Terang' };
     sett.innerHTML = `<button data-k="tema"><span>🎨</span>Tema terang / gelap<small>${TH[th] || 'Otomatis'}</small></button>
       <button data-k="atur"><span>🧩</span>Atur tampilan &amp; mode ringan<small></small></button>
-      <a href="atur-notif.html"><span>🔔</span>Notifikasi<small></small></a>
+      <a href="atur-notif.html"><span>🔔</span>Notifikasi<small></small></a>${me() === 'Razan' ? `<a href="ucapan-harian.html"><span>💌</span>Ucapan harian buat Dara<small>pagi · bobo</small></a>` : ''}
       <button data-k="suara"><span>🎵</span>Suara &amp; musik<small></small></button>
       <a href="kunci-pin.html"><span>🔒</span>Kunci PIN<small></small></a>
       <button data-k="who"><span>🙋</span>HP ini punya<small>${esc(me())}</small></button>
