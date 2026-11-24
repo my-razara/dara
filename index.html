@@ -1437,6 +1437,8 @@ const MOVED = [
   ['🎩', 'Mind Reader', 'Ramalan & Tarot → tab Trik Sulap', 'ramalan-tarot.html?m=2', 'mind reader sulap trik'],
   ['🧪', 'Ramuan Cinta', 'Ramalan & Tarot → tab Ramuan', 'ramalan-tarot.html?m=3', 'ramuan racik'],
   ['🏆', 'Piala Penghargaan', 'Pencapaian → tab Bikin Piala', 'pencapaian.html?sub=piala', 'piala penghargaan sertifikat'],
+  ['💑', 'Tebak Pasangan', 'Pertanyaan Harian → tab Tebak Pasangan', 'pertanyaan-harian.html?sub=tebak', 'tebak pasangan kenal kuis harian'],
+  ['💬', 'Deep Talk Mingguan', 'Pertanyaan Harian → tab Deep Talk', 'pertanyaan-harian.html?sub=deep', 'deep talk pertanyaan dalem mingguan'],
   ['💭', 'Hal Kecil', 'Pertanyaan Harian → tab Hal Kecil', 'pertanyaan-harian.html?sub=halkecil', 'hal kecil'],
   ['🌀', 'Kaleidoskop', 'Buku Mewarnai → tab Mandala', 'mewarnai.html?sub=mandala', 'kaleidoskop mandala'],
   ['🌧️', 'Jendela Berembun', 'Buku Mewarnai → tab Jendela', 'mewarnai.html?sub=jendela', 'jendela embun kaca hujan'],
@@ -2151,11 +2153,10 @@ setTimeout(() => {
   const today = () => dk();
   const meOf = k => get(k, 'Dara');
   const RITUALS = [
-    { link: 'kalender-mood.html', ico: '😊', n: 'Catat mood', done: () => !!(get('mood-' + meOf('mood-me'), {}) || {})[today()] },
-    { link: 'jurnal-syukur.html', ico: '🙏', n: 'Syukur', done: () => { const v = (get('syukur-' + meOf('syukur-me'), {}) || {})[today()]; return Array.isArray(v) ? v.some(Boolean) : !!v; } },
     { link: 'pertanyaan-harian.html', ico: '❓', n: 'Pertanyaan', done: () => { const q = get('qa-cache', null); const d = q && Array.isArray(q.days) && q.days.find(x => x.date === today()); return !!(d && d.mine); } },
+    { link: 'pertanyaan-harian.html?sub=tebak', base: 'pertanyaan-harian.html', ico: '💑', n: 'Tebak pasangan', done: () => !!(get('tebakps-' + meOf('berdua-me'), {}) || {})[today()] },
+    { link: 'pertanyaan-harian.html?sub=deep', base: 'pertanyaan-harian.html', ico: '💬', n: 'Deep talk', done: () => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); return !!(get('deeptalk-' + meOf('berdua-me'), {}) || {})[k]; } },
     { link: 'buku-harian.html', ico: '📔', n: 'Buku harian', done: () => { const w = meOf('berdua-me'), a = (get('diary-' + w, {}) || {})[today()], b = (get('diary-priv-' + w, {}) || {})[today()]; return !!((a && a.t) || (b && b.t)); } },
-    { link: 'voucher-harian.html', ico: '🎟️', n: 'Klaim voucher', show: () => meOf('berdua-me') === 'Dara', done: () => { const c = (get('vklaim-Dara', {}) || {})[today()]; return !!(c && c.sent); } },
     { link: 'kebiasaan-bareng.html', ico: '✅', n: 'Kebiasaan', show: () => ritHabits().length > 0, done: () => { const ids = ((get('habitc-' + meOf('berdua-me'), {}) || {})[today()] || {}).ids || []; return ritHabits().every(h => ids.includes(h.id)); } },
     { link: 'momen-harian.html', ico: '🤳', n: 'Momen harian', done: () => { const r = (get('momen-' + meOf('berdua-me'), {}) || {})[today()]; return !!(r && r.u); } },
     { link: 'ibadah-bareng.html', ico: '🕌', n: 'Ibadah', show: () => !!get('ibd-push', false) || Object.keys(get('ibadah-' + meOf('berdua-me'), {}) || {}).length > 0, done: () => { const r = (get('ibadah-' + meOf('berdua-me'), {}) || {})[today()]; return !!(r && (r.off || Object.keys(r.s || {}).length >= 5)); } },
@@ -2165,7 +2166,7 @@ setTimeout(() => {
   let editRit = false;
   function ritualState() {
     const off = get('idx-ritual-off', []);
-    const list = RITUALS.filter(r => (!r.show || r.show()) && byLink(r.link));
+    const list = RITUALS.filter(r => (!r.show || r.show()) && byLink(r.base || r.link));
     const shown = list.filter(r => !off.includes(r.link));
     const st = shown.map(r => { let d = false; try { d = r.done(); } catch (e) {} return { ...r, d }; });
     return { list, shown: st, off, n: st.filter(r => r.d).length };
@@ -2236,7 +2237,7 @@ setTimeout(() => {
   window.ritEdit = () => { editRit = !editRit; set('rit-hint-ok', 1); renderRows(); };
   window.ritHintOk = () => { set('rit-hint-ok', 1); renderRows(); };
   function bindRit(root) {
-    root.querySelectorAll('.rit-pill[data-link]').forEach(b => b.onclick = () => { const r = RITUALS.find(x => x.link === b.dataset.link); if (r && r.m != null) { location.href = r.link + '?m=' + r.m; return; } const it = byLink(b.dataset.link); if (it) openItem(it); });
+    root.querySelectorAll('.rit-pill[data-link]').forEach(b => b.onclick = () => { const r = RITUALS.find(x => x.link === b.dataset.link); if (r && r.base) { location.href = r.link; return; } if (r && r.m != null) { location.href = r.link + '?m=' + r.m; return; } const it = byLink(b.dataset.link); if (it) openItem(it); });
     root.querySelectorAll('.rit-pill[data-tog]').forEach(b => b.onclick = () => { let off = get('idx-ritual-off', []); const l = b.dataset.tog; off = off.includes(l) ? off.filter(x => x !== l) : off.concat(l); set('idx-ritual-off', off); renderRows(); });
     const full = root.querySelector('.rit-card.full');
     if (full && get('idx-ritual-cele', '') !== today()) { set('idx-ritual-cele', today()); celebrate(); }
@@ -2994,6 +2995,7 @@ setTimeout(() => {
 // Otomatis dari daftar UPDATED di atas. Mau nambah pengumuman umum (bukan game/hadiah)? tambah 1 baris di KABAR.
 (function () {
   const KABAR = [
+    { d: '2026-11-24 15:30', t: '💑 Ritual harian diganti: Catat mood, Syukur & Klaim voucher keluar dari Ritual, gantinya <b>Tebak Pasangan</b> (tiap hari: jawab + tebak jawaban pasangan) & <b>Deep Talk</b> (1 pertanyaan dalem tiap minggu). Dua-duanya kebuka setelah kalian berdua jawab — ada di Pertanyaan Harian.' },
     { d: '2026-11-24 15:00', t: '🔎 Razara AI sekarang bisa nyari di Google buat info terbaru (berita, harga, jadwal) + nyantumin sumbernya. Kalau lemot, dia otomatis nyoba lagi sendiri — ga perlu reload.' },
     { d: '2026-11-24 14:30', t: '✨ Asisten AI sekarang jadi <b>Razara AI</b> — asisten serba bisa (kerjaan, email, ringkas, terjemahin, belajar, resep, curhat). Bisa kirim foto, ngomong pakai 🎤, tombol salin, sama "Obrolan baru". Ada di Chat → tab ✨ Razara AI.' },
     { d: '2026-11-18 23:10', t: '🌙 Layar pembuka malem dirapihin: suasana ikut jam (bukan tema gelap/terang), ranjang Miko digambar ulang, bulan ga nabrak lagi. Tema gelap di siang hari sekarang tampil rapi.' },
