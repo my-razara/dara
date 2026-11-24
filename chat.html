@@ -106,6 +106,14 @@
   .note{text-align:center;font-size:11.5px;color:var(--muted);margin:.6rem auto;max-width:300px;line-height:1.55;background:rgba(255,255,255,.75);padding:.5rem .8rem;border-radius:14px}
   .note button{border:none;background:var(--rose);color:#fff;border-radius:50px;padding:.35rem .8rem;font-size:11.5px;margin-top:.4rem;cursor:pointer}
   .sug{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin:.4rem 0 .6rem}
+  .aimg{display:block;max-width:180px;max-height:180px;border-radius:12px;margin-bottom:.35rem;object-fit:cover}
+  .m.ai .tx pre{white-space:pre-wrap;word-break:break-word;font:12.5px/1.5 ui-monospace,Menlo,monospace;background:rgba(0,0,0,.05);border-radius:10px;padding:.55rem .65rem;margin:.3rem 0 0}
+  .m.ai .tx code{font:12.5px ui-monospace,Menlo,monospace;background:rgba(0,0,0,.06);border-radius:5px;padding:0 .25rem}
+  .m.ai .tx .mh{display:block;font-size:14px;margin:.35rem 0 .1rem}
+  .m.ai .cb{display:block;position:relative;margin:.35rem 0}.m.ai .cb .cpy{position:absolute;top:.3rem;right:.3rem}
+  .cpy{border:none;background:rgba(0,0,0,.06);color:inherit;border-radius:50px;font:600 10.5px Poppins,sans-serif;padding:.15rem .5rem;cursor:pointer;opacity:.8}
+  #ai-imgbar{display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;margin:0 .5rem .35rem;background:rgba(255,255,255,.92);border-radius:14px;font-size:11.5px;color:var(--muted);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+  #ai-imgbar img{width:38px;height:38px;object-fit:cover;border-radius:8px}#ai-imgbar span{flex:1;min-width:0}#ai-imgbar button{border:none;background:none;font-size:16px;color:var(--muted);cursor:pointer}
   .sug button{border:1.5px solid var(--blush);background:#fff;border-radius:50px;padding:.42rem .75rem;font-size:12px;color:var(--deep);cursor:pointer}
   .hi{text-align:center;margin:1.4rem auto .6rem;max-width:300px}.hi .e{font-size:2.6rem}.hi b{display:block;font-size:15px;margin:.3rem 0 .2rem;color:var(--ink)}.hi p{font-size:12px;color:var(--muted);line-height:1.55}
   .rep-bar{display:flex;align-items:center;gap:.5rem;padding:.45rem .7rem;background:#fff;border-top:1px solid rgba(193,122,111,.12)}
@@ -213,7 +221,7 @@
     <div class="nm"><b id="h-n">Dara</b><small id="h-s">…</small></div>
     <button class="hb" id="h-more" aria-label="Lainnya">⋯</button>
   </header>
-  <div class="tabs"><button data-t="p" class="on" id="tb-p">💬 <span id="tp-n">Dara</span><i id="tp-b"></i></button><button data-t="ai" id="tb-ai">🤖 Asisten AI</button></div>
+  <div class="tabs"><button data-t="p" class="on" id="tb-p">💬 <span id="tp-n">Dara</span><i id="tp-b"></i></button><button data-t="ai" id="tb-ai">✨ Razara AI</button></div>
   <div class="srch" id="srch" hidden><input id="s-in" type="search" placeholder="Cari pesan…" enterkeyhint="search"><small id="s-n"></small><button id="s-x" aria-label="Tutup cari">✕</button></div>
   <div class="pinb" id="pinb" hidden><span class="pi">📌</span><span class="pt"><b id="pin-h">Pesan disematkan</b><span id="pin-t"></span></span><span class="pn" id="pin-n"></span></div>
   <div class="off" id="off" hidden>⚠️ Lagi ga nyambung — pesan dikirim begitu internet balik</div>
@@ -297,6 +305,7 @@ const IDB = (() => {
 let read = { Razan: 0, Dara: 0 }, typ = { Razan: false, Dara: false }, sig = '', online = true, hasOlder = true, rep = null, busyOld = false;
 const mem = {};   // pratinjau foto yg lagi diupload (ga disimpen)
 const AI = lsGet('ai-h-' + ME, []);
+let aiImg = null;   // 📷 foto yang mau dikirim ke Razara AI (base64 JPEG) + thumbnail buat ditampilin
 const $L = () => $(tab === 'ai' ? 'L-ai' : 'L-p');
 $('h-n').textContent = OT; $('h-e').textContent = OT === 'Dara' ? '👧' : '🧑'; $('tp-n').textContent = OT;
 
@@ -403,15 +412,16 @@ $('inp').addEventListener('input', () => {
 });
 $('inp').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); $('cmp').requestSubmit(); } });
 $('cmp').addEventListener('submit', e => {
-  e.preventDefault(); const i = $('inp'), v = i.value; if (!v.trim()) return;
+  e.preventDefault(); const i = $('inp'), v = i.value; if (!v.trim() && !(tab === 'ai' && aiImg)) return;
   i.value = ''; i.style.height = 'auto'; $('stab').hidden = true; stPaint(); sendIcon();
   if (tab === 'ai') aiSend(v); else send(v);
   i.focus();
 });
 // ── foto ──
-$('b-img').onclick = () => { if (tab === 'ai') return toast('Foto cuma bisa di chat berdua 📷'); $('file').click(); };
+$('b-img').onclick = () => $('file').click();
 $('file').onchange = async () => {
   const f = $('file').files[0]; $('file').value = ''; if (!f) return;
+  if (tab === 'ai') { try { const big = await aiShrink(f, 1024, .72), th = await aiShrink(f, 260, .6); aiImg = { big: big.split(',')[1], th }; aiImgBar(); $('inp').focus(); } catch (e) { toast('Fotonya ga kebaca 😢'); } return; }
   try {
     const data = await shrink(f), q = { id: uid(), t: $('inp').value.trim(), at: Date.now(), w: ME, k: 'msg', q: 1, pimg: 1 };
     $('inp').value = ''; if (rep) { q.rep = rep; setRep(null); }
@@ -495,8 +505,17 @@ async function recDone() {
 $('vr-x').onclick = () => recStop(true);
 $('vr-ok').onclick = () => recStop(false);
 // tombol kirim jadi 🎤 kalau kolom pesan kosong (kayak WA)
-function sendIcon() { const b = $('b-send'), empty = !$('inp').value.trim() && tab !== 'ai'; b.textContent = empty ? '🎤' : '➤'; b.setAttribute('aria-label', empty ? 'Rekam pesan suara' : 'Kirim'); }
-$('b-send').addEventListener('click', e => { if (tab !== 'ai' && !$('inp').value.trim()) { e.preventDefault(); recStart(); } });
+function sendIcon() { const b = $('b-send'), empty = !$('inp').value.trim() && (tab !== 'ai' || (!aiImg && !!SRx)); b.textContent = empty ? '🎤' : '➤'; b.setAttribute('aria-label', empty ? 'Rekam pesan suara' : 'Kirim'); }
+const SRx = window.SpeechRecognition || window.webkitSpeechRecognition;
+function dikte() {
+  if (!SRx) return; const r = new SRx(); r.lang = 'id-ID'; r.interimResults = true; r.continuous = false;
+  const i = $('inp'), base = i.value; $('b-send').textContent = '⏺'; toast('🎤 Ngomong aja… (berhenti sendiri kalau udah diem)', 3000);
+  r.onresult = e => { i.value = (base ? base + ' ' : '') + [...e.results].map(x => x[0].transcript).join(''); try { i.dispatchEvent(new Event('input')); } catch (er) {} };
+  r.onerror = e => { if (e.error === 'not-allowed') toast('🎤 Izin mikrofon ditolak'); };
+  r.onend = () => { sendIcon(); i.focus(); };
+  try { r.start(); } catch (e) {}
+}
+$('b-send').addEventListener('click', e => { if (!$('inp').value.trim() && !(tab === 'ai' && aiImg)) { e.preventDefault(); e.stopImmediatePropagation(); if (tab === 'ai') dikte(); else recStart(); } }, true);
 $('inp').addEventListener('input', sendIcon);
 setTimeout(sendIcon, 0);
 // ── 🃏 kartu di chat: pesan biasa "judul\n👉 halaman.html" ditampilin jadi kartu yang bisa di-tap ──
@@ -696,7 +715,7 @@ function renderP(scroll, force) {
   badge();
 }
 function header() {
-  if (tab === 'ai') { $('h-n').textContent = 'Asisten Razara'; $('h-e').textContent = '🤖'; $('h-s').textContent = 'AI · bisa salah · bukan ' + OT; $('h-s').className = ''; $('h-av').classList.remove('on'); return; }
+  if (tab === 'ai') { $('h-n').textContent = 'Razara AI'; $('h-e').textContent = '✨'; $('h-s').textContent = 'asisten serba bisa · bisa salah'; $('h-s').className = ''; $('h-av').classList.remove('on'); return; }
   $('h-n').textContent = OT; $('h-e').textContent = OT === 'Dara' ? '👧' : '🧑';
   const s = $('h-s'); if (typ[OT]) { s.textContent = 'lagi ngetik…'; s.className = 'typ'; $('h-av').classList.add('on'); return; }
   s.className = ''; const seen = (() => { const m = lsGet('seen-' + OT, {}) || {}; const k = Object.keys(m).sort().pop(); return k && m[k] ? m[k].at || 0 : 0; })();
@@ -759,27 +778,37 @@ function openMenu(m) {
 $('menu').onclick = e => { if (e.target.id === 'menu') $('menu').classList.remove('show'); };
 
 // ── 🤖 ASISTEN AI ──
-const SUG = [`Ide kencan murah buat minggu ini 💡`, `Bikinin ucapan manis buat ${OT} 💌`, `Game apa yang seru dimainin malem ini? 🎮`, `Ide hadiah kecil buat ${OT} 🎁`, `Bikinin pantun gombal 😆`, `Aku lagi capek, temenin ngobrol bentar 🥺`];
+const SUG = [['✉️ Bikin email kerja', 'Bikinin email kerja yang sopan buat '], ['📝 Ringkas teks', 'Tolong ringkas teks ini jadi poin-poin:\n'], ['🌐 Terjemahin', 'Terjemahin ke bahasa Inggris:\n'], ['✍️ Rapihin tulisan', 'Rapihin tulisan ini biar lebih jelas & enak dibaca:\n'], ['💡 Kasih ide', 'Kasih ide '], ['📷 Tanya soal foto', '#foto'], [`💌 Ucapan buat ${OT}`, `Bikinin ucapan manis buat ${OT}`], ['🥺 Temenin ngobrol', 'Aku lagi capek, temenin ngobrol bentar ya']];
 let aiBusy = false, aiT0 = 0, aiTok = 0, aiTick = null;
-function md(s) { let h = esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|\n)[*-] (.+)/g, '$1• $2'); return h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+function md(s) {
+  const B = []; let h = esc(s).replace(/```[a-z]*\n?([\s\S]*?)```/g, (_, c) => { B.push(c.replace(/\n$/, '')); return '\u0000' + (B.length - 1) + '\u0000'; });
+  h = h.replace(/`([^`\n]+)`/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|\n)#{1,4} (.+)\n?/g, '$1<b class="mh">$2</b>').replace(/(^|\n)[*-] (.+)/g, '$1• $2');
+  h = h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return h.replace(/\u0000(\d+)\u0000/g, (_, i) => `<span class="cb"><button type="button" class="cpy" data-cb="${i}">⧉ Salin</button><pre>${B[+i]}</pre></span>`);
+}
 function renderAI(scroll) {
-  const el = $('L-ai'); let h = `<div class="hi"><div class="e">🤖</div><b>Asisten Razara</b><p>AI temen ngobrol kalian. Bisa bantu ide kencan, ucapan, hadiah, atau sekadar nemenin ngobrol. Dia <b>bukan ${OT}</b> & ga bisa nyampein pesan ke ${OT}.</p></div>`;
-  if (!AI.length) h += `<div class="sug">${SUG.map(s => `<button data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>`;
+  const el = $('L-ai'); let h = `<div class="hi"><div class="e">✨</div><b>Razara AI</b><p>Asisten serba bisa: kerjaan, email, ringkas &amp; terjemahin, belajar, resep, ide, sampai curhat. Bisa kirim <strong>foto</strong> atau <strong>ngomong</strong> 🎤. Dia AI, <strong>bukan ${OT}</strong>.</p></div>`;
+  if (!AI.length || AI[AI.length - 1].cut) h += `<div class="sug">${SUG.map(s => `<button data-pre="${esc(s[1])}">${esc(s[0])}</button>`).join('')}</div>`;
   let lastD = '';
   AI.forEach((m, i) => { const d = dayLbl(m.at); if (d !== lastD) { h += `<div class="day"><span>${d}</span></div>`; lastD = d; }
+    if (m.cut) { h += `<div class="day"><span>🆕 Obrolan baru</span></div>`; return; }
     if (m.r === 'sys') { h += `<div class="note">${m.t}${m.retry ? `<br><button data-retry="${i}">Coba lagi</button>` : ''}</div>`; return; }
-    h += m.r === 'user' ? `<div class="m me"><div class="b"><span class="tx">${linkify(m.t)}</span><span class="meta">${hm(m.at)}</span></div></div>` : `<div class="m ai"><div class="b"><div class="lab">🤖 Asisten AI</div><span class="tx">${md(m.t)}</span><span class="meta">${hm(m.at)}</span></div></div>`; });
-  if (aiBusy) { const sec = Math.round((Date.now() - aiT0) / 1000); h += `<div class="m ai"><div class="b"><div class="lab">🤖 Asisten AI</div><span class="dots"><i></i><i></i><i></i></span> <small style="font-size:11px;color:var(--muted)">${sec < 8 ? 'lagi mikir…' : sec < 20 ? 'masih mikir, bentar ya…' : 'AI-nya lagi rame nih 😵'}</small>${sec >= 22 ? `<div style="margin-top:.4rem"><button type="button" data-cancel="1" style="border:none;border-radius:50px;background:var(--rose);color:#fff;font:600 11.5px Poppins,sans-serif;padding:.35rem .75rem;cursor:pointer">🔁 Batalin & coba lagi</button></div>` : ''}</div></div>`; }
+    h += m.r === 'user' ? `<div class="m me"><div class="b">${m.img ? `<img class="aimg" src="${m.img}" alt="">` : ''}<span class="tx">${linkify(m.t)}</span><span class="meta">${hm(m.at)}</span></div></div>` : `<div class="m ai"><div class="b"><div class="lab">✨ Razara AI</div><span class="tx">${md(m.t)}</span><span class="meta"><button type="button" class="cpy" data-cp="${i}">⧉ Salin</button> ${hm(m.at)}</span></div></div>`; });
+  if (aiBusy) { const sec = Math.round((Date.now() - aiT0) / 1000); h += `<div class="m ai"><div class="b"><div class="lab">✨ Razara AI</div><span class="dots"><i></i><i></i><i></i></span> <small style="font-size:11px;color:var(--muted)">${sec < 8 ? 'lagi mikir…' : sec < 20 ? 'masih mikir, bentar ya…' : 'AI-nya lagi rame nih 😵'}</small>${sec >= 22 ? `<div style="margin-top:.4rem"><button type="button" data-cancel="1" style="border:none;border-radius:50px;background:var(--rose);color:#fff;font:600 11.5px Poppins,sans-serif;padding:.35rem .75rem;cursor:pointer">🔁 Batalin & coba lagi</button></div>` : ''}</div></div>`; }
   if (AI.length) h += `<p class="note" style="font-size:10.5px">AI bisa salah. Obrolan ini dikirim ke Google Gemini — jangan ketik password, PIN, atau rahasia ya.</p>`;
   el.innerHTML = h; if (scroll !== false) el.scrollTop = el.scrollHeight;
 }
-$('L-ai').addEventListener('click', e => { if (e.target.closest('[data-cancel]')) { aiTok++; aiBusy = false; clearInterval(aiTick); return aiAsk(); } const q = e.target.closest('[data-q]'); if (q) return aiSend(q.dataset.q); const r = e.target.closest('[data-retry]'); if (r) { AI.splice(+r.dataset.retry, 1); lsSet('ai-h-' + ME, AI); aiAsk(); } });
-function aiSend(t) { t = String(t || '').trim(); if (!t || aiBusy) return; AI.push({ r: 'user', t, at: Date.now() }); lsSet('ai-h-' + ME, AI.slice(-80)); aiAsk(); }
+$('L-ai').addEventListener('click', e => { if (e.target.closest('[data-cancel]')) { aiTok++; aiBusy = false; clearInterval(aiTick); return aiAsk(); } const pre = e.target.closest('[data-pre]'); if (pre) { if (pre.dataset.pre === '#foto') return $('file').click(); const i = $('inp'); i.value = pre.dataset.pre; i.focus(); try { i.setSelectionRange(i.value.length, i.value.length); i.dispatchEvent(new Event('input')); } catch (er) {} return; }
+  const cp = e.target.closest('[data-cp],[data-cb]'); if (cp) { const t = cp.dataset.cp != null ? AI[+cp.dataset.cp].t : cp.parentElement.querySelector('pre').textContent; try { navigator.clipboard.writeText(t).then(() => toast('⧉ Disalin')); } catch (er) {} return; } const r = e.target.closest('[data-retry]'); if (r) { AI.splice(+r.dataset.retry, 1); lsSet('ai-h-' + ME, AI); aiAsk(); } });
+function aiImgBar() { const b = $('ai-imgbar'); if (b) b.remove(); if (!aiImg || tab !== 'ai') return; const d = document.createElement('div'); d.id = 'ai-imgbar'; d.innerHTML = `<img src="${aiImg.th}" alt=""><span>Foto siap dikirim — tulis pertanyaannya</span><button type="button" aria-label="Batal">✕</button>`; d.querySelector('button').onclick = () => { aiImg = null; aiImgBar(); }; $('inp').closest('.bar, form, div').before(d); }
+function aiShrink(file, M, q) { return new Promise((res, rej) => { const im = new Image(), u = URL.createObjectURL(file); im.onload = () => { const s = Math.min(1, M / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg', q)); }; im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('gambar')); }; im.src = u; }); }
+function aiSend(t) { t = String(t || '').trim(); if (aiImg && !t) t = 'Ini foto apa? Jelasin ya'; if (!t || aiBusy) return; AI.push(Object.assign({ r: 'user', t, at: Date.now() }, aiImg ? { img: aiImg.th } : {})); lsSet('ai-h-' + ME, AI.slice(-80)); aiAsk(); }
 async function aiAsk() {
   aiBusy = true; aiT0 = Date.now(); const tok = ++aiTok; renderAI();
   clearInterval(aiTick); aiTick = setInterval(() => { if (!aiBusy) return clearInterval(aiTick); const sec = (Date.now() - aiT0) / 1000; if (sec > 7.5 && sec < 9 || sec > 19.5 && sec < 21 || sec > 22 && sec < 23.5) renderAI(); }, 1500);
-  const msgs = AI.filter(m => m.r !== 'sys').slice(-16).map(m => ({ r: m.r === 'model' ? 'model' : 'user', t: m.t }));
-  let r = null; try { r = await POST({ action: 'ai', msgs }, 60000); } catch (e) { r = { ok: false, error: 'jaringan' }; }
+  const cut = AI.map(m => !!m.cut).lastIndexOf(true), msgs = AI.slice(cut + 1).filter(m => m.r !== 'sys').slice(-8).map(m => ({ r: m.r === 'model' ? 'model' : 'user', t: m.t }));   // 💸 irit: 8 pesan terakhir aja
+  const img = aiImg && aiImg.big; aiImg = null; aiImgBar();
+  let r = null; try { r = await POST(Object.assign({ action: 'ai', msgs }, img ? { img } : {}), 70000); } catch (e) { r = { ok: false, error: 'jaringan' }; }
   if (tok !== aiTok) return;          // udah dibatalin & dicoba lagi
   aiBusy = false; clearInterval(aiTick);
   if (r && r.ok && r.t) { AI.push({ r: 'model', t: r.t, at: Date.now() }); try { window.SFX && SFX.play('pop'); } catch (e) {} }
@@ -794,18 +823,19 @@ async function aiAsk() {
 function setTab(t) {
   tab = t; lsSet('chat-tab', t);
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  $('L-p').hidden = t !== 'p'; $('L-ai').hidden = t !== 'ai'; $('b-img').style.display = t === 'ai' ? 'none' : ''; setRep(null); try { sendIcon(); schBar(); pinBar(); stPaint(); if (t === 'ai') findClose(); } catch (e) {}
-  $('inp').placeholder = t === 'ai' ? 'Tanya apa aja ke AI…' : 'Tulis pesan…';
+  $('L-p').hidden = t !== 'p'; $('L-ai').hidden = t !== 'ai'; aiImgBar(); setRep(null); try { sendIcon(); schBar(); pinBar(); stPaint(); if (t === 'ai') findClose(); } catch (e) {}
+  $('inp').placeholder = t === 'ai' ? 'Tanya Razara AI…' : 'Tulis pesan…';
   header(); badge();
   if (t === 'ai') renderAI(); else { renderP('bottom', true); markRead(); }
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setTab(b.dataset.t));
 $('h-more').onclick = () => {
-  $('menu-c').innerHTML = tab === 'ai' ? `<button class="it red" data-a="clr">🧹 Hapus obrolan sama AI</button><button class="it" data-a="x">Batal</button>`
+  $('menu-c').innerHTML = tab === 'ai' ? `<button class="it" data-a="new">🆕 Obrolan baru</button><button class="it red" data-a="clr">🧹 Hapus obrolan sama AI</button><button class="it" data-a="x">Batal</button>`
     : `<button class="it" data-a="top">⬆ Ke pesan paling atas</button><button class="it" data-a="find">🔍 Cari pesan</button><button class="it" data-a="sch">⏰ Pesan terjadwal</button><button class="it" data-a="wp">🖼 Ganti wallpaper</button><button class="it" data-a="notif">🔔 Nyalain notif chat</button><button class="it" data-a="x">Batal</button>`;
   $('menu').classList.add('show');
   $('menu-c').onclick = e => { const a = e.target.closest('[data-a]'); if (!a) return; $('menu').classList.remove('show');
-    if (a.dataset.a === 'clr') { if (confirm('Hapus semua obrolan sama AI di HP ini?')) { AI.length = 0; lsSet('ai-h-' + ME, []); renderAI(); } }
+    if (a.dataset.a === 'new') { if (AI.length && !AI[AI.length - 1].cut) { AI.push({ r: 'sys', cut: 1, t: '', at: Date.now() }); lsSet('ai-h-' + ME, AI.slice(-80)); } renderAI(); }
+    else if (a.dataset.a === 'clr') { if (confirm('Hapus semua obrolan sama AI di HP ini?')) { AI.length = 0; lsSet('ai-h-' + ME, []); renderAI(); } }
     else if (a.dataset.a === 'top') $('L-p').scrollTop = 0;
     else if (a.dataset.a === 'sch') schOpen('');
     else if (a.dataset.a === 'find') findOpen();

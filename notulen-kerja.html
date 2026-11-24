@@ -248,7 +248,8 @@ async function proses(id) {
       const prev = (n.lines || []).slice(-6).map(l => `${l.s}: ${l.x}`).join(' | ');
       const r = await srv({ op: 'tr', audio: await b64(blob), mime: 'audio/mp3', hint: prev });
       if (!r.ok) throw new Error(r.error || 'gagal');
-      upd(id, x => { x.lines = (x.lines || []).concat(r.l.map(l => ({ t: s.off + l.t, s: l.s, x: l.x }))); x.seg[i].done = 1; });
+      const real = p => { let c = null; (s.cuts || []).forEach(q => { if (q.e <= p) c = q; }); return s.off + (c ? c.r + (p - c.e) : p); };
+      upd(id, x => { x.lines = (x.lines || []).concat(r.l.map(l => ({ t: Math.round(real(l.t)), s: l.s, x: l.x, k: i, p: l.t }))); x.seg[i].done = 1; });
     }
     n = get1(id);
     if (!(n.lines || []).length) { upd(id, x => { x.st = 'ok'; x.judul = x.judul || 'Rekaman tanpa omongan'; x.ringkasan = 'Ga ada omongan yang kedengeran di rekaman ini.'; x.tugas = []; }); paint(); return; }
@@ -278,13 +279,18 @@ async function mulai() {
   let ctx; try { ctx = new AC({ sampleRate: 16000 }); } catch (e) { ctx = new AC(); }
   const rate = ctx.sampleRate, src = ctx.createMediaStreamSource(stream), pr = ctx.createScriptProcessor(4096, 1, 1), mute = ctx.createGain(); mute.gain.value = 0;
   const id = 'n' + Date.now().toString(36);
-  REC = { id, stream, ctx, src, pr, mute, rate, enc: new lamejs.Mp3Encoder(1, rate, 32), buf: [], pend: [], lastSave: 0, segStart: 0, samp: 0, t0: Date.now(), seg: [], lvl: 0, gap: 0, lastT: performance.now() };
+  REC = { id, stream, ctx, src, pr, mute, rate, enc: new lamejs.Mp3Encoder(1, rate, 32), buf: [], pend: [], enc0: 0, quiet: 0, skip: false, cuts: [], lastSave: 0, segStart: 0, samp: 0, t0: Date.now(), seg: [], lvl: 0, gap: 0, lastT: performance.now() };
   const L = all(); L.push({ id, at: Date.now(), st: 'rec', seg: [], lines: [], dur: 0 }); save(L);
   pr.onaudioprocess = ev => {
     const R = REC; if (!R) return;
     const f = ev.inputBuffer.getChannelData(0), n = f.length, i16 = new Int16Array(n); let pk = 0;
     for (let i = 0; i < n; i++) { const v = Math.max(-1, Math.min(1, f[i])); i16[i] = v < 0 ? v * 0x8000 : v * 0x7fff; const a = v < 0 ? -v : v; if (a > pk) pk = a; }
     R.lvl = pk; R.samp += n;
+    // 🤫 hening > 2 detik ga ikut dikirim ke AI (lebih irit) — waktunya tetep dicatet biar jam di transkrip bener
+    R.quiet = pk < 0.015 ? R.quiet + n / R.rate : 0;
+    if (R.quiet > 2) { R.skip = true; return; }
+    if (R.skip) { R.skip = false; R.cuts.push({ e: R.enc0 / R.rate, r: (R.samp - n) / R.rate - R.segStart }); }
+    R.enc0 += n;
     for (let i = 0; i < n; i += 1152) { const o = R.enc.encodeBuffer(i16.subarray(i, i + 1152)); if (o.length) R.buf.push(new Int8Array(o)); }
     const now = performance.now(); if (now - R.lastT > 3000 + n / R.rate * 1000) R.gap++; R.lastT = now;
     if (R.samp / R.rate - R.segStart >= SEG) potong(false);
@@ -297,15 +303,15 @@ async function mulai() {
 }
 function simpenSementara() {   // tiap 45 detik potongan yang lagi jalan disimpen dulu → kalau app ketutup, paling ilang <1 menit
   const R = REC; R.lastSave = R.samp / R.rate;
-  const k = R.id + '-' + R.seg.length, off = R.segStart, blob = new Blob(R.buf, { type: 'audio/mpeg' }), dur = R.samp / R.rate;
-  R.pend.push(aPut(k, blob).then(() => upd(R.id, x => { x.cur = { k, off, len: dur - off }; x.dur = dur; })).catch(() => {}));
+  const k = R.id + '-' + R.seg.length, off = R.segStart, blob = new Blob(R.buf, { type: 'audio/mpeg' }), dur = R.samp / R.rate, cuts = R.cuts.slice();
+  R.pend.push(aPut(k, blob).then(() => upd(R.id, x => { x.cur = { k, off, len: dur - off, cuts }; x.dur = dur; })).catch(() => {}));
 }
 function potong(akhir) {   // tutup 1 potongan (10 menit) → simpen di HP → antre diproses
   const R = REC; const o = R.enc.flush(); if (o.length) R.buf.push(new Int8Array(o));
   const off = R.segStart, len = R.samp / R.rate - off, blob = new Blob(R.buf, { type: 'audio/mpeg' }), k = R.id + '-' + R.seg.length;
-  R.buf = []; R.segStart = R.samp / R.rate; R.enc = new lamejs.Mp3Encoder(1, R.rate, 32);
+  const cuts = R.cuts; R.buf = []; R.cuts = []; R.enc0 = 0; R.segStart = R.samp / R.rate; R.enc = new lamejs.Mp3Encoder(1, R.rate, 32);
   if (len < 1.5 && R.seg.length) return;
-  R.seg.push({ k, off, len });
+  R.seg.push({ k, off, len, cuts });
   R.lastSave = R.samp / R.rate;
   const segs = R.seg.slice(), dur = R.samp / R.rate;
   R.pend.push(aPut(k, blob).then(() => upd(R.id, x => { x.seg = segs; x.cur = null; x.dur = dur; })).catch(() => toast('⚠️ Gagal nyimpen rekaman di HP')));
@@ -410,12 +416,13 @@ function bindTanya() {
   b.onclick = async () => {
     const q = $('q').value.trim(); if (!q || ANS === 1) return;
     ANS = 1; paint(); $('q').value = q;
-    let ctx = '', L = all().filter(n => n.st === 'ok');
-    for (const n of L) {   // yang terbaru duluan; transkrip lengkap selama muat
-      const head = `### ${fmtTgl(n.at)} — ${n.judul}\nRingkasan: ${n.ringkasan}\nTugas: ${(n.tugas || []).map(t => `${t.x} (dari ${t.dari}${t.due ? ', deadline ' + t.due : ''}${t.done ? ', udah beres' : ''})`).join('; ') || '-'}\n`;
-      const tx = (n.lines || []).map(l => `${l.s}: ${l.x}`).join('\n');
-      if (ctx.length + head.length + tx.length < 230000) ctx += head + 'Transkrip:\n' + tx + '\n\n'; else if (ctx.length + head.length < 245000) ctx += head + '\n';
-    }
+    // 💸 irit: semua ringkasan + tugas, tapi transkrip lengkap cuma dari 2 rapat yang paling nyambung sama pertanyaannya
+    const L = all().filter(n => n.st === 'ok'), kw = q.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 3);
+    const head = n => `### ${fmtTgl(n.at)} — ${n.judul}\nRingkasan: ${n.ringkasan}\nTugas: ${(n.tugas || []).map(t => `${t.x} (dari ${t.dari}${t.due ? ', deadline ' + t.due : ''}${t.done ? ', udah beres' : ''})`).join('; ') || '-'}\n`;
+    const txOf = n => (n.lines || []).map(l => `${l.s}: ${l.x}`).join('\n');
+    const top = L.map((n, i) => { const t = (n.judul + ' ' + n.ringkasan + ' ' + txOf(n)).toLowerCase(); return { n, sc: kw.reduce((a, w) => a + (t.split(w).length - 1), 0) - i * .01 }; }).sort((a, b) => b.sc - a.sc).slice(0, 2).map(x => x.n);
+    let ctx = L.map(head).join('').slice(0, 20000) + '\n';
+    top.forEach(n => { ctx += `\nTRANSKRIP ${fmtTgl(n.at)} — ${n.judul}:\n` + txOf(n).slice(0, 18000) + '\n'; });
     try { const r = await srv({ op: 'ask', q, ctx }, 90000); ANS = r.ok ? r.t : '😵 ' + errTxt(r.error); } catch (e) { ANS = '😵 ' + errTxt(e.message); }
     paint(); const qq = $('q'); if (qq) qq.value = q;
   };
@@ -466,9 +473,9 @@ function gantiLabel(id, s) {
 }
 async function putar(n, i) {
   if (n.gone || !AU) return;
-  const l = n.lines[i], k = (n.seg || []).reduce((a, s, j) => l.t >= s.off ? j : a, 0), s = n.seg[k]; if (!s) return;
+  const l = n.lines[i], k = l.k != null ? l.k : (n.seg || []).reduce((a, s, j) => l.t >= s.off ? j : a, 0), s = n.seg[k]; if (!s) return;
   if (AUseg !== k) { const b = await aGet(s.k); if (!b) { toast('Rekamannya udah ga ada'); return; } try { URL.revokeObjectURL(AU.src); } catch (e) {} AU.src = URL.createObjectURL(b); AUseg = k; await new Promise(r => { AU.onloadedmetadata = r; AU.load(); setTimeout(r, 1500); }); }
-  try { AU.currentTime = Math.max(0, l.t - s.off - 0.5); await AU.play(); } catch (e) {}
+  try { AU.currentTime = Math.max(0, (l.p != null ? l.p : l.t - s.off) - 0.5); await AU.play(); } catch (e) {}
   document.querySelectorAll('.ln.play').forEach(x => x.classList.remove('play')); const r = document.querySelector(`[data-ln="${i}"]`); r && r.classList.add('play');
 }
 
