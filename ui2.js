@@ -52,7 +52,7 @@
     [e => e.id === 'pet-slot', 'beranda', 50], [e => has(e, 'hx-search'), 'jelajah', 110],
     [e => has(e, 'today'), 'beranda', 10], [e => has(e, 'sp-banner'), 'beranda', 5], [e => has(e, 'ms-card'), 'beranda', 6],
     [e => has(e, 'ng-wrap'), 'beranda', 16], [e => has(e, 'ch-card'), 'beranda', 18], [e => has(e, 'on-card'), 'beranda', 19],
-    [e => has(e, 'pt-card'), 'beranda', 12], [e => has(e, 'ib-card'), 'beranda', 21], [e => has(e, 'kh-card'), 'beranda', 23], [e => has(e, 'lg-card'), 'beranda', 24],
+    [e => has(e, 'pt-card'), 'beranda', 12], [e => has(e, 'sc-sec'), 'beranda', 13], [e => has(e, 'ib-card'), 'beranda', 21], [e => has(e, 'kh-card'), 'beranda', 23], [e => has(e, 'lg-card'), 'beranda', 24],
     [e => has(e, 'ck-card'), 'beranda', 25], [e => has(e, 'sa-card'), 'beranda', 22], [e => has(e, 'rk-card'), 'beranda', 27], [e => has(e, 'sr-card'), 'beranda', 26],
     [e => has(e, 'st-card'), 'kita', 210], [e => has(e, 'rit'), 'kita', 212],
     [e => has(e, 'bx-sec'), 'kita', 220], [e => has(e, 'ig-sec'), 'x', 0], [e => has(e, 'sk-sec'), 'kita', 240], [e => has(e, 'tj-sec'), 'kita', 250],
